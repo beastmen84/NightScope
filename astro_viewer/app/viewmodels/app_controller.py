@@ -21,7 +21,11 @@ from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
-from astro_viewer.app.services.location_service import LocationService
+from astro_viewer.app.services.location_service import (
+    LocationService,
+    LocationUnavailableError,
+    WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
+)
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
@@ -297,8 +301,8 @@ class AppController(QObject):
     def useWindowsLocation(self) -> None:
         try:
             self._location = self._location_service.from_windows_location()
-        except RuntimeError as exc:
-            self._location_message = f"Posizione Windows non disponibile: {exc}"
+        except LocationUnavailableError:
+            self._location_message = WINDOWS_LOCATION_UNAVAILABLE_MESSAGE
             self.locationChanged.emit()
             return
         self._location_message = "Posizione Windows acquisita."

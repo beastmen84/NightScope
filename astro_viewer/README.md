@@ -58,3 +58,15 @@ Applicazione desktop Windows per astronomia osservativa, costruita con Python, P
 Il catalogo Messier seed e derivato dalla tabella pubblica della pagina Wikipedia "Messier object" e viene salvato localmente per uso offline. I parametri Open-Meteo e le routine Skyfield seguono la documentazione ufficiale corrente.
 
 Per l'inquinamento luminoso sono state valutate fonti pubbliche come VIIRS/DNB e il World Atlas of Artificial Night Sky Brightness. In questa fase l'app usa una stima locale conservativa per garantire uso offline; il servizio e gia separato per sostituire la stima con lookup raster/API senza toccare UI o ViewModel.
+
+## Troubleshooting
+
+### Windows location non disponibile
+
+Se Windows Location e disattivata, non autorizzata, non supportata dal dispositivo, va in timeout o restituisce coordinate vuote, NightScope mantiene la posizione corrente e mostra:
+
+```text
+Windows location is not available. Please choose a city or enter coordinates manually.
+```
+
+Usare la ricerca citta offline o inserire latitudine/longitudine manualmente nella pagina Location.
