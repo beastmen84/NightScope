@@ -8,6 +8,18 @@ Item {
 
     property var controller
 
+    function diagnosticValue(value, fallbackText) {
+        if (value === undefined || value === null || value === "")
+            return fallbackText
+        return value
+    }
+
+    function diagnosticJson(value) {
+        if (value === undefined || value === null)
+            return ""
+        return JSON.stringify(value, null, 2)
+    }
+
     AppTheme {
         id: theme
     }
@@ -84,6 +96,134 @@ Item {
                         Layout.fillWidth: true
                         text: "Usa posizione Windows precisa"
                         onClicked: controller.useWindowsLocation()
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Run Windows Location Diagnostics"
+                        onClicked: controller.runWindowsLocationDiagnostics()
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        visible: controller.windowsLocationDiagnostics.providerStatus !== "not run"
+                        radius: 8
+                        color: "#1c222b"
+                        border.color: theme.cyan
+                        border.width: 1
+                        implicitHeight: diagnosticsLayout.implicitHeight + 20
+
+                        ColumnLayout {
+                            id: diagnosticsLayout
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 8
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Windows Location Diagnostics"
+                                color: theme.textPrimary
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Access Status: " + root.diagnosticValue(controller.windowsLocationDiagnostics.accessStatus, "n/d")
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "RequestAccessAsync result: " + root.diagnosticValue(controller.windowsLocationDiagnostics.requestAccessResult, "n/d")
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Coordinates received: " + (controller.windowsLocationDiagnostics.coordinatesReceived ? "yes" : "no")
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Provider status: " + root.diagnosticValue(controller.windowsLocationDiagnostics.providerStatus, "n/d")
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Coordinates: " + root.diagnosticJson(controller.windowsLocationDiagnostics.coordinates)
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 4
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Error details: " + root.diagnosticJson(controller.windowsLocationDiagnostics.errorDetails)
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 8
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Thread/apartment: " + root.diagnosticJson(controller.windowsLocationDiagnostics.thread)
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 5
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "WinRT: " + root.diagnosticJson(controller.windowsLocationDiagnostics.winrt)
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 8
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Steps: " + root.diagnosticJson(controller.windowsLocationDiagnostics.steps)
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 10
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Raw provider response: " + root.diagnosticValue(controller.windowsLocationDiagnostics.rawProviderResponse, "n/d")
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WrapAnywhere
+                                maximumLineCount: 10
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                visible: controller.windowsLocationDiagnostics.rawProviderError !== undefined && controller.windowsLocationDiagnostics.rawProviderError.length > 0
+                                text: "Raw provider error: " + controller.windowsLocationDiagnostics.rawProviderError
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                wrapMode: Text.WrapAnywhere
+                                maximumLineCount: 6
+                            }
+                        }
                     }
 
                     Rectangle {

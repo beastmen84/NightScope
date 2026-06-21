@@ -88,6 +88,7 @@ class AppController(QObject):
         self._location = self._location_detection_result.location
         self._location_message = "Pronto per posizione Windows, ricerca citta o coordinate manuali."
         self._offer_online_location_fallback = False
+        self._windows_location_diagnostics = self._empty_windows_diagnostics()
 
         self._visible_planets: list[CelestialObject] = []
         self._solar_system_objects: list[CelestialObject] = []
@@ -146,6 +147,10 @@ class AppController(QObject):
     @Property("QVariant", notify=locationChanged)
     def locationDetails(self) -> dict:
         return self._location_detection_result.to_qml() if self._location_detection_result else {}
+
+    @Property("QVariant", notify=locationChanged)
+    def windowsLocationDiagnostics(self) -> dict:
+        return self._windows_location_diagnostics
 
     @Property(bool, notify=locationChanged)
     def hasValidLocation(self) -> bool:
@@ -400,6 +405,14 @@ class AppController(QObject):
             return
         self._apply_location_result(result)
         self._refresh_all()
+        self.locationChanged.emit()
+
+    @Slot()
+    def runWindowsLocationDiagnostics(self) -> None:
+        report = self._location_service.windows_location_diagnostics()
+        self._windows_location_diagnostics = report
+        logger.info("Windows location diagnostics exposed to UI: %s", report.get("providerStatus", "n/d"))
+        self._location_message = "Windows location diagnostics completed. Review the report below and nightscope.log."
         self.locationChanged.emit()
 
     @Slot(int)
@@ -979,6 +992,25 @@ class AppController(QObject):
         if not self._eyepieces:
             return "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi."
         return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(self._eyepieces)}."
+
+    @staticmethod
+    def _empty_windows_diagnostics() -> dict:
+        return {
+            "ok": False,
+            "provider": "windows_precise",
+            "providerStatus": "not run",
+            "accessStatus": "not run",
+            "requestAccessResult": "not run",
+            "coordinatesReceived": False,
+            "coordinates": {},
+            "errorDetails": {},
+            "thread": {},
+            "winrt": {},
+            "steps": [],
+            "rawProviderResponse": "",
+            "rawProviderError": "",
+            "process": {},
+        }
 
     def _zone(self) -> ZoneInfo:
         try:

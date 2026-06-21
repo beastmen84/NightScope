@@ -98,6 +98,11 @@ class WindowsLocationProvider:
             message="Posizione Windows acquisita.",
         )
 
+    def diagnostics(self) -> dict:
+        report = _run_windows_location_diagnostics()
+        logger.info("Windows location diagnostics report: %s", json.dumps(report, ensure_ascii=True))
+        return report
+
     def _windows_location_payload(self, script: str) -> dict:
         try:
             result = subprocess.run(
@@ -401,6 +406,25 @@ class LocationService:
     def _location_from_windows_payload(self, payload: dict) -> ObserverLocation:
         return WindowsLocationProvider()._location_from_windows_payload(payload)
 
+    def windows_location_diagnostics(self) -> dict:
+        provider = self.windows_provider
+        if hasattr(provider, "diagnostics"):
+            return provider.diagnostics()
+        report = {
+            "ok": False,
+            "provider": getattr(provider, "name", "windows_precise"),
+            "providerStatus": "diagnostics unavailable",
+            "accessStatus": "n/d",
+            "coordinatesReceived": False,
+            "errorDetails": {
+                "type": "UnsupportedProvider",
+                "message": "Injected Windows provider does not expose diagnostics.",
+            },
+            "rawProviderResponse": "",
+        }
+        logger.info("Windows location diagnostics report: %s", json.dumps(report, ensure_ascii=True))
+        return report
+
     def system_timezone(self) -> str:
         return system_timezone()
 
@@ -448,6 +472,327 @@ try {{
   elseif ($message -match "timeout|timed out") {{ $reason = "timeout" }}
   Emit(@{{ ok = $false; reason = $reason; detail = $message }})
 }}
+"""
+
+
+def _run_windows_location_diagnostics() -> dict:
+    try:
+        result = subprocess.run(
+            ["powershell", "-Sta", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", _windows_diagnostics_script()],
+            capture_output=True,
+            text=True,
+            timeout=25,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        report = {
+            "ok": False,
+            "provider": "windows_precise",
+            "providerStatus": "timeout",
+            "accessStatus": "n/d",
+            "coordinatesReceived": False,
+            "coordinates": None,
+            "errorDetails": {
+                "type": "subprocess.TimeoutExpired",
+                "message": f"Windows diagnostics timed out after {exc.timeout} seconds.",
+            },
+            "process": {"timeoutSeconds": exc.timeout},
+            "rawProviderResponse": "",
+            "rawProviderError": "",
+        }
+        logger.error("Windows location diagnostics process timed out.", exc_info=True)
+        return report
+    except (OSError, subprocess.SubprocessError) as exc:
+        report = {
+            "ok": False,
+            "provider": "windows_precise",
+            "providerStatus": "process error",
+            "accessStatus": "n/d",
+            "coordinatesReceived": False,
+            "coordinates": None,
+            "errorDetails": {
+                "type": type(exc).__name__,
+                "message": str(exc),
+            },
+            "process": {},
+            "rawProviderResponse": "",
+            "rawProviderError": "",
+        }
+        logger.error("Windows location diagnostics process failed.", exc_info=True)
+        return report
+
+    payload = _parse_provider_stdout(result.stdout) or {
+        "ok": False,
+        "provider": "windows_precise",
+        "providerStatus": "invalid diagnostic response",
+        "accessStatus": "n/d",
+        "coordinatesReceived": False,
+        "coordinates": None,
+        "errorDetails": {
+            "type": "InvalidProviderResponse",
+            "message": "PowerShell diagnostics did not return JSON.",
+        },
+    }
+    payload["process"] = {
+        "returnCode": result.returncode,
+        "stderrPresent": bool(result.stderr.strip()),
+    }
+    payload["rawProviderResponse"] = result.stdout.strip()
+    payload["rawProviderError"] = result.stderr.strip()
+    return payload
+
+
+def _windows_diagnostics_script() -> str:
+    return r"""
+$ErrorActionPreference = "Stop"
+function ExceptionInfo($errorRecord) {
+  $exception = $errorRecord.Exception
+  return [ordered]@{
+    type = $exception.GetType().FullName
+    message = $exception.Message
+    hresult = ('0x{0:X8}' -f $exception.HResult)
+    fullyQualifiedErrorId = $errorRecord.FullyQualifiedErrorId
+    category = $errorRecord.CategoryInfo.ToString()
+    scriptStackTrace = $errorRecord.ScriptStackTrace
+  }
+}
+function AddStep($name, $status, $data) {
+  $script:diagnostic.steps += [ordered]@{
+    name = $name
+    status = $status
+    data = $data
+  }
+}
+function Emit() {
+  $script:diagnostic | ConvertTo-Json -Depth 12 -Compress
+  exit 0
+}
+
+$script:diagnostic = [ordered]@{
+  ok = $false
+  provider = "windows_precise"
+  providerStatus = "started"
+  accessStatus = "not-requested"
+  requestAccessResult = $null
+  coordinatesReceived = $false
+  coordinates = $null
+  errorDetails = $null
+  timestamp = (Get-Date).ToString("o")
+  thread = [ordered]@{
+    apartment = [System.Threading.Thread]::CurrentThread.GetApartmentState().ToString()
+    managedThreadId = [System.Threading.Thread]::CurrentThread.ManagedThreadId
+    isThreadPoolThread = [System.Threading.Thread]::CurrentThread.IsThreadPoolThread
+  }
+  environment = [ordered]@{
+    powershellVersion = $PSVersionTable.PSVersion.ToString()
+    process64Bit = [Environment]::Is64BitProcess
+    os64Bit = [Environment]::Is64BitOperatingSystem
+    osVersion = [Environment]::OSVersion.VersionString
+  }
+  winrt = [ordered]@{
+    systemRuntimeWindowsRuntimeLoaded = $false
+    geolocatorTypeAvailable = $false
+    accessStatusTypeAvailable = $false
+    positionAccuracyTypeAvailable = $false
+    systemWindowsRuntimeExtensionsAvailable = $false
+    asTaskMethodCount = 0
+    asTaskSignatures = @()
+  }
+  steps = @()
+}
+
+try {
+  try {
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    $script:diagnostic.winrt.systemRuntimeWindowsRuntimeLoaded = $true
+    AddStep "Load System.Runtime.WindowsRuntime" "ok" @{}
+  } catch {
+    $script:diagnostic.providerStatus = "WinRT assembly unavailable"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Load System.Runtime.WindowsRuntime" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $null = [Windows.Devices.Geolocation.Geolocator,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+    $script:diagnostic.winrt.geolocatorTypeAvailable = $true
+    AddStep "Resolve Geolocator WinRT type" "ok" @{}
+  } catch {
+    $script:diagnostic.providerStatus = "Geolocator WinRT type unavailable"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Resolve Geolocator WinRT type" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $null = [Windows.Devices.Geolocation.GeolocationAccessStatus,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+    $script:diagnostic.winrt.accessStatusTypeAvailable = $true
+    $null = [Windows.Devices.Geolocation.PositionAccuracy,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+    $script:diagnostic.winrt.positionAccuracyTypeAvailable = $true
+    AddStep "Resolve supporting WinRT types" "ok" @{}
+  } catch {
+    $script:diagnostic.providerStatus = "Supporting WinRT type unavailable"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Resolve supporting WinRT types" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $extensionsType = [System.WindowsRuntimeSystemExtensions]
+    $script:diagnostic.winrt.systemWindowsRuntimeExtensionsAvailable = $true
+    $asTaskMethods = @($extensionsType.GetMethods() | Where-Object { $_.Name -eq "AsTask" })
+    $script:diagnostic.winrt.asTaskMethodCount = $asTaskMethods.Count
+    $script:diagnostic.winrt.asTaskSignatures = @($asTaskMethods | ForEach-Object { $_.ToString() })
+    AddStep "Inspect System.WindowsRuntimeSystemExtensions.AsTask" "ok" @{
+      count = $script:diagnostic.winrt.asTaskMethodCount
+      signatures = $script:diagnostic.winrt.asTaskSignatures
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "WindowsRuntimeSystemExtensions unavailable"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Inspect System.WindowsRuntimeSystemExtensions.AsTask" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
+    AddStep "RequestAccessAsync invoked" "ok" @{
+      operationType = $accessOperation.GetType().FullName
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "RequestAccessAsync throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "RequestAccessAsync invoked" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $accessTask = [System.WindowsRuntimeSystemExtensions]::AsTask($accessOperation)
+    AddStep "RequestAccessAsync AsTask conversion" "ok" @{
+      taskType = $accessTask.GetType().FullName
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "RequestAccessAsync AsTask conversion throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "RequestAccessAsync AsTask conversion" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  if (-not $accessTask.Wait(10000)) {
+    $script:diagnostic.providerStatus = "RequestAccessAsync timeout"
+    $script:diagnostic.errorDetails = @{
+      type = "Timeout"
+      message = "RequestAccessAsync did not complete within 10 seconds."
+    }
+    AddStep "RequestAccessAsync wait" "timeout" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  $status = $accessTask.Result.ToString()
+  $script:diagnostic.accessStatus = $status
+  $script:diagnostic.requestAccessResult = $status
+  AddStep "RequestAccessAsync result" "ok" @{
+    accessStatus = $status
+  }
+
+  if ($status -ne "Allowed") {
+    $script:diagnostic.providerStatus = "access not allowed"
+    $script:diagnostic.errorDetails = @{
+      type = "GeolocationAccessStatus"
+      message = "GeolocationAccessStatus returned $status."
+    }
+    Emit
+  }
+
+  try {
+    $locator = [Windows.Devices.Geolocation.Geolocator]::new()
+    $locator.DesiredAccuracy = [Windows.Devices.Geolocation.PositionAccuracy]::High
+    $script:diagnostic.providerStatus = $locator.LocationStatus.ToString()
+    AddStep "Create Geolocator" "ok" @{
+      desiredAccuracy = $locator.DesiredAccuracy.ToString()
+      locationStatus = $locator.LocationStatus.ToString()
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "Geolocator construction throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Create Geolocator" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $positionOperation = $locator.GetGeopositionAsync()
+    AddStep "GetGeopositionAsync invoked" "ok" @{
+      operationType = $positionOperation.GetType().FullName
+      locationStatus = $locator.LocationStatus.ToString()
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "GetGeopositionAsync throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "GetGeopositionAsync invoked" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $positionTask = [System.WindowsRuntimeSystemExtensions]::AsTask($positionOperation)
+    AddStep "GetGeopositionAsync AsTask conversion" "ok" @{
+      taskType = $positionTask.GetType().FullName
+    }
+  } catch {
+    $script:diagnostic.providerStatus = "GetGeopositionAsync AsTask conversion throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "GetGeopositionAsync AsTask conversion" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  if (-not $positionTask.Wait(10000)) {
+    $script:diagnostic.providerStatus = "GetGeopositionAsync timeout"
+    $script:diagnostic.errorDetails = @{
+      type = "Timeout"
+      message = "GetGeopositionAsync did not complete within 10 seconds."
+    }
+    AddStep "GetGeopositionAsync wait" "timeout" $script:diagnostic.errorDetails
+    Emit
+  }
+
+  try {
+    $result = $positionTask.Result
+    $coordinate = $result.Coordinate
+    $point = $coordinate.Point
+    $position = $point.Position
+    $latitude = $position.Latitude
+    $longitude = $position.Longitude
+    $script:diagnostic.providerStatus = $locator.LocationStatus.ToString()
+    $script:diagnostic.coordinates = [ordered]@{
+      latitude = $latitude
+      longitude = $longitude
+      accuracy = $coordinate.Accuracy
+      altitude = $position.Altitude
+      timestamp = $coordinate.Timestamp.ToString("o")
+    }
+    $script:diagnostic.coordinatesReceived = ($null -ne $latitude -and $null -ne $longitude)
+    AddStep "Read coordinates" "ok" $script:diagnostic.coordinates
+    if (-not $script:diagnostic.coordinatesReceived) {
+      $script:diagnostic.providerStatus = "null coordinates"
+      $script:diagnostic.errorDetails = @{
+        type = "NullCoordinates"
+        message = "Provider completed but latitude or longitude is null."
+      }
+      Emit
+    }
+    $script:diagnostic.ok = $true
+    Emit
+  } catch {
+    $script:diagnostic.providerStatus = "coordinate extraction throws"
+    $script:diagnostic.errorDetails = ExceptionInfo $_
+    AddStep "Read coordinates" "error" $script:diagnostic.errorDetails
+    Emit
+  }
+} catch {
+  $script:diagnostic.providerStatus = "unhandled diagnostics exception"
+  $script:diagnostic.errorDetails = ExceptionInfo $_
+  AddStep "Unhandled diagnostics exception" "error" $script:diagnostic.errorDetails
+  Emit
+}
 """
 
 

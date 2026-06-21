@@ -121,6 +121,37 @@ class LocationServiceWindowsTests(unittest.TestCase):
 
         self.assertEqual(context.exception.reason, "timeout")
 
+    def test_windows_location_diagnostics_report(self) -> None:
+        diagnostic_json = (
+            '{"ok":false,'
+            '"provider":"windows_precise",'
+            '"providerStatus":"RequestAccessAsync AsTask conversion throws",'
+            '"accessStatus":"not-requested",'
+            '"coordinatesReceived":false,'
+            '"coordinates":null,'
+            '"errorDetails":{"type":"System.Management.Automation.MethodException","message":"Cannot find an overload for AsTask"},'
+            '"thread":{"apartment":"STA","managedThreadId":1},'
+            '"winrt":{"geolocatorTypeAvailable":true,"asTaskMethodCount":0},'
+            '"steps":[]}'
+        )
+        completed = subprocess.CompletedProcess(
+            args=["powershell"],
+            returncode=0,
+            stdout=diagnostic_json,
+            stderr="",
+        )
+
+        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+            with self.assertLogs("astro_viewer.app.services.location_service", level="INFO"):
+                report = self.service.windows_location_diagnostics()
+
+        self.assertEqual(report["accessStatus"], "not-requested")
+        self.assertFalse(report["coordinatesReceived"])
+        self.assertEqual(report["thread"]["apartment"], "STA")
+        self.assertTrue(report["winrt"]["geolocatorTypeAvailable"])
+        self.assertIn("AsTask", report["errorDetails"]["message"])
+        self.assertEqual(report["rawProviderResponse"], diagnostic_json)
+
     def test_ip_geolocation_success(self) -> None:
         response = Mock()
         response.raise_for_status.return_value = None
