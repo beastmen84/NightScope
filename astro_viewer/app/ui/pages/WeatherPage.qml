@@ -62,7 +62,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1050 ? 5 : 3
+                columns: root.width > 1050 ? 4 : 3
                 columnSpacing: 12
                 rowSpacing: 12
 
@@ -71,6 +71,9 @@ Item {
                 MetricTile { label: "Vento"; value: controller.weatherSummary.windKmh + " km/h"; accentColor: theme.teal }
                 MetricTile { label: "Umidita"; value: controller.weatherSummary.humidity + "%"; accentColor: theme.violet }
                 MetricTile { label: "Temperatura"; value: controller.weatherSummary.temperatureC + " C"; accentColor: theme.amber }
+                MetricTile { label: "Seeing"; value: controller.seeingTransparency.seeing; accentColor: theme.green }
+                MetricTile { label: "Transparency"; value: controller.seeingTransparency.transparency; accentColor: theme.cyan }
+                MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
             }
 
             GlassCard {

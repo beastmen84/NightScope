@@ -148,6 +148,70 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    title: "Sky Quality"
+                    subtitle: controller.skyQuality.description
+                    accentColor: theme.violet
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Bortle " + controller.skyQuality.bortleClass
+                        color: theme.textPrimary
+                        font.pixelSize: 30
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Limite " + controller.skyQuality.limitingMagnitude + " mag  -  " + controller.skyQuality.skyBrightness + " mag/arcsec2"
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    title: "Planetary Score"
+                    subtitle: controller.advancedScores.explanation
+                    accentColor: theme.teal
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.advancedScores.planetaryScore + "/100"
+                        color: theme.textPrimary
+                        font.pixelSize: 32
+                        font.weight: Font.DemiBold
+                    }
+
+                    StatusPill {
+                        text: controller.advancedScores.planetaryLabel
+                        accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    title: "Deep Sky Score"
+                    subtitle: "Trasparenza, Luna e inquinamento luminoso"
+                    accentColor: theme.cyan
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.advancedScores.deepSkyScore + "/100"
+                        color: theme.textPrimary
+                        font.pixelSize: 32
+                        font.weight: Font.DemiBold
+                    }
+
+                    StatusPill {
+                        text: controller.advancedScores.deepSkyLabel
+                        accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
                     title: "Miglior oggetto della notte"
                     subtitle: controller.bestObjectOfNight.scoreExplanation
                     accentColor: theme.amber
@@ -198,6 +262,78 @@ Item {
                                 text: "Setup: " + controller.bestObjectOfNight.recommended_setup
                                 color: theme.textMuted
                                 font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
+                    title: "Night Planner"
+                    subtitle: "Sequenza osservativa ottimizzata"
+                    accentColor: theme.green
+
+                    Repeater {
+                        model: controller.nightPlan
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            StatusPill {
+                                text: modelData.timeLabel
+                                accentColor: theme.green
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.name + "  -  " + modelData.difficulty + "  -  " + modelData.setup
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.preferredWidth: 64
+                                text: modelData.score + "/100"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                horizontalAlignment: Text.AlignRight
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    title: "Sky Map"
+                    subtitle: "Vista cardinale minimale"
+                    accentColor: theme.cyan
+
+                    Repeater {
+                        model: controller.skyMap
+
+                        delegate: ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.direction
+                                color: theme.cyan
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                             }
                         }
@@ -334,6 +470,36 @@ Item {
                                     font.pixelSize: 12
                                     elide: Text.ElideRight
                                 }
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
+                    title: "Notifiche intelligenti"
+                    subtitle: "Promemoria generati dal planner"
+                    accentColor: theme.coral
+
+                    Repeater {
+                        model: controller.notifications
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            StatusPill {
+                                text: modelData.triggerTime
+                                accentColor: theme.coral
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.title + "  -  " + modelData.message
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
                             }
                         }
                     }
