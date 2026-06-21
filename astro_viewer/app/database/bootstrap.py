@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import logging
 import math
 import shutil
@@ -131,6 +132,8 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
         city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
         if city_count < 50:
             _seed_cities(connection, data_dir / "cities_seed.csv")
+        _deduplicate_small_city_catalog(connection)
+        _import_geonames_cities_if_available(connection, database_path.parent)
         messier_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
         if messier_count == 0 and seed_path.exists():
             with seed_path.open("r", encoding="utf-8", newline="") as file:
@@ -174,7 +177,6 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_default_profiles(connection)
-        _deduplicate_existing_cities(connection)
         connection.commit()
     logger.info("Database ready.")
 
@@ -208,6 +210,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_search_name ON City(search_name)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_country_code ON City(country_code)")
+    connection.execute("CREATE INDEX IF NOT EXISTS idx_city_coordinates ON City(latitude, longitude)")
     connection.execute("DROP INDEX IF EXISTS idx_city_unique_name_country")
     connection.execute(
         """
@@ -223,6 +226,19 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         """
     )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias)")
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS DataImportLog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_name TEXT NOT NULL UNIQUE,
+            source_path TEXT NOT NULL,
+            source_size INTEGER NOT NULL,
+            source_mtime TEXT NOT NULL,
+            imported_at TEXT NOT NULL,
+            report_json TEXT NOT NULL
+        )
+        """
+    )
 
 
 def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[str, str]) -> None:
@@ -329,6 +345,89 @@ def _seed_cities(connection: sqlite3.Connection, city_seed_path: Path) -> None:
     for row in rows:
         _upsert_seed_city(connection, row)
     _refresh_city_aliases(connection)
+
+
+def _import_geonames_cities_if_available(connection: sqlite3.Connection, data_dir: Path) -> None:
+    candidates = (
+        data_dir / "cities15000.txt",
+        data_dir / "geonames" / "cities15000.txt",
+    )
+    source_path = next((candidate for candidate in candidates if candidate.exists()), None)
+    if source_path is None:
+        logger.info("GeoNames cities15000.txt not found; using existing local city catalog.")
+        return
+    source_stat = source_path.stat()
+    source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
+    existing_import = connection.execute(
+        """
+        SELECT source_size, source_mtime, report_json
+        FROM DataImportLog
+        WHERE source_name = ?
+        """,
+        ("cities15000.txt",),
+    ).fetchone()
+    if (
+        existing_import
+        and int(existing_import["source_size"]) == source_stat.st_size
+        and str(existing_import["source_mtime"]) == source_mtime
+    ):
+        logger.info("GeoNames cities15000 import already current: %s", existing_import["report_json"])
+        return
+    from astro_viewer.app.database.geonames_importer import import_geonames_cities
+
+    country_info_path = _first_existing_path(
+        data_dir / "countryInfo.txt",
+        data_dir / "geonames" / "countryInfo.txt",
+    )
+    admin1_codes_path = _first_existing_path(
+        data_dir / "admin1CodesASCII.txt",
+        data_dir / "geonames" / "admin1CodesASCII.txt",
+    )
+    report = import_geonames_cities(
+        connection,
+        source_path,
+        country_info_path=country_info_path,
+        admin1_codes_path=admin1_codes_path,
+    )
+    payload = report.to_dict()
+    payload["aliases_generated"] = report.aliases_added
+    payload["db_size_bytes"] = _database_size_bytes(connection)
+    connection.execute(
+        """
+        INSERT INTO DataImportLog (source_name, source_path, source_size, source_mtime, imported_at, report_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(source_name) DO UPDATE SET
+            source_path = excluded.source_path,
+            source_size = excluded.source_size,
+            source_mtime = excluded.source_mtime,
+            imported_at = excluded.imported_at,
+            report_json = excluded.report_json
+        """,
+        (
+            "cities15000.txt",
+            str(source_path),
+            source_stat.st_size,
+            source_mtime,
+            datetime.now().isoformat(timespec="seconds"),
+            json.dumps(payload, ensure_ascii=True),
+        ),
+    )
+    logger.info("GeoNames cities15000 import report: %s", json.dumps(payload, ensure_ascii=True))
+
+
+def _first_existing_path(*paths: Path) -> Path | None:
+    return next((path for path in paths if path.exists()), None)
+
+
+def _database_size_bytes(connection: sqlite3.Connection) -> int:
+    row = connection.execute("PRAGMA database_list").fetchone()
+    if not row:
+        return 0
+    database_path = Path(row[2])
+    try:
+        return database_path.stat().st_size
+    except OSError:
+        return 0
 
 
 def _upsert_seed_city(connection: sqlite3.Connection, row: tuple) -> None:
@@ -446,6 +545,14 @@ def _deduplicate_existing_cities(connection: sqlite3.Connection, proximity_km: f
         deleted_ids.add(row["id"])
     if deleted_ids:
         logger.info("Deduplicated %d city rows into canonical records.", len(deleted_ids))
+
+
+def _deduplicate_small_city_catalog(connection: sqlite3.Connection) -> None:
+    city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
+    if city_count > 5000:
+        logger.info("Skipping legacy city deduplication for large catalog: %d rows.", city_count)
+        return
+    _deduplicate_existing_cities(connection)
 
 
 def _matching_canonical_city(row: sqlite3.Row, canonical_rows: list[sqlite3.Row], proximity_km: float) -> sqlite3.Row | None:

@@ -15,6 +15,8 @@ from astro_viewer.tools.import_utils import connect
 
 def main() -> None:
     args = _parser().parse_args()
+    if args.geonames_path.name.lower() == "allcountries.txt":
+        raise SystemExit("Use cities15000.txt for NightScope city imports; allCountries.txt is intentionally not imported.")
     schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
     initialize_database(args.database, schema_path)
     with connect(args.database) as connection:
@@ -26,7 +28,10 @@ def main() -> None:
             proximity_km=args.proximity_km,
         )
         connection.commit()
-    print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+    payload = report.to_dict()
+    payload["aliases_generated"] = report.aliases_added
+    payload["db_size_bytes"] = args.database.stat().st_size if args.database.exists() else 0
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -34,7 +39,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Import a GeoNames geoname-table dump such as cities15000.txt, "
-            "cities5000.txt, cities1000.txt or allCountries.txt."
+            "cities5000.txt or cities1000.txt. Use cities15000.txt for the first real NightScope dataset."
         )
     )
     parser.add_argument("geonames_path", type=Path, help="GeoNames tab-delimited geoname table file")

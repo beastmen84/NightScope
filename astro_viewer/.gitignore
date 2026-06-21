@@ -6,4 +6,7 @@ build/
 dist/
 *.spec
 *.qmlc
-
+data/cities15000.txt
+data/geonames/
+data/location_cache.json
+data/user_preferences.json

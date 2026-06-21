@@ -8,7 +8,7 @@
 - fields from the GeoNames `geoname` table
 - `name`, `asciiname`, `alternatenames`, WGS84 latitude/longitude, country code, admin codes, population and IANA timezone
 
-For a full production catalog, use `tools/import_cities.py` with `cities15000.txt`, `cities5000.txt`, `cities1000.txt`, or `allCountries.txt` extracted from GeoNames. Optional `countryInfo.txt` and `admin1CodesASCII.txt` enrich country/admin names.
+For the first real production catalog, use `tools/import_cities.py` with `cities15000.txt` extracted from GeoNames. NightScope intentionally does not import `allCountries.txt`. Optional `countryInfo.txt` and `admin1CodesASCII.txt` enrich country/admin names.
 
 The importer deduplicates translated names into aliases. For example, `Addis Ababa` and `Addis Abeba` are one city record with both search terms.
 

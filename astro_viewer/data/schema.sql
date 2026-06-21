@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS City (
 
 CREATE INDEX IF NOT EXISTS idx_city_name ON City(city_name);
 CREATE INDEX IF NOT EXISTS idx_city_country ON City(country);
+CREATE INDEX IF NOT EXISTS idx_city_coordinates ON City(latitude, longitude);
 
 CREATE TABLE IF NOT EXISTS CityAlias (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +28,16 @@ CREATE TABLE IF NOT EXISTS CityAlias (
 );
 
 CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias);
+
+CREATE TABLE IF NOT EXISTS DataImportLog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_name TEXT NOT NULL UNIQUE,
+    source_path TEXT NOT NULL,
+    source_size INTEGER NOT NULL,
+    source_mtime TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    report_json TEXT NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS MessierObject (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

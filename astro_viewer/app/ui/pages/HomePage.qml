@@ -46,7 +46,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.location.city + "  -  " + controller.location.timezone
+                        text: controller.activeLocationLabel + "  -  " + controller.activeLocationSource
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight

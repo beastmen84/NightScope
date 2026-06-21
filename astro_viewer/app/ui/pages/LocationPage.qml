@@ -70,6 +70,36 @@ Item {
                 }
             }
 
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Preferenze di avvio"
+                subtitle: "La posizione online non viene usata senza consenso e Windows non viene aperto automaticamente se non richiesto."
+                accentColor: theme.teal
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: "Rileva automaticamente la posizione all'avvio"
+                    checked: controller.autoDetectLocationOnStartup
+                    onToggled: controller.setAutoDetectLocationOnStartup(checked)
+                }
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: "Consenti posizione approssimata online"
+                    checked: controller.allowApproximateOnlineLocation
+                    onToggled: controller.setAllowApproximateOnlineLocation(checked)
+                }
+
+                CheckBox {
+                    Layout.fillWidth: true
+                    text: "Usa posizione Windows all'avvio"
+                    checked: controller.useWindowsLocationOnStartup
+                    onToggled: controller.setUseWindowsLocationOnStartup(checked)
+                }
+            }
+
             GridLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28

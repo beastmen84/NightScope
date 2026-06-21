@@ -19,8 +19,9 @@ from astro_viewer.app.database.observation_repository import ObservationReposito
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
-from astro_viewer.app.models.observing import CelestialObject
-from astro_viewer.app.models.weather import WeatherHour
+from astro_viewer.app.models.observing import CelestialObject, MoonSummary
+from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
@@ -30,6 +31,7 @@ from astro_viewer.app.services.location_service import (
     LocationService,
     LocationUnavailableError,
 )
+from astro_viewer.app.services.location_preferences import LocationPreferenceStore, StartupLocationPreferences
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
@@ -60,9 +62,14 @@ class AppController(QObject):
         self._object_image_repository = ObjectImageRepository(database_path)
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
+        self._location_preferences = LocationPreferenceStore(
+            preferences_path=database_path.parent / "user_preferences.json",
+            cache_path=database_path.parent / "location_cache.json",
+        )
+        self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
-            cache_path=base_dir / "data" / "location_cache.json",
+            cache_path=database_path.parent / "location_cache.json",
         )
         self._is_loading = False
         self._service_status = ""
@@ -87,9 +94,9 @@ class AppController(QObject):
         self._notification_service = NotificationService()
 
         self._city_results = self._city_repository.list_cities(limit=12)
-        self._location_detection_result = self._location_service.from_city_result(self._city_repository.get_default())
-        self._location = self._location_detection_result.location
-        self._location_message = "Pronto per posizione Windows, ricerca citta o coordinate manuali."
+        self._location_detection_result: LocationDetectionResult | None = None
+        self._location: ObserverLocation | None = None
+        self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
         self._offer_online_location_fallback = False
         self._windows_location_diagnostics = self._empty_windows_diagnostics()
 
@@ -129,6 +136,7 @@ class AppController(QObject):
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
 
+        self._initialize_startup_location()
         self._refresh_all()
 
     @Property(str, constant=True)
@@ -150,6 +158,30 @@ class AppController(QObject):
     @Property("QVariant", notify=locationChanged)
     def locationDetails(self) -> dict:
         return self._location_detection_result.to_qml() if self._location_detection_result else {}
+
+    @Property(str, notify=locationChanged)
+    def activeLocationLabel(self) -> str:
+        if not self._has_valid_location():
+            return "Nessuna posizione configurata"
+        return f"{self._location.city} — {self._location.timezone}"
+
+    @Property(str, notify=locationChanged)
+    def activeLocationSource(self) -> str:
+        if not self._location_detection_result:
+            return "Nessuna posizione"
+        return self._location_source_label(self._location_detection_result.provider)
+
+    @Property(bool, notify=locationChanged)
+    def autoDetectLocationOnStartup(self) -> bool:
+        return self._startup_location_preferences.auto_detect_location_on_startup
+
+    @Property(bool, notify=locationChanged)
+    def allowApproximateOnlineLocation(self) -> bool:
+        return self._startup_location_preferences.allow_approximate_online_location
+
+    @Property(bool, notify=locationChanged)
+    def useWindowsLocationOnStartup(self) -> bool:
+        return self._startup_location_preferences.use_windows_location_on_startup
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:
@@ -406,8 +438,24 @@ class AppController(QObject):
             self._location_message = APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE
             self.locationChanged.emit()
             return
+        self._update_startup_preferences(allow_approximate_online_location=True)
         self._apply_location_result(result)
         self._refresh_all()
+        self.locationChanged.emit()
+
+    @Slot(bool)
+    def setAutoDetectLocationOnStartup(self, enabled: bool) -> None:
+        self._update_startup_preferences(auto_detect_location_on_startup=enabled)
+        self.locationChanged.emit()
+
+    @Slot(bool)
+    def setAllowApproximateOnlineLocation(self, enabled: bool) -> None:
+        self._update_startup_preferences(allow_approximate_online_location=enabled)
+        self.locationChanged.emit()
+
+    @Slot(bool)
+    def setUseWindowsLocationOnStartup(self, enabled: bool) -> None:
+        self._update_startup_preferences(use_windows_location_on_startup=enabled)
         self.locationChanged.emit()
 
     @Slot()
@@ -557,8 +605,11 @@ class AppController(QObject):
         previous_status = self._service_status
         self._service_status = previous_status if "ephemeris unavailable" in previous_status.lower() else ""
         try:
-            self._refresh_astronomy()
-            self._refresh_weather_and_conditions()
+            if self._has_valid_location():
+                self._refresh_astronomy()
+                self._refresh_weather_and_conditions()
+            else:
+                self._refresh_no_location_context()
         except Exception:
             logger.exception("Unexpected refresh failure.")
             self._append_service_status("NightScope could not update all data. Existing data remains available.")
@@ -575,6 +626,41 @@ class AppController(QObject):
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
         self.statusChanged.emit()
+
+    def _refresh_no_location_context(self) -> None:
+        self._solar_system_objects = []
+        self._visible_planets = []
+        self._deep_sky = []
+        self._moon = MoonSummary(
+            phase="n/d",
+            illumination="n/d",
+            rise_time="n/d",
+            set_time="n/d",
+            best_note="Configura una posizione per calcolare i dati lunari locali.",
+            image="resources/images/moon.svg",
+        )
+        self._events = []
+        self._weather_hours = []
+        self._weather_status = "Configura una posizione per visualizzare il meteo."
+        self._weather_summary = WeatherSummary(
+            "n/d",
+            0,
+            "Configura una posizione per ottenere meteo e cielo locale.",
+            0,
+            0,
+            0,
+            0,
+            0.0,
+            "Configura una posizione per ottenere meteo e cielo locale.",
+        )
+        self._sky_quality = SkyQuality(0, 0.0, 0.0, "Nessuna fonte", "n/d", "n/d")
+        self._seeing_transparency = SeeingTransparency("n/d", "n/d", 0, 0, "Configura una posizione.", "n/d", "n/d")
+        self._advanced_scores = AdvancedObservingScores(0, 0, "n/d", "n/d", "Configura una posizione.")
+        self._best_object = None
+        self._night_plan = []
+        self._sky_map = []
+        self._notifications = []
+        self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
 
     def _refresh_astronomy(self) -> None:
         try:
@@ -597,7 +683,7 @@ class AppController(QObject):
         if not self._has_valid_location():
             logger.warning("Weather refresh skipped because no valid location is available.")
             self._weather_hours = []
-            self._weather_status = "Configura una posizione per verificare il meteo."
+            self._weather_status = "Configura una posizione per visualizzare il meteo."
             self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
             return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
@@ -683,17 +769,91 @@ class AppController(QObject):
                     self._selected_object = item
                     break
 
-    def _apply_location_result(self, result: LocationDetectionResult) -> None:
+    def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._location_detection_result = result
         self._location = result.location
         self._location_message = result.message
         self._offer_online_location_fallback = False
+        if persist:
+            self._location_preferences.save_location(result)
 
     def _has_valid_location(self) -> bool:
         location = self._location
         if not isinstance(location, ObserverLocation):
             return False
         return -90 <= location.latitude <= 90 and -180 <= location.longitude <= 180
+
+    def _initialize_startup_location(self) -> None:
+        saved = self._location_preferences.saved_location()
+        if saved and self._result_has_valid_location(saved):
+            self._apply_location_result(saved, persist=False)
+            self._location_message = f"Posizione salvata caricata: {saved.location.city}."
+            return
+
+        cached = self._location_preferences.cached_location()
+        if cached and self._result_has_valid_location(cached):
+            self._apply_location_result(cached, persist=False)
+            self._location_message = f"Ultima posizione caricata: {cached.location.city}."
+            return
+
+        preferences = self._startup_location_preferences
+        if preferences.auto_detect_location_on_startup and preferences.use_windows_location_on_startup:
+            try:
+                result = self._location_service.detect_windows_location()
+            except LocationUnavailableError as exc:
+                logger.info("Windows startup location detection unavailable: %s", exc.reason)
+            else:
+                self._apply_location_result(result)
+                return
+
+        if preferences.auto_detect_location_on_startup and preferences.allow_approximate_online_location:
+            try:
+                result = self._location_service.detect_ip_location(allow_online=True)
+            except LocationUnavailableError as exc:
+                logger.info("Approximate startup location detection unavailable: %s", exc.reason)
+                self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
+            else:
+                self._apply_location_result(result)
+                return
+
+        self._location_detection_result = None
+        self._location = None
+
+    @staticmethod
+    def _result_has_valid_location(result: LocationDetectionResult | None) -> bool:
+        if not result:
+            return False
+        location = result.location
+        return bool(
+            location.timezone
+            and -90 <= location.latitude <= 90
+            and -180 <= location.longitude <= 180
+        )
+
+    def _update_startup_preferences(
+        self,
+        *,
+        auto_detect_location_on_startup: bool | None = None,
+        allow_approximate_online_location: bool | None = None,
+        use_windows_location_on_startup: bool | None = None,
+    ) -> None:
+        self._startup_location_preferences = self._location_preferences.update_preferences(
+            auto_detect_location_on_startup=auto_detect_location_on_startup,
+            allow_approximate_online_location=allow_approximate_online_location,
+            use_windows_location_on_startup=use_windows_location_on_startup,
+        )
+
+    @staticmethod
+    def _location_source_label(provider: str) -> str:
+        labels = {
+            "windows_precise": "Windows precise",
+            "windows_coarse": "Windows approximate",
+            "ip_geolocation": "Approximate online",
+            "manual_city": "Manual city",
+            "manual_coordinates": "Manual coordinates",
+            "cached": "Cached location",
+        }
+        return labels.get(provider, provider or "Nessuna posizione")
 
     def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         telescope = self._current_telescope()
@@ -1016,6 +1176,8 @@ class AppController(QObject):
         }
 
     def _zone(self) -> ZoneInfo:
+        if not self._location:
+            return ZoneInfo("UTC")
         try:
             return ZoneInfo(self._location.timezone)
         except ZoneInfoNotFoundError:
@@ -1027,6 +1189,7 @@ class AppController(QObject):
             return {
                 "city": "",
                 "country": "",
+                "country_code": "",
                 "latitude": 0.0,
                 "longitude": 0.0,
                 "timezone": "",
@@ -1034,6 +1197,7 @@ class AppController(QObject):
         return {
             "city": location.city,
             "country": location.country,
+            "country_code": "",
             "latitude": location.latitude,
             "longitude": location.longitude,
             "timezone": location.timezone,

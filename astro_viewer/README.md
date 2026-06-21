@@ -107,13 +107,15 @@ Gli import CLI non richiedono API key e usano upsert/deduplicazione per evitare 
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
 ```
 
-Per un catalogo citta completo usare un dump GeoNames tab-delimited (`cities15000.txt`, `cities5000.txt`, `cities1000.txt` o `allCountries.txt`). Il report import include:
+Per il primo catalogo citta reale usare `cities15000.txt` da GeoNames. NightScope non importa `allCountries.txt`. Il report import include:
 
 - total rows read;
 - total imported;
 - duplicates skipped/merged;
-- aliases added;
-- cities missing timezone.
+- aliases generated;
+- duplicates merged;
+- cities missing timezone;
+- DB size.
 
 Le traduzioni non diventano righe separate: `Addis Ababa` e `Addis Abeba` restano un solo record con alias ricercabili.
 

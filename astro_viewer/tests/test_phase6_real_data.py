@@ -134,7 +134,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 controller._refresh_weather_and_conditions()
 
             fake_weather.hourly_forecast.assert_not_called()
-            self.assertEqual(controller.weatherStatus, "Configura una posizione per verificare il meteo.")
+            self.assertEqual(controller.weatherStatus, "Configura una posizione per visualizzare il meteo.")
 
     def test_weather_refreshes_after_valid_location(self) -> None:
         with _controller() as controller:

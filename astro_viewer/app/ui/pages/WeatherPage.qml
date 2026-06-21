@@ -45,7 +45,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.weatherSummary.alert
+                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel : "Configura una posizione per visualizzare il meteo."
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -55,6 +55,42 @@ Item {
                 StatusPill {
                     text: controller.weatherSummary.score
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                radius: 8
+                color: "#1c222b"
+                border.color: controller.hasValidLocation ? theme.teal : theme.amber
+                border.width: 1
+                implicitHeight: weatherLocationLayout.implicitHeight + 22
+
+                ColumnLayout {
+                    id: weatherLocationLayout
+                    anchors.fill: parent
+                    anchors.margins: 11
+                    spacing: 4
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel : "Configura una posizione per visualizzare il meteo."
+                        color: theme.textPrimary
+                        font.pixelSize: 14
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.hasValidLocation
+                        text: "Fonte: " + controller.activeLocationSource
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
                 }
             }
 
