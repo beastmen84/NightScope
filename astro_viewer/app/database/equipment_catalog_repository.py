@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import closing
+from datetime import UTC, datetime
 from pathlib import Path
+
+from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 
 
 class EquipmentCatalogRepository:
@@ -91,6 +94,205 @@ class EquipmentCatalogRepository:
             ).fetchone()
         return dict(row) if row else None
 
+    def owned_telescopes(self) -> list[Telescope]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, name, aperture_mm, focal_length_mm, optical_type, mount
+                FROM OwnedTelescope
+                ORDER BY name
+                """
+            ).fetchall()
+        return [
+            Telescope(
+                id=row["id"],
+                name=row["name"],
+                aperture_mm=int(row["aperture_mm"]),
+                focal_length_mm=int(row["focal_length_mm"]),
+                optical_type=row["optical_type"],
+                mount=row["mount"],
+            )
+            for row in rows
+        ]
+
+    def save_owned_telescope(self, telescope: Telescope, source_catalog_id: str = "") -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                """
+                INSERT INTO OwnedTelescope (
+                    id, name, aperture_mm, focal_length_mm, optical_type, mount, source_catalog_id, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    name = excluded.name,
+                    aperture_mm = excluded.aperture_mm,
+                    focal_length_mm = excluded.focal_length_mm,
+                    optical_type = excluded.optical_type,
+                    mount = excluded.mount,
+                    source_catalog_id = excluded.source_catalog_id
+                """,
+                (
+                    telescope.id,
+                    telescope.name,
+                    telescope.aperture_mm,
+                    telescope.focal_length_mm,
+                    telescope.optical_type,
+                    telescope.mount,
+                    source_catalog_id,
+                    datetime.now(UTC).isoformat(timespec="seconds"),
+                ),
+            )
+            connection.commit()
+
+    def delete_owned_telescope(self, telescope_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute("DELETE FROM EquipmentProfileTelescope WHERE telescope_id = ?", (telescope_id,))
+            connection.execute("DELETE FROM OwnedTelescope WHERE id = ?", (telescope_id,))
+            connection.execute(
+                "UPDATE EquipmentProfile SET telescope_id = ? WHERE telescope_id = ?",
+                ("preset:naked-eye", telescope_id),
+            )
+            connection.commit()
+
+    def owned_eyepieces(self) -> list[Eyepiece]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, name, focal_length_mm, apparent_field_deg, barrel_size,
+                       eyepiece_type, min_focal_length_mm, max_focal_length_mm
+                FROM OwnedEyepiece
+                ORDER BY name
+                """
+            ).fetchall()
+        return [
+            Eyepiece(
+                id=row["id"],
+                name=row["name"],
+                focal_length_mm=float(row["focal_length_mm"]),
+                apparent_field_deg=float(row["apparent_field_deg"]),
+                barrel_size=row["barrel_size"] or "",
+                eyepiece_type=row["eyepiece_type"] or "Fixed",
+                min_focal_length_mm=float(row["min_focal_length_mm"]) if row["min_focal_length_mm"] is not None else None,
+                max_focal_length_mm=float(row["max_focal_length_mm"]) if row["max_focal_length_mm"] is not None else None,
+            )
+            for row in rows
+        ]
+
+    def save_owned_eyepiece(self, eyepiece: Eyepiece, source_catalog_id: str = "") -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                """
+                INSERT INTO OwnedEyepiece (
+                    id, name, focal_length_mm, apparent_field_deg, barrel_size, eyepiece_type,
+                    min_focal_length_mm, max_focal_length_mm, source_catalog_id, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    name = excluded.name,
+                    focal_length_mm = excluded.focal_length_mm,
+                    apparent_field_deg = excluded.apparent_field_deg,
+                    barrel_size = excluded.barrel_size,
+                    eyepiece_type = excluded.eyepiece_type,
+                    min_focal_length_mm = excluded.min_focal_length_mm,
+                    max_focal_length_mm = excluded.max_focal_length_mm,
+                    source_catalog_id = excluded.source_catalog_id
+                """,
+                (
+                    eyepiece.id,
+                    eyepiece.name,
+                    eyepiece.focal_length_mm,
+                    eyepiece.apparent_field_deg,
+                    eyepiece.barrel_size,
+                    eyepiece.eyepiece_type,
+                    eyepiece.min_focal_length_mm,
+                    eyepiece.max_focal_length_mm,
+                    source_catalog_id,
+                    datetime.now(UTC).isoformat(timespec="seconds"),
+                ),
+            )
+            connection.commit()
+
+    def delete_owned_eyepiece(self, eyepiece_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute("DELETE FROM EquipmentProfileEyepiece WHERE eyepiece_id = ?", (eyepiece_id,))
+            connection.execute("DELETE FROM OwnedEyepiece WHERE id = ?", (eyepiece_id,))
+            connection.commit()
+
+    def owned_barlows(self) -> list[Barlow]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, name, multiplier, barrel_size
+                FROM OwnedBarlow
+                ORDER BY name
+                """
+            ).fetchall()
+        return [
+            Barlow(
+                id=row["id"],
+                name=row["name"],
+                multiplier=float(row["multiplier"]),
+                barrel_size=row["barrel_size"] or "",
+            )
+            for row in rows
+        ]
+
+    def save_owned_barlow(self, barlow: Barlow, source_catalog_id: str = "") -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                """
+                INSERT INTO OwnedBarlow (id, name, multiplier, barrel_size, source_catalog_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    name = excluded.name,
+                    multiplier = excluded.multiplier,
+                    barrel_size = excluded.barrel_size,
+                    source_catalog_id = excluded.source_catalog_id
+                """,
+                (
+                    barlow.id,
+                    barlow.name,
+                    barlow.multiplier,
+                    barlow.barrel_size,
+                    source_catalog_id,
+                    datetime.now(UTC).isoformat(timespec="seconds"),
+                ),
+            )
+            connection.commit()
+
+    def delete_owned_barlow(self, barlow_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute("DELETE FROM EquipmentProfileBarlow WHERE barlow_id = ?", (barlow_id,))
+            connection.execute("DELETE FROM OwnedBarlow WHERE id = ?", (barlow_id,))
+            connection.commit()
+
+    def profile_telescope_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileTelescope", "telescope_id", profile_id)
+
+    def profile_eyepiece_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileEyepiece", "eyepiece_id", profile_id)
+
+    def profile_barlow_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileBarlow", "barlow_id", profile_id)
+
+    def assign_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
+
+    def remove_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
+
+    def assign_profile_eyepiece(self, profile_id: int, eyepiece_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileEyepiece", "eyepiece_id", profile_id, eyepiece_id)
+
+    def remove_profile_eyepiece(self, profile_id: int, eyepiece_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileEyepiece", "eyepiece_id", profile_id, eyepiece_id)
+
+    def assign_profile_barlow(self, profile_id: int, barlow_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileBarlow", "barlow_id", profile_id, barlow_id)
+
+    def remove_profile_barlow(self, profile_id: int, barlow_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileBarlow", "barlow_id", profile_id, barlow_id)
+
     def add_profile(self, profile_name: str, telescope_id: str, active: bool = False) -> None:
         with closing(self._connect()) as connection:
             if active:
@@ -105,6 +307,57 @@ class EquipmentCatalogRepository:
                 """,
                 (profile_name, 1 if active else 0, telescope_id),
             )
+            profile = connection.execute(
+                "SELECT id FROM EquipmentProfile WHERE profile_name = ?",
+                (profile_name,),
+            ).fetchone()
+            if profile and telescope_id != "preset:naked-eye":
+                connection.execute(
+                    """
+                    INSERT OR IGNORE INTO EquipmentProfileTelescope (profile_id, telescope_id)
+                    VALUES (?, ?)
+                    """,
+                    (profile["id"], telescope_id),
+                )
+            connection.commit()
+
+    def rename_profile(self, profile_id: int, profile_name: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                "UPDATE EquipmentProfile SET profile_name = ? WHERE id = ?",
+                (profile_name, profile_id),
+            )
+            connection.commit()
+
+    def update_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                "UPDATE EquipmentProfile SET telescope_id = ? WHERE id = ?",
+                (telescope_id, profile_id),
+            )
+            connection.commit()
+
+    def delete_profile(self, profile_id: int) -> None:
+        with closing(self._connect()) as connection:
+            active = connection.execute(
+                "SELECT active FROM EquipmentProfile WHERE id = ?",
+                (profile_id,),
+            ).fetchone()
+            connection.execute("DELETE FROM EquipmentProfile WHERE id = ?", (profile_id,))
+            if active and int(active["active"]) == 1:
+                replacement = connection.execute(
+                    "SELECT id FROM EquipmentProfile ORDER BY profile_name LIMIT 1"
+                ).fetchone()
+                if replacement:
+                    connection.execute("UPDATE EquipmentProfile SET active = 1 WHERE id = ?", (replacement["id"],))
+                else:
+                    connection.execute(
+                        """
+                        INSERT INTO EquipmentProfile (profile_name, active, telescope_id)
+                        VALUES (?, 1, ?)
+                        """,
+                        ("Occhio nudo", "preset:naked-eye"),
+                    )
             connection.commit()
 
     def model_by_catalog_id(self, telescope_id: str) -> dict | None:
@@ -141,3 +394,27 @@ class EquipmentCatalogRepository:
             "notes": row["notes"],
             "catalog_id": f"catalog:{row['brand']}:{row['name']}",
         }
+
+    def _profile_item_ids(self, table: str, id_column: str, profile_id: int) -> list[str]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                f"SELECT {id_column} FROM {table} WHERE profile_id = ? ORDER BY {id_column}",
+                (profile_id,),
+            ).fetchall()
+        return [row[id_column] for row in rows]
+
+    def _assign_profile_item(self, table: str, id_column: str, profile_id: int, item_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                f"INSERT OR IGNORE INTO {table} (profile_id, {id_column}) VALUES (?, ?)",
+                (profile_id, item_id),
+            )
+            connection.commit()
+
+    def _remove_profile_item(self, table: str, id_column: str, profile_id: int, item_id: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                f"DELETE FROM {table} WHERE profile_id = ? AND {id_column} = ?",
+                (profile_id, item_id),
+            )
+            connection.commit()

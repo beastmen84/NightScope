@@ -35,21 +35,25 @@ class EquipmentService:
             return []
         rows = []
         for eyepiece in eyepieces:
-            magnification = (telescope.focal_length_mm / eyepiece.focal_length_mm) * barlow
-            true_field = eyepiece.apparent_field_deg / magnification
-            exit_pupil = telescope.aperture_mm / magnification
-            rows.append(
-                {
-                    "eyepiece": eyepiece.name,
-                    "magnification": f"{magnification:.0f}x",
-                    "trueField": f"{true_field:.2f} gradi",
-                    "exitPupil": f"{exit_pupil:.1f} mm",
-                    "barlow": f"{barlow:g}x",
-                }
-            )
+            for focal_position in self._eyepiece_focal_positions(eyepiece, eyepiece.focal_length_mm):
+                magnification = (telescope.focal_length_mm / focal_position["focal"]) * barlow
+                true_field = eyepiece.apparent_field_deg / magnification
+                exit_pupil = telescope.aperture_mm / magnification
+                rows.append(
+                    {
+                        "eyepiece": eyepiece.name if eyepiece.eyepiece_type != "Zoom" else f"{eyepiece.name} @ {focal_position['position']}",
+                        "magnification": f"{magnification:.0f}x",
+                        "trueField": f"{true_field:.2f} gradi",
+                        "exitPupil": f"{exit_pupil:.1f} mm",
+                        "barlow": f"{barlow:g}x",
+                    }
+                )
         return rows
 
     def telescope_capabilities(self, telescope: Telescope) -> dict:
+        return self.profile_capabilities(telescope, [], [])
+
+    def profile_capabilities(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> dict:
         if not self.has_optical_telescope(telescope):
             return {
                 "name": telescope.name,
@@ -59,12 +63,15 @@ class EquipmentService:
                 "lightGathering": "1x occhio",
                 "limitingMagnitude": "n/d",
                 "resolution": "n/d",
+                "availableConfigurations": [],
+                "availableConfigurationsText": "Aggiungi attrezzatura al profilo",
             }
         min_magnification = max(1, round(telescope.aperture_mm / 5))
         max_magnification = max(min_magnification, round(telescope.aperture_mm * 2))
         light_gathering = round((telescope.aperture_mm / 7.0) ** 2)
         limiting_magnitude = 2 + 5 * self._log10(max(1.0, telescope.aperture_mm))
         resolution = 116 / telescope.aperture_mm
+        configurations = self._available_configurations(telescope, eyepieces, barlows)
         return {
             "name": telescope.name,
             "aperture": f"{telescope.aperture_mm} mm",
@@ -73,6 +80,8 @@ class EquipmentService:
             "lightGathering": f"{light_gathering}x occhio",
             "limitingMagnitude": f"{limiting_magnitude:.1f} stimata",
             "resolution": f"{resolution:.2f}\" stimata",
+            "availableConfigurations": configurations,
+            "availableConfigurationsText": ", ".join(item["magnification"] for item in configurations[:12]) if configurations else "Aggiungi oculari al profilo",
         }
 
     def suggest_for_object(
@@ -89,6 +98,7 @@ class EquipmentService:
         if not eyepieces:
             return {
                 "bestEyepiece": "",
+                "suggestedPosition": "",
                 "barlow": "No",
                 "difficulty": self._difficulty_without_eyepieces(celestial_object),
                 "alternative": "Aggiungi oculari al profilo",
@@ -102,6 +112,7 @@ class EquipmentService:
         if not combinations:
             return {
                 "bestEyepiece": "",
+                "suggestedPosition": "",
                 "barlow": "No",
                 "difficulty": "Difficile",
                 "alternative": "Nessuna combinazione utile",
@@ -117,12 +128,13 @@ class EquipmentService:
         alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
         return {
             "bestEyepiece": recommended["eyepiece"].name,
+            "suggestedPosition": recommended["focal_position"],
             "barlow": recommended["barlow_label"],
             "difficulty": difficulty,
-            "alternative": alternative["label"] if alternative else "n/d",
-            "highMagnification": next((option["label"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
-            "wideField": next((option["label"] for option in setup_options if option["role"] == "Campo largo"), ""),
-            "setupText": recommended["label"],
+            "alternative": alternative["detailLabel"] if alternative else "n/d",
+            "highMagnification": next((option["detailLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
+            "wideField": next((option["detailLabel"] for option in setup_options if option["role"] == "Campo largo"), ""),
+            "setupText": recommended["detail_label"],
             "setupOptions": setup_options,
             "explanation": self._equipment_explanation(celestial_object, recommended),
         }
@@ -139,31 +151,85 @@ class EquipmentService:
         for eyepiece in eyepieces:
             for barlow in self._barlow_options(barlows):
                 multiplier = barlow.multiplier if barlow else 1.0
-                magnification = (telescope.focal_length_mm / eyepiece.focal_length_mm) * multiplier
-                if magnification <= 0:
-                    continue
-                true_field = eyepiece.apparent_field_deg / magnification
-                exit_pupil = telescope.aperture_mm / magnification
-                score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
-                combinations.append(
-                    {
-                        "eyepiece": eyepiece,
-                        "barlow": barlow,
-                        "barlow_label": barlow.name if barlow else "No",
-                        "multiplier": multiplier,
-                        "magnification": magnification,
-                        "true_field": true_field,
-                        "exit_pupil": exit_pupil,
-                        "score": score,
-                        "label": eyepiece.name + (f" + {barlow.name}" if barlow else ""),
-                    }
-                )
+                ideal_focal = telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
+                for focal_position in self._eyepiece_focal_positions(eyepiece, ideal_focal):
+                    focal_mm = focal_position["focal"]
+                    magnification = (telescope.focal_length_mm / focal_mm) * multiplier
+                    if magnification <= 0:
+                        continue
+                    true_field = eyepiece.apparent_field_deg / magnification
+                    exit_pupil = telescope.aperture_mm / magnification
+                    score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
+                    label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
+                    detail_label = label
+                    if eyepiece.eyepiece_type == "Zoom":
+                        detail_label = f"{label} @ {focal_position['position']}"
+                    combinations.append(
+                        {
+                            "eyepiece": eyepiece,
+                            "barlow": barlow,
+                            "barlow_label": barlow.name if barlow else "No",
+                            "multiplier": multiplier,
+                            "focal_position": focal_position["position"],
+                            "focal_mm": focal_mm,
+                            "magnification": magnification,
+                            "true_field": true_field,
+                            "exit_pupil": exit_pupil,
+                            "score": score,
+                            "label": label,
+                            "detail_label": detail_label,
+                        }
+                    )
         return sorted(combinations, key=lambda item: item["score"], reverse=True)
 
     @staticmethod
     def _barlow_options(barlows: list[Barlow]) -> list[Barlow | None]:
         owned = [barlow for barlow in barlows if barlow.multiplier > 1.0]
         return [None, *owned]
+
+    def _available_configurations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> list[dict]:
+        if not eyepieces:
+            return []
+        configurations = []
+        seen = set()
+        for eyepiece in eyepieces:
+            for barlow in self._barlow_options(barlows):
+                multiplier = barlow.multiplier if barlow else 1.0
+                for focal_position in self._eyepiece_focal_positions(eyepiece, eyepiece.focal_length_mm):
+                    magnification = round((telescope.focal_length_mm / focal_position["focal"]) * multiplier)
+                    key = (eyepiece.id, focal_position["position"], multiplier, magnification)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    configurations.append(
+                        {
+                            "label": eyepiece.name + (f" @ {focal_position['position']}" if eyepiece.eyepiece_type == "Zoom" else ""),
+                            "magnification": f"{magnification}x",
+                            "barlow": barlow.name if barlow else "No",
+                        }
+                    )
+        return sorted(configurations, key=lambda item: int(item["magnification"].replace("x", "")))
+
+    @staticmethod
+    def _eyepiece_focal_positions(eyepiece: Eyepiece, ideal_focal_mm: float) -> list[dict]:
+        if eyepiece.eyepiece_type != "Zoom":
+            return [{"focal": eyepiece.focal_length_mm, "position": f"{eyepiece.focal_length_mm:g} mm"}]
+        minimum = eyepiece.min_focal_length_mm or min(eyepiece.focal_length_mm, eyepiece.max_focal_length_mm or eyepiece.focal_length_mm)
+        maximum = eyepiece.max_focal_length_mm or max(eyepiece.focal_length_mm, minimum)
+        low = min(minimum, maximum)
+        high = max(minimum, maximum)
+        clamped = max(low, min(high, ideal_focal_mm))
+        candidates = [clamped, low, high, (low + high) / 2]
+        positions = []
+        seen = set()
+        for value in candidates:
+            rounded = round(value, 1)
+            key = round(rounded, 1)
+            if key in seen:
+                continue
+            seen.add(key)
+            positions.append({"focal": rounded, "position": f"{rounded:g} mm"})
+        return positions
 
     def _recommended_combination(self, combinations: list[dict]) -> dict:
         best = combinations[0]
@@ -185,9 +251,9 @@ class EquipmentService:
 
     @staticmethod
     def _first_distinct(candidates: list[dict], selected: list[tuple[str, dict]]) -> dict | None:
-        selected_labels = {combo["label"] for _, combo in selected}
+        selected_labels = {combo["detail_label"] for _, combo in selected}
         for candidate in candidates:
-            if candidate["label"] not in selected_labels:
+            if candidate["detail_label"] not in selected_labels:
                 return candidate
         return None
 
@@ -196,6 +262,8 @@ class EquipmentService:
         return {
             "role": role,
             "label": combo["label"],
+            "detailLabel": combo["detail_label"],
+            "suggestedPosition": combo["focal_position"],
             "magnification": f"{combo['magnification']:.0f}x",
             "trueField": f"{combo['true_field']:.2f} gradi",
             "exitPupil": f"{combo['exit_pupil']:.1f} mm",
@@ -301,6 +369,7 @@ class EquipmentService:
         )
         return {
             "bestEyepiece": "",
+            "suggestedPosition": "",
             "barlow": "No",
             "difficulty": "Facile" if naked_eye_realistic else "Non adatto a occhio nudo",
             "alternative": "Binocolo o telescopio consigliato" if not naked_eye_realistic else "Occhio nudo",

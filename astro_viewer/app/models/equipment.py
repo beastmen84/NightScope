@@ -27,12 +27,22 @@ class Eyepiece:
     focal_length_mm: float
     apparent_field_deg: float
     barrel_size: str = ""
+    eyepiece_type: str = "Fixed"
+    min_focal_length_mm: float | None = None
+    max_focal_length_mm: float | None = None
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["focalLengthMm"] = self.focal_length_mm
         data["apparentFieldDeg"] = self.apparent_field_deg
         data["barrelSize"] = self.barrel_size
+        data["type"] = self.eyepiece_type
+        data["minFocalLengthMm"] = self.min_focal_length_mm or self.focal_length_mm
+        data["maxFocalLengthMm"] = self.max_focal_length_mm or self.focal_length_mm
+        if self.eyepiece_type == "Zoom":
+            data["focalRangeLabel"] = f"{data['minFocalLengthMm']:g}-{data['maxFocalLengthMm']:g} mm"
+        else:
+            data["focalRangeLabel"] = f"{self.focal_length_mm:g} mm"
         return data
 
 

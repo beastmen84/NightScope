@@ -121,16 +121,17 @@ class AppController(QObject):
         self._beginner_presets = self._equipment_service.beginner_presets()
         self._telescope_brands = self._equipment_catalog_repository.brands()
         self._telescope_catalog_models = self._equipment_catalog_repository.models()
-        self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
+        self._catalog_eyepieces = self._catalog_eyepieces_with_zoom()
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
         self._object_descriptions = self._object_image_repository.descriptions()
         self._telescopes: list[Telescope] = self._initial_telescopes()
+        self._eyepieces: list[Eyepiece] = self._equipment_catalog_repository.owned_eyepieces()
+        self._barlows: list[Barlow] = self._equipment_catalog_repository.owned_barlows()
+        self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
-        self._eyepieces: list[Eyepiece] = []
-        self._barlows: list[Barlow] = []
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
 
@@ -328,7 +329,16 @@ class AppController(QObject):
 
     @Property("QVariant", notify=equipmentChanged)
     def equipmentSetups(self) -> list[dict]:
-        return [telescope.to_qml() for telescope in self._telescopes]
+        return [telescope.to_qml() for telescope in self._owned_telescopes()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def profileTelescopes(self) -> list[dict]:
+        return [telescope.to_qml() for telescope in self._active_profile_telescopes()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def availableProfileTelescopes(self) -> list[dict]:
+        assigned = {telescope.id for telescope in self._active_profile_telescopes()}
+        return [telescope.to_qml() for telescope in self._owned_telescopes() if telescope.id not in assigned]
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeBrands(self) -> list[dict]:
@@ -350,17 +360,39 @@ class AppController(QObject):
     def equipmentProfiles(self) -> list[dict]:
         return self._equipment_profiles
 
+    @Property("QVariant", notify=equipmentChanged)
+    def activeEquipmentProfile(self) -> dict:
+        return self._active_profile() or {"id": 0, "profile_name": "Occhio nudo", "active": 1, "telescope_id": "preset:naked-eye"}
+
     @Property("QVariant", notify=dataChanged)
     def objectImages(self) -> list[dict]:
         return self._object_images
 
     @Property("QVariant", notify=equipmentChanged)
     def eyepieces(self) -> list[dict]:
+        return [eyepiece.to_qml() for eyepiece in self._active_profile_eyepieces()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def ownedEyepieces(self) -> list[dict]:
         return [eyepiece.to_qml() for eyepiece in self._eyepieces]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def availableProfileEyepieces(self) -> list[dict]:
+        assigned = {eyepiece.id for eyepiece in self._active_profile_eyepieces()}
+        return [eyepiece.to_qml() for eyepiece in self._eyepieces if eyepiece.id not in assigned]
 
     @Property("QVariant", notify=equipmentChanged)
     def ownedBarlows(self) -> list[dict]:
         return [barlow.to_qml() for barlow in self._barlows]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def profileBarlows(self) -> list[dict]:
+        return [barlow.to_qml() for barlow in self._active_profile_barlows()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def availableProfileBarlows(self) -> list[dict]:
+        assigned = {barlow.id for barlow in self._active_profile_barlows()}
+        return [barlow.to_qml() for barlow in self._barlows if barlow.id not in assigned]
 
     @Property(bool, notify=equipmentChanged)
     def canUseEyepieces(self) -> bool:
@@ -376,11 +408,15 @@ class AppController(QObject):
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCalculations(self) -> list[dict]:
-        return self._equipment_service.calculations(self._current_telescope(), self._eyepieces, self._barlow)
+        return self._equipment_service.calculations(self._current_telescope(), self._active_profile_eyepieces(), self._barlow)
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCapabilities(self) -> dict:
-        return self._equipment_service.telescope_capabilities(self._current_telescope())
+        return self._equipment_service.profile_capabilities(
+            self._current_telescope(),
+            self._active_profile_eyepieces(),
+            self._active_profile_barlows(),
+        )
 
     @Property(float, notify=equipmentChanged)
     def selectedBarlow(self) -> float:
@@ -504,15 +540,146 @@ class AppController(QObject):
 
     @Slot(int)
     def selectEquipmentSetup(self, index: int) -> None:
-        if 0 <= index < len(self._telescopes):
-            self._selected_telescope_index = index
-            if not self.canUseEyepieces:
-                self._eyepieces = []
-            self._equipment_message = self._equipment_status_message()
-            self._apply_equipment_to_current_objects()
+        telescopes = self._owned_telescopes()
+        if 0 <= index < len(telescopes):
+            self.assignTelescopeToActiveProfile(telescopes[index].id)
+
+    @Slot(str)
+    def addEquipmentProfile(self, profile_name: str) -> None:
+        clean_name = profile_name.strip()
+        if not clean_name:
+            self._equipment_message = "Inserisci un nome profilo."
             self.equipmentChanged.emit()
-            self.dataChanged.emit()
-            self.selectedObjectChanged.emit()
+            return
+        if any(profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
+            self._equipment_message = "This profile already exists."
+            self.equipmentChanged.emit()
+            return
+        self._equipment_catalog_repository.add_profile(clean_name, self._equipment_service.NAKED_EYE_ID, active=False)
+        self._refresh_profiles_from_repository()
+        self._profile_equipment.setdefault(self._profile_key_by_name(clean_name), {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []})
+        self._equipment_message = f"Profilo creato: {clean_name}."
+        self.equipmentChanged.emit()
+
+    @Slot(int, str)
+    def renameEquipmentProfile(self, profile_id: int, profile_name: str) -> None:
+        clean_name = profile_name.strip()
+        if not clean_name:
+            self._equipment_message = "Inserisci un nome profilo."
+            self.equipmentChanged.emit()
+            return
+        if any(int(profile["id"]) != profile_id and profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
+            self._equipment_message = "This profile already exists."
+            self.equipmentChanged.emit()
+            return
+        self._equipment_catalog_repository.rename_profile(profile_id, clean_name)
+        self._refresh_profiles_from_repository()
+        self._equipment_message = f"Profilo rinominato: {clean_name}."
+        self.equipmentChanged.emit()
+
+    @Slot(int)
+    def deleteEquipmentProfile(self, profile_id: int) -> None:
+        if len(self._equipment_profiles) <= 1:
+            self._equipment_message = "Mantieni almeno un profilo attrezzatura."
+            self.equipmentChanged.emit()
+            return
+        self._equipment_catalog_repository.delete_profile(profile_id)
+        self._profile_equipment.pop(str(profile_id), None)
+        self._refresh_profiles_from_repository()
+        self._equipment_message = "Profilo eliminato."
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def assignTelescopeToActiveProfile(self, telescope_id: str) -> None:
+        telescope = self._find_telescope(telescope_id)
+        if not telescope:
+            return
+        state = self._active_profile_state()
+        if telescope.id not in state["telescope_ids"]:
+            state["telescope_ids"].append(telescope.id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_telescope(int(profile["id"]), telescope.id)
+            self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), telescope.id)
+            self._refresh_profiles_from_repository()
+        self._selected_telescope_index = self._index_for_telescope(telescope.id)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
+
+    @Slot(str)
+    def removeTelescopeFromActiveProfile(self, telescope_id: str) -> None:
+        state = self._active_profile_state()
+        state["telescope_ids"] = [item for item in state["telescope_ids"] if item != telescope_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_telescope(int(profile["id"]), telescope_id)
+            replacement = state["telescope_ids"][0] if state["telescope_ids"] else self._equipment_service.NAKED_EYE_ID
+            self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), replacement)
+            self._refresh_profiles_from_repository()
+        self._selected_telescope_index = self._initial_telescope_index()
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def assignEyepieceToActiveProfile(self, eyepiece_id: str) -> None:
+        if not self._find_eyepiece(eyepiece_id):
+            return
+        state = self._active_profile_state()
+        if eyepiece_id not in state["eyepiece_ids"]:
+            state["eyepiece_ids"].append(eyepiece_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_eyepiece(int(profile["id"]), eyepiece_id)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def removeEyepieceFromActiveProfile(self, eyepiece_id: str) -> None:
+        state = self._active_profile_state()
+        state["eyepiece_ids"] = [item for item in state["eyepiece_ids"] if item != eyepiece_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_eyepiece(int(profile["id"]), eyepiece_id)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def assignBarlowToActiveProfile(self, barlow_id: str) -> None:
+        if not self._find_barlow(barlow_id):
+            return
+        state = self._active_profile_state()
+        if barlow_id not in state["barlow_ids"]:
+            state["barlow_ids"].append(barlow_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_barlow(int(profile["id"]), barlow_id)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def removeBarlowFromActiveProfile(self, barlow_id: str) -> None:
+        state = self._active_profile_state()
+        state["barlow_ids"] = [item for item in state["barlow_ids"] if item != barlow_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_barlow(int(profile["id"]), barlow_id)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
 
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
@@ -531,6 +698,43 @@ class AppController(QObject):
     def addCustomEyepiece(self, name: str, focal: str, apparent_field: str, barrel_size: str) -> None:
         self._add_eyepiece(name, focal, apparent_field, barrel_size)
 
+    @Slot(str, str, str, str, str)
+    def addZoomEyepiece(self, name: str, min_focal: str, max_focal: str, apparent_field: str, barrel_size: str) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere oculari."
+            self.equipmentChanged.emit()
+            return
+        try:
+            min_focal_mm = float(min_focal.replace(",", "."))
+            max_focal_mm = float(max_focal.replace(",", "."))
+            apparent_deg = float(apparent_field.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Dati zoom non validi."
+            self.equipmentChanged.emit()
+            return
+        if min_focal_mm <= 0 or max_focal_mm <= 0 or apparent_deg <= 0 or min_focal_mm >= max_focal_mm:
+            self._equipment_message = "Intervallo zoom non valido."
+            self.equipmentChanged.emit()
+            return
+        clean_name = name.strip() or f"Zoom {min_focal_mm:g}-{max_focal_mm:g} mm"
+        eyepiece = Eyepiece(
+            id=self._next_custom_id("custom-eyepiece-", [item.id for item in self._eyepieces]),
+            name=clean_name,
+            focal_length_mm=max_focal_mm,
+            apparent_field_deg=apparent_deg,
+            barrel_size=barrel_size.strip(),
+            eyepiece_type="Zoom",
+            min_focal_length_mm=min_focal_mm,
+            max_focal_length_mm=max_focal_mm,
+        )
+        if self._eyepiece_exists(eyepiece):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._eyepieces.append(eyepiece)
+        self._equipment_catalog_repository.save_owned_eyepiece(eyepiece)
+        self.assignEyepieceToActiveProfile(eyepiece.id)
+
     def _add_eyepiece(self, name: str, focal: str, apparent_field: str, barrel_size: str) -> None:
         if not self.canUseEyepieces:
             self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere oculari."
@@ -548,11 +752,20 @@ class AppController(QObject):
             self._equipment_message = "Focale e campo apparente devono essere maggiori di zero."
             self.equipmentChanged.emit()
             return
-        self._eyepieces.append(Eyepiece(f"custom-eyepiece-{len(self._eyepieces) + 1}", clean_name, focal_mm, apparent_deg, barrel_size.strip()))
-        self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        eyepiece = Eyepiece(
+            self._next_custom_id("custom-eyepiece-", [item.id for item in self._eyepieces]),
+            clean_name,
+            focal_mm,
+            apparent_deg,
+            barrel_size.strip(),
+        )
+        if self._eyepiece_exists(eyepiece):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._eyepieces.append(eyepiece)
+        self._equipment_catalog_repository.save_owned_eyepiece(eyepiece)
+        self.assignEyepieceToActiveProfile(eyepiece.id)
 
     @Slot(int)
     def addCatalogEyepiece(self, catalog_id: int) -> None:
@@ -566,20 +779,99 @@ class AppController(QObject):
         eyepiece = Eyepiece(
             id=f"catalog-eyepiece-{item['id']}",
             name=f"{item['brand']} {item['model']}",
-            focal_length_mm=float(item["focal_length_mm"]),
+            focal_length_mm=float(item.get("focal_length_mm") or item.get("max_focal_length_mm") or 0),
             apparent_field_deg=float(item["apparent_field_deg"]),
             barrel_size=str(item.get("barrel_size") or ""),
+            eyepiece_type=str(item.get("type") or "Fixed"),
+            min_focal_length_mm=float(item["min_focal_length_mm"]) if item.get("min_focal_length_mm") else None,
+            max_focal_length_mm=float(item["max_focal_length_mm"]) if item.get("max_focal_length_mm") else None,
         )
+        if self._eyepiece_exists(eyepiece):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
         if all(existing.id != eyepiece.id for existing in self._eyepieces):
             self._eyepieces.append(eyepiece)
+            self._equipment_catalog_repository.save_owned_eyepiece(eyepiece, source_catalog_id=str(item["id"]))
+        self.assignEyepieceToActiveProfile(eyepiece.id)
+
+    @Slot(str)
+    def removeEyepiece(self, eyepiece_id: str) -> None:
+        self._eyepieces = [eyepiece for eyepiece in self._eyepieces if eyepiece.id != eyepiece_id]
+        for state in self._profile_equipment.values():
+            state["eyepiece_ids"] = [item for item in state["eyepiece_ids"] if item != eyepiece_id]
+        self._equipment_catalog_repository.delete_owned_eyepiece(eyepiece_id)
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
         self.dataChanged.emit()
 
-    @Slot(str)
-    def removeEyepiece(self, eyepiece_id: str) -> None:
-        self._eyepieces = [eyepiece for eyepiece in self._eyepieces if eyepiece.id != eyepiece_id]
+    @Slot(str, str, str, str, str, str)
+    def updateEyepiece(self, eyepiece_id: str, name: str, focal: str, apparent_field: str, barrel_size: str, eyepiece_type: str) -> None:
+        existing = self._find_eyepiece(eyepiece_id)
+        if not existing:
+            return
+        try:
+            focal_mm = float(focal.replace(",", "."))
+            apparent_deg = float(apparent_field.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Dati oculare non validi."
+            self.equipmentChanged.emit()
+            return
+        updated = Eyepiece(
+            eyepiece_id,
+            name.strip() or existing.name,
+            focal_mm,
+            apparent_deg,
+            barrel_size.strip(),
+            "Fixed" if eyepiece_type != "Zoom" else "Zoom",
+            existing.min_focal_length_mm if eyepiece_type == "Zoom" else None,
+            existing.max_focal_length_mm if eyepiece_type == "Zoom" else None,
+        )
+        if self._eyepiece_exists(updated, ignore_id=eyepiece_id):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._eyepieces = [updated if item.id == eyepiece_id else item for item in self._eyepieces]
+        self._equipment_catalog_repository.save_owned_eyepiece(updated)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str, str, str, str, str, str)
+    def updateZoomEyepiece(self, eyepiece_id: str, name: str, min_focal: str, max_focal: str, apparent_field: str, barrel_size: str) -> None:
+        existing = self._find_eyepiece(eyepiece_id)
+        if not existing:
+            return
+        try:
+            min_focal_mm = float(min_focal.replace(",", "."))
+            max_focal_mm = float(max_focal.replace(",", "."))
+            apparent_deg = float(apparent_field.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Dati zoom non validi."
+            self.equipmentChanged.emit()
+            return
+        if min_focal_mm <= 0 or max_focal_mm <= 0 or min_focal_mm >= max_focal_mm:
+            self._equipment_message = "Intervallo zoom non valido."
+            self.equipmentChanged.emit()
+            return
+        updated = Eyepiece(
+            eyepiece_id,
+            name.strip() or existing.name,
+            max_focal_mm,
+            apparent_deg,
+            barrel_size.strip(),
+            "Zoom",
+            min_focal_mm,
+            max_focal_mm,
+        )
+        if self._eyepiece_exists(updated, ignore_id=eyepiece_id):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._eyepieces = [updated if item.id == eyepiece_id else item for item in self._eyepieces]
+        self._equipment_catalog_repository.save_owned_eyepiece(updated)
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
@@ -600,12 +892,14 @@ class AppController(QObject):
             multiplier=float(item["multiplier"]),
             barrel_size=str(item.get("barrel_size") or ""),
         )
+        if self._barlow_exists(barlow):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
         if all(existing.id != barlow.id for existing in self._barlows):
             self._barlows.append(barlow)
-        self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+            self._equipment_catalog_repository.save_owned_barlow(barlow, source_catalog_id=str(item["id"]))
+        self.assignBarlowToActiveProfile(barlow.id)
 
     @Slot(str, str, str)
     def addBarlow(self, name: str, multiplier: str, barrel_size: str) -> None:
@@ -624,22 +918,49 @@ class AppController(QObject):
             self.equipmentChanged.emit()
             return
         clean_name = name.strip() or f"Barlow {parsed_multiplier:g}x"
-        self._barlows.append(
-            Barlow(
-                id=f"custom-barlow-{len(self._barlows) + 1}",
-                name=clean_name,
-                multiplier=parsed_multiplier,
-                barrel_size=barrel_size.strip(),
-            )
+        barlow = Barlow(
+            id=self._next_custom_id("custom-barlow-", [item.id for item in self._barlows]),
+            name=clean_name,
+            multiplier=parsed_multiplier,
+            barrel_size=barrel_size.strip(),
         )
+        if self._barlow_exists(barlow):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._barlows.append(barlow)
+        self._equipment_catalog_repository.save_owned_barlow(barlow)
+        self.assignBarlowToActiveProfile(barlow.id)
+
+    @Slot(str)
+    def removeBarlow(self, barlow_id: str) -> None:
+        self._barlows = [barlow for barlow in self._barlows if barlow.id != barlow_id]
+        for state in self._profile_equipment.values():
+            state["barlow_ids"] = [item for item in state["barlow_ids"] if item != barlow_id]
+        self._equipment_catalog_repository.delete_owned_barlow(barlow_id)
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
         self.dataChanged.emit()
 
-    @Slot(str)
-    def removeBarlow(self, barlow_id: str) -> None:
-        self._barlows = [barlow for barlow in self._barlows if barlow.id != barlow_id]
+    @Slot(str, str, str, str)
+    def updateBarlow(self, barlow_id: str, name: str, multiplier: str, barrel_size: str) -> None:
+        existing = self._find_barlow(barlow_id)
+        if not existing:
+            return
+        try:
+            parsed_multiplier = float(multiplier.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Moltiplicatore Barlow non valido."
+            self.equipmentChanged.emit()
+            return
+        updated = Barlow(barlow_id, name.strip() or existing.name, parsed_multiplier, barrel_size.strip())
+        if self._barlow_exists(updated, ignore_id=barlow_id):
+            self._equipment_message = "This accessory already exists."
+            self.equipmentChanged.emit()
+            return
+        self._barlows = [updated if item.id == barlow_id else item for item in self._barlows]
+        self._equipment_catalog_repository.save_owned_barlow(updated)
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
@@ -656,21 +977,24 @@ class AppController(QObject):
         if not clean_name or aperture_mm <= 0 or focal_mm <= 0:
             return
         telescope = Telescope(
-            id=f"custom-{len(self._telescopes) + 1}",
+            id=self._next_custom_id("custom-telescope-", [item.id for item in self._telescopes]),
             name=clean_name,
             aperture_mm=aperture_mm,
             focal_length_mm=focal_mm,
             optical_type=optical_type,
             mount=mount.strip() or "manuale",
         )
+        if self._telescope_exists(telescope):
+            self._equipment_message = "This telescope already exists."
+            self.equipmentChanged.emit()
+            return
         self._telescopes.append(telescope)
-        self._selected_telescope_index = len(self._telescopes) - 1
-        self._equipment_message = self._equipment_status_message()
-        self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
-        self._equipment_profiles = self._equipment_catalog_repository.profiles()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._equipment_catalog_repository.save_owned_telescope(telescope)
+        if not self._active_profile_telescopes():
+            self.assignTelescopeToActiveProfile(telescope.id)
+        else:
+            self._equipment_message = f"Telescopio aggiunto: {telescope.name}."
+            self.equipmentChanged.emit()
 
     @Slot(str, str)
     def addCatalogProfile(self, catalog_id: str, profile_name: str) -> None:
@@ -678,25 +1002,92 @@ class AppController(QObject):
         if not model:
             return
         telescope = self._telescope_from_catalog_model(model)
+        if self._telescope_exists(telescope):
+            self._equipment_message = "This telescope already exists."
+            self.equipmentChanged.emit()
+            return
         self._telescopes.append(telescope)
-        self._selected_telescope_index = len(self._telescopes) - 1
-        self._equipment_message = self._equipment_status_message()
+        self._equipment_catalog_repository.save_owned_telescope(telescope, source_catalog_id=catalog_id)
         clean_name = profile_name.strip() or telescope.name
         self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
-        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._refresh_profiles_from_repository()
+        self._profile_equipment = self._initial_profile_equipment()
+        self._selected_telescope_index = self._index_for_telescope(telescope.id)
+        self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
+    @Slot(str)
+    def addCatalogTelescope(self, catalog_id: str) -> None:
+        model = self._equipment_catalog_repository.model_by_catalog_id(catalog_id)
+        if not model:
+            return
+        telescope = self._telescope_from_catalog_model(model)
+        if self._telescope_exists(telescope):
+            self._equipment_message = "This telescope already exists."
+            self.equipmentChanged.emit()
+            return
+        self._telescopes.append(telescope)
+        self._equipment_catalog_repository.save_owned_telescope(telescope, source_catalog_id=catalog_id)
+        if not self._active_profile_telescopes():
+            self.assignTelescopeToActiveProfile(telescope.id)
+        else:
+            self._equipment_message = f"Telescopio aggiunto: {telescope.name}."
+            self.equipmentChanged.emit()
+
+    @Slot(str)
+    def removeTelescope(self, telescope_id: str) -> None:
+        if telescope_id == self._equipment_service.NAKED_EYE_ID:
+            return
+        self._telescopes = [telescope for telescope in self._telescopes if telescope.id != telescope_id]
+        for state in self._profile_equipment.values():
+            state["telescope_ids"] = [item for item in state["telescope_ids"] if item != telescope_id]
+        self._equipment_catalog_repository.delete_owned_telescope(telescope_id)
+        self._refresh_profiles_from_repository()
+        self._selected_telescope_index = self._initial_telescope_index()
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str, str, str, str, str, str)
+    def updateTelescope(self, telescope_id: str, name: str, aperture: str, focal: str, optical_type: str, mount: str) -> None:
+        existing = self._find_telescope(telescope_id)
+        if not existing or telescope_id == self._equipment_service.NAKED_EYE_ID:
+            return
+        try:
+            aperture_mm = int(float(aperture.replace(",", ".")))
+            focal_mm = int(float(focal.replace(",", ".")))
+        except ValueError:
+            self._equipment_message = "Dati telescopio non validi."
+            self.equipmentChanged.emit()
+            return
+        updated = Telescope(
+            telescope_id,
+            name.strip() or existing.name,
+            aperture_mm,
+            focal_mm,
+            optical_type.strip() or existing.optical_type,
+            mount.strip() or existing.mount,
+        )
+        if self._telescope_exists(updated, ignore_id=telescope_id):
+            self._equipment_message = "This telescope already exists."
+            self.equipmentChanged.emit()
+            return
+        self._telescopes = [updated if item.id == telescope_id else item for item in self._telescopes]
+        self._equipment_catalog_repository.save_owned_telescope(updated)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
     @Slot(int)
     def setActiveEquipmentProfile(self, profile_id: int) -> None:
         self._equipment_catalog_repository.set_active_profile(profile_id)
-        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._refresh_profiles_from_repository()
         self._selected_telescope_index = self._initial_telescope_index()
-        if not self.canUseEyepieces:
-            self._eyepieces = []
-            self._barlows = []
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
@@ -1013,9 +1404,11 @@ class AppController(QObject):
 
     def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         telescope = self._current_telescope()
+        eyepieces = self._active_profile_eyepieces()
+        barlows = self._active_profile_barlows()
         updated = []
         for item in objects:
-            suggestion = self._equipment_service.suggest_for_object(item, telescope, self._eyepieces, self._barlows)
+            suggestion = self._equipment_service.suggest_for_object(item, telescope, eyepieces, barlows)
             naked_eye_blocked = (
                 not self._equipment_service.has_optical_telescope(telescope)
                 and suggestion["setupText"].startswith("Serve almeno")
@@ -1318,30 +1711,22 @@ class AppController(QObject):
         return f"{hour:02d}:{minute:02d}"
 
     def _current_telescope(self) -> Telescope:
-        return self._telescopes[self._selected_telescope_index]
+        for telescope in self._active_profile_telescopes():
+            return telescope
+        return self._equipment_service.naked_eye_telescope()
 
     def _initial_telescopes(self) -> list[Telescope]:
-        telescopes = self._equipment_service.default_telescopes()
-        active_profile = self._equipment_catalog_repository.active_profile()
-        if active_profile:
-            telescope = self._telescope_from_profile(active_profile, telescopes)
-            if telescope and all(existing.id != telescope.id for existing in telescopes):
-                telescopes.insert(0, telescope)
-        return telescopes or [self._equipment_service.naked_eye_telescope()]
+        telescopes = self._equipment_catalog_repository.owned_telescopes()
+        for profile in self._equipment_profiles:
+            telescope = self._telescope_from_profile(profile, telescopes)
+            if telescope and telescope.id != self._equipment_service.NAKED_EYE_ID and all(existing.id != telescope.id for existing in telescopes):
+                telescopes.append(telescope)
+                self._equipment_catalog_repository.save_owned_telescope(telescope, telescope.id if telescope.id.startswith("catalog:") else "")
+        return [self._equipment_service.naked_eye_telescope(), *telescopes]
 
     def _initial_telescope_index(self) -> int:
-        active_profile = self._equipment_catalog_repository.active_profile()
-        if not active_profile:
-            return 0
-        telescope = self._telescope_from_profile(active_profile, self._telescopes)
-        if not telescope:
-            return 0
-        for index, existing in enumerate(self._telescopes):
-            if existing.id == telescope.id:
-                return index
-        if all(existing.id != telescope.id for existing in self._telescopes):
-            self._telescopes.insert(0, telescope)
-        return 0
+        current = self._current_telescope()
+        return self._index_for_telescope(current.id)
 
     def _telescope_from_profile(self, profile: dict, existing_telescopes: list[Telescope]) -> Telescope | None:
         telescope_id = profile["telescope_id"]
@@ -1368,15 +1753,171 @@ class AppController(QObject):
             mount=model["mount_type"],
         )
 
+    def _catalog_eyepieces_with_zoom(self) -> list[dict]:
+        rows = [dict(row) for row in self._equipment_catalog_repository.eyepieces()]
+        next_id = -1
+        zoom_rows = [
+            ("Baader", "Hyperion Zoom 8-24 mm", 24.0, 60.0, "1.25/2", "Zoom preset; apparent field varies by focal position, midpoint estimate used.", 8.0, 24.0),
+            ("Celestron", "Zoom 8-24 mm", 24.0, 50.0, "1.25", "Zoom preset; apparent field varies by focal position, midpoint estimate used.", 8.0, 24.0),
+            ("Svbony", "Zoom 7-21 mm", 21.0, 50.0, "1.25", "Zoom preset; apparent field varies by focal position, midpoint estimate used.", 7.0, 21.0),
+        ]
+        existing = {(row.get("brand"), row.get("model")) for row in rows}
+        for brand, model, focal, apparent, barrel, notes, min_focal, max_focal in zoom_rows:
+            if (brand, model) in existing:
+                continue
+            rows.append(
+                {
+                    "id": next_id,
+                    "brand": brand,
+                    "model": model,
+                    "focal_length_mm": focal,
+                    "apparent_field_deg": apparent,
+                    "barrel_size": barrel,
+                    "notes": notes,
+                    "type": "Zoom",
+                    "min_focal_length_mm": min_focal,
+                    "max_focal_length_mm": max_focal,
+                    "focalRangeLabel": f"{min_focal:g}-{max_focal:g} mm",
+                }
+            )
+            next_id -= 1
+        for row in rows:
+            row.setdefault("type", "Fixed")
+            row.setdefault("min_focal_length_mm", None)
+            row.setdefault("max_focal_length_mm", None)
+            row.setdefault("focalRangeLabel", f"{float(row['focal_length_mm']):g} mm")
+        return rows
+
+    def _initial_profile_equipment(self) -> dict[str, dict[str, list[str]]]:
+        equipment: dict[str, dict[str, list[str]]] = {}
+        for profile in self._equipment_profiles:
+            profile_id = int(profile["id"])
+            telescope_ids = self._equipment_catalog_repository.profile_telescope_ids(profile_id)
+            legacy_telescope_id = profile.get("telescope_id") or self._equipment_service.NAKED_EYE_ID
+            if legacy_telescope_id != self._equipment_service.NAKED_EYE_ID and legacy_telescope_id not in telescope_ids:
+                telescope_ids.append(legacy_telescope_id)
+                self._equipment_catalog_repository.assign_profile_telescope(profile_id, legacy_telescope_id)
+            equipment[str(profile_id)] = {
+                "telescope_ids": telescope_ids,
+                "eyepiece_ids": self._equipment_catalog_repository.profile_eyepiece_ids(profile_id),
+                "barlow_ids": self._equipment_catalog_repository.profile_barlow_ids(profile_id),
+            }
+        return equipment
+
+    def _refresh_profiles_from_repository(self) -> None:
+        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        for profile in self._equipment_profiles:
+            self._profile_equipment.setdefault(
+                str(profile["id"]),
+                {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []},
+            )
+
+    def _active_profile(self) -> dict | None:
+        return next((profile for profile in self._equipment_profiles if int(profile.get("active", 0)) == 1), None)
+
+    def _active_profile_state(self) -> dict[str, list[str]]:
+        profile = self._active_profile()
+        if not profile:
+            return {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []}
+        return self._profile_equipment.setdefault(
+            str(profile["id"]),
+            {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []},
+        )
+
+    def _profile_key_by_name(self, profile_name: str) -> str:
+        for profile in self._equipment_profiles:
+            if profile["profile_name"].strip().lower() == profile_name.strip().lower():
+                return str(profile["id"])
+        return profile_name.strip().lower()
+
+    def _owned_telescopes(self) -> list[Telescope]:
+        return [telescope for telescope in self._telescopes if telescope.id != self._equipment_service.NAKED_EYE_ID]
+
+    def _active_profile_telescopes(self) -> list[Telescope]:
+        state = self._active_profile_state()
+        telescopes = [telescope for telescope_id in state["telescope_ids"] if (telescope := self._find_telescope(telescope_id))]
+        return telescopes
+
+    def _active_profile_eyepieces(self) -> list[Eyepiece]:
+        state = self._active_profile_state()
+        return [eyepiece for eyepiece_id in state["eyepiece_ids"] if (eyepiece := self._find_eyepiece(eyepiece_id))]
+
+    def _active_profile_barlows(self) -> list[Barlow]:
+        state = self._active_profile_state()
+        return [barlow for barlow_id in state["barlow_ids"] if (barlow := self._find_barlow(barlow_id))]
+
+    def _find_telescope(self, telescope_id: str) -> Telescope | None:
+        return next((telescope for telescope in self._telescopes if telescope.id == telescope_id), None)
+
+    def _find_eyepiece(self, eyepiece_id: str) -> Eyepiece | None:
+        return next((eyepiece for eyepiece in self._eyepieces if eyepiece.id == eyepiece_id), None)
+
+    def _find_barlow(self, barlow_id: str) -> Barlow | None:
+        return next((barlow for barlow in self._barlows if barlow.id == barlow_id), None)
+
+    def _index_for_telescope(self, telescope_id: str) -> int:
+        for index, telescope in enumerate(self._telescopes):
+            if telescope.id == telescope_id:
+                return index
+        return 0
+
+    def _telescope_exists(self, telescope: Telescope, ignore_id: str = "") -> bool:
+        return any(
+            existing.id != ignore_id
+            and existing.id != self._equipment_service.NAKED_EYE_ID
+            and existing.name.strip().lower() == telescope.name.strip().lower()
+            and existing.aperture_mm == telescope.aperture_mm
+            and existing.focal_length_mm == telescope.focal_length_mm
+            and existing.optical_type.strip().lower() == telescope.optical_type.strip().lower()
+            and existing.mount.strip().lower() == telescope.mount.strip().lower()
+            for existing in self._telescopes
+        )
+
+    def _eyepiece_exists(self, eyepiece: Eyepiece, ignore_id: str = "") -> bool:
+        return any(
+            existing.id != ignore_id
+            and existing.name.strip().lower() == eyepiece.name.strip().lower()
+            and round(existing.focal_length_mm, 3) == round(eyepiece.focal_length_mm, 3)
+            and round(existing.apparent_field_deg, 3) == round(eyepiece.apparent_field_deg, 3)
+            and existing.barrel_size.strip().lower() == eyepiece.barrel_size.strip().lower()
+            and existing.eyepiece_type == eyepiece.eyepiece_type
+            and round(existing.min_focal_length_mm or 0.0, 3) == round(eyepiece.min_focal_length_mm or 0.0, 3)
+            and round(existing.max_focal_length_mm or 0.0, 3) == round(eyepiece.max_focal_length_mm or 0.0, 3)
+            for existing in self._eyepieces
+        )
+
+    def _barlow_exists(self, barlow: Barlow, ignore_id: str = "") -> bool:
+        return any(
+            existing.id != ignore_id
+            and existing.name.strip().lower() == barlow.name.strip().lower()
+            and round(existing.multiplier, 3) == round(barlow.multiplier, 3)
+            and existing.barrel_size.strip().lower() == barlow.barrel_size.strip().lower()
+            for existing in self._barlows
+        )
+
+    @staticmethod
+    def _next_custom_id(prefix: str, existing_ids: list[str]) -> str:
+        highest = 0
+        for item_id in existing_ids:
+            if not item_id.startswith(prefix):
+                continue
+            try:
+                highest = max(highest, int(item_id.removeprefix(prefix)))
+            except ValueError:
+                continue
+        return f"{prefix}{highest + 1}"
+
     def _equipment_status_message(self) -> str:
         telescope = self._current_telescope()
         if not self._equipment_service.has_optical_telescope(telescope):
             return "Modalita Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow."
-        if not self._eyepieces:
+        eyepieces = self._active_profile_eyepieces()
+        barlows = self._active_profile_barlows()
+        if not eyepieces:
             return "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi."
-        barlow_count = len(self._barlows)
+        barlow_count = len(barlows)
         barlow_text = f"{barlow_count} Barlow" if barlow_count else "nessuna Barlow"
-        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(self._eyepieces)}, {barlow_text}."
+        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(eyepieces)}, {barlow_text}."
 
     @staticmethod
     def _empty_windows_diagnostics() -> dict:

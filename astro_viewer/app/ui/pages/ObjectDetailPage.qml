@@ -170,7 +170,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.label
+                                text: modelData.detailLabel || modelData.label
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold

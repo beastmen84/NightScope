@@ -148,12 +148,38 @@ ApplicationWindow {
                         onClicked: window.currentPage = "location"
                     }
 
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 8
+                        text: "Strumenti"
+                        color: theme.textMuted
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Strumenti"
+                        text: "Profili"
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
-                        selected: window.currentPage === "equipment"
-                        onClicked: window.currentPage = "equipment"
+                        selected: window.currentPage === "equipmentProfiles"
+                        onClicked: window.currentPage = "equipmentProfiles"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
+                        text: "Telescopi"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/telescope.svg"
+                        selected: window.currentPage === "equipmentTelescopes"
+                        onClicked: window.currentPage = "equipmentTelescopes"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
+                        text: "Oculari e Barlow"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
+                        selected: window.currentPage === "equipmentOptics"
+                        onClicked: window.currentPage = "equipmentOptics"
                     }
                 }
 
@@ -220,7 +246,9 @@ ApplicationWindow {
                 if (window.currentPage === "calendar") return calendarPage
                 if (window.currentPage === "weather") return weatherPage
                 if (window.currentPage === "location") return locationPage
-                if (window.currentPage === "equipment") return equipmentPage
+                if (window.currentPage === "equipmentProfiles") return equipmentProfilesPage
+                if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
+                if (window.currentPage === "equipmentOptics") return equipmentOpticsPage
                 return homePage
             }
         }
@@ -266,8 +294,22 @@ ApplicationWindow {
     }
 
     Component {
-        id: equipmentPage
-        EquipmentPage {
+        id: equipmentProfilesPage
+        EquipmentProfilesPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: equipmentTelescopesPage
+        EquipmentTelescopesPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: equipmentOpticsPage
+        EquipmentOpticsPage {
             controller: appController
         }
     }

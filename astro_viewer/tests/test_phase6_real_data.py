@@ -189,6 +189,29 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertEqual(suggestion["bestEyepiece"], "32 mm")
         self.assertEqual(suggestion["barlow"], "No")
 
+    def test_zoom_eyepiece_recommendation_uses_single_owned_zoom(self) -> None:
+        suggestion = EquipmentService().suggest_for_object(
+            _object("saturn", "Saturno", "Pianeta", "0.8"),
+            Telescope("scope", "Newton 130/650", 130, 650, "Newton", "manuale"),
+            [
+                Eyepiece(
+                    "zoom",
+                    "Baader Hyperion Zoom",
+                    24,
+                    60,
+                    "1.25/2",
+                    "Zoom",
+                    8,
+                    24,
+                )
+            ],
+            [],
+        )
+
+        self.assertEqual(suggestion["bestEyepiece"], "Baader Hyperion Zoom")
+        self.assertIn("mm", suggestion["suggestedPosition"])
+        self.assertIn("@", suggestion["setupText"])
+
     def test_controller_does_not_create_default_eyepieces_after_telescope(self) -> None:
         with _controller() as controller:
             controller.addTelescope("Newton 150/750", "150", "750", "Newton", "manuale")
@@ -196,6 +219,41 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(controller.canUseEyepieces)
             self.assertEqual(controller.eyepieces, [])
             self.assertIn("senza oculari", controller.equipmentMessage)
+
+    def test_controller_recommendations_use_only_active_profile_equipment(self) -> None:
+        with _controller() as controller:
+            controller.addTelescope("Newton 150/750", "150", "750", "Newton", "manuale")
+            controller.addCustomEyepiece("Assigned 20 mm", "20", "60", "1.25")
+            controller.addCustomEyepiece("Unassigned 5 mm", "5", "60", "1.25")
+            unassigned = next(item for item in controller.ownedEyepieces if item["name"] == "Unassigned 5 mm")
+            controller.removeEyepieceFromActiveProfile(unassigned["id"])
+
+            updated = controller._apply_equipment([_object("jupiter", "Giove", "Pianeta", "-2.0")])[0]
+
+            self.assertIn("Assigned 20 mm", updated.recommended_setup)
+            self.assertNotIn("Unassigned 5 mm", updated.recommended_setup)
+            self.assertEqual(len(controller.ownedEyepieces), 2)
+            self.assertEqual(len(controller.eyepieces), 1)
+
+    def test_controller_blocks_duplicate_telescopes(self) -> None:
+        with _controller() as controller:
+            controller.addTelescope("Newton 150/750", "150", "750", "Newton", "manuale")
+            count = len(controller.equipmentSetups)
+
+            controller.addTelescope("Newton 150/750", "150", "750", "Newton", "manuale")
+
+            self.assertEqual(len(controller.equipmentSetups), count)
+            self.assertEqual(controller.equipmentMessage, "This telescope already exists.")
+
+    def test_equipment_navigation_is_split_into_three_pages(self) -> None:
+        main_qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "main.qml").read_text(encoding="utf-8")
+
+        self.assertIn("equipmentProfiles", main_qml)
+        self.assertIn("equipmentTelescopes", main_qml)
+        self.assertIn("equipmentOptics", main_qml)
+        self.assertIn("EquipmentProfilesPage", main_qml)
+        self.assertIn("EquipmentTelescopesPage", main_qml)
+        self.assertIn("EquipmentOpticsPage", main_qml)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

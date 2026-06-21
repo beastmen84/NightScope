@@ -162,3 +162,60 @@ CREATE TABLE IF NOT EXISTS EquipmentProfile (
 );
 
 CREATE INDEX IF NOT EXISTS idx_equipment_profile_active ON EquipmentProfile(active);
+
+CREATE TABLE IF NOT EXISTS OwnedTelescope (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    aperture_mm INTEGER NOT NULL,
+    focal_length_mm INTEGER NOT NULL,
+    optical_type TEXT NOT NULL,
+    mount TEXT NOT NULL,
+    source_catalog_id TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE (name, aperture_mm, focal_length_mm, optical_type, mount)
+);
+
+CREATE TABLE IF NOT EXISTS OwnedEyepiece (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    focal_length_mm REAL NOT NULL,
+    apparent_field_deg REAL NOT NULL,
+    barrel_size TEXT,
+    eyepiece_type TEXT NOT NULL DEFAULT 'Fixed',
+    min_focal_length_mm REAL,
+    max_focal_length_mm REAL,
+    source_catalog_id TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE (name, focal_length_mm, apparent_field_deg, barrel_size, eyepiece_type, min_focal_length_mm, max_focal_length_mm)
+);
+
+CREATE TABLE IF NOT EXISTS OwnedBarlow (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    multiplier REAL NOT NULL,
+    barrel_size TEXT,
+    source_catalog_id TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE (name, multiplier, barrel_size)
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileTelescope (
+    profile_id INTEGER NOT NULL,
+    telescope_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, telescope_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileEyepiece (
+    profile_id INTEGER NOT NULL,
+    eyepiece_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, eyepiece_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileBarlow (
+    profile_id INTEGER NOT NULL,
+    barlow_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, barlow_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);
