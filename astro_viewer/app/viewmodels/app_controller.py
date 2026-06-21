@@ -60,7 +60,10 @@ class AppController(QObject):
         self._object_image_repository = ObjectImageRepository(database_path)
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
-        self._location_service = LocationService(cache_path=base_dir / "data" / "location_cache.json")
+        self._location_service = LocationService(
+            city_resolver=self._city_repository,
+            cache_path=base_dir / "data" / "location_cache.json",
+        )
         self._is_loading = False
         self._service_status = ""
         self._weather_status = ""

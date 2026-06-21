@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import sqlite3
 import unicodedata
 from contextlib import closing
@@ -113,6 +114,38 @@ class CityRepository:
         cities = self.list_cities(limit=1)
         return cities[0]
 
+    def nearest_by_coordinates(self, latitude: float, longitude: float, max_radius_km: float = 50.0) -> dict | None:
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            return None
+        latitude_delta = max(max_radius_km / 111.0, 0.01)
+        cosine = max(abs(math.cos(math.radians(latitude))), 0.01)
+        longitude_delta = max(max_radius_km / (111.0 * cosine), 0.01)
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, city_name, ascii_name, country, country_code, admin_region,
+                       latitude, longitude, timezone, population, aliases, search_name
+                FROM City
+                WHERE ABS(latitude - ?) <= ?
+                  AND ABS(longitude - ?) <= ?
+                """,
+                (latitude, latitude_delta, longitude, longitude_delta),
+            ).fetchall()
+        nearest_row = None
+        nearest_distance = None
+        for row in rows:
+            distance = _distance_km(latitude, longitude, row["latitude"], row["longitude"])
+            if distance > max_radius_km:
+                continue
+            if nearest_distance is None or distance < nearest_distance:
+                nearest_row = row
+                nearest_distance = distance
+        if nearest_row is None or nearest_distance is None:
+            return None
+        city = self._row_to_city(nearest_row)
+        city["distance_km"] = nearest_distance
+        return city
+
     @staticmethod
     def _row_to_city(row: sqlite3.Row) -> dict:
         return {
@@ -135,3 +168,13 @@ def _normalize_search(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value.strip().lower())
     ascii_value = "".join(character for character in normalized if not unicodedata.combining(character))
     return " ".join(ascii_value.replace("-", " ").replace("_", " ").split())
+
+
+def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    radius_km = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    value = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    return 2 * radius_km * math.atan2(math.sqrt(value), math.sqrt(1 - value))

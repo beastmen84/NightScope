@@ -52,6 +52,8 @@ class LocationDetectionResult:
     accuracy: str
     approximate: bool = False
     region: str = ""
+    country_code: str = ""
+    raw_provider_timezone: str = ""
     message: str = ""
 
     def to_qml(self) -> dict:
@@ -59,6 +61,7 @@ class LocationDetectionResult:
         data["location"] = {
             "city": self.location.city,
             "country": self.location.country,
+            "country_code": self.country_code,
             "latitude": self.location.latitude,
             "longitude": self.location.longitude,
             "timezone": self.location.timezone,
@@ -81,6 +84,11 @@ class LocationProvider(Protocol):
         ...
 
 
+class CityReverseLookup(Protocol):
+    def nearest_by_coordinates(self, latitude: float, longitude: float, max_radius_km: float = 50.0) -> dict | None:
+        ...
+
+
 class WindowsLocationProvider:
     name = "windows_precise"
 
@@ -89,12 +97,14 @@ class WindowsLocationProvider:
         location = self._location_from_windows_payload(payload, provider_label="Posizione Windows")
         accuracy = payload.get("accuracy")
         accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "precisa"
+        raw_timezone = str(payload.get("raw_provider_timezone") or payload.get("timezone") or "")
         return LocationDetectionResult(
             location=location,
             provider=self.name,
             source="Windows.Devices.Geolocation.Geolocator",
             accuracy=accuracy_label,
             approximate=False,
+            raw_provider_timezone=raw_timezone,
             message="Posizione Windows acquisita.",
         )
 
@@ -151,12 +161,14 @@ class WindowsCoarseLocationProvider(WindowsLocationProvider):
         location = self._location_from_windows_payload(payload, provider_label="Posizione Windows approssimata")
         accuracy = payload.get("accuracy")
         accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "approssimata"
+        raw_timezone = str(payload.get("raw_provider_timezone") or payload.get("timezone") or "")
         return LocationDetectionResult(
             location=location,
             provider=self.name,
             source="Windows.Devices.Geolocation.Geolocator coarse",
             accuracy=accuracy_label,
             approximate=True,
+            raw_provider_timezone=raw_timezone,
             message="Posizione Windows approssimata acquisita.",
         )
 
@@ -284,6 +296,7 @@ class ManualCityProvider:
             source="SQLite City",
             accuracy="city coordinates",
             approximate=False,
+            country_code=str(city.get("country_code") or ""),
             message=f"Posizione impostata su {city['city']}, {city['country']}.",
         )
 
@@ -325,6 +338,7 @@ class LocationService:
         ip_provider: IpGeolocationProvider | None = None,
         city_provider: ManualCityProvider | None = None,
         coordinates_provider: ManualCoordinatesProvider | None = None,
+        city_resolver: CityReverseLookup | None = None,
         cache_path: Path | None = None,
     ):
         self.windows_provider = windows_provider or WindowsLocationProvider()
@@ -332,6 +346,7 @@ class LocationService:
         self.ip_provider = ip_provider or IpGeolocationProvider(cache_path)
         self.city_provider = city_provider or ManualCityProvider()
         self.coordinates_provider = coordinates_provider or ManualCoordinatesProvider()
+        self.city_resolver = city_resolver
         self.last_result: LocationDetectionResult | None = None
         self.last_error_reason = ""
 
@@ -347,6 +362,7 @@ class LocationService:
                 errors.append(f"{provider.name}: {exc.reason}")
                 self.last_error_reason = exc.reason
                 continue
+            result = self._normalize_windows_precise_result(result)
             self.last_result = result
             return result
         raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "; ".join(errors) or "unavailable provider")
@@ -358,6 +374,7 @@ class LocationService:
             except LocationUnavailableError as exc:
                 self.last_error_reason = exc.reason
                 continue
+            result = self._normalize_windows_precise_result(result)
             self.last_result = result
             return result
         raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, self.last_error_reason or "unavailable provider")
@@ -428,6 +445,88 @@ class LocationService:
     def system_timezone(self) -> str:
         return system_timezone()
 
+    def _normalize_windows_precise_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
+        if result.provider != "windows_precise" or self.city_resolver is None:
+            return result
+        latitude = result.location.latitude
+        longitude = result.location.longitude
+        raw_timezone = result.raw_provider_timezone or result.location.timezone
+        city = self._nearest_city(latitude, longitude, max_radius_km=50.0)
+        if city:
+            logger.info(
+                "Windows precise location normalized via local City database: raw_timezone=%s city=%s country=%s timezone=%s distance_km=%.1f",
+                raw_timezone,
+                city["city"],
+                city["country"],
+                city["timezone"],
+                float(city.get("distance_km") or 0.0),
+            )
+            return LocationDetectionResult(
+                location=ObserverLocation(
+                    city=city["city"],
+                    country=city["country"],
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone=city["timezone"],
+                ),
+                provider=result.provider,
+                source=f"{result.source}; local City reverse lookup",
+                accuracy=result.accuracy,
+                approximate=result.approximate,
+                region=str(city.get("admin_region") or result.region),
+                country_code=str(city.get("country_code") or result.country_code),
+                raw_provider_timezone=raw_timezone,
+                message=f"Posizione Windows acquisita: {city['city']}, {city['country']}.",
+            )
+
+        fallback_timezone = self._timezone_from_coordinates(latitude, longitude, raw_timezone)
+        if fallback_timezone != result.location.timezone:
+            logger.info(
+                "Windows precise location timezone normalized from nearby coordinate timezone: raw_timezone=%s fallback_timezone=%s",
+                raw_timezone,
+                fallback_timezone,
+            )
+            return LocationDetectionResult(
+                location=ObserverLocation(
+                    city=result.location.city,
+                    country=result.location.country,
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone=fallback_timezone,
+                ),
+                provider=result.provider,
+                source=f"{result.source}; coordinate timezone fallback",
+                accuracy=result.accuracy,
+                approximate=result.approximate,
+                region=result.region,
+                country_code=result.country_code,
+                raw_provider_timezone=raw_timezone,
+                message=result.message,
+            )
+
+        logger.info(
+            "Windows precise location kept provider/system timezone after reverse lookup miss: raw_timezone=%s latitude=%.5f longitude=%.5f",
+            raw_timezone,
+            latitude,
+            longitude,
+        )
+        return result
+
+    def _nearest_city(self, latitude: float, longitude: float, max_radius_km: float) -> dict | None:
+        if self.city_resolver is None:
+            return None
+        try:
+            return self.city_resolver.nearest_by_coordinates(latitude, longitude, max_radius_km=max_radius_km)
+        except Exception:
+            logger.warning("City reverse lookup failed for Windows precise location.", exc_info=True)
+            return None
+
+    def _timezone_from_coordinates(self, latitude: float, longitude: float, raw_timezone: str) -> str:
+        city = self._nearest_city(latitude, longitude, max_radius_km=500.0)
+        if city:
+            return str(city["timezone"])
+        return WINDOWS_TO_IANA_TIMEZONES.get(raw_timezone, system_timezone())
+
 
 def _windows_geolocation_script(precise: bool) -> str:
     accuracy = "High" if precise else "Default"
@@ -463,6 +562,7 @@ try {{
     longitude = $position.Longitude
     accuracy = $coordinate.Accuracy
     timezone = (Get-TimeZone).Id
+    raw_provider_timezone = (Get-TimeZone).Id
   }})
 }} catch {{
   $message = $_.Exception.Message
@@ -609,6 +709,7 @@ $script:diagnostic = [ordered]@{
   coordinatesReceived = $false
   coordinates = $null
   errorDetails = $null
+  rawProviderTimezone = $null
   timestamp = (Get-Date).ToString("o")
   thread = [ordered]@{
     apartment = [System.Threading.Thread]::CurrentThread.GetApartmentState().ToString()
@@ -797,12 +898,14 @@ try {
     $latitude = $position.Latitude
     $longitude = $position.Longitude
     $script:diagnostic.providerStatus = $locator.LocationStatus.ToString()
+    $script:diagnostic.rawProviderTimezone = (Get-TimeZone).Id
     $script:diagnostic.coordinates = [ordered]@{
       latitude = $latitude
       longitude = $longitude
       accuracy = $coordinate.Accuracy
       altitude = $position.Altitude
       timestamp = $coordinate.Timestamp.ToString("o")
+      rawProviderTimezone = $script:diagnostic.rawProviderTimezone
     }
     $script:diagnostic.coordinatesReceived = ($null -ne $latitude -and $null -ne $longitude)
     AddStep "Read coordinates" "ok" $script:diagnostic.coordinates

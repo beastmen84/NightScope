@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.database.bootstrap import initialize_database
+from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
     IpGeolocationProvider,
@@ -50,6 +54,92 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(result.provider, "windows_precise")
         self.assertEqual(result.location.latitude, 41.9028)
         self.assertEqual(result.location.longitude, 12.4964)
+
+    def test_windows_coordinates_near_addis_resolve_to_local_city_timezone(self) -> None:
+        with _temp_city_repository() as repository:
+            completed = subprocess.CompletedProcess(
+                args=["powershell"],
+                returncode=0,
+                stdout=(
+                    '{"ok":true,"access_status":"Allowed",'
+                    '"latitude":8.951475146070246,'
+                    '"longitude":38.78120889791471,'
+                    '"timezone":"E. Africa Standard Time",'
+                    '"raw_provider_timezone":"E. Africa Standard Time",'
+                    '"accuracy":84}'
+                ),
+                stderr="",
+            )
+            service = LocationService(city_resolver=repository)
+
+            with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+                result = service.detect_windows_location()
+
+        self.assertEqual(result.provider, "windows_precise")
+        self.assertEqual(result.location.city, "Addis Ababa")
+        self.assertEqual(result.location.country, "Etiopia")
+        self.assertEqual(result.country_code, "ET")
+        self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
+        self.assertEqual(result.raw_provider_timezone, "E. Africa Standard Time")
+        self.assertAlmostEqual(result.location.latitude, 8.951475146070246)
+        self.assertAlmostEqual(result.location.longitude, 38.78120889791471)
+
+    def test_manual_city_selection_remains_unchanged_with_city_resolver(self) -> None:
+        with _temp_city_repository() as repository:
+            city = next(item for item in repository.search("Addis Ababa") if item["country_code"] == "ET")
+            result = LocationService(city_resolver=repository).from_city_result(city)
+
+        self.assertEqual(result.provider, "manual_city")
+        self.assertEqual(result.location.city, "Addis Ababa")
+        self.assertEqual(result.location.country, "Etiopia")
+        self.assertEqual(result.country_code, "ET")
+        self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
+        self.assertEqual(result.source, "SQLite City")
+
+    def test_approximate_online_location_remains_unchanged_with_city_resolver(self) -> None:
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "city": "Rome",
+            "region": "Lazio",
+            "country_name": "Italy",
+            "latitude": 41.9,
+            "longitude": 12.5,
+            "timezone": "Europe/Rome",
+            "accuracy_radius": 25,
+        }
+
+        with patch("astro_viewer.app.services.location_service.requests.get", return_value=response):
+            result = LocationService(city_resolver=_ExplodingCityResolver()).detect_ip_location(allow_online=True)
+
+        self.assertEqual(result.provider, "ip_geolocation")
+        self.assertTrue(result.approximate)
+        self.assertEqual(result.location.city, "Rome")
+        self.assertEqual(result.location.country, "Italy")
+        self.assertEqual(result.location.timezone, "Europe/Rome")
+
+    def test_windows_location_uses_fallback_timezone_when_no_nearby_city_exists(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=["powershell"],
+            returncode=0,
+            stdout=(
+                '{"ok":true,"access_status":"Allowed",'
+                '"latitude":0.0,'
+                '"longitude":-160.0,'
+                '"timezone":"W. Europe Standard Time",'
+                '"raw_provider_timezone":"W. Europe Standard Time",'
+                '"accuracy":25}'
+            ),
+            stderr="",
+        )
+        service = LocationService(city_resolver=_NoCityResolver())
+
+        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
+            result = service.detect_windows_location()
+
+        self.assertEqual(result.location.city, "Posizione Windows")
+        self.assertEqual(result.location.timezone, "Europe/Berlin")
+        self.assertEqual(result.raw_provider_timezone, "W. Europe Standard Time")
 
     def test_windows_location_latitude_none(self) -> None:
         with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):
@@ -234,6 +324,29 @@ class _FakeProvider:
         if not self._result:
             raise LocationUnavailableError("missing fake result", "test")
         return self._result
+
+
+class _NoCityResolver:
+    def nearest_by_coordinates(self, latitude: float, longitude: float, max_radius_km: float = 50.0) -> dict | None:
+        return None
+
+
+class _ExplodingCityResolver:
+    def nearest_by_coordinates(self, latitude: float, longitude: float, max_radius_km: float = 50.0) -> dict | None:
+        raise AssertionError("Approximate online location must not use local city reverse lookup.")
+
+
+class _temp_city_repository:
+    def __enter__(self) -> CityRepository:
+        self._temp_dir = tempfile.TemporaryDirectory()
+        database_path = Path(self._temp_dir.name) / "nightscope.db"
+        base_dir = Path(__file__).resolve().parents[1]
+        initialize_database(database_path, base_dir / "data" / "schema.sql")
+        self.repository = CityRepository(database_path)
+        return self.repository
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self._temp_dir.cleanup()
 
 
 if __name__ == "__main__":
