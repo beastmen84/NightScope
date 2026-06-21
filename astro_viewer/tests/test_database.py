@@ -37,6 +37,29 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertGreaterEqual(len(repository.barlows()), 4)
             self.assertIsNotNone(repository.active_profile())
 
+    def test_missing_database_is_bootstrapped(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "missing.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+
+            initialize_database(database_path, schema_path)
+
+            self.assertTrue(database_path.exists())
+            self.assertEqual(len(MessierRepository(database_path).list_objects()), 110)
+
+    def test_corrupt_database_is_quarantined_and_rebuilt(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            database_path.write_text("not a sqlite database", encoding="utf-8")
+
+            with self.assertLogs("astro_viewer.app.database.bootstrap", level="WARNING"):
+                initialize_database(database_path, schema_path)
+
+            quarantined = list(Path(temp_dir).glob("nightscope.db.corrupt-*.bak"))
+            self.assertEqual(len(quarantined), 1)
+            self.assertEqual(len(MessierRepository(database_path).list_objects()), 110)
+
 
 if __name__ == "__main__":
     unittest.main()
