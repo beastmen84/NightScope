@@ -74,7 +74,9 @@ class ObservingScoreService:
             return "Pessima"
         if score <= 50:
             return "Scarsa"
-        if score <= 75:
+        if score <= 70:
+            return "Discreta"
+        if score <= 85:
             return "Buona"
         return "Ottima"
 

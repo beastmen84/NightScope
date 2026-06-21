@@ -22,6 +22,8 @@ QtObject {
         if (score === "Buono") return cyan
         if (score === "Buona") return cyan
         if (score === "Discreto") return amber
+        if (score === "Discreta") return amber
+        if (score === "Limitata") return amber
         if (score === "Scarso") return coral
         if (score === "Scarsa") return coral
         if (score === "Pessima") return red

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import replace
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -19,6 +20,7 @@ from astro_viewer.app.database.sky_quality_repository import SkyQualityRepositor
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
@@ -146,7 +148,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def visiblePlanets(self) -> list[dict]:
-        return [planet.to_qml() for planet in self._visible_planets]
+        return [self._object_to_qml(planet) for planet in self._home_visible_objects(self._visible_planets)]
 
     @Property("QVariant", notify=dataChanged)
     def solarSystemObjects(self) -> list[dict]:
@@ -154,7 +156,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def recommendedDeepSky(self) -> list[dict]:
-        return [deep_sky.to_qml() for deep_sky in self._deep_sky]
+        return [self._object_to_qml(deep_sky) for deep_sky in self._home_visible_objects(self._deep_sky)]
 
     @Property("QVariant", notify=dataChanged)
     def moonSummary(self) -> dict:
@@ -188,9 +190,23 @@ class AppController(QObject):
     def advancedScores(self) -> dict:
         return self._advanced_scores.to_qml() if self._advanced_scores else {}
 
+    @Property("QVariant", notify=weatherChanged)
+    def weatherDigest(self) -> dict:
+        return self._weather_digest()
+
+    @Property(str, notify=weatherChanged)
+    def skyQualityWarning(self) -> str:
+        if not self._sky_quality:
+            return ""
+        if self._sky_quality.bortle_class >= 8:
+            return "Cielo urbano: oggetti cielo profondo limitati. Preferire ammassi aperti, pianeti e Luna."
+        if self._sky_quality.bortle_class >= 7:
+            return "Cielo suburbano luminoso: privilegiare oggetti brillanti e pianeti."
+        return ""
+
     @Property("QVariant", notify=dataChanged)
     def bestObjectOfNight(self) -> dict:
-        return self._best_object.to_qml() if self._best_object else {}
+        return self._object_to_qml(self._best_object) if self._best_object else {}
 
     @Property("QVariant", notify=dataChanged)
     def nightPlan(self) -> list[dict]:
@@ -212,12 +228,12 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
-        objects = self._visible_planets[:2] + self._deep_sky[:2]
+        objects = self._home_visible_objects(self._visible_planets)[:2] + self._home_visible_objects(self._deep_sky)[:2]
         return [
             {
                 "name": item.name,
                 "type": item.object_type,
-                "bestTime": item.best_time,
+                "bestTime": self._home_time_label(item),
                 "setup": item.recommended_setup,
             }
             for item in objects
@@ -476,6 +492,7 @@ class AppController(QObject):
             self._append_service_status(WEATHER_UNAVAILABLE_MESSAGE)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
+        self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
         self._advanced_scores = self._advanced_observing_service.scores(
             self._weather_summary,
@@ -483,9 +500,11 @@ class AppController(QObject):
             self._sky_quality,
             self._moon,
         )
-        self._best_object = self._score_service.best_object(self._visible_planets + self._deep_sky, self._weather_summary)
+        planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
+        planning_objects = planning_objects or self._visible_planets + self._deep_sky
+        self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
         self._night_plan = self._night_planner_service.plan(
-            self._visible_planets + self._deep_sky,
+            planning_objects,
             self._weather_summary,
             self._advanced_scores,
             self._sky_quality,
@@ -521,11 +540,16 @@ class AppController(QObject):
         self._solar_system_objects = self._apply_equipment(self._solar_system_objects)
         self._visible_planets = [item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible]
         self._deep_sky = self._apply_equipment(self._deep_sky)
+        self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         if self._weather_summary:
-            self._best_object = self._score_service.best_object(self._visible_planets + self._deep_sky, self._weather_summary)
+            planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
+            planning_objects = planning_objects or self._visible_planets + self._deep_sky
+            self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
         if self._weather_summary and self._advanced_scores and self._sky_quality:
+            planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
+            planning_objects = planning_objects or self._visible_planets + self._deep_sky
             self._night_plan = self._night_planner_service.plan(
-                self._visible_planets + self._deep_sky,
+                planning_objects,
                 self._weather_summary,
                 self._advanced_scores,
                 self._sky_quality,
@@ -560,6 +584,205 @@ class AppController(QObject):
                 )
             )
         return updated
+
+    def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
+        if not self._sky_quality or self._sky_quality.bortle_class < 8:
+            return objects
+        updated = []
+        for item in objects:
+            lower_type = item.object_type.lower()
+            penalty = 8
+            if "galaxy" in lower_type:
+                penalty = 34
+            elif "nebula" in lower_type and "cluster" not in lower_type:
+                penalty = 26
+            elif "globular" in lower_type:
+                penalty = 14
+            elif "open" in lower_type or "cluster" in lower_type:
+                penalty = 6
+            try:
+                magnitude = float(item.magnitude)
+            except ValueError:
+                magnitude = 10.0
+            if magnitude >= 8.5:
+                penalty += 12
+            score = max(0, item.score - penalty)
+            note = item.notes
+            urban_note = "Cielo urbano: visibilita limitata, serve trasparenza buona e schermare luci dirette."
+            if urban_note not in note:
+                note = f"{urban_note} {note}"
+            updated.append(
+                replace(
+                    item,
+                    score=score,
+                    score_label=self._score_service.score_label(score),
+                    visible=item.visible and score > 10,
+                    notes=note,
+                )
+            )
+        return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
+
+    @staticmethod
+    def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
+        return [item for item in objects if AppController._first_useful_time(item.best_time) or AppController._first_useful_time(item.observing_window)]
+
+    def _object_to_qml(self, item: CelestialObject) -> dict:
+        data = item.to_qml()
+        data["homeTimeLabel"] = self._home_time_label(item)
+        data["homeWindowLabel"] = self._home_window_label(item)
+        return data
+
+    def _weather_digest(self) -> dict:
+        night_hours = self._home_weather_hours(self._weather_hours)
+        if not night_hours:
+            return {
+                "bestWindow": "n/d",
+                "cloudAverage": 0,
+                "windLabel": "n/d",
+                "rainProbability": 0,
+                "bestHours": [],
+            }
+        average_cloud = round(sum(hour.cloud_cover for hour in night_hours) / len(night_hours))
+        max_rain = max(hour.precipitation_probability for hour in night_hours)
+        average_wind = round(sum(hour.wind_kmh for hour in night_hours) / len(night_hours))
+        best_hours = self._best_weather_hours(night_hours)
+        return {
+            "bestWindow": self._weather_window_label(best_hours),
+            "cloudAverage": average_cloud,
+            "windLabel": self._wind_label(average_wind),
+            "rainProbability": max_rain,
+            "bestHours": [
+                {
+                    "time": hour.time,
+                    "cloudCover": hour.cloud_cover,
+                    "windKmh": hour.wind_kmh,
+                    "rainProbability": hour.precipitation_probability,
+                }
+                for hour in self._selected_weather_hours(night_hours)
+            ],
+        }
+
+    @staticmethod
+    def _home_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
+        selected = []
+        for hour in hours:
+            parsed = AppController._parse_hour_minute(hour.time)
+            if parsed and AppController._is_home_observing_time(*parsed):
+                selected.append(hour)
+        return selected or hours[:6]
+
+    @staticmethod
+    def _best_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
+        if len(hours) <= 3:
+            return hours
+        best_slice = hours[:3]
+        best_score = AppController._weather_slice_score(best_slice)
+        for index in range(1, len(hours) - 2):
+            candidate = hours[index : index + 3]
+            score = AppController._weather_slice_score(candidate)
+            if score < best_score:
+                best_score = score
+                best_slice = candidate
+        return best_slice
+
+    @staticmethod
+    def _weather_slice_score(hours: list[WeatherHour]) -> float:
+        cloud = sum(hour.cloud_cover for hour in hours) / len(hours)
+        rain = max(hour.precipitation_probability for hour in hours)
+        wind = sum(hour.wind_kmh for hour in hours) / len(hours)
+        return cloud + rain * 1.3 + max(0.0, wind - 10.0) * 1.8
+
+    @staticmethod
+    def _selected_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
+        preferred = [20, 22, 0, 2, 4]
+        selected = []
+        for target in preferred:
+            match = next((hour for hour in hours if AppController._parse_hour_minute(hour.time) and AppController._parse_hour_minute(hour.time)[0] == target), None)
+            if match and match not in selected:
+                selected.append(match)
+        return selected or hours[:5]
+
+    @staticmethod
+    def _weather_window_label(hours: list[WeatherHour]) -> str:
+        if not hours:
+            return "n/d"
+        start = hours[0].time
+        parsed_end = AppController._parse_hour_minute(hours[-1].time)
+        if not parsed_end:
+            return start
+        end_dt = datetime(2000, 1, 1, parsed_end[0], parsed_end[1]) + timedelta(hours=1)
+        return f"{start} - {end_dt.strftime('%H:%M')}"
+
+    @staticmethod
+    def _wind_label(wind_kmh: int) -> str:
+        if wind_kmh <= 12:
+            return "debole"
+        if wind_kmh <= 24:
+            return "moderato"
+        return "sostenuto"
+
+    @staticmethod
+    def _home_time_label(item: CelestialObject) -> str:
+        useful_best = AppController._first_useful_time(item.best_time)
+        if useful_best:
+            return AppController._format_home_time(*useful_best)
+        useful_window = AppController._first_useful_time(item.observing_window)
+        if useful_window:
+            return AppController._format_home_time(*useful_window)
+        return "Non in finestra notturna"
+
+    @staticmethod
+    def _home_window_label(item: CelestialObject) -> str:
+        times = AppController._all_times(item.observing_window)
+        useful_times = [time_value for time_value in times if AppController._is_home_observing_time(*time_value)]
+        if len(useful_times) >= 2:
+            return f"{AppController._format_clock(*useful_times[0])} - {AppController._format_clock(*useful_times[-1])}"
+        if useful_times:
+            return AppController._format_home_time(*useful_times[0])
+        return item.observing_window
+
+    @staticmethod
+    def _first_useful_time(value: str) -> tuple[int, int] | None:
+        for hour, minute in AppController._all_times(value):
+            if AppController._is_home_observing_time(hour, minute):
+                return hour, minute
+        return None
+
+    @staticmethod
+    def _all_times(value: str) -> list[tuple[int, int]]:
+        return [
+            (int(hour), int(minute))
+            for hour, minute in re.findall(r"\b([0-2]?\d):([0-5]\d)\b", value or "")
+            if 0 <= int(hour) <= 23
+        ]
+
+    @staticmethod
+    def _parse_hour_minute(value: str) -> tuple[int, int] | None:
+        match = re.search(r"\b([0-2]?\d):([0-5]\d)\b", value or "")
+        if not match:
+            return None
+        hour = int(match.group(1))
+        minute = int(match.group(2))
+        if hour > 23:
+            return None
+        return hour, minute
+
+    @staticmethod
+    def _is_home_observing_time(hour: int, minute: int) -> bool:
+        return hour >= 20 or hour <= 5
+
+    @staticmethod
+    def _format_home_time(hour: int, minute: int) -> str:
+        label = "sera"
+        if 0 <= hour <= 2:
+            label = "notte"
+        elif 3 <= hour <= 5:
+            label = "prima dell'alba"
+        return f"{AppController._format_clock(hour, minute)} {label}"
+
+    @staticmethod
+    def _format_clock(hour: int, minute: int) -> str:
+        return f"{hour:02d}:{minute:02d}"
 
     def _current_telescope(self) -> Telescope:
         return self._telescopes[self._selected_telescope_index]

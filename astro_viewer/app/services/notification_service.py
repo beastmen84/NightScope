@@ -32,7 +32,7 @@ class NotificationService:
         if plan:
             notifications.append(
                 Notification(
-                    title="Planner pronto",
+                    title="Piano osservativo pronto",
                     message=f"Prima tappa consigliata: {plan[0].time_label} - {plan[0].name}.",
                     trigger_time=plan[0].time_label,
                     priority=84,
@@ -41,8 +41,8 @@ class NotificationService:
         if scores.deep_sky_score >= 76:
             notifications.append(
                 Notification(
-                    title="Deep Sky sopra la media",
-                    message="Le condizioni Deep Sky saranno migliori del normale.",
+                    title="Cielo profondo sopra la media",
+                    message="Le condizioni per il cielo profondo saranno migliori del normale.",
                     trigger_time=(now + timedelta(hours=1)).strftime("%H:%M"),
                     priority=78,
                 )
@@ -51,7 +51,7 @@ class NotificationService:
             notifications.append(
                 Notification(
                     title="Luna piena",
-                    message="Questa sera la Luna penalizza gli oggetti deep sky deboli.",
+                    message="Questa sera la Luna penalizza gli oggetti cielo profondo deboli.",
                     trigger_time="20:00",
                     priority=65,
                 )
@@ -66,4 +66,3 @@ class NotificationService:
                 )
             )
         return sorted(notifications, key=lambda item: item.priority, reverse=True)[:5]
-

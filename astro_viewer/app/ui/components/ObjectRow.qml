@@ -61,7 +61,7 @@ Rectangle {
 
             Text {
                 Layout.fillWidth: true
-                text: "Meglio alle " + root.itemData.best_time + "  -  " + root.itemData.direction
+                text: (root.itemData.homeTimeLabel ? root.itemData.homeTimeLabel : "Meglio alle " + root.itemData.best_time) + "  -  " + root.itemData.direction
                 color: "#788391"
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -87,4 +87,3 @@ Rectangle {
         onClicked: root.openRequested(root.itemData.id)
     }
 }
-

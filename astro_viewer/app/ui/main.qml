@@ -12,7 +12,7 @@ ApplicationWindow {
     height: 820
     minimumWidth: 1040
     minimumHeight: 700
-    visible: true
+    visibility: Window.Maximized
     title: "NightScope"
     color: theme.background
 

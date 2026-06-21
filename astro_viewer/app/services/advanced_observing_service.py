@@ -33,14 +33,17 @@ class AdvancedObservingService:
         planetary = max(0, min(100, planetary))
         deep_sky = max(0, min(100, deep_sky))
         explanation = (
-            f"Planetary pesa seeing e vento; Deep Sky pesa trasparenza, Luna e Bortle {sky_quality.bortle_class}."
+            f"Planetario pesa seeing e vento; cielo profondo pesa trasparenza, Luna e Bortle {sky_quality.bortle_class}."
         )
         scorer = ObservingScoreService()
+        deep_sky_label = scorer.score_label(deep_sky)
+        if sky_quality.bortle_class >= 8 and 51 <= deep_sky <= 65:
+            deep_sky_label = "Limitata"
         return AdvancedObservingScores(
             planetary_score=planetary,
             deep_sky_score=deep_sky,
             planetary_label=scorer.score_label(planetary),
-            deep_sky_label=scorer.score_label(deep_sky),
+            deep_sky_label=deep_sky_label,
             explanation=explanation,
         )
 

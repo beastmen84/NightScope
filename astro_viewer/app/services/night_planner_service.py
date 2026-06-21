@@ -19,7 +19,9 @@ class NightPlannerService:
         sky_quality: SkyQuality,
         telescope: Telescope,
     ) -> list[NightPlanItem]:
-        visible = [item for item in objects if item.visible and item.score > 0]
+        visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
+        if not visible:
+            visible = [item for item in objects if item.visible and item.score > 0]
         ranked = sorted(
             visible,
             key=lambda item: self._planner_score(item, weather, scores, sky_quality, telescope),
@@ -76,8 +78,8 @@ class NightPlannerService:
 
     @staticmethod
     def _time_for_item(item: CelestialObject, fallback: datetime) -> str:
-        parsed = NightPlannerService._parse_time(item.best_time)
-        return (parsed or fallback).strftime("%H:%M")
+        parsed = NightPlannerService._observing_time(item) or fallback
+        return NightPlannerService._format_observing_time(parsed)
 
     @staticmethod
     def _parse_time(value: str) -> datetime | None:
@@ -89,5 +91,42 @@ class NightPlannerService:
         parsed = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
         if parsed.hour < 12 and now.hour > 12:
             parsed += timedelta(days=1)
+        if not NightPlannerService._is_useful_hour(parsed.hour, parsed.minute):
+            return None
         return parsed
 
+    @staticmethod
+    def _observing_time(item: CelestialObject) -> datetime | None:
+        parsed_best = NightPlannerService._parse_time(item.best_time)
+        if parsed_best:
+            return parsed_best
+        for value in NightPlannerService._window_times(item.observing_window):
+            parsed = NightPlannerService._parse_time(value)
+            if parsed:
+                return parsed
+        return None
+
+    @staticmethod
+    def _has_useful_window(item: CelestialObject) -> bool:
+        return NightPlannerService._observing_time(item) is not None
+
+    @staticmethod
+    def _window_times(value: str) -> list[str]:
+        parts = []
+        for token in value.replace("-", " ").split():
+            if ":" in token:
+                parts.append(token.strip())
+        return parts
+
+    @staticmethod
+    def _is_useful_hour(hour: int, minute: int) -> bool:
+        return hour >= 20 or hour <= 5
+
+    @staticmethod
+    def _format_observing_time(value: datetime) -> str:
+        label = "sera"
+        if 0 <= value.hour <= 2:
+            label = "notte"
+        elif 3 <= value.hour <= 5:
+            label = "prima dell'alba"
+        return f"{value.strftime('%H:%M')} {label}"

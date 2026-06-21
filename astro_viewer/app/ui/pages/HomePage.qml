@@ -21,12 +21,9 @@ Item {
 
         ColumnLayout {
             width: scroll.availableWidth
-            spacing: 18
+            spacing: 16
 
-            Item {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 18
-            }
+            Item { Layout.fillWidth: true; Layout.preferredHeight: 14 }
 
             RowLayout {
                 Layout.fillWidth: true
@@ -36,7 +33,7 @@ Item {
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 6
+                    spacing: 5
 
                     Text {
                         Layout.fillWidth: true
@@ -57,8 +54,8 @@ Item {
                 }
 
                 StatusPill {
-                    text: controller.weatherSummary.score
-                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+                    text: controller.observingQuality.score
+                    accentColor: theme.scoreColor(controller.observingQuality.score)
                 }
             }
 
@@ -77,7 +74,7 @@ Item {
                     id: statusText
                     anchors.fill: parent
                     anchors.margins: 11
-                    text: controller.isLoading ? "Calculating sky visibility..." : controller.serviceStatus
+                    text: controller.isLoading ? "Aggiornamento dei dati del cielo..." : controller.serviceStatus
                     color: theme.textPrimary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -87,164 +84,51 @@ Item {
             }
 
             GridLayout {
-                id: grid
+                id: topGrid
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1120 ? 3 : 2
-                columnSpacing: 16
-                rowSpacing: 16
+                columns: root.width > 1420 ? 5 : root.width > 980 ? 3 : 1
+                columnSpacing: 14
+                rowSpacing: 14
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
-                    title: "Stasera dal tuo cielo"
-                    subtitle: "Target ordinati per utilita osservativa"
-                    accentColor: theme.cyan
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.isLoading || controller.tonightHighlights.length === 0
-                        text: controller.isLoading ? "Updating astronomical data..." : "No visible objects found for current conditions."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: controller.tonightHighlights
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            StatusPill {
-                                text: modelData.bestTime
-                                accentColor: theme.cyan
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.name
-                                    color: theme.textPrimary
-                                    font.pixelSize: 15
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.setup
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Qualita osservativa stanotte"
+                    title: "Qualita osservativa"
                     subtitle: controller.observingQuality.explanation
                     accentColor: theme.scoreColor(controller.observingQuality.score)
 
-                    Text {
+                    RowLayout {
                         Layout.fillWidth: true
-                        text: controller.observingQuality.scoreValue + "/100"
-                        color: theme.textPrimary
-                        font.pixelSize: 34
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
+                        spacing: 12
+
+                        Text {
+                            text: controller.observingQuality.scoreValue + "/100"
+                            color: theme.textPrimary
+                            font.pixelSize: 34
+                            font.weight: Font.DemiBold
+                        }
+
+                        StatusPill {
+                            text: controller.observingQuality.score
+                            accentColor: theme.scoreColor(controller.observingQuality.score)
+                        }
                     }
 
-                    StatusPill {
-                        text: controller.observingQuality.score
-                        accentColor: theme.scoreColor(controller.observingQuality.score)
-                    }
-
                     Text {
                         Layout.fillWidth: true
-                        text: controller.observingQuality.alert
+                        text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
                         color: theme.textSecondary
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
-                        maximumLineCount: 3
+                        maximumLineCount: 2
                         elide: Text.ElideRight
                     }
                 }
 
                 GlassCard {
                     Layout.fillWidth: true
-                    title: "Sky Quality"
-                    subtitle: controller.skyQuality.description
-                    accentColor: theme.violet
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Bortle " + controller.skyQuality.bortleClass
-                        color: theme.textPrimary
-                        font.pixelSize: 30
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Limite " + controller.skyQuality.limitingMagnitude + " mag  -  " + controller.skyQuality.skyBrightness + " mag/arcsec2"
-                        color: theme.textSecondary
-                        font.pixelSize: 12
-                        elide: Text.ElideRight
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Planetary Score"
-                    subtitle: controller.advancedScores.explanation
-                    accentColor: theme.teal
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: controller.advancedScores.planetaryScore + "/100"
-                        color: theme.textPrimary
-                        font.pixelSize: 32
-                        font.weight: Font.DemiBold
-                    }
-
-                    StatusPill {
-                        text: controller.advancedScores.planetaryLabel
-                        accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Deep Sky Score"
-                    subtitle: "Trasparenza, Luna e inquinamento luminoso"
-                    accentColor: theme.cyan
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: controller.advancedScores.deepSkyScore + "/100"
-                        color: theme.textPrimary
-                        font.pixelSize: 32
-                        font.weight: Font.DemiBold
-                    }
-
-                    StatusPill {
-                        text: controller.advancedScores.deepSkyLabel
-                        accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
+                    Layout.columnSpan: topGrid.columns >= 3 ? 2 : 1
                     title: "Miglior oggetto della notte"
                     subtitle: controller.bestObjectOfNight.scoreExplanation
                     accentColor: theme.amber
@@ -252,7 +136,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: !controller.bestObjectOfNight.name
-                        text: "No visible objects found for current conditions."
+                        text: "Nessun oggetto visibile trovato per le condizioni correnti."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -264,28 +148,28 @@ Item {
                         spacing: 14
 
                         Image {
-                            Layout.preferredWidth: 82
-                            Layout.preferredHeight: 82
+                            Layout.preferredWidth: 72
+                            Layout.preferredHeight: 72
                             source: controller.assetBaseUrl + "/" + controller.bestObjectOfNight.image
                             fillMode: Image.PreserveAspectFit
                         }
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 6
+                            spacing: 5
 
                             Text {
                                 Layout.fillWidth: true
                                 text: controller.bestObjectOfNight.name
                                 color: theme.textPrimary
-                                font.pixelSize: 20
+                                font.pixelSize: 22
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Score " + controller.bestObjectOfNight.score + "/100  -  " + controller.bestObjectOfNight.scoreLabel
+                                text: controller.bestObjectOfNight.homeWindowLabel + "  -  " + controller.bestObjectOfNight.direction
                                 color: theme.amber
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -294,16 +178,8 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Osservazione consigliata: " + controller.bestObjectOfNight.observing_window
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
                                 text: "Setup: " + controller.bestObjectOfNight.recommended_setup
-                                color: theme.textMuted
+                                color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
                             }
@@ -313,22 +189,82 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
-                    title: "Night Planner"
-                    subtitle: "Sequenza osservativa ottimizzata"
+                    title: "Punteggio planetario"
+                    subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
+                    accentColor: theme.teal
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.advancedScores.planetaryScore + "/100"
+                        color: theme.textPrimary
+                        font.pixelSize: 31
+                        font.weight: Font.DemiBold
+                    }
+
+                    StatusPill {
+                        text: controller.advancedScores.planetaryLabel
+                        accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    title: "Punteggio cielo profondo"
+                    subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
+                    accentColor: theme.violet
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.advancedScores.deepSkyScore + "/100"
+                        color: theme.textPrimary
+                        font.pixelSize: 31
+                        font.weight: Font.DemiBold
+                    }
+
+                    StatusPill {
+                        text: controller.advancedScores.deepSkyLabel
+                        accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                    }
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                text: "Piano della notte"
+                color: theme.textPrimary
+                font.pixelSize: 18
+                font.weight: Font.DemiBold
+            }
+
+            GridLayout {
+                id: centerGrid
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                columns: root.width > 1180 ? 3 : 1
+                columnSpacing: 14
+                rowSpacing: 14
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
+                    title: "Piano osservativo"
+                    subtitle: "Sequenza ordinata per utilita e finestra notturna"
                     accentColor: theme.green
 
                     Text {
                         Layout.fillWidth: true
                         visible: controller.nightPlan.length === 0
-                        text: controller.isLoading ? "Updating astronomical data..." : "No visible objects found for current conditions."
+                        text: controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun target utile nella finestra notturna."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
                     }
 
                     Repeater {
-                        model: controller.nightPlan
+                        model: controller.nightPlan.slice(0, 4)
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
@@ -348,45 +284,11 @@ Item {
                             }
 
                             Text {
-                                Layout.preferredWidth: 64
+                                Layout.preferredWidth: 58
                                 text: modelData.score + "/100"
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Sky Map"
-                    subtitle: "Vista cardinale minimale"
-                    accentColor: theme.cyan
-
-                    Repeater {
-                        model: controller.skyMap
-
-                        delegate: ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 4
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.direction
-                                color: theme.cyan
-                                font.pixelSize: 14
-                                font.weight: Font.DemiBold
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
                             }
                         }
                     }
@@ -400,24 +302,24 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 14
+                        spacing: 12
 
                         Image {
-                            Layout.preferredWidth: 92
-                            Layout.preferredHeight: 92
+                            Layout.preferredWidth: 70
+                            Layout.preferredHeight: 70
                             source: controller.assetBaseUrl + "/" + controller.moonSummary.image
                             fillMode: Image.PreserveAspectFit
                         }
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            spacing: 6
 
                             Text {
                                 Layout.fillWidth: true
                                 text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
                                 color: theme.textPrimary
-                                font.pixelSize: 14
+                                font.pixelSize: 13
                                 elide: Text.ElideRight
                             }
 
@@ -427,6 +329,7 @@ Item {
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 wrapMode: Text.WordWrap
+                                maximumLineCount: 3
                             }
                         }
                     }
@@ -434,50 +337,77 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     title: "Pianeti visibili"
-                    subtitle: "Visibilita serale e notturna"
+                    subtitle: "Solo target utili per la sera, la notte o prima dell'alba"
                     accentColor: theme.teal
 
                     Text {
                         Layout.fillWidth: true
                         visible: controller.visiblePlanets.length === 0
-                        text: controller.isLoading ? "Calculating sky visibility..." : "No visible planets found for current conditions."
+                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun pianeta utile nella finestra notturna."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
                     }
 
-                    Repeater {
-                        model: controller.visiblePlanets
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 1180 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 4
 
-                        delegate: ObjectRow {
-                            itemData: modelData
-                            assetBaseUrl: controller.assetBaseUrl
-                            onOpenRequested: function(objectId) {
-                                root.openObject(objectId)
+                        Repeater {
+                            model: controller.visiblePlanets.slice(0, 4)
+
+                            delegate: ObjectRow {
+                                itemData: modelData
+                                assetBaseUrl: controller.assetBaseUrl
+                                onOpenRequested: function(objectId) {
+                                    root.openObject(objectId)
+                                }
                             }
                         }
                     }
                 }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                text: "Dettagli osservativi"
+                color: theme.textPrimary
+                font.pixelSize: 18
+                font.weight: Font.DemiBold
+            }
+
+            GridLayout {
+                id: lowerGrid
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                columns: root.width > 1180 ? 2 : 1
+                columnSpacing: 14
+                rowSpacing: 14
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
-                    title: "Oggetti Deep Sky consigliati"
-                    subtitle: "Priorita per la notte corrente"
+                    title: "Oggetti cielo profondo consigliati"
+                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Priorita per la notte corrente"
                     accentColor: theme.violet
 
                     Text {
                         Layout.fillWidth: true
                         visible: controller.recommendedDeepSky.length === 0
-                        text: controller.isLoading ? "Calculating sky visibility..." : "No visible deep sky objects found for current conditions."
+                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun oggetto cielo profondo utile nelle condizioni correnti."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
                     }
 
                     Repeater {
-                        model: controller.recommendedDeepSky
+                        model: controller.recommendedDeepSky.slice(0, 4)
 
                         delegate: ObjectRow {
                             itemData: modelData
@@ -492,28 +422,99 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     title: "Meteo osservativo"
-                    subtitle: controller.weatherSummary.alert
+                    subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
 
-                    Text {
+                    GridLayout {
                         Layout.fillWidth: true
-                        visible: controller.weatherStatus.length > 0
-                        text: controller.weatherStatus
-                        color: theme.coral
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
+                        columns: 3
+                        columnSpacing: 8
+                        rowSpacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Vento\n" + controller.weatherDigest.windLabel
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
                     }
 
-                    WeatherBars {
-                        hourly: controller.weatherHourly
-                        barColor: theme.scoreColor(controller.weatherSummary.score)
+                    Repeater {
+                        model: controller.weatherDigest.bestHours
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            StatusPill {
+                                text: modelData.time
+                                accentColor: theme.scoreColor(controller.weatherSummary.score)
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
                     }
                 }
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
-                    title: "Prossimi eventi astronomici"
+                    title: "Mappa cielo"
+                    subtitle: "Vista cardinale minimale"
+                    accentColor: theme.cyan
+
+                    Repeater {
+                        model: controller.skyMap
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            Text {
+                                Layout.preferredWidth: 52
+                                text: modelData.direction
+                                color: theme.cyan
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    title: "Prossimi eventi"
                     subtitle: "Ordinati per utilita osservativa"
                     accentColor: theme.amber
 
@@ -537,7 +538,7 @@ Item {
                                     Layout.fillWidth: true
                                     text: modelData.title
                                     color: theme.textPrimary
-                                    font.pixelSize: 15
+                                    font.pixelSize: 14
                                     font.weight: Font.DemiBold
                                     elide: Text.ElideRight
                                 }
@@ -556,13 +557,13 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: grid.columns > 1 ? 2 : 1
+                    Layout.columnSpan: lowerGrid.columns > 1 ? 2 : 1
                     title: "Notifiche intelligenti"
-                    subtitle: "Promemoria generati dal planner"
+                    subtitle: "Promemoria generati dal piano osservativo"
                     accentColor: theme.coral
 
                     Repeater {
-                        model: controller.notifications
+                        model: controller.notifications.slice(0, 3)
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
@@ -585,10 +586,7 @@ Item {
                 }
             }
 
-            Item {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 28
-            }
+            Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
         }
     }
 }
