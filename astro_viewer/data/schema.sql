@@ -49,3 +49,64 @@ CREATE TABLE IF NOT EXISTS ObservationHistory (
 
 CREATE INDEX IF NOT EXISTS idx_observation_date ON ObservationHistory(date);
 CREATE INDEX IF NOT EXISTS idx_observation_object ON ObservationHistory(object_name);
+
+CREATE TABLE IF NOT EXISTS TelescopeBrand (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS TelescopeModel (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    optical_type TEXT NOT NULL,
+    aperture_mm INTEGER NOT NULL,
+    focal_length_mm INTEGER NOT NULL,
+    mount_type TEXT NOT NULL,
+    FOREIGN KEY (brand_id) REFERENCES TelescopeBrand(id),
+    UNIQUE (brand_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_telescope_model_brand ON TelescopeModel(brand_id);
+
+CREATE TABLE IF NOT EXISTS EyepieceCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    focal_length_mm REAL NOT NULL,
+    apparent_field_deg REAL NOT NULL,
+    UNIQUE (brand, model, focal_length_mm)
+);
+
+CREATE TABLE IF NOT EXISTS BarlowCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    multiplier REAL NOT NULL,
+    UNIQUE (brand, model, multiplier)
+);
+
+CREATE TABLE IF NOT EXISTS SkyQualityEstimate (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    location_key TEXT NOT NULL UNIQUE,
+    bortle_class INTEGER NOT NULL,
+    limiting_magnitude REAL NOT NULL,
+    sky_brightness REAL NOT NULL,
+    source TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ObjectImages (
+    object_id TEXT PRIMARY KEY,
+    image_path TEXT NOT NULL,
+    attribution TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfile (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_name TEXT NOT NULL UNIQUE,
+    active INTEGER NOT NULL DEFAULT 0,
+    telescope_id TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_equipment_profile_active ON EquipmentProfile(active);
