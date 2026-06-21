@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass(frozen=True)
@@ -32,6 +32,9 @@ class CelestialObject:
     best_eyepiece: str = "n/d"
     barlow: str = "No"
     score_explanation: str = ""
+    apparent_size: str = ""
+    setup_options: list[dict] = field(default_factory=list)
+    equipment_explanation: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -44,6 +47,9 @@ class CelestialObject:
         data["scoreLabel"] = self.score_label
         data["bestEyepiece"] = self.best_eyepiece
         data["scoreExplanation"] = self.score_explanation
+        data["apparentSize"] = self.apparent_size
+        data["setupOptions"] = self.setup_options
+        data["equipmentExplanation"] = self.equipment_explanation
         return data
 
 

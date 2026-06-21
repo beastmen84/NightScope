@@ -74,6 +74,84 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
+                title: "Posizione attuale"
+                subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
+                accentColor: theme.green
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
+
+                    StatusPill {
+                        text: controller.hasValidLocation ? "Attiva" : "Da configurare"
+                        accentColor: controller.hasValidLocation ? theme.green : theme.amber
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: controller.activeLocationLabel
+                            color: theme.textPrimary
+                            font.pixelSize: 18
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: controller.hasValidLocation ? (controller.location.latitude.toFixed(4) + ", " + controller.location.longitude.toFixed(4)) : "Configura una posizione per ottenere meteo e cielo locale."
+                            color: theme.textSecondary
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                visible: controller.recentLocations.length > 0
+                title: "Posizioni recenti"
+                subtitle: "Ultima posizione salvata o caricata"
+                accentColor: theme.violet
+
+                Repeater {
+                    model: controller.recentLocations
+
+                    delegate: RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        StatusPill {
+                            text: modelData.provider === "manual_city" ? "Preferita" : "Recente"
+                            accentColor: theme.violet
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData.location.city + ", " + modelData.location.country + "  -  " + modelData.location.timezone
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            elide: Text.ElideRight
+                        }
+
+                        Button {
+                            text: "Usa"
+                            onClicked: controller.selectRecentLocation(index)
+                        }
+                    }
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
                 title: "Preferenze di avvio"
                 subtitle: "La posizione online non viene usata senza consenso e Windows non viene aperto automaticamente se non richiesto."
                 accentColor: theme.teal
@@ -332,7 +410,7 @@ Item {
                     }
 
                     Repeater {
-                        model: controller.cityResults.slice(0, 6)
+                        model: controller.hasCitySearchQuery ? controller.cityResults.slice(0, 6) : []
 
                         delegate: Rectangle {
                             Layout.fillWidth: true
@@ -370,6 +448,24 @@ Item {
                                 onClicked: controller.selectCity(modelData.id)
                             }
                         }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !controller.hasCitySearchQuery
+                        text: "Digita una citta per mostrare risultati offline."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
+                        text: "Nessuna citta trovata."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
                     }
                 }
 

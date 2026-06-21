@@ -26,11 +26,26 @@ class Eyepiece:
     name: str
     focal_length_mm: float
     apparent_field_deg: float
+    barrel_size: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["focalLengthMm"] = self.focal_length_mm
         data["apparentFieldDeg"] = self.apparent_field_deg
+        data["barrelSize"] = self.barrel_size
+        return data
+
+
+@dataclass(frozen=True)
+class Barlow:
+    id: str
+    name: str
+    multiplier: float
+    barrel_size: str = ""
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["barrelSize"] = self.barrel_size
         return data
 
 
@@ -46,4 +61,3 @@ class BeginnerPreset:
         data = asdict(self)
         data["suggestedObjects"] = self.suggested_objects
         return data
-

@@ -12,7 +12,7 @@ from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
-from astro_viewer.app.models.equipment import Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
@@ -152,6 +152,50 @@ class Phase6RealDataTests(unittest.TestCase):
 
         self.assertIn(suggestion["bestEyepiece"], {"Solo 18 mm", "Solo 7 mm"})
         self.assertNotIn("Plossl 25", suggestion["setupText"])
+
+    def test_suggestions_do_not_use_unowned_barlow(self) -> None:
+        suggestion = EquipmentService().suggest_for_object(
+            _object("saturn", "Saturno", "Pianeta", "0.8"),
+            Telescope("scope", "Newton 150/750", 150, 750, "Newton", "manuale"),
+            [Eyepiece("e1", "10 mm", 10, 60), Eyepiece("e2", "6 mm", 6, 58)],
+            [],
+        )
+
+        self.assertEqual(suggestion["barlow"], "No")
+        self.assertNotIn("Barlow", suggestion["setupText"])
+        self.assertGreaterEqual(len(suggestion["setupOptions"]), 2)
+
+    def test_suggestions_use_owned_barlow_when_it_improves_planetary_view(self) -> None:
+        suggestion = EquipmentService().suggest_for_object(
+            _object("saturn", "Saturno", "Pianeta", "0.8"),
+            Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale"),
+            [Eyepiece("e1", "25 mm", 25, 52)],
+            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+        )
+
+        self.assertIn("Barlow 2x", suggestion["setupText"])
+        self.assertEqual(suggestion["barlow"], "Barlow 2x")
+
+    def test_suggestions_prefer_wide_field_for_open_clusters(self) -> None:
+        target = _object("messier-M45", "M45 Pleiadi", "Open cluster", "1.6")
+        target = target.__class__(**{**target.__dict__, "apparent_size": "110 arcmin"})
+        suggestion = EquipmentService().suggest_for_object(
+            target,
+            Telescope("scope", "Newton 130/650", 130, 650, "Newton", "manuale"),
+            [Eyepiece("e1", "32 mm", 32, 68), Eyepiece("e2", "8 mm", 8, 60)],
+            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+        )
+
+        self.assertEqual(suggestion["bestEyepiece"], "32 mm")
+        self.assertEqual(suggestion["barlow"], "No")
+
+    def test_controller_does_not_create_default_eyepieces_after_telescope(self) -> None:
+        with _controller() as controller:
+            controller.addTelescope("Newton 150/750", "150", "750", "Newton", "manuale")
+
+            self.assertTrue(controller.canUseEyepieces)
+            self.assertEqual(controller.eyepieces, [])
+            self.assertIn("senza oculari", controller.equipmentMessage)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

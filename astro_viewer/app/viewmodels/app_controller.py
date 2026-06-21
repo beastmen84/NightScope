@@ -18,7 +18,7 @@ from astro_viewer.app.database.object_image_repository import ObjectImageReposit
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
-from astro_viewer.app.models.equipment import Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
@@ -93,7 +93,8 @@ class AppController(QObject):
         self._sky_map_service = SkyMapService()
         self._notification_service = NotificationService()
 
-        self._city_results = self._city_repository.list_cities(limit=12)
+        self._city_results = []
+        self._city_search_has_query = False
         self._location_detection_result: LocationDetectionResult | None = None
         self._location: ObserverLocation | None = None
         self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
@@ -128,11 +129,8 @@ class AppController(QObject):
         self._object_descriptions = self._object_image_repository.descriptions()
         self._telescopes: list[Telescope] = self._initial_telescopes()
         self._selected_telescope_index = self._initial_telescope_index()
-        self._eyepieces = (
-            self._equipment_service.default_eyepieces()
-            if self._equipment_service.can_use_eyepieces(self._current_telescope())
-            else []
-        )
+        self._eyepieces: list[Eyepiece] = []
+        self._barlows: list[Barlow] = []
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
 
@@ -211,6 +209,14 @@ class AppController(QObject):
     def cityResults(self) -> list[dict]:
         return self._city_results
 
+    @Property(bool, notify=locationChanged)
+    def hasCitySearchQuery(self) -> bool:
+        return self._city_search_has_query
+
+    @Property("QVariant", notify=locationChanged)
+    def recentLocations(self) -> list[dict]:
+        return self._recent_locations()
+
     @Property("QVariant", notify=dataChanged)
     def visiblePlanets(self) -> list[dict]:
         return [self._object_to_qml(planet) for planet in self._home_visible_objects(self._visible_planets)]
@@ -230,6 +236,18 @@ class AppController(QObject):
     @Property("QVariant", notify=dataChanged)
     def events(self) -> list[dict]:
         return [event.to_qml() for event in self._events]
+
+    @Property("QVariant", notify=dataChanged)
+    def upcomingHighlights(self) -> list[dict]:
+        now = datetime.now(self._zone())
+        limit = now + timedelta(days=30)
+        upcoming = []
+        for event in self._events:
+            event_date = self._parse_event_date(event.date_label, now)
+            if event_date and now.date() <= event_date.date() <= limit.date():
+                upcoming.append((event_date, event))
+        upcoming.sort(key=lambda item: (-item[1].usefulness, item[0]))
+        return [event.to_qml() for _, event in upcoming[:3]]
 
     @Property("QVariant", notify=weatherChanged)
     def weatherHourly(self) -> list[dict]:
@@ -289,7 +307,7 @@ class AppController(QObject):
     def selectedObject(self) -> dict:
         if not self._selected_object:
             return {}
-        return self._selected_object.to_qml()
+        return self._object_to_qml(self._selected_object)
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
@@ -340,6 +358,10 @@ class AppController(QObject):
     def eyepieces(self) -> list[dict]:
         return [eyepiece.to_qml() for eyepiece in self._eyepieces]
 
+    @Property("QVariant", notify=equipmentChanged)
+    def ownedBarlows(self) -> list[dict]:
+        return [barlow.to_qml() for barlow in self._barlows]
+
     @Property(bool, notify=equipmentChanged)
     def canUseEyepieces(self) -> bool:
         return self._equipment_service.can_use_eyepieces(self._current_telescope())
@@ -355,6 +377,10 @@ class AppController(QObject):
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCalculations(self) -> list[dict]:
         return self._equipment_service.calculations(self._current_telescope(), self._eyepieces, self._barlow)
+
+    @Property("QVariant", notify=equipmentChanged)
+    def telescopeCapabilities(self) -> dict:
+        return self._equipment_service.telescope_capabilities(self._current_telescope())
 
     @Property(float, notify=equipmentChanged)
     def selectedBarlow(self) -> float:
@@ -375,10 +401,20 @@ class AppController(QObject):
     @Slot(str)
     def searchCities(self, query: str) -> None:
         if query.strip():
+            self._city_search_has_query = True
             self._city_results = self._city_repository.search(query, limit=20)
         else:
-            self._city_results = self._city_repository.list_cities(limit=12)
+            self._city_search_has_query = False
+            self._city_results = []
         self.locationChanged.emit()
+
+    @Slot(int)
+    def selectRecentLocation(self, index: int) -> None:
+        recent = self._recent_location_results()
+        if 0 <= index < len(recent):
+            self._apply_location_result(recent[index])
+            self._refresh_all()
+            self.locationChanged.emit()
 
     @Slot(int)
     def selectCity(self, city_id: int) -> None:
@@ -472,8 +508,6 @@ class AppController(QObject):
             self._selected_telescope_index = index
             if not self.canUseEyepieces:
                 self._eyepieces = []
-            elif not self._eyepieces:
-                self._eyepieces = self._equipment_service.default_eyepieces()
             self._equipment_message = self._equipment_status_message()
             self._apply_equipment_to_current_objects()
             self.equipmentChanged.emit()
@@ -491,6 +525,13 @@ class AppController(QObject):
 
     @Slot(str, str, str)
     def addEyepiece(self, name: str, focal: str, apparent_field: str) -> None:
+        self._add_eyepiece(name, focal, apparent_field, "")
+
+    @Slot(str, str, str, str)
+    def addCustomEyepiece(self, name: str, focal: str, apparent_field: str, barrel_size: str) -> None:
+        self._add_eyepiece(name, focal, apparent_field, barrel_size)
+
+    def _add_eyepiece(self, name: str, focal: str, apparent_field: str, barrel_size: str) -> None:
         if not self.canUseEyepieces:
             self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere oculari."
             self.equipmentChanged.emit()
@@ -507,7 +548,98 @@ class AppController(QObject):
             self._equipment_message = "Focale e campo apparente devono essere maggiori di zero."
             self.equipmentChanged.emit()
             return
-        self._eyepieces.append(Eyepiece(f"custom-eyepiece-{len(self._eyepieces) + 1}", clean_name, focal_mm, apparent_deg))
+        self._eyepieces.append(Eyepiece(f"custom-eyepiece-{len(self._eyepieces) + 1}", clean_name, focal_mm, apparent_deg, barrel_size.strip()))
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(int)
+    def addCatalogEyepiece(self, catalog_id: int) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere oculari."
+            self.equipmentChanged.emit()
+            return
+        item = next((row for row in self._catalog_eyepieces if int(row["id"]) == int(catalog_id)), None)
+        if not item:
+            return
+        eyepiece = Eyepiece(
+            id=f"catalog-eyepiece-{item['id']}",
+            name=f"{item['brand']} {item['model']}",
+            focal_length_mm=float(item["focal_length_mm"]),
+            apparent_field_deg=float(item["apparent_field_deg"]),
+            barrel_size=str(item.get("barrel_size") or ""),
+        )
+        if all(existing.id != eyepiece.id for existing in self._eyepieces):
+            self._eyepieces.append(eyepiece)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def removeEyepiece(self, eyepiece_id: str) -> None:
+        self._eyepieces = [eyepiece for eyepiece in self._eyepieces if eyepiece.id != eyepiece_id]
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(int)
+    def addCatalogBarlow(self, catalog_id: int) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere Barlow."
+            self.equipmentChanged.emit()
+            return
+        item = next((row for row in self._catalog_barlows if int(row["id"]) == int(catalog_id)), None)
+        if not item:
+            return
+        barlow = Barlow(
+            id=f"catalog-barlow-{item['id']}",
+            name=f"{item['brand']} {item['model']} {float(item['multiplier']):g}x",
+            multiplier=float(item["multiplier"]),
+            barrel_size=str(item.get("barrel_size") or ""),
+        )
+        if all(existing.id != barlow.id for existing in self._barlows):
+            self._barlows.append(barlow)
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str, str, str)
+    def addBarlow(self, name: str, multiplier: str, barrel_size: str) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere Barlow."
+            self.equipmentChanged.emit()
+            return
+        try:
+            parsed_multiplier = float(multiplier.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Moltiplicatore Barlow non valido."
+            self.equipmentChanged.emit()
+            return
+        if parsed_multiplier <= 1.0:
+            self._equipment_message = "Il moltiplicatore Barlow deve essere maggiore di 1x."
+            self.equipmentChanged.emit()
+            return
+        clean_name = name.strip() or f"Barlow {parsed_multiplier:g}x"
+        self._barlows.append(
+            Barlow(
+                id=f"custom-barlow-{len(self._barlows) + 1}",
+                name=clean_name,
+                multiplier=parsed_multiplier,
+                barrel_size=barrel_size.strip(),
+            )
+        )
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+
+    @Slot(str)
+    def removeBarlow(self, barlow_id: str) -> None:
+        self._barlows = [barlow for barlow in self._barlows if barlow.id != barlow_id]
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
@@ -533,8 +665,6 @@ class AppController(QObject):
         )
         self._telescopes.append(telescope)
         self._selected_telescope_index = len(self._telescopes) - 1
-        if not self._eyepieces:
-            self._eyepieces = self._equipment_service.default_eyepieces()
         self._equipment_message = self._equipment_status_message()
         self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
@@ -550,8 +680,6 @@ class AppController(QObject):
         telescope = self._telescope_from_catalog_model(model)
         self._telescopes.append(telescope)
         self._selected_telescope_index = len(self._telescopes) - 1
-        if not self._eyepieces:
-            self._eyepieces = self._equipment_service.default_eyepieces()
         self._equipment_message = self._equipment_status_message()
         clean_name = profile_name.strip() or telescope.name
         self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
@@ -566,10 +694,9 @@ class AppController(QObject):
         self._equipment_catalog_repository.set_active_profile(profile_id)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._selected_telescope_index = self._initial_telescope_index()
-        if self.canUseEyepieces and not self._eyepieces:
-            self._eyepieces = self._equipment_service.default_eyepieces()
         if not self.canUseEyepieces:
             self._eyepieces = []
+            self._barlows = []
         self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
@@ -843,6 +970,35 @@ class AppController(QObject):
             use_windows_location_on_startup=use_windows_location_on_startup,
         )
 
+    def _recent_locations(self) -> list[dict]:
+        return [result.to_qml() for result in self._recent_location_results()]
+
+    def _recent_location_results(self) -> list[LocationDetectionResult]:
+        candidates: list[LocationDetectionResult] = []
+        if self._location_detection_result and self._result_has_valid_location(self._location_detection_result):
+            candidates.append(self._location_detection_result)
+        saved = self._location_preferences.saved_location()
+        if saved and self._result_has_valid_location(saved):
+            candidates.append(saved)
+        cached = self._location_preferences.cached_location()
+        if cached and self._result_has_valid_location(cached):
+            candidates.append(cached)
+        unique = []
+        seen = set()
+        for result in candidates:
+            key = (
+                result.location.city,
+                result.location.country,
+                round(result.location.latitude, 3),
+                round(result.location.longitude, 3),
+                result.location.timezone,
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(result)
+        return unique[:5]
+
     @staticmethod
     def _location_source_label(provider: str) -> str:
         labels = {
@@ -859,7 +1015,7 @@ class AppController(QObject):
         telescope = self._current_telescope()
         updated = []
         for item in objects:
-            suggestion = self._equipment_service.suggest_for_object(item, telescope, self._eyepieces)
+            suggestion = self._equipment_service.suggest_for_object(item, telescope, self._eyepieces, self._barlows)
             naked_eye_blocked = (
                 not self._equipment_service.has_optical_telescope(telescope)
                 and suggestion["setupText"].startswith("Serve almeno")
@@ -874,6 +1030,8 @@ class AppController(QObject):
                         best_eyepiece=suggestion["bestEyepiece"],
                         barlow=suggestion["barlow"],
                         difficulty=suggestion["difficulty"],
+                        setup_options=suggestion.get("setupOptions", []),
+                        equipment_explanation=suggestion.get("explanation", ""),
                     )
                 )
             )
@@ -943,7 +1101,45 @@ class AppController(QObject):
         data = item.to_qml()
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
+        status, detail = self._observing_status(item)
+        data["observingStatus"] = status
+        data["observingStatusDetail"] = detail
+        data["observingReasons"] = self._observing_reasons(item)
         return data
+
+    def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
+        current_altitude = self._parse_degrees(item.current_altitude)
+        useful_time = self._first_useful_time(item.best_time) or self._first_useful_time(item.observing_window)
+        window = self._home_window_label(item)
+        if current_altitude is not None and current_altitude >= 10:
+            return "Visible now", f"Attualmente a {current_altitude:.0f} gradi. Finestra migliore: {window}."
+        if useful_time:
+            label = self._format_home_time(*useful_time)
+            if useful_time[0] <= 5:
+                return "Best before dawn", f"Attualmente sotto orizzonte o basso. Migliore prima dell'alba: {window}."
+            if useful_time[0] >= 20:
+                return "Visible later tonight", f"Non prioritario ora. Migliore piu tardi: {window}."
+            return "Best after sunset", f"Finestra utile dopo il tramonto: {label}."
+        if item.visible:
+            return "Visible later tonight", f"Finestra osservativa: {item.observing_window}."
+        return "Below horizon", "Nessuna finestra notturna utile per questa posizione."
+
+    def _observing_reasons(self, item: CelestialObject) -> list[str]:
+        reasons = []
+        max_altitude = self._parse_degrees(item.max_altitude)
+        if max_altitude is not None and max_altitude > 0:
+            reasons.append(f"Raggiunge {max_altitude:.0f} gradi di altezza massima")
+        if item.time_above_horizon and item.time_above_horizon != "n/d":
+            reasons.append(f"Resta sopra soglia per {item.time_above_horizon}")
+        if self._seeing_transparency and item.object_type == "Pianeta":
+            reasons.append(f"Seeing previsto: {self._seeing_transparency.seeing}")
+        if self._sky_quality and item.object_type != "Pianeta":
+            reasons.append(f"Compatibile con Bortle {self._sky_quality.bortle_class}: {item.difficulty}")
+        if item.equipment_explanation:
+            reasons.append(item.equipment_explanation)
+        elif item.recommended_setup:
+            reasons.append(f"Setup consigliato: {item.recommended_setup}")
+        return reasons[:4]
 
     def _weather_digest(self) -> dict:
         night_hours = self._home_weather_hours(self._weather_hours)
@@ -1081,6 +1277,30 @@ class AppController(QObject):
         return hour, minute
 
     @staticmethod
+    def _parse_degrees(value: str) -> float | None:
+        match = re.search(r"-?\d+(?:[\.,]\d+)?", value or "")
+        if not match:
+            return None
+        try:
+            return float(match.group(0).replace(",", "."))
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _parse_event_date(value: str, now: datetime) -> datetime | None:
+        for fmt in ("%d/%m/%Y", "%d/%m"):
+            try:
+                parsed = datetime.strptime(value, fmt)
+            except ValueError:
+                continue
+            year = parsed.year if "%Y" in fmt else now.year
+            candidate = datetime(year, parsed.month, parsed.day, tzinfo=now.tzinfo)
+            if candidate < now - timedelta(days=1) and "%Y" not in fmt:
+                candidate = datetime(now.year + 1, parsed.month, parsed.day, tzinfo=now.tzinfo)
+            return candidate
+        return None
+
+    @staticmethod
     def _is_home_observing_time(hour: int, minute: int) -> bool:
         return hour >= 20 or hour <= 5
 
@@ -1154,7 +1374,9 @@ class AppController(QObject):
             return "Modalita Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow."
         if not self._eyepieces:
             return "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi."
-        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(self._eyepieces)}."
+        barlow_count = len(self._barlows)
+        barlow_text = f"{barlow_count} Barlow" if barlow_count else "nessuna Barlow"
+        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(self._eyepieces)}, {barlow_text}."
 
     @staticmethod
     def _empty_windows_diagnostics() -> dict:

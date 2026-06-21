@@ -130,7 +130,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: topGrid.columns >= 3 ? 2 : 1
                     title: "Miglior oggetto della notte"
-                    subtitle: controller.bestObjectOfNight.scoreExplanation
+                    subtitle: controller.bestObjectOfNight.observingStatusDetail
                     accentColor: theme.amber
 
                     Text {
@@ -148,8 +148,8 @@ Item {
                         spacing: 14
 
                         Image {
-                            Layout.preferredWidth: 72
-                            Layout.preferredHeight: 72
+                            Layout.preferredWidth: 104
+                            Layout.preferredHeight: 104
                             source: controller.assetBaseUrl + "/" + controller.bestObjectOfNight.image
                             fillMode: Image.PreserveAspectFit
                         }
@@ -162,16 +162,21 @@ Item {
                                 Layout.fillWidth: true
                                 text: controller.bestObjectOfNight.name
                                 color: theme.textPrimary
-                                font.pixelSize: 22
+                                font.pixelSize: 30
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
+                            }
+
+                            StatusPill {
+                                text: controller.bestObjectOfNight.observingStatus
+                                accentColor: controller.bestObjectOfNight.observingStatus === "Visible now" ? theme.green : theme.amber
                             }
 
                             Text {
                                 Layout.fillWidth: true
                                 text: controller.bestObjectOfNight.homeWindowLabel + "  -  " + controller.bestObjectOfNight.direction
                                 color: theme.amber
-                                font.pixelSize: 13
+                                font.pixelSize: 15
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }

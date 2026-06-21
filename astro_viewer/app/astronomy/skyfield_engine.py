@@ -289,6 +289,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             score=score,
             score_label=self._score_label(score),
             score_explanation=f"Massima altezza {max_altitude:.0f} gradi; magnitudine {self._format_magnitude(magnitude)}.",
+            apparent_size=row.get("apparent_size") or "",
         )
 
     def _observer(self, location: ObserverLocation):

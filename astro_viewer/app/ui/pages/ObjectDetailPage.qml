@@ -57,8 +57,10 @@ Item {
                     spacing: 14
 
                     StatusPill {
-                        text: objectData.type + "  -  " + objectData.visibility_class
-                        accentColor: theme.cyan
+                        text: objectData.observingStatus
+                        accentColor: objectData.observingStatus === "Visible now" ? theme.green
+                                     : objectData.observingStatus === "Below horizon" ? theme.coral
+                                     : theme.amber
                     }
 
                     Text {
@@ -68,6 +70,15 @@ Item {
                         font.pixelSize: 40
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: objectData.observingStatusDetail
+                        color: theme.amber
+                        font.pixelSize: 18
+                        font.weight: Font.DemiBold
+                        wrapMode: Text.WordWrap
                     }
 
                     Text {
@@ -88,7 +99,7 @@ Item {
                         MetricTile { label: "Distanza"; value: objectData.distance; accentColor: theme.violet }
                         MetricTile { label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
                         MetricTile { label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { label: "Orario migliore"; value: objectData.best_time; accentColor: theme.green }
+                        MetricTile { label: "Finestra migliore"; value: objectData.homeWindowLabel; accentColor: theme.green }
                         MetricTile { label: "Azimut"; value: objectData.azimuth; accentColor: theme.coral }
                         MetricTile { label: "Altezza attuale"; value: objectData.currentAltitude; accentColor: theme.cyan }
                         MetricTile { label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
@@ -113,15 +124,15 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: objectData.observing_window
+                        text: objectData.homeWindowLabel
                         color: theme.textPrimary
-                        font.pixelSize: 24
+                        font.pixelSize: 30
                         font.weight: Font.DemiBold
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Meglio osservabile tra le " + objectData.observing_window + "."
+                        text: objectData.observingStatusDetail
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -143,12 +154,75 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
+                    Repeater {
+                        model: objectData.setupOptions || []
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            StatusPill {
+                                text: modelData.role
+                                accentColor: modelData.role === "Consigliato" ? theme.amber
+                                             : modelData.role === "Campo largo" ? theme.teal
+                                             : theme.cyan
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.label
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+
                     Text {
                         Layout.fillWidth: true
                         text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
+                    }
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Perche consigliato"
+                subtitle: "Ragionamento sintetico per l'osservazione"
+                accentColor: theme.green
+
+                Repeater {
+                    model: objectData.observingReasons || []
+
+                    delegate: RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        StatusPill {
+                            text: "-"
+                            accentColor: theme.green
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData
+                            color: theme.textPrimary
+                            font.pixelSize: 14
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
             }
