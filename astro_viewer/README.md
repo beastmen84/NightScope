@@ -85,7 +85,7 @@ packaging/
 
 I seed locali sono in `data/`:
 
-- `cities_seed.csv`: citta offline con alias tolleranti per ricerche come `Addis`, `Addis Abeba`, `Milan`, `Rome`.
+- `cities_seed.csv`: bootstrap offline compatto con alias tolleranti per ricerche come `Addis`, `Addis Abeba`, `Milan`, `Rome`.
 - `telescope_catalog_seed.csv`: oltre 100 modelli realistici di telescopi.
 - `eyepiece_catalog_seed.csv`: oltre 100 oculari con focale, campo apparente e barrel size.
 - `barlow_catalog_seed.csv`: oltre 30 Barlow/focal extender.
@@ -96,10 +96,10 @@ Le fonti e i limiti sono documentati in `data/DATA_SOURCES.md`. I dati tecnici m
 
 ## Import dati
 
-Gli import CLI non richiedono API key e usano upsert per evitare duplicati:
+Gli import CLI non richiedono API key e usano upsert/deduplicazione per evitare duplicati:
 
 ```powershell
-.\.venv\Scripts\python.exe astro_viewer\tools\import_cities.py astro_viewer\data\cities_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_cities.py C:\path\to\cities15000.txt --country-info C:\path\to\countryInfo.txt --admin1-codes C:\path\to\admin1CodesASCII.txt
 .\.venv\Scripts\python.exe astro_viewer\tools\import_telescope_catalog.py astro_viewer\data\telescope_catalog_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\eyepiece_catalog_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\barlow_catalog_seed.csv
@@ -107,7 +107,15 @@ Gli import CLI non richiedono API key e usano upsert per evitare duplicati:
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
 ```
 
-Per un catalogo citta completo usare un CSV derivato da GeoNames con i campi documentati in `data/DATA_SOURCES.md`.
+Per un catalogo citta completo usare un dump GeoNames tab-delimited (`cities15000.txt`, `cities5000.txt`, `cities1000.txt` o `allCountries.txt`). Il report import include:
+
+- total rows read;
+- total imported;
+- duplicates skipped/merged;
+- aliases added;
+- cities missing timezone.
+
+Le traduzioni non diventano righe separate: `Addis Ababa` e `Addis Abeba` restano un solo record con alias ricercabili.
 
 ## Regole strumenti
 

@@ -2,16 +2,17 @@
 
 ## Cities
 
-`cities_seed.csv` is a curated offline seed designed for first-run usability and tolerant search aliases. It follows the GeoNames-style fields used by the import tool:
+`cities_seed.csv` is a compact offline bootstrap seed designed for first-run usability. Production imports should use the official GeoNames geoname table format directly:
 
-- city name and ASCII name
-- country and country code
-- latitude and longitude
-- IANA timezone
-- optional population
-- normalized search aliases
+- tab-delimited UTF-8 text
+- fields from the GeoNames `geoname` table
+- `name`, `asciiname`, `alternatenames`, WGS84 latitude/longitude, country code, admin codes, population and IANA timezone
 
-For a full production catalog, use `tools/import_cities.py` with an exported GeoNames-derived CSV. GeoNames publishes dump formats at `https://download.geonames.org/export/dump/readme.txt`.
+For a full production catalog, use `tools/import_cities.py` with `cities15000.txt`, `cities5000.txt`, `cities1000.txt`, or `allCountries.txt` extracted from GeoNames. Optional `countryInfo.txt` and `admin1CodesASCII.txt` enrich country/admin names.
+
+The importer deduplicates translated names into aliases. For example, `Addis Ababa` and `Addis Abeba` are one city record with both search terms.
+
+GeoNames publishes dump formats at `https://download.geonames.org/export/dump/readme.txt`.
 
 ## Equipment Catalogs
 

@@ -20,7 +20,7 @@ class CityRepository:
             rows = connection.execute(
                 """
                 SELECT id, city_name, ascii_name, country, country_code, admin_region,
-                       latitude, longitude, timezone, population, search_name
+                       latitude, longitude, timezone, population, aliases, search_name
                 FROM City
                 ORDER BY population DESC NULLS LAST, country, city_name
                 LIMIT ?
@@ -38,16 +38,28 @@ class CityRepository:
             rows = connection.execute(
                 """
                 SELECT id, city_name, ascii_name, country, country_code, admin_region,
-                       latitude, longitude, timezone, population, search_name
+                       latitude, longitude, timezone, population, aliases, search_name
                 FROM City
                 WHERE search_name LIKE ?
                    OR LOWER(city_name) LIKE ?
                    OR LOWER(COALESCE(ascii_name, '')) LIKE ?
+                   OR LOWER(COALESCE(aliases, '')) LIKE ?
                    OR LOWER(country) LIKE ?
                    OR LOWER(COALESCE(country_code, '')) LIKE ?
+                   OR EXISTS (
+                        SELECT 1
+                        FROM CityAlias ca
+                        WHERE ca.city_id = City.id
+                          AND ca.normalized_alias LIKE ?
+                   )
                 ORDER BY
                     CASE
                         WHEN search_name = ? THEN 0
+                        WHEN EXISTS (
+                            SELECT 1 FROM CityAlias ca
+                            WHERE ca.city_id = City.id
+                              AND ca.normalized_alias = ?
+                        ) THEN 0
                         WHEN search_name LIKE ? THEN 1
                         ELSE 2
                     END,
@@ -55,7 +67,19 @@ class CityRepository:
                     city_name
                 LIMIT ?
                 """,
-                (normalized, normalized, normalized, normalized, normalized, normalized_query, f"{normalized_query}%", limit),
+                (
+                    normalized,
+                    normalized,
+                    normalized,
+                    normalized,
+                    normalized,
+                    normalized,
+                    normalized,
+                    normalized_query,
+                    normalized_query,
+                    f"{normalized_query}%",
+                    limit,
+                ),
             ).fetchall()
         return [self._row_to_city(row) for row in rows]
 
@@ -64,7 +88,7 @@ class CityRepository:
             row = connection.execute(
                 """
                 SELECT id, city_name, ascii_name, country, country_code, admin_region,
-                       latitude, longitude, timezone, population, search_name
+                       latitude, longitude, timezone, population, aliases, search_name
                 FROM City
                 WHERE id = ?
                 """,
@@ -77,7 +101,7 @@ class CityRepository:
             row = connection.execute(
                 """
                 SELECT id, city_name, ascii_name, country, country_code, admin_region,
-                       latitude, longitude, timezone, population, search_name
+                       latitude, longitude, timezone, population, aliases, search_name
                 FROM City
                 WHERE city_name IN ('Milano', 'Roma')
                 ORDER BY CASE city_name WHEN 'Milano' THEN 0 ELSE 1 END
@@ -102,6 +126,7 @@ class CityRepository:
             "longitude": row["longitude"],
             "timezone": row["timezone"],
             "population": row["population"] if "population" in row.keys() else None,
+            "aliases": row["aliases"] if "aliases" in row.keys() else "",
             "search_name": row["search_name"] if "search_name" in row.keys() else "",
         }
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -9,6 +10,7 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
+from astro_viewer.app.database.geonames_importer import import_geonames_cities
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
@@ -35,9 +37,49 @@ class Phase6RealDataTests(unittest.TestCase):
 
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in repository.search("Addis")))
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in repository.search("Addis Ababa")))
-            self.assertTrue(any(city["city"] in {"Addis Ababa", "Addis Abeba"} for city in repository.search("Addis Abeba")))
+            addis_results = [city for city in repository.search("Addis Abeba") if city["country_code"] == "ET"]
+            self.assertTrue(any(city["city"] == "Addis Ababa" for city in addis_results))
+            self.assertFalse(any(city["city"] == "Addis Abeba" for city in addis_results))
             self.assertTrue(any(city["city"] == "Milano" for city in repository.search("Milan")))
             self.assertTrue(any(city["city"] == "Roma" for city in repository.search("Rome")))
+
+    def test_geonames_import_merges_translated_duplicate_names(self) -> None:
+        with _temp_database() as database_path, tempfile.TemporaryDirectory() as temp_dir:
+            geonames_path = Path(temp_dir) / "cities.txt"
+            geonames_path.write_text(
+                "\n".join(
+                    [
+                        _geonames_row("344979", "Addis Ababa", "Addis Ababa", "Addis Abeba,Finfinne", "9.03", "38.74", "ET", "AA", "3041002", "Africa/Addis_Ababa"),
+                        _geonames_row("999001", "Addis Abeba", "Addis Abeba", "Addis Ababa,Finfinne", "9.0303", "38.7404", "ET", "AA", "3041002", "Africa/Addis_Ababa"),
+                        _geonames_row("3169070", "Rome", "Rome", "Roma", "41.8919", "12.5113", "IT", "07", "2318895", "Europe/Rome"),
+                        _geonames_row("3173435", "Milan", "Milan", "Milano", "45.4643", "9.1895", "IT", "09", "1371498", "Europe/Rome"),
+                        _geonames_row("4250542", "Springfield", "Springfield", "", "39.8017", "-89.6437", "US", "IL", "114394", "America/Chicago"),
+                        _geonames_row("4951788", "Springfield", "Springfield", "", "42.1015", "-72.5898", "US", "MA", "155929", "America/New_York"),
+                        _geonames_row("123456", "No Timezone", "No Timezone", "", "10.0", "10.0", "ZZ", "00", "1", ""),
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            import sqlite3
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.row_factory = sqlite3.Row
+                report = import_geonames_cities(connection, geonames_path)
+                connection.commit()
+
+            repository = CityRepository(database_path)
+            addis_results = [city for city in repository.search("Addis Abeba") if city["country_code"] == "ET"]
+            self.assertEqual({city["city"] for city in addis_results}, {"Addis Ababa"})
+            self.assertTrue(any(city["city"] in {"Roma", "Rome"} for city in repository.search("Rome")))
+            self.assertTrue(any(city["city"] in {"Milano", "Milan"} for city in repository.search("Milano")))
+            springfield_results = [city for city in repository.search("Springfield") if city["country_code"] == "US"]
+            self.assertGreaterEqual(len(springfield_results), 2)
+            self.assertEqual(report.total_rows_read, 7)
+            self.assertGreaterEqual(report.total_imported, 2)
+            self.assertGreaterEqual(report.duplicates_merged, 4)
+            self.assertGreater(report.aliases_added, 0)
+            self.assertEqual(report.cities_missing_timezone, 1)
 
     def test_naked_eye_fallback_blocks_eyepiece_add(self) -> None:
         with _controller() as controller:
@@ -164,6 +206,42 @@ def _object(object_id: str, name: str, object_type: str, magnitude: str) -> Cele
         time_above_horizon="",
         score=80,
     )
+
+
+def _geonames_row(
+    geoname_id: str,
+    name: str,
+    ascii_name: str,
+    alternate_names: str,
+    latitude: str,
+    longitude: str,
+    country_code: str,
+    admin1_code: str,
+    population: str,
+    timezone: str,
+) -> str:
+    columns = [
+        geoname_id,
+        name,
+        ascii_name,
+        alternate_names,
+        latitude,
+        longitude,
+        "P",
+        "PPLC",
+        country_code,
+        "",
+        admin1_code,
+        "",
+        "",
+        "",
+        population,
+        "",
+        "",
+        timezone,
+        "2026-01-01",
+    ]
+    return "\t".join(columns)
 
 
 class _temp_database:

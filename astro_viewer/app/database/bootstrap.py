@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import math
 import shutil
 import sqlite3
 from contextlib import closing
@@ -123,6 +124,7 @@ def initialize_database(database_path: Path, schema_path: Path) -> None:
 
 def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
+        connection.row_factory = sqlite3.Row
         connection.executescript(schema_sql)
         _migrate_database(connection)
         data_dir = seed_path.parent
@@ -172,6 +174,7 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_default_profiles(connection)
+        _deduplicate_existing_cities(connection)
         connection.commit()
     logger.info("Database ready.")
 
@@ -185,6 +188,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "country_code": "TEXT",
             "admin_region": "TEXT",
             "population": "INTEGER",
+            "aliases": "TEXT",
             "search_name": "TEXT",
         },
     )
@@ -204,7 +208,21 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_search_name ON City(search_name)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_country_code ON City(country_code)")
-    connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_city_unique_name_country ON City(city_name, country)")
+    connection.execute("DROP INDEX IF EXISTS idx_city_unique_name_country")
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS CityAlias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            city_id INTEGER NOT NULL,
+            alias TEXT NOT NULL,
+            normalized_alias TEXT NOT NULL,
+            source TEXT NOT NULL DEFAULT 'geonames',
+            FOREIGN KEY (city_id) REFERENCES City(id) ON DELETE CASCADE,
+            UNIQUE (city_id, normalized_alias)
+        )
+        """
+    )
+    connection.execute("CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias)")
 
 
 def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[str, str]) -> None:
@@ -297,34 +315,204 @@ def _seed_cities(connection: sqlite3.Connection, city_seed_path: Path) -> None:
                     float(row["longitude"]),
                     row["timezone"],
                     _optional_int(row.get("population", "")),
-                    row.get("search_name") or _search_name(row["city_name"], row.get("ascii_name", "")),
+                    row.get("aliases", ""),
+                    row.get("search_name") or _search_name(row["city_name"], row.get("ascii_name", ""), row.get("aliases", "")),
                 )
                 for row in csv.DictReader(file)
+                if row.get("city_name") and row.get("timezone")
             ]
     else:
         rows = [
-            (city, city, country, "", "", latitude, longitude, timezone, None, _search_name(city, ""))
+            (city, city, country, "", "", latitude, longitude, timezone, None, "", _search_name(city, "", ""))
             for city, country, latitude, longitude, timezone in SEED_CITIES
         ]
-    connection.executemany(
+    for row in rows:
+        _upsert_seed_city(connection, row)
+    _refresh_city_aliases(connection)
+
+
+def _upsert_seed_city(connection: sqlite3.Connection, row: tuple) -> None:
+    (
+        city_name,
+        ascii_name,
+        country,
+        country_code,
+        admin_region,
+        latitude,
+        longitude,
+        timezone,
+        population,
+        aliases,
+        search_name,
+    ) = row
+    existing = connection.execute(
+        """
+        SELECT id, latitude, longitude, timezone
+        FROM City
+        WHERE city_name = ?
+          AND country = ?
+        ORDER BY population DESC NULLS LAST, id
+        LIMIT 1
+        """,
+        (city_name, country),
+    ).fetchone()
+    if existing and existing["timezone"] == timezone and _distance_km(latitude, longitude, existing["latitude"], existing["longitude"]) <= 5.0:
+        connection.execute(
+            """
+            UPDATE City
+            SET ascii_name = ?,
+                country_code = ?,
+                admin_region = ?,
+                latitude = ?,
+                longitude = ?,
+                timezone = ?,
+                population = ?,
+                aliases = ?,
+                search_name = ?
+            WHERE id = ?
+            """,
+            (
+                ascii_name,
+                country_code,
+                admin_region,
+                latitude,
+                longitude,
+                timezone,
+                population,
+                aliases,
+                search_name,
+                existing["id"],
+            ),
+        )
+        return
+    connection.execute(
         """
         INSERT INTO City (
             city_name, ascii_name, country, country_code, admin_region,
-            latitude, longitude, timezone, population, search_name
+            latitude, longitude, timezone, population, aliases, search_name
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(city_name, country) DO UPDATE SET
-            ascii_name = excluded.ascii_name,
-            country_code = excluded.country_code,
-            admin_region = excluded.admin_region,
-            latitude = excluded.latitude,
-            longitude = excluded.longitude,
-            timezone = excluded.timezone,
-            population = excluded.population,
-            search_name = excluded.search_name
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        rows,
+        row,
     )
+
+
+def _refresh_city_aliases(connection: sqlite3.Connection) -> None:
+    for row in connection.execute(
+        "SELECT id, city_name, ascii_name, country, country_code, admin_region, aliases FROM City"
+    ).fetchall():
+        aliases = {
+            row["city_name"],
+            row["ascii_name"] or "",
+            row["country"] or "",
+            row["country_code"] or "",
+            row["admin_region"] or "",
+            *(row["aliases"] or "").split("|"),
+        }
+        connection.executemany(
+            """
+            INSERT OR IGNORE INTO CityAlias (city_id, alias, normalized_alias, source)
+            VALUES (?, ?, ?, ?)
+            """,
+            [
+                (row["id"], alias.strip(), _normalize_search(alias), "seed")
+                for alias in aliases
+                if alias and _normalize_search(alias)
+            ],
+        )
+
+
+def _deduplicate_existing_cities(connection: sqlite3.Connection, proximity_km: float = 5.0) -> None:
+    rows = connection.execute(
+        """
+        SELECT id, city_name, ascii_name, country, country_code, admin_region,
+               latitude, longitude, timezone, population, aliases, search_name
+        FROM City
+        ORDER BY population DESC NULLS LAST, id
+        """
+    ).fetchall()
+    canonical_rows: list[sqlite3.Row] = []
+    deleted_ids: set[int] = set()
+    for row in rows:
+        if row["id"] in deleted_ids:
+            continue
+        duplicate = _matching_canonical_city(row, canonical_rows, proximity_km)
+        if duplicate is None:
+            canonical_rows.append(row)
+            continue
+        _merge_existing_city(connection, duplicate, row)
+        connection.execute("DELETE FROM CityAlias WHERE city_id = ?", (row["id"],))
+        connection.execute("DELETE FROM City WHERE id = ?", (row["id"],))
+        deleted_ids.add(row["id"])
+    if deleted_ids:
+        logger.info("Deduplicated %d city rows into canonical records.", len(deleted_ids))
+
+
+def _matching_canonical_city(row: sqlite3.Row, canonical_rows: list[sqlite3.Row], proximity_km: float) -> sqlite3.Row | None:
+    row_aliases = _city_alias_set(row)
+    for candidate in canonical_rows:
+        if (row["country_code"] or "") != (candidate["country_code"] or ""):
+            continue
+        if (row["timezone"] or "") != (candidate["timezone"] or ""):
+            continue
+        if _distance_km(row["latitude"], row["longitude"], candidate["latitude"], candidate["longitude"]) > proximity_km:
+            continue
+        if row_aliases & _city_alias_set(candidate):
+            return candidate
+    return None
+
+
+def _merge_existing_city(connection: sqlite3.Connection, canonical: sqlite3.Row, duplicate: sqlite3.Row) -> None:
+    aliases = _raw_alias_set(canonical) | _raw_alias_set(duplicate)
+    search_name = _search_name(
+        canonical["city_name"],
+        canonical["ascii_name"] or duplicate["ascii_name"] or canonical["city_name"],
+        aliases_to_text(aliases),
+    )
+    population = max(canonical["population"] or 0, duplicate["population"] or 0) or None
+    connection.execute(
+        """
+        UPDATE City
+        SET aliases = ?, search_name = ?, population = ?
+        WHERE id = ?
+        """,
+        (aliases_to_text(aliases), search_name, population, canonical["id"]),
+    )
+    _refresh_city_aliases_for_row(connection, canonical["id"], aliases)
+
+
+def _refresh_city_aliases_for_row(connection: sqlite3.Connection, city_id: int, aliases: set[str]) -> None:
+    connection.executemany(
+        """
+        INSERT OR IGNORE INTO CityAlias (city_id, alias, normalized_alias, source)
+        VALUES (?, ?, ?, ?)
+        """,
+        [
+            (city_id, alias.strip(), _normalize_search(alias), "dedupe")
+            for alias in aliases
+            if alias and _normalize_search(alias)
+        ],
+    )
+
+
+def _city_alias_set(row: sqlite3.Row) -> set[str]:
+    return {_normalize_search(alias) for alias in _raw_alias_set(row) if _normalize_search(alias)}
+
+
+def _raw_alias_set(row: sqlite3.Row) -> set[str]:
+    return {
+        row["city_name"] or "",
+        row["ascii_name"] or "",
+        row["country"] or "",
+        row["country_code"] or "",
+        row["admin_region"] or "",
+        *(row["aliases"] or "").split("|"),
+        *(row["search_name"] or "").split(),
+    }
+
+
+def aliases_to_text(aliases: set[str]) -> str:
+    return "|".join(sorted(alias.strip() for alias in aliases if alias and alias.strip()))
 
 
 def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:
@@ -534,8 +722,28 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
         )
 
 
-def _search_name(city_name: str, ascii_name: str) -> str:
-    return " ".join({city_name.lower(), ascii_name.lower()}).strip()
+def _search_name(city_name: str, ascii_name: str, aliases: str) -> str:
+    values = {city_name.lower(), ascii_name.lower()}
+    values.update(alias.strip().lower() for alias in aliases.split("|") if alias.strip())
+    return " ".join(sorted(value for value in values if value)).strip()
+
+
+def _normalize_search(value: str) -> str:
+    import unicodedata
+
+    normalized = unicodedata.normalize("NFKD", value.strip().lower())
+    ascii_value = "".join(character for character in normalized if not unicodedata.combining(character))
+    return " ".join(ascii_value.replace("-", " ").replace("_", " ").replace(",", " ").split())
+
+
+def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    radius_km = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    value = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    return 2 * radius_km * math.atan2(math.sqrt(value), math.sqrt(1 - value))
 
 
 if __name__ == "__main__":

@@ -1,52 +1,48 @@
 from __future__ import annotations
 
-from import_utils import optional_int, parser, read_rows, run_import
+import argparse
+import json
+import sys
+from pathlib import Path
 
+if __package__ is None or __package__ == "":
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-REQUIRED = {"city_name", "country", "latitude", "longitude", "timezone"}
+from astro_viewer.app.database.bootstrap import initialize_database
+from astro_viewer.app.database.geonames_importer import import_geonames_cities
+from astro_viewer.tools.import_utils import connect
 
 
 def main() -> None:
-    args = parser("Import offline city catalog CSV").parse_args()
-    rows = read_rows(args.csv_path, REQUIRED)
-
-    def import_rows(connection):
-        connection.executemany(
-            """
-            INSERT INTO City (
-                city_name, ascii_name, country, country_code, admin_region,
-                latitude, longitude, timezone, population, search_name
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(city_name, country) DO UPDATE SET
-                ascii_name = excluded.ascii_name,
-                country_code = excluded.country_code,
-                admin_region = excluded.admin_region,
-                latitude = excluded.latitude,
-                longitude = excluded.longitude,
-                timezone = excluded.timezone,
-                population = excluded.population,
-                search_name = excluded.search_name
-            """,
-            [
-                (
-                    row["city_name"],
-                    row.get("ascii_name") or row["city_name"],
-                    row["country"],
-                    row.get("country_code", ""),
-                    row.get("admin_region", ""),
-                    float(row["latitude"]),
-                    float(row["longitude"]),
-                    row["timezone"],
-                    optional_int(row.get("population")),
-                    row.get("search_name") or row["city_name"].lower(),
-                )
-                for row in rows
-            ],
+    args = _parser().parse_args()
+    schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+    initialize_database(args.database, schema_path)
+    with connect(args.database) as connection:
+        report = import_geonames_cities(
+            connection,
+            args.geonames_path,
+            country_info_path=args.country_info,
+            admin1_codes_path=args.admin1_codes,
+            proximity_km=args.proximity_km,
         )
-        return len(rows)
+        connection.commit()
+    print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
 
-    run_import(args.database, import_rows)
+
+def _parser() -> argparse.ArgumentParser:
+    base_dir = Path(__file__).resolve().parents[1]
+    parser = argparse.ArgumentParser(
+        description=(
+            "Import a GeoNames geoname-table dump such as cities15000.txt, "
+            "cities5000.txt, cities1000.txt or allCountries.txt."
+        )
+    )
+    parser.add_argument("geonames_path", type=Path, help="GeoNames tab-delimited geoname table file")
+    parser.add_argument("--database", type=Path, default=base_dir / "data" / "nightscope.db")
+    parser.add_argument("--country-info", type=Path, default=None, help="Optional GeoNames countryInfo.txt")
+    parser.add_argument("--admin1-codes", type=Path, default=None, help="Optional GeoNames admin1CodesASCII.txt")
+    parser.add_argument("--proximity-km", type=float, default=5.0)
+    return parser
 
 
 if __name__ == "__main__":

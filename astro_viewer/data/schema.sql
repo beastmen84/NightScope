@@ -9,11 +9,24 @@ CREATE TABLE IF NOT EXISTS City (
     longitude REAL NOT NULL,
     timezone TEXT NOT NULL,
     population INTEGER,
+    aliases TEXT,
     search_name TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_city_name ON City(city_name);
 CREATE INDEX IF NOT EXISTS idx_city_country ON City(country);
+
+CREATE TABLE IF NOT EXISTS CityAlias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city_id INTEGER NOT NULL,
+    alias TEXT NOT NULL,
+    normalized_alias TEXT NOT NULL,
+    source TEXT NOT NULL DEFAULT 'geonames',
+    FOREIGN KEY (city_id) REFERENCES City(id) ON DELETE CASCADE,
+    UNIQUE (city_id, normalized_alias)
+);
+
+CREATE INDEX IF NOT EXISTS idx_city_alias_normalized ON CityAlias(normalized_alias);
 
 CREATE TABLE IF NOT EXISTS MessierObject (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
