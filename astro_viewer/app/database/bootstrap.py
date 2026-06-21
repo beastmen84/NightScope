@@ -503,9 +503,6 @@ def _refresh_city_aliases(connection: sqlite3.Connection) -> None:
         aliases = {
             row["city_name"],
             row["ascii_name"] or "",
-            row["country"] or "",
-            row["country_code"] or "",
-            row["admin_region"] or "",
             *(row["aliases"] or "").split("|"),
         }
         connection.executemany(
@@ -516,7 +513,7 @@ def _refresh_city_aliases(connection: sqlite3.Connection) -> None:
             [
                 (row["id"], alias.strip(), _normalize_search(alias), "seed")
                 for alias in aliases
-                if alias and _normalize_search(alias)
+                if alias and _is_valid_city_alias(_normalize_search(alias))
             ],
         )
 
@@ -597,7 +594,7 @@ def _refresh_city_aliases_for_row(connection: sqlite3.Connection, city_id: int, 
         [
             (city_id, alias.strip(), _normalize_search(alias), "dedupe")
             for alias in aliases
-            if alias and _normalize_search(alias)
+            if alias and _is_valid_city_alias(_normalize_search(alias))
         ],
     )
 
@@ -610,11 +607,7 @@ def _raw_alias_set(row: sqlite3.Row) -> set[str]:
     return {
         row["city_name"] or "",
         row["ascii_name"] or "",
-        row["country"] or "",
-        row["country_code"] or "",
-        row["admin_region"] or "",
         *(row["aliases"] or "").split("|"),
-        *(row["search_name"] or "").split(),
     }
 
 
@@ -841,6 +834,10 @@ def _normalize_search(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", value.strip().lower())
     ascii_value = "".join(character for character in normalized if not unicodedata.combining(character))
     return " ".join(ascii_value.replace("-", " ").replace("_", " ").replace(",", " ").split())
+
+
+def _is_valid_city_alias(normalized_alias: str) -> bool:
+    return bool(normalized_alias) and not normalized_alias.isdigit()
 
 
 def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

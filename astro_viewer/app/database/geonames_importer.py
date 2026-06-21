@@ -159,6 +159,11 @@ def _city_from_row(raw_row: dict, country_names: dict[str, str], admin_names: di
     population = _optional_int(raw_row.get("population"))
     aliases = _split_aliases(raw_row.get("alternatenames") or raw_row.get("aliases") or "")
     aliases.update({name, ascii_name})
+    aliases = _clean_city_aliases(
+        aliases,
+        {country, country_code, admin_region, admin_code},
+        protected_aliases={name, ascii_name},
+    )
     return GeoNamesCity(
         geonameid=str(raw_row.get("geonameid") or ""),
         city_name=name,
@@ -256,6 +261,23 @@ def _merge_city_aliases(connection: sqlite3.Connection, duplicate: sqlite3.Row, 
     existing_aliases = set((duplicate["aliases"] or "").split("|"))
     merged_aliases = {alias for alias in existing_aliases if alias}
     merged_aliases.update(city.aliases)
+    merged_aliases = _clean_city_aliases(
+        merged_aliases,
+        {
+            duplicate["country"] or "",
+            duplicate["country_code"] or "",
+            duplicate["admin_region"] or "",
+            city.country,
+            city.country_code,
+            city.admin_region,
+        },
+        protected_aliases={
+            duplicate["city_name"] or "",
+            duplicate["ascii_name"] or "",
+            city.city_name,
+            city.ascii_name,
+        },
+    )
     population = max(duplicate["population"] or 0, city.population or 0) or None
     search_name = build_search_name(
         duplicate["city_name"],
@@ -291,7 +313,7 @@ def _insert_aliases(connection: sqlite3.Connection, city_id: int, aliases: set[s
     added = 0
     for alias in sorted(alias.strip() for alias in aliases if alias.strip()):
         normalized = _normalize_search(alias)
-        if not normalized:
+        if not _is_valid_city_alias(normalized):
             continue
         cursor = connection.execute(
             """
@@ -334,6 +356,29 @@ def _split_aliases(value: str) -> set[str]:
         if alias:
             aliases.add(alias)
     return aliases
+
+
+def _clean_city_aliases(
+    aliases: set[str],
+    context_values: set[str],
+    protected_aliases: set[str] | None = None,
+) -> set[str]:
+    context_aliases = {_normalize_search(value) for value in context_values if value and _normalize_search(value)}
+    protected = {
+        _normalize_search(value)
+        for value in (protected_aliases or set())
+        if value and _normalize_search(value)
+    }
+    return {
+        alias
+        for alias in aliases
+        if _is_valid_city_alias(_normalize_search(alias))
+        and (_normalize_search(alias) not in context_aliases or _normalize_search(alias) in protected)
+    }
+
+
+def _is_valid_city_alias(normalized_alias: str) -> bool:
+    return bool(normalized_alias) and not normalized_alias.isdigit()
 
 
 def _optional_int(value: str | None) -> int | None:

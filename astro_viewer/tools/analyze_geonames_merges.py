@@ -17,6 +17,7 @@ if __package__ is None or __package__ == "":
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.geonames_importer import (
     GeoNamesCity,
+    _clean_city_aliases,
     _distance_km,
     _insert_aliases,
     _is_non_city_row,
@@ -199,8 +200,11 @@ def _city_from_row(
         return None
     aliases = _split_aliases(raw_row.get("alternatenames") or raw_row.get("aliases") or "")
     aliases.update({name, ascii_name})
+    context_values = {country, country_code, admin_region, admin_code}
     if include_context_aliases:
-        aliases.update({country, country_code, admin_region})
+        aliases.update(context_values)
+    else:
+        aliases = _clean_city_aliases(aliases, context_values, protected_aliases={name, ascii_name})
     return GeoNamesCity(
         geonameid=str(raw_row.get("geonameid") or ""),
         city_name=name,

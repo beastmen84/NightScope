@@ -61,8 +61,9 @@ class CityRepository:
                             WHERE ca.city_id = City.id
                               AND ca.normalized_alias = ?
                         ) THEN 0
-                        WHEN search_name LIKE ? THEN 1
-                        ELSE 2
+                        WHEN (' ' || search_name || ' ') LIKE ? THEN 1
+                        WHEN search_name LIKE ? THEN 2
+                        ELSE 3
                     END,
                     population DESC NULLS LAST,
                     city_name
@@ -78,6 +79,7 @@ class CityRepository:
                     normalized,
                     normalized_query,
                     normalized_query,
+                    f"% {normalized_query} %",
                     f"{normalized_query}%",
                     limit,
                 ),

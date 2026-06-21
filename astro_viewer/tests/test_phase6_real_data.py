@@ -36,6 +36,7 @@ class Phase6RealDataTests(unittest.TestCase):
             repository = CityRepository(database_path)
 
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in repository.search("Addis")))
+            self.assertEqual(repository.search("Addis")[0]["city"], "Addis Ababa")
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in repository.search("Addis Ababa")))
             addis_results = [city for city in repository.search("Addis Abeba") if city["country_code"] == "ET"]
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in addis_results))
@@ -85,7 +86,7 @@ class Phase6RealDataTests(unittest.TestCase):
         with _temp_database() as database_path, tempfile.TemporaryDirectory() as temp_dir:
             geonames_path = Path(temp_dir) / "cities.txt"
             geonames_path.write_text(
-                _geonames_row("1000", "Testville", "Testville", "Alt Name", "34.0", "-118.0", "US", "CA", "15000", "America/Los_Angeles"),
+                _geonames_row("1000", "Testville", "Testville", "US,CA,123,Alt Name", "34.0", "-118.0", "US", "CA", "15000", "America/Los_Angeles"),
                 encoding="utf-8",
             )
 
@@ -106,6 +107,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertIn("alt name", aliases)
             self.assertNotIn("us", aliases)
             self.assertNotIn("ca", aliases)
+            self.assertNotIn("123", aliases)
             self.assertIn("us", search_name)
             self.assertIn("ca", search_name)
 
