@@ -81,6 +81,34 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertGreater(report.aliases_added, 0)
             self.assertEqual(report.cities_missing_timezone, 1)
 
+    def test_geonames_import_keeps_context_out_of_city_aliases(self) -> None:
+        with _temp_database() as database_path, tempfile.TemporaryDirectory() as temp_dir:
+            geonames_path = Path(temp_dir) / "cities.txt"
+            geonames_path.write_text(
+                _geonames_row("1000", "Testville", "Testville", "Alt Name", "34.0", "-118.0", "US", "CA", "15000", "America/Los_Angeles"),
+                encoding="utf-8",
+            )
+
+            import sqlite3
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.row_factory = sqlite3.Row
+                connection.execute("DELETE FROM CityAlias")
+                connection.execute("DELETE FROM City")
+                import_geonames_cities(connection, geonames_path)
+                aliases = {
+                    row["normalized_alias"]
+                    for row in connection.execute("SELECT normalized_alias FROM CityAlias").fetchall()
+                }
+                search_name = connection.execute("SELECT search_name FROM City LIMIT 1").fetchone()["search_name"]
+
+            self.assertIn("testville", aliases)
+            self.assertIn("alt name", aliases)
+            self.assertNotIn("us", aliases)
+            self.assertNotIn("ca", aliases)
+            self.assertIn("us", search_name)
+            self.assertIn("ca", search_name)
+
     def test_naked_eye_fallback_blocks_eyepiece_add(self) -> None:
         with _controller() as controller:
             self.assertEqual(controller.currentSetup["name"], "Occhio nudo")

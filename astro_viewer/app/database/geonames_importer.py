@@ -158,7 +158,7 @@ def _city_from_row(raw_row: dict, country_names: dict[str, str], admin_names: di
         return None
     population = _optional_int(raw_row.get("population"))
     aliases = _split_aliases(raw_row.get("alternatenames") or raw_row.get("aliases") or "")
-    aliases.update({name, ascii_name, country, country_code, admin_region})
+    aliases.update({name, ascii_name})
     return GeoNamesCity(
         geonameid=str(raw_row.get("geonameid") or ""),
         city_name=name,
@@ -215,9 +215,6 @@ def _candidate_aliases(connection: sqlite3.Connection, candidate: sqlite3.Row) -
     aliases = {
         candidate["city_name"] or "",
         candidate["ascii_name"] or "",
-        candidate["country"] or "",
-        candidate["country_code"] or "",
-        candidate["admin_region"] or "",
         *(candidate["aliases"] or "").split("|"),
     }
     rows = connection.execute(
