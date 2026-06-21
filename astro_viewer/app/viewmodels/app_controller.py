@@ -25,9 +25,10 @@ from astro_viewer.app.services.advanced_observing_service import AdvancedObservi
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.location_service import (
+    APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
+    LocationDetectionResult,
     LocationService,
     LocationUnavailableError,
-    WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
@@ -59,7 +60,7 @@ class AppController(QObject):
         self._object_image_repository = ObjectImageRepository(database_path)
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
-        self._location_service = LocationService()
+        self._location_service = LocationService(cache_path=base_dir / "data" / "location_cache.json")
         self._is_loading = False
         self._service_status = ""
         self._weather_status = ""
@@ -80,8 +81,10 @@ class AppController(QObject):
         self._notification_service = NotificationService()
 
         self._city_results = self._city_repository.list_cities(limit=12)
-        self._location = self._location_service.from_city(self._city_repository.get_default())
+        self._location_detection_result = self._location_service.from_city_result(self._city_repository.get_default())
+        self._location = self._location_detection_result.location
         self._location_message = "Pronto per posizione Windows, ricerca citta o coordinate manuali."
+        self._offer_online_location_fallback = False
 
         self._visible_planets: list[CelestialObject] = []
         self._solar_system_objects: list[CelestialObject] = []
@@ -125,6 +128,14 @@ class AppController(QObject):
     @Property(str, notify=locationChanged)
     def locationMessage(self) -> str:
         return self._location_message
+
+    @Property(bool, notify=locationChanged)
+    def canUseApproximateOnlineLocation(self) -> bool:
+        return self._offer_online_location_fallback
+
+    @Property("QVariant", notify=locationChanged)
+    def locationDetails(self) -> dict:
+        return self._location_detection_result.to_qml() if self._location_detection_result else {}
 
     @Property(bool, notify=statusChanged)
     def isLoading(self) -> bool:
@@ -312,8 +323,8 @@ class AppController(QObject):
         city = self._city_repository.get_by_id(city_id)
         if not city:
             return
-        self._location = self._location_service.from_city(city)
-        self._location_message = f"Posizione impostata su {city['city']}, {city['country']}."
+        result = self._location_service.from_city_result(city)
+        self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
 
@@ -333,24 +344,39 @@ class AppController(QObject):
             return
 
         clean_label = label.strip() or "Coordinate manuali"
-        self._location = self._location_service.from_manual_coordinates(
+        result = self._location_service.from_manual_coordinates_result(
             parsed_latitude,
             parsed_longitude,
             label=clean_label,
         )
-        self._location_message = f"Coordinate impostate: {parsed_latitude:.4f}, {parsed_longitude:.4f}."
+        self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
 
     @Slot()
     def useWindowsLocation(self) -> None:
         try:
-            self._location = self._location_service.from_windows_location()
-        except LocationUnavailableError:
-            self._location_message = WINDOWS_LOCATION_UNAVAILABLE_MESSAGE
+            result = self._location_service.detect_windows_location()
+        except LocationUnavailableError as exc:
+            logger.warning("Windows location unavailable in AppController: %s", exc.reason)
+            self._location_message = "Windows location is unavailable. Try approximate online location?"
+            self._offer_online_location_fallback = True
             self.locationChanged.emit()
             return
-        self._location_message = "Posizione Windows acquisita."
+        self._apply_location_result(result)
+        self._refresh_all()
+        self.locationChanged.emit()
+
+    @Slot()
+    def useApproximateOnlineLocation(self) -> None:
+        try:
+            result = self._location_service.detect_ip_location(allow_online=True)
+        except LocationUnavailableError as exc:
+            logger.warning("Approximate online location unavailable: %s", exc.reason)
+            self._location_message = APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE
+            self.locationChanged.emit()
+            return
+        self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
 
@@ -486,6 +512,12 @@ class AppController(QObject):
             self._append_service_status("Astronomical data temporarily unavailable.")
 
     def _refresh_weather_and_conditions(self) -> None:
+        if not self._has_valid_location():
+            logger.warning("Weather refresh skipped because no valid location is available.")
+            self._weather_hours = []
+            self._weather_status = "Location unavailable. Weather not loaded."
+            self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+            return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
         self._weather_status = getattr(self._weather_service, "last_error", "") or ""
         if self._weather_status == WEATHER_UNAVAILABLE_MESSAGE:
@@ -568,6 +600,18 @@ class AppController(QObject):
                 if item.id == selected_id:
                     self._selected_object = item
                     break
+
+    def _apply_location_result(self, result: LocationDetectionResult) -> None:
+        self._location_detection_result = result
+        self._location = result.location
+        self._location_message = result.message
+        self._offer_online_location_fallback = False
+
+    def _has_valid_location(self) -> bool:
+        location = self._location
+        if not isinstance(location, ObserverLocation):
+            return False
+        return -90 <= location.latitude <= 90 and -180 <= location.longitude <= 180
 
     def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         telescope = self._current_telescope()

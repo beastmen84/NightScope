@@ -7,8 +7,14 @@ from unittest.mock import Mock, patch
 
 import requests
 
+from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
-from astro_viewer.app.services.location_service import LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE
+from astro_viewer.app.models.weather import WeatherHour
+from astro_viewer.app.services.location_service import (
+    LocationDetectionResult,
+    LocationUnavailableError,
+    WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
+)
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -33,13 +39,64 @@ class ReleaseScenarioTests(unittest.TestCase):
             previous_location = controller.location["city"]
             with patch.object(
                 controller._location_service,
-                "from_windows_location",
+                "detect_windows_location",
                 side_effect=LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE),
             ):
-                controller.useWindowsLocation()
+                with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="WARNING"):
+                    controller.useWindowsLocation()
 
             self.assertEqual(controller.location["city"], previous_location)
-            self.assertEqual(controller.locationMessage, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
+            self.assertEqual(controller.locationMessage, "Windows location is unavailable. Try approximate online location?")
+            self.assertTrue(controller.canUseApproximateOnlineLocation)
+
+    def test_weather_not_called_without_valid_location(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            fake_weather_service = Mock()
+            fake_weather_service.hourly_forecast.return_value = []
+            fake_weather_service.last_error = ""
+            controller._weather_service = fake_weather_service
+            controller._location = None
+
+            with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="WARNING"):
+                controller._refresh_weather_and_conditions()
+
+            fake_weather_service.hourly_forecast.assert_not_called()
+
+    def test_weather_refreshes_after_valid_location(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            fake_weather_service = Mock()
+            fake_weather_service.hourly_forecast.return_value = [
+                WeatherHour("2026-06-21T22:00", "22:00", 20, 0, 6, 55, 18.0, 18_000)
+            ]
+            fake_weather_service.last_error = ""
+            controller._weather_service = fake_weather_service
+
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+
+            fake_weather_service.hourly_forecast.assert_called()
+
+    def test_approximate_online_location_refreshes_weather(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            fake_weather_service = Mock()
+            fake_weather_service.hourly_forecast.return_value = [
+                WeatherHour("2026-06-21T22:00", "22:00", 20, 0, 6, 55, 18.0, 18_000)
+            ]
+            fake_weather_service.last_error = ""
+            controller._weather_service = fake_weather_service
+            result = LocationDetectionResult(
+                location=ObserverLocation("Rome", "Italy", 41.9, 12.5, "Europe/Rome"),
+                provider="ip_geolocation",
+                source="test",
+                accuracy="city-level",
+                approximate=True,
+                message="Approximate location detected from internet connection: Rome, Italy. Accuracy may be limited.",
+            )
+            with patch.object(controller._location_service, "detect_ip_location", return_value=result):
+                controller.useApproximateOnlineLocation()
+
+            self.assertEqual(controller.location["city"], "Rome")
+            self.assertIn("Approximate location detected", controller.locationMessage)
+            fake_weather_service.hourly_forecast.assert_called()
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None):
         return _ControllerContext(response=response, side_effect=side_effect)

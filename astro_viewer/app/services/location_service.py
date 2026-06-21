@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import subprocess
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Protocol
 from zoneinfo import ZoneInfo
+
+import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 
+
+logger = logging.getLogger(__name__)
 
 WINDOWS_TO_IANA_TIMEZONES = {
     "W. Europe Standard Time": "Europe/Berlin",
@@ -28,22 +36,352 @@ WINDOWS_TO_IANA_TIMEZONES = {
 WINDOWS_LOCATION_UNAVAILABLE_MESSAGE = (
     "Windows location is not available. Please choose a city or enter coordinates manually."
 )
+APPROXIMATE_LOCATION_SUCCESS_MESSAGE = (
+    "Approximate location detected from internet connection: {city}, {country}. Accuracy may be limited."
+)
+APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE = (
+    "Approximate online location is unavailable. Please choose a city or enter coordinates manually."
+)
+
+
+@dataclass(frozen=True)
+class LocationDetectionResult:
+    location: ObserverLocation
+    provider: str
+    source: str
+    accuracy: str
+    approximate: bool = False
+    region: str = ""
+    message: str = ""
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["location"] = {
+            "city": self.location.city,
+            "country": self.location.country,
+            "latitude": self.location.latitude,
+            "longitude": self.location.longitude,
+            "timezone": self.location.timezone,
+        }
+        return data
 
 
 class LocationUnavailableError(RuntimeError):
-    """Raised when Windows cannot provide a usable location."""
+    """Raised when a provider cannot return a usable location."""
+
+    def __init__(self, message: str = WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, reason: str = "unavailable provider"):
+        super().__init__(message)
+        self.reason = reason
 
 
+class LocationProvider(Protocol):
+    name: str
 
-class LocationService:
-    def from_city(self, city: dict) -> ObserverLocation:
+    def detect(self) -> LocationDetectionResult:
+        ...
+
+
+class WindowsLocationProvider:
+    name = "windows_precise"
+
+    def detect(self) -> LocationDetectionResult:
+        payload = self._windows_location_payload(_windows_geolocation_script(precise=True))
+        location = self._location_from_windows_payload(payload, provider_label="Posizione Windows")
+        accuracy = payload.get("accuracy")
+        accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "precisa"
+        return LocationDetectionResult(
+            location=location,
+            provider=self.name,
+            source="Windows.Devices.Geolocation.Geolocator",
+            accuracy=accuracy_label,
+            approximate=False,
+            message="Posizione Windows acquisita.",
+        )
+
+    def _windows_location_payload(self, script: str) -> dict:
+        try:
+            result = subprocess.run(
+                ["powershell", "-Sta", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+                capture_output=True,
+                text=True,
+                timeout=18,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            _log_windows_failure("timeout", "PowerShell location request timed out.")
+            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "timeout") from exc
+        except (OSError, subprocess.SubprocessError) as exc:
+            _log_windows_failure("unavailable provider", str(exc))
+            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "unavailable provider") from exc
+
+        payload = _parse_provider_stdout(result.stdout)
+        if not payload:
+            reason = _reason_from_error(result.stderr or result.stdout)
+            _log_windows_failure(reason, result.stderr.strip() or "No provider output.")
+            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, reason)
+        if not payload.get("ok", False):
+            reason = _normalize_reason(str(payload.get("reason") or "unavailable provider"))
+            _log_windows_failure(reason, str(payload.get("detail") or "Provider returned failure."))
+            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, reason)
+        return payload
+
+    def _location_from_windows_payload(self, payload: dict, provider_label: str = "Posizione Windows") -> ObserverLocation:
+        latitude = _required_coordinate(payload, "latitude", -90.0, 90.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
+        longitude = _required_coordinate(payload, "longitude", -180.0, 180.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
+        windows_timezone = payload.get("timezone", "")
         return ObserverLocation(
+            city=provider_label,
+            country="",
+            latitude=latitude,
+            longitude=longitude,
+            timezone=WINDOWS_TO_IANA_TIMEZONES.get(windows_timezone, system_timezone()),
+        )
+
+
+class WindowsCoarseLocationProvider(WindowsLocationProvider):
+    name = "windows_coarse"
+
+    def detect(self) -> LocationDetectionResult:
+        payload = self._windows_location_payload(_windows_geolocation_script(precise=False))
+        location = self._location_from_windows_payload(payload, provider_label="Posizione Windows approssimata")
+        accuracy = payload.get("accuracy")
+        accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "approssimata"
+        return LocationDetectionResult(
+            location=location,
+            provider=self.name,
+            source="Windows.Devices.Geolocation.Geolocator coarse",
+            accuracy=accuracy_label,
+            approximate=True,
+            message="Posizione Windows approssimata acquisita.",
+        )
+
+
+class IpGeolocationProvider:
+    name = "ip_geolocation"
+    REQUEST_TIMEOUT_SECONDS = 4
+    ENDPOINTS = (
+        "https://ipapi.co/json/",
+        "https://ipwho.is/",
+    )
+
+    def __init__(self, cache_path: Path | None = None):
+        self._cache_path = cache_path
+
+    def detect(self) -> LocationDetectionResult:
+        last_error = ""
+        for endpoint in self.ENDPOINTS:
+            try:
+                response = requests.get(endpoint, timeout=self.REQUEST_TIMEOUT_SECONDS)
+                response.raise_for_status()
+                payload = response.json()
+                result = self._result_from_payload(endpoint, payload)
+            except (requests.RequestException, LocationUnavailableError, TypeError, ValueError) as exc:
+                last_error = str(exc)
+                logger.warning("IP geolocation provider failed: %s", endpoint, exc_info=True)
+                continue
+            self._write_cache(result)
+            return result
+
+        cached = self._read_cache()
+        if cached:
+            logger.info("Using cached approximate IP geolocation.")
+            return cached
+        raise LocationUnavailableError(APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE, last_error or "unavailable provider")
+
+    def _result_from_payload(self, endpoint: str, payload: dict) -> LocationDetectionResult:
+        if not isinstance(payload, dict):
+            raise ValueError("IP geolocation returned a non-object payload.")
+        if endpoint.endswith("ipwho.is/") and payload.get("success") is False:
+            raise ValueError(str(payload.get("message") or "IP geolocation failed."))
+
+        city = str(payload.get("city") or "Posizione approssimata").strip()
+        region = str(payload.get("region") or payload.get("region_name") or "").strip()
+        country = str(payload.get("country_name") or payload.get("country") or "").strip()
+        timezone_value = payload.get("timezone")
+        if isinstance(timezone_value, dict):
+            timezone_value = timezone_value.get("id")
+        timezone_name = str(timezone_value or system_timezone()).strip()
+        latitude = _required_coordinate(payload, "latitude", -90.0, 90.0, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE)
+        longitude = _required_coordinate(payload, "longitude", -180.0, 180.0, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE)
+        accuracy = payload.get("accuracy_radius") or payload.get("accuracy") or "city-level"
+        location = ObserverLocation(
+            city=city,
+            country=country,
+            latitude=latitude,
+            longitude=longitude,
+            timezone=timezone_name,
+        )
+        return LocationDetectionResult(
+            location=location,
+            provider=self.name,
+            source=endpoint,
+            accuracy=str(accuracy),
+            approximate=True,
+            region=region,
+            message=APPROXIMATE_LOCATION_SUCCESS_MESSAGE.format(city=city, country=country or "unknown"),
+        )
+
+    def _write_cache(self, result: LocationDetectionResult) -> None:
+        if not self._cache_path:
+            return
+        try:
+            self._cache_path.parent.mkdir(parents=True, exist_ok=True)
+            payload = result.to_qml()
+            payload["cachedAt"] = datetime.now().isoformat(timespec="seconds")
+            self._cache_path.write_text(json.dumps(payload), encoding="utf-8")
+        except OSError:
+            logger.warning("Could not write approximate location cache.", exc_info=True)
+
+    def _read_cache(self) -> LocationDetectionResult | None:
+        if not self._cache_path or not self._cache_path.exists():
+            return None
+        try:
+            payload = json.loads(self._cache_path.read_text(encoding="utf-8"))
+            location_payload = payload["location"]
+            location = ObserverLocation(
+                city=location_payload["city"],
+                country=location_payload["country"],
+                latitude=float(location_payload["latitude"]),
+                longitude=float(location_payload["longitude"]),
+                timezone=location_payload["timezone"],
+            )
+            return LocationDetectionResult(
+                location=location,
+                provider=payload.get("provider", self.name),
+                source=f"{payload.get('source', 'cached IP geolocation')} cached",
+                accuracy=payload.get("accuracy", "city-level"),
+                approximate=True,
+                region=payload.get("region", ""),
+                message=APPROXIMATE_LOCATION_SUCCESS_MESSAGE.format(
+                    city=location.city,
+                    country=location.country or "unknown",
+                ),
+            )
+        except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+            logger.warning("Approximate location cache is invalid.", exc_info=True)
+            return None
+
+
+class ManualCityProvider:
+    name = "manual_city"
+
+    def detect_from_city(self, city: dict) -> LocationDetectionResult:
+        location = ObserverLocation(
             city=city["city"],
             country=city["country"],
             latitude=float(city["latitude"]),
             longitude=float(city["longitude"]),
             timezone=city["timezone"],
         )
+        return LocationDetectionResult(
+            location=location,
+            provider=self.name,
+            source="SQLite City",
+            accuracy="city coordinates",
+            approximate=False,
+            message=f"Posizione impostata su {city['city']}, {city['country']}.",
+        )
+
+
+class ManualCoordinatesProvider:
+    name = "manual_coordinates"
+
+    def detect_from_coordinates(
+        self,
+        latitude: float,
+        longitude: float,
+        label: str = "Coordinate manuali",
+        timezone: str | None = None,
+    ) -> LocationDetectionResult:
+        _validate_coordinate(latitude, -90.0, 90.0, "Invalid latitude.")
+        _validate_coordinate(longitude, -180.0, 180.0, "Invalid longitude.")
+        location = ObserverLocation(
+            city=label,
+            country="",
+            latitude=latitude,
+            longitude=longitude,
+            timezone=timezone or system_timezone(),
+        )
+        return LocationDetectionResult(
+            location=location,
+            provider=self.name,
+            source="Manual coordinates",
+            accuracy="user supplied",
+            approximate=False,
+            message=f"Coordinate impostate: {latitude:.4f}, {longitude:.4f}.",
+        )
+
+
+class LocationService:
+    def __init__(
+        self,
+        windows_provider: LocationProvider | None = None,
+        windows_coarse_provider: LocationProvider | None = None,
+        ip_provider: IpGeolocationProvider | None = None,
+        city_provider: ManualCityProvider | None = None,
+        coordinates_provider: ManualCoordinatesProvider | None = None,
+        cache_path: Path | None = None,
+    ):
+        self.windows_provider = windows_provider or WindowsLocationProvider()
+        self.windows_coarse_provider = windows_coarse_provider or WindowsCoarseLocationProvider()
+        self.ip_provider = ip_provider or IpGeolocationProvider(cache_path)
+        self.city_provider = city_provider or ManualCityProvider()
+        self.coordinates_provider = coordinates_provider or ManualCoordinatesProvider()
+        self.last_result: LocationDetectionResult | None = None
+        self.last_error_reason = ""
+
+    def detect_best_location(self, allow_ip: bool = False) -> LocationDetectionResult:
+        providers: list[LocationProvider] = [self.windows_provider, self.windows_coarse_provider]
+        if allow_ip:
+            providers.append(self.ip_provider)
+        errors = []
+        for provider in providers:
+            try:
+                result = provider.detect()
+            except LocationUnavailableError as exc:
+                errors.append(f"{provider.name}: {exc.reason}")
+                self.last_error_reason = exc.reason
+                continue
+            self.last_result = result
+            return result
+        raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "; ".join(errors) or "unavailable provider")
+
+    def detect_windows_location(self) -> LocationDetectionResult:
+        for provider in (self.windows_provider, self.windows_coarse_provider):
+            try:
+                result = provider.detect()
+            except LocationUnavailableError as exc:
+                self.last_error_reason = exc.reason
+                continue
+            self.last_result = result
+            return result
+        raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, self.last_error_reason or "unavailable provider")
+
+    def detect_ip_location(self, allow_online: bool) -> LocationDetectionResult:
+        if not allow_online:
+            raise LocationUnavailableError(APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE, "online location not allowed")
+        result = self.ip_provider.detect()
+        self.last_result = result
+        return result
+
+    def from_city_result(self, city: dict) -> LocationDetectionResult:
+        result = self.city_provider.detect_from_city(city)
+        self.last_result = result
+        return result
+
+    def from_manual_coordinates_result(
+        self,
+        latitude: float,
+        longitude: float,
+        label: str = "Coordinate manuali",
+        timezone: str | None = None,
+    ) -> LocationDetectionResult:
+        result = self.coordinates_provider.detect_from_coordinates(latitude, longitude, label, timezone)
+        self.last_result = result
+        return result
+
+    def from_city(self, city: dict) -> ObserverLocation:
+        return self.from_city_result(city).location
 
     def from_manual_coordinates(
         self,
@@ -52,97 +390,165 @@ class LocationService:
         label: str = "Coordinate manuali",
         timezone: str | None = None,
     ) -> ObserverLocation:
-        return ObserverLocation(
-            city=label,
-            country="",
-            latitude=latitude,
-            longitude=longitude,
-            timezone=timezone or self.system_timezone(),
-        )
+        return self.from_manual_coordinates_result(latitude, longitude, label, timezone).location
 
     def from_windows_location(self) -> ObserverLocation:
-        script = r"""
-Add-Type -AssemblyName System.Runtime.WindowsRuntime
-$null = [Windows.Devices.Geolocation.Geolocator,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
-$locator = [Windows.Devices.Geolocation.Geolocator]::new()
-$locator.DesiredAccuracy = [Windows.Devices.Geolocation.PositionAccuracy]::High
-$operation = $locator.GetGeopositionAsync()
-$task = [System.WindowsRuntimeSystemExtensions]::AsTask($operation)
-if (-not $task.Wait(10000)) { throw "Timeout posizione Windows" }
-$position = $task.Result.Coordinate.Point.Position
-[pscustomobject]@{
-  latitude = $position.Latitude
-  longitude = $position.Longitude
-  timezone = (Get-TimeZone).Id
-} | ConvertTo-Json -Compress
-"""
-        payload = self._windows_location_payload(script)
-        return self._location_from_windows_payload(payload)
+        return self.detect_windows_location().location
 
-    def _windows_location_payload(self, script: str) -> dict:
-        try:
-            result = subprocess.run(
-                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
-                capture_output=True,
-                text=True,
-                timeout=15,
-                check=False,
-            )
-        except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired) as exc:
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) from exc
-
-        if result.returncode != 0 or not result.stdout.strip():
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
-
-        try:
-            payload = json.loads(result.stdout)
-        except json.JSONDecodeError as exc:
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) from exc
-        if not isinstance(payload, dict):
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
-        return payload
+    def from_ip_location(self, allow_online: bool) -> ObserverLocation:
+        return self.detect_ip_location(allow_online).location
 
     def _location_from_windows_payload(self, payload: dict) -> ObserverLocation:
-        latitude = self._required_coordinate(payload, "latitude", -90.0, 90.0)
-        longitude = self._required_coordinate(payload, "longitude", -180.0, 180.0)
-        windows_timezone = payload.get("timezone", "")
-        return ObserverLocation(
-            city="Posizione Windows",
-            country="",
-            latitude=latitude,
-            longitude=longitude,
-            timezone=WINDOWS_TO_IANA_TIMEZONES.get(windows_timezone, self.system_timezone()),
-        )
-
-    @staticmethod
-    def _required_coordinate(payload: dict, key: str, minimum: float, maximum: float) -> float:
-        value = payload.get(key)
-        if value is None:
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
-        try:
-            coordinate = float(value)
-        except (TypeError, ValueError) as exc:
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE) from exc
-        if not math.isfinite(coordinate) or not minimum <= coordinate <= maximum:
-            raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
-        return coordinate
+        return WindowsLocationProvider()._location_from_windows_payload(payload)
 
     def system_timezone(self) -> str:
-        try:
-            result = subprocess.run(
-                ["powershell", "-NoProfile", "-Command", "(Get-TimeZone).Id"],
-                capture_output=True,
-                text=True,
-                timeout=3,
-                check=False,
-            )
-            windows_timezone = result.stdout.strip()
-            if windows_timezone in WINDOWS_TO_IANA_TIMEZONES:
-                return WINDOWS_TO_IANA_TIMEZONES[windows_timezone]
-        except (OSError, subprocess.SubprocessError):
-            pass
+        return system_timezone()
 
-        local_tz = datetime.now().astimezone().tzinfo
-        if isinstance(local_tz, ZoneInfo):
-            return local_tz.key
-        return "UTC"
+
+def _windows_geolocation_script(precise: bool) -> str:
+    accuracy = "High" if precise else "Default"
+    desired_accuracy_meters = "" if precise else "$locator.DesiredAccuracyInMeters = 50000"
+    return rf"""
+$ErrorActionPreference = "Stop"
+function Emit($payload) {{ $payload | ConvertTo-Json -Compress; exit 0 }}
+try {{
+  Add-Type -AssemblyName System.Runtime.WindowsRuntime
+  $null = [Windows.Devices.Geolocation.Geolocator,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+  $null = [Windows.Devices.Geolocation.GeolocationAccessStatus,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+  $null = [Windows.Devices.Geolocation.PositionAccuracy,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
+  $accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
+  $accessTask = [System.WindowsRuntimeSystemExtensions]::AsTask($accessOperation)
+  if (-not $accessTask.Wait(10000)) {{ Emit(@{{ ok = $false; reason = "timeout"; detail = "RequestAccessAsync timed out" }}) }}
+  $status = $accessTask.Result.ToString()
+  if ($status -eq "Denied") {{ Emit(@{{ ok = $false; reason = "permission denied"; access_status = $status; detail = "GeolocationAccessStatus.Denied" }}) }}
+  if ($status -eq "Unspecified") {{ Emit(@{{ ok = $false; reason = "service disabled"; access_status = $status; detail = "GeolocationAccessStatus.Unspecified" }}) }}
+  if ($status -ne "Allowed") {{ Emit(@{{ ok = $false; reason = "unavailable provider"; access_status = $status; detail = "Unexpected GeolocationAccessStatus" }}) }}
+  $locator = [Windows.Devices.Geolocation.Geolocator]::new()
+  $locator.DesiredAccuracy = [Windows.Devices.Geolocation.PositionAccuracy]::{accuracy}
+  {desired_accuracy_meters}
+  $operation = $locator.GetGeopositionAsync()
+  $task = [System.WindowsRuntimeSystemExtensions]::AsTask($operation)
+  if (-not $task.Wait(10000)) {{ Emit(@{{ ok = $false; reason = "timeout"; access_status = $status; detail = "GetGeopositionAsync timed out" }}) }}
+  $coordinate = $task.Result.Coordinate
+  $position = $coordinate.Point.Position
+  Emit(@{{
+    ok = $true
+    access_status = $status
+    latitude = $position.Latitude
+    longitude = $position.Longitude
+    accuracy = $coordinate.Accuracy
+    timezone = (Get-TimeZone).Id
+  }})
+}} catch {{
+  $message = $_.Exception.Message
+  $reason = "WinRT error"
+  if ($message -match "RPC_E_WRONG_THREAD|wrong thread|context") {{ $reason = "called from wrong thread/context" }}
+  elseif ($message -match "denied|unauthorized|access") {{ $reason = "permission denied" }}
+  elseif ($message -match "disabled") {{ $reason = "service disabled" }}
+  elseif ($message -match "timeout|timed out") {{ $reason = "timeout" }}
+  Emit(@{{ ok = $false; reason = $reason; detail = $message }})
+}}
+"""
+
+
+def _parse_provider_stdout(stdout: str) -> dict | None:
+    clean_output = stdout.strip()
+    if not clean_output:
+        return None
+    candidates = [clean_output, *reversed([line.strip() for line in clean_output.splitlines() if line.strip()])]
+    for candidate in candidates:
+        try:
+            payload = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            return payload
+    return None
+
+
+def _required_coordinate(payload: dict, key: str, minimum: float, maximum: float, message: str) -> float:
+    value = payload.get(key)
+    if value is None:
+        logger.warning("Location provider returned null coordinates: %s", key)
+        raise LocationUnavailableError(message, "null coordinates")
+    try:
+        coordinate = float(value)
+    except (TypeError, ValueError) as exc:
+        logger.warning("Location provider returned non-numeric coordinates: %s", key)
+        raise LocationUnavailableError(message, "null coordinates") from exc
+    if not math.isfinite(coordinate) or not minimum <= coordinate <= maximum:
+        logger.warning("Location provider returned out-of-range coordinates: %s=%s", key, coordinate)
+        raise LocationUnavailableError(message, "null coordinates")
+    return coordinate
+
+
+def _validate_coordinate(value: float, minimum: float, maximum: float, message: str) -> None:
+    if not math.isfinite(value) or not minimum <= value <= maximum:
+        raise LocationUnavailableError(message, "null coordinates")
+
+
+def _is_number(value) -> bool:
+    try:
+        float(value)
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
+def _log_windows_failure(reason: str, detail: str) -> None:
+    logger.warning("Windows location failed: %s. %s", reason, detail)
+
+
+def _normalize_reason(reason: str) -> str:
+    lower = reason.lower()
+    if "denied" in lower or "unauthorized" in lower:
+        return "permission denied"
+    if "disabled" in lower or "unspecified" in lower:
+        return "service disabled"
+    if "timeout" in lower or "timed out" in lower:
+        return "timeout"
+    if "null" in lower:
+        return "null coordinates"
+    if "wrong thread" in lower or "context" in lower or "rpc_e_wrong_thread" in lower:
+        return "called from wrong thread/context"
+    if "winrt" in lower:
+        return "WinRT error"
+    return reason
+
+
+def _reason_from_error(error_text: str) -> str:
+    lower = error_text.lower()
+    if "access" in lower or "denied" in lower or "unauthorized" in lower:
+        return "permission denied"
+    if "disabled" in lower:
+        return "service disabled"
+    if "timeout" in lower or "timed out" in lower:
+        return "timeout"
+    if "provider" in lower or "not available" in lower:
+        return "unavailable provider"
+    if "wrong thread" in lower or "context" in lower or "rpc_e_wrong_thread" in lower:
+        return "called from wrong thread/context"
+    if "winrt" in lower:
+        return "WinRT error"
+    return "unavailable provider"
+
+
+def system_timezone() -> str:
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", "(Get-TimeZone).Id"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+            check=False,
+        )
+        windows_timezone = result.stdout.strip()
+        if windows_timezone in WINDOWS_TO_IANA_TIMEZONES:
+            return WINDOWS_TO_IANA_TIMEZONES[windows_timezone]
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    local_tz = datetime.now().astimezone().tzinfo
+    if isinstance(local_tz, ZoneInfo):
+        return local_tz.key
+    return "UTC"
