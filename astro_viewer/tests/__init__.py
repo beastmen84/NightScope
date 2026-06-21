@@ -1,0 +1,2 @@
+"""NightScope tests."""
+
