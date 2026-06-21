@@ -14,6 +14,8 @@ from astro_viewer.app.services.location_service import (
     LocationService,
     LocationUnavailableError,
     WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
+    _windows_diagnostics_script,
+    _windows_geolocation_script,
 )
 
 
@@ -151,6 +153,19 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertTrue(report["winrt"]["geolocatorTypeAvailable"])
         self.assertIn("AsTask", report["errorDetails"]["message"])
         self.assertEqual(report["rawProviderResponse"], diagnostic_json)
+
+    def test_windows_scripts_use_typed_winrt_async_bridge(self) -> None:
+        location_script = _windows_geolocation_script(precise=True)
+        diagnostics_script = _windows_diagnostics_script()
+
+        for script in (location_script, diagnostics_script):
+            self.assertIn("Convert-NightScopeIAsyncOperationToTask", script)
+            self.assertIn("AsTask<TResult>(IAsyncOperation<TResult>)", script)
+            self.assertIn("GeolocationAccessStatus", script)
+            self.assertIn("Geoposition", script)
+            self.assertNotIn("::AsTask($accessOperation)", script)
+            self.assertNotIn("::AsTask($positionOperation)", script)
+            self.assertNotIn("::AsTask($operation)", script)
 
     def test_ip_geolocation_success(self) -> None:
         response = Mock()

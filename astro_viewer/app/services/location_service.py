@@ -437,11 +437,12 @@ $ErrorActionPreference = "Stop"
 function Emit($payload) {{ $payload | ConvertTo-Json -Compress; exit 0 }}
 try {{
   Add-Type -AssemblyName System.Runtime.WindowsRuntime
+  {_windows_async_bridge_script()}
   $null = [Windows.Devices.Geolocation.Geolocator,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
   $null = [Windows.Devices.Geolocation.GeolocationAccessStatus,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
   $null = [Windows.Devices.Geolocation.PositionAccuracy,Windows.Devices.Geolocation,ContentType=WindowsRuntime]
   $accessOperation = [Windows.Devices.Geolocation.Geolocator]::RequestAccessAsync()
-  $accessTask = [System.WindowsRuntimeSystemExtensions]::AsTask($accessOperation)
+  $accessTask = Convert-NightScopeIAsyncOperationToTask $accessOperation ([Windows.Devices.Geolocation.GeolocationAccessStatus,Windows.Devices.Geolocation,ContentType=WindowsRuntime])
   if (-not $accessTask.Wait(10000)) {{ Emit(@{{ ok = $false; reason = "timeout"; detail = "RequestAccessAsync timed out" }}) }}
   $status = $accessTask.Result.ToString()
   if ($status -eq "Denied") {{ Emit(@{{ ok = $false; reason = "permission denied"; access_status = $status; detail = "GeolocationAccessStatus.Denied" }}) }}
@@ -451,7 +452,7 @@ try {{
   $locator.DesiredAccuracy = [Windows.Devices.Geolocation.PositionAccuracy]::{accuracy}
   {desired_accuracy_meters}
   $operation = $locator.GetGeopositionAsync()
-  $task = [System.WindowsRuntimeSystemExtensions]::AsTask($operation)
+  $task = Convert-NightScopeIAsyncOperationToTask $operation ([Windows.Devices.Geolocation.Geoposition,Windows.Devices.Geolocation,ContentType=WindowsRuntime])
   if (-not $task.Wait(10000)) {{ Emit(@{{ ok = $false; reason = "timeout"; access_status = $status; detail = "GetGeopositionAsync timed out" }}) }}
   $coordinate = $task.Result.Coordinate
   $position = $coordinate.Point.Position
@@ -472,6 +473,37 @@ try {{
   elseif ($message -match "timeout|timed out") {{ $reason = "timeout" }}
   Emit(@{{ ok = $false; reason = $reason; detail = $message }})
 }}
+"""
+
+
+def _windows_async_bridge_script() -> str:
+    return r"""
+function Get-NightScopeAsTaskOperationMethod {
+  if ($script:nightScopeAsTaskOperationMethod) {
+    return $script:nightScopeAsTaskOperationMethod
+  }
+  $methods = [System.WindowsRuntimeSystemExtensions].GetMethods()
+  foreach ($method in $methods) {
+    $parameters = $method.GetParameters()
+    if (
+      $method.Name -eq "AsTask" -and
+      $method.IsGenericMethodDefinition -and
+      $method.GetGenericArguments().Length -eq 1 -and
+      $parameters.Length -eq 1 -and
+      $parameters[0].ParameterType.Name -eq 'IAsyncOperation`1'
+    ) {
+      $script:nightScopeAsTaskOperationMethod = $method
+      return $method
+    }
+  }
+  throw "System.WindowsRuntimeSystemExtensions.AsTask<TResult>(IAsyncOperation<TResult>) was not found."
+}
+
+function Convert-NightScopeIAsyncOperationToTask($operation, [Type]$resultType) {
+  $method = Get-NightScopeAsTaskOperationMethod
+  $closedMethod = $method.MakeGenericMethod([Type[]]@($resultType))
+  return $closedMethod.Invoke($null, [object[]]@($operation))
+}
 """
 
 
@@ -604,6 +636,7 @@ $script:diagnostic = [ordered]@{
 try {
   try {
     Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    __WINDOWS_ASYNC_BRIDGE__
     $script:diagnostic.winrt.systemRuntimeWindowsRuntimeLoaded = $true
     AddStep "Load System.Runtime.WindowsRuntime" "ok" @{}
   } catch {
@@ -667,9 +700,10 @@ try {
   }
 
   try {
-    $accessTask = [System.WindowsRuntimeSystemExtensions]::AsTask($accessOperation)
+    $accessTask = Convert-NightScopeIAsyncOperationToTask $accessOperation ([Windows.Devices.Geolocation.GeolocationAccessStatus,Windows.Devices.Geolocation,ContentType=WindowsRuntime])
     AddStep "RequestAccessAsync AsTask conversion" "ok" @{
       taskType = $accessTask.GetType().FullName
+      conversion = "AsTask<TResult>(IAsyncOperation<TResult>)"
     }
   } catch {
     $script:diagnostic.providerStatus = "RequestAccessAsync AsTask conversion throws"
@@ -733,9 +767,10 @@ try {
   }
 
   try {
-    $positionTask = [System.WindowsRuntimeSystemExtensions]::AsTask($positionOperation)
+    $positionTask = Convert-NightScopeIAsyncOperationToTask $positionOperation ([Windows.Devices.Geolocation.Geoposition,Windows.Devices.Geolocation,ContentType=WindowsRuntime])
     AddStep "GetGeopositionAsync AsTask conversion" "ok" @{
       taskType = $positionTask.GetType().FullName
+      conversion = "AsTask<TResult>(IAsyncOperation<TResult>)"
     }
   } catch {
     $script:diagnostic.providerStatus = "GetGeopositionAsync AsTask conversion throws"
@@ -793,7 +828,7 @@ try {
   AddStep "Unhandled diagnostics exception" "error" $script:diagnostic.errorDetails
   Emit
 }
-"""
+""".replace("__WINDOWS_ASYNC_BRIDGE__", _windows_async_bridge_script())
 
 
 def _parse_provider_stdout(stdout: str) -> dict | None:
