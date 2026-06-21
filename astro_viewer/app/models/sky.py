@@ -1,0 +1,83 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+
+
+@dataclass(frozen=True)
+class SkyQuality:
+    bortle_class: int
+    limiting_magnitude: float
+    sky_brightness: float
+    source: str
+    description: str
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["bortleClass"] = self.bortle_class
+        data["limitingMagnitude"] = self.limiting_magnitude
+        data["skyBrightness"] = self.sky_brightness
+        return data
+
+
+@dataclass(frozen=True)
+class SeeingTransparency:
+    seeing: str
+    transparency: str
+    seeing_score: int
+    transparency_score: int
+    explanation: str
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["seeingScore"] = self.seeing_score
+        data["transparencyScore"] = self.transparency_score
+        return data
+
+
+@dataclass(frozen=True)
+class AdvancedObservingScores:
+    planetary_score: int
+    deep_sky_score: int
+    planetary_label: str
+    deep_sky_label: str
+    explanation: str
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["planetaryScore"] = self.planetary_score
+        data["deepSkyScore"] = self.deep_sky_score
+        data["planetaryLabel"] = self.planetary_label
+        data["deepSkyLabel"] = self.deep_sky_label
+        return data
+
+
+@dataclass(frozen=True)
+class NightPlanItem:
+    time_label: str
+    object_id: str
+    name: str
+    score: int
+    difficulty: str
+    setup: str
+    direction: str
+    image: str
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["timeLabel"] = self.time_label
+        data["objectId"] = self.object_id
+        return data
+
+
+@dataclass(frozen=True)
+class Notification:
+    title: str
+    message: str
+    trigger_time: str
+    priority: int
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["triggerTime"] = self.trigger_time
+        return data
+

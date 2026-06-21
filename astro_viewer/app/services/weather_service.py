@@ -64,6 +64,7 @@ class OpenMeteoWeatherService:
                     "temperature_2m",
                     "relative_humidity_2m",
                     "wind_speed_10m",
+                    "visibility",
                 ]
             ),
             "forecast_hours": 24,
@@ -115,6 +116,7 @@ class OpenMeteoWeatherService:
                     wind_kmh=round(_safe_float(_hourly_value(hourly, "wind_speed_10m", index, 0))),
                     humidity=_safe_int(_hourly_value(hourly, "relative_humidity_2m", index, 0)),
                     temperature_c=round(_safe_float(_hourly_value(hourly, "temperature_2m", index, 0.0)), 1),
+                    visibility_m=_safe_int(_hourly_value(hourly, "visibility", index, 0)),
                 )
             )
         return hours

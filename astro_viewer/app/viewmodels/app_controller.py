@@ -10,14 +10,23 @@ from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.database.city_repository import CityRepository
+from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.object_image_repository import ObjectImageRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
+from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.location_service import LocationService
+from astro_viewer.app.services.night_planner_service import NightPlannerService
+from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.seeing_service import SeeingTransparencyService
+from astro_viewer.app.services.sky_map_service import SkyMapService
 from astro_viewer.app.services.weather_service import OpenMeteoWeatherService
 
 
@@ -34,6 +43,9 @@ class AppController(QObject):
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
+        self._equipment_catalog_repository = EquipmentCatalogRepository(database_path)
+        self._sky_quality_repository = SkyQualityRepository(database_path)
+        self._object_image_repository = ObjectImageRepository(database_path)
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
         self._location_service = LocationService()
@@ -41,6 +53,12 @@ class AppController(QObject):
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._score_service = ObservingScoreService()
+        self._light_pollution_service = LightPollutionService(self._sky_quality_repository)
+        self._seeing_service = SeeingTransparencyService()
+        self._advanced_observing_service = AdvancedObservingService()
+        self._night_planner_service = NightPlannerService()
+        self._sky_map_service = SkyMapService()
+        self._notification_service = NotificationService()
 
         self._city_results = self._city_repository.list_cities(limit=12)
         self._location = self._location_service.from_city(self._city_repository.get_default())
@@ -53,14 +71,26 @@ class AppController(QObject):
         self._events = []
         self._weather_hours = []
         self._weather_summary = None
+        self._sky_quality = None
+        self._seeing_transparency = None
+        self._advanced_scores = None
+        self._night_plan = []
+        self._sky_map = []
+        self._notifications = []
         self._selected_object: CelestialObject | None = None
         self._best_object: CelestialObject | None = None
         self._observation_history = self._observation_repository.recent(limit=10)
 
         self._beginner_presets = self._equipment_service.beginner_presets()
-        self._telescopes: list[Telescope] = self._equipment_service.default_telescopes()
+        self._telescope_brands = self._equipment_catalog_repository.brands()
+        self._telescope_catalog_models = self._equipment_catalog_repository.models()
+        self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
+        self._catalog_barlows = self._equipment_catalog_repository.barlows()
+        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._object_images = self._object_image_repository.all()
+        self._telescopes: list[Telescope] = self._initial_telescopes()
         self._eyepieces = self._equipment_service.default_eyepieces()
-        self._selected_telescope_index = 0
+        self._selected_telescope_index = self._initial_telescope_index()
         self._barlow = 1.0
 
         self._refresh_all()
@@ -113,9 +143,33 @@ class AppController(QObject):
     def observingQuality(self) -> dict:
         return self._weather_summary.to_qml() if self._weather_summary else {}
 
+    @Property("QVariant", notify=weatherChanged)
+    def skyQuality(self) -> dict:
+        return self._sky_quality.to_qml() if self._sky_quality else {}
+
+    @Property("QVariant", notify=weatherChanged)
+    def seeingTransparency(self) -> dict:
+        return self._seeing_transparency.to_qml() if self._seeing_transparency else {}
+
+    @Property("QVariant", notify=weatherChanged)
+    def advancedScores(self) -> dict:
+        return self._advanced_scores.to_qml() if self._advanced_scores else {}
+
     @Property("QVariant", notify=dataChanged)
     def bestObjectOfNight(self) -> dict:
         return self._best_object.to_qml() if self._best_object else {}
+
+    @Property("QVariant", notify=dataChanged)
+    def nightPlan(self) -> list[dict]:
+        return [item.to_qml() for item in self._night_plan]
+
+    @Property("QVariant", notify=dataChanged)
+    def skyMap(self) -> list[dict]:
+        return self._sky_map
+
+    @Property("QVariant", notify=dataChanged)
+    def notifications(self) -> list[dict]:
+        return [item.to_qml() for item in self._notifications]
 
     @Property("QVariant", notify=selectedObjectChanged)
     def selectedObject(self) -> dict:
@@ -143,6 +197,30 @@ class AppController(QObject):
     @Property("QVariant", notify=equipmentChanged)
     def equipmentSetups(self) -> list[dict]:
         return [telescope.to_qml() for telescope in self._telescopes]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def telescopeBrands(self) -> list[dict]:
+        return self._telescope_brands
+
+    @Property("QVariant", notify=equipmentChanged)
+    def telescopeCatalogModels(self) -> list[dict]:
+        return self._telescope_catalog_models
+
+    @Property("QVariant", notify=equipmentChanged)
+    def eyepieceCatalog(self) -> list[dict]:
+        return self._catalog_eyepieces
+
+    @Property("QVariant", notify=equipmentChanged)
+    def barlowCatalog(self) -> list[dict]:
+        return self._catalog_barlows
+
+    @Property("QVariant", notify=equipmentChanged)
+    def equipmentProfiles(self) -> list[dict]:
+        return self._equipment_profiles
+
+    @Property("QVariant", notify=dataChanged)
+    def objectImages(self) -> list[dict]:
+        return self._object_images
 
     @Property("QVariant", notify=equipmentChanged)
     def eyepieces(self) -> list[dict]:
@@ -261,9 +339,37 @@ class AppController(QObject):
         )
         self._telescopes.append(telescope)
         self._selected_telescope_index = len(self._telescopes) - 1
+        self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
+        self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
         self.dataChanged.emit()
+
+    @Slot(str, str)
+    def addCatalogProfile(self, catalog_id: str, profile_name: str) -> None:
+        model = self._equipment_catalog_repository.model_by_catalog_id(catalog_id)
+        if not model:
+            return
+        telescope = self._telescope_from_catalog_model(model)
+        self._telescopes.append(telescope)
+        self._selected_telescope_index = len(self._telescopes) - 1
+        clean_name = profile_name.strip() or telescope.name
+        self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
+        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
+
+    @Slot(int)
+    def setActiveEquipmentProfile(self, profile_id: int) -> None:
+        self._equipment_catalog_repository.set_active_profile(profile_id)
+        self._equipment_profiles = self._equipment_catalog_repository.profiles()
+        self._selected_telescope_index = self._initial_telescope_index()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
 
     @Slot(str, str)
     def saveObservation(self, rating: str, notes: str) -> None:
@@ -297,7 +403,30 @@ class AppController(QObject):
         self._events = self._astronomy_engine.upcoming_events(self._location)
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+        self._sky_quality = self._light_pollution_service.sky_quality(self._location)
+        self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
+        self._advanced_scores = self._advanced_observing_service.scores(
+            self._weather_summary,
+            self._seeing_transparency,
+            self._sky_quality,
+            self._moon,
+        )
         self._best_object = self._score_service.best_object(self._visible_planets + self._deep_sky, self._weather_summary)
+        self._night_plan = self._night_planner_service.plan(
+            self._visible_planets + self._deep_sky,
+            self._weather_summary,
+            self._advanced_scores,
+            self._sky_quality,
+            self._current_telescope(),
+        )
+        self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
+        self._notifications = self._notification_service.notifications(
+            self._best_object,
+            self._night_plan,
+            self._events,
+            self._advanced_scores,
+            self._moon,
+        )
         if self._selected_object:
             self.selectObject(self._selected_object.id)
         elif self._best_object:
@@ -315,6 +444,22 @@ class AppController(QObject):
         self._deep_sky = self._apply_equipment(self._deep_sky)
         if self._weather_summary:
             self._best_object = self._score_service.best_object(self._visible_planets + self._deep_sky, self._weather_summary)
+        if self._weather_summary and self._advanced_scores and self._sky_quality:
+            self._night_plan = self._night_planner_service.plan(
+                self._visible_planets + self._deep_sky,
+                self._weather_summary,
+                self._advanced_scores,
+                self._sky_quality,
+                self._current_telescope(),
+            )
+            self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
+            self._notifications = self._notification_service.notifications(
+                self._best_object,
+                self._night_plan,
+                self._events,
+                self._advanced_scores,
+                self._moon,
+            )
         if selected_id:
             for item in self._solar_system_objects + self._deep_sky:
                 if item.id == selected_id:
@@ -339,6 +484,52 @@ class AppController(QObject):
 
     def _current_telescope(self) -> Telescope:
         return self._telescopes[self._selected_telescope_index]
+
+    def _initial_telescopes(self) -> list[Telescope]:
+        telescopes = self._equipment_service.default_telescopes()
+        active_profile = self._equipment_catalog_repository.active_profile()
+        if active_profile:
+            telescope = self._telescope_from_profile(active_profile, telescopes)
+            if telescope and all(existing.id != telescope.id for existing in telescopes):
+                telescopes.insert(0, telescope)
+        return telescopes
+
+    def _initial_telescope_index(self) -> int:
+        active_profile = self._equipment_catalog_repository.active_profile()
+        if not active_profile:
+            return 0
+        telescope = self._telescope_from_profile(active_profile, self._telescopes)
+        if not telescope:
+            return 0
+        for index, existing in enumerate(self._telescopes):
+            if existing.id == telescope.id:
+                return index
+        if all(existing.id != telescope.id for existing in self._telescopes):
+            self._telescopes.insert(0, telescope)
+        return 0
+
+    def _telescope_from_profile(self, profile: dict, existing_telescopes: list[Telescope]) -> Telescope | None:
+        telescope_id = profile["telescope_id"]
+        if telescope_id == "preset:binoculars":
+            return Telescope("preset:binoculars", "Binocolo 10x50", 50, 500, "Binocolo", "manuale")
+        if telescope_id.startswith("custom-"):
+            for telescope in existing_telescopes:
+                if telescope.id == telescope_id:
+                    return telescope
+            return None
+        model = self._equipment_catalog_repository.model_by_catalog_id(telescope_id)
+        return self._telescope_from_catalog_model(model) if model else None
+
+    @staticmethod
+    def _telescope_from_catalog_model(model: dict) -> Telescope:
+        return Telescope(
+            id=model["catalog_id"],
+            name=f"{model['brand']} {model['name']}",
+            aperture_mm=int(model["aperture_mm"]),
+            focal_length_mm=int(model["focal_length_mm"]),
+            optical_type=model["optical_type"],
+            mount=model["mount_type"],
+        )
 
     def _zone(self) -> ZoneInfo:
         try:

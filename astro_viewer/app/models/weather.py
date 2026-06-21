@@ -12,6 +12,7 @@ class WeatherHour:
     wind_kmh: int
     humidity: int
     temperature_c: float
+    visibility_m: int = 0
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -21,6 +22,7 @@ class WeatherHour:
         data["windKmh"] = self.wind_kmh
         data["humidity"] = self.humidity
         data["temperatureC"] = self.temperature_c
+        data["visibilityM"] = self.visibility_m
         return data
 
 
