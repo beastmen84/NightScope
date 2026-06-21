@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import sys
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
+def _resolve_base_dir() -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / "astro_viewer"
+    return Path(__file__).resolve().parent
+
+
+BASE_DIR = _resolve_base_dir()
 PROJECT_ROOT = BASE_DIR.parent
 APP_NAME = "NightScope"
 ORG_NAME = "NightScope"
@@ -16,8 +23,10 @@ if str(PROJECT_ROOT) not in sys.path:
 
 def _build_controller():
     from astro_viewer.app.database.bootstrap import initialize_database
+    from astro_viewer.app.services.logging_service import configure_logging
     from astro_viewer.app.viewmodels.app_controller import AppController
 
+    configure_logging(BASE_DIR)
     database_path = BASE_DIR / "data" / "nightscope.db"
     schema_path = BASE_DIR / "data" / "schema.sql"
     initialize_database(database_path, schema_path)
@@ -112,12 +121,19 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    args = parse_args()
-    if args.qml_smoke_test:
-        return run_qml_smoke_test()
-    if args.smoke_test:
-        return run_smoke_test()
-    return run_app()
+    from astro_viewer.app.services.logging_service import configure_logging
+
+    configure_logging(BASE_DIR)
+    try:
+        args = parse_args()
+        if args.qml_smoke_test:
+            return run_qml_smoke_test()
+        if args.smoke_test:
+            return run_smoke_test()
+        return run_app()
+    except Exception:
+        logging.getLogger(__name__).exception("Unhandled NightScope error.")
+        return 1
 
 
 if __name__ == "__main__":

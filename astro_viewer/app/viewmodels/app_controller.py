@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
@@ -7,8 +8,8 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
 
-from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
+from astro_viewer.app.astronomy.engine import MockAstronomyEngine, ObserverLocation
+from astro_viewer.app.astronomy.skyfield_engine import EphemerisUnavailableError, SkyfieldAstronomyEngine
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.messier_repository import MessierRepository
@@ -31,7 +32,10 @@ from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_map_service import SkyMapService
-from astro_viewer.app.services.weather_service import OpenMeteoWeatherService
+from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
+
+
+logger = logging.getLogger(__name__)
 
 
 class AppController(QObject):
@@ -41,6 +45,7 @@ class AppController(QObject):
     weatherChanged = Signal()
     equipmentChanged = Signal()
     observationChanged = Signal()
+    statusChanged = Signal()
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -53,7 +58,15 @@ class AppController(QObject):
         self._weather_cache_repository = WeatherCacheRepository(database_path)
         self._observation_repository = ObservationRepository(database_path)
         self._location_service = LocationService()
-        self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
+        self._is_loading = False
+        self._service_status = ""
+        self._weather_status = ""
+        try:
+            self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
+        except EphemerisUnavailableError:
+            logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
+            self._astronomy_engine = MockAstronomyEngine()
+            self._service_status = "Astronomical ephemeris unavailable. Using fallback sky data."
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._score_service = ObservingScoreService()
@@ -110,6 +123,22 @@ class AppController(QObject):
     @Property(str, notify=locationChanged)
     def locationMessage(self) -> str:
         return self._location_message
+
+    @Property(bool, notify=statusChanged)
+    def isLoading(self) -> bool:
+        return self._is_loading
+
+    @Property(str, notify=statusChanged)
+    def serviceStatus(self) -> str:
+        return self._service_status
+
+    @Property(str, notify=weatherChanged)
+    def weatherStatus(self) -> str:
+        return self._weather_status
+
+    @Property(bool, notify=dataChanged)
+    def hasVisibleObjects(self) -> bool:
+        return bool(self._visible_planets or self._deep_sky)
 
     @Property("QVariant", notify=locationChanged)
     def cityResults(self) -> list[dict]:
@@ -400,12 +429,51 @@ class AppController(QObject):
         self.observationChanged.emit()
 
     def _refresh_all(self) -> None:
-        self._solar_system_objects = self._apply_equipment(self._astronomy_engine.solar_system_objects(self._location))
-        self._visible_planets = [item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible]
-        self._deep_sky = self._apply_equipment(self._astronomy_engine.recommended_deep_sky(self._location))
-        self._moon = self._astronomy_engine.moon_summary(self._location)
-        self._events = self._astronomy_engine.upcoming_events(self._location)
+        self._set_loading(True)
+        previous_status = self._service_status
+        self._service_status = previous_status if "ephemeris unavailable" in previous_status.lower() else ""
+        try:
+            self._refresh_astronomy()
+            self._refresh_weather_and_conditions()
+        except Exception:
+            logger.exception("Unexpected refresh failure.")
+            self._append_service_status("NightScope could not update all data. Existing data remains available.")
+        finally:
+            self._set_loading(False)
+
+        if self._selected_object:
+            self.selectObject(self._selected_object.id)
+        elif self._best_object:
+            self._selected_object = self._best_object
+        elif self._deep_sky:
+            self._selected_object = self._deep_sky[0]
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.selectedObjectChanged.emit()
+        self.statusChanged.emit()
+
+    def _refresh_astronomy(self) -> None:
+        try:
+            self._solar_system_objects = self._apply_equipment(self._astronomy_engine.solar_system_objects(self._location))
+            self._visible_planets = [
+                item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible
+            ]
+            self._deep_sky = self._apply_equipment(self._astronomy_engine.recommended_deep_sky(self._location))
+            self._moon = self._astronomy_engine.moon_summary(self._location)
+            self._events = self._astronomy_engine.upcoming_events(self._location)
+        except Exception:
+            logger.exception("Astronomy refresh failed.")
+            self._solar_system_objects = []
+            self._visible_planets = []
+            self._deep_sky = []
+            self._events = []
+            self._append_service_status("Astronomical data temporarily unavailable.")
+
+    def _refresh_weather_and_conditions(self) -> None:
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
+        self._weather_status = getattr(self._weather_service, "last_error", "") or ""
+        if self._weather_status == WEATHER_UNAVAILABLE_MESSAGE:
+            self._append_service_status(WEATHER_UNAVAILABLE_MESSAGE)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
@@ -431,15 +499,22 @@ class AppController(QObject):
             self._advanced_scores,
             self._moon,
         )
-        if self._selected_object:
-            self.selectObject(self._selected_object.id)
-        elif self._best_object:
-            self._selected_object = self._best_object
-        elif self._deep_sky:
-            self._selected_object = self._deep_sky[0]
-        self.dataChanged.emit()
-        self.weatherChanged.emit()
-        self.selectedObjectChanged.emit()
+
+    def _set_loading(self, value: bool) -> None:
+        if self._is_loading == value:
+            return
+        self._is_loading = value
+        self.statusChanged.emit()
+
+    def _append_service_status(self, message: str) -> None:
+        if not message:
+            return
+        if self._service_status:
+            if message not in self._service_status:
+                self._service_status = f"{self._service_status} {message}"
+        else:
+            self._service_status = message
+        self.statusChanged.emit()
 
     def _apply_equipment_to_current_objects(self) -> None:
         selected_id = self._selected_object.id if self._selected_object else None

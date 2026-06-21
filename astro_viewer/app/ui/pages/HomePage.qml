@@ -62,6 +62,30 @@ Item {
                 }
             }
 
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                visible: controller.isLoading || controller.serviceStatus.length > 0
+                radius: 8
+                color: "#1c222b"
+                border.color: controller.serviceStatus.length > 0 ? theme.coral : theme.cyan
+                border.width: 1
+                implicitHeight: statusText.implicitHeight + 22
+
+                Text {
+                    id: statusText
+                    anchors.fill: parent
+                    anchors.margins: 11
+                    text: controller.isLoading ? "Calculating sky visibility..." : controller.serviceStatus
+                    color: theme.textPrimary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    elide: Text.ElideRight
+                    maximumLineCount: 2
+                }
+            }
+
             GridLayout {
                 id: grid
                 Layout.fillWidth: true
@@ -77,6 +101,15 @@ Item {
                     title: "Stasera dal tuo cielo"
                     subtitle: "Target ordinati per utilita osservativa"
                     accentColor: theme.cyan
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.isLoading || controller.tonightHighlights.length === 0
+                        text: controller.isLoading ? "Updating astronomical data..." : "No visible objects found for current conditions."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
 
                     Repeater {
                         model: controller.tonightHighlights
@@ -216,8 +249,18 @@ Item {
                     subtitle: controller.bestObjectOfNight.scoreExplanation
                     accentColor: theme.amber
 
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !controller.bestObjectOfNight.name
+                        text: "No visible objects found for current conditions."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
                     RowLayout {
                         Layout.fillWidth: true
+                        visible: !!controller.bestObjectOfNight.name
                         spacing: 14
 
                         Image {
@@ -274,6 +317,15 @@ Item {
                     title: "Night Planner"
                     subtitle: "Sequenza osservativa ottimizzata"
                     accentColor: theme.green
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.nightPlan.length === 0
+                        text: controller.isLoading ? "Updating astronomical data..." : "No visible objects found for current conditions."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
 
                     Repeater {
                         model: controller.nightPlan
@@ -386,6 +438,15 @@ Item {
                     subtitle: "Visibilita serale e notturna"
                     accentColor: theme.teal
 
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.visiblePlanets.length === 0
+                        text: controller.isLoading ? "Calculating sky visibility..." : "No visible planets found for current conditions."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
                     Repeater {
                         model: controller.visiblePlanets
 
@@ -406,6 +467,15 @@ Item {
                     subtitle: "Priorita per la notte corrente"
                     accentColor: theme.violet
 
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.recommendedDeepSky.length === 0
+                        text: controller.isLoading ? "Calculating sky visibility..." : "No visible deep sky objects found for current conditions."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
                     Repeater {
                         model: controller.recommendedDeepSky
 
@@ -424,6 +494,15 @@ Item {
                     title: "Meteo osservativo"
                     subtitle: controller.weatherSummary.alert
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.weatherStatus.length > 0
+                        text: controller.weatherStatus
+                        color: theme.coral
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
 
                     WeatherBars {
                         hourly: controller.weatherHourly

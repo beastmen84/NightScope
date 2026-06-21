@@ -58,6 +58,30 @@ Item {
                 }
             }
 
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                visible: controller.isLoading || controller.weatherStatus.length > 0
+                radius: 8
+                color: "#1c222b"
+                border.color: controller.weatherStatus.length > 0 ? theme.coral : theme.cyan
+                border.width: 1
+                implicitHeight: weatherStateText.implicitHeight + 22
+
+                Text {
+                    id: weatherStateText
+                    anchors.fill: parent
+                    anchors.margins: 11
+                    text: controller.isLoading ? "Loading weather..." : controller.weatherStatus
+                    color: theme.textPrimary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    elide: Text.ElideRight
+                    maximumLineCount: 2
+                }
+            }
+
             GridLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -85,8 +109,18 @@ Item {
                 accentColor: theme.scoreColor(controller.weatherSummary.score)
 
                 WeatherBars {
+                    visible: controller.weatherHourly.length > 0
                     hourly: controller.weatherHourly
                     barColor: theme.scoreColor(controller.weatherSummary.score)
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.weatherHourly.length === 0
+                    text: controller.isLoading ? "Loading weather..." : "Weather service temporarily unavailable."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 
@@ -127,6 +161,15 @@ Item {
                             elide: Text.ElideRight
                         }
                     }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.weatherHourly.length === 0
+                    text: controller.isLoading ? "Loading weather..." : "No weather forecast available."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 

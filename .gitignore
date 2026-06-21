@@ -4,3 +4,8 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+logs/
+build/
+dist/
+astro_viewer/data/*.backup
+astro_viewer/data/*.corrupt-*.bak

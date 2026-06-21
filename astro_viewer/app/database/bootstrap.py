@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import csv
+import logging
+import shutil
 import sqlite3
 from contextlib import closing
+from datetime import datetime
 from pathlib import Path
 
+
+logger = logging.getLogger(__name__)
 
 SEED_CITIES = [
     ("Milano", "Italia", 45.4642, 9.1900, "Europe/Rome"),
@@ -100,6 +105,23 @@ def initialize_database(database_path: Path, schema_path: Path) -> None:
     schema_sql = schema_path.read_text(encoding="utf-8")
     seed_path = schema_path.with_name("messier_seed.csv")
 
+    if database_path.exists() and not _database_is_healthy(database_path):
+        _quarantine_database(database_path)
+    elif database_path.exists():
+        _backup_database(database_path)
+
+    try:
+        _build_database(database_path, schema_sql, seed_path)
+    except sqlite3.DatabaseError as exc:
+        if not _is_recoverable_database_error(exc):
+            logger.exception("Database bootstrap failed during schema migration.")
+            raise
+        logger.warning("Database appears damaged; rebuilding from local schema.", exc_info=True)
+        _quarantine_database(database_path)
+        _build_database(database_path, schema_sql, seed_path)
+
+
+def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
         connection.executescript(schema_sql)
         city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
@@ -150,6 +172,53 @@ def initialize_database(database_path: Path, schema_path: Path) -> None:
         _seed_object_images(connection)
         _seed_default_profiles(connection)
         connection.commit()
+    logger.info("Database ready.")
+
+
+def _database_is_healthy(database_path: Path) -> bool:
+    try:
+        with closing(sqlite3.connect(database_path)) as connection:
+            result = connection.execute("PRAGMA integrity_check").fetchone()
+    except sqlite3.DatabaseError:
+        logger.warning("Database integrity check failed.", exc_info=True)
+        return False
+    return bool(result and result[0] == "ok")
+
+
+def _backup_database(database_path: Path) -> None:
+    backup_path = database_path.with_suffix(database_path.suffix + ".backup")
+    try:
+        shutil.copy2(database_path, backup_path)
+    except OSError:
+        logger.warning("Database backup could not be created.", exc_info=True)
+        return
+    logger.info("Database backup refreshed.")
+
+
+def _quarantine_database(database_path: Path) -> None:
+    if not database_path.exists():
+        return
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    quarantine_path = database_path.with_suffix(database_path.suffix + f".corrupt-{timestamp}.bak")
+    try:
+        database_path.replace(quarantine_path)
+    except OSError:
+        logger.error("Corrupt database could not be quarantined.", exc_info=True)
+        raise
+    logger.warning("Corrupt database quarantined; a fresh database will be created.")
+
+
+def _is_recoverable_database_error(error: sqlite3.DatabaseError) -> bool:
+    message = str(error).lower()
+    return any(
+        fragment in message
+        for fragment in (
+            "malformed",
+            "not a database",
+            "file is not a database",
+            "database disk image",
+        )
+    )
 
 
 def _optional_float(value: str) -> float | None:

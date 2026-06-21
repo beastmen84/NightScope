@@ -38,6 +38,9 @@ class AstronomyEngine(Protocol):
 class MockAstronomyEngine:
     """First iteration engine. The public methods mirror the future Skyfield/Astropy boundary."""
 
+    def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
+        return mock_planets()
+
     def visible_planets(self, location: ObserverLocation) -> list[CelestialObject]:
         return mock_planets()
 
@@ -65,4 +68,3 @@ class SkyfieldAstropyEngine:
 
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         raise NotImplementedError("Astronomical event generation will be added in a later iteration.")
-

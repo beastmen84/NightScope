@@ -14,7 +14,7 @@ class AdvancedObservingService:
         weather: WeatherSummary,
         seeing: SeeingTransparency,
         sky_quality: SkyQuality,
-        moon: MoonSummary,
+        moon: MoonSummary | None,
     ) -> AdvancedObservingScores:
         moon_illumination = self._moon_illumination(moon)
 
@@ -45,9 +45,10 @@ class AdvancedObservingService:
         )
 
     @staticmethod
-    def _moon_illumination(moon: MoonSummary) -> float:
+    def _moon_illumination(moon: MoonSummary | None) -> float:
+        if moon is None:
+            return 50.0
         try:
             return float(moon.illumination.replace("%", ""))
         except ValueError:
             return 50.0
-

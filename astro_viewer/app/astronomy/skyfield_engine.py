@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime, time, timedelta
 from pathlib import Path
@@ -13,6 +14,13 @@ from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_h
 from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation
 from astro_viewer.app.database.messier_repository import MessierRepository
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
+
+
+logger = logging.getLogger(__name__)
+
+
+class EphemerisUnavailableError(RuntimeError):
+    """Raised when Skyfield ephemeris data cannot be loaded or recovered."""
 
 
 @dataclass(frozen=True)
@@ -46,10 +54,43 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         self._messier_repository = messier_repository
         self._loader = Loader(str(data_dir / "skyfield"))
         self._timescale = self._loader.timescale()
-        self._ephemeris = self._loader("de421.bsp")
+        self._ephemeris = self._load_ephemeris()
+
+    def _load_ephemeris(self):
+        ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
+        try:
+            return self._loader("de421.bsp")
+        except Exception as exc:
+            logger.warning("Skyfield ephemeris could not be loaded.", exc_info=True)
+            if ephemeris_path.exists():
+                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                quarantine_path = ephemeris_path.with_suffix(ephemeris_path.suffix + f".corrupt-{timestamp}.bak")
+                try:
+                    ephemeris_path.replace(quarantine_path)
+                    logger.warning("Corrupt ephemeris was quarantined.")
+                except OSError:
+                    logger.warning("Corrupt ephemeris could not be quarantined.", exc_info=True)
+            try:
+                return self._loader("de421.bsp")
+            except Exception as retry_exc:
+                logger.error("Skyfield ephemeris recovery failed.", exc_info=True)
+                raise EphemerisUnavailableError(
+                    "Astronomical ephemeris is unavailable. Check network access or restore de421.bsp."
+                ) from retry_exc
 
     def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
         return [self._body_details(config, location) for config in self.BODY_CONFIGS]
+
+    def close(self) -> None:
+        close_method = getattr(self._ephemeris, "close", None)
+        if callable(close_method):
+            close_method()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def visible_planets(self, location: ObserverLocation) -> list[CelestialObject]:
         return [
@@ -59,10 +100,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         ]
 
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
-        objects = []
+        candidates = []
         for row in self._messier_repository.list_objects():
             try:
-                objects.append(self._messier_details(row, location))
+                dec_degrees = parse_dec_degrees(row["dec"])
+                theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
+                if theoretical_max_altitude < 12.0:
+                    continue
+                magnitude = row["magnitude"] if row["magnitude"] is not None else 10.0
+                cheap_score = self._object_score(theoretical_max_altitude, magnitude, row["object_type"], True)
+                candidates.append((cheap_score, row, dec_degrees))
+            except ValueError:
+                continue
+        objects = []
+        for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True)[:55]:
+            try:
+                objects.append(self._messier_details(row, location, dec_degrees=dec_degrees))
             except ValueError:
                 continue
         visible = [item for item in objects if item.visible]
@@ -161,9 +214,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         apparent = astrometric.apparent()
         altitude, azimuth, distance = apparent.altaz()
 
-        rise_time = self._first_event(almanac.find_risings, observer, body, now, now + timedelta(hours=36), zone)
-        set_time = self._first_event(almanac.find_settings, observer, body, now, now + timedelta(hours=36), zone)
-        culmination = self._first_transit(observer, body, now, now + timedelta(hours=36), zone)
+        rise_time, culmination, set_time = self._ordered_event_labels(observer, body, now, zone)
         sample = self._sample_altitudes(observer, body, *self._night_window(now))
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=8.0)
         magnitude = self._magnitude(astrometric, config.object_id)
@@ -197,16 +248,16 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
         )
 
-    def _messier_details(self, row: dict, location: ObserverLocation) -> CelestialObject:
+    def _messier_details(self, row: dict, location: ObserverLocation, dec_degrees: float | None = None) -> CelestialObject:
         ra_hours = parse_ra_hours(row["ra"])
-        dec_degrees = parse_dec_degrees(row["dec"])
+        dec_degrees = dec_degrees if dec_degrees is not None else parse_dec_degrees(row["dec"])
         star = Star(ra_hours=ra_hours, dec_degrees=dec_degrees)
         now = self._now(location)
         observer = self._observer(location)
         current_time = self._to_skyfield_time(now)
         apparent = observer.at(current_time).observe(star).apparent()
         altitude, azimuth, _ = apparent.altaz()
-        sample = self._sample_altitudes(observer, star, *self._night_window(now))
+        sample = self._sample_altitudes(observer, star, *self._night_window(now), step_minutes=30)
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=15.0)
         magnitude = row["magnitude"]
         visible = max_altitude >= 15.0
@@ -265,12 +316,19 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         end = start + timedelta(hours=13)
         return start, end
 
-    def _sample_altitudes(self, observer, body, start: datetime, end: datetime) -> list[tuple[datetime, float]]:
+    def _sample_altitudes(
+        self,
+        observer,
+        body,
+        start: datetime,
+        end: datetime,
+        step_minutes: int = 15,
+    ) -> list[tuple[datetime, float]]:
         samples: list[datetime] = []
         current = start
         while current <= end:
             samples.append(current)
-            current += timedelta(minutes=15)
+            current += timedelta(minutes=step_minutes)
         times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
         altitudes, _, _ = observer.at(times).observe(body).apparent().altaz()
         return list(zip(samples, [float(value) for value in altitudes.degrees]))
@@ -283,6 +341,47 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if not above:
             return max_altitude, best_dt, "Non sopra la soglia osservativa"
         return max_altitude, best_dt, f"{self._format_dt(above[0][0])} - {self._format_dt(above[-1][0])}"
+
+    def _ordered_event_labels(self, observer, body, now: datetime, zone: ZoneInfo) -> tuple[str, str, str]:
+        start = datetime.combine(now.date(), time(0, 0), tzinfo=zone)
+        end = start + timedelta(hours=48)
+        rises = self._event_datetimes(almanac.find_risings, observer, body, start, end, zone)
+        transits = self._transit_datetimes(observer, body, start, end, zone)
+        settings = self._event_datetimes(almanac.find_settings, observer, body, start, end, zone)
+
+        for rise_dt in rises:
+            transit_dt = next((candidate for candidate in transits if candidate >= rise_dt), None)
+            if not transit_dt:
+                continue
+            setting_dt = next((candidate for candidate in settings if candidate >= transit_dt), None)
+            if setting_dt:
+                return self._format_dt(rise_dt), self._format_dt(transit_dt), self._format_dt(setting_dt)
+
+        return (
+            self._format_dt(rises[0]) if rises else "n/d",
+            self._format_dt(transits[0]) if transits else "n/d",
+            self._format_dt(settings[0]) if settings else "n/d",
+        )
+
+    def _event_datetimes(self, function, observer, body, start: datetime, end: datetime, zone: ZoneInfo) -> list[datetime]:
+        try:
+            times, flags = function(observer, body, self._to_skyfield_time(start), self._to_skyfield_time(end))
+        except Exception:
+            logger.warning("Skyfield horizon event calculation failed.", exc_info=True)
+            return []
+        return [
+            event_time.utc_datetime().astimezone(zone)
+            for event_time, is_valid in zip(times, flags)
+            if bool(is_valid)
+        ]
+
+    def _transit_datetimes(self, observer, body, start: datetime, end: datetime, zone: ZoneInfo) -> list[datetime]:
+        try:
+            times = almanac.find_transits(observer, body, self._to_skyfield_time(start), self._to_skyfield_time(end))
+        except Exception:
+            logger.warning("Skyfield transit calculation failed.", exc_info=True)
+            return []
+        return [event_time.utc_datetime().astimezone(zone) for event_time in times]
 
     def _first_event(self, function, observer, body, start: datetime, end: datetime, zone: ZoneInfo) -> str:
         times, flags = function(observer, body, self._to_skyfield_time(start), self._to_skyfield_time(end))

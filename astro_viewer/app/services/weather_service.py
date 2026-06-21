@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
@@ -10,6 +11,10 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+
+
+logger = logging.getLogger(__name__)
+WEATHER_UNAVAILABLE_MESSAGE = "Weather service temporarily unavailable."
 
 
 class WeatherService(Protocol):
@@ -44,11 +49,14 @@ class MockWeatherService:
 class OpenMeteoWeatherService:
     BASE_URL = "https://api.open-meteo.com/v1/forecast"
     CACHE_TTL = timedelta(minutes=45)
+    REQUEST_TIMEOUT_SECONDS = 3
 
     def __init__(self, cache_repository: WeatherCacheRepository | None = None):
         self._cache_repository = cache_repository
+        self.last_error = ""
 
     def hourly_forecast(self, location: ObserverLocation) -> list[WeatherHour]:
+        self.last_error = ""
         cache_key = self._cache_key(location)
         cached = self._read_cache(cache_key)
         if cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
@@ -71,20 +79,47 @@ class OpenMeteoWeatherService:
             "timezone": location.timezone,
         }
         try:
-            response = requests.get(self.BASE_URL, params=params, timeout=8)
+            response = requests.get(self.BASE_URL, params=params, timeout=self.REQUEST_TIMEOUT_SECONDS)
             response.raise_for_status()
             payload = response.json()
+        except requests.Timeout:
+            return self._fallback(cached, "Weather request timed out.")
+        except requests.HTTPError as exc:
+            if getattr(exc.response, "status_code", None) == 429:
+                return self._fallback(cached, "Weather API rate limit reached.")
+            return self._fallback(cached, "Weather API returned an HTTP error.")
         except requests.RequestException:
-            if cached:
-                return self._parse_payload(cached[1])
-            return []
+            return self._fallback(cached, "Weather API is not reachable.")
+        except (TypeError, ValueError):
+            return self._fallback(cached, "Weather API returned malformed JSON.")
+
+        if not isinstance(payload, dict):
+            return self._fallback(cached, "Weather API returned an unexpected payload.")
+
+        hours = self._parse_payload(payload)
+        if not hours:
+            return self._fallback(cached, "Weather API returned an empty forecast.")
 
         if self._cache_repository:
             self._cache_repository.set(cache_key, datetime.now(UTC).isoformat(), json.dumps(payload))
-        return self._parse_payload(payload)
+        return hours
 
     def observing_summary(self, location: ObserverLocation) -> WeatherSummary:
         return score_observability(self.hourly_forecast(location))
+
+    def _fallback(self, cached: tuple[datetime, dict] | None, reason: str) -> list[WeatherHour]:
+        self.last_error = WEATHER_UNAVAILABLE_MESSAGE
+        logger.warning(reason)
+        if not cached:
+            return []
+        try:
+            hours = self._parse_payload(cached[1])
+        except (TypeError, ValueError):
+            logger.warning("Weather cache payload could not be parsed.", exc_info=True)
+            return []
+        if hours:
+            logger.info("Using cached weather forecast.")
+        return hours
 
     def _read_cache(self, cache_key: str) -> tuple[datetime, dict] | None:
         if not self._cache_repository:
@@ -98,6 +133,7 @@ class OpenMeteoWeatherService:
                 fetched_at = fetched_at.replace(tzinfo=UTC)
             return fetched_at.astimezone(UTC), json.loads(cached["payload"])
         except (ValueError, json.JSONDecodeError):
+            logger.warning("Weather cache is invalid and will be ignored.", exc_info=True)
             return None
 
     @staticmethod
