@@ -121,9 +121,20 @@ Le traduzioni non diventano righe separate: `Addis Ababa` e `Addis Abeba` restan
 
 ## Regole strumenti
 
-- Se non esiste un telescopio configurato o attivo, NightScope usa `Occhio nudo`.
+La sezione `Strumenti` e divisa in tre pagine:
+
+- `Profili`: setup osservativi usati da planner, Home e raccomandazioni.
+- `Telescopi`: catalogo globale dei modelli disponibili.
+- `Oculari e Barlow`: catalogo globale degli accessori ottici.
+
+I profili referenziano gli elementi dei cataloghi tramite ID; i cataloghi non vengono duplicati come "attrezzatura posseduta". La pagina `Profili` consente di assegnare o rimuovere equipaggiamento con dialog QML dark-theme, filtrando tra telescopi, oculari, zoom e Barlow.
+
+- Se non esiste un telescopio assegnato al profilo attivo, NightScope usa `Occhio nudo`.
 - In modalita `Occhio nudo`, oculari e Barlow non vengono usati e i suggerimenti non inventano setup.
-- Se esiste un telescopio ma non ci sono oculari, i suggerimenti restano limitati e l'app invita ad aggiungere oculari.
+- Le raccomandazioni usano solo telescopi, oculari e Barlow assegnati al profilo attivo.
+- Se un profilo contiene un telescopio ma non oculari, i suggerimenti restano limitati e l'app invita ad aggiungere oculari.
+- Gli oculari zoom sono singoli record catalogo con focale minima/massima, non una serie di oculari fissi separati.
+- Se si elimina un elemento catalogo usato da uno o piu profili, l'app chiede conferma e puo rimuovere prima i riferimenti dai profili.
 
 ## Troubleshooting
 

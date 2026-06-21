@@ -8,10 +8,21 @@ Item {
 
     property var controller
     property int renameProfileId: -1
+    property string addFilter: "Tutti"
+    property string removeFilter: "Tutti"
+    property string addSearch: ""
+    property string removeSearch: ""
 
-    AppTheme {
-        id: theme
+    function matchesFilter(item, filter, searchText) {
+        var typeOk = filter === "Tutti"
+            || (filter === "Telescopi" && item.kind === "telescope")
+            || (filter === "Oculari" && item.kind === "eyepiece")
+            || (filter === "Barlow" && item.kind === "barlow")
+        var text = (item.name + " " + item.badge + " " + item.details).toLowerCase()
+        return typeOk && text.indexOf(searchText.toLowerCase()) >= 0
     }
+
+    AppTheme { id: theme }
 
     ScrollView {
         id: scroll
@@ -33,7 +44,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Strumenti"
+                    text: "Profili"
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -60,7 +71,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     title: "Profilo attivo"
-                    subtitle: "Usato da raccomandazioni, planner e schede oggetto"
+                    subtitle: "Setup usato dalle raccomandazioni"
                     accentColor: theme.green
 
                     Text {
@@ -72,16 +83,13 @@ Item {
                         elide: Text.ElideRight
                     }
 
-                    StatusPill {
-                        text: controller.currentSetup.name
-                        accentColor: theme.green
-                    }
+                    StatusPill { text: "Attivo"; accentColor: theme.green }
                 }
 
                 GlassCard {
                     Layout.fillWidth: true
                     title: "Lista profili"
-                    subtitle: "Nessuna duplicazione automatica"
+                    subtitle: "Profili osservativi salvati"
                     accentColor: theme.cyan
 
                     Repeater {
@@ -106,13 +114,13 @@ Item {
                             }
 
                             Button {
-                                text: "Set Active"
+                                text: "Imposta attivo"
                                 enabled: modelData.active !== 1
                                 onClicked: controller.setActiveEquipmentProfile(modelData.id)
                             }
 
                             Button {
-                                text: "Rename"
+                                text: "Rinomina"
                                 onClicked: {
                                     root.renameProfileId = modelData.id
                                     renameProfileName.text = modelData.profile_name
@@ -121,7 +129,7 @@ Item {
                             }
 
                             Button {
-                                text: "Delete"
+                                text: "Elimina"
                                 onClicked: controller.deleteEquipmentProfile(modelData.id)
                             }
                         }
@@ -129,167 +137,8 @@ Item {
 
                     Button {
                         Layout.fillWidth: true
-                        text: "Add Profile"
+                        text: "Aggiungi profilo"
                         onClicked: addProfileDialog.open()
-                    }
-                }
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                columns: root.width > 1180 ? 3 : 1
-                columnSpacing: 16
-                rowSpacing: 16
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Telescopes assigned"
-                    subtitle: "Tubi ottici disponibili in questo profilo"
-                    accentColor: theme.cyan
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.profileTelescopes.length === 0
-                        text: "Nessun telescopio assegnato. Il profilo usera Occhio nudo."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: controller.profileTelescopes
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            StatusPill { text: "✓"; accentColor: theme.green }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.name
-                                color: theme.textPrimary
-                                font.pixelSize: 14
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            StatusPill { text: modelData.apertureMm + "/" + modelData.focalLengthMm + " mm"; accentColor: theme.cyan }
-
-                            Button {
-                                text: "Remove"
-                                onClicked: controller.removeTelescopeFromActiveProfile(modelData.id)
-                            }
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Add Telescope"
-                        enabled: controller.availableProfileTelescopes.length > 0
-                        onClicked: addProfileTelescopeDialog.open()
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Eyepieces assigned"
-                    subtitle: "Solo questi sono usati dai suggerimenti"
-                    accentColor: theme.teal
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.eyepieces.length === 0
-                        text: controller.canUseEyepieces ? "Nessun oculare assegnato al profilo." : "Seleziona un telescopio prima di usare oculari."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: controller.eyepieces
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            StatusPill { text: "✓"; accentColor: theme.green }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.name
-                                color: theme.textPrimary
-                                font.pixelSize: 14
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            StatusPill { text: modelData.focalRangeLabel; accentColor: theme.teal }
-
-                            Button {
-                                text: "Remove"
-                                onClicked: controller.removeEyepieceFromActiveProfile(modelData.id)
-                            }
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Add Eyepiece"
-                        enabled: controller.canUseEyepieces && controller.availableProfileEyepieces.length > 0
-                        onClicked: addProfileEyepieceDialog.open()
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Barlows assigned"
-                    subtitle: "Usate solo quando migliorano la combinazione"
-                    accentColor: theme.amber
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.profileBarlows.length === 0
-                        text: controller.canUseEyepieces ? "Nessuna Barlow assegnata." : "Seleziona un telescopio prima di usare Barlow."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: controller.profileBarlows
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            StatusPill { text: "✓"; accentColor: theme.green }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.name
-                                color: theme.textPrimary
-                                font.pixelSize: 14
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            StatusPill { text: modelData.multiplier + "x"; accentColor: theme.amber }
-
-                            Button {
-                                text: "Remove"
-                                onClicked: controller.removeBarlowFromActiveProfile(modelData.id)
-                            }
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Add Barlow"
-                        enabled: controller.canUseEyepieces && controller.availableProfileBarlows.length > 0
-                        onClicked: addProfileBarlowDialog.open()
                     }
                 }
             }
@@ -298,30 +147,79 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Profile Capabilities"
+                title: "Equipaggiamento assegnato"
+                subtitle: "Elementi catalogo assegnati al profilo attivo"
+                accentColor: theme.amber
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: root.width > 1180 ? 3 : 1
+                    columnSpacing: 16
+                    rowSpacing: 16
+
+                    EquipmentGroup {
+                        title: "Telescopi"
+                        emptyText: "Nessun telescopio assegnato. Il profilo usa Occhio nudo."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "telescope" })
+                        accent: theme.cyan
+                    }
+
+                    EquipmentGroup {
+                        title: "Oculari"
+                        emptyText: "Nessun oculare assegnato."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "eyepiece" })
+                        accent: theme.teal
+                    }
+
+                    EquipmentGroup {
+                        title: "Barlow"
+                        emptyText: "Nessuna Barlow assegnata."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "barlow" })
+                        accent: theme.violet
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: "Aggiungi equipaggiamento"
+                        onClicked: addEquipmentDialog.open()
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        enabled: controller.profileAssignedEquipment.length > 0
+                        text: "Rimuovi equipaggiamento"
+                        onClicked: removeEquipmentDialog.open()
+                    }
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Capacita del profilo"
                 subtitle: controller.telescopeCapabilities.name
                 accentColor: theme.violet
 
                 GridLayout {
                     Layout.fillWidth: true
-                    columns: root.width > 1180 ? 3 : 2
+                    columns: root.width > 1180 ? 4 : 2
                     columnSpacing: 10
                     rowSpacing: 10
 
-                    MetricTile { label: "Aperture"; value: controller.telescopeCapabilities.aperture; accentColor: theme.cyan }
-                    MetricTile { label: "Focal Length"; value: controller.telescopeCapabilities.focalLength; accentColor: theme.teal }
-                    MetricTile { label: "Available Magnification Range"; value: controller.telescopeCapabilities.practicalMagnification; accentColor: theme.amber }
-                    MetricTile { label: "Light gathering"; value: controller.telescopeCapabilities.lightGathering; accentColor: theme.violet }
-                    MetricTile { label: "Limiting magnitude"; value: controller.telescopeCapabilities.limitingMagnitude; accentColor: theme.green }
-                    MetricTile { label: "Resolution"; value: controller.telescopeCapabilities.resolution; accentColor: theme.coral }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    text: "Available Configurations"
-                    color: theme.textPrimary
-                    font.pixelSize: 16
-                    font.weight: Font.DemiBold
+                    MetricTile { label: "Apertura"; value: controller.telescopeCapabilities.aperture; accentColor: theme.cyan }
+                    MetricTile { label: "Focale"; value: controller.telescopeCapabilities.focalLength; accentColor: theme.teal }
+                    MetricTile { label: "Magnificazione minima"; value: controller.telescopeCapabilities.availableMagnificationMin; accentColor: theme.green }
+                    MetricTile { label: "Magnificazione massima"; value: controller.telescopeCapabilities.availableMagnificationMax; accentColor: theme.amber }
+                    MetricTile { label: "Pupilla minima"; value: controller.telescopeCapabilities.exitPupilMin; accentColor: theme.coral }
+                    MetricTile { label: "Pupilla massima"; value: controller.telescopeCapabilities.exitPupilMax; accentColor: theme.violet }
+                    MetricTile { label: "Campo reale minimo"; value: controller.telescopeCapabilities.trueFieldMin; accentColor: theme.cyan }
+                    MetricTile { label: "Campo reale massimo"; value: controller.telescopeCapabilities.trueFieldMax; accentColor: theme.teal }
                 }
 
                 Flow {
@@ -330,21 +228,8 @@ Item {
 
                     Repeater {
                         model: controller.telescopeCapabilities.availableConfigurations || []
-
-                        delegate: StatusPill {
-                            text: modelData.magnification
-                            accentColor: theme.cyan
-                        }
+                        delegate: StatusPill { text: modelData.magnification; accentColor: theme.cyan }
                     }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    visible: (controller.telescopeCapabilities.availableConfigurations || []).length === 0
-                    text: controller.telescopeCapabilities.availableConfigurationsText
-                    color: theme.textSecondary
-                    font.pixelSize: 13
-                    wrapMode: Text.WordWrap
                 }
             }
 
@@ -352,88 +237,188 @@ Item {
         }
     }
 
-    Dialog {
+    component EquipmentGroup: ColumnLayout {
+        id: group
+        property string title: ""
+        property string emptyText: ""
+        property var items: []
+        property color accent: "#65d6e8"
+
+        Layout.fillWidth: true
+        spacing: 8
+
+        Text {
+            Layout.fillWidth: true
+            text: title
+            color: theme.textPrimary
+            font.pixelSize: 16
+            font.weight: Font.DemiBold
+        }
+
+        Text {
+            Layout.fillWidth: true
+            visible: items.length === 0
+            text: emptyText
+            color: theme.textSecondary
+            font.pixelSize: 13
+            wrapMode: Text.WordWrap
+        }
+
+        Repeater {
+            model: items
+            delegate: RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                StatusPill { text: "✓"; accentColor: theme.green }
+                Text {
+                    Layout.fillWidth: true
+                    text: modelData.name
+                    color: theme.textPrimary
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+                StatusPill { text: modelData.details; accentColor: group.accent }
+            }
+        }
+    }
+
+    component EquipmentRow: Rectangle {
+        id: equipmentRow
+        property var itemData
+        property string actionText: ""
+        property color accent: "#65d6e8"
+        signal action()
+
+        Layout.fillWidth: true
+        implicitHeight: 64
+        radius: 8
+        color: "#20242b"
+        border.color: "#303641"
+        border.width: 1
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 10
+            spacing: 10
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 3
+
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.name
+                    color: theme.textPrimary
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.details
+                    color: theme.textSecondary
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+            }
+
+            StatusPill { text: itemData.badge; accentColor: equipmentRow.accent }
+
+            Button {
+                text: actionText
+                enabled: actionText.indexOf("Assegna") < 0 || !itemData.assigned
+                onClicked: equipmentRow.action()
+            }
+        }
+    }
+
+    DarkDialog {
         id: addProfileDialog
-        title: "Add Profile"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        title: "Aggiungi profilo"
+        acceptText: "Aggiungi"
         onAccepted: controller.addEquipmentProfile(addProfileName.text)
 
         TextField {
             id: addProfileName
-            width: 360
+            Layout.fillWidth: true
             placeholderText: "Nome profilo"
         }
     }
 
-    Dialog {
+    DarkDialog {
         id: renameProfileDialog
-        title: "Rename Profile"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+        title: "Rinomina profilo"
+        acceptText: "Rinomina"
         onAccepted: controller.renameEquipmentProfile(root.renameProfileId, renameProfileName.text)
 
         TextField {
             id: renameProfileName
-            width: 360
+            Layout.fillWidth: true
             placeholderText: "Nome profilo"
         }
     }
 
-    Dialog {
-        id: addProfileTelescopeDialog
-        title: "Add Telescope"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: {
-            if (profileTelescopeCombo.currentIndex >= 0) {
-                controller.assignTelescopeToActiveProfile(controller.availableProfileTelescopes[profileTelescopeCombo.currentIndex].id)
+    DarkDialog {
+        id: addEquipmentDialog
+        title: "Aggiungi equipaggiamento"
+        showAccept: false
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            ComboBox {
+                Layout.preferredWidth: 160
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
+                onCurrentTextChanged: root.addFilter = currentText
+            }
+            TextField {
+                Layout.fillWidth: true
+                placeholderText: "Cerca..."
+                onTextChanged: root.addSearch = text
             }
         }
 
-        ComboBox {
-            id: profileTelescopeCombo
-            width: 420
-            model: controller.availableProfileTelescopes
-            textRole: "name"
+        Repeater {
+            model: controller.profileEquipmentCatalog.filter(function(item) { return root.matchesFilter(item, root.addFilter, root.addSearch) })
+            delegate: EquipmentRow {
+                itemData: modelData
+                actionText: modelData.assigned ? "Gia assegnato" : "Assegna al profilo"
+                accent: modelData.kind === "telescope" ? theme.cyan : modelData.kind === "eyepiece" ? theme.teal : theme.violet
+                onAction: controller.assignEquipmentToActiveProfile(modelData.kind, modelData.id)
+            }
         }
     }
 
-    Dialog {
-        id: addProfileEyepieceDialog
-        title: "Add Eyepiece"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: {
-            if (profileEyepieceCombo.currentIndex >= 0) {
-                controller.assignEyepieceToActiveProfile(controller.availableProfileEyepieces[profileEyepieceCombo.currentIndex].id)
+    DarkDialog {
+        id: removeEquipmentDialog
+        title: "Rimuovi equipaggiamento"
+        showAccept: false
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            ComboBox {
+                Layout.preferredWidth: 160
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
+                onCurrentTextChanged: root.removeFilter = currentText
+            }
+            TextField {
+                Layout.fillWidth: true
+                placeholderText: "Cerca..."
+                onTextChanged: root.removeSearch = text
             }
         }
 
-        ComboBox {
-            id: profileEyepieceCombo
-            width: 420
-            model: controller.availableProfileEyepieces
-            textRole: "name"
-        }
-    }
-
-    Dialog {
-        id: addProfileBarlowDialog
-        title: "Add Barlow"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: {
-            if (profileBarlowCombo.currentIndex >= 0) {
-                controller.assignBarlowToActiveProfile(controller.availableProfileBarlows[profileBarlowCombo.currentIndex].id)
+        Repeater {
+            model: controller.profileAssignedEquipment.filter(function(item) { return root.matchesFilter(item, root.removeFilter, root.removeSearch) })
+            delegate: EquipmentRow {
+                itemData: modelData
+                actionText: "Rimuovi dal profilo"
+                accent: modelData.kind === "telescope" ? theme.cyan : modelData.kind === "eyepiece" ? theme.teal : theme.violet
+                onAction: controller.removeEquipmentFromActiveProfile(modelData.kind, modelData.id)
             }
-        }
-
-        ComboBox {
-            id: profileBarlowCombo
-            width: 420
-            model: controller.availableProfileBarlows
-            textRole: "name"
         }
     }
 }

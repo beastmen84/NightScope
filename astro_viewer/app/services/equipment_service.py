@@ -60,6 +60,12 @@ class EquipmentService:
                 "aperture": "n/d",
                 "focalLength": "n/d",
                 "practicalMagnification": "n/d",
+                "availableMagnificationMin": "n/d",
+                "availableMagnificationMax": "n/d",
+                "exitPupilMin": "n/d",
+                "exitPupilMax": "n/d",
+                "trueFieldMin": "n/d",
+                "trueFieldMax": "n/d",
                 "lightGathering": "1x occhio",
                 "limitingMagnitude": "n/d",
                 "resolution": "n/d",
@@ -72,11 +78,20 @@ class EquipmentService:
         limiting_magnitude = 2 + 5 * self._log10(max(1.0, telescope.aperture_mm))
         resolution = 116 / telescope.aperture_mm
         configurations = self._available_configurations(telescope, eyepieces, barlows)
+        magnifications = [item["magnificationValue"] for item in configurations]
+        exit_pupils = [item["exitPupilValue"] for item in configurations]
+        true_fields = [item["trueFieldValue"] for item in configurations]
         return {
             "name": telescope.name,
             "aperture": f"{telescope.aperture_mm} mm",
             "focalLength": f"{telescope.focal_length_mm} mm",
             "practicalMagnification": f"{min_magnification}x - {max_magnification}x",
+            "availableMagnificationMin": f"{min(magnifications):.0f}x" if magnifications else "n/d",
+            "availableMagnificationMax": f"{max(magnifications):.0f}x" if magnifications else "n/d",
+            "exitPupilMin": f"{min(exit_pupils):.1f} mm" if exit_pupils else "n/d",
+            "exitPupilMax": f"{max(exit_pupils):.1f} mm" if exit_pupils else "n/d",
+            "trueFieldMin": f"{min(true_fields):.2f} gradi" if true_fields else "n/d",
+            "trueFieldMax": f"{max(true_fields):.2f} gradi" if true_fields else "n/d",
             "lightGathering": f"{light_gathering}x occhio",
             "limitingMagnitude": f"{limiting_magnitude:.1f} stimata",
             "resolution": f"{resolution:.2f}\" stimata",
@@ -205,6 +220,9 @@ class EquipmentService:
                         {
                             "label": eyepiece.name + (f" @ {focal_position['position']}" if eyepiece.eyepiece_type == "Zoom" else ""),
                             "magnification": f"{magnification}x",
+                            "magnificationValue": float(magnification),
+                            "trueFieldValue": eyepiece.apparent_field_deg / max(magnification, 1),
+                            "exitPupilValue": telescope.aperture_mm / max(magnification, 1),
                             "barlow": barlow.name if barlow else "No",
                         }
                     )

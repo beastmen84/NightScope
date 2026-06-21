@@ -195,7 +195,19 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         },
     )
     _add_columns(connection, "TelescopeModel", {"focal_ratio": "REAL", "notes": "TEXT"})
-    _add_columns(connection, "EyepieceCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    _add_columns(
+        connection,
+        "EyepieceCatalog",
+        {
+            "eyepiece_type": "TEXT NOT NULL DEFAULT 'Fixed'",
+            "min_focal_length_mm": "REAL",
+            "max_focal_length_mm": "REAL",
+            "afov_min": "REAL",
+            "afov_max": "REAL",
+            "barrel_size": "TEXT",
+            "notes": "TEXT",
+        },
+    )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
@@ -676,10 +688,18 @@ def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
 def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | None = None, barlow_path: Path | None = None) -> None:
     connection.executemany(
         """
-        INSERT INTO EyepieceCatalog (brand, model, focal_length_mm, apparent_field_deg, barrel_size, notes)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO EyepieceCatalog (
+            brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
+            max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size, notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
+            eyepiece_type = excluded.eyepiece_type,
+            min_focal_length_mm = excluded.min_focal_length_mm,
+            max_focal_length_mm = excluded.max_focal_length_mm,
             apparent_field_deg = excluded.apparent_field_deg,
+            afov_min = excluded.afov_min,
+            afov_max = excluded.afov_max,
             barrel_size = excluded.barrel_size,
             notes = excluded.notes
         """,
@@ -699,20 +719,36 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
 
 
 def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
+    zoom_rows = [
+        ("Baader", "Hyperion Zoom 8-24 mm", "Zoom", 24.0, 8.0, 24.0, 60.0, None, None, "1.25/2", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
+        ("Celestron", "Zoom 8-24 mm", "Zoom", 24.0, 8.0, 24.0, 50.0, None, None, "1.25", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
+        ("Svbony", "Zoom 7-21 mm", "Zoom", 21.0, 7.0, 21.0, 50.0, None, None, "1.25", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
+    ]
     if eyepiece_path and eyepiece_path.exists():
         with eyepiece_path.open("r", encoding="utf-8", newline="") as file:
-            return [
+            rows = [
                 (
                     row["brand"],
                     row["model"],
+                    row.get("eyepiece_type", "Fixed") or "Fixed",
                     float(row["focal_length_mm"]),
+                    _optional_float(row.get("min_focal_length_mm", "")),
+                    _optional_float(row.get("max_focal_length_mm", "")),
                     float(row["apparent_field_deg"]),
+                    _optional_float(row.get("afov_min", "")),
+                    _optional_float(row.get("afov_max", "")),
                     row.get("barrel_size", ""),
                     row.get("notes", ""),
                 )
                 for row in csv.DictReader(file)
             ]
-    return [(brand, model, focal, field, "", "Legacy NightScope seed.") for brand, model, focal, field in EYEPIECE_CATALOG]
+            existing = {(row[0], row[1]) for row in rows}
+            rows.extend(row for row in zoom_rows if (row[0], row[1]) not in existing)
+            return rows
+    return [
+        (brand, model, "Fixed", focal, None, None, field, None, None, "", "Legacy NightScope seed.")
+        for brand, model, focal, field in EYEPIECE_CATALOG
+    ] + zoom_rows
 
 
 def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:

@@ -7,22 +7,36 @@ Item {
     id: root
 
     property var controller
-    property var selectedCatalogModel: controller.telescopeCatalogModels.length > 0 && catalogModelCombo.currentIndex >= 0 ? controller.telescopeCatalogModels[catalogModelCombo.currentIndex] : ({})
-    property var editTelescopeData: ({})
+    property var editModel: ({})
+    property var deleteModel: ({})
 
-    function openEditDialog(telescope) {
-        editTelescopeData = telescope
-        editTelescopeName.text = telescope.name
-        editTelescopeAperture.text = String(telescope.apertureMm)
-        editTelescopeFocal.text = String(telescope.focalLengthMm)
-        editTelescopeType.text = telescope.type
-        editTelescopeMount.text = telescope.mount
-        editTelescopeDialog.open()
+    function openEditDialog(item) {
+        editModel = item
+        telescopeBrand.text = item.brand || ""
+        telescopeName.text = item.name || ""
+        telescopeType.text = item.optical_type || ""
+        telescopeAperture.text = String(item.aperture_mm || "")
+        telescopeFocal.text = String(item.focal_length_mm || "")
+        telescopeMount.text = item.mount_type || ""
+        telescopeNotes.text = item.notes || ""
+        telescopeDialog.title = "Modifica modello"
+        telescopeDialog.open()
     }
 
-    AppTheme {
-        id: theme
+    function openAddDialog() {
+        editModel = ({})
+        telescopeBrand.text = ""
+        telescopeName.text = ""
+        telescopeType.text = ""
+        telescopeAperture.text = ""
+        telescopeFocal.text = ""
+        telescopeMount.text = ""
+        telescopeNotes.text = ""
+        telescopeDialog.title = "Aggiungi modello"
+        telescopeDialog.open()
     }
+
+    AppTheme { id: theme }
 
     ScrollView {
         id: scroll
@@ -44,7 +58,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Telescopi"
+                    text: "Catalogo telescopi"
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -53,7 +67,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Gestisci solo gli strumenti che possiedi. I cataloghi sono disponibili quando aggiungi un telescopio."
+                    text: "Modelli disponibili per i profili osservativi"
                     color: theme.textSecondary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
@@ -64,21 +78,12 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "My Telescopes"
-                subtitle: controller.equipmentSetups.length + " telescopi posseduti"
+                title: "Catalogo telescopi"
+                subtitle: controller.telescopeCatalogModels.length + " modelli"
                 accentColor: theme.cyan
 
-                Text {
-                    Layout.fillWidth: true
-                    visible: controller.equipmentSetups.length === 0
-                    text: "Nessun telescopio configurato. NightScope usera automaticamente Occhio nudo."
-                    color: theme.textSecondary
-                    font.pixelSize: 13
-                    wrapMode: Text.WordWrap
-                }
-
                 Repeater {
-                    model: controller.equipmentSetups
+                    model: controller.telescopeCatalogModels
 
                     delegate: Rectangle {
                         Layout.fillWidth: true
@@ -91,7 +96,7 @@ Item {
                         RowLayout {
                             anchors.fill: parent
                             anchors.margins: 12
-                            spacing: 12
+                            spacing: 10
 
                             ColumnLayout {
                                 Layout.fillWidth: true
@@ -99,70 +104,45 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.name
+                                    text: modelData.brand + " " + modelData.name
                                     color: theme.textPrimary
-                                    font.pixelSize: 16
+                                    font.pixelSize: 15
                                     font.weight: Font.DemiBold
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.type + "  -  " + modelData.mount
+                                    text: modelData.optical_type + "  -  " + modelData.mount_type
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     elide: Text.ElideRight
                                 }
                             }
 
-                            StatusPill { text: modelData.apertureMm + " mm"; accentColor: theme.cyan }
-                            StatusPill { text: modelData.focalLengthMm + " mm"; accentColor: theme.teal }
+                            StatusPill { text: modelData.aperture_mm + " mm"; accentColor: theme.cyan }
+                            StatusPill { text: modelData.focal_length_mm + " mm"; accentColor: theme.teal }
 
                             Button {
-                                text: "Edit"
+                                text: "Modifica"
                                 onClicked: root.openEditDialog(modelData)
                             }
 
                             Button {
-                                text: "Delete"
-                                onClicked: controller.removeTelescope(modelData.id)
+                                text: "Elimina"
+                                onClicked: {
+                                    root.deleteModel = modelData
+                                    deleteTelescopeDialog.open()
+                                }
                             }
                         }
                     }
                 }
 
-                RowLayout {
+                Button {
                     Layout.fillWidth: true
-                    spacing: 10
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Add from Catalog"
-                        onClicked: addCatalogTelescopeDialog.open()
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Add Custom"
-                        onClicked: addCustomTelescopeDialog.open()
-                    }
-                }
-            }
-
-            GlassCard {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                title: "Uso nei profili"
-                subtitle: "Assegna i telescopi dalla pagina Profili"
-                accentColor: theme.green
-
-                Text {
-                    Layout.fillWidth: true
-                    text: "Aggiungere un telescopio lo rende disponibile. Per decidere quali strumenti usa il planner, apri Strumenti > Profili e assegnali al profilo attivo."
-                    color: theme.textSecondary
-                    font.pixelSize: 13
-                    wrapMode: Text.WordWrap
+                    text: "Aggiungi modello"
+                    onClicked: root.openAddDialog()
                 }
             }
 
@@ -170,81 +150,67 @@ Item {
         }
     }
 
-    Dialog {
-        id: addCatalogTelescopeDialog
-        title: "Add from Catalog"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
+    DarkDialog {
+        id: telescopeDialog
+        title: "Aggiungi modello"
+        acceptText: "Salva"
         onAccepted: {
-            if (root.selectedCatalogModel.catalog_id) {
-                controller.addCatalogTelescope(root.selectedCatalogModel.catalog_id)
+            if (root.editModel.id !== undefined) {
+                controller.updateTelescopeModel(root.editModel.id, telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, telescopeMount.text, telescopeNotes.text)
+            } else {
+                controller.addTelescopeModel(telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, telescopeMount.text, telescopeNotes.text)
             }
         }
 
-        ColumnLayout {
-            width: 520
+        GridLayout {
+            Layout.fillWidth: true
+            columns: 2
+            columnSpacing: 8
+            rowSpacing: 8
+
+            TextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            TextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Modello" }
+            TextField { id: telescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
+            TextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            TextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            TextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
+            TextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+        }
+    }
+
+    DarkDialog {
+        id: deleteTelescopeDialog
+        title: "Elimina modello"
+        showAccept: false
+
+        Text {
+            Layout.fillWidth: true
+            text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0
+                ? "Questo elemento e utilizzato da uno o piu profili."
+                : "Eliminare il modello dal catalogo?"
+            color: theme.textPrimary
+            font.pixelSize: 14
+            wrapMode: Text.WordWrap
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
             spacing: 10
 
-            ComboBox {
-                id: catalogModelCombo
+            Button {
                 Layout.fillWidth: true
-                model: controller.telescopeCatalogModels
-                textRole: "name"
+                text: "Annulla"
+                onClicked: deleteTelescopeDialog.close()
             }
 
-            Text {
+            Button {
                 Layout.fillWidth: true
-                text: (root.selectedCatalogModel.brand || "") + "  -  " + (root.selectedCatalogModel.optical_type || "") + "  -  " + (root.selectedCatalogModel.mount_type || "")
-                color: theme.textSecondary
-                font.pixelSize: 12
-                wrapMode: Text.WordWrap
+                text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+                onClicked: {
+                    controller.deleteTelescopeModel(root.deleteModel.id, controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0)
+                    deleteTelescopeDialog.close()
+                }
             }
-        }
-    }
-
-    Dialog {
-        id: addCustomTelescopeDialog
-        title: "Add Custom Telescope"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: controller.addTelescope(telescopeName.text, telescopeAperture.text, telescopeFocal.text, telescopeType.currentText, telescopeMount.text)
-
-        GridLayout {
-            width: 520
-            columns: 2
-            columnSpacing: 8
-            rowSpacing: 8
-
-            TextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Nome" }
-            TextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhDigitsOnly }
-            TextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhDigitsOnly }
-            ComboBox {
-                id: telescopeType
-                Layout.fillWidth: true
-                model: ["rifrattore", "Newton", "Schmidt-Cassegrain", "Maksutov"]
-            }
-            TextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
-        }
-    }
-
-    Dialog {
-        id: editTelescopeDialog
-        title: "Edit Telescope"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        onAccepted: controller.updateTelescope(root.editTelescopeData.id, editTelescopeName.text, editTelescopeAperture.text, editTelescopeFocal.text, editTelescopeType.text, editTelescopeMount.text)
-
-        GridLayout {
-            width: 520
-            columns: 2
-            columnSpacing: 8
-            rowSpacing: 8
-
-            TextField { id: editTelescopeName; Layout.fillWidth: true; placeholderText: "Nome" }
-            TextField { id: editTelescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhDigitsOnly }
-            TextField { id: editTelescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhDigitsOnly }
-            TextField { id: editTelescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
-            TextField { id: editTelescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
         }
     }
 }
