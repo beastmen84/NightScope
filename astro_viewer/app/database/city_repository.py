@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import unicodedata
 from contextlib import closing
 from pathlib import Path
 
@@ -18,9 +19,10 @@ class CityRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, city_name, country, latitude, longitude, timezone
+                SELECT id, city_name, ascii_name, country, country_code, admin_region,
+                       latitude, longitude, timezone, population, search_name
                 FROM City
-                ORDER BY country, city_name
+                ORDER BY population DESC NULLS LAST, country, city_name
                 LIMIT ?
                 """,
                 (limit,),
@@ -28,17 +30,32 @@ class CityRepository:
         return [self._row_to_city(row) for row in rows]
 
     def search(self, query: str, limit: int = 20) -> list[dict]:
-        normalized = f"%{query.strip()}%"
+        normalized_query = _normalize_search(query)
+        if not normalized_query:
+            return self.list_cities(limit=limit)
+        normalized = f"%{normalized_query}%"
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, city_name, country, latitude, longitude, timezone
+                SELECT id, city_name, ascii_name, country, country_code, admin_region,
+                       latitude, longitude, timezone, population, search_name
                 FROM City
-                WHERE city_name LIKE ? OR country LIKE ?
-                ORDER BY city_name
+                WHERE search_name LIKE ?
+                   OR LOWER(city_name) LIKE ?
+                   OR LOWER(COALESCE(ascii_name, '')) LIKE ?
+                   OR LOWER(country) LIKE ?
+                   OR LOWER(COALESCE(country_code, '')) LIKE ?
+                ORDER BY
+                    CASE
+                        WHEN search_name = ? THEN 0
+                        WHEN search_name LIKE ? THEN 1
+                        ELSE 2
+                    END,
+                    population DESC NULLS LAST,
+                    city_name
                 LIMIT ?
                 """,
-                (normalized, normalized, limit),
+                (normalized, normalized, normalized, normalized, normalized, normalized_query, f"{normalized_query}%", limit),
             ).fetchall()
         return [self._row_to_city(row) for row in rows]
 
@@ -46,7 +63,8 @@ class CityRepository:
         with closing(self._connect()) as connection:
             row = connection.execute(
                 """
-                SELECT id, city_name, country, latitude, longitude, timezone
+                SELECT id, city_name, ascii_name, country, country_code, admin_region,
+                       latitude, longitude, timezone, population, search_name
                 FROM City
                 WHERE id = ?
                 """,
@@ -58,9 +76,11 @@ class CityRepository:
         with closing(self._connect()) as connection:
             row = connection.execute(
                 """
-                SELECT id, city_name, country, latitude, longitude, timezone
+                SELECT id, city_name, ascii_name, country, country_code, admin_region,
+                       latitude, longitude, timezone, population, search_name
                 FROM City
-                WHERE city_name = 'Milano'
+                WHERE city_name IN ('Milano', 'Roma')
+                ORDER BY CASE city_name WHEN 'Milano' THEN 0 ELSE 1 END
                 LIMIT 1
                 """
             ).fetchone()
@@ -74,8 +94,19 @@ class CityRepository:
         return {
             "id": row["id"],
             "city": row["city_name"],
+            "ascii_name": row["ascii_name"] if "ascii_name" in row.keys() else row["city_name"],
             "country": row["country"],
+            "country_code": row["country_code"] if "country_code" in row.keys() else "",
+            "admin_region": row["admin_region"] if "admin_region" in row.keys() else "",
             "latitude": row["latitude"],
             "longitude": row["longitude"],
             "timezone": row["timezone"],
+            "population": row["population"] if "population" in row.keys() else None,
+            "search_name": row["search_name"] if "search_name" in row.keys() else "",
         }
+
+
+def _normalize_search(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value.strip().lower())
+    ascii_value = "".join(character for character in normalized if not unicodedata.combining(character))
+    return " ".join(ascii_value.replace("-", " ").replace("_", " ").split())

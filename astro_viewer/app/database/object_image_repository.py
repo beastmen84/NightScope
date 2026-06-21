@@ -20,7 +20,8 @@ class ObjectImageRepository:
         with closing(self._connect()) as connection:
             row = connection.execute(
                 """
-                SELECT object_id, image_path, attribution
+                SELECT object_id, image_path, thumbnail_path, attribution,
+                       source_url, license, verified
                 FROM ObjectImages
                 WHERE object_id = ?
                 """,
@@ -32,10 +33,23 @@ class ObjectImageRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT object_id, image_path, attribution
+                SELECT object_id, image_path, thumbnail_path, attribution,
+                       source_url, license, verified
                 FROM ObjectImages
                 ORDER BY object_id
                 """
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def descriptions(self) -> dict[str, dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT object_id, short_description, observing_notes, best_seen,
+                       difficulty_naked_eye, difficulty_binocular, difficulty_small_scope,
+                       difficulty_medium_scope, difficulty_large_scope
+                FROM ObjectDescription
+                ORDER BY object_id
+                """
+            ).fetchall()
+        return {row["object_id"]: dict(row) for row in rows}

@@ -1,10 +1,15 @@
 CREATE TABLE IF NOT EXISTS City (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     city_name TEXT NOT NULL,
+    ascii_name TEXT,
     country TEXT NOT NULL,
+    country_code TEXT,
+    admin_region TEXT,
     latitude REAL NOT NULL,
     longitude REAL NOT NULL,
-    timezone TEXT NOT NULL
+    timezone TEXT NOT NULL,
+    population INTEGER,
+    search_name TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_city_name ON City(city_name);
@@ -62,7 +67,9 @@ CREATE TABLE IF NOT EXISTS TelescopeModel (
     optical_type TEXT NOT NULL,
     aperture_mm INTEGER NOT NULL,
     focal_length_mm INTEGER NOT NULL,
+    focal_ratio REAL,
     mount_type TEXT NOT NULL,
+    notes TEXT,
     FOREIGN KEY (brand_id) REFERENCES TelescopeBrand(id),
     UNIQUE (brand_id, name)
 );
@@ -75,6 +82,8 @@ CREATE TABLE IF NOT EXISTS EyepieceCatalog (
     model TEXT NOT NULL,
     focal_length_mm REAL NOT NULL,
     apparent_field_deg REAL NOT NULL,
+    barrel_size TEXT,
+    notes TEXT,
     UNIQUE (brand, model, focal_length_mm)
 );
 
@@ -83,6 +92,8 @@ CREATE TABLE IF NOT EXISTS BarlowCatalog (
     brand TEXT NOT NULL,
     model TEXT NOT NULL,
     multiplier REAL NOT NULL,
+    barrel_size TEXT,
+    notes TEXT,
     UNIQUE (brand, model, multiplier)
 );
 
@@ -93,13 +104,30 @@ CREATE TABLE IF NOT EXISTS SkyQualityEstimate (
     limiting_magnitude REAL NOT NULL,
     sky_brightness REAL NOT NULL,
     source TEXT NOT NULL,
+    confidence TEXT,
     updated_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ObjectImages (
     object_id TEXT PRIMARY KEY,
     image_path TEXT NOT NULL,
-    attribution TEXT NOT NULL
+    thumbnail_path TEXT,
+    attribution TEXT NOT NULL,
+    source_url TEXT,
+    license TEXT,
+    verified INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS ObjectDescription (
+    object_id TEXT PRIMARY KEY,
+    short_description TEXT NOT NULL,
+    observing_notes TEXT NOT NULL,
+    best_seen TEXT,
+    difficulty_naked_eye TEXT,
+    difficulty_binocular TEXT,
+    difficulty_small_scope TEXT,
+    difficulty_medium_scope TEXT,
+    difficulty_large_scope TEXT
 );
 
 CREATE TABLE IF NOT EXISTS EquipmentProfile (

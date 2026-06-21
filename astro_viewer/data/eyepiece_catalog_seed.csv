@@ -1,0 +1,130 @@
+brand,model,focal_length_mm,apparent_field_deg,barrel_size,notes
+Celestron,Omni Plossl,4,52,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,6,52,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,9,52,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,12,52,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,15,52,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,32,52,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,2.3,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,5,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,7,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,9,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,12,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,18,60,1.25,Manufacturer catalog series.
+Celestron,X-Cel LX,25,60,1.25,Manufacturer catalog series.
+Celestron,Luminos,7,82,1.25,Manufacturer catalog series.
+Celestron,Luminos,10,82,1.25,Manufacturer catalog series.
+Celestron,Luminos,15,82,1.25,Manufacturer catalog series.
+Celestron,Luminos,19,82,2,Manufacturer catalog series.
+Celestron,Luminos,23,82,2,Manufacturer catalog series.
+Celestron,Luminos,31,82,2,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,6.3,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,7.5,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,10,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,12.5,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,17,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,25,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Super Plossl,32,52,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,2.5,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,3.2,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,4,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,5,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,6,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,7,58,1.25,Manufacturer catalog series.
+Sky-Watcher,Planetary UWA,8,58,1.25,Manufacturer catalog series.
+Baader,Classic Ortho,6,50,1.25,Manufacturer catalog series.
+Baader,Classic Ortho,10,50,1.25,Manufacturer catalog series.
+Baader,Classic Ortho,18,50,1.25,Manufacturer catalog series.
+Baader,Classic Plossl,32,50,1.25,Manufacturer catalog series.
+Baader,Hyperion,5,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,8,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,10,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,13,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,17,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,21,68,1.25/2,Manufacturer catalog series.
+Baader,Hyperion,24,68,1.25,Manufacturer catalog series.
+Baader,Morpheus,4.5,76,1.25/2,Manufacturer catalog series.
+Baader,Morpheus,6.5,76,1.25/2,Manufacturer catalog series.
+Baader,Morpheus,9,76,1.25/2,Manufacturer catalog series.
+Baader,Morpheus,12.5,76,1.25/2,Manufacturer catalog series.
+Baader,Morpheus,14,76,1.25/2,Manufacturer catalog series.
+Baader,Morpheus,17.5,76,1.25/2,Manufacturer catalog series.
+Explore Scientific,52 Series,3,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,4.5,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,6.5,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,10,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,15,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,20,52,1.25,Manufacturer catalog series.
+Explore Scientific,52 Series,25,52,1.25,Manufacturer catalog series.
+Explore Scientific,62 Series,5.5,62,1.25,Manufacturer catalog series.
+Explore Scientific,62 Series,9,62,1.25,Manufacturer catalog series.
+Explore Scientific,62 Series,14,62,1.25,Manufacturer catalog series.
+Explore Scientific,62 Series,20,62,1.25,Manufacturer catalog series.
+Explore Scientific,62 Series,26,62,1.25,Manufacturer catalog series.
+Explore Scientific,68 Series,16,68,1.25,Manufacturer catalog series.
+Explore Scientific,68 Series,20,68,1.25,Manufacturer catalog series.
+Explore Scientific,68 Series,24,68,1.25,Manufacturer catalog series.
+Explore Scientific,68 Series,28,68,2,Manufacturer catalog series.
+Explore Scientific,68 Series,34,68,2,Manufacturer catalog series.
+Explore Scientific,68 Series,40,68,2,Manufacturer catalog series.
+Explore Scientific,82 Series,4.7,82,1.25,Manufacturer catalog series.
+Explore Scientific,82 Series,6.7,82,1.25,Manufacturer catalog series.
+Explore Scientific,82 Series,8.8,82,1.25,Manufacturer catalog series.
+Explore Scientific,82 Series,11,82,1.25,Manufacturer catalog series.
+Explore Scientific,82 Series,14,82,1.25,Manufacturer catalog series.
+Explore Scientific,82 Series,18,82,2,Manufacturer catalog series.
+Explore Scientific,82 Series,24,82,2,Manufacturer catalog series.
+Explore Scientific,82 Series,30,82,2,Manufacturer catalog series.
+Tele Vue,Plossl,8,50,1.25,Manufacturer catalog series.
+Tele Vue,Plossl,11,50,1.25,Manufacturer catalog series.
+Tele Vue,Plossl,15,50,1.25,Manufacturer catalog series.
+Tele Vue,Plossl,20,50,1.25,Manufacturer catalog series.
+Tele Vue,Plossl,25,50,1.25,Manufacturer catalog series.
+Tele Vue,Plossl,32,50,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,3,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,4,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,5,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,7,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,9,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,11,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,13,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,15,62,1.25,Manufacturer catalog series.
+Tele Vue,DeLite,18.2,62,1.25,Manufacturer catalog series.
+Tele Vue,Delos,3.5,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,4.5,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,6,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,8,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,10,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,12,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,14,72,1.25,Manufacturer catalog series.
+Tele Vue,Delos,17.3,72,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,3.5,82,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,5,82,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,7,82,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,9,82,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,11,82,1.25,Manufacturer catalog series.
+Tele Vue,Nagler Type 6,13,82,1.25,Manufacturer catalog series.
+Tele Vue,Ethos,3.7,110,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,4.7,110,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,6,100,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,8,100,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,10,100,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,13,100,1.25/2,Manufacturer catalog series.
+Tele Vue,Ethos,17,100,2,Manufacturer catalog series.
+Tele Vue,Ethos,21,100,2,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,6.4,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,9.7,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,12.4,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,15,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,20,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,26,52,1.25,Manufacturer catalog series.
+Meade,Series 4000 Super Plossl,32,52,1.25,Manufacturer catalog series.
+Orion,Sirius Plossl,7.5,52,1.25,Manufacturer catalog series.
+Orion,Sirius Plossl,10,52,1.25,Manufacturer catalog series.
+Orion,Sirius Plossl,12.5,52,1.25,Manufacturer catalog series.
+Orion,Sirius Plossl,17,52,1.25,Manufacturer catalog series.
+Orion,Sirius Plossl,25,52,1.25,Manufacturer catalog series.
+Orion,Expanse,6,66,1.25,Manufacturer catalog series.
+Orion,Expanse,9,66,1.25,Manufacturer catalog series.
+Orion,Expanse,15,66,1.25,Manufacturer catalog series.
+Orion,Expanse,20,66,1.25,Manufacturer catalog series.

@@ -6,6 +6,7 @@ NightScope e una applicazione desktop Windows per astronomia osservativa, costru
 
 - UI QML dark theme con Home, dettaglio oggetto, calendario, meteo, location e strumenti.
 - Database SQLite locale con citta, Messier, cataloghi strumenti, cache meteo, profili e storico osservazioni.
+- Seed locali estesi per citta, cataloghi telescopi/oculari/Barlow, contenuti osservativi e lookup iniziale inquinamento luminoso.
 - Calcoli Skyfield reali per Sole, Luna e pianeti principali usando `data/skyfield/de421.bsp`.
 - Catalogo Messier offline importato da `data/messier_seed.csv`.
 - Meteo Open-Meteo con cache SQLite, timeout breve e fallback offline.
@@ -73,12 +74,46 @@ packaging/
 
 - `SkyfieldAstronomyEngine`: ephemeris, alt/az, sorgere, tramonto, culminazione, fase lunare ed eventi.
 - `OpenMeteoWeatherService`: forecast 24h, cache locale e fallback controllato.
-- `LocationService`: citta SQLite, coordinate manuali e posizione Windows.
+- `LocationService`: citta SQLite, coordinate manuali, posizione Windows e fallback online approssimato solo su consenso.
 - `ObservingScoreService`: qualita osservativa e miglior oggetto della notte.
-- `LightPollutionService`: stima Bortle offline con boundary per fonti future.
-- `SeeingTransparencyService`: stima seeing e transparency dal forecast.
+- `LightPollutionService`: provider architecture con lookup dataset locale, placeholder World Atlas/VIIRS e stima offline fallback.
+- `SeeingTransparencyService`: provider architecture con stima base da cloud low/mid/high, vento, raffiche, umidita, visibilita e dew point; placeholder Meteoblue senza API key nel codice.
 - `NightPlannerService`: sequenza osservativa ottimizzata.
 - `EquipmentService`: calcoli strumenti, oculari, Barlow e difficolta.
+
+## Dataset locali
+
+I seed locali sono in `data/`:
+
+- `cities_seed.csv`: citta offline con alias tolleranti per ricerche come `Addis`, `Addis Abeba`, `Milan`, `Rome`.
+- `telescope_catalog_seed.csv`: oltre 100 modelli realistici di telescopi.
+- `eyepiece_catalog_seed.csv`: oltre 100 oculari con focale, campo apparente e barrel size.
+- `barlow_catalog_seed.csv`: oltre 30 Barlow/focal extender.
+- `light_pollution_seed.csv`: lookup locale iniziale per Bortle, sky brightness, limiting magnitude, source e confidence.
+- `object_images_seed.csv` e `object_descriptions_seed.csv`: asset locali verificati e note osservative per pianeti, Luna e principali Messier.
+
+Le fonti e i limiti sono documentati in `data/DATA_SOURCES.md`. I dati tecnici marcati `To verify` o derivati dal nome modello vanno confermati sulla variante regionale prima di usarli per raccomandazioni d'acquisto.
+
+## Import dati
+
+Gli import CLI non richiedono API key e usano upsert per evitare duplicati:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\import_cities.py astro_viewer\data\cities_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_telescope_catalog.py astro_viewer\data\telescope_catalog_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\eyepiece_catalog_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\barlow_catalog_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_light_pollution.py astro_viewer\data\light_pollution_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
+```
+
+Per un catalogo citta completo usare un CSV derivato da GeoNames con i campi documentati in `data/DATA_SOURCES.md`.
+
+## Regole strumenti
+
+- Se non esiste un telescopio configurato o attivo, NightScope usa `Occhio nudo`.
+- In modalita `Occhio nudo`, oculari e Barlow non vengono usati e i suggerimenti non inventano setup.
+- Se esiste un telescopio ma non ci sono oculari, i suggerimenti restano limitati e l'app invita ad aggiungere oculari.
 
 ## Troubleshooting
 

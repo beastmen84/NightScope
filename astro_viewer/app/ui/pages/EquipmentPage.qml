@@ -45,10 +45,10 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.currentSetup.name + "  -  Barlow " + controller.selectedBarlow + "x"
+                        text: controller.equipmentMessage
                         color: theme.textSecondary
                         font.pixelSize: 14
-                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
                     }
                 }
             }
@@ -311,7 +311,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     title: "Catalogo oculari"
-                    subtitle: "Focale e campo apparente"
+                    subtitle: controller.canUseEyepieces ? "Focale e campo apparente" : "Crea o seleziona un telescopio per usarli"
                     accentColor: theme.teal
 
                     Repeater {
@@ -367,7 +367,7 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Oculari e calcoli"
-                subtitle: "Ingrandimento, campo reale e pupilla d'uscita"
+                subtitle: controller.canUseEyepieces ? "Ingrandimento, campo reale e pupilla d'uscita" : "Non disponibili in modalita Occhio nudo"
                 accentColor: theme.violet
 
                 RowLayout {
@@ -378,16 +378,19 @@ Item {
 
                     Button {
                         text: "1x"
+                        enabled: controller.canUseEyepieces
                         onClicked: controller.setBarlow(1.0)
                     }
 
                     Button {
                         text: "Barlow 2x"
+                        enabled: controller.canUseEyepieces
                         onClicked: controller.setBarlow(2.0)
                     }
 
                     Button {
                         text: "Barlow 3x"
+                        enabled: controller.canUseEyepieces
                         onClicked: controller.setBarlow(3.0)
                     }
                 }
@@ -412,6 +415,15 @@ Item {
                         StatusPill { text: modelData.trueField; accentColor: theme.teal }
                         StatusPill { text: modelData.exitPupil; accentColor: theme.amber }
                     }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.telescopeCalculations.length === 0
+                    text: controller.equipmentMessage
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 

@@ -100,6 +100,16 @@ Item {
                 MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
             }
 
+            Text {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                text: controller.skyQuality.source + "  -  confidenza: " + controller.skyQuality.confidence + "  -  seeing: " + controller.seeingTransparency.source + " (" + controller.seeingTransparency.confidence + ")"
+                color: theme.textMuted
+                font.pixelSize: 12
+                wrapMode: Text.WordWrap
+            }
+
             GlassCard {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28

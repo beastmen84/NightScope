@@ -72,7 +72,12 @@ class OpenMeteoWeatherService:
                     "temperature_2m",
                     "relative_humidity_2m",
                     "wind_speed_10m",
+                    "wind_gusts_10m",
                     "visibility",
+                    "dew_point_2m",
+                    "cloud_cover_low",
+                    "cloud_cover_mid",
+                    "cloud_cover_high",
                 ]
             ),
             "forecast_hours": 24,
@@ -153,6 +158,13 @@ class OpenMeteoWeatherService:
                     humidity=_safe_int(_hourly_value(hourly, "relative_humidity_2m", index, 0)),
                     temperature_c=round(_safe_float(_hourly_value(hourly, "temperature_2m", index, 0.0)), 1),
                     visibility_m=_safe_int(_hourly_value(hourly, "visibility", index, 0)),
+                    cloud_cover_low=_safe_int(_hourly_value(hourly, "cloud_cover_low", index, 0)),
+                    cloud_cover_mid=_safe_int(_hourly_value(hourly, "cloud_cover_mid", index, 0)),
+                    cloud_cover_high=_safe_int(_hourly_value(hourly, "cloud_cover_high", index, 0)),
+                    wind_gusts_kmh=round(_safe_float(_hourly_value(hourly, "wind_gusts_10m", index, 0))),
+                    dew_point_c=round(_safe_float(_hourly_value(hourly, "dew_point_2m", index, 0.0)), 1)
+                    if _hourly_value(hourly, "dew_point_2m", index, None) is not None
+                    else None,
                 )
             )
         return hours

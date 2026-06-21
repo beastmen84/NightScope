@@ -10,6 +10,7 @@ class SkyQuality:
     sky_brightness: float
     source: str
     description: str
+    confidence: str = "medium"
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -26,6 +27,8 @@ class SeeingTransparency:
     seeing_score: int
     transparency_score: int
     explanation: str
+    source: str = "BasicForecastSeeingProvider"
+    confidence: str = "medium"
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -80,4 +83,3 @@ class Notification:
         data = asdict(self)
         data["triggerTime"] = self.trigger_time
         return data
-

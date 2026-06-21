@@ -26,7 +26,8 @@ class EquipmentCatalogRepository:
     def models(self, brand_id: int | None = None) -> list[dict]:
         query = """
             SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
-                   tm.aperture_mm, tm.focal_length_mm, tm.mount_type
+                   tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
+                   tm.mount_type, tm.notes
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
         """
@@ -43,7 +44,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, focal_length_mm, apparent_field_deg
+                SELECT id, brand, model, focal_length_mm, apparent_field_deg, barrel_size, notes
                 FROM EyepieceCatalog
                 ORDER BY brand, model, focal_length_mm
                 """
@@ -54,7 +55,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, multiplier
+                SELECT id, brand, model, multiplier, barrel_size, notes
                 FROM BarlowCatalog
                 ORDER BY brand, model, multiplier
                 """
@@ -115,7 +116,8 @@ class EquipmentCatalogRepository:
             row = connection.execute(
                 """
                 SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
-                       tm.aperture_mm, tm.focal_length_mm, tm.mount_type
+                       tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
+                       tm.mount_type, tm.notes
                 FROM TelescopeModel tm
                 JOIN TelescopeBrand tb ON tb.id = tm.brand_id
                 WHERE tb.name = ? AND tm.name = ?
@@ -134,7 +136,8 @@ class EquipmentCatalogRepository:
             "optical_type": row["optical_type"],
             "aperture_mm": row["aperture_mm"],
             "focal_length_mm": row["focal_length_mm"],
+            "focal_ratio": row["focal_ratio"],
             "mount_type": row["mount_type"],
+            "notes": row["notes"],
             "catalog_id": f"catalog:{row['brand']}:{row['name']}",
         }
-

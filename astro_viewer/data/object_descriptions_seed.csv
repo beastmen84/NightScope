@@ -1,0 +1,40 @@
+object_id,short_description,observing_notes,best_seen,difficulty_naked_eye,difficulty_binocular,difficulty_small_scope,difficulty_medium_scope,difficulty_large_scope
+moon,Satellite naturale della Terra con fasi e dettagli terminatore molto evidenti.,Osservare vicino al terminatore per rilievi e crateri. Filtro lunare utile con strumenti medi.,Tutte le fasi tranne Luna piena piena,Facile,Facile,Facile,Facile,Facile
+mercury,Pianeta interno basso sull'orizzonte e visibile solo in finestre crepuscolari.,Richiede orizzonte libero e prudenza vicino al Sole. Non puntare mai vicino al Sole.,Massime elongazioni,Difficile,Difficile,Difficile,Media,Media
+venus,Pianeta brillantissimo con fase osservabile al telescopio.,Ottimo anche da cielo urbano. Usare ingrandimenti moderati quando e alto.,Crepuscolo o alba secondo elongazione,Facile,Facile,Facile,Facile,Facile
+mars,Pianeta rosso con dettagli variabili e fortemente dipendenti dall'opposizione.,Serve seeing stabile. Filtri colorati possono aiutare il contrasto.,Intorno all'opposizione,Media,Media,Media,Facile,Facile
+jupiter,Gigante gassoso luminoso con bande equatoriali e satelliti galileiani.,Molto adatto a telescopi piccoli e medi. Seeing e altezza contano piu della trasparenza.,Quando supera 30 gradi di altezza,Facile,Facile,Facile,Facile,Facile
+saturn,Pianeta con anelli visibili anche con piccoli telescopi.,Richiede ingrandimento medio e seeing stabile. Migliore vicino alla culminazione.,Quando supera 25 gradi di altezza,Media,Media,Facile,Facile,Facile
+uranus,Pianeta esterno visibile come piccolo disco azzurro-verde in telescopio.,Serve puntamento accurato e carta dettagliata. A occhio nudo solo da cieli eccellenti.,Opposizione,Difficile,Difficile,Media,Media,Facile
+neptune,Pianeta esterno debole visibile come piccolo disco bluastro.,Richiede telescopio e identificazione precisa. Poco adatto a cielo urbano.,Opposizione,Non realistico,Difficile,Difficile,Media,Media
+messier-M1,Resto di supernova nella costellazione del Toro.,Oggetto diffuso e relativamente debole. Migliora molto con cielo scuro e trasparenza.,Autunno e inverno,Non realistico,Difficile,Difficile,Media,Media
+messier-M2,Ammasso globulare compatto in Acquario.,In binocolo appare stellare o nebuloso. Telescopi medi iniziano a risolvere il bordo.,Estate e autunno,Difficile,Media,Media,Facile,Facile
+messier-M3,Ammasso globulare brillante nei Cani da Caccia.,Buon target primaverile. Con 150-200 mm mostra granularita e stelle periferiche.,Primavera,Difficile,Media,Media,Facile,Facile
+messier-M4,Ammasso globulare vicino ad Antares.,Basso per molte localita italiane. Richiede orizzonte sud libero e cielo trasparente.,Estate,Difficile,Media,Media,Facile,Facile
+messier-M5,Ammasso globulare luminoso nel Serpente.,Uno dei globulari migliori. Regge ingrandimenti medio-alti con buon seeing.,Primavera ed estate,Difficile,Media,Media,Facile,Facile
+messier-M6,Ammasso aperto grande nello Scorpione.,Meglio a basso ingrandimento o binocolo. Molto penalizzato da orizzonte sud basso.,Estate,Media,Facile,Facile,Facile,Facile
+messier-M7,Ammasso aperto molto esteso nello Scorpione.,Target eccellente per binocolo da cieli meridionali. Troppo ampio per alti ingrandimenti.,Estate,Media,Facile,Facile,Facile,Facile
+messier-M8,Nebulosa Laguna in Sagittario.,Richiede cielo scuro per la nebulosita. Filtro UHC consigliato con telescopio.,Estate,Difficile,Media,Media,Facile,Facile
+messier-M9,Ammasso globulare in Ofiuco.,Piu difficile di M13 o M5. Utile aspettare culminazione e trasparenza buona.,Estate,Non realistico,Difficile,Media,Media,Facile
+messier-M10,Ammasso globulare in Ofiuco.,Visibile con piccoli telescopi come batuffolo. Aperture medie migliorano la risoluzione.,Estate,Difficile,Media,Media,Facile,Facile
+messier-M11,Ammasso aperto Anatra Selvatica nello Scudo.,Molto ricco e gratificante in telescopi piccoli e medi. Buono anche in cielo suburbano.,Estate,Non realistico,Media,Facile,Facile,Facile
+messier-M12,Ammasso globulare in Ofiuco.,Simile a M10 ma leggermente meno concentrato. Richiede ingrandimenti medi.,Estate,Difficile,Media,Media,Facile,Facile
+messier-M13,Grande ammasso globulare di Ercole.,Uno dei migliori oggetti deep sky boreali. In 150-200 mm inizia a risolversi bene.,Primavera ed estate,Difficile,Facile,Facile,Facile,Facile
+messier-M14,Ammasso globulare in Ofiuco.,Oggetto meno brillante e piu compatto. Meglio da cielo buio e con apertura media.,Estate,Non realistico,Difficile,Media,Media,Facile
+messier-M15,Ammasso globulare compatto in Pegaso.,Nucleo brillante e concentrato. Buono target autunnale anche con Luna non troppo invadente.,Autunno,Difficile,Media,Media,Facile,Facile
+messier-M16,Nebulosa Aquila con ammasso associato.,L'ammasso e piu facile della nebulosa. Filtro UHC utile per la componente nebulare.,Estate,Non realistico,Media,Media,Facile,Facile
+messier-M17,Nebulosa Omega in Sagittario.,Una delle nebulose estive migliori. Filtro UHC o OIII migliora molto il contrasto.,Estate,Non realistico,Media,Media,Facile,Facile
+messier-M18,Ammasso aperto piccolo in Sagittario.,Target semplice ma meno spettacolare. Meglio a bassi o medi ingrandimenti.,Estate,Non realistico,Media,Facile,Facile,Facile
+messier-M19,Ammasso globulare in Ofiuco.,Basso e attenuato per osservatori del nord. Richiede cielo trasparente.,Estate,Non realistico,Difficile,Media,Media,Facile
+messier-M20,Nebulosa Trifida in Sagittario.,La nebulosita e difficile in urbano. Richiede cielo scuro e filtro per apprezzare le strutture.,Estate,Non realistico,Difficile,Difficile,Media,Facile
+messier-M21,Ammasso aperto vicino alla Trifida.,Buon target a basso ingrandimento e spesso osservato insieme a M20.,Estate,Non realistico,Media,Facile,Facile,Facile
+messier-M22,Ammasso globulare brillante in Sagittario.,Molto bello se abbastanza alto. Nei cieli mediterranei puo essere spettacolare.,Estate,Difficile,Facile,Facile,Facile,Facile
+messier-M23,Ammasso aperto esteso in Sagittario.,Preferire bassi ingrandimenti. Buon oggetto per binocolo sotto cielo buio.,Estate,Media,Facile,Facile,Facile,Facile
+messier-M24,Nube stellare del Sagittario.,Oggetto enorme e piu adatto a occhio nudo o binocolo da cielo scuro.,Estate,Media,Facile,Facile,Media,Media
+messier-M25,Ammasso aperto in Sagittario.,Luminoso e ampio. Buono per binocolo e piccoli telescopi.,Estate,Media,Facile,Facile,Facile,Facile
+messier-M26,Ammasso aperto nello Scudo.,Meno evidente di M11. Serve cielo discreto per staccarlo dal fondo.,Estate,Non realistico,Media,Media,Facile,Facile
+messier-M27,Nebulosa Manubrio in Volpetta.,Planetaria luminosa e gratificante. Filtro OIII o UHC molto utile.,Estate e autunno,Non realistico,Media,Media,Facile,Facile
+messier-M28,Ammasso globulare in Sagittario.,Vicino al centro galattico e basso per molte localita. Richiede sud libero.,Estate,Non realistico,Difficile,Media,Media,Facile
+messier-M29,Ammasso aperto compatto nel Cigno.,Piccolo e non molto ricco. Si osserva bene a medi ingrandimenti.,Estate,Non realistico,Media,Facile,Facile,Facile
+messier-M30,Ammasso globulare in Capricorno.,Basso e compatto. Meglio vicino alla culminazione con trasparenza buona.,Autunno,Non realistico,Difficile,Media,Media,Facile
+messier-M31,Galassia di Andromeda grande e luminosa.,Oggetto enorme. Binocolo e bassi ingrandimenti sono spesso migliori di alti ingrandimenti.,Autunno,Media,Facile,Facile,Facile,Facile

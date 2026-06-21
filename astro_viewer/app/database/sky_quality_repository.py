@@ -21,7 +21,7 @@ class SkyQualityRepository:
             row = connection.execute(
                 """
                 SELECT location_key, bortle_class, limiting_magnitude,
-                       sky_brightness, source, updated_at
+                       sky_brightness, source, confidence, updated_at
                 FROM SkyQualityEstimate
                 WHERE location_key = ?
                 """,
@@ -36,6 +36,7 @@ class SkyQualityRepository:
         limiting_magnitude: float,
         sky_brightness: float,
         source: str,
+        confidence: str,
         updated_at: str,
     ) -> None:
         with closing(self._connect()) as connection:
@@ -43,17 +44,17 @@ class SkyQualityRepository:
                 """
                 INSERT INTO SkyQualityEstimate (
                     location_key, bortle_class, limiting_magnitude,
-                    sky_brightness, source, updated_at
+                    sky_brightness, source, confidence, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(location_key) DO UPDATE SET
                     bortle_class = excluded.bortle_class,
                     limiting_magnitude = excluded.limiting_magnitude,
                     sky_brightness = excluded.sky_brightness,
                     source = excluded.source,
+                    confidence = excluded.confidence,
                     updated_at = excluded.updated_at
                 """,
-                (location_key, bortle_class, limiting_magnitude, sky_brightness, source, updated_at),
+                (location_key, bortle_class, limiting_magnitude, sky_brightness, source, confidence, updated_at),
             )
             connection.commit()
-

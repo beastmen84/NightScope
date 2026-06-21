@@ -5,6 +5,11 @@ from astro_viewer.app.models.observing import CelestialObject
 
 
 class EquipmentService:
+    NAKED_EYE_ID = "preset:naked-eye"
+
+    def naked_eye_telescope(self) -> Telescope:
+        return Telescope(self.NAKED_EYE_ID, "Occhio nudo", 0, 0, "Occhio nudo", "nessuna")
+
     def beginner_presets(self) -> list[BeginnerPreset]:
         return [
             BeginnerPreset("naked-eye", "Occhio nudo", "Costellazioni e meteore", "Nessuna configurazione richiesta.", "Luna, Venere, Giove, sciami meteorici"),
@@ -15,12 +20,7 @@ class EquipmentService:
         ]
 
     def default_telescopes(self) -> list[Telescope]:
-        return [
-            Telescope("refractor-80", "Rifrattore 80/600", 80, 600, "rifrattore", "altazimutale"),
-            Telescope("newton-150", "Newton 150/750", 150, 750, "Newton", "equatoriale"),
-            Telescope("sct-203", "Schmidt-Cassegrain 203/2032", 203, 2032, "Schmidt-Cassegrain", "GoTo"),
-            Telescope("mak-127", "Maksutov 127/1500", 127, 1500, "Maksutov", "altazimutale GoTo"),
-        ]
+        return []
 
     def default_eyepieces(self) -> list[Eyepiece]:
         return [
@@ -31,6 +31,8 @@ class EquipmentService:
         ]
 
     def calculations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlow: float) -> list[dict]:
+        if not self.has_optical_telescope(telescope) or not eyepieces:
+            return []
         rows = []
         for eyepiece in eyepieces:
             magnification = (telescope.focal_length_mm / eyepiece.focal_length_mm) * barlow
@@ -54,6 +56,17 @@ class EquipmentService:
         eyepieces: list[Eyepiece],
     ) -> dict:
         """Return a practical eyepiece/Barlow suggestion for the selected setup."""
+
+        if not self.has_optical_telescope(telescope):
+            return self._naked_eye_suggestion(celestial_object)
+        if not eyepieces:
+            return {
+                "bestEyepiece": "",
+                "barlow": "No",
+                "difficulty": self._difficulty_without_eyepieces(celestial_object),
+                "alternative": "Aggiungi oculari al profilo",
+                "setupText": "Aggiungi oculari per suggerimenti completi",
+            }
 
         lower_type = celestial_object.object_type.lower()
         magnitude = self._parse_magnitude(celestial_object.magnitude)
@@ -92,6 +105,37 @@ class EquipmentService:
             "alternative": alternative,
             "setupText": f"{preferred.name}" + (f" + {barlow}" if barlow != "No" else ""),
         }
+
+    def has_optical_telescope(self, telescope: Telescope) -> bool:
+        return telescope.id != self.NAKED_EYE_ID and telescope.aperture_mm > 0 and telescope.focal_length_mm > 0
+
+    def can_use_eyepieces(self, telescope: Telescope) -> bool:
+        return self.has_optical_telescope(telescope)
+
+    def _naked_eye_suggestion(self, celestial_object: CelestialObject) -> dict:
+        magnitude = self._parse_magnitude(celestial_object.magnitude)
+        lower_type = celestial_object.object_type.lower()
+        naked_eye_realistic = (
+            celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn"}
+            or magnitude is not None
+            and magnitude <= 5.5
+            and not any(fragment in lower_type for fragment in ("galaxy", "nebula", "globular"))
+        )
+        return {
+            "bestEyepiece": "",
+            "barlow": "No",
+            "difficulty": "Facile" if naked_eye_realistic else "Non adatto a occhio nudo",
+            "alternative": "Binocolo o telescopio consigliato" if not naked_eye_realistic else "Occhio nudo",
+            "setupText": "Occhio nudo" if naked_eye_realistic else "Serve almeno un binocolo o telescopio",
+        }
+
+    def _difficulty_without_eyepieces(self, celestial_object: CelestialObject) -> str:
+        lower_type = celestial_object.object_type.lower()
+        if celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
+            return "Limitata"
+        if "galaxy" in lower_type or "nebula" in lower_type:
+            return "Difficile"
+        return "Media"
 
     @staticmethod
     def _eyepiece_near(eyepieces: list[Eyepiece], focal_length_mm: float) -> Eyepiece:

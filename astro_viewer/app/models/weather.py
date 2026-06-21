@@ -13,6 +13,11 @@ class WeatherHour:
     humidity: int
     temperature_c: float
     visibility_m: int = 0
+    cloud_cover_low: int = 0
+    cloud_cover_mid: int = 0
+    cloud_cover_high: int = 0
+    wind_gusts_kmh: int = 0
+    dew_point_c: float | None = None
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -23,6 +28,11 @@ class WeatherHour:
         data["humidity"] = self.humidity
         data["temperatureC"] = self.temperature_c
         data["visibilityM"] = self.visibility_m
+        data["cloudCoverLow"] = self.cloud_cover_low
+        data["cloudCoverMid"] = self.cloud_cover_mid
+        data["cloudCoverHigh"] = self.cloud_cover_high
+        data["windGustsKmh"] = self.wind_gusts_kmh
+        data["dewPointC"] = self.dew_point_c
         return data
 
 

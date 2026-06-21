@@ -124,15 +124,11 @@ def initialize_database(database_path: Path, schema_path: Path) -> None:
 def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
         connection.executescript(schema_sql)
+        _migrate_database(connection)
+        data_dir = seed_path.parent
         city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
-        if city_count == 0:
-            connection.executemany(
-                """
-                INSERT INTO City (city_name, country, latitude, longitude, timezone)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                SEED_CITIES,
-            )
+        if city_count < 50:
+            _seed_cities(connection, data_dir / "cities_seed.csv")
         messier_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
         if messier_count == 0 and seed_path.exists():
             with seed_path.open("r", encoding="utf-8", newline="") as file:
@@ -167,12 +163,58 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
                 """,
                 rows,
             )
-        _seed_telescope_catalog(connection)
-        _seed_optics_catalog(connection)
-        _seed_object_images(connection)
+        _seed_telescope_catalog(connection, data_dir / "telescope_catalog_seed.csv")
+        _seed_optics_catalog(
+            connection,
+            data_dir / "eyepiece_catalog_seed.csv",
+            data_dir / "barlow_catalog_seed.csv",
+        )
+        _seed_object_images(connection, data_dir / "object_images_seed.csv")
+        _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_default_profiles(connection)
         connection.commit()
     logger.info("Database ready.")
+
+
+def _migrate_database(connection: sqlite3.Connection) -> None:
+    _add_columns(
+        connection,
+        "City",
+        {
+            "ascii_name": "TEXT",
+            "country_code": "TEXT",
+            "admin_region": "TEXT",
+            "population": "INTEGER",
+            "search_name": "TEXT",
+        },
+    )
+    _add_columns(connection, "TelescopeModel", {"focal_ratio": "REAL", "notes": "TEXT"})
+    _add_columns(connection, "EyepieceCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
+    _add_columns(
+        connection,
+        "ObjectImages",
+        {
+            "thumbnail_path": "TEXT",
+            "source_url": "TEXT",
+            "license": "TEXT",
+            "verified": "INTEGER NOT NULL DEFAULT 0",
+        },
+    )
+    connection.execute("CREATE INDEX IF NOT EXISTS idx_city_search_name ON City(search_name)")
+    connection.execute("CREATE INDEX IF NOT EXISTS idx_city_country_code ON City(country_code)")
+    connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_city_unique_name_country ON City(city_name, country)")
+
+
+def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[str, str]) -> None:
+    existing = {
+        row[1]
+        for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+    }
+    for column_name, definition in columns.items():
+        if column_name not in existing:
+            connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
 
 
 def _database_is_healthy(database_path: Path) -> bool:
@@ -231,14 +273,70 @@ def _optional_float(value: str) -> float | None:
         return None
 
 
-def _seed_telescope_catalog(connection: sqlite3.Connection) -> None:
-    brand_count = connection.execute("SELECT COUNT(*) FROM TelescopeBrand").fetchone()[0]
-    if brand_count == 0:
-        connection.executemany("INSERT INTO TelescopeBrand (name) VALUES (?)", [(name,) for name in TELESCOPE_BRANDS])
+def _optional_int(value: str) -> int | None:
+    clean_value = value.strip()
+    if not clean_value:
+        return None
+    try:
+        return int(float(clean_value))
+    except ValueError:
+        return None
 
-    model_count = connection.execute("SELECT COUNT(*) FROM TelescopeModel").fetchone()[0]
-    if model_count != 0:
-        return
+
+def _seed_cities(connection: sqlite3.Connection, city_seed_path: Path) -> None:
+    if city_seed_path.exists():
+        with city_seed_path.open("r", encoding="utf-8", newline="") as file:
+            rows = [
+                (
+                    row["city_name"],
+                    row.get("ascii_name") or row["city_name"],
+                    row["country"],
+                    row.get("country_code", ""),
+                    row.get("admin_region", ""),
+                    float(row["latitude"]),
+                    float(row["longitude"]),
+                    row["timezone"],
+                    _optional_int(row.get("population", "")),
+                    row.get("search_name") or _search_name(row["city_name"], row.get("ascii_name", "")),
+                )
+                for row in csv.DictReader(file)
+            ]
+    else:
+        rows = [
+            (city, city, country, "", "", latitude, longitude, timezone, None, _search_name(city, ""))
+            for city, country, latitude, longitude, timezone in SEED_CITIES
+        ]
+    connection.executemany(
+        """
+        INSERT INTO City (
+            city_name, ascii_name, country, country_code, admin_region,
+            latitude, longitude, timezone, population, search_name
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(city_name, country) DO UPDATE SET
+            ascii_name = excluded.ascii_name,
+            country_code = excluded.country_code,
+            admin_region = excluded.admin_region,
+            latitude = excluded.latitude,
+            longitude = excluded.longitude,
+            timezone = excluded.timezone,
+            population = excluded.population,
+            search_name = excluded.search_name
+        """,
+        rows,
+    )
+
+
+def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:
+    catalog_rows = _telescope_catalog_rows(catalog_path)
+    brand_names = sorted({row[0] for row in catalog_rows} | set(TELESCOPE_BRANDS))
+    brand_count = connection.execute("SELECT COUNT(*) FROM TelescopeBrand").fetchone()[0]
+    if brand_count < len(brand_names):
+        connection.executemany(
+            "INSERT OR IGNORE INTO TelescopeBrand (name) VALUES (?)",
+            [(name,) for name in brand_names],
+        )
+
     brand_ids = {
         row[1]: row[0]
         for row in connection.execute("SELECT id, name FROM TelescopeBrand").fetchall()
@@ -246,49 +344,180 @@ def _seed_telescope_catalog(connection: sqlite3.Connection) -> None:
     connection.executemany(
         """
         INSERT INTO TelescopeModel (
-            brand_id, name, optical_type, aperture_mm, focal_length_mm, mount_type
+            brand_id, name, optical_type, aperture_mm, focal_length_mm,
+            focal_ratio, mount_type, notes
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(brand_id, name) DO UPDATE SET
+            optical_type = excluded.optical_type,
+            aperture_mm = excluded.aperture_mm,
+            focal_length_mm = excluded.focal_length_mm,
+            focal_ratio = excluded.focal_ratio,
+            mount_type = excluded.mount_type,
+            notes = excluded.notes
         """,
         [
-            (brand_ids[brand], name, optical_type, aperture, focal, mount)
-            for brand, name, optical_type, aperture, focal, mount in TELESCOPE_MODELS
+            (brand_ids[brand], name, optical_type, aperture, focal, ratio, mount, notes)
+            for brand, name, optical_type, aperture, focal, ratio, mount, notes in catalog_rows
         ],
     )
 
 
-def _seed_optics_catalog(connection: sqlite3.Connection) -> None:
-    eyepiece_count = connection.execute("SELECT COUNT(*) FROM EyepieceCatalog").fetchone()[0]
-    if eyepiece_count == 0:
-        connection.executemany(
-            """
-            INSERT INTO EyepieceCatalog (brand, model, focal_length_mm, apparent_field_deg)
-            VALUES (?, ?, ?, ?)
-            """,
-            EYEPIECE_CATALOG,
-        )
+def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
+    if catalog_path and catalog_path.exists():
+        with catalog_path.open("r", encoding="utf-8", newline="") as file:
+            return [
+                (
+                    row["brand"],
+                    row["model"],
+                    row["optical_type"],
+                    int(float(row["aperture_mm"])),
+                    int(float(row["focal_length_mm"])),
+                    _optional_float(row.get("focal_ratio", "")),
+                    row["mount_type"],
+                    row.get("notes", ""),
+                )
+                for row in csv.DictReader(file)
+            ]
+    return [
+        (brand, name, optical_type, aperture, focal, round(focal / aperture, 1), mount, "Legacy NightScope seed.")
+        for brand, name, optical_type, aperture, focal, mount in TELESCOPE_MODELS
+    ]
 
-    barlow_count = connection.execute("SELECT COUNT(*) FROM BarlowCatalog").fetchone()[0]
-    if barlow_count == 0:
-        connection.executemany(
-            """
-            INSERT INTO BarlowCatalog (brand, model, multiplier)
-            VALUES (?, ?, ?)
-            """,
-            BARLOW_CATALOG,
-        )
+
+def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | None = None, barlow_path: Path | None = None) -> None:
+    connection.executemany(
+        """
+        INSERT INTO EyepieceCatalog (brand, model, focal_length_mm, apparent_field_deg, barrel_size, notes)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
+            apparent_field_deg = excluded.apparent_field_deg,
+            barrel_size = excluded.barrel_size,
+            notes = excluded.notes
+        """,
+        _eyepiece_catalog_rows(eyepiece_path),
+    )
+
+    connection.executemany(
+        """
+        INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(brand, model, multiplier) DO UPDATE SET
+            barrel_size = excluded.barrel_size,
+            notes = excluded.notes
+        """,
+        _barlow_catalog_rows(barlow_path),
+    )
 
 
-def _seed_object_images(connection: sqlite3.Connection) -> None:
-    image_count = connection.execute("SELECT COUNT(*) FROM ObjectImages").fetchone()[0]
-    if image_count == 0:
-        connection.executemany(
-            """
-            INSERT INTO ObjectImages (object_id, image_path, attribution)
-            VALUES (?, ?, ?)
-            """,
-            OBJECT_IMAGES,
+def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
+    if eyepiece_path and eyepiece_path.exists():
+        with eyepiece_path.open("r", encoding="utf-8", newline="") as file:
+            return [
+                (
+                    row["brand"],
+                    row["model"],
+                    float(row["focal_length_mm"]),
+                    float(row["apparent_field_deg"]),
+                    row.get("barrel_size", ""),
+                    row.get("notes", ""),
+                )
+                for row in csv.DictReader(file)
+            ]
+    return [(brand, model, focal, field, "", "Legacy NightScope seed.") for brand, model, focal, field in EYEPIECE_CATALOG]
+
+
+def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:
+    if barlow_path and barlow_path.exists():
+        with barlow_path.open("r", encoding="utf-8", newline="") as file:
+            return [
+                (
+                    row["brand"],
+                    row["model"],
+                    float(row["multiplier"]),
+                    row.get("barrel_size", ""),
+                    row.get("notes", ""),
+                )
+                for row in csv.DictReader(file)
+            ]
+    return [(brand, model, multiplier, "", "Legacy NightScope seed.") for brand, model, multiplier in BARLOW_CATALOG]
+
+
+def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None = None) -> None:
+    connection.executemany(
+        """
+        INSERT INTO ObjectImages (
+            object_id, image_path, thumbnail_path, attribution, source_url, license, verified
         )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(object_id) DO UPDATE SET
+            image_path = excluded.image_path,
+            thumbnail_path = excluded.thumbnail_path,
+            attribution = excluded.attribution,
+            source_url = excluded.source_url,
+            license = excluded.license,
+            verified = excluded.verified
+        """,
+        _object_image_rows(images_path),
+    )
+
+
+def _object_image_rows(images_path: Path | None) -> list[tuple]:
+    if images_path and images_path.exists():
+        with images_path.open("r", encoding="utf-8", newline="") as file:
+            return [
+                (
+                    row["object_id"],
+                    row["image_path"],
+                    row.get("thumbnail_path", ""),
+                    row["attribution"],
+                    row.get("source_url", ""),
+                    row.get("license", ""),
+                    1 if str(row.get("verified", "")).strip().lower() in {"1", "true", "yes"} else 0,
+                )
+                for row in csv.DictReader(file)
+            ]
+    return [(object_id, image_path, image_path, attribution, "", "NightScope local generated asset", 1) for object_id, image_path, attribution in OBJECT_IMAGES]
+
+
+def _seed_object_descriptions(connection: sqlite3.Connection, descriptions_path: Path | None = None) -> None:
+    if not descriptions_path or not descriptions_path.exists():
+        return
+    with descriptions_path.open("r", encoding="utf-8", newline="") as file:
+        rows = [
+            (
+                row["object_id"],
+                row["short_description"],
+                row["observing_notes"],
+                row.get("best_seen", ""),
+                row.get("difficulty_naked_eye", ""),
+                row.get("difficulty_binocular", ""),
+                row.get("difficulty_small_scope", ""),
+                row.get("difficulty_medium_scope", ""),
+                row.get("difficulty_large_scope", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
+    connection.executemany(
+        """
+        INSERT INTO ObjectDescription (
+            object_id, short_description, observing_notes, best_seen,
+            difficulty_naked_eye, difficulty_binocular, difficulty_small_scope,
+            difficulty_medium_scope, difficulty_large_scope
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(object_id) DO UPDATE SET
+            short_description = excluded.short_description,
+            observing_notes = excluded.observing_notes,
+            best_seen = excluded.best_seen,
+            difficulty_naked_eye = excluded.difficulty_naked_eye,
+            difficulty_binocular = excluded.difficulty_binocular,
+            difficulty_small_scope = excluded.difficulty_small_scope,
+            difficulty_medium_scope = excluded.difficulty_medium_scope,
+            difficulty_large_scope = excluded.difficulty_large_scope
+        """,
+        rows,
+    )
 
 
 def _seed_default_profiles(connection: sqlite3.Connection) -> None:
@@ -300,11 +529,13 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
             VALUES (?, ?, ?)
             """,
             [
-                ("NexStar 130SLT", 1, "catalog:Celestron:NexStar 130SLT"),
-                ("Dobson 200P", 0, "catalog:Sky-Watcher:Classic 200P Dobson"),
-                ("Binocolo 10x50", 0, "preset:binoculars"),
+                ("Occhio nudo", 1, "preset:naked-eye"),
             ],
         )
+
+
+def _search_name(city_name: str, ascii_name: str) -> str:
+    return " ".join({city_name.lower(), ascii_name.lower()}).strip()
 
 
 if __name__ == "__main__":

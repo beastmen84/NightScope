@@ -18,7 +18,7 @@ from astro_viewer.app.database.object_image_repository import ObjectImageReposit
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
-from astro_viewer.app.models.equipment import Telescope
+from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
@@ -73,7 +73,10 @@ class AppController(QObject):
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._score_service = ObservingScoreService()
-        self._light_pollution_service = LightPollutionService(self._sky_quality_repository)
+        self._light_pollution_service = LightPollutionService(
+            self._sky_quality_repository,
+            dataset_path=base_dir / "data" / "light_pollution_seed.csv",
+        )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
         self._night_planner_service = NightPlannerService()
@@ -110,10 +113,17 @@ class AppController(QObject):
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
+        self._object_image_map = {item["object_id"]: item for item in self._object_images}
+        self._object_descriptions = self._object_image_repository.descriptions()
         self._telescopes: list[Telescope] = self._initial_telescopes()
-        self._eyepieces = self._equipment_service.default_eyepieces()
         self._selected_telescope_index = self._initial_telescope_index()
+        self._eyepieces = (
+            self._equipment_service.default_eyepieces()
+            if self._equipment_service.can_use_eyepieces(self._current_telescope())
+            else []
+        )
         self._barlow = 1.0
+        self._equipment_message = self._equipment_status_message()
 
         self._refresh_all()
 
@@ -136,6 +146,10 @@ class AppController(QObject):
     @Property("QVariant", notify=locationChanged)
     def locationDetails(self) -> dict:
         return self._location_detection_result.to_qml() if self._location_detection_result else {}
+
+    @Property(bool, notify=locationChanged)
+    def hasValidLocation(self) -> bool:
+        return self._has_valid_location()
 
     @Property(bool, notify=statusChanged)
     def isLoading(self) -> bool:
@@ -286,6 +300,14 @@ class AppController(QObject):
     def eyepieces(self) -> list[dict]:
         return [eyepiece.to_qml() for eyepiece in self._eyepieces]
 
+    @Property(bool, notify=equipmentChanged)
+    def canUseEyepieces(self) -> bool:
+        return self._equipment_service.can_use_eyepieces(self._current_telescope())
+
+    @Property(str, notify=equipmentChanged)
+    def equipmentMessage(self) -> str:
+        return self._equipment_message
+
     @Property("QVariant", notify=equipmentChanged)
     def currentSetup(self) -> dict:
         return self._current_telescope().to_qml()
@@ -384,6 +406,11 @@ class AppController(QObject):
     def selectEquipmentSetup(self, index: int) -> None:
         if 0 <= index < len(self._telescopes):
             self._selected_telescope_index = index
+            if not self.canUseEyepieces:
+                self._eyepieces = []
+            elif not self._eyepieces:
+                self._eyepieces = self._equipment_service.default_eyepieces()
+            self._equipment_message = self._equipment_status_message()
             self._apply_equipment_to_current_objects()
             self.equipmentChanged.emit()
             self.dataChanged.emit()
@@ -391,8 +418,36 @@ class AppController(QObject):
 
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di usare oculari o Barlow."
+            self.equipmentChanged.emit()
+            return
         self._barlow = barlow
         self.equipmentChanged.emit()
+
+    @Slot(str, str, str)
+    def addEyepiece(self, name: str, focal: str, apparent_field: str) -> None:
+        if not self.canUseEyepieces:
+            self._equipment_message = "Crea o seleziona un telescopio prima di aggiungere oculari."
+            self.equipmentChanged.emit()
+            return
+        try:
+            focal_mm = float(focal.replace(",", "."))
+            apparent_deg = float(apparent_field.replace(",", "."))
+        except ValueError:
+            self._equipment_message = "Dati oculare non validi."
+            self.equipmentChanged.emit()
+            return
+        clean_name = name.strip() or f"Oculare {focal_mm:g} mm"
+        if focal_mm <= 0 or apparent_deg <= 0:
+            self._equipment_message = "Focale e campo apparente devono essere maggiori di zero."
+            self.equipmentChanged.emit()
+            return
+        self._eyepieces.append(Eyepiece(f"custom-eyepiece-{len(self._eyepieces) + 1}", clean_name, focal_mm, apparent_deg))
+        self._equipment_message = self._equipment_status_message()
+        self._apply_equipment_to_current_objects()
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
 
     @Slot(str, str, str, str, str)
     def addTelescope(self, name: str, aperture: str, focal: str, optical_type: str, mount: str) -> None:
@@ -414,6 +469,9 @@ class AppController(QObject):
         )
         self._telescopes.append(telescope)
         self._selected_telescope_index = len(self._telescopes) - 1
+        if not self._eyepieces:
+            self._eyepieces = self._equipment_service.default_eyepieces()
+        self._equipment_message = self._equipment_status_message()
         self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._apply_equipment_to_current_objects()
@@ -428,6 +486,9 @@ class AppController(QObject):
         telescope = self._telescope_from_catalog_model(model)
         self._telescopes.append(telescope)
         self._selected_telescope_index = len(self._telescopes) - 1
+        if not self._eyepieces:
+            self._eyepieces = self._equipment_service.default_eyepieces()
+        self._equipment_message = self._equipment_status_message()
         clean_name = profile_name.strip() or telescope.name
         self._equipment_catalog_repository.add_profile(clean_name, telescope.id, active=True)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
@@ -441,6 +502,11 @@ class AppController(QObject):
         self._equipment_catalog_repository.set_active_profile(profile_id)
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._selected_telescope_index = self._initial_telescope_index()
+        if self.canUseEyepieces and not self._eyepieces:
+            self._eyepieces = self._equipment_service.default_eyepieces()
+        if not self.canUseEyepieces:
+            self._eyepieces = []
+        self._equipment_message = self._equipment_status_message()
         self._apply_equipment_to_current_objects()
         self.equipmentChanged.emit()
         self.dataChanged.emit()
@@ -515,7 +581,7 @@ class AppController(QObject):
         if not self._has_valid_location():
             logger.warning("Weather refresh skipped because no valid location is available.")
             self._weather_hours = []
-            self._weather_status = "Location unavailable. Weather not loaded."
+            self._weather_status = "Configura una posizione per verificare il meteo."
             self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
             return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
@@ -618,16 +684,43 @@ class AppController(QObject):
         updated = []
         for item in objects:
             suggestion = self._equipment_service.suggest_for_object(item, telescope, self._eyepieces)
+            naked_eye_blocked = (
+                not self._equipment_service.has_optical_telescope(telescope)
+                and suggestion["setupText"].startswith("Serve almeno")
+            )
             updated.append(
-                replace(
-                    item,
-                    recommended_setup=suggestion["setupText"],
-                    best_eyepiece=suggestion["bestEyepiece"],
-                    barlow=suggestion["barlow"],
-                    difficulty=suggestion["difficulty"],
+                self._apply_object_content(
+                    replace(
+                        item,
+                        visible=item.visible and not naked_eye_blocked,
+                        score=max(0, item.score - 45) if naked_eye_blocked else item.score,
+                        recommended_setup=suggestion["setupText"],
+                        best_eyepiece=suggestion["bestEyepiece"],
+                        barlow=suggestion["barlow"],
+                        difficulty=suggestion["difficulty"],
+                    )
                 )
             )
         return updated
+
+    def _apply_object_content(self, item: CelestialObject) -> CelestialObject:
+        image = self._object_image_map.get(item.id)
+        description = self._object_descriptions.get(item.id)
+        if not image and item.id.startswith("messier-"):
+            if "galaxy" in item.object_type.lower() or "galassia" in item.object_type.lower():
+                image = self._object_image_map.get("messier-default-galaxy")
+            elif "nebula" in item.object_type.lower() or "nebul" in item.object_type.lower():
+                image = self._object_image_map.get("messier-default-nebula")
+            else:
+                image = self._object_image_map.get("messier-default-cluster")
+        notes = item.notes
+        if description:
+            notes = f"{description['observing_notes']} {item.notes}".strip()
+        return replace(
+            item,
+            image=image["image_path"] if image else item.image,
+            notes=notes,
+        )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         if not self._sky_quality or self._sky_quality.bortle_class < 8:
@@ -838,7 +931,7 @@ class AppController(QObject):
             telescope = self._telescope_from_profile(active_profile, telescopes)
             if telescope and all(existing.id != telescope.id for existing in telescopes):
                 telescopes.insert(0, telescope)
-        return telescopes
+        return telescopes or [self._equipment_service.naked_eye_telescope()]
 
     def _initial_telescope_index(self) -> int:
         active_profile = self._equipment_catalog_repository.active_profile()
@@ -856,6 +949,8 @@ class AppController(QObject):
 
     def _telescope_from_profile(self, profile: dict, existing_telescopes: list[Telescope]) -> Telescope | None:
         telescope_id = profile["telescope_id"]
+        if telescope_id == "preset:naked-eye":
+            return self._equipment_service.naked_eye_telescope()
         if telescope_id == "preset:binoculars":
             return Telescope("preset:binoculars", "Binocolo 10x50", 50, 500, "Binocolo", "manuale")
         if telescope_id.startswith("custom-"):
@@ -877,6 +972,14 @@ class AppController(QObject):
             mount=model["mount_type"],
         )
 
+    def _equipment_status_message(self) -> str:
+        telescope = self._current_telescope()
+        if not self._equipment_service.has_optical_telescope(telescope):
+            return "Modalita Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow."
+        if not self._eyepieces:
+            return "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi."
+        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(self._eyepieces)}."
+
     def _zone(self) -> ZoneInfo:
         try:
             return ZoneInfo(self._location.timezone)
@@ -884,7 +987,15 @@ class AppController(QObject):
             return ZoneInfo("UTC")
 
     @staticmethod
-    def _location_to_qml(location: ObserverLocation) -> dict:
+    def _location_to_qml(location: ObserverLocation | None) -> dict:
+        if not location:
+            return {
+                "city": "",
+                "country": "",
+                "latitude": 0.0,
+                "longitude": 0.0,
+                "timezone": "",
+            }
         return {
             "city": location.city,
             "country": location.country,

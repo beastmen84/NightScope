@@ -1,0 +1,73 @@
+from __future__ import annotations
+
+from import_utils import parser, read_rows, run_import
+
+
+EYEPIECE_REQUIRED = {"brand", "model", "focal_length_mm", "apparent_field_deg"}
+BARLOW_REQUIRED = {"brand", "model", "multiplier"}
+
+
+def main() -> None:
+    args = parser("Import eyepiece catalog CSV").parse_args()
+    rows = read_rows(args.csv_path, {"brand", "model"})
+    fieldnames = set(rows[0].keys()) if rows else set()
+    if EYEPIECE_REQUIRED <= fieldnames:
+        run_import(args.database, lambda connection: _import_eyepieces(connection, rows))
+    elif BARLOW_REQUIRED <= fieldnames:
+        run_import(args.database, lambda connection: _import_barlows(connection, rows))
+    else:
+        raise ValueError("CSV must contain eyepiece columns or Barlow columns.")
+
+
+def _import_eyepieces(connection, rows: list[dict]) -> int:
+    connection.executemany(
+        """
+        INSERT INTO EyepieceCatalog (
+            brand, model, focal_length_mm, apparent_field_deg, barrel_size, notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
+            apparent_field_deg = excluded.apparent_field_deg,
+            barrel_size = excluded.barrel_size,
+            notes = excluded.notes
+        """,
+        [
+            (
+                row["brand"],
+                row["model"],
+                float(row["focal_length_mm"]),
+                float(row["apparent_field_deg"]),
+                row.get("barrel_size", ""),
+                row.get("notes", ""),
+            )
+            for row in rows
+        ],
+    )
+    return len(rows)
+
+
+def _import_barlows(connection, rows: list[dict]) -> int:
+    connection.executemany(
+        """
+        INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(brand, model, multiplier) DO UPDATE SET
+            barrel_size = excluded.barrel_size,
+            notes = excluded.notes
+        """,
+        [
+            (
+                row["brand"],
+                row["model"],
+                float(row["multiplier"]),
+                row.get("barrel_size", ""),
+                row.get("notes", ""),
+            )
+            for row in rows
+        ],
+    )
+    return len(rows)
+
+
+if __name__ == "__main__":
+    main()
