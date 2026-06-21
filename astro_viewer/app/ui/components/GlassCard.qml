@@ -1,0 +1,67 @@
+import QtQuick
+import QtQuick.Layouts
+
+Rectangle {
+    id: root
+
+    property string title: ""
+    property string subtitle: ""
+    property color accentColor: "#65d6e8"
+    default property alias content: contentColumn.data
+
+    color: "#171a20"
+    border.color: "#303641"
+    border.width: 1
+    radius: 8
+    implicitHeight: cardLayout.implicitHeight + 32
+
+    ColumnLayout {
+        id: cardLayout
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 14
+
+        RowLayout {
+            visible: root.title.length > 0 || root.subtitle.length > 0
+            Layout.fillWidth: true
+            spacing: 10
+
+            Rectangle {
+                Layout.preferredWidth: 4
+                Layout.preferredHeight: 28
+                radius: 2
+                color: root.accentColor
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.title
+                    color: "#f4f7fb"
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: root.subtitle.length > 0
+                    text: root.subtitle
+                    color: "#aeb7c4"
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+            }
+        }
+
+        ColumnLayout {
+            id: contentColumn
+            Layout.fillWidth: true
+            spacing: 12
+        }
+    }
+}
+

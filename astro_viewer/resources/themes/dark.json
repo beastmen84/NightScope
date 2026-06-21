@@ -1,0 +1,12 @@
+{
+  "name": "NightScope Dark",
+  "background": "#0f1014",
+  "surface": "#171a20",
+  "surfaceRaised": "#20242b",
+  "textPrimary": "#f4f7fb",
+  "textSecondary": "#aeb7c4",
+  "accentCyan": "#65d6e8",
+  "accentTeal": "#6ee7b7",
+  "accentAmber": "#f6c768"
+}
+

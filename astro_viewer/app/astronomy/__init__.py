@@ -1,0 +1,2 @@
+"""Astronomical calculation boundary."""
+
