@@ -30,6 +30,14 @@ Applicazione desktop Windows per astronomia osservativa, costruita con Python, P
 - Calcoli strumentali per ingrandimento, campo reale e pupilla d'uscita.
 - Suggerimenti per oculare, Barlow e difficolta osservativa.
 - Storico osservazioni salvato in SQLite dalla pagina dettaglio.
+- Cataloghi locali per telescopi, oculari e Barlow.
+- Profili attrezzatura con cambio rapido del setup attivo.
+- Stima locale di Sky Quality con scala Bortle, magnitudine limite e brillanza cielo.
+- Score separati per Planetary e Deep Sky.
+- Stima seeing e trasparenza da forecast meteo.
+- Night Planner automatico con sequenza osservativa.
+- Sky map minimale per Nord, Sud, Est e Ovest.
+- Notifiche intelligenti generate dal planner.
 
 ## Servizi principali
 
@@ -38,7 +46,15 @@ Applicazione desktop Windows per astronomia osservativa, costruita con Python, P
 - `LocationService`: supporta citta SQLite, coordinate manuali e tentativo WinRT per posizione Windows.
 - `ObservingScoreService`: calcola score osservativo e miglior oggetto della notte.
 - `EquipmentService`: calcola combinazioni telescopio/oculare e suggerimenti osservativi.
+- `LightPollutionService`: stima Bortle offline e cache `SkyQualityEstimate`; boundary isolato per futuri dataset VIIRS/World Atlas.
+- `SeeingTransparencyService`: stima seeing e transparency da vento, nuvole, umidita e visibilita.
+- `AdvancedObservingService`: calcola `Planetary Score` e `Deep Sky Score`.
+- `NightPlannerService`: ordina gli oggetti visibili in una sequenza osservativa.
+- `SkyMapService`: raggruppa target visibili per direzione cardinale.
+- `NotificationService`: genera promemoria osservativi.
 
 ## Note dati
 
 Il catalogo Messier seed e derivato dalla tabella pubblica della pagina Wikipedia "Messier object" e viene salvato localmente per uso offline. I parametri Open-Meteo e le routine Skyfield seguono la documentazione ufficiale corrente.
+
+Per l'inquinamento luminoso sono state valutate fonti pubbliche come VIIRS/DNB e il World Atlas of Artificial Night Sky Brightness. In questa fase l'app usa una stima locale conservativa per garantire uso offline; il servizio e gia separato per sostituire la stima con lookup raster/API senza toccare UI o ViewModel.
