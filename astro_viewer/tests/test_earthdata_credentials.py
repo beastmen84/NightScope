@@ -47,6 +47,8 @@ class EarthdataCredentialStoreTests(unittest.TestCase):
 
             self.assertTrue(state.configured)
             self.assertTrue(state.secure_store_available)
+            self.assertFalse(state.connection_verified)
+            self.assertFalse(state.authorization_required)
             self.assertEqual(state.username, "astro-user")
             self.assertEqual(store.username(), "astro-user")
             self.assertEqual(store.password(), "secret-password")
@@ -68,6 +70,41 @@ class EarthdataCredentialStoreTests(unittest.TestCase):
             self.assertEqual(store.username(), "new-user")
             self.assertEqual(store.password(), "new-password")
             self.assertNotIn(("NightScope Earthdata", "old-user"), backend.passwords)
+
+    def test_connection_status_is_persisted_and_reset_by_save(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            backend = FakeCredentialBackend()
+            store = EarthdataCredentialStore(Path(temp_dir) / "user_preferences.json", backend=backend)
+            store.save("astro-user", "secret-password")
+
+            verified = store.mark_connection_verified("Connessione Earthdata LAADS verificata.")
+
+            self.assertTrue(verified.connection_verified)
+            self.assertFalse(verified.authorization_required)
+            self.assertTrue(store.state().connection_verified)
+
+            saved = store.save("astro-user", "new-password")
+
+            self.assertFalse(saved.connection_verified)
+            self.assertFalse(saved.authorization_required)
+            self.assertFalse(store.state().connection_verified)
+
+    def test_authorization_required_state_is_persisted_until_success(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            backend = FakeCredentialBackend()
+            store = EarthdataCredentialStore(Path(temp_dir) / "user_preferences.json", backend=backend)
+            store.save("astro-user", "secret-password")
+
+            authorization_required = store.mark_authorization_required("Autorizza l'app LAADS OPeNDAP.")
+
+            self.assertFalse(authorization_required.connection_verified)
+            self.assertTrue(authorization_required.authorization_required)
+            self.assertTrue(store.state().authorization_required)
+
+            verified = store.mark_connection_verified("Connessione Earthdata LAADS verificata.")
+
+            self.assertTrue(verified.connection_verified)
+            self.assertFalse(verified.authorization_required)
 
     def test_rejects_empty_credentials(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -92,6 +129,7 @@ class EarthdataConnectionTesterTests(unittest.TestCase):
             result = tester.test("astro-user", "secret-password")
 
         self.assertFalse(result.ok)
+        self.assertTrue(result.authorization_required)
         self.assertIn("Autorizza l'app LAADS OPeNDAP", result.message)
 
 

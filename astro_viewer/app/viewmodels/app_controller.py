@@ -58,7 +58,7 @@ class AppController(QObject):
     observationChanged = Signal()
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
-    _earthdataConnectionTestFinished = Signal(bool, str)
+    _earthdataConnectionTestFinished = Signal(bool, str, bool)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -216,6 +216,14 @@ class AppController(QObject):
     @Property(bool, notify=earthdataCredentialsChanged)
     def earthdataConnectionTestRunning(self) -> bool:
         return self._earthdata_connection_test_running
+
+    @Property(bool, notify=earthdataCredentialsChanged)
+    def earthdataConnectionVerified(self) -> bool:
+        return self._earthdata_credentials_state.connection_verified
+
+    @Property(bool, notify=earthdataCredentialsChanged)
+    def earthdataAuthorizationRequired(self) -> bool:
+        return self._earthdata_credentials_state.authorization_required
 
     @Property(str, constant=True)
     def earthdataAuthorizationUrl(self) -> str:
@@ -599,6 +607,8 @@ class AppController(QObject):
     def testEarthdataConnection(self) -> None:
         if self._earthdata_connection_test_running:
             return
+        if self._earthdata_credentials_state.connection_verified:
+            return
         username = self._earthdata_credential_store.username()
         password = self._earthdata_credential_store.password()
         if not username or not password:
@@ -618,20 +628,22 @@ class AppController(QObject):
         def run_test() -> None:
             try:
                 result = self._earthdata_connection_tester.test(username, password)
-                self._earthdataConnectionTestFinished.emit(result.ok, result.message)
+                self._earthdataConnectionTestFinished.emit(result.ok, result.message, result.authorization_required)
             except Exception:
                 logger.warning("Unexpected Earthdata connection test failure.", exc_info=True)
-                self._earthdataConnectionTestFinished.emit(False, "Connessione Earthdata non riuscita.")
+                self._earthdataConnectionTestFinished.emit(False, "Connessione Earthdata non riuscita.", False)
 
         Thread(target=run_test, daemon=True).start()
 
-    @Slot(bool, str)
-    def _finish_earthdata_connection_test(self, _ok: bool, message: str) -> None:
+    @Slot(bool, str, bool)
+    def _finish_earthdata_connection_test(self, ok: bool, message: str, authorization_required: bool) -> None:
         self._earthdata_connection_test_running = False
-        self._earthdata_credentials_state = replace(
-            self._earthdata_credential_store.state(),
-            message=message,
-        )
+        if ok:
+            self._earthdata_credentials_state = self._earthdata_credential_store.mark_connection_verified(message)
+        elif authorization_required:
+            self._earthdata_credentials_state = self._earthdata_credential_store.mark_authorization_required(message)
+        else:
+            self._earthdata_credentials_state = self._earthdata_credential_store.clear_connection_status(message)
         self.earthdataCredentialsChanged.emit()
 
     @Slot()

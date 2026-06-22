@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Protocol
 
@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 EARTHDATA_SERVICE_NAME = "NightScope Earthdata"
 EARTHDATA_USERNAME_KEY = "earthdata_username"
+EARTHDATA_VERIFIED_USERNAME_KEY = "earthdata_verified_username"
+EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY = "earthdata_authorization_required_username"
 EARTHDATA_OPENDAP_DDS_URL = (
     "https://ladsweb.modaps.eosdis.nasa.gov/opendap/RemoteResources/laads/allData/5200/"
     "VNP46A3/2025/152/VNP46A3.A2025152.h19v04.002.2026064134300.h5.dds"
@@ -38,6 +40,8 @@ class EarthdataCredentialState:
     username: str = ""
     configured: bool = False
     secure_store_available: bool = False
+    connection_verified: bool = False
+    authorization_required: bool = False
     message: str = "Credenziali Earthdata non configurate."
 
 
@@ -45,6 +49,7 @@ class EarthdataCredentialState:
 class EarthdataConnectionResult:
     ok: bool
     message: str
+    authorization_required: bool = False
 
 
 class EarthdataCredentialStore:
@@ -62,6 +67,7 @@ class EarthdataCredentialStore:
     def state(self) -> EarthdataCredentialState:
         username = self.username()
         secure_store_available = self.secure_store_available
+        payload = self._read_json(self._preferences_path)
         if not secure_store_available:
             return EarthdataCredentialState(
                 username=username,
@@ -70,11 +76,26 @@ class EarthdataCredentialStore:
                 message="Archivio credenziali di sistema non disponibile.",
             )
         configured = bool(username and self.password())
-        message = "Credenziali Earthdata configurate." if configured else "Credenziali Earthdata non configurate."
+        connection_verified = configured and payload.get(EARTHDATA_VERIFIED_USERNAME_KEY) == username
+        authorization_required = (
+            configured
+            and not connection_verified
+            and payload.get(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY) == username
+        )
+        if connection_verified:
+            message = "Connessione Earthdata LAADS verificata."
+        elif authorization_required:
+            message = "Autorizza l'app LAADS OPeNDAP, poi ripeti il test."
+        elif configured:
+            message = "Credenziali Earthdata salvate. Esegui il test connessione."
+        else:
+            message = "Credenziali Earthdata non configurate."
         return EarthdataCredentialState(
             username=username,
             configured=configured,
             secure_store_available=True,
+            connection_verified=connection_verified,
+            authorization_required=authorization_required,
             message=message,
         )
 
@@ -115,12 +136,14 @@ class EarthdataCredentialStore:
 
         payload = self._read_json(self._preferences_path)
         payload[EARTHDATA_USERNAME_KEY] = clean_username
+        payload.pop(EARTHDATA_VERIFIED_USERNAME_KEY, None)
+        payload.pop(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY, None)
         self._write_json(self._preferences_path, payload)
         return EarthdataCredentialState(
             username=clean_username,
             configured=True,
             secure_store_available=True,
-            message="Credenziali Earthdata salvate nel vault di sistema.",
+            message="Credenziali Earthdata salvate. Esegui il test connessione.",
         )
 
     def remove(self) -> EarthdataCredentialState:
@@ -129,6 +152,8 @@ class EarthdataCredentialStore:
             self._delete_backend_password(username)
         payload = self._read_json(self._preferences_path)
         payload.pop(EARTHDATA_USERNAME_KEY, None)
+        payload.pop(EARTHDATA_VERIFIED_USERNAME_KEY, None)
+        payload.pop(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY, None)
         self._write_json(self._preferences_path, payload)
         return EarthdataCredentialState(
             username="",
@@ -136,6 +161,29 @@ class EarthdataCredentialStore:
             secure_store_available=self.secure_store_available,
             message="Credenziali Earthdata rimosse.",
         )
+
+    def mark_connection_verified(self, message: str) -> EarthdataCredentialState:
+        username = self.username()
+        payload = self._read_json(self._preferences_path)
+        payload[EARTHDATA_VERIFIED_USERNAME_KEY] = username
+        payload.pop(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY, None)
+        self._write_json(self._preferences_path, payload)
+        return replace(self.state(), message=message)
+
+    def mark_authorization_required(self, message: str) -> EarthdataCredentialState:
+        username = self.username()
+        payload = self._read_json(self._preferences_path)
+        payload[EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY] = username
+        payload.pop(EARTHDATA_VERIFIED_USERNAME_KEY, None)
+        self._write_json(self._preferences_path, payload)
+        return replace(self.state(), message=message)
+
+    def clear_connection_status(self, message: str) -> EarthdataCredentialState:
+        payload = self._read_json(self._preferences_path)
+        payload.pop(EARTHDATA_VERIFIED_USERNAME_KEY, None)
+        payload.pop(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY, None)
+        self._write_json(self._preferences_path, payload)
+        return replace(self.state(), message=message)
 
     def _delete_backend_password(self, username: str) -> None:
         if self._backend is None:
@@ -209,6 +257,7 @@ class EarthdataConnectionTester:
             return EarthdataConnectionResult(
                 False,
                 "Autorizza l'app LAADS OPeNDAP, poi ripeti il test.",
+                authorization_required=True,
             )
         if "Earthdata Login" in response.text:
             return EarthdataConnectionResult(False, "Login Earthdata non riuscito. Verifica username e password.")

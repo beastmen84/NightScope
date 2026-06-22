@@ -293,8 +293,8 @@ Item {
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
                     title: "Earthdata NASA"
-                    subtitle: controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS"
-                    accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+                    subtitle: controller.earthdataConnectionVerified ? "Connessione LAADS verificata" : (controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS")
+                    accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
 
                     Connections {
                         target: controller
@@ -310,8 +310,8 @@ Item {
                         spacing: 10
 
                         StatusPill {
-                            text: controller.earthdataConnectionTestRunning ? "Verifica" : (controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback")
-                            accentColor: controller.earthdataConnectionTestRunning ? theme.cyan : (controller.earthdataCredentialsConfigured ? theme.green : theme.amber)
+                            text: controller.earthdataConnectionTestRunning ? "Verifica" : (controller.earthdataConnectionVerified ? "Verificato" : (controller.earthdataAuthorizationRequired ? "Autorizza" : (controller.earthdataCredentialsConfigured ? "Da testare" : "Fallback")))
+                            accentColor: controller.earthdataConnectionTestRunning ? theme.cyan : (controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber))
                         }
 
                         Text {
@@ -364,7 +364,7 @@ Item {
                         DarkButton {
                             Layout.preferredWidth: 148
                             text: controller.earthdataConnectionTestRunning ? "Verifica..." : "Test connessione"
-                            enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning
+                            enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified
                             accentColor: theme.cyan
                             onClicked: controller.testEarthdataConnection()
                         }
@@ -372,7 +372,7 @@ Item {
                         DarkButton {
                             Layout.preferredWidth: 128
                             text: "Autorizza app"
-                            enabled: !controller.earthdataConnectionTestRunning
+                            enabled: controller.earthdataAuthorizationRequired && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified
                             accentColor: theme.violet
                             onClicked: Qt.openUrlExternally(controller.earthdataAuthorizationUrl)
                         }
