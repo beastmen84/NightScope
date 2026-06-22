@@ -8,7 +8,7 @@ Rectangle {
     property color accentColor: "#f6c768"
 
     Layout.fillWidth: true
-    implicitHeight: 88
+    implicitHeight: 112
     radius: 8
     color: "#171a20"
     border.color: "#303641"
@@ -20,24 +20,43 @@ Rectangle {
         spacing: 14
 
         Rectangle {
-            Layout.preferredWidth: 52
-            Layout.preferredHeight: 52
+            Layout.preferredWidth: 88
+            Layout.preferredHeight: 68
             radius: 8
             color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.14)
             border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.45)
 
-            Text {
-                anchors.centerIn: parent
-                text: root.eventData.usefulness
-                color: root.accentColor
-                font.pixelSize: 16
-                font.weight: Font.DemiBold
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 3
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.eventData.date_label
+                    color: root.accentColor
+                    font.pixelSize: 12
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.eventData.best_time
+                    color: "#aeb7c4"
+                    font.pixelSize: 11
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
             }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 4
+            spacing: 6
 
             Text {
                 Layout.fillWidth: true
@@ -48,12 +67,23 @@ Rectangle {
                 elide: Text.ElideRight
             }
 
-            Text {
+            RowLayout {
                 Layout.fillWidth: true
-                text: root.eventData.type + "  -  " + root.eventData.date_label + "  -  " + root.eventData.best_time
-                color: "#aeb7c4"
-                font.pixelSize: 12
-                elide: Text.ElideRight
+                spacing: 8
+
+                StatusPill {
+                    text: root.eventData.type
+                    accentColor: root.accentColor
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.eventData.setup
+                    color: "#aeb7c4"
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
             }
 
             Text {
@@ -62,8 +92,24 @@ Rectangle {
                 color: "#788391"
                 font.pixelSize: 12
                 elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+        }
+
+        Rectangle {
+            Layout.preferredWidth: 44
+            Layout.preferredHeight: 44
+            radius: 8
+            color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.10)
+            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
+
+            Text {
+                anchors.centerIn: parent
+                text: root.eventData.usefulness
+                color: root.accentColor
+                font.pixelSize: 15
+                font.weight: Font.DemiBold
             }
         }
     }
 }
-
