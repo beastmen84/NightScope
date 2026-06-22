@@ -137,7 +137,12 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass.toString(); accentColor: theme.violet }
+                    MetricTile {
+                        visible: controller.skyQuality.hasViirsRadiance
+                        label: "Osservazioni VIIRS"
+                        value: controller.skyQuality.viirsObservationCount + " obs"
+                        accentColor: theme.violet
+                    }
                     MetricTile {
                         label: controller.skyQuality.hasViirsRadiance ? "Radiance VIIRS" : "SQM"
                         value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.viirsRadiance + " nW/cm2 sr" : controller.skyQuality.skyBrightness + " mag/arcsec2"
