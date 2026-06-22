@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from import_utils import parser, read_rows, run_import
+from import_utils import optional_float, parser, read_rows, run_import
 
 
-EYEPIECE_REQUIRED = {"brand", "model", "focal_length_mm", "apparent_field_deg"}
+EYEPIECE_REQUIRED = {"brand", "model", "eyepiece_type", "focal_length_mm", "apparent_field_deg"}
 BARLOW_REQUIRED = {"brand", "model", "multiplier"}
 
 
@@ -23,11 +23,18 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
     connection.executemany(
         """
         INSERT INTO EyepieceCatalog (
-            brand, model, focal_length_mm, apparent_field_deg, barrel_size, notes
+            brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
+            max_focal_length_mm, apparent_field_deg, afov_min, afov_max,
+            barrel_size, notes
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
+            eyepiece_type = excluded.eyepiece_type,
+            min_focal_length_mm = excluded.min_focal_length_mm,
+            max_focal_length_mm = excluded.max_focal_length_mm,
             apparent_field_deg = excluded.apparent_field_deg,
+            afov_min = excluded.afov_min,
+            afov_max = excluded.afov_max,
             barrel_size = excluded.barrel_size,
             notes = excluded.notes
         """,
@@ -35,8 +42,13 @@ def _import_eyepieces(connection, rows: list[dict]) -> int:
             (
                 row["brand"],
                 row["model"],
+                row.get("eyepiece_type", "Fixed") or "Fixed",
                 float(row["focal_length_mm"]),
+                optional_float(row.get("min_focal_length_mm")),
+                optional_float(row.get("max_focal_length_mm")),
                 float(row["apparent_field_deg"]),
+                optional_float(row.get("afov_min")),
+                optional_float(row.get("afov_max")),
                 row.get("barrel_size", ""),
                 row.get("notes", ""),
             )

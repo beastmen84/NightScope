@@ -45,6 +45,9 @@ La build usa `packaging/NightScope.spec` e include:
 - `data/nightscope.db`;
 - `data/schema.sql`;
 - `data/messier_seed.csv`;
+- `data/cities15000.txt`;
+- `data/countryInfo.txt` e `data/admin1CodesASCII.txt`;
+- seed CSV per telescopi, oculari, Barlow, inquinamento luminoso e contenuti oggetti;
 - `data/skyfield/de421.bsp`;
 - icona `resources/icons/nightscope.ico`.
 
@@ -85,10 +88,11 @@ packaging/
 
 I seed locali sono in `data/`:
 
-- `cities_seed.csv`: bootstrap offline compatto con alias tolleranti per ricerche come `Addis`, `Addis Abeba`, `Milan`, `Rome`.
-- `telescope_catalog_seed.csv`: oltre 100 modelli realistici di telescopi.
-- `eyepiece_catalog_seed.csv`: oltre 100 oculari con focale, campo apparente e barrel size.
-- `barlow_catalog_seed.csv`: oltre 30 Barlow/focal extender.
+- `cities15000.txt`: catalogo citta GeoNames incluso nel package.
+- `countryInfo.txt` e `admin1CodesASCII.txt`: arricchimento GeoNames per nomi paese e regioni.
+- `telescope_catalog_seed.csv`: catalogo canonico dei modelli telescopio.
+- `eyepiece_catalog_seed.csv`: catalogo canonico degli oculari, inclusi oculari zoom e range focali.
+- `barlow_catalog_seed.csv`: catalogo canonico di Barlow/focal extender.
 - `light_pollution_seed.csv`: lookup locale iniziale per Bortle, sky brightness, limiting magnitude, source e confidence.
 - `object_images_seed.csv` e `object_descriptions_seed.csv`: asset locali verificati e note osservative per pianeti, Luna e principali Messier.
 
@@ -107,7 +111,7 @@ Gli import CLI non richiedono API key e usano upsert/deduplicazione per evitare 
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
 ```
 
-Per il primo catalogo citta reale usare `cities15000.txt` da GeoNames. NightScope non importa `allCountries.txt`. Il report import include:
+NightScope usa `cities15000.txt` da GeoNames come sorgente citta inclusa nel package. Non importa `allCountries.txt`. Se il file viene sostituito con una versione piu recente, l'avvio rileva size/mtime diversi e ricostruisce il catalogo citta dal dump. Il report import include:
 
 - total rows read;
 - total imported;

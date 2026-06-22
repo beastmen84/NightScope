@@ -2,13 +2,13 @@
 
 ## Cities
 
-`cities_seed.csv` is a compact offline bootstrap seed designed for first-run usability. Production imports should use the official GeoNames geoname table format directly:
+`cities15000.txt` is the packaged city seed and should be extracted from the official GeoNames `cities15000.zip` dump:
 
 - tab-delimited UTF-8 text
 - fields from the GeoNames `geoname` table
 - `name`, `asciiname`, `alternatenames`, WGS84 latitude/longitude, country code, admin codes, population and IANA timezone
 
-For the first real production catalog, use `tools/import_cities.py` with `cities15000.txt` extracted from GeoNames. NightScope intentionally does not import `allCountries.txt`. Optional `countryInfo.txt` and `admin1CodesASCII.txt` enrich country/admin names.
+NightScope intentionally does not import `allCountries.txt`. Packaged `countryInfo.txt` and `admin1CodesASCII.txt` enrich country/admin names. When the packaged `cities15000.txt` changes, the runtime bootstrap rebuilds the city catalog from that file and records the source size/mtime in `DataImportLog`.
 
 The importer deduplicates translated names into aliases. For example, `Addis Ababa` and `Addis Abeba` are one city record with both search terms.
 
@@ -16,7 +16,7 @@ GeoNames publishes dump formats at `https://download.geonames.org/export/dump/re
 
 ## Equipment Catalogs
 
-`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`, and `barlow_catalog_seed.csv` are curated from public manufacturer/catalog specifications and model names. Rows marked `To verify` or `Specs encoded in model name` should be checked against the specific regional product revision before purchase recommendations.
+`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`, and `barlow_catalog_seed.csv` are the canonical seed source for equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment seed rows are not hardcoded in Python. Rows marked `To verify` or `Specs encoded in model name` should be checked against the specific regional product revision before purchase recommendations.
 
 No API keys or vendor-specific private data are included.
 

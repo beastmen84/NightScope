@@ -21,6 +21,7 @@ from astro_viewer.app.services.location_service import (
     _windows_diagnostics_script,
     _windows_geolocation_script,
 )
+from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
 class LocationServiceWindowsTests(unittest.TestCase):
@@ -339,7 +340,9 @@ class _ExplodingCityResolver:
 class _temp_city_repository:
     def __enter__(self) -> CityRepository:
         self._temp_dir = tempfile.TemporaryDirectory()
-        database_path = Path(self._temp_dir.name) / "nightscope.db"
+        temp_path = Path(self._temp_dir.name)
+        write_small_geonames_fixture(temp_path)
+        database_path = temp_path / "nightscope.db"
         base_dir = Path(__file__).resolve().parents[1]
         initialize_database(database_path, base_dir / "data" / "schema.sql")
         self.repository = CityRepository(database_path)

@@ -97,7 +97,7 @@ def reconstruct_merge_events(
 ) -> list[MergeEvent]:
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        schema_path = _copy_baseline_city_seed(base_dir, temp_path)
+        schema_path = _copy_baseline_schema(base_dir, temp_path)
         database_path = temp_path / "nightscope-merge-analysis.db"
         initialize_database(database_path, schema_path)
         connection = sqlite3.connect(database_path)
@@ -113,11 +113,20 @@ def reconstruct_merge_events(
             connection.close()
 
 
-def _copy_baseline_city_seed(base_dir: Path, temp_path: Path) -> Path:
+def _copy_baseline_schema(base_dir: Path, temp_path: Path) -> Path:
     data_dir = base_dir / "data"
     schema_path = temp_path / "schema.sql"
-    shutil.copy2(data_dir / "schema.sql", schema_path)
-    shutil.copy2(data_dir / "cities_seed.csv", temp_path / "cities_seed.csv")
+    seed_files = (
+        "schema.sql",
+        "messier_seed.csv",
+        "telescope_catalog_seed.csv",
+        "eyepiece_catalog_seed.csv",
+        "barlow_catalog_seed.csv",
+        "object_images_seed.csv",
+        "object_descriptions_seed.csv",
+    )
+    for seed_file in seed_files:
+        shutil.copy2(data_dir / seed_file, temp_path / seed_file)
     return schema_path
 
 

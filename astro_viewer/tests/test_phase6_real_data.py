@@ -20,6 +20,7 @@ from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
 class Phase6RealDataTests(unittest.TestCase):
@@ -41,8 +42,8 @@ class Phase6RealDataTests(unittest.TestCase):
             addis_results = [city for city in repository.search("Addis Abeba") if city["country_code"] == "ET"]
             self.assertTrue(any(city["city"] == "Addis Ababa" for city in addis_results))
             self.assertFalse(any(city["city"] == "Addis Abeba" for city in addis_results))
-            self.assertTrue(any(city["city"] == "Milano" for city in repository.search("Milan")))
-            self.assertTrue(any(city["city"] == "Roma" for city in repository.search("Rome")))
+            self.assertTrue(any(city["city"] in {"Milan", "Milano"} for city in repository.search("Milan")))
+            self.assertTrue(any(city["city"] in {"Rome", "Roma"} for city in repository.search("Rome")))
 
     def test_geonames_import_merges_translated_duplicate_names(self) -> None:
         with _temp_database() as database_path, tempfile.TemporaryDirectory() as temp_dir:
@@ -388,7 +389,9 @@ def _geonames_row(
 class _temp_database:
     def __enter__(self) -> Path:
         self._temp_dir = tempfile.TemporaryDirectory()
-        self.path = Path(self._temp_dir.name) / "nightscope.db"
+        temp_path = Path(self._temp_dir.name)
+        write_small_geonames_fixture(temp_path)
+        self.path = temp_path / "nightscope.db"
         base_dir = Path(__file__).resolve().parents[1]
         initialize_database(self.path, base_dir / "data" / "schema.sql")
         return self.path

@@ -44,8 +44,18 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("geonames_path", type=Path, help="GeoNames tab-delimited geoname table file")
     parser.add_argument("--database", type=Path, default=base_dir / "data" / "nightscope.db")
-    parser.add_argument("--country-info", type=Path, default=None, help="Optional GeoNames countryInfo.txt")
-    parser.add_argument("--admin1-codes", type=Path, default=None, help="Optional GeoNames admin1CodesASCII.txt")
+    parser.add_argument(
+        "--country-info",
+        type=Path,
+        default=base_dir / "data" / "countryInfo.txt",
+        help="Optional GeoNames countryInfo.txt",
+    )
+    parser.add_argument(
+        "--admin1-codes",
+        type=Path,
+        default=base_dir / "data" / "admin1CodesASCII.txt",
+        help="Optional GeoNames admin1CodesASCII.txt",
+    )
     parser.add_argument("--proximity-km", type=float, default=5.0)
     return parser
 

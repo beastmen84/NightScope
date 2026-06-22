@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import json
 import logging
-import math
 import shutil
 import sqlite3
 from contextlib import closing
@@ -12,79 +11,6 @@ from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
-
-SEED_CITIES = [
-    ("Milano", "Italia", 45.4642, 9.1900, "Europe/Rome"),
-    ("Roma", "Italia", 41.9028, 12.4964, "Europe/Rome"),
-    ("Torino", "Italia", 45.0703, 7.6869, "Europe/Rome"),
-    ("Napoli", "Italia", 40.8518, 14.2681, "Europe/Rome"),
-    ("Palermo", "Italia", 38.1157, 13.3615, "Europe/Rome"),
-    ("Londra", "Regno Unito", 51.5072, -0.1276, "Europe/London"),
-    ("Parigi", "Francia", 48.8566, 2.3522, "Europe/Paris"),
-    ("Berlino", "Germania", 52.5200, 13.4050, "Europe/Berlin"),
-    ("New York", "Stati Uniti", 40.7128, -74.0060, "America/New_York"),
-    ("Los Angeles", "Stati Uniti", 34.0522, -118.2437, "America/Los_Angeles"),
-    ("Tokyo", "Giappone", 35.6762, 139.6503, "Asia/Tokyo"),
-    ("Sydney", "Australia", -33.8688, 151.2093, "Australia/Sydney"),
-    ("Nairobi", "Kenya", -1.2921, 36.8219, "Africa/Nairobi"),
-    ("Madrid", "Spagna", 40.4168, -3.7038, "Europe/Madrid"),
-    ("Buenos Aires", "Argentina", -34.6037, -58.3816, "America/Argentina/Buenos_Aires"),
-]
-
-TELESCOPE_BRANDS = [
-    "Celestron",
-    "Sky-Watcher",
-    "Bresser",
-    "Omegon",
-    "Orion",
-    "Explore Scientific",
-    "William Optics",
-    "Meade",
-]
-
-TELESCOPE_MODELS = [
-    ("Celestron", "NexStar 130SLT", "Newton", 130, 650, "GoTo altazimutale"),
-    ("Celestron", "NexStar 8SE", "Schmidt-Cassegrain", 203, 2032, "GoTo altazimutale"),
-    ("Celestron", "AstroMaster 130EQ", "Newton", 130, 650, "equatoriale"),
-    ("Sky-Watcher", "Heritage 130P", "Newton", 130, 650, "Dobson tabletop"),
-    ("Sky-Watcher", "Classic 200P Dobson", "Newton", 200, 1200, "Dobson"),
-    ("Sky-Watcher", "Evostar 80ED", "rifrattore", 80, 600, "OTA"),
-    ("Sky-Watcher", "Explorer 150PDS", "Newton", 150, 750, "OTA"),
-    ("Bresser", "Messier AR-102/1000", "rifrattore", 102, 1000, "equatoriale"),
-    ("Bresser", "Messier NT-150S", "Newton", 150, 750, "equatoriale"),
-    ("Omegon", "Advanced 150/750 EQ-320", "Newton", 150, 750, "equatoriale"),
-    ("Omegon", "ProDob N 203/1200", "Newton", 203, 1200, "Dobson"),
-    ("Orion", "SkyQuest XT8", "Newton", 203, 1200, "Dobson"),
-    ("Orion", "StarBlast 4.5", "Newton", 114, 450, "Dobson tabletop"),
-    ("Explore Scientific", "ED80 Essential", "rifrattore", 80, 480, "OTA"),
-    ("Explore Scientific", "AR102", "rifrattore", 102, 663, "OTA"),
-    ("William Optics", "Zenithstar 61", "rifrattore", 61, 360, "OTA"),
-    ("William Optics", "Gran Turismo 81", "rifrattore", 81, 478, "OTA"),
-    ("Meade", "LX90 8 ACF", "Schmidt-Cassegrain", 203, 2000, "GoTo forcella"),
-    ("Meade", "ETX125 Observer", "Maksutov", 127, 1900, "GoTo altazimutale"),
-]
-
-EYEPIECE_CATALOG = [
-    ("Celestron", "X-Cel LX", 25.0, 60.0),
-    ("Celestron", "X-Cel LX", 9.0, 60.0),
-    ("Sky-Watcher", "Super Plossl", 25.0, 52.0),
-    ("Sky-Watcher", "Super Plossl", 10.0, 52.0),
-    ("Bresser", "SPL", 26.0, 52.0),
-    ("Omegon", "Redline", 15.0, 70.0),
-    ("Orion", "Expanse", 6.0, 66.0),
-    ("Explore Scientific", "82 Series", 11.0, 82.0),
-    ("William Optics", "Swan", 20.0, 72.0),
-    ("Meade", "Series 4000 Super Plossl", 32.0, 52.0),
-]
-
-BARLOW_CATALOG = [
-    ("Celestron", "Omni 2x", 2.0),
-    ("Celestron", "X-Cel LX 3x", 3.0),
-    ("Sky-Watcher", "Deluxe 2x", 2.0),
-    ("Omegon", "Achromatic 2x", 2.0),
-    ("Orion", "Shorty 2x", 2.0),
-    ("Explore Scientific", "Focal Extender 3x", 3.0),
-]
 
 OBJECT_IMAGES = [
     ("sun", "resources/images/sun.svg", "NightScope generated local SVG"),
@@ -129,11 +55,7 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
         connection.executescript(schema_sql)
         _migrate_database(connection)
         data_dir = seed_path.parent
-        city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
-        if city_count < 50:
-            _seed_cities(connection, data_dir / "cities_seed.csv")
-        _deduplicate_small_city_catalog(connection)
-        _import_geonames_cities_if_available(connection, database_path.parent)
+        _import_geonames_cities_if_available(connection, database_path.parent, warn_if_missing=database_path.parent == data_dir)
         messier_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
         if messier_count == 0 and seed_path.exists():
             with seed_path.open("r", encoding="utf-8", newline="") as file:
@@ -319,74 +241,30 @@ def _optional_float(value: str) -> float | None:
         return None
 
 
-def _optional_int(value: str) -> int | None:
-    clean_value = value.strip()
-    if not clean_value:
-        return None
-    try:
-        return int(float(clean_value))
-    except ValueError:
-        return None
-
-
-def _seed_cities(connection: sqlite3.Connection, city_seed_path: Path) -> None:
-    if city_seed_path.exists():
-        with city_seed_path.open("r", encoding="utf-8", newline="") as file:
-            rows = [
-                (
-                    row["city_name"],
-                    row.get("ascii_name") or row["city_name"],
-                    row["country"],
-                    row.get("country_code", ""),
-                    row.get("admin_region", ""),
-                    float(row["latitude"]),
-                    float(row["longitude"]),
-                    row["timezone"],
-                    _optional_int(row.get("population", "")),
-                    row.get("aliases", ""),
-                    row.get("search_name") or _search_name(row["city_name"], row.get("ascii_name", ""), row.get("aliases", "")),
-                )
-                for row in csv.DictReader(file)
-                if row.get("city_name") and row.get("timezone")
-            ]
-    else:
-        rows = [
-            (city, city, country, "", "", latitude, longitude, timezone, None, "", _search_name(city, "", ""))
-            for city, country, latitude, longitude, timezone in SEED_CITIES
-        ]
-    for row in rows:
-        _upsert_seed_city(connection, row)
-    _refresh_city_aliases(connection)
-
-
-def _import_geonames_cities_if_available(connection: sqlite3.Connection, data_dir: Path) -> None:
-    candidates = (
+def _import_geonames_cities_if_available(
+    connection: sqlite3.Connection,
+    data_dir: Path,
+    fallback_data_dir: Path | None = None,
+    warn_if_missing: bool = True,
+) -> None:
+    candidates = [
         data_dir / "cities15000.txt",
         data_dir / "geonames" / "cities15000.txt",
-    )
+    ]
+    if fallback_data_dir and fallback_data_dir != data_dir:
+        candidates.extend(
+            [
+                fallback_data_dir / "cities15000.txt",
+                fallback_data_dir / "geonames" / "cities15000.txt",
+            ]
+        )
     source_path = next((candidate for candidate in candidates if candidate.exists()), None)
     if source_path is None:
-        logger.info("GeoNames cities15000.txt not found; using existing local city catalog.")
+        log = logger.warning if warn_if_missing else logger.info
+        log("GeoNames cities15000.txt not found; city catalog was not imported.")
         return
     source_stat = source_path.stat()
     source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
-    existing_import = connection.execute(
-        """
-        SELECT source_size, source_mtime, report_json
-        FROM DataImportLog
-        WHERE source_name = ?
-        """,
-        ("cities15000.txt",),
-    ).fetchone()
-    if (
-        existing_import
-        and int(existing_import["source_size"]) == source_stat.st_size
-        and str(existing_import["source_mtime"]) == source_mtime
-    ):
-        logger.info("GeoNames cities15000 import already current: %s", existing_import["report_json"])
-        return
-    from astro_viewer.app.database.geonames_importer import import_geonames_cities
-
     country_info_path = _first_existing_path(
         data_dir / "countryInfo.txt",
         data_dir / "geonames" / "countryInfo.txt",
@@ -395,6 +273,34 @@ def _import_geonames_cities_if_available(connection: sqlite3.Connection, data_di
         data_dir / "admin1CodesASCII.txt",
         data_dir / "geonames" / "admin1CodesASCII.txt",
     )
+    country_info_signature = _file_signature(country_info_path)
+    admin1_codes_signature = _file_signature(admin1_codes_path)
+    existing_import = connection.execute(
+        """
+        SELECT source_size, source_mtime, report_json
+        FROM DataImportLog
+        WHERE source_name = ?
+        """,
+        ("cities15000.txt",),
+    ).fetchone()
+    existing_report = _json_dict(existing_import["report_json"]) if existing_import else {}
+    if (
+        existing_import
+        and int(existing_import["source_size"]) == source_stat.st_size
+        and str(existing_import["source_mtime"]) == source_mtime
+        and existing_report.get("country_info") == country_info_signature
+        and existing_report.get("admin1_codes") == admin1_codes_signature
+    ):
+        logger.info("GeoNames cities15000 import already current: %s", existing_import["report_json"])
+        return
+    from astro_viewer.app.database.geonames_importer import import_geonames_cities
+
+    existing_city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
+    if existing_city_count:
+        logger.info("GeoNames cities15000 changed; rebuilding city catalog from source file.")
+        connection.execute("DELETE FROM CityAlias")
+        connection.execute("DELETE FROM City")
+
     report = import_geonames_cities(
         connection,
         source_path,
@@ -404,6 +310,9 @@ def _import_geonames_cities_if_available(connection: sqlite3.Connection, data_di
     payload = report.to_dict()
     payload["aliases_generated"] = report.aliases_added
     payload["db_size_bytes"] = _database_size_bytes(connection)
+    payload["rebuilt_city_catalog"] = bool(existing_city_count)
+    payload["country_info"] = country_info_signature
+    payload["admin1_codes"] = admin1_codes_signature
     connection.execute(
         """
         INSERT INTO DataImportLog (source_name, source_path, source_size, source_mtime, imported_at, report_json)
@@ -431,6 +340,26 @@ def _first_existing_path(*paths: Path) -> Path | None:
     return next((path for path in paths if path.exists()), None)
 
 
+def _file_signature(path: Path | None) -> dict | None:
+    if path is None:
+        return None
+    stat = path.stat()
+    return {
+        "size": stat.st_size,
+        "mtime": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
+    }
+
+
+def _json_dict(value: str | None) -> dict:
+    if not value:
+        return {}
+    try:
+        payload = json.loads(value)
+    except json.JSONDecodeError:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def _database_size_bytes(connection: sqlite3.Connection) -> int:
     row = connection.execute("PRAGMA database_list").fetchone()
     if not row:
@@ -442,194 +371,9 @@ def _database_size_bytes(connection: sqlite3.Connection) -> int:
         return 0
 
 
-def _upsert_seed_city(connection: sqlite3.Connection, row: tuple) -> None:
-    (
-        city_name,
-        ascii_name,
-        country,
-        country_code,
-        admin_region,
-        latitude,
-        longitude,
-        timezone,
-        population,
-        aliases,
-        search_name,
-    ) = row
-    existing = connection.execute(
-        """
-        SELECT id, latitude, longitude, timezone
-        FROM City
-        WHERE city_name = ?
-          AND country = ?
-        ORDER BY population DESC NULLS LAST, id
-        LIMIT 1
-        """,
-        (city_name, country),
-    ).fetchone()
-    if existing and existing["timezone"] == timezone and _distance_km(latitude, longitude, existing["latitude"], existing["longitude"]) <= 5.0:
-        connection.execute(
-            """
-            UPDATE City
-            SET ascii_name = ?,
-                country_code = ?,
-                admin_region = ?,
-                latitude = ?,
-                longitude = ?,
-                timezone = ?,
-                population = ?,
-                aliases = ?,
-                search_name = ?
-            WHERE id = ?
-            """,
-            (
-                ascii_name,
-                country_code,
-                admin_region,
-                latitude,
-                longitude,
-                timezone,
-                population,
-                aliases,
-                search_name,
-                existing["id"],
-            ),
-        )
-        return
-    connection.execute(
-        """
-        INSERT INTO City (
-            city_name, ascii_name, country, country_code, admin_region,
-            latitude, longitude, timezone, population, aliases, search_name
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        row,
-    )
-
-
-def _refresh_city_aliases(connection: sqlite3.Connection) -> None:
-    for row in connection.execute(
-        "SELECT id, city_name, ascii_name, country, country_code, admin_region, aliases FROM City"
-    ).fetchall():
-        aliases = {
-            row["city_name"],
-            row["ascii_name"] or "",
-            *(row["aliases"] or "").split("|"),
-        }
-        connection.executemany(
-            """
-            INSERT OR IGNORE INTO CityAlias (city_id, alias, normalized_alias, source)
-            VALUES (?, ?, ?, ?)
-            """,
-            [
-                (row["id"], alias.strip(), _normalize_search(alias), "seed")
-                for alias in aliases
-                if alias and _is_valid_city_alias(_normalize_search(alias))
-            ],
-        )
-
-
-def _deduplicate_existing_cities(connection: sqlite3.Connection, proximity_km: float = 5.0) -> None:
-    rows = connection.execute(
-        """
-        SELECT id, city_name, ascii_name, country, country_code, admin_region,
-               latitude, longitude, timezone, population, aliases, search_name
-        FROM City
-        ORDER BY population DESC NULLS LAST, id
-        """
-    ).fetchall()
-    canonical_rows: list[sqlite3.Row] = []
-    deleted_ids: set[int] = set()
-    for row in rows:
-        if row["id"] in deleted_ids:
-            continue
-        duplicate = _matching_canonical_city(row, canonical_rows, proximity_km)
-        if duplicate is None:
-            canonical_rows.append(row)
-            continue
-        _merge_existing_city(connection, duplicate, row)
-        connection.execute("DELETE FROM CityAlias WHERE city_id = ?", (row["id"],))
-        connection.execute("DELETE FROM City WHERE id = ?", (row["id"],))
-        deleted_ids.add(row["id"])
-    if deleted_ids:
-        logger.info("Deduplicated %d city rows into canonical records.", len(deleted_ids))
-
-
-def _deduplicate_small_city_catalog(connection: sqlite3.Connection) -> None:
-    city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
-    if city_count > 5000:
-        logger.info("Skipping legacy city deduplication for large catalog: %d rows.", city_count)
-        return
-    _deduplicate_existing_cities(connection)
-
-
-def _matching_canonical_city(row: sqlite3.Row, canonical_rows: list[sqlite3.Row], proximity_km: float) -> sqlite3.Row | None:
-    row_aliases = _city_alias_set(row)
-    for candidate in canonical_rows:
-        if (row["country_code"] or "") != (candidate["country_code"] or ""):
-            continue
-        if (row["timezone"] or "") != (candidate["timezone"] or ""):
-            continue
-        if _distance_km(row["latitude"], row["longitude"], candidate["latitude"], candidate["longitude"]) > proximity_km:
-            continue
-        if row_aliases & _city_alias_set(candidate):
-            return candidate
-    return None
-
-
-def _merge_existing_city(connection: sqlite3.Connection, canonical: sqlite3.Row, duplicate: sqlite3.Row) -> None:
-    aliases = _raw_alias_set(canonical) | _raw_alias_set(duplicate)
-    search_name = _search_name(
-        canonical["city_name"],
-        canonical["ascii_name"] or duplicate["ascii_name"] or canonical["city_name"],
-        aliases_to_text(aliases),
-    )
-    population = max(canonical["population"] or 0, duplicate["population"] or 0) or None
-    connection.execute(
-        """
-        UPDATE City
-        SET aliases = ?, search_name = ?, population = ?
-        WHERE id = ?
-        """,
-        (aliases_to_text(aliases), search_name, population, canonical["id"]),
-    )
-    _refresh_city_aliases_for_row(connection, canonical["id"], aliases)
-
-
-def _refresh_city_aliases_for_row(connection: sqlite3.Connection, city_id: int, aliases: set[str]) -> None:
-    connection.executemany(
-        """
-        INSERT OR IGNORE INTO CityAlias (city_id, alias, normalized_alias, source)
-        VALUES (?, ?, ?, ?)
-        """,
-        [
-            (city_id, alias.strip(), _normalize_search(alias), "dedupe")
-            for alias in aliases
-            if alias and _is_valid_city_alias(_normalize_search(alias))
-        ],
-    )
-
-
-def _city_alias_set(row: sqlite3.Row) -> set[str]:
-    return {_normalize_search(alias) for alias in _raw_alias_set(row) if _normalize_search(alias)}
-
-
-def _raw_alias_set(row: sqlite3.Row) -> set[str]:
-    return {
-        row["city_name"] or "",
-        row["ascii_name"] or "",
-        *(row["aliases"] or "").split("|"),
-    }
-
-
-def aliases_to_text(aliases: set[str]) -> str:
-    return "|".join(sorted(alias.strip() for alias in aliases if alias and alias.strip()))
-
-
 def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:
     catalog_rows = _telescope_catalog_rows(catalog_path)
-    brand_names = sorted({row[0] for row in catalog_rows} | set(TELESCOPE_BRANDS))
+    brand_names = sorted({row[0] for row in catalog_rows})
     brand_count = connection.execute("SELECT COUNT(*) FROM TelescopeBrand").fetchone()[0]
     if brand_count < len(brand_names):
         connection.executemany(
@@ -664,25 +408,22 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
 
 
 def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
-    if catalog_path and catalog_path.exists():
-        with catalog_path.open("r", encoding="utf-8", newline="") as file:
-            return [
-                (
-                    row["brand"],
-                    row["model"],
-                    row["optical_type"],
-                    int(float(row["aperture_mm"])),
-                    int(float(row["focal_length_mm"])),
-                    _optional_float(row.get("focal_ratio", "")),
-                    row["mount_type"],
-                    row.get("notes", ""),
-                )
-                for row in csv.DictReader(file)
-            ]
-    return [
-        (brand, name, optical_type, aperture, focal, round(focal / aperture, 1), mount, "Legacy NightScope seed.")
-        for brand, name, optical_type, aperture, focal, mount in TELESCOPE_MODELS
-    ]
+    if not catalog_path or not catalog_path.exists():
+        raise FileNotFoundError("Missing telescope catalog seed CSV.")
+    with catalog_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                row["optical_type"],
+                int(float(row["aperture_mm"])),
+                int(float(row["focal_length_mm"])),
+                _optional_float(row.get("focal_ratio", "")),
+                row["mount_type"],
+                row.get("notes", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
 
 
 def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | None = None, barlow_path: Path | None = None) -> None:
@@ -719,52 +460,41 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
 
 
 def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
-    zoom_rows = [
-        ("Baader", "Hyperion Zoom 8-24 mm", "Zoom", 24.0, 8.0, 24.0, 60.0, None, None, "1.25/2", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
-        ("Celestron", "Zoom 8-24 mm", "Zoom", 24.0, 8.0, 24.0, 50.0, None, None, "1.25", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
-        ("Svbony", "Zoom 7-21 mm", "Zoom", 21.0, 7.0, 21.0, 50.0, None, None, "1.25", "Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."),
-    ]
-    if eyepiece_path and eyepiece_path.exists():
-        with eyepiece_path.open("r", encoding="utf-8", newline="") as file:
-            rows = [
-                (
-                    row["brand"],
-                    row["model"],
-                    row.get("eyepiece_type", "Fixed") or "Fixed",
-                    float(row["focal_length_mm"]),
-                    _optional_float(row.get("min_focal_length_mm", "")),
-                    _optional_float(row.get("max_focal_length_mm", "")),
-                    float(row["apparent_field_deg"]),
-                    _optional_float(row.get("afov_min", "")),
-                    _optional_float(row.get("afov_max", "")),
-                    row.get("barrel_size", ""),
-                    row.get("notes", ""),
-                )
-                for row in csv.DictReader(file)
-            ]
-            existing = {(row[0], row[1]) for row in rows}
-            rows.extend(row for row in zoom_rows if (row[0], row[1]) not in existing)
-            return rows
-    return [
-        (brand, model, "Fixed", focal, None, None, field, None, None, "", "Legacy NightScope seed.")
-        for brand, model, focal, field in EYEPIECE_CATALOG
-    ] + zoom_rows
+    if not eyepiece_path or not eyepiece_path.exists():
+        raise FileNotFoundError("Missing eyepiece catalog seed CSV.")
+    with eyepiece_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                row.get("eyepiece_type", "Fixed") or "Fixed",
+                float(row["focal_length_mm"]),
+                _optional_float(row.get("min_focal_length_mm", "")),
+                _optional_float(row.get("max_focal_length_mm", "")),
+                float(row["apparent_field_deg"]),
+                _optional_float(row.get("afov_min", "")),
+                _optional_float(row.get("afov_max", "")),
+                row.get("barrel_size", ""),
+                row.get("notes", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
 
 
 def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:
-    if barlow_path and barlow_path.exists():
-        with barlow_path.open("r", encoding="utf-8", newline="") as file:
-            return [
-                (
-                    row["brand"],
-                    row["model"],
-                    float(row["multiplier"]),
-                    row.get("barrel_size", ""),
-                    row.get("notes", ""),
-                )
-                for row in csv.DictReader(file)
-            ]
-    return [(brand, model, multiplier, "", "Legacy NightScope seed.") for brand, model, multiplier in BARLOW_CATALOG]
+    if not barlow_path or not barlow_path.exists():
+        raise FileNotFoundError("Missing Barlow catalog seed CSV.")
+    with barlow_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                float(row["multiplier"]),
+                row.get("barrel_size", ""),
+                row.get("notes", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
 
 
 def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None = None) -> None:
@@ -856,34 +586,6 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
                 ("Occhio nudo", 1, "preset:naked-eye"),
             ],
         )
-
-
-def _search_name(city_name: str, ascii_name: str, aliases: str) -> str:
-    values = {city_name.lower(), ascii_name.lower()}
-    values.update(alias.strip().lower() for alias in aliases.split("|") if alias.strip())
-    return " ".join(sorted(value for value in values if value)).strip()
-
-
-def _normalize_search(value: str) -> str:
-    import unicodedata
-
-    normalized = unicodedata.normalize("NFKD", value.strip().lower())
-    ascii_value = "".join(character for character in normalized if not unicodedata.combining(character))
-    return " ".join(ascii_value.replace("-", " ").replace("_", " ").replace(",", " ").split())
-
-
-def _is_valid_city_alias(normalized_alias: str) -> bool:
-    return bool(normalized_alias) and not normalized_alias.isdigit()
-
-
-def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    radius_km = 6371.0
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    delta_phi = math.radians(lat2 - lat1)
-    delta_lambda = math.radians(lon2 - lon1)
-    value = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
-    return 2 * radius_km * math.atan2(math.sqrt(value), math.sqrt(1 - value))
 
 
 if __name__ == "__main__":

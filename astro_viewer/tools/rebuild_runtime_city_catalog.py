@@ -11,7 +11,7 @@ from pathlib import Path
 if __package__ is None or __package__ == "":
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from astro_viewer.app.database.bootstrap import _database_size_bytes, _seed_cities
+from astro_viewer.app.database.bootstrap import _database_size_bytes, _file_signature
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.geonames_importer import (
     _clean_city_aliases,
@@ -94,7 +94,7 @@ def main() -> None:
                 "import_report": import_report,
                 "addis_reverse_lookup": addis_reverse,
             },
-            ensure_ascii=False,
+            ensure_ascii=True,
             indent=2,
         )
     )
@@ -110,8 +110,12 @@ def rebuild_city_catalog(database_path: Path, geonames_path: Path, data_dir: Pat
         connection.execute("BEGIN")
         connection.execute("DELETE FROM CityAlias")
         connection.execute("DELETE FROM City")
-        _seed_cities(connection, data_dir / "cities_seed.csv")
-        import_report = import_geonames_cities(connection, geonames_path)
+        import_report = import_geonames_cities(
+            connection,
+            geonames_path,
+            country_info_path=data_dir / "countryInfo.txt",
+            admin1_codes_path=data_dir / "admin1CodesASCII.txt",
+        )
         cleanup_report = cleanup_city_alias_pollution(connection)
         payload = import_report.to_dict()
         payload["aliases_generated"] = import_report.aliases_added
@@ -120,6 +124,8 @@ def rebuild_city_catalog(database_path: Path, geonames_path: Path, data_dir: Pat
         payload["db_size_bytes"] = _database_size_bytes(connection)
         payload["rebuilt_city_catalog"] = True
         payload["rebuilt_at"] = datetime.now().isoformat(timespec="seconds")
+        payload["country_info"] = _file_signature(data_dir / "countryInfo.txt")
+        payload["admin1_codes"] = _file_signature(data_dir / "admin1CodesASCII.txt")
         connection.execute(
             """
             INSERT INTO DataImportLog (source_name, source_path, source_size, source_mtime, imported_at, report_json)
@@ -290,8 +296,8 @@ def render_report(
         "",
         "- Rebuilt only `City` and `CityAlias` in the runtime database.",
         "- Preserved the existing schema, indexes, and non-city tables.",
-        "- Seeded curated city rows first to preserve canonical names such as Roma and Milano.",
         "- Imported `cities15000.txt` with the corrected GeoNames importer.",
+        "- Used packaged `countryInfo.txt` and `admin1CodesASCII.txt` to enrich country and admin names.",
         "- Removed context-like and numeric-only administrative aliases from `CityAlias`; context remains available through columns and `search_name`.",
         "- Updated `DataImportLog` and ran `VACUUM` after the rebuild.",
         "",

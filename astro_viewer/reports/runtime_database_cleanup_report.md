@@ -1,6 +1,6 @@
 # Runtime Database City Cleanup Report
 
-Generated: 2026-06-21T20:37:51
+Generated: 2026-06-22T10:58:09
 Database: `C:/Users/beast/PycharmProjects/NightScope/astro_viewer/data/nightscope.db`
 GeoNames source: `C:/Users/beast/PycharmProjects/NightScope/astro_viewer/data/cities15000.txt`
 
@@ -8,8 +8,8 @@ GeoNames source: `C:/Users/beast/PycharmProjects/NightScope/astro_viewer/data/ci
 
 - Rebuilt only `City` and `CityAlias` in the runtime database.
 - Preserved the existing schema, indexes, and non-city tables.
-- Seeded curated city rows first to preserve canonical names such as Roma and Milano.
 - Imported `cities15000.txt` with the corrected GeoNames importer.
+- Used packaged `countryInfo.txt` and `admin1CodesASCII.txt` to enrich country and admin names.
 - Removed context-like and numeric-only administrative aliases from `CityAlias`; context remains available through columns and `search_name`.
 - Updated `DataImportLog` and ran `VACUUM` after the rebuild.
 
@@ -17,26 +17,26 @@ GeoNames source: `C:/Users/beast/PycharmProjects/NightScope/astro_viewer/data/ci
 
 | Metric | Before cleanup | After cleanup |
 | --- | --- | --- |
-| City rows | 27704 | 33785 |
-| CityAlias rows | 391666 | 327480 |
-| Average aliases per city | 14.14 | 9.69 |
-| Maximum aliases per city | 539 | 218 |
-| Context-like aliases | 82860 | 0 |
-| Country-code aliases | 27695 | 0 |
-| Country-name aliases | 27588 | 0 |
-| Admin-region aliases | 27577 | 0 |
-| Numeric-only aliases | 24074 | 0 |
+| City rows | 33775 | 33775 |
+| CityAlias rows | 327368 | 327368 |
+| Average aliases per city | 9.69 | 9.69 |
+| Maximum aliases per city | 218 | 218 |
+| Context-like aliases | 0 | 0 |
+| Country-code aliases | 0 | 0 |
+| Country-name aliases | 0 | 0 |
+| Admin-region aliases | 0 | 0 |
+| Numeric-only aliases | 0 | 0 |
 | Empty aliases | 0 | 0 |
-| Database size bytes | 61366272 | 53465088 |
+| Database size bytes | 55578624 | 55869440 |
 
 ## Corrected Import Report
 
 | Metric | Value |
 | --- | --- |
-| Rows read | 33886 |
-| Imported | 33658 |
-| Duplicates skipped/merged | 228 |
-| Aliases added | 327345 |
+| Rows read | 33889 |
+| Imported | 33775 |
+| Duplicates skipped/merged | 114 |
+| Aliases added | 327374 |
 | Missing timezone | 0 |
 | Rows skipped invalid | 0 |
 
@@ -44,41 +44,41 @@ GeoNames source: `C:/Users/beast/PycharmProjects/NightScope/astro_viewer/data/ci
 
 | Query | Returned city | Country | Code | Timezone | Alias count |
 | --- | --- | --- | --- | --- | --- |
-| Addis | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 50 |
-| Addis Ababa | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 50 |
-| Addis Abeba | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 50 |
-| አዲስ አበባ | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 50 |
-| Roma | Roma | Italia | IT | Europe/Rome | 52 |
-| Rome | Roma | Italia | IT | Europe/Rome | 52 |
-| Milano | Milano | Italia | IT | Europe/Rome | 39 |
-| Milan | Milano | Italia | IT | Europe/Rome | 39 |
-| New York | New York | Stati Uniti | US | America/New_York | 151 |
-| Tokyo | Tokyo | Giappone | JP | Asia/Tokyo | 106 |
+| Addis | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Addis Ababa | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Addis Abeba | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| አዲስ አበባ | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Roma | Rome | Italy | IT | Europe/Rome | 48 |
+| Rome | Rome | Italy | IT | Europe/Rome | 48 |
+| Milano | Milan | Italy | IT | Europe/Rome | 35 |
+| Milan | Milan | Italy | IT | Europe/Rome | 35 |
+| New York | New York City | United States | US | America/New_York | 88 |
+| Tokyo | Tokyo | Japan | JP | Asia/Tokyo | 40 |
 
 ## Search Verification After Cleanup
 
 | Query | Returned city | Country | Code | Timezone | Alias count |
 | --- | --- | --- | --- | --- | --- |
-| Addis | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 43 |
-| Addis Ababa | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 43 |
-| Addis Abeba | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 43 |
-| አዲስ አበባ | Addis Ababa | Etiopia | ET | Africa/Addis_Ababa | 43 |
-| Roma | Roma | Italia | IT | Europe/Rome | 48 |
-| Rome | Roma | Italia | IT | Europe/Rome | 48 |
-| Milano | Milano | Italia | IT | Europe/Rome | 35 |
-| Milan | Milano | Italia | IT | Europe/Rome | 35 |
-| New York | New York | Stati Uniti | US | America/New_York | 89 |
-| Tokyo | Tokyo | Giappone | JP | Asia/Tokyo | 40 |
+| Addis | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Addis Ababa | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Addis Abeba | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| አዲስ አበባ | Addis Ababa | Ethiopia | ET | Africa/Addis_Ababa | 43 |
+| Roma | Rome | Italy | IT | Europe/Rome | 48 |
+| Rome | Rome | Italy | IT | Europe/Rome | 48 |
+| Milano | Milan | Italy | IT | Europe/Rome | 35 |
+| Milan | Milan | Italy | IT | Europe/Rome | 35 |
+| New York | New York City | United States | US | America/New_York | 88 |
+| Tokyo | Tokyo | Japan | JP | Asia/Tokyo | 40 |
 
 ## Addis Reverse Lookup
 
 | Field | Value |
 | --- | --- |
 | City | Addis Ababa |
-| Country | Etiopia |
+| Country | Ethiopia |
 | Country code | ET |
 | Timezone | Africa/Addis_Ababa |
-| Distance km | 0.000 |
+| Distance km | 0.941 |
 
 ## Assessment
 
