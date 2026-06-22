@@ -8,7 +8,7 @@ from pathlib import Path
 from threading import Thread
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
 
 from astro_viewer.app.astronomy.engine import MockAstronomyEngine, ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import EphemerisUnavailableError, SkyfieldAstronomyEngine
@@ -61,12 +61,14 @@ class AppController(QObject):
     _earthdataConnectionTestFinished = Signal(bool, str, bool)
     _viirsSkyQualityFinished = Signal(str, object, str)
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
+    _weatherRefreshFinished = Signal(str, object, str)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
         self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
         self._startupLocationDetectionFinished.connect(self._finish_startup_location_detection)
+        self._weatherRefreshFinished.connect(self._finish_weather_refresh)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -97,6 +99,10 @@ class AppController(QObject):
         self._is_loading = False
         self._service_status = ""
         self._weather_status = ""
+        self._weather_refresh_running = False
+        self._weather_refresh_timer = QTimer(self)
+        self._weather_refresh_timer.setSingleShot(True)
+        self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
         try:
             self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
         except EphemerisUnavailableError:
@@ -261,6 +267,10 @@ class AppController(QObject):
     @Property(str, notify=weatherChanged)
     def weatherStatus(self) -> str:
         return self._weather_status
+
+    @Property(bool, notify=weatherChanged)
+    def weatherRefreshRunning(self) -> bool:
+        return self._weather_refresh_running
 
     @Property(bool, notify=dataChanged)
     def hasVisibleObjects(self) -> bool:
@@ -599,6 +609,10 @@ class AppController(QObject):
         self._apply_location_result(result)
         self._refresh_all()
         self.locationChanged.emit()
+
+    @Slot()
+    def refreshWeatherNow(self) -> None:
+        self._start_weather_refresh(force_refresh=True)
 
     @Slot(bool)
     def setAutoDetectLocationOnStartup(self, enabled: bool) -> None:
@@ -1118,12 +1132,15 @@ class AppController(QObject):
         self.statusChanged.emit()
 
     def _refresh_startup_location_pending_context(self) -> None:
+        self._weather_refresh_timer.stop()
         self._refresh_no_location_context()
         self._location_message = "Rilevamento posizione all'avvio in corso..."
         self._weather_status = "Rilevamento posizione all'avvio in corso..."
         self._service_status = "Rilevamento posizione all'avvio in corso."
 
     def _refresh_no_location_context(self) -> None:
+        self._weather_refresh_timer.stop()
+        self._weather_refresh_running = False
         self._solar_system_objects = []
         self._visible_planets = []
         self._deep_sky = []
@@ -1183,16 +1200,94 @@ class AppController(QObject):
             self._weather_hours = []
             self._weather_status = "Configura una posizione per visualizzare il meteo."
             self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+            self._schedule_next_weather_refresh()
             return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
-        self._weather_status = getattr(self._weather_service, "last_error", "") or ""
-        if self._weather_status == WEATHER_UNAVAILABLE_MESSAGE:
-            self._append_service_status(WEATHER_UNAVAILABLE_MESSAGE)
+        self._weather_status = self._weather_status_from_error(
+            getattr(self._weather_service, "last_error", "") or "",
+            self._weather_hours,
+        )
+        if self._weather_status:
+            self._append_service_status(self._weather_status)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         self._recalculate_observing_outputs()
         self._schedule_viirs_sky_quality_refresh()
+        self._schedule_next_weather_refresh()
+
+    def _start_weather_refresh(self, force_refresh: bool = True) -> None:
+        if self._startup_location_detection_running:
+            self._schedule_next_weather_refresh()
+            return
+        if not self._has_valid_location():
+            self._weather_status = "Dati meteo non disponibili al momento."
+            self._weather_refresh_running = False
+            self._weather_refresh_timer.stop()
+            self.weatherChanged.emit()
+            return
+        if self._weather_refresh_running:
+            return
+
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        self._weather_refresh_running = True
+        self.weatherChanged.emit()
+
+        def run_refresh() -> None:
+            try:
+                hours = self._weather_service.hourly_forecast(location, force_refresh=force_refresh)
+                error = getattr(self._weather_service, "last_error", "") or ""
+                self._weatherRefreshFinished.emit(location_key, hours, error)
+            except Exception:
+                logger.warning("Unexpected weather refresh failure.", exc_info=True)
+                self._weatherRefreshFinished.emit(location_key, [], WEATHER_UNAVAILABLE_MESSAGE)
+
+        Thread(target=run_refresh, daemon=True).start()
+
+    def _refresh_weather_from_timer(self) -> None:
+        self._start_weather_refresh(force_refresh=True)
+
+    @Slot(str, object, str)
+    def _finish_weather_refresh(self, location_key: str, hours: object, error: str) -> None:
+        self._weather_refresh_running = False
+        if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
+            self.weatherChanged.emit()
+            self._schedule_next_weather_refresh()
+            return
+
+        refreshed_hours = hours if isinstance(hours, list) else []
+        if refreshed_hours:
+            self._weather_hours = refreshed_hours
+        elif self._weather_hours:
+            error = error or WEATHER_UNAVAILABLE_MESSAGE
+        else:
+            self._weather_hours = []
+
+        self._weather_status = self._weather_status_from_error(error, self._weather_hours)
+        self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+        self._recalculate_observing_outputs()
+        self.weatherChanged.emit()
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
+        self._schedule_next_weather_refresh()
+
+    def _schedule_next_weather_refresh(self) -> None:
+        if not QCoreApplication.instance() or not self._has_valid_location() or self._startup_location_detection_running:
+            self._weather_refresh_timer.stop()
+            return
+        now = datetime.now(self._zone())
+        next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+        delay_ms = max(60_000, int((next_hour - now).total_seconds() * 1000))
+        self._weather_refresh_timer.start(delay_ms)
+
+    @staticmethod
+    def _weather_status_from_error(error: str, hours: list[WeatherHour]) -> str:
+        if error != WEATHER_UNAVAILABLE_MESSAGE:
+            return error
+        if hours:
+            return "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili."
+        return "Dati meteo non disponibili al momento."
 
     def _recalculate_observing_outputs(self) -> None:
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)

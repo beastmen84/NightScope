@@ -89,6 +89,50 @@ class WeatherHardeningTests(unittest.TestCase):
         self.assertEqual(forecast[0].cloud_cover, 12)
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
 
+    def test_force_refresh_bypasses_fresh_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+            repository = WeatherCacheRepository(database_path)
+            service = OpenMeteoWeatherService(repository)
+            repository.set(
+                service._cache_key(self.location),
+                datetime.now(UTC).isoformat(),
+                json.dumps(
+                    {
+                        "hourly": {
+                            "time": ["2026-06-21T22:00"],
+                            "cloud_cover": [80],
+                            "precipitation_probability": [0],
+                            "temperature_2m": [18.0],
+                            "relative_humidity_2m": [55],
+                            "wind_speed_10m": [6],
+                            "visibility": [18000],
+                        }
+                    }
+                ),
+            )
+            response = Mock()
+            response.raise_for_status.return_value = None
+            response.json.return_value = {
+                "hourly": {
+                    "time": ["2026-06-21T23:00"],
+                    "cloud_cover": [10],
+                    "precipitation_probability": [0],
+                    "temperature_2m": [17.0],
+                    "relative_humidity_2m": [50],
+                    "wind_speed_10m": [5],
+                    "visibility": [20000],
+                }
+            }
+
+            with patch("astro_viewer.app.services.weather_service.requests.get", return_value=response) as weather_get:
+                forecast = service.hourly_forecast(self.location, force_refresh=True)
+
+        weather_get.assert_called_once()
+        self.assertEqual(forecast[0].cloud_cover, 10)
+
 
 if __name__ == "__main__":
     unittest.main()

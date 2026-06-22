@@ -19,6 +19,7 @@ from astro_viewer.app.services.location_service import (
     WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
+from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -34,7 +35,7 @@ class ReleaseScenarioTests(unittest.TestCase):
     def test_offline_weather_keeps_app_usable(self) -> None:
         with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING"):
             with self._controller_with_weather(side_effect=requests.Timeout, saved_location=True) as controller:
-                self.assertEqual(controller.weatherStatus, "Weather service temporarily unavailable.")
+                self.assertEqual(controller.weatherStatus, "Dati meteo non disponibili al momento.")
                 self.assertGreater(len(controller.solarSystemObjects), 0)
                 self.assertIn("Meteo non disponibile", controller.weatherSummary["alert"])
 
@@ -202,6 +203,27 @@ class ReleaseScenarioTests(unittest.TestCase):
 
             fake_weather_service.hourly_forecast.assert_called()
 
+    def test_manual_weather_refresh_forces_network_and_keeps_existing_data_on_failure(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            fake_weather_service = _ForceRefreshFailingWeatherService()
+            controller._weather_service = fake_weather_service
+
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+            self.assertEqual(len(controller.weatherHourly), 1)
+            fake_weather_service.force_refresh_values.clear()
+
+            controller._schedule_viirs_sky_quality_refresh = Mock()
+            controller.refreshWeatherNow()
+
+            self.assertTrue(_wait_for_weather_refresh(controller))
+            self.assertEqual(fake_weather_service.force_refresh_values, [True])
+            self.assertEqual(len(controller.weatherHourly), 1)
+            self.assertEqual(
+                controller.weatherStatus,
+                "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili.",
+            )
+            controller._schedule_viirs_sky_quality_refresh.assert_not_called()
+
     def test_approximate_online_location_refreshes_weather(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             fake_weather_service = Mock()
@@ -234,6 +256,8 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Configura una posizione per visualizzare il meteo.", qml)
         self.assertIn("ListView.Horizontal", qml)
         self.assertIn("selectedWeatherHourIndex", qml)
+        self.assertIn("controller.refreshWeatherNow()", qml)
+        self.assertIn("controller.weatherRefreshRunning", qml)
         self.assertNotIn("weatherLocationLayout", qml)
 
     def test_home_page_displays_active_location_context(self) -> None:
@@ -325,6 +349,20 @@ class _ControllerContext:
             )
 
 
+class _ForceRefreshFailingWeatherService:
+    def __init__(self) -> None:
+        self.last_error = ""
+        self.force_refresh_values: list[bool] = []
+
+    def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
+        self.force_refresh_values.append(force_refresh)
+        if force_refresh:
+            self.last_error = WEATHER_UNAVAILABLE_MESSAGE
+            return []
+        self.last_error = ""
+        return [WeatherHour("2026-06-21T22:00", "22:00", 20, 0, 6, 55, 18.0, 18_000)]
+
+
 def _wait_for_startup_location(controller: AppController, timeout_seconds: float = 3.0) -> bool:
     app = QCoreApplication.instance() or QCoreApplication([])
     deadline = time.monotonic() + timeout_seconds
@@ -336,6 +374,19 @@ def _wait_for_startup_location(controller: AppController, timeout_seconds: float
         time.sleep(0.01)
     app.processEvents()
     return not controller.startupLocationDetectionRunning
+
+
+def _wait_for_weather_refresh(controller: AppController, timeout_seconds: float = 3.0) -> bool:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        app.processEvents()
+        if not controller.weatherRefreshRunning:
+            app.processEvents()
+            return True
+        time.sleep(0.01)
+    app.processEvents()
+    return not controller.weatherRefreshRunning
 
 
 def _valid_weather_response() -> Mock:

@@ -67,6 +67,14 @@ Item {
                     }
                 }
 
+                DarkButton {
+                    Layout.preferredWidth: 118
+                    text: controller.weatherRefreshRunning ? "Aggiorno..." : "Aggiorna"
+                    enabled: controller.hasValidLocation && !controller.weatherRefreshRunning && !controller.startupLocationDetectionRunning
+                    accentColor: theme.cyan
+                    onClicked: controller.refreshWeatherNow()
+                }
+
                 StatusPill {
                     text: controller.weatherSummary.score
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
@@ -77,10 +85,10 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                visible: controller.isLoading || controller.weatherStatus.length > 0
+                visible: controller.isLoading || controller.weatherRefreshRunning || controller.weatherStatus.length > 0
                 radius: 8
                 color: "#1c222b"
-                border.color: controller.weatherStatus.length > 0 ? theme.coral : theme.cyan
+                border.color: controller.weatherRefreshRunning || controller.isLoading ? theme.cyan : theme.coral
                 border.width: 1
                 implicitHeight: weatherStateText.implicitHeight + 22
 
@@ -88,7 +96,7 @@ Item {
                     id: weatherStateText
                     anchors.fill: parent
                     anchors.margins: 11
-                    text: controller.isLoading ? "Loading weather..." : controller.weatherStatus
+                    text: controller.weatherRefreshRunning ? "Aggiornamento meteo in corso..." : controller.isLoading ? "Loading weather..." : controller.weatherStatus
                     color: theme.textPrimary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -170,7 +178,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: controller.weatherHourly.length === 0
-                    text: controller.isLoading ? "Loading weather..." : "Weather service temporarily unavailable."
+                    text: controller.isLoading || controller.weatherRefreshRunning ? "Loading weather..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -278,7 +286,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: controller.weatherHourly.length === 0
-                    text: controller.isLoading ? "Loading weather..." : "No weather forecast available."
+                    text: controller.isLoading || controller.weatherRefreshRunning ? "Loading weather..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

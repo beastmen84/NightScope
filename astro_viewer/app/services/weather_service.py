@@ -18,7 +18,7 @@ WEATHER_UNAVAILABLE_MESSAGE = "Weather service temporarily unavailable."
 
 
 class WeatherService(Protocol):
-    def hourly_forecast(self, location: ObserverLocation) -> list[WeatherHour]:
+    def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         ...
 
     def observing_summary(self, location: ObserverLocation) -> WeatherSummary:
@@ -30,7 +30,7 @@ def score_observability(hours: list[WeatherHour]) -> WeatherSummary:
 
 
 class MockWeatherService:
-    def hourly_forecast(self, location: ObserverLocation) -> list[WeatherHour]:
+    def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         return [
             WeatherHour("mock-20", "20:00", 18, 4, 9, 58, 22.1),
             WeatherHour("mock-21", "21:00", 15, 3, 8, 61, 20.7),
@@ -55,11 +55,11 @@ class OpenMeteoWeatherService:
         self._cache_repository = cache_repository
         self.last_error = ""
 
-    def hourly_forecast(self, location: ObserverLocation) -> list[WeatherHour]:
+    def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         self.last_error = ""
         cache_key = self._cache_key(location)
         cached = self._read_cache(cache_key)
-        if cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
+        if not force_refresh and cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
             return self._parse_payload(cached[1])
 
         params = {
