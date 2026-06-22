@@ -10,26 +10,27 @@ Baader,Hyperion,Fixed,13,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,17,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,21,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
-Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,,,1.25/2,"Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."
+Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,48,68,1.25/2,"Zoom eyepiece; AFOV varies 48-68 deg by focal position, midpoint estimate used."
 Baader,Morpheus,Fixed,4.5,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,6.5,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,9,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,12.5,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,14,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,17.5,,,76,,,1.25/2,Manufacturer catalog series.
-Bresser,SPL,Fixed,26,,,52,,,,Catalog seed entry.
 Celestron,Luminos,Fixed,7,,,82,,,1.25,Manufacturer catalog series.
 Celestron,Luminos,Fixed,10,,,82,,,1.25,Manufacturer catalog series.
 Celestron,Luminos,Fixed,15,,,82,,,1.25,Manufacturer catalog series.
 Celestron,Luminos,Fixed,19,,,82,,,2,Manufacturer catalog series.
 Celestron,Luminos,Fixed,23,,,82,,,2,Manufacturer catalog series.
 Celestron,Luminos,Fixed,31,,,82,,,2,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,4,,,52,,,1.25,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,6,,,52,,,1.25,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,9,,,52,,,1.25,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,12,,,52,,,1.25,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
+Celestron,Omni Plossl,Fixed,4,,,50,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,6,,,50,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,9,,,50,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,12,,,50,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,32,,,48,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,40,,,40,,,1.25,Manufacturer catalog specification.
+Celestron,Omni Plossl,Fixed,56,,,47,,,2,Manufacturer catalog specification.
 Celestron,X-Cel LX,Fixed,2.3,,,60,,,1.25,Manufacturer catalog series.
 Celestron,X-Cel LX,Fixed,5,,,60,,,1.25,Manufacturer catalog series.
 Celestron,X-Cel LX,Fixed,7,,,60,,,1.25,Manufacturer catalog series.
@@ -37,7 +38,7 @@ Celestron,X-Cel LX,Fixed,9,,,60,,,1.25,Manufacturer catalog series.
 Celestron,X-Cel LX,Fixed,12,,,60,,,1.25,Manufacturer catalog series.
 Celestron,X-Cel LX,Fixed,18,,,60,,,1.25,Manufacturer catalog series.
 Celestron,X-Cel LX,Fixed,25,,,60,,,1.25,Manufacturer catalog series.
-Celestron,Zoom 8-24 mm,Zoom,24,8,24,50,,,1.25,"Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."
+Celestron,Zoom 8-24 mm,Zoom,24,8,24,50,40,60,1.25,"Zoom eyepiece; AFOV varies 40-60 deg by focal position, midpoint estimate used."
 Explore Scientific,52 Series,Fixed,3,,,52,,,1.25,Manufacturer catalog series.
 Explore Scientific,52 Series,Fixed,4.5,,,52,,,1.25,Manufacturer catalog series.
 Explore Scientific,52 Series,Fixed,6.5,,,52,,,1.25,Manufacturer catalog series.
@@ -71,7 +72,6 @@ Meade,Series 4000 Super Plossl,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
 Meade,Series 4000 Super Plossl,Fixed,20,,,52,,,1.25,Manufacturer catalog series.
 Meade,Series 4000 Super Plossl,Fixed,26,,,52,,,1.25,Manufacturer catalog series.
 Meade,Series 4000 Super Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
-Omegon,Redline,Fixed,15,,,70,,,,Catalog seed entry.
 Orion,Expanse,Fixed,6,,,66,,,1.25,Manufacturer catalog series.
 Orion,Expanse,Fixed,9,,,66,,,1.25,Manufacturer catalog series.
 Orion,Expanse,Fixed,15,,,66,,,1.25,Manufacturer catalog series.
@@ -133,4 +133,3 @@ Tele Vue,Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog series.
 Tele Vue,Plossl,Fixed,20,,,50,,,1.25,Manufacturer catalog series.
 Tele Vue,Plossl,Fixed,25,,,50,,,1.25,Manufacturer catalog series.
 Tele Vue,Plossl,Fixed,32,,,50,,,1.25,Manufacturer catalog series.
-William Optics,Swan,Fixed,20,,,72,,,,Catalog seed entry.

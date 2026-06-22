@@ -13,7 +13,6 @@ Bresser,Messier AR-90/900,rifrattore,90,900,10,equatoriale,Manufacturer catalog 
 Bresser,Messier MC-100/1400,Maksutov,100,1400,14,OTA,Manufacturer catalog specification.
 Bresser,Messier MC-127/1900,Maksutov,127,1900,15,OTA,Manufacturer catalog specification.
 Bresser,Messier NT-130/1000,Newton,130,1000,7.7,equatoriale,Manufacturer catalog specification.
-Bresser,Messier NT-150S,Newton,150,750,5,equatoriale,Catalog seed entry.
 Bresser,Messier NT-150S/750,Newton,150,750,5,equatoriale,Manufacturer catalog specification.
 Bresser,Messier NT-203/1000,Newton,203,1000,4.9,equatoriale,Manufacturer catalog specification.
 Celestron,AstroMaster 102AZ,rifrattore,102,660,6.5,altazimutale,Manufacturer catalog specification.
@@ -71,8 +70,6 @@ Omegon,AC 70/700 AZ-2,rifrattore,70,700,10,altazimutale,Specs encoded in model n
 Omegon,AC 90/1000 EQ-2,rifrattore,90,1000,11.1,equatoriale,Specs encoded in model name.
 Omegon,Advanced 130/650 EQ-320,Newton,130,650,5,equatoriale,Specs encoded in model name.
 Omegon,Advanced 150/750 EQ-320,Newton,150,750,5,equatoriale,Specs encoded in model name.
-Omegon,MightyMak 127,Maksutov,127,1500,11.8,OTA,To verify by market revision.
-Omegon,MightyMak 90,Maksutov,90,1250,13.9,OTA,To verify by market revision.
 Omegon,ProDob N 153/1200,Newton,153,1200,7.8,Dobson,Specs encoded in model name.
 Omegon,ProDob N 203/1200,Newton,203,1200,5.9,Dobson,Specs encoded in model name.
 Omegon,ProDob N 254/1250,Newton,254,1250,4.9,Dobson,Specs encoded in model name.
@@ -86,7 +83,6 @@ Orion,SkyQuest XT12,Newton,305,1500,4.9,Dobson,Manufacturer catalog specificatio
 Orion,SkyQuest XT4.5,Newton,114,910,8,Dobson,Manufacturer catalog specification.
 Orion,SkyQuest XT6,Newton,150,1200,8,Dobson,Manufacturer catalog specification.
 Orion,SkyQuest XT8,Newton,203,1200,5.9,Dobson,Manufacturer catalog specification.
-Orion,StarBlast 4.5,Newton,114,450,3.9,Dobson tabletop,Catalog seed entry.
 Orion,StarBlast 4.5 Astro,Newton,114,450,3.9,Dobson tabletop,Manufacturer catalog specification.
 Orion,StarBlast 6 Astro,Newton,150,750,5,Dobson tabletop,Manufacturer catalog specification.
 Sharpstar,15028HNT,Newton,150,420,2.8,OTA,Manufacturer catalog specification.
@@ -100,7 +96,6 @@ Sky-Watcher,Classic 300P Dobson,Newton,305,1500,4.9,Dobson,Manufacturer catalog 
 Sky-Watcher,Evostar 100ED DS-Pro,rifrattore,100,900,9,OTA,Manufacturer catalog specification.
 Sky-Watcher,Evostar 120ED DS-Pro,rifrattore,120,900,7.5,OTA,Manufacturer catalog specification.
 Sky-Watcher,Evostar 72ED DS-Pro,rifrattore,72,420,5.8,OTA,Manufacturer catalog specification.
-Sky-Watcher,Evostar 80ED,rifrattore,80,600,7.5,OTA,Catalog seed entry.
 Sky-Watcher,Evostar 80ED DS-Pro,rifrattore,80,600,7.5,OTA,Manufacturer catalog specification.
 Sky-Watcher,Explorer 130PDS,Newton,130,650,5,OTA,Manufacturer catalog specification.
 Sky-Watcher,Explorer 150PDS,Newton,150,750,5,OTA,Manufacturer catalog specification.
@@ -132,7 +127,6 @@ William Optics,Gran Turismo 71,rifrattore,71,419,5.9,OTA,Manufacturer catalog sp
 William Optics,Gran Turismo 81,rifrattore,81,478,5.9,OTA,Manufacturer catalog specification.
 William Optics,RedCat 51,rifrattore Petzval,51,250,4.9,OTA,Manufacturer catalog specification.
 William Optics,RedCat 61,rifrattore Petzval,61,300,4.9,OTA,Manufacturer catalog specification.
-William Optics,Zenithstar 61,rifrattore,61,360,5.9,OTA,Catalog seed entry.
 William Optics,Zenithstar 61 II,rifrattore,61,360,5.9,OTA,Manufacturer catalog specification.
 William Optics,Zenithstar 73 III,rifrattore,73,430,5.9,OTA,Manufacturer catalog specification.
 William Optics,Zenithstar 81,rifrattore,81,559,6.9,OTA,Manufacturer catalog specification.

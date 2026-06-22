@@ -16,7 +16,9 @@ GeoNames publishes dump formats at `https://download.geonames.org/export/dump/re
 
 ## Equipment Catalogs
 
-`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`, and `barlow_catalog_seed.csv` are the canonical seed source for equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment seed rows are not hardcoded in Python. Rows marked `To verify` or `Specs encoded in model name` should be checked against the specific regional product revision before purchase recommendations.
+`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`, and `barlow_catalog_seed.csv` are the canonical seed source for equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment seed rows are not hardcoded in Python. Rows marked `Specs encoded in model name` should be checked against the specific regional product revision before purchase recommendations.
+
+The equipment seeds were audited against manufacturer catalog pages on 2026-06-22. Historical placeholder rows marked `Catalog seed entry` and unresolved `To verify` rows were removed from the packaged seed files.
 
 No API keys or vendor-specific private data are included.
 
