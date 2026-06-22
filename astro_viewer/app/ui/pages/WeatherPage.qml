@@ -138,8 +138,16 @@ Item {
                     rowSpacing: 12
 
                     MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass.toString(); accentColor: theme.violet }
-                    MetricTile { label: "SQM"; value: controller.skyQuality.skyBrightness + " mag/arcsec2"; accentColor: theme.cyan }
-                    MetricTile { label: "Limite visuale"; value: controller.skyQuality.limitingMagnitude + " mag"; accentColor: theme.teal }
+                    MetricTile {
+                        label: controller.skyQuality.hasViirsRadiance ? "Radiance VIIRS" : "SQM"
+                        value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.viirsRadiance + " nW/cm2 sr" : controller.skyQuality.skyBrightness + " mag/arcsec2"
+                        accentColor: theme.cyan
+                    }
+                    MetricTile {
+                        label: controller.skyQuality.hasViirsRadiance ? "SQM stimato" : "Limite visuale"
+                        value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.skyBrightness + " mag/arcsec2" : controller.skyQuality.limitingMagnitude + " mag"
+                        accentColor: theme.teal
+                    }
                     MetricTile { label: "Confidenza"; value: controller.skyQuality.confidence; accentColor: theme.amber }
                 }
 

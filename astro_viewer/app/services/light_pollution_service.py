@@ -147,6 +147,7 @@ class LightPollutionService:
 
     @staticmethod
     def _to_model(row: dict) -> SkyQuality:
+        viirs_radiance, viirs_observation_count = _viirs_details_from_source(row.get("source") or "")
         return SkyQuality(
             bortle_class=int(row["bortle_class"]),
             limiting_magnitude=float(row["limiting_magnitude"]),
@@ -154,6 +155,8 @@ class LightPollutionService:
             source=row["source"],
             description=_description(int(row["bortle_class"])),
             confidence=row.get("confidence") or "medium",
+            viirs_radiance=viirs_radiance,
+            viirs_observation_count=viirs_observation_count,
         )
 
     @staticmethod
@@ -390,6 +393,8 @@ class NasaViirsBlackMarbleProvider:
             ),
             description=_description(bortle),
             confidence=confidence,
+            viirs_radiance=round(radiance_value, 2),
+            viirs_observation_count=observation_count,
         )
 
     @classmethod
@@ -586,6 +591,16 @@ def _bortle_from_viirs_radiance(radiance: float) -> int:
     if radiance < 300.0:
         return 8
     return 9
+
+
+def _viirs_details_from_source(source: str) -> tuple[float | None, int | None]:
+    match = re.search(r"radiance\s+([0-9]+(?:\.[0-9]+)?)\s+nW/cm\^2\s+sr,\s+obs\s+(\d+)", source)
+    if not match:
+        return None, None
+    try:
+        return round(float(match.group(1)), 2), int(match.group(2))
+    except ValueError:
+        return None, None
 
 
 def _nearest_record(location: ObserverLocation, records: list[dict]) -> dict | None:

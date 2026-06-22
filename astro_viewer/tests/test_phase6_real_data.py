@@ -452,8 +452,15 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIsNotNone(quality)
         self.assertEqual(quality.bortle_class, 7)
         self.assertEqual(quality.confidence, "high")
+        self.assertEqual(quality.viirs_radiance, 63.45)
+        self.assertEqual(quality.viirs_observation_count, 10)
         self.assertIn("NASA Black Marble VNP46A3", quality.source)
         self.assertIn("[1320:1:1322][320:1:322]", session.last_constraint)
+
+        qml = quality.to_qml()
+        self.assertTrue(qml["hasViirsRadiance"])
+        self.assertEqual(qml["viirsRadiance"], 63.45)
+        self.assertEqual(qml["viirsObservationCount"], 10)
 
     def test_viirs_session_uses_temporary_netrc_for_earthdata_redirects(self) -> None:
         with patch.dict(os.environ, {"NETRC": "existing-netrc"}, clear=False):

@@ -258,6 +258,8 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("selectedWeatherHourIndex", qml)
         self.assertIn("controller.refreshWeatherNow()", qml)
         self.assertIn("controller.weatherRefreshRunning", qml)
+        self.assertIn("Radiance VIIRS", qml)
+        self.assertIn("SQM stimato", qml)
         self.assertNotIn("weatherLocationLayout", qml)
 
     def test_home_page_displays_active_location_context(self) -> None:

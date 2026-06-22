@@ -11,12 +11,17 @@ class SkyQuality:
     source: str
     description: str
     confidence: str = "medium"
+    viirs_radiance: float | None = None
+    viirs_observation_count: int | None = None
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["bortleClass"] = self.bortle_class
         data["limitingMagnitude"] = self.limiting_magnitude
         data["skyBrightness"] = self.sky_brightness
+        data["viirsRadiance"] = self.viirs_radiance
+        data["viirsObservationCount"] = self.viirs_observation_count
+        data["hasViirsRadiance"] = self.viirs_radiance is not None
         return data
 
 
