@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 
 
 class EquipmentService:
@@ -105,6 +106,8 @@ class EquipmentService:
         telescope: Telescope,
         eyepieces: list[Eyepiece],
         barlows: list[Barlow] | None = None,
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
     ) -> dict:
         """Return a practical eyepiece/Barlow suggestion for the selected setup."""
 
@@ -120,10 +123,13 @@ class EquipmentService:
                 "setupText": "Aggiungi oculari per suggerimenti completi",
                 "setupOptions": [],
                 "explanation": "Telescopio presente, ma nessun oculare configurato.",
+                "telescopeId": telescope.id,
+                "telescopeName": telescope.name,
+                "selectionScore": 12.0,
             }
 
         barlows = barlows or []
-        combinations = self._ranked_combinations(celestial_object, telescope, eyepieces, barlows)
+        combinations = self._ranked_combinations(celestial_object, telescope, eyepieces, barlows, seeing, sky_quality)
         if not combinations:
             return {
                 "bestEyepiece": "",
@@ -134,11 +140,14 @@ class EquipmentService:
                 "setupText": "Aggiungi oculari adatti al profilo",
                 "setupOptions": [],
                 "explanation": "Le combinazioni disponibili superano i limiti pratici dello strumento.",
+                "telescopeId": telescope.id,
+                "telescopeName": telescope.name,
+                "selectionScore": 8.0,
             }
 
         recommended = self._recommended_combination(combinations)
         options = self._option_set(combinations, recommended)
-        difficulty = self._difficulty_for_object(celestial_object, telescope)
+        difficulty = self._difficulty_for_object(celestial_object, telescope, sky_quality)
         setup_options = [self._combo_to_option(role, combo) for role, combo in options]
         alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
         return {
@@ -152,7 +161,33 @@ class EquipmentService:
             "setupText": recommended["detail_label"],
             "setupOptions": setup_options,
             "explanation": self._equipment_explanation(celestial_object, recommended),
+            "telescopeId": telescope.id,
+            "telescopeName": telescope.name,
+            "selectionScore": recommended["score"],
         }
+
+    def suggest_for_profile(
+        self,
+        celestial_object: CelestialObject,
+        telescopes: list[Telescope],
+        eyepieces: list[Eyepiece],
+        barlows: list[Barlow] | None = None,
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
+    ) -> dict:
+        usable_telescopes = [telescope for telescope in telescopes if self.has_optical_telescope(telescope)]
+        if not usable_telescopes:
+            return self._naked_eye_suggestion(celestial_object)
+
+        suggestions = [
+            self.suggest_for_object(celestial_object, telescope, eyepieces, barlows or [], seeing, sky_quality)
+            for telescope in usable_telescopes
+        ]
+        best = max(suggestions, key=lambda item: item.get("selectionScore", 0.0))
+        setup_text = best.get("setupText", "").strip()
+        if setup_text and not setup_text.startswith(("Aggiungi", "Serve almeno")):
+            best = {**best, "setupText": f"{best['telescopeName']} + {setup_text}"}
+        return best
 
     def _ranked_combinations(
         self,
@@ -160,8 +195,10 @@ class EquipmentService:
         telescope: Telescope,
         eyepieces: list[Eyepiece],
         barlows: list[Barlow],
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
     ) -> list[dict]:
-        profile = self._target_profile(celestial_object, telescope)
+        profile = self._target_profile(celestial_object, telescope, seeing, sky_quality)
         combinations = []
         for eyepiece in eyepieces:
             for barlow in self._barlow_options(barlows):
@@ -175,6 +212,7 @@ class EquipmentService:
                     true_field = eyepiece.apparent_field_deg / magnification
                     exit_pupil = telescope.aperture_mm / magnification
                     score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
+                    score += self._telescope_suitability_score(celestial_object, telescope, sky_quality)
                     label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
                     detail_label = label
                     if eyepiece.eyepiece_type == "Zoom":
@@ -286,34 +324,50 @@ class EquipmentService:
             "trueField": f"{combo['true_field']:.2f} gradi",
             "exitPupil": f"{combo['exit_pupil']:.1f} mm",
             "barlow": combo["barlow_label"],
-            "score": round(combo["score"]),
+            "score": max(0, min(100, round(combo["score"]))),
         }
 
-    def _target_profile(self, celestial_object: CelestialObject, telescope: Telescope) -> dict:
+    def _target_profile(
+        self,
+        celestial_object: CelestialObject,
+        telescope: Telescope,
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
+    ) -> dict:
         lower_type = celestial_object.object_type.lower()
         max_altitude = self._parse_altitude(celestial_object.max_altitude)
         magnitude = self._parse_magnitude(celestial_object.magnitude)
         size_arcmin = self._parse_apparent_size(celestial_object.apparent_size)
-        practical_max = max(30.0, telescope.aperture_mm * 2.0)
+        max_useful_magnification = self._seeing_limited_magnification(telescope, seeing)
+        practical_max = max(30.0, max_useful_magnification)
         altitude_factor = 1.0 if max_altitude >= 35 else 0.75 if max_altitude >= 20 else 0.55
         if "pianeta" in lower_type or celestial_object.id in {"mars", "jupiter", "saturn", "mercury", "venus"}:
             ideal_magnification = min(practical_max * 0.82, 190.0) * altitude_factor
-            return {"mode": "high", "idealMag": max(65.0, ideal_magnification), "idealExit": 1.0, "idealField": 0.18, "barlowFriendly": True}
+            return {
+                "mode": "high",
+                "idealMag": max(55.0, ideal_magnification),
+                "idealExit": 1.0,
+                "idealField": 0.18,
+                "barlowFriendly": True,
+                "maxUsefulMag": max_useful_magnification,
+            }
         if celestial_object.id == "moon" or "luna" in lower_type:
-            return {"mode": "balanced", "idealMag": min(practical_max * 0.55, 120.0), "idealExit": 1.8, "idealField": 0.75, "barlowFriendly": False}
+            return {"mode": "balanced", "idealMag": min(practical_max * 0.55, 120.0), "idealExit": 1.8, "idealField": 0.75, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
         if "globular" in lower_type or "ammasso globulare" in lower_type:
-            return {"mode": "high", "idealMag": min(practical_max * 0.65, 135.0), "idealExit": 1.5, "idealField": 0.35, "barlowFriendly": False}
+            return {"mode": "high", "idealMag": min(practical_max * 0.65, 135.0), "idealExit": 1.5, "idealField": 0.35, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
         if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
-            return {"mode": "high", "idealMag": min(practical_max * 0.7, 155.0), "idealExit": 1.2, "idealField": 0.25, "barlowFriendly": True}
+            return {"mode": "high", "idealMag": min(practical_max * 0.7, 155.0), "idealExit": 1.2, "idealField": 0.25, "barlowFriendly": True, "maxUsefulMag": max_useful_magnification}
         if "open" in lower_type or "ammasso aperto" in lower_type:
             desired_field = max(0.9, min(3.0, (size_arcmin or 45.0) / 45.0))
-            return {"mode": "wide", "idealMag": 28.0, "idealExit": 4.2, "idealField": desired_field, "barlowFriendly": False}
+            return {"mode": "wide", "idealMag": 28.0, "idealExit": 4.2, "idealField": desired_field, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
         if "galaxy" in lower_type or "galassia" in lower_type:
             ideal_mag = 58.0 if magnitude is None or magnitude > 8.0 else 72.0
-            return {"mode": "balanced", "idealMag": min(practical_max * 0.45, ideal_mag), "idealExit": 2.2, "idealField": max(0.45, min(1.5, (size_arcmin or 20.0) / 35.0)), "barlowFriendly": False}
+            exit_pupil = 2.8 if sky_quality and sky_quality.bortle_class >= 7 else 2.2
+            return {"mode": "balanced", "idealMag": min(practical_max * 0.45, ideal_mag), "idealExit": exit_pupil, "idealField": max(0.45, min(1.5, (size_arcmin or 20.0) / 35.0)), "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
         if "nebula" in lower_type or "nebul" in lower_type:
-            return {"mode": "wide", "idealMag": 48.0, "idealExit": 3.0, "idealField": max(0.75, min(2.5, (size_arcmin or 35.0) / 35.0)), "barlowFriendly": False}
-        return {"mode": "balanced", "idealMag": 70.0, "idealExit": 2.0, "idealField": 0.6, "barlowFriendly": False}
+            exit_pupil = 3.8 if sky_quality and sky_quality.bortle_class >= 7 else 3.0
+            return {"mode": "wide", "idealMag": 48.0, "idealExit": exit_pupil, "idealField": max(0.75, min(2.5, (size_arcmin or 35.0) / 35.0)), "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
+        return {"mode": "balanced", "idealMag": 70.0, "idealExit": 2.0, "idealField": 0.6, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
 
     @staticmethod
     def _combination_score(profile: dict, magnification: float, true_field: float, exit_pupil: float, multiplier: float) -> float:
@@ -337,9 +391,16 @@ class EquipmentService:
                 score -= 16.0
         elif multiplier > 1.0:
             score -= 4.0
+        if magnification > profile.get("maxUsefulMag", magnification):
+            score -= min(45.0, (magnification - profile["maxUsefulMag"]) / max(profile["maxUsefulMag"], 1.0) * 70.0)
         return max(0.0, score)
 
-    def _difficulty_for_object(self, celestial_object: CelestialObject, telescope: Telescope) -> str:
+    def _difficulty_for_object(
+        self,
+        celestial_object: CelestialObject,
+        telescope: Telescope,
+        sky_quality: SkyQuality | None = None,
+    ) -> str:
         lower_type = celestial_object.object_type.lower()
         magnitude = self._parse_magnitude(celestial_object.magnitude)
         max_altitude = self._parse_altitude(celestial_object.max_altitude)
@@ -348,12 +409,52 @@ class EquipmentService:
         if "pianeta" in lower_type or celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
             return "Facile" if telescope.aperture_mm >= 80 and max_altitude >= 25 else "Media"
         if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
+            if sky_quality and sky_quality.bortle_class >= 8:
+                return "Difficile"
+            surface_brightness = self._surface_brightness_proxy(celestial_object)
+            if sky_quality and sky_quality.bortle_class >= 7 and surface_brightness and surface_brightness >= 13.5:
+                return "Difficile"
             if telescope.aperture_mm < 120 or (magnitude is not None and magnitude > 9.0):
                 return "Difficile"
             return "Media"
         if magnitude is not None and magnitude <= 7.5 and max_altitude >= 30:
             return "Facile"
         return "Media"
+
+    @staticmethod
+    def _seeing_limited_magnification(telescope: Telescope, seeing: SeeingTransparency | None) -> float:
+        theoretical = max(30.0, telescope.aperture_mm * 2.0)
+        if not seeing:
+            return theoretical
+        score = seeing.seeing_score
+        if score >= 82:
+            return min(theoretical, 260.0)
+        if score >= 65:
+            return min(theoretical, 185.0, telescope.aperture_mm * 1.45)
+        if score >= 42:
+            return min(theoretical, 125.0, telescope.aperture_mm * 0.95)
+        return min(theoretical, 85.0, telescope.aperture_mm * 0.6)
+
+    def _telescope_suitability_score(
+        self,
+        celestial_object: CelestialObject,
+        telescope: Telescope,
+        sky_quality: SkyQuality | None = None,
+    ) -> float:
+        lower_type = celestial_object.object_type.lower()
+        aperture = telescope.aperture_mm
+        if "pianeta" in lower_type or celestial_object.id in {"mars", "jupiter", "saturn", "mercury", "venus", "moon"}:
+            return min(18.0, aperture / 12.0)
+        if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
+            bonus = min(24.0, aperture / 9.0)
+            if sky_quality and sky_quality.bortle_class >= 7:
+                bonus *= 0.7
+            return bonus
+        if "globular" in lower_type:
+            return min(22.0, aperture / 9.5)
+        if "open" in lower_type or "cluster" in lower_type:
+            return min(12.0, aperture / 18.0)
+        return min(14.0, aperture / 16.0)
 
     @staticmethod
     def _equipment_explanation(celestial_object: CelestialObject, combination: dict) -> str:
@@ -394,6 +495,9 @@ class EquipmentService:
             "setupText": "Occhio nudo" if naked_eye_realistic else "Serve almeno un binocolo o telescopio",
             "setupOptions": [],
             "explanation": "Oggetto compatibile con osservazione a occhio nudo." if naked_eye_realistic else "Target non realistico senza strumento ottico.",
+            "telescopeId": self.NAKED_EYE_ID,
+            "telescopeName": "Occhio nudo",
+            "selectionScore": 20.0 if naked_eye_realistic else 0.0,
         }
 
     def _difficulty_without_eyepieces(self, celestial_object: CelestialObject) -> str:
@@ -432,6 +536,14 @@ class EquipmentService:
         if not numbers:
             return None
         return max(numbers)
+
+    def _surface_brightness_proxy(self, celestial_object: CelestialObject) -> float | None:
+        magnitude = self._parse_magnitude(celestial_object.magnitude)
+        size_arcmin = self._parse_apparent_size(celestial_object.apparent_size)
+        if magnitude is None or not size_arcmin or size_arcmin <= 0:
+            return None
+        area_arcmin2 = max(1.0, 3.14159 * (size_arcmin / 2.0) ** 2)
+        return magnitude + 2.5 * self._log10(area_arcmin2)
 
     @staticmethod
     def _log10(value: float) -> float:

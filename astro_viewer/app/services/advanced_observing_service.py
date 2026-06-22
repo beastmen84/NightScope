@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
@@ -27,7 +29,7 @@ class AdvancedObservingService:
         deep_sky = round(
             weather.score_value * 0.34
             + seeing.transparency_score * 0.30
-            + (100 - max(0, sky_quality.bortle_class - 1) * 11) * 0.24
+            + self._light_pollution_quality(sky_quality) * 0.24
             + (100 - moon_illumination) * 0.12
         )
         planetary = max(0, min(100, planetary))
@@ -55,3 +57,10 @@ class AdvancedObservingService:
             return float(moon.illumination.replace("%", ""))
         except ValueError:
             return 50.0
+
+    @staticmethod
+    def _light_pollution_quality(sky_quality: SkyQuality) -> int:
+        radiance = getattr(sky_quality, "viirs_radiance", None)
+        if radiance is not None:
+            return max(8, min(100, round(100 - math.log10(max(0.0, radiance) + 1.0) * 38)))
+        return 100 - max(0, sky_quality.bortle_class - 1) * 11

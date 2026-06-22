@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Telescope
@@ -60,12 +61,33 @@ class NightPlannerService:
         sky_quality: SkyQuality,
         telescope: Telescope,
     ) -> float:
-        lower_type = item.object_type.lower()
         category_score = scores.planetary_score if item.object_type == "Pianeta" else scores.deep_sky_score
         aperture_bonus = min(14, telescope.aperture_mm / 18)
-        pollution_penalty = max(0, sky_quality.bortle_class - 4) * (7 if "galaxy" in lower_type else 4)
+        pollution_penalty = NightPlannerService._pollution_penalty(item, sky_quality)
         difficulty_factor = {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
         return (item.score * 0.48 + category_score * 0.34 + weather.score_value * 0.18 + aperture_bonus - pollution_penalty) * difficulty_factor
+
+    @staticmethod
+    def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
+        lower_type = item.object_type.lower()
+        if item.object_type == "Pianeta":
+            return 0.0
+
+        radiance = getattr(sky_quality, "viirs_radiance", None)
+        if radiance is not None:
+            base = min(30.0, math.log10(max(0.0, radiance) + 1.0) * 9.0)
+        else:
+            base = max(0, sky_quality.bortle_class - 4) * 4.0
+
+        if "galaxy" in lower_type or "galassia" in lower_type:
+            base *= 1.65
+        elif "nebula" in lower_type or "nebul" in lower_type:
+            base *= 1.35
+        elif "globular" in lower_type:
+            base *= 1.05
+        elif "open" in lower_type or "cluster" in lower_type:
+            base *= 0.7
+        return base
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:

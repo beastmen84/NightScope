@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 from typing import Protocol
 
@@ -72,7 +73,7 @@ class BasicForecastSeeingProvider:
         transparency_score -= round(avg_mid_cloud * 0.18)
         transparency_score -= round(avg_high_cloud * 0.08)
         transparency_score -= max(0, round((avg_humidity - 65) * 0.45))
-        transparency_score -= max(0, (sky_quality.bortle_class - 3) * 6)
+        transparency_score -= self._pollution_transparency_penalty(sky_quality)
         if avg_visibility < 10_000:
             transparency_score -= 12
         transparency_score = max(0, min(100, transparency_score))
@@ -101,6 +102,13 @@ class BasicForecastSeeingProvider:
         if score >= 42:
             return "Average"
         return "Poor"
+
+    @staticmethod
+    def _pollution_transparency_penalty(sky_quality: SkyQuality) -> int:
+        radiance = getattr(sky_quality, "viirs_radiance", None)
+        if radiance is not None:
+            return min(48, round(math.log10(max(0.0, radiance) + 1.0) * 14))
+        return max(0, (sky_quality.bortle_class - 3) * 6)
 
     @staticmethod
     def _night_hours(hours: list[WeatherHour]) -> list[WeatherHour]:

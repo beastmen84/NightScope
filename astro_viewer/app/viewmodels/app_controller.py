@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
 from dataclasses import replace
 from datetime import datetime, timedelta
@@ -1211,6 +1212,8 @@ class AppController(QObject):
             self._append_service_status(self._weather_status)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
+        self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
+        self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         self._recalculate_observing_outputs()
         self._schedule_viirs_sky_quality_refresh()
@@ -1266,6 +1269,9 @@ class AppController(QObject):
 
         self._weather_status = self._weather_status_from_error(error, self._weather_hours)
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+        if self._sky_quality:
+            self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
+            self._refresh_equipment_recommendations_for_current_objects()
         self._recalculate_observing_outputs()
         self.weatherChanged.emit()
         self.dataChanged.emit()
@@ -1361,7 +1367,8 @@ class AppController(QObject):
         if isinstance(quality, SkyQuality):
             self._sky_quality = quality
             try:
-                self._deep_sky = self._apply_equipment(self._astronomy_engine.recommended_deep_sky(self._location))
+                self._deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+                self._refresh_equipment_recommendations_for_current_objects()
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
             except Exception:
                 logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
@@ -1393,9 +1400,7 @@ class AppController(QObject):
 
     def _apply_equipment_to_current_objects(self) -> None:
         selected_id = self._selected_object.id if self._selected_object else None
-        self._solar_system_objects = self._apply_equipment(self._solar_system_objects)
-        self._visible_planets = [item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible]
-        self._deep_sky = self._apply_equipment(self._deep_sky)
+        self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         if self._weather_summary:
             planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
@@ -1424,6 +1429,13 @@ class AppController(QObject):
                 if item.id == selected_id:
                     self._selected_object = item
                     break
+
+    def _refresh_equipment_recommendations_for_current_objects(self) -> None:
+        self._solar_system_objects = self._apply_equipment(self._solar_system_objects)
+        self._visible_planets = [
+            item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible
+        ]
+        self._deep_sky = self._apply_equipment(self._deep_sky)
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._location_detection_result = result
@@ -1601,14 +1613,21 @@ class AppController(QObject):
         return labels.get(provider, provider or "Nessuna posizione")
 
     def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        telescope = self._current_telescope()
+        telescopes = self._active_profile_telescopes()
         eyepieces = self._active_profile_eyepieces()
         barlows = self._active_profile_barlows()
         updated = []
         for item in objects:
-            suggestion = self._equipment_service.suggest_for_object(item, telescope, eyepieces, barlows)
+            suggestion = self._equipment_service.suggest_for_profile(
+                item,
+                telescopes,
+                eyepieces,
+                barlows,
+                self._seeing_transparency,
+                self._sky_quality,
+            )
             naked_eye_blocked = (
-                not self._equipment_service.has_optical_telescope(telescope)
+                not telescopes
                 and suggestion["setupText"].startswith("Serve almeno")
             )
             updated.append(
@@ -1640,7 +1659,9 @@ class AppController(QObject):
                 image = self._object_image_map.get("messier-default-cluster")
         notes = item.notes
         if description:
-            notes = f"{description['observing_notes']} {item.notes}".strip()
+            observing_notes = description["observing_notes"].strip()
+            if observing_notes and observing_notes not in notes:
+                notes = f"{observing_notes} {item.notes}".strip()
         return replace(
             item,
             image=image["image_path"] if image else item.image,
@@ -1648,29 +1669,38 @@ class AppController(QObject):
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        if not self._sky_quality or self._sky_quality.bortle_class < 8:
+        if not self._sky_quality:
             return objects
+        radiance = self._sky_quality.viirs_radiance
+        if radiance is None and self._sky_quality.bortle_class < 7:
+            return objects
+        if radiance is not None and radiance < 20 and self._sky_quality.bortle_class < 7:
+            return objects
+
         updated = []
         for item in objects:
             lower_type = item.object_type.lower()
-            penalty = 8
-            if "galaxy" in lower_type:
-                penalty = 34
+            penalty = self._deep_sky_pollution_base_penalty()
+            if "galaxy" in lower_type or "galassia" in lower_type:
+                penalty *= 2.0
             elif "nebula" in lower_type and "cluster" not in lower_type:
-                penalty = 26
+                penalty *= 1.6
             elif "globular" in lower_type:
-                penalty = 14
+                penalty *= 1.15
             elif "open" in lower_type or "cluster" in lower_type:
-                penalty = 6
+                penalty *= 0.55
             try:
                 magnitude = float(item.magnitude)
             except ValueError:
                 magnitude = 10.0
             if magnitude >= 8.5:
                 penalty += 12
-            score = max(0, item.score - penalty)
+            surface_brightness = self._equipment_service._surface_brightness_proxy(item)
+            if surface_brightness and surface_brightness >= 13.5:
+                penalty += 8
+            score = max(0, round(item.score - penalty))
             note = item.notes
-            urban_note = "Cielo urbano: visibilita limitata, serve trasparenza buona e schermare luci dirette."
+            urban_note = "Cielo luminoso: visibilita limitata, serve trasparenza buona e schermare luci dirette."
             if urban_note not in note:
                 note = f"{urban_note} {note}"
             updated.append(
@@ -1683,6 +1713,16 @@ class AppController(QObject):
                 )
             )
         return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
+
+    def _deep_sky_pollution_base_penalty(self) -> float:
+        if not self._sky_quality:
+            return 0.0
+        radiance = self._sky_quality.viirs_radiance
+        bortle_penalty = max(0.0, (self._sky_quality.bortle_class - 6) * 8.0)
+        if radiance is None:
+            return max(6.0, bortle_penalty)
+        radiance_penalty = min(24.0, math.log10(max(0.0, radiance) + 1.0) * 6.0)
+        return max(6.0, bortle_penalty, radiance_penalty)
 
     @staticmethod
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:

@@ -20,7 +20,7 @@ from astro_viewer.app.database.geonames_importer import import_geonames_cities
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
-from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
@@ -220,6 +220,37 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertEqual(suggestion["bestEyepiece"], "Baader Hyperion Zoom")
         self.assertIn("mm", suggestion["suggestedPosition"])
         self.assertIn("@", suggestion["setupText"])
+
+    def test_profile_suggestion_selects_best_telescope_for_deep_sky(self) -> None:
+        target = _object("messier-M51", "M51", "Galaxy", "8.4")
+        target = target.__class__(**{**target.__dict__, "apparent_size": "11 arcmin"})
+
+        suggestion = EquipmentService().suggest_for_profile(
+            target,
+            [
+                Telescope("small", "Maksutov 90", 90, 1250, "Maksutov", "manuale"),
+                Telescope("large", "Dobson 200", 200, 1200, "Newton", "Dobson"),
+            ],
+            [Eyepiece("e1", "25 mm", 25, 52), Eyepiece("e2", "10 mm", 10, 60)],
+            [],
+            None,
+            SkyQuality(7, 4.6, 18.8, "test", "Urban Sky", "high", 55.0, 18),
+        )
+
+        self.assertEqual(suggestion["telescopeName"], "Dobson 200")
+        self.assertIn("Dobson 200 +", suggestion["setupText"])
+
+    def test_poor_seeing_limits_planetary_magnification(self) -> None:
+        suggestion = EquipmentService().suggest_for_object(
+            _object("saturn", "Saturno", "Pianeta", "0.8"),
+            Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale"),
+            [Eyepiece("e1", "25 mm", 25, 52)],
+            [Barlow("b1", "Barlow 2x", 2.0, "1.25")],
+            SeeingTransparency("Poor", "Average", 30, 50, "Seeing scarso."),
+        )
+
+        self.assertEqual(suggestion["barlow"], "No")
+        self.assertNotIn("Barlow 2x", suggestion["setupText"])
 
     def test_catalog_telescope_add_does_not_assign_profile_implicitly(self) -> None:
         with _controller() as controller:
