@@ -23,7 +23,10 @@ class Phase3ServiceTests(unittest.TestCase):
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
             initialize_database(database_path, schema_path)
 
-            service = LightPollutionService(SkyQualityRepository(database_path))
+            service = LightPollutionService(
+                SkyQualityRepository(database_path),
+                dataset_path=Path(__file__).resolve().parents[1] / "data" / "light_pollution_seed.csv",
+            )
             quality = service.sky_quality(ObserverLocation("Milano", "Italia", 45.46, 9.19, "Europe/Rome"))
 
             self.assertEqual(quality.bortle_class, 8)
@@ -76,4 +79,3 @@ class Phase3ServiceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

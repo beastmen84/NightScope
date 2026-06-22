@@ -28,11 +28,12 @@ No API keys or vendor-specific private data are included.
 
 Prepared external providers:
 
-- World Atlas style local raster/CSV lookup
-- NASA/VIIRS Black Marble style local tiles/CSV lookup
-- Offline estimate fallback
+- `light_pollution_world_atlas.csv`: optional preprocessed World Atlas / SQM sample grid. Expected columns are `latitude`, `longitude`, `radius_km`, and either `sky_brightness`/`sqm_mag_arcsec2` or `bortle_class`. Optional columns: `limiting_magnitude`, `source`, `confidence`.
+- `light_pollution_viirs_samples.csv`: optional preprocessed VIIRS / Black Marble sample grid with the same normalized columns after external preprocessing.
+- `light_pollution_seed.csv`: packaged NightScope local baseline used only when richer local datasets are absent.
+- Offline estimate fallback: used only when no local record matches the active location.
 
-NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
+The app does not download NASA/VIIRS or World Atlas raster products at runtime. Those products need an external preprocessing step into the CSV format above before packaging. NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
 ## Object Images And Descriptions
 

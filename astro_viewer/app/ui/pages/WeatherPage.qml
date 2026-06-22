@@ -115,14 +115,33 @@ Item {
                 MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
             }
 
-            Text {
+            GlassCard {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                text: controller.skyQuality.source + "  -  confidenza: " + controller.skyQuality.confidence + "  -  seeing: " + controller.seeingTransparency.source + " (" + controller.seeingTransparency.confidence + ")"
-                color: theme.textMuted
-                font.pixelSize: 12
-                wrapMode: Text.WordWrap
+                title: "Qualita cielo locale"
+                subtitle: controller.skyQuality.source
+                accentColor: theme.violet
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: root.width > 980 ? 4 : 2
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass.toString(); accentColor: theme.violet }
+                    MetricTile { label: "SQM"; value: controller.skyQuality.skyBrightness + " mag/arcsec2"; accentColor: theme.cyan }
+                    MetricTile { label: "Limite visuale"; value: controller.skyQuality.limitingMagnitude + " mag"; accentColor: theme.teal }
+                    MetricTile { label: "Confidenza"; value: controller.skyQuality.confidence; accentColor: theme.amber }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Seeing: " + controller.seeingTransparency.source + " (" + controller.seeingTransparency.confidence + ")"
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
             }
 
             GlassCard {

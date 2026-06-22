@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import math
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
@@ -10,24 +11,6 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.sky import SkyQuality
 
-
-KNOWN_CITY_BORTLE = {
-    "milano": 8,
-    "roma": 8,
-    "torino": 7,
-    "napoli": 8,
-    "palermo": 7,
-    "londra": 8,
-    "parigi": 8,
-    "berlino": 7,
-    "new york": 9,
-    "los angeles": 9,
-    "tokyo": 9,
-    "sydney": 8,
-    "nairobi": 7,
-    "madrid": 8,
-    "buenos aires": 8,
-}
 
 BORTLE_LIMITING_MAGNITUDE = {
     1: 7.6,
@@ -53,22 +36,30 @@ BORTLE_SKY_BRIGHTNESS = {
     9: 17.5,
 }
 
+LEGACY_CACHE_SOURCES = {
+    "Fonte: stima offline NightScope",
+}
+LEGACY_CACHE_MARKERS = (
+    "pending World Atlas import",
+)
+
 
 class LightPollutionService:
     """Provider-backed sky quality lookup with cache and offline fallback."""
 
     def __init__(self, repository: SkyQualityRepository, dataset_path: Path | None = None):
         self._repository = repository
+        dataset_paths = _candidate_dataset_paths(dataset_path)
         self._providers: list[LightPollutionProvider] = [
-            WorldAtlasProvider(dataset_path),
-            ViirsBlackMarbleProvider(dataset_path),
+            WorldAtlasCsvProvider(dataset_paths),
+            LocalSkyQualityCsvProvider([dataset_path] if dataset_path else []),
             OfflineEstimateProvider(),
         ]
 
     def sky_quality(self, location: ObserverLocation) -> SkyQuality:
         key = self._location_key(location)
         cached = self._repository.get(key)
-        if cached:
+        if cached and not self._is_stale_cache(cached):
             return self._to_model(cached)
 
         quality = self._provider_quality(location)
@@ -109,6 +100,11 @@ class LightPollutionService:
             confidence=row.get("confidence") or "medium",
         )
 
+    @staticmethod
+    def _is_stale_cache(row: dict) -> bool:
+        source = row.get("source") or ""
+        return source in LEGACY_CACHE_SOURCES or any(marker in source for marker in LEGACY_CACHE_MARKERS)
+
 
 class LightPollutionProvider(Protocol):
     name: str
@@ -121,32 +117,25 @@ class OfflineEstimateProvider:
     name = "OfflineEstimateProvider"
 
     def lookup(self, location: ObserverLocation) -> SkyQuality:
-        city_key = location.city.lower().strip()
-        if city_key in KNOWN_CITY_BORTLE:
-            bortle = KNOWN_CITY_BORTLE[city_key]
-            confidence = "medium"
-        elif location.city.lower().startswith("coordinate"):
+        if location.city.lower().startswith("coordinate"):
             bortle = 5
-            confidence = "low"
         else:
             bortle = 6
-            confidence = "low"
         return SkyQuality(
             bortle_class=bortle,
             limiting_magnitude=BORTLE_LIMITING_MAGNITUDE[bortle],
             sky_brightness=BORTLE_SKY_BRIGHTNESS[bortle],
-            source="Fonte: stima offline NightScope",
+            source="Fonte: stima offline NightScope (nessun dataset locale)",
             description=_description(bortle),
-            confidence=confidence,
+            confidence="low",
         )
 
 
-class WorldAtlasProvider:
-    name = "WorldAtlasProvider"
+class CsvSkyQualityProvider:
+    name = "CsvSkyQualityProvider"
 
-    def __init__(self, dataset_path: Path | None = None):
-        self._dataset_path = dataset_path
-        self._records = _load_light_pollution_records(dataset_path)
+    def __init__(self, dataset_paths: Iterable[Path | None], default_source: str, default_confidence: str):
+        self._records = _load_light_pollution_records(dataset_paths, default_source, default_confidence)
 
     def lookup(self, location: ObserverLocation) -> SkyQuality | None:
         record = _nearest_record(location, self._records)
@@ -162,32 +151,132 @@ class WorldAtlasProvider:
         )
 
 
-class ViirsBlackMarbleProvider(WorldAtlasProvider):
-    name = "ViirsBlackMarbleProvider"
+class WorldAtlasCsvProvider(CsvSkyQualityProvider):
+    name = "WorldAtlasCsvProvider"
 
-    def lookup(self, location: ObserverLocation) -> SkyQuality | None:
-        return None
+    def __init__(self, dataset_paths: Iterable[Path | None]):
+        super().__init__(
+            dataset_paths,
+            default_source="World Atlas / VIIRS preprocessed local dataset",
+            default_confidence="high",
+        )
 
 
-def _load_light_pollution_records(dataset_path: Path | None) -> list[dict]:
-    if not dataset_path or not dataset_path.exists():
+class LocalSkyQualityCsvProvider(CsvSkyQualityProvider):
+    name = "LocalSkyQualityCsvProvider"
+
+    def __init__(self, dataset_paths: Iterable[Path | None]):
+        super().__init__(
+            dataset_paths,
+            default_source="NightScope local sky-quality seed",
+            default_confidence="medium",
+        )
+
+
+def _candidate_dataset_paths(dataset_path: Path | None) -> list[Path]:
+    if not dataset_path:
         return []
+    data_dir = dataset_path.parent
+    return [
+        data_dir / "light_pollution_world_atlas.csv",
+        data_dir / "light_pollution_viirs_samples.csv",
+    ]
+
+
+def _load_light_pollution_records(
+    dataset_paths: Iterable[Path | None],
+    default_source: str,
+    default_confidence: str,
+) -> list[dict]:
+    records = []
+    for dataset_path in dataset_paths:
+        if not dataset_path or not dataset_path.exists():
+            continue
+        records.extend(_read_light_pollution_records(dataset_path, default_source, default_confidence))
+    return records
+
+
+def _read_light_pollution_records(dataset_path: Path, default_source: str, default_confidence: str) -> list[dict]:
     records = []
     with dataset_path.open("r", encoding="utf-8", newline="") as file:
         for row in csv.DictReader(file):
-            records.append(
-                {
-                    "latitude": float(row["latitude"]),
-                    "longitude": float(row["longitude"]),
-                    "radius_km": float(row.get("radius_km") or 0),
-                    "bortle_class": int(float(row["bortle_class"])),
-                    "sky_brightness": float(row["sky_brightness"]),
-                    "limiting_magnitude": float(row["limiting_magnitude"]),
-                    "source": row.get("source", "dataset locale"),
-                    "confidence": row.get("confidence", "medium"),
-                }
-            )
+            record = _normalize_record(row, default_source, default_confidence)
+            if record:
+                records.append(record)
     return records
+
+
+def _normalize_record(row: dict, default_source: str, default_confidence: str) -> dict | None:
+    latitude = _row_float(row, "latitude", "lat")
+    longitude = _row_float(row, "longitude", "lon", "lng")
+    if latitude is None or longitude is None:
+        return None
+
+    sky_brightness = _row_float(row, "sky_brightness", "sqm_mag_arcsec2", "mag_arcsec2", "sqm")
+    bortle = _row_int(row, "bortle_class", "bortle")
+    if bortle is None and sky_brightness is not None:
+        bortle = _bortle_from_sky_brightness(sky_brightness)
+    if bortle is None:
+        return None
+    bortle = max(1, min(9, bortle))
+
+    limiting_magnitude = _row_float(row, "limiting_magnitude", "nelm")
+    if limiting_magnitude is None:
+        limiting_magnitude = BORTLE_LIMITING_MAGNITUDE[bortle]
+    if sky_brightness is None:
+        sky_brightness = BORTLE_SKY_BRIGHTNESS[bortle]
+
+    radius_km = _row_float(row, "radius_km", "cell_size_km")
+    if radius_km is None:
+        radius_km = 5.0
+
+    return {
+        "latitude": latitude,
+        "longitude": longitude,
+        "radius_km": radius_km,
+        "bortle_class": bortle,
+        "sky_brightness": sky_brightness,
+        "limiting_magnitude": limiting_magnitude,
+        "source": row.get("source") or default_source,
+        "confidence": row.get("confidence") or default_confidence,
+    }
+
+
+def _row_float(row: dict, *keys: str) -> float | None:
+    for key in keys:
+        value = row.get(key)
+        if value in (None, ""):
+            continue
+        try:
+            return float(str(value).replace(",", "."))
+        except ValueError:
+            continue
+    return None
+
+
+def _row_int(row: dict, *keys: str) -> int | None:
+    value = _row_float(row, *keys)
+    return int(round(value)) if value is not None else None
+
+
+def _bortle_from_sky_brightness(sky_brightness: float) -> int:
+    if sky_brightness >= 21.75:
+        return 1
+    if sky_brightness >= 21.5:
+        return 2
+    if sky_brightness >= 21.0:
+        return 3
+    if sky_brightness >= 20.4:
+        return 4
+    if sky_brightness >= 19.5:
+        return 5
+    if sky_brightness >= 18.9:
+        return 6
+    if sky_brightness >= 18.3:
+        return 7
+    if sky_brightness >= 17.8:
+        return 8
+    return 9
 
 
 def _nearest_record(location: ObserverLocation, records: list[dict]) -> dict | None:
