@@ -9,6 +9,164 @@ Item {
     property var controller
     signal openObject(string objectId)
 
+    function assignedEquipment(kind) {
+        var items = controller.profileAssignedEquipment || []
+        return items.filter(function(item) { return item.kind === kind })
+    }
+
+    function firstAssignedName(kind) {
+        var items = root.assignedEquipment(kind)
+        return items.length > 0 ? items[0].name : ""
+    }
+
+    function activeProfileSummary() {
+        var telescope = root.firstAssignedName("telescope")
+        var eyepiece = root.firstAssignedName("eyepiece")
+        var barlows = root.assignedEquipment("barlow")
+        var parts = []
+        if (telescope.length > 0)
+            parts.push(telescope)
+        else
+            parts.push(controller.activeEquipmentProfile.profile_name || "Occhio nudo")
+        if (eyepiece.length > 0)
+            parts.push(eyepiece)
+        if (barlows.length > 0)
+            parts.push(barlows[0].name)
+        return "Profilo attivo: " + parts.join(" + ")
+    }
+
+    function hasOpticalProfile() {
+        return root.assignedEquipment("telescope").length > 0
+    }
+
+    function optionByRole(item, role) {
+        var options = item.setupOptions || []
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].role === role)
+                return options[i]
+        }
+        return null
+    }
+
+    function displaySetupOption(item) {
+        var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
+        if (item.id === "venus" || item.id === "mercury")
+            return root.optionByRole(item, "Alternativa") || root.optionByRole(item, "Consigliato")
+        if (typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
+            return root.optionByRole(item, "Campo largo") || root.optionByRole(item, "Consigliato")
+        if (typeText.indexOf("globular") >= 0 || typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
+            return root.optionByRole(item, "Alternativa") || root.optionByRole(item, "Consigliato")
+        return root.optionByRole(item, "Consigliato")
+    }
+
+    function recommendedSetup(item) {
+        var option = root.displaySetupOption(item)
+        var setup = option ? option.detailLabel : (item.recommended_setup || item.setup || "")
+        if (!root.hasOpticalProfile())
+            return setup
+        var lower = setup.toLowerCase()
+        if (lower.indexOf("occhio nudo") >= 0 || lower.indexOf("binocolo") >= 0 || lower.indexOf("serve almeno") >= 0)
+            return setup
+        var telescope = root.firstAssignedName("telescope")
+        return telescope.length > 0 ? telescope + " + " + setup : setup
+    }
+
+    function recommendationReason(item) {
+        var option = root.displaySetupOption(item)
+        var role = option ? option.role : ""
+        var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
+        if (item.id === "venus" || item.id === "mercury")
+            return "Target molto luminoso: ingrandimento moderato e contrasto stabile."
+        if (role === "Campo largo" || typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
+            return "Campo reale piu ampio per inquadrare meglio l'oggetto."
+        if ((item.type || "") === "Pianeta")
+            return "Miglior compromesso tra dettaglio planetario e seeing previsto."
+        if (typeText.indexOf("globular") >= 0)
+            return "Ingrandimento medio-alto per separare meglio il nucleo."
+        if (typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
+            return "Pupilla e campo bilanciati per contrasto su cielo profondo."
+        return item.equipmentExplanation || "Setup scelto in base al profilo attivo."
+    }
+
+    function objectById(objectId) {
+        var groups = [controller.visiblePlanets || [], controller.recommendedDeepSky || []]
+        for (var groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+            for (var itemIndex = 0; itemIndex < groups[groupIndex].length; itemIndex++) {
+                if (groups[groupIndex][itemIndex].id === objectId)
+                    return groups[groupIndex][itemIndex]
+            }
+        }
+        return null
+    }
+
+    function planSetup(item) {
+        var objectData = root.objectById(item.objectId)
+        return objectData ? root.recommendedSetup(objectData) : item.setup
+    }
+
+    function planReason(item) {
+        var objectData = root.objectById(item.objectId)
+        return objectData ? root.recommendationReason(objectData) : "Sequenza ordinata per finestra utile e punteggio."
+    }
+
+    function visibilityLabel(item) {
+        var value = (item.visibility_class || "").toLowerCase()
+        if (value.indexOf("occhio") >= 0)
+            return "Visibile a occhio nudo"
+        if (value.indexOf("binocolo") >= 0)
+            return "Visibile con binocolo"
+        if (value.length > 0)
+            return "Visibilita: " + item.visibility_class
+        return item.observingStatus || "Finestra utile"
+    }
+
+    function objectWindow(item) {
+        var time = item.homeTimeLabel ? item.homeTimeLabel : item.timeLabel
+        var direction = item.direction || ""
+        return root.visibilityLabel(item) + "  -  " + time + (direction.length > 0 ? "  -  " + direction : "")
+    }
+
+    function difficultyLabel(item) {
+        return item.difficulty && item.difficulty !== "n/d" ? "Difficolta: " + item.difficulty : ""
+    }
+
+    function diverseEvents(limit) {
+        var events = controller.events || []
+        var result = []
+        var seenTitles = {}
+        var seenTypes = {}
+        for (var i = 0; i < events.length && result.length < limit; i++) {
+            var titleKey = (events[i].title || "").toLowerCase()
+            var typeKey = (events[i].type || "").toLowerCase()
+            if (seenTitles[titleKey])
+                continue
+            if (seenTypes[typeKey] && result.length < Math.max(1, limit - 1))
+                continue
+            seenTitles[titleKey] = true
+            seenTypes[typeKey] = true
+            result.push(events[i])
+        }
+        for (var j = 0; j < events.length && result.length < limit; j++) {
+            if (result.indexOf(events[j]) < 0)
+                result.push(events[j])
+        }
+        return result
+    }
+
+    function smartNotifications(limit) {
+        var notifications = controller.notifications || []
+        var result = []
+        var seen = {}
+        for (var i = 0; i < notifications.length && result.length < limit; i++) {
+            var key = (notifications[i].title || "").toLowerCase()
+            if (seen[key])
+                continue
+            seen[key] = true
+            result.push(notifications[i])
+        }
+        return result
+    }
+
     AppTheme {
         id: theme
     }
@@ -49,6 +207,15 @@ Item {
                         text: controller.activeLocationLabel + "  -  " + controller.activeLocationSource
                         color: theme.textSecondary
                         font.pixelSize: 14
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.activeProfileSummary()
+                        color: theme.cyan
+                        font.pixelSize: 13
+                        font.weight: Font.DemiBold
                         elide: Text.ElideRight
                     }
                 }
@@ -94,6 +261,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 214
                     title: "Qualita osservativa"
                     subtitle: controller.observingQuality.explanation
                     accentColor: theme.scoreColor(controller.observingQuality.score)
@@ -128,6 +296,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 214
                     Layout.columnSpan: topGrid.columns >= 3 ? 2 : 1
                     title: "Miglior oggetto della notte"
                     subtitle: controller.bestObjectOfNight.observingStatusDetail
@@ -183,9 +352,17 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Setup: " + controller.bestObjectOfNight.recommended_setup
+                                text: "Consigliato: " + root.recommendedSetup(controller.bestObjectOfNight)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Motivo: " + root.recommendationReason(controller.bestObjectOfNight)
+                                color: theme.textMuted
+                                font.pixelSize: 11
                                 elide: Text.ElideRight
                             }
                         }
@@ -194,6 +371,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 214
                     title: "Punteggio planetario"
                     subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
                     accentColor: theme.teal
@@ -214,6 +392,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 214
                     title: "Punteggio cielo profondo"
                     subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
                     accentColor: theme.violet
@@ -254,6 +433,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 286
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     title: "Piano osservativo"
                     subtitle: "Sequenza ordinata per utilita e finestra notturna"
@@ -271,29 +451,17 @@ Item {
                     Repeater {
                         model: controller.nightPlan.slice(0, 4)
 
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 12
-
-                            StatusPill {
-                                text: modelData.timeLabel
-                                accentColor: theme.green
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.name + "  -  " + modelData.difficulty + "  -  " + modelData.setup
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                Layout.preferredWidth: 58
-                                text: modelData.score + "/100"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                horizontalAlignment: Text.AlignRight
+                        delegate: ObjectRow {
+                            itemData: modelData
+                            assetBaseUrl: controller.assetBaseUrl
+                            typeText: "Piano osservativo"
+                            difficultyText: "Difficolta: " + modelData.difficulty
+                            visibilityText: modelData.timeLabel + "  -  " + modelData.direction
+                            recommendedSetup: root.planSetup(modelData)
+                            reasonText: root.planReason(modelData)
+                            scoreText: modelData.score + "/100"
+                            onOpenRequested: function(objectId) {
+                                root.openObject(objectId)
                             }
                         }
                     }
@@ -301,6 +469,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: 286
                     title: "Luna"
                     subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
                     accentColor: theme.amber
@@ -368,6 +537,11 @@ Item {
                             delegate: ObjectRow {
                                 itemData: modelData
                                 assetBaseUrl: controller.assetBaseUrl
+                                typeText: modelData.type
+                                difficultyText: root.difficultyLabel(modelData)
+                                visibilityText: root.objectWindow(modelData)
+                                recommendedSetup: root.recommendedSetup(modelData)
+                                reasonText: root.recommendationReason(modelData)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -417,6 +591,11 @@ Item {
                         delegate: ObjectRow {
                             itemData: modelData
                             assetBaseUrl: controller.assetBaseUrl
+                            typeText: modelData.type
+                            difficultyText: root.difficultyLabel(modelData)
+                            visibilityText: root.objectWindow(modelData)
+                            recommendedSetup: root.recommendedSetup(modelData)
+                            reasonText: root.recommendationReason(modelData)
                             onOpenRequested: function(objectId) {
                                 root.openObject(objectId)
                             }
@@ -524,7 +703,7 @@ Item {
                     accentColor: theme.amber
 
                     Repeater {
-                        model: controller.events.slice(0, 3)
+                        model: root.diverseEvents(3)
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
@@ -568,7 +747,7 @@ Item {
                     accentColor: theme.coral
 
                     Repeater {
-                        model: controller.notifications.slice(0, 3)
+                        model: root.smartNotifications(3)
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
