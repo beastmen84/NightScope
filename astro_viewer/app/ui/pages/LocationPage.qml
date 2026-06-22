@@ -8,24 +8,18 @@ Item {
 
     property var controller
 
-    function diagnosticValue(value, fallbackText) {
-        if (value === undefined || value === null || value === "")
-            return fallbackText
-        return value
-    }
-
-    function diagnosticJson(value) {
-        if (value === undefined || value === null)
-            return ""
-        return JSON.stringify(value, null, 2)
-    }
-
     function compactCountry() {
         if (!controller.hasValidLocation)
             return "Nessuna posizione configurata"
         if (controller.location.country === undefined || controller.location.country === "")
             return controller.location.timezone
         return controller.location.country + "  -  " + controller.location.timezone
+    }
+
+    function currentLocationTitle() {
+        if (!controller.hasValidLocation)
+            return "Nessuna posizione"
+        return controller.location.city + " (" + controller.location.latitude.toFixed(4) + " / " + controller.location.longitude.toFixed(4) + ")"
     }
 
     AppTheme {
@@ -89,7 +83,6 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.columnSpan: overviewGrid.columns === 2 && controller.recentLocations.length === 0 ? 2 : 1
                     title: "Posizione attuale"
                     subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
                     accentColor: theme.green
@@ -109,7 +102,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: controller.hasValidLocation ? controller.location.city : "Nessuna posizione"
+                                text: root.currentLocationTitle()
                                 color: theme.textPrimary
                                 font.pixelSize: 20
                                 font.weight: Font.DemiBold
@@ -126,7 +119,8 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: controller.hasValidLocation ? (controller.location.latitude.toFixed(4) + ", " + controller.location.longitude.toFixed(4)) : "Configura una posizione per ottenere meteo e cielo locale."
+                                visible: !controller.hasValidLocation
+                                text: "Configura una posizione per ottenere meteo e cielo locale."
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -137,62 +131,76 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    visible: controller.recentLocations.length > 0
-                    title: "Posizioni recenti"
-                    subtitle: "Ultime posizioni salvate o caricate"
-                    accentColor: theme.violet
+                    title: "Rilevamento posizione all'avvio"
+                    subtitle: "Origini usate quando NightScope parte."
+                    accentColor: theme.teal
 
-                    Repeater {
-                        model: controller.recentLocations
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 1280 ? 3 : 1
+                        columnSpacing: 14
+                        rowSpacing: 6
 
-                        delegate: Rectangle {
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            implicitHeight: 42
-                            radius: 8
-                            color: recentMouse.containsMouse ? "#20242b" : "#15181e"
-                            border.color: recentMouse.containsMouse ? "#303641" : "transparent"
-                            border.width: 1
+                            spacing: 4
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 8
-                                spacing: 10
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 1
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.location.city + ", " + modelData.location.country
-                                        color: theme.textPrimary
-                                        font.pixelSize: 13
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.location.timezone
-                                        color: theme.textMuted
-                                        font.pixelSize: 11
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                Button {
-                                    Layout.preferredWidth: 64
-                                    text: "Usa"
-                                    onClicked: controller.selectRecentLocation(index)
-                                }
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Avvio"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
                             }
 
-                            MouseArea {
-                                id: recentMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                acceptedButtons: Qt.NoButton
+                            CheckBox {
+                                Layout.fillWidth: true
+                                text: "Rileva automaticamente"
+                                checked: controller.autoDetectLocationOnStartup
+                                onToggled: controller.setAutoDetectLocationOnStartup(checked)
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Origini"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            CheckBox {
+                                Layout.fillWidth: true
+                                text: "Posizione Windows"
+                                checked: controller.useWindowsLocationOnStartup
+                                onToggled: controller.setUseWindowsLocationOnStartup(checked)
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Fallback"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            CheckBox {
+                                Layout.fillWidth: true
+                                text: "Online approssimato"
+                                checked: controller.allowApproximateOnlineLocation
+                                onToggled: controller.setAllowApproximateOnlineLocation(checked)
                             }
                         }
                     }
@@ -203,76 +211,62 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Rilevamento posizione all'avvio"
-                subtitle: "Scegli se rilevare automaticamente la posizione e quali origini sono consentite."
-                accentColor: theme.teal
+                visible: controller.recentLocations.length > 0
+                title: "Posizioni recenti"
+                subtitle: "Ultime posizioni salvate o caricate"
+                accentColor: theme.violet
 
-                GridLayout {
-                    Layout.fillWidth: true
-                    columns: root.width > 1040 ? 3 : 1
-                    columnSpacing: 18
-                    rowSpacing: 8
+                Repeater {
+                    model: controller.recentLocations
 
-                    ColumnLayout {
+                    delegate: Rectangle {
                         Layout.fillWidth: true
-                        spacing: 6
+                        implicitHeight: 42
+                        radius: 8
+                        color: recentMouse.containsMouse ? "#20242b" : "#15181e"
+                        border.color: recentMouse.containsMouse ? "#303641" : "transparent"
+                        border.width: 1
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Avvio"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            font.weight: Font.DemiBold
-                            elide: Text.ElideRight
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 8
+                            spacing: 10
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 1
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.location.city + ", " + modelData.location.country
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.location.timezone
+                                    color: theme.textMuted
+                                    font.pixelSize: 11
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            Button {
+                                Layout.preferredWidth: 64
+                                text: "Usa"
+                                onClicked: controller.selectRecentLocation(index)
+                            }
                         }
 
-                        CheckBox {
-                            Layout.fillWidth: true
-                            text: "Rileva automaticamente"
-                            checked: controller.autoDetectLocationOnStartup
-                            onToggled: controller.setAutoDetectLocationOnStartup(checked)
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Origini consentite"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            font.weight: Font.DemiBold
-                            elide: Text.ElideRight
-                        }
-
-                        CheckBox {
-                            Layout.fillWidth: true
-                            text: "Posizione Windows"
-                            checked: controller.useWindowsLocationOnStartup
-                            onToggled: controller.setUseWindowsLocationOnStartup(checked)
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Fallback"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            font.weight: Font.DemiBold
-                            elide: Text.ElideRight
-                        }
-
-                        CheckBox {
-                            Layout.fillWidth: true
-                            text: "Online approssimato"
-                            checked: controller.allowApproximateOnlineLocation
-                            onToggled: controller.setAllowApproximateOnlineLocation(checked)
+                        MouseArea {
+                            id: recentMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
                         }
                     }
                 }
@@ -300,145 +294,10 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    GridLayout {
+                    Button {
                         Layout.fillWidth: true
-                        columns: root.width > 760 ? 2 : 1
-                        columnSpacing: 10
-                        rowSpacing: 8
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: "Usa posizione Windows"
-                            onClicked: controller.useWindowsLocation()
-                        }
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: "Diagnostica Windows"
-                            onClicked: controller.runWindowsLocationDiagnostics()
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        visible: controller.windowsLocationDiagnostics.providerStatus !== "not run"
-                        radius: 8
-                        color: "#1c222b"
-                        border.color: theme.cyan
-                        border.width: 1
-                        implicitHeight: diagnosticsLayout.implicitHeight + 20
-
-                        ColumnLayout {
-                            id: diagnosticsLayout
-                            anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 8
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Windows Location Diagnostics"
-                                color: theme.textPrimary
-                                font.pixelSize: 14
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Access Status: " + root.diagnosticValue(controller.windowsLocationDiagnostics.accessStatus, "n/d")
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "RequestAccessAsync result: " + root.diagnosticValue(controller.windowsLocationDiagnostics.requestAccessResult, "n/d")
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Coordinates received: " + (controller.windowsLocationDiagnostics.coordinatesReceived ? "yes" : "no")
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Provider status: " + root.diagnosticValue(controller.windowsLocationDiagnostics.providerStatus, "n/d")
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Coordinates: " + root.diagnosticJson(controller.windowsLocationDiagnostics.coordinates)
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 4
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Error details: " + root.diagnosticJson(controller.windowsLocationDiagnostics.errorDetails)
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 8
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Thread/apartment: " + root.diagnosticJson(controller.windowsLocationDiagnostics.thread)
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 5
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "WinRT: " + root.diagnosticJson(controller.windowsLocationDiagnostics.winrt)
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 8
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Steps: " + root.diagnosticJson(controller.windowsLocationDiagnostics.steps)
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 10
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Raw provider response: " + root.diagnosticValue(controller.windowsLocationDiagnostics.rawProviderResponse, "n/d")
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WrapAnywhere
-                                maximumLineCount: 10
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                visible: controller.windowsLocationDiagnostics.rawProviderError !== undefined && controller.windowsLocationDiagnostics.rawProviderError.length > 0
-                                text: "Raw provider error: " + controller.windowsLocationDiagnostics.rawProviderError
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                wrapMode: Text.WrapAnywhere
-                                maximumLineCount: 6
-                            }
-                        }
+                        text: "Usa posizione Windows"
+                        onClicked: controller.useWindowsLocation()
                     }
 
                     Rectangle {
@@ -514,6 +373,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 248 : 0
                     title: "Ricerca citta"
                     subtitle: "Catalogo GeoNames offline"
@@ -526,68 +386,89 @@ Item {
                         onTextChanged: controller.searchCities(text)
                     }
 
-                    Repeater {
-                        model: controller.hasCitySearchQuery ? controller.cityResults.slice(0, 6) : []
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 168
+                        radius: 8
+                        color: "#15181e"
+                        border.color: "#303641"
+                        border.width: 1
+                        clip: true
 
-                        delegate: Rectangle {
-                            Layout.fillWidth: true
-                            implicitHeight: 40
-                            radius: 8
-                            color: cityMouse.containsMouse ? "#20242b" : "transparent"
-                            border.color: cityMouse.containsMouse ? "#303641" : "transparent"
-                            border.width: 1
+                        Text {
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            visible: !controller.hasCitySearchQuery
+                            text: "Digita una citta per mostrare risultati offline."
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                        }
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
+                        Text {
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
+                            text: "Nessuna citta trovata."
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                            verticalAlignment: Text.AlignVCenter
+                        }
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.city + ", " + modelData.country
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    elide: Text.ElideRight
+                        ListView {
+                            anchors.fill: parent
+                            anchors.margins: 6
+                            visible: controller.hasCitySearchQuery && controller.cityResults.length > 0
+                            clip: true
+                            boundsBehavior: Flickable.StopAtBounds
+                            spacing: 4
+                            model: controller.cityResults
+
+                            delegate: Rectangle {
+                                width: ListView.view.width
+                                height: 38
+                                radius: 8
+                                color: cityMouse.containsMouse ? "#20242b" : "transparent"
+                                border.color: cityMouse.containsMouse ? "#303641" : "transparent"
+                                border.width: 1
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 10
+                                    anchors.rightMargin: 10
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.city + ", " + modelData.country
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        text: modelData.latitude.toFixed(2) + ", " + modelData.longitude.toFixed(2)
+                                        color: theme.textMuted
+                                        font.pixelSize: 11
+                                    }
                                 }
 
-                                Text {
-                                    text: modelData.latitude.toFixed(2) + ", " + modelData.longitude.toFixed(2)
-                                    color: theme.textMuted
-                                    font.pixelSize: 11
+                                MouseArea {
+                                    id: cityMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: controller.selectCity(modelData.id)
                                 }
-                            }
-
-                            MouseArea {
-                                id: cityMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: controller.selectCity(modelData.id)
                             }
                         }
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: !controller.hasCitySearchQuery
-                        text: "Digita una citta per mostrare risultati offline."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
-                        text: "Nessuna citta trovata."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
                     }
                 }
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 248 : 0
                     title: "Coordinate manuali"
                     subtitle: "Inserimento diretto"
