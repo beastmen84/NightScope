@@ -7,6 +7,21 @@ Item {
     id: root
 
     property var controller
+    property int selectedWeatherHourIndex: 0
+
+    function selectedWeatherHour() {
+        if (controller.weatherHourly.length === 0)
+            return null
+        var index = Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
+        return controller.weatherHourly[index]
+    }
+
+    function selectedHourText(key, suffix, fallbackText) {
+        var hour = root.selectedWeatherHour()
+        if (!hour || hour[key] === undefined || hour[key] === null)
+            return fallbackText
+        return hour[key] + suffix
+    }
 
     AppTheme {
         id: theme
@@ -45,7 +60,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel : "Configura una posizione per visualizzare il meteo."
+                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel + " - " + controller.activeLocationSource : "Configura una posizione per visualizzare il meteo."
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -55,42 +70,6 @@ Item {
                 StatusPill {
                     text: controller.weatherSummary.score
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
-                }
-            }
-
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                radius: 8
-                color: "#1c222b"
-                border.color: controller.hasValidLocation ? theme.teal : theme.amber
-                border.width: 1
-                implicitHeight: weatherLocationLayout.implicitHeight + 22
-
-                ColumnLayout {
-                    id: weatherLocationLayout
-                    anchors.fill: parent
-                    anchors.margins: 11
-                    spacing: 4
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel : "Configura una posizione per visualizzare il meteo."
-                        color: theme.textPrimary
-                        font.pixelSize: 14
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.hasValidLocation
-                        text: "Fonte: " + controller.activeLocationSource
-                        color: theme.textSecondary
-                        font.pixelSize: 12
-                        elide: Text.ElideRight
-                    }
                 }
             }
 
@@ -175,38 +154,97 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Dettaglio orario"
-                subtitle: "Cloud cover, pioggia, vento, umidita e temperatura"
+                subtitle: "Seleziona un orario per leggere i dettagli"
                 accentColor: theme.teal
 
-                Repeater {
-                    model: controller.weatherHourly
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 86
+                    visible: controller.weatherHourly.length > 0
+                    radius: 8
+                    color: "#15181e"
+                    border.color: "#303641"
+                    border.width: 1
+                    clip: true
 
-                    delegate: RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 14
+                    ListView {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        orientation: ListView.Horizontal
+                        spacing: 8
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+                        model: controller.weatherHourly
 
-                        StatusPill {
-                            text: modelData.time
-                            accentColor: theme.cyan
-                        }
+                        delegate: Rectangle {
+                            width: 94
+                            height: ListView.view.height
+                            radius: 8
+                            color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
+                                   ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.18)
+                                   : "#1c222b"
+                            border.color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
+                                          ? theme.teal
+                                          : "#303641"
+                            border.width: 1
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Nuvole " + modelData.cloudCover + "%  -  Pioggia " + modelData.precipitationProbability + "%  -  Vento " + modelData.windKmh + " km/h"
-                            color: theme.textPrimary
-                            font.pixelSize: 14
-                            elide: Text.ElideRight
-                        }
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 3
 
-                        Text {
-                            Layout.preferredWidth: 160
-                            text: modelData.humidity + "%  -  " + modelData.temperatureC + " C"
-                            color: theme.textSecondary
-                            horizontalAlignment: Text.AlignRight
-                            font.pixelSize: 13
-                            elide: Text.ElideRight
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.time
+                                    color: theme.textPrimary
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.cloudCover + "% nuvole"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.temperatureC + " C"
+                                    color: theme.textMuted
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.selectedWeatherHourIndex = index
+                            }
                         }
                     }
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    visible: controller.weatherHourly.length > 0
+                    columns: root.width > 980 ? 3 : 2
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    MetricTile { label: "Orario"; value: root.selectedHourText("time", "", "-"); accentColor: theme.teal }
+                    MetricTile { label: "Nuvolosita"; value: root.selectedHourText("cloudCover", "%", "-"); accentColor: theme.cyan }
+                    MetricTile { label: "Pioggia"; value: root.selectedHourText("precipitationProbability", "%", "-"); accentColor: theme.coral }
+                    MetricTile { label: "Vento"; value: root.selectedHourText("windKmh", " km/h", "-"); accentColor: theme.teal }
+                    MetricTile { label: "Umidita"; value: root.selectedHourText("humidity", "%", "-"); accentColor: theme.violet }
+                    MetricTile { label: "Temperatura"; value: root.selectedHourText("temperatureC", " C", "-"); accentColor: theme.amber }
                 }
 
                 Text {

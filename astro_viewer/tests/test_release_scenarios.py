@@ -184,9 +184,13 @@ class ReleaseScenarioTests(unittest.TestCase):
     def test_weather_page_displays_active_location_context(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "WeatherPage.qml").read_text(encoding="utf-8")
         self.assertIn("Meteo per: ", qml)
+        self.assertEqual(qml.count("Meteo per: "), 1)
         self.assertIn("controller.activeLocationLabel", qml)
         self.assertIn("controller.activeLocationSource", qml)
         self.assertIn("Configura una posizione per visualizzare il meteo.", qml)
+        self.assertIn("ListView.Horizontal", qml)
+        self.assertIn("selectedWeatherHourIndex", qml)
+        self.assertNotIn("weatherLocationLayout", qml)
 
     def test_home_page_displays_active_location_context(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
