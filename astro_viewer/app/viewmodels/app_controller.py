@@ -19,7 +19,7 @@ from astro_viewer.app.database.observation_repository import ObservationReposito
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
@@ -236,7 +236,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def events(self) -> list[dict]:
-        return [event.to_qml() for event in self._events]
+        return [self._event_to_qml(event) for event in self._events]
 
     @Property("QVariant", notify=dataChanged)
     def upcomingHighlights(self) -> list[dict]:
@@ -248,7 +248,7 @@ class AppController(QObject):
             if event_date and now.date() <= event_date.date() <= limit.date():
                 upcoming.append((event_date, event))
         upcoming.sort(key=lambda item: (-item[1].usefulness, item[0]))
-        return [event.to_qml() for _, event in upcoming[:3]]
+        return [self._event_to_qml(event) for _, event in upcoming[:3]]
 
     @Property("QVariant", notify=weatherChanged)
     def weatherHourly(self) -> list[dict]:
@@ -1345,6 +1345,137 @@ class AppController(QObject):
         data["observingStatusDetail"] = detail
         data["observingReasons"] = self._observing_reasons(item)
         return data
+
+    def _event_to_qml(self, event: AstronomicalEvent) -> dict:
+        data = event.to_qml()
+        data["setup"] = self._calendar_event_setup(event)
+        return data
+
+    def _calendar_event_setup(self, event: AstronomicalEvent) -> str:
+        event_type = event.event_type.strip().lower()
+        title = event.title.strip().lower()
+        if event_type == "sciame meteorico":
+            return "Occhio nudo"
+        if event_type == "luna":
+            return self._calendar_moon_setup(title)
+        if event_type == "eclissi":
+            return "Occhio nudo; profilo attivo per dettagli lunari"
+        if event_type == "congiunzione":
+            target = self._calendar_event_target(event)
+            if target:
+                setup = self._calendar_profile_setup(target, event.setup)
+                if setup != "Bassa priorita osservativa":
+                    return f"Bassa priorita: {setup}"
+            return "Bassa priorita osservativa"
+        if event_type in {"opposizione", "pianeti"}:
+            target = self._calendar_event_target(event)
+            if target:
+                return self._calendar_profile_setup(target, event.setup)
+        return self._calendar_clean_setup(event.setup)
+
+    def _calendar_moon_setup(self, title: str) -> str:
+        if "nuova" in title:
+            return "Finestra deep-sky"
+        target = CelestialObject(
+            id="moon",
+            name="Luna",
+            object_type="Luna",
+            image="resources/images/moon.svg",
+            magnitude="-12.0",
+            distance="384.000 km",
+            max_altitude="45 gradi",
+            direction="Sud",
+            best_time="22:00",
+            observing_window="Sera",
+            notes="",
+            recommended_setup="",
+            visibility_class="Luna",
+            azimuth="180 gradi",
+            time_above_horizon="n/d",
+            apparent_size="30 arcmin",
+            score=70,
+        )
+        return self._calendar_profile_setup(target, "Osservazione lunare")
+
+    def _calendar_event_target(self, event: AstronomicalEvent) -> CelestialObject | None:
+        bodies = {
+            "mercury": ("Mercurio", "-0.2"),
+            "mercurio": ("Mercurio", "-0.2"),
+            "venus": ("Venere", "-4.0"),
+            "venere": ("Venere", "-4.0"),
+            "mars": ("Marte", "-1.2"),
+            "marte": ("Marte", "-1.2"),
+            "jupiter": ("Giove", "-2.3"),
+            "giove": ("Giove", "-2.3"),
+            "saturn": ("Saturno", "0.7"),
+            "saturno": ("Saturno", "0.7"),
+            "uranus": ("Urano", "5.7"),
+            "urano": ("Urano", "5.7"),
+            "neptune": ("Nettuno", "7.8"),
+            "nettuno": ("Nettuno", "7.8"),
+        }
+        search_text = f"{event.id} {event.title}".lower()
+        for token, (name, magnitude) in bodies.items():
+            if token in search_text:
+                object_id = {
+                    "mercurio": "mercury",
+                    "venere": "venus",
+                    "marte": "mars",
+                    "giove": "jupiter",
+                    "saturno": "saturn",
+                    "urano": "uranus",
+                    "nettuno": "neptune",
+                }.get(token, token)
+                return CelestialObject(
+                    id=object_id,
+                    name=name,
+                    object_type="Pianeta",
+                    image=f"resources/images/{object_id}.svg",
+                    magnitude=magnitude,
+                    distance="n/d",
+                    max_altitude="45 gradi",
+                    direction="Sud",
+                    best_time=event.best_time,
+                    observing_window=event.best_time,
+                    notes=event.note,
+                    recommended_setup="",
+                    visibility_class="Pianeta",
+                    azimuth="180 gradi",
+                    time_above_horizon="n/d",
+                    score=event.usefulness,
+                )
+        return None
+
+    def _calendar_profile_setup(self, target: CelestialObject, fallback: str) -> str:
+        telescope = self._current_telescope()
+        if not self._equipment_service.has_optical_telescope(telescope):
+            return self._calendar_clean_setup(fallback)
+
+        suggestion = self._equipment_service.suggest_for_object(
+            target,
+            telescope,
+            self._active_profile_eyepieces(),
+            self._active_profile_barlows(),
+        )
+        setup_text = suggestion.get("setupText", "").strip()
+        if not setup_text:
+            return telescope.name
+        if setup_text.startswith("Serve almeno"):
+            return telescope.name
+        if setup_text.startswith("Aggiungi oculari"):
+            return f"{telescope.name}: aggiungi oculari"
+        return f"{telescope.name} + {setup_text}"
+
+    @staticmethod
+    def _calendar_clean_setup(setup: str) -> str:
+        clean = setup.strip()
+        if clean == "Qualsiasi setup":
+            return "Nota osservativa"
+        if clean == "Telescopio medio":
+            return "Telescopio consigliato"
+        if clean == "Non prioritario":
+            return "Bassa priorita osservativa"
+        return clean
 
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
         current_altitude = self._parse_degrees(item.current_altitude)

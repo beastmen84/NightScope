@@ -13,7 +13,7 @@ from astro_viewer.app.database.equipment_catalog_repository import EquipmentCata
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
-from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.equipment_service import EquipmentService
@@ -244,6 +244,85 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertIn(updated.best_eyepiece, active_names)
             self.assertNotEqual(updated.best_eyepiece, f"{eyepiece_unassigned['brand']} {eyepiece_unassigned['model']}")
             self.assertEqual(len(controller.eyepieces), 1)
+
+    def test_calendar_opposition_setup_uses_active_profile(self) -> None:
+        with _controller() as controller:
+            telescope = controller.telescopeCatalogModels[0]
+            eyepiece = controller.eyepieceCatalog[0]
+            controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
+            controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
+            controller._events = [
+                AstronomicalEvent(
+                    id="saturn-1-test",
+                    title="Saturno in opposizione",
+                    event_type="Opposizione",
+                    date_label="28/08/2026",
+                    best_time="23:30",
+                    usefulness=92,
+                    setup="Telescopio medio",
+                    note="Test",
+                )
+            ]
+
+            setup = controller.events[0]["setup"]
+
+            self.assertIn(controller.currentSetup["name"], setup)
+            self.assertNotEqual(setup, "Telescopio medio")
+
+    def test_calendar_keeps_meteor_showers_naked_eye(self) -> None:
+        with _controller() as controller:
+            event = AstronomicalEvent(
+                id="shower-perseids-test",
+                title="Massimo Perseidi",
+                event_type="Sciame meteorico",
+                date_label="12/08/2026",
+                best_time="02:00 - 04:30",
+                usefulness=78,
+                setup="Occhio nudo",
+                note="Test",
+            )
+
+            self.assertEqual(controller._event_to_qml(event)["setup"], "Occhio nudo")
+
+    def test_calendar_conjunction_keeps_low_priority_but_uses_profile(self) -> None:
+        with _controller() as controller:
+            telescope = controller.telescopeCatalogModels[0]
+            eyepiece = controller.eyepieceCatalog[0]
+            controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
+            controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
+            event = AstronomicalEvent(
+                id="jupiter-0-test",
+                title="Giove in congiunzione",
+                event_type="Congiunzione",
+                date_label="21/01/2027",
+                best_time="07:00",
+                usefulness=38,
+                setup="Non prioritario",
+                note="Test",
+            )
+
+            setup = controller._event_to_qml(event)["setup"]
+
+            self.assertTrue(setup.startswith("Bassa priorita: "))
+            self.assertIn(controller.currentSetup["name"], setup)
+
+    def test_calendar_moon_events_hide_generic_setup(self) -> None:
+        with _controller() as controller:
+            event = AstronomicalEvent(
+                id="moon-new-test",
+                title="Luna nuova",
+                event_type="Luna",
+                date_label="14/07/2026",
+                best_time="12:43",
+                usefulness=95,
+                setup="Qualsiasi setup",
+                note="Test",
+            )
+
+            setup = controller._event_to_qml(event)["setup"]
+
+            self.assertEqual(setup, "Finestra deep-sky")
+            self.assertNotEqual(setup, "Qualsiasi setup")
 
     def test_controller_blocks_duplicate_catalog_telescopes(self) -> None:
         with _controller() as controller:
