@@ -20,6 +20,14 @@ Item {
         return JSON.stringify(value, null, 2)
     }
 
+    function compactCountry() {
+        if (!controller.hasValidLocation)
+            return "Nessuna posizione configurata"
+        if (controller.location.country === undefined || controller.location.country === "")
+            return controller.location.timezone
+        return controller.location.country + "  -  " + controller.location.timezone
+    }
+
     AppTheme {
         id: theme
     }
@@ -32,7 +40,7 @@ Item {
 
         ColumnLayout {
             width: scroll.availableWidth
-            spacing: 18
+            spacing: 16
 
             Item { Layout.fillWidth: true; Layout.preferredHeight: 18 }
 
@@ -70,111 +78,203 @@ Item {
                 }
             }
 
+            GridLayout {
+                id: overviewGrid
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                columns: root.width > 1040 ? 2 : 1
+                columnSpacing: 16
+                rowSpacing: 16
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: overviewGrid.columns === 2 && controller.recentLocations.length === 0 ? 2 : 1
+                    title: "Posizione attuale"
+                    subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
+                    accentColor: theme.green
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        StatusPill {
+                            text: controller.hasValidLocation ? "Attiva" : "Da configurare"
+                            accentColor: controller.hasValidLocation ? theme.green : theme.amber
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: controller.hasValidLocation ? controller.location.city : "Nessuna posizione"
+                                color: theme.textPrimary
+                                font.pixelSize: 20
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.compactCountry()
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: controller.hasValidLocation ? (controller.location.latitude.toFixed(4) + ", " + controller.location.longitude.toFixed(4)) : "Configura una posizione per ottenere meteo e cielo locale."
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    visible: controller.recentLocations.length > 0
+                    title: "Posizioni recenti"
+                    subtitle: "Ultime posizioni salvate o caricate"
+                    accentColor: theme.violet
+
+                    Repeater {
+                        model: controller.recentLocations
+
+                        delegate: Rectangle {
+                            Layout.fillWidth: true
+                            implicitHeight: 42
+                            radius: 8
+                            color: recentMouse.containsMouse ? "#20242b" : "#15181e"
+                            border.color: recentMouse.containsMouse ? "#303641" : "transparent"
+                            border.width: 1
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 8
+                                spacing: 10
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.location.city + ", " + modelData.location.country
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.location.timezone
+                                        color: theme.textMuted
+                                        font.pixelSize: 11
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                Button {
+                                    Layout.preferredWidth: 64
+                                    text: "Usa"
+                                    onClicked: controller.selectRecentLocation(index)
+                                }
+                            }
+
+                            MouseArea {
+                                id: recentMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                acceptedButtons: Qt.NoButton
+                            }
+                        }
+                    }
+                }
+            }
+
             GlassCard {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Posizione attuale"
-                subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
-                accentColor: theme.green
+                title: "Rilevamento posizione all'avvio"
+                subtitle: "Scegli se rilevare automaticamente la posizione e quali origini sono consentite."
+                accentColor: theme.teal
 
-                RowLayout {
+                GridLayout {
                     Layout.fillWidth: true
-                    spacing: 12
-
-                    StatusPill {
-                        text: controller.hasValidLocation ? "Attiva" : "Da configurare"
-                        accentColor: controller.hasValidLocation ? theme.green : theme.amber
-                    }
+                    columns: root.width > 1040 ? 3 : 1
+                    columnSpacing: 18
+                    rowSpacing: 8
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: 6
 
                         Text {
                             Layout.fillWidth: true
-                            text: controller.activeLocationLabel
+                            text: "Avvio"
                             color: theme.textPrimary
-                            font.pixelSize: 18
+                            font.pixelSize: 13
                             font.weight: Font.DemiBold
                             elide: Text.ElideRight
                         }
 
-                        Text {
+                        CheckBox {
                             Layout.fillWidth: true
-                            text: controller.hasValidLocation ? (controller.location.latitude.toFixed(4) + ", " + controller.location.longitude.toFixed(4)) : "Configura una posizione per ottenere meteo e cielo locale."
-                            color: theme.textSecondary
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
+                            text: "Rileva automaticamente"
+                            checked: controller.autoDetectLocationOnStartup
+                            onToggled: controller.setAutoDetectLocationOnStartup(checked)
                         }
                     }
-                }
-            }
 
-            GlassCard {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                visible: controller.recentLocations.length > 0
-                title: "Posizioni recenti"
-                subtitle: "Ultima posizione salvata o caricata"
-                accentColor: theme.violet
-
-                Repeater {
-                    model: controller.recentLocations
-
-                    delegate: RowLayout {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 10
-
-                        StatusPill {
-                            text: modelData.provider === "manual_city" ? "Preferita" : "Recente"
-                            accentColor: theme.violet
-                        }
+                        spacing: 6
 
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.location.city + ", " + modelData.location.country + "  -  " + modelData.location.timezone
+                            text: "Origini consentite"
                             color: theme.textPrimary
                             font.pixelSize: 13
+                            font.weight: Font.DemiBold
                             elide: Text.ElideRight
                         }
 
-                        Button {
-                            text: "Usa"
-                            onClicked: controller.selectRecentLocation(index)
+                        CheckBox {
+                            Layout.fillWidth: true
+                            text: "Posizione Windows"
+                            checked: controller.useWindowsLocationOnStartup
+                            onToggled: controller.setUseWindowsLocationOnStartup(checked)
                         }
                     }
-                }
-            }
 
-            GlassCard {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                title: "Preferenze di avvio"
-                subtitle: "La posizione online non viene usata senza consenso e Windows non viene aperto automaticamente se non richiesto."
-                accentColor: theme.teal
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
 
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: "Rileva automaticamente la posizione all'avvio"
-                    checked: controller.autoDetectLocationOnStartup
-                    onToggled: controller.setAutoDetectLocationOnStartup(checked)
-                }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Fallback"
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
 
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: "Consenti posizione approssimata online"
-                    checked: controller.allowApproximateOnlineLocation
-                    onToggled: controller.setAllowApproximateOnlineLocation(checked)
-                }
-
-                CheckBox {
-                    Layout.fillWidth: true
-                    text: "Usa posizione Windows all'avvio"
-                    checked: controller.useWindowsLocationOnStartup
-                    onToggled: controller.setUseWindowsLocationOnStartup(checked)
+                        CheckBox {
+                            Layout.fillWidth: true
+                            text: "Online approssimato"
+                            checked: controller.allowApproximateOnlineLocation
+                            onToggled: controller.setAllowApproximateOnlineLocation(checked)
+                        }
+                    }
                 }
             }
 
@@ -182,34 +282,41 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1180 ? 2 : 1
+                columns: root.width > 1040 ? 2 : 1
                 columnSpacing: 16
                 rowSpacing: 16
 
                 GlassCard {
                     Layout.fillWidth: true
-                    title: "Posizione Windows precisa"
-                    subtitle: "Provider 1: Windows.Devices.Geolocation.Geolocator"
+                    title: "Posizione Windows"
+                    subtitle: "Precisa con fallback Windows approssimato"
                     accentColor: theme.cyan
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Richiede il consenso di Windows mentre NightScope e in primo piano. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato."
+                        text: "Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
                     }
 
-                    Button {
+                    GridLayout {
                         Layout.fillWidth: true
-                        text: "Usa posizione Windows precisa"
-                        onClicked: controller.useWindowsLocation()
-                    }
+                        columns: root.width > 760 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 8
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Run Windows Location Diagnostics"
-                        onClicked: controller.runWindowsLocationDiagnostics()
+                        Button {
+                            Layout.fillWidth: true
+                            text: "Usa posizione Windows"
+                            onClicked: controller.useWindowsLocation()
+                        }
+
+                        Button {
+                            Layout.fillWidth: true
+                            text: "Diagnostica Windows"
+                            onClicked: controller.runWindowsLocationDiagnostics()
+                        }
                     }
 
                     Rectangle {
@@ -369,12 +476,12 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     title: "Posizione approssimata online"
-                    subtitle: "Provider 3: geolocalizzazione IP"
+                    subtitle: "Geolocalizzazione IP"
                     accentColor: theme.violet
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Usa la connessione internet per stimare citta, paese, coordinate e timezone. Precisione limitata; non viene usata senza consenso."
+                        text: "Stima citta, paese, coordinate e timezone tramite connessione internet. Precisione limitata; non viene usata senza consenso."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -395,11 +502,21 @@ Item {
                         wrapMode: Text.WordWrap
                     }
                 }
+            }
+
+            GridLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                columns: root.width > 1040 ? 2 : 1
+                columnSpacing: 16
+                rowSpacing: 16
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: root.width > 1040 ? 248 : 0
                     title: "Ricerca citta"
-                    subtitle: "Ricerca citta offline"
+                    subtitle: "Catalogo GeoNames offline"
                     accentColor: theme.amber
 
                     TextField {
@@ -414,7 +531,7 @@ Item {
 
                         delegate: Rectangle {
                             Layout.fillWidth: true
-                            implicitHeight: 42
+                            implicitHeight: 40
                             radius: 8
                             color: cityMouse.containsMouse ? "#20242b" : "transparent"
                             border.color: cityMouse.containsMouse ? "#303641" : "transparent"
@@ -471,8 +588,9 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: root.width > 1040 ? 248 : 0
                     title: "Coordinate manuali"
-                    subtitle: "Inserimento manuale"
+                    subtitle: "Inserimento diretto"
                     accentColor: theme.teal
 
                     TextField {
@@ -481,18 +599,25 @@ Item {
                         placeholderText: "Nome luogo"
                     }
 
-                    TextField {
-                        id: manualLatitude
+                    GridLayout {
                         Layout.fillWidth: true
-                        placeholderText: "Latitudine"
-                        inputMethodHints: Qt.ImhFormattedNumbersOnly
-                    }
+                        columns: root.width > 760 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 8
 
-                    TextField {
-                        id: manualLongitude
-                        Layout.fillWidth: true
-                        placeholderText: "Longitudine"
-                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        TextField {
+                            id: manualLatitude
+                            Layout.fillWidth: true
+                            placeholderText: "Latitudine"
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
+
+                        TextField {
+                            id: manualLongitude
+                            Layout.fillWidth: true
+                            placeholderText: "Longitudine"
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        }
                     }
 
                     Button {
