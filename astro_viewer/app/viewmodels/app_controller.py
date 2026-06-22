@@ -5,6 +5,7 @@ import re
 from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
+from threading import Thread
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
@@ -53,9 +54,11 @@ class AppController(QObject):
     observationChanged = Signal()
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
+    _earthdataConnectionTestFinished = Signal(bool, str)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
+        self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -73,6 +76,7 @@ class AppController(QObject):
         )
         self._earthdata_connection_tester = EarthdataConnectionTester()
         self._earthdata_credentials_state = self._earthdata_credential_store.state()
+        self._earthdata_connection_test_running = False
         self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
@@ -204,6 +208,10 @@ class AppController(QObject):
     @Property(str, notify=earthdataCredentialsChanged)
     def earthdataCredentialMessage(self) -> str:
         return self._earthdata_credentials_state.message
+
+    @Property(bool, notify=earthdataCredentialsChanged)
+    def earthdataConnectionTestRunning(self) -> bool:
+        return self._earthdata_connection_test_running
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:
@@ -581,6 +589,8 @@ class AppController(QObject):
 
     @Slot()
     def testEarthdataConnection(self) -> None:
+        if self._earthdata_connection_test_running:
+            return
         username = self._earthdata_credential_store.username()
         password = self._earthdata_credential_store.password()
         if not username or not password:
@@ -590,15 +600,29 @@ class AppController(QObject):
             )
             self.earthdataCredentialsChanged.emit()
             return
+        self._earthdata_connection_test_running = True
         self._earthdata_credentials_state = replace(
             self._earthdata_credentials_state,
             message="Verifica connessione Earthdata in corso...",
         )
         self.earthdataCredentialsChanged.emit()
-        result = self._earthdata_connection_tester.test(username, password)
+
+        def run_test() -> None:
+            try:
+                result = self._earthdata_connection_tester.test(username, password)
+                self._earthdataConnectionTestFinished.emit(result.ok, result.message)
+            except Exception:
+                logger.warning("Unexpected Earthdata connection test failure.", exc_info=True)
+                self._earthdataConnectionTestFinished.emit(False, "Connessione Earthdata non riuscita.")
+
+        Thread(target=run_test, daemon=True).start()
+
+    @Slot(bool, str)
+    def _finish_earthdata_connection_test(self, _ok: bool, message: str) -> None:
+        self._earthdata_connection_test_running = False
         self._earthdata_credentials_state = replace(
             self._earthdata_credential_store.state(),
-            message=result.message,
+            message=message,
         )
         self.earthdataCredentialsChanged.emit()
 

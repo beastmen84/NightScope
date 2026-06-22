@@ -310,8 +310,8 @@ Item {
                         spacing: 10
 
                         StatusPill {
-                            text: controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback"
-                            accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+                            text: controller.earthdataConnectionTestRunning ? "Verifica" : (controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback")
+                            accentColor: controller.earthdataConnectionTestRunning ? theme.cyan : (controller.earthdataCredentialsConfigured ? theme.green : theme.amber)
                         }
 
                         Text {
@@ -353,7 +353,7 @@ Item {
                         DarkButton {
                             Layout.preferredWidth: 112
                             text: "Salva"
-                            enabled: controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
+                            enabled: !controller.earthdataConnectionTestRunning && controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
                             accentColor: theme.green
                             onClicked: {
                                 controller.saveEarthdataCredentials(earthdataUsername.text, earthdataPassword.text)
@@ -363,8 +363,8 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 148
-                            text: "Test connessione"
-                            enabled: controller.earthdataCredentialsConfigured
+                            text: controller.earthdataConnectionTestRunning ? "Verifica..." : "Test connessione"
+                            enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning
                             accentColor: theme.cyan
                             onClicked: controller.testEarthdataConnection()
                         }
@@ -376,7 +376,7 @@ Item {
                         DarkButton {
                             Layout.preferredWidth: 96
                             text: "Rimuovi"
-                            enabled: controller.earthdataCredentialsConfigured
+                            enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning
                             danger: true
                             onClicked: {
                                 controller.removeEarthdataCredentials()
