@@ -27,11 +27,7 @@ class LocationPreferenceStore:
 
     def preferences(self) -> StartupLocationPreferences:
         payload = self._read_json(self._preferences_path)
-        return StartupLocationPreferences(
-            auto_detect_location_on_startup=bool(payload.get("auto_detect_location_on_startup", False)),
-            allow_approximate_online_location=bool(payload.get("allow_approximate_online_location", False)),
-            use_windows_location_on_startup=bool(payload.get("use_windows_location_on_startup", False)),
-        )
+        return self._startup_preferences_from_payload(payload)
 
     def update_preferences(
         self,
@@ -47,6 +43,7 @@ class LocationPreferenceStore:
             payload["allow_approximate_online_location"] = bool(allow_approximate_online_location)
         if use_windows_location_on_startup is not None:
             payload["use_windows_location_on_startup"] = bool(use_windows_location_on_startup)
+        self._normalize_startup_preferences(payload)
         self._write_json(self._preferences_path, payload)
         return self.preferences()
 
@@ -113,6 +110,30 @@ class LocationPreferenceStore:
             logger.warning("Preference file could not be read: %s", path, exc_info=True)
             return {}
         return payload if isinstance(payload, dict) else {}
+
+    @classmethod
+    def _startup_preferences_from_payload(cls, payload: dict) -> StartupLocationPreferences:
+        normalized = dict(payload)
+        cls._normalize_startup_preferences(normalized)
+        return StartupLocationPreferences(
+            auto_detect_location_on_startup=bool(normalized.get("auto_detect_location_on_startup", False)),
+            allow_approximate_online_location=bool(normalized.get("allow_approximate_online_location", False)),
+            use_windows_location_on_startup=bool(normalized.get("use_windows_location_on_startup", False)),
+        )
+
+    @staticmethod
+    def _normalize_startup_preferences(payload: dict) -> None:
+        auto_detect = bool(payload.get("auto_detect_location_on_startup", False))
+        use_windows = bool(payload.get("use_windows_location_on_startup", False))
+        allow_online = bool(payload.get("allow_approximate_online_location", False))
+
+        if not auto_detect:
+            payload["use_windows_location_on_startup"] = False
+            payload["allow_approximate_online_location"] = False
+            return
+
+        if not use_windows and not allow_online:
+            payload["use_windows_location_on_startup"] = True
 
     @staticmethod
     def _write_json(path: Path, payload: dict) -> None:

@@ -83,6 +83,8 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 148
                     title: "Posizione attuale"
                     subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
                     accentColor: theme.green
@@ -131,13 +133,15 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 148
                     title: "Rilevamento posizione all'avvio"
                     subtitle: "Origini usate quando NightScope parte."
                     accentColor: theme.teal
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: root.width > 1280 ? 3 : 1
+                        columns: root.width > 920 ? 3 : 1
                         columnSpacing: 14
                         rowSpacing: 6
 
@@ -178,7 +182,9 @@ Item {
                             CheckBox {
                                 Layout.fillWidth: true
                                 text: "Posizione Windows"
-                                checked: controller.useWindowsLocationOnStartup
+                                enabled: controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useWindowsLocationOnStartup)
+                                checked: controller.autoDetectLocationOnStartup && controller.useWindowsLocationOnStartup
+                                opacity: enabled || checked ? 1 : 0.55
                                 onToggled: controller.setUseWindowsLocationOnStartup(checked)
                             }
                         }
@@ -199,7 +205,9 @@ Item {
                             CheckBox {
                                 Layout.fillWidth: true
                                 text: "Online approssimato"
-                                checked: controller.allowApproximateOnlineLocation
+                                enabled: controller.autoDetectLocationOnStartup && (controller.useWindowsLocationOnStartup || !controller.allowApproximateOnlineLocation)
+                                checked: controller.autoDetectLocationOnStartup && controller.allowApproximateOnlineLocation
+                                opacity: enabled || checked ? 1 : 0.55
                                 onToggled: controller.setAllowApproximateOnlineLocation(checked)
                             }
                         }

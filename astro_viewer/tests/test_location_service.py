@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import tempfile
 import unittest
@@ -21,6 +22,7 @@ from astro_viewer.app.services.location_service import (
     _windows_diagnostics_script,
     _windows_geolocation_script,
 )
+from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
@@ -305,6 +307,69 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(calls, ["precise", "coarse"])
 
 
+class LocationPreferenceStoreTests(unittest.TestCase):
+    def test_startup_sources_are_cleared_when_auto_detect_is_disabled(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = _preference_store(Path(temp_dir))
+            store.update_preferences(
+                auto_detect_location_on_startup=True,
+                use_windows_location_on_startup=True,
+                allow_approximate_online_location=True,
+            )
+
+            preferences = store.update_preferences(auto_detect_location_on_startup=False)
+
+        self.assertFalse(preferences.auto_detect_location_on_startup)
+        self.assertFalse(preferences.use_windows_location_on_startup)
+        self.assertFalse(preferences.allow_approximate_online_location)
+
+    def test_auto_detect_defaults_to_windows_when_no_source_is_selected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            preferences = _preference_store(Path(temp_dir)).update_preferences(
+                auto_detect_location_on_startup=True
+            )
+
+        self.assertTrue(preferences.auto_detect_location_on_startup)
+        self.assertTrue(preferences.use_windows_location_on_startup)
+        self.assertFalse(preferences.allow_approximate_online_location)
+
+    def test_startup_preferences_cannot_persist_auto_detect_without_a_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = _preference_store(Path(temp_dir))
+            store.update_preferences(
+                auto_detect_location_on_startup=True,
+                use_windows_location_on_startup=False,
+                allow_approximate_online_location=True,
+            )
+
+            preferences = store.update_preferences(allow_approximate_online_location=False)
+
+        self.assertTrue(preferences.auto_detect_location_on_startup)
+        self.assertTrue(preferences.use_windows_location_on_startup)
+        self.assertFalse(preferences.allow_approximate_online_location)
+
+    def test_invalid_startup_preferences_are_normalized_on_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            preferences_path = temp_path / "preferences.json"
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "auto_detect_location_on_startup": True,
+                        "use_windows_location_on_startup": False,
+                        "allow_approximate_online_location": False,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            preferences = _preference_store(temp_path).preferences()
+
+        self.assertTrue(preferences.auto_detect_location_on_startup)
+        self.assertTrue(preferences.use_windows_location_on_startup)
+        self.assertFalse(preferences.allow_approximate_online_location)
+
+
 class _FakeProvider:
     def __init__(
         self,
@@ -325,6 +390,10 @@ class _FakeProvider:
         if not self._result:
             raise LocationUnavailableError("missing fake result", "test")
         return self._result
+
+
+def _preference_store(path: Path) -> LocationPreferenceStore:
+    return LocationPreferenceStore(path / "preferences.json", path / "cache.json")
 
 
 class _NoCityResolver:
