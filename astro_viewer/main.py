@@ -17,6 +17,7 @@ BASE_DIR = _resolve_base_dir()
 PROJECT_ROOT = BASE_DIR.parent
 APP_NAME = "NightScope"
 ORG_NAME = "NightScope"
+os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 

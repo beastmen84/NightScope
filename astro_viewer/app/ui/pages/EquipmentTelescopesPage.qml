@@ -9,6 +9,7 @@ Item {
     property var controller
     property var editModel: ({})
     property var deleteModel: ({})
+    property string telescopeSearch: ""
 
     function openEditDialog(item) {
         editModel = item
@@ -36,6 +37,20 @@ Item {
         telescopeDialog.open()
     }
 
+    function matchesTelescope(item) {
+        var query = root.telescopeSearch.toLowerCase().trim()
+        if (query.length === 0)
+            return true
+        var text = (item.brand + " " + item.name + " " + item.optical_type).toLowerCase()
+        return text.indexOf(query) >= 0
+    }
+
+    function filteredTelescopeModels() {
+        return controller.telescopeCatalogModels.filter(function(item) {
+            return root.matchesTelescope(item)
+        })
+    }
+
     AppTheme { id: theme }
 
     ScrollView {
@@ -50,27 +65,44 @@ Item {
 
             Item { Layout.fillWidth: true; Layout.preferredHeight: 18 }
 
-            ColumnLayout {
+            RowLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                spacing: 6
+                spacing: 14
 
-                Text {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    text: "Catalogo telescopi"
-                    color: theme.textPrimary
-                    font.pixelSize: 34
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
+                    spacing: 6
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Catalogo telescopi"
+                        color: theme.textPrimary
+                        font.pixelSize: 34
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Modelli disponibili per i profili osservativi"
+                        color: theme.textSecondary
+                        font.pixelSize: 14
+                        wrapMode: Text.WordWrap
+                    }
                 }
 
-                Text {
-                    Layout.fillWidth: true
-                    text: "Modelli disponibili per i profili osservativi"
-                    color: theme.textSecondary
-                    font.pixelSize: 14
-                    wrapMode: Text.WordWrap
+                DarkTextField {
+                    Layout.preferredWidth: 300
+                    placeholderText: "Cerca telescopio..."
+                    onTextChanged: root.telescopeSearch = text
+                }
+
+                DarkButton {
+                    text: "Aggiungi modello"
+                    accentColor: theme.cyan
+                    onClicked: root.openAddDialog()
                 }
             }
 
@@ -79,74 +111,104 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Catalogo telescopi"
-                subtitle: controller.telescopeCatalogModels.length + " modelli"
+                subtitle: root.filteredTelescopeModels().length + " di " + controller.telescopeCatalogModels.length + " modelli"
                 accentColor: theme.cyan
 
-                Repeater {
-                    model: controller.telescopeCatalogModels
+                GridLayout {
+                    id: telescopeCatalogGrid
+                    Layout.fillWidth: true
+                    columns: root.width > 1060 ? 2 : 1
+                    columnSpacing: 12
+                    rowSpacing: 12
 
-                    delegate: Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: 76
-                        radius: 8
-                        color: "#20242b"
-                        border.color: "#303641"
-                        border.width: 1
+                    Repeater {
+                        model: root.filteredTelescopeModels()
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 10
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 3
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.brand + " " + modelData.name
-                                    color: theme.textPrimary
-                                    font.pixelSize: 15
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.optical_type + "  -  " + modelData.mount_type
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
-
-                            StatusPill { text: modelData.aperture_mm + " mm"; accentColor: theme.cyan }
-                            StatusPill { text: modelData.focal_length_mm + " mm"; accentColor: theme.teal }
-
-                            Button {
-                                text: "Modifica"
-                                onClicked: root.openEditDialog(modelData)
-                            }
-
-                            Button {
-                                text: "Elimina"
-                                onClicked: {
-                                    root.deleteModel = modelData
-                                    deleteTelescopeDialog.open()
-                                }
+                        delegate: TelescopeCatalogCard {
+                            itemData: modelData
+                            onEdit: root.openEditDialog(modelData)
+                            onDeleteRequested: {
+                                root.deleteModel = modelData
+                                deleteTelescopeDialog.open()
                             }
                         }
                     }
                 }
 
-                Button {
+                Text {
                     Layout.fillWidth: true
-                    text: "Aggiungi modello"
-                    onClicked: root.openAddDialog()
+                    visible: root.filteredTelescopeModels().length === 0
+                    text: "Nessun telescopio trovato."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 
             Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
+        }
+    }
+
+    component TelescopeCatalogCard: Rectangle {
+        id: telescopeCard
+        property var itemData
+        signal edit()
+        signal deleteRequested()
+
+        Layout.fillWidth: true
+        implicitHeight: 116
+        radius: 8
+        color: "#20242b"
+        border.color: "#303641"
+        border.width: 1
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.brand + " " + itemData.name
+                    color: theme.textPrimary
+                    font.pixelSize: 15
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+
+                DarkButton {
+                    text: "Modifica"
+                    onClicked: telescopeCard.edit()
+                }
+
+                DarkButton {
+                    text: "Elimina"
+                    danger: true
+                    onClicked: telescopeCard.deleteRequested()
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: itemData.optical_type + "  -  " + itemData.mount_type
+                color: theme.textSecondary
+                font.pixelSize: 12
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            Flow {
+                Layout.fillWidth: true
+                spacing: 8
+                StatusPill { text: itemData.aperture_mm + " mm"; accentColor: theme.cyan }
+                StatusPill { text: itemData.focal_length_mm + " mm"; accentColor: theme.teal }
+                StatusPill { text: "f/" + itemData.focal_ratio; accentColor: theme.amber }
+            }
         }
     }
 
@@ -168,13 +230,13 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            TextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Brand" }
-            TextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Modello" }
-            TextField { id: telescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
-            TextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
-            TextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Modello" }
+            DarkTextField { id: telescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
+            DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
+            DarkTextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
         }
     }
 
@@ -197,15 +259,16 @@ Item {
             Layout.fillWidth: true
             spacing: 10
 
-            Button {
+            DarkButton {
                 Layout.fillWidth: true
                 text: "Annulla"
                 onClicked: deleteTelescopeDialog.close()
             }
 
-            Button {
+            DarkButton {
                 Layout.fillWidth: true
                 text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+                danger: true
                 onClicked: {
                     controller.deleteTelescopeModel(root.deleteModel.id, controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0)
                     deleteTelescopeDialog.close()

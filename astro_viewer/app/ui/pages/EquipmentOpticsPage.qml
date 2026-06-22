@@ -11,6 +11,7 @@ Item {
     property var editBarlow: ({})
     property var deleteEyepiece: ({})
     property var deleteBarlow: ({})
+    property string opticsSearch: ""
 
     function openEyepieceDialog(item) {
         editEyepiece = item || ({})
@@ -39,24 +40,65 @@ Item {
         barlowDialog.open()
     }
 
+    function searchText() {
+        return root.opticsSearch.toLowerCase().trim()
+    }
+
+    function matchesEyepiece(item) {
+        var query = root.searchText()
+        if (query.length === 0)
+            return true
+        var text = (
+            item.brand + " " + item.model + " " + item.type + " " +
+            item.focalRangeLabel + " " + item.focal_length_mm + " " +
+            (item.min_focal_length_mm || "") + " " + (item.max_focal_length_mm || "")
+        ).toLowerCase()
+        return text.indexOf(query) >= 0
+    }
+
+    function matchesBarlow(item) {
+        var query = root.searchText()
+        if (query.length === 0)
+            return true
+        var text = (
+            item.brand + " " + item.model + " Barlow " + item.multiplier + "x " +
+            item.multiplier + " " + (item.barrel_size || "")
+        ).toLowerCase()
+        return text.indexOf(query) >= 0
+    }
+
+    function filteredEyepieces() {
+        return controller.eyepieceCatalog.filter(function(item) {
+            return root.matchesEyepiece(item)
+        })
+    }
+
+    function filteredBarlows() {
+        return controller.barlowCatalog.filter(function(item) {
+            return root.matchesBarlow(item)
+        })
+    }
+
+    function eyepieceAccent(item) {
+        return item.type === "Zoom" ? theme.violet : theme.teal
+    }
+
     AppTheme { id: theme }
 
-    ScrollView {
-        id: scroll
+    ColumnLayout {
         anchors.fill: parent
-        clip: true
-        contentWidth: availableWidth
+        spacing: 18
 
-        ColumnLayout {
-            width: scroll.availableWidth
-            spacing: 18
+        Item { Layout.fillWidth: true; Layout.preferredHeight: 18 }
 
-            Item { Layout.fillWidth: true; Layout.preferredHeight: 18 }
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: 28
+            Layout.rightMargin: 28
+            spacing: 14
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
                 spacing: 6
 
                 Text {
@@ -77,148 +119,292 @@ Item {
                 }
             }
 
-            GridLayout {
+            DarkTextField {
+                Layout.preferredWidth: 330
+                placeholderText: "Cerca oculare o Barlow..."
+                onTextChanged: root.opticsSearch = text
+            }
+        }
+
+        GridLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.leftMargin: 28
+            Layout.rightMargin: 28
+            Layout.bottomMargin: 28
+            columns: root.width > 760 ? 2 : 1
+            columnSpacing: 16
+            rowSpacing: 16
+
+            Rectangle {
                 Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                columns: root.width > 1180 ? 2 : 1
-                columnSpacing: 16
-                rowSpacing: 16
+                Layout.fillHeight: true
+                radius: 8
+                color: "#171a20"
+                border.color: "#303641"
+                border.width: 1
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Catalogo oculari"
-                    subtitle: controller.eyepieceCatalog.length + " oculari"
-                    accentColor: theme.teal
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
 
-                    Repeater {
-                        model: controller.eyepieceCatalog
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
 
-                        delegate: Rectangle {
+                        Rectangle {
+                            Layout.preferredWidth: 4
+                            Layout.preferredHeight: 28
+                            radius: 2
+                            color: theme.teal
+                        }
+
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            implicitHeight: 74
-                            radius: 8
-                            color: "#20242b"
-                            border.color: "#303641"
-                            border.width: 1
+                            spacing: 2
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 10
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Catalogo oculari"
+                                color: theme.textPrimary
+                                font.pixelSize: 18
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.filteredEyepieces().length + " di " + controller.eyepieceCatalog.length + " oculari"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.brand + " " + modelData.model
-                                        color: theme.textPrimary
-                                        font.pixelSize: 14
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
+                        DarkButton {
+                            text: "Aggiungi oculare"
+                            accentColor: theme.teal
+                            onClicked: root.openEyepieceDialog(null)
+                        }
+                    }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: (modelData.barrel_size || "barilotto n/d") + "  -  " + (modelData.notes || "")
-                                        color: theme.textSecondary
-                                        font.pixelSize: 12
-                                        elide: Text.ElideRight
-                                    }
-                                }
+                    ScrollView {
+                        id: eyepieceScroll
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+                        contentWidth: availableWidth
 
-                                StatusPill { text: modelData.type; accentColor: modelData.type === "Zoom" ? theme.violet : theme.teal }
-                                StatusPill { text: modelData.focalRangeLabel; accentColor: theme.cyan }
-                                StatusPill { text: modelData.apparent_field_deg + " gradi"; accentColor: theme.amber }
+                        ColumnLayout {
+                            width: eyepieceScroll.availableWidth
+                            spacing: 10
 
-                                Button { text: "Modifica"; onClicked: root.openEyepieceDialog(modelData) }
-                                Button {
-                                    text: "Elimina"
-                                    onClicked: {
+                            Repeater {
+                                model: root.filteredEyepieces()
+
+                                delegate: OpticRow {
+                                    itemData: modelData
+                                    accent: root.eyepieceAccent(modelData)
+                                    onEdit: root.openEyepieceDialog(modelData)
+                                    onDeleteRequested: {
                                         root.deleteEyepiece = modelData
                                         deleteEyepieceDialog.open()
                                     }
                                 }
                             }
+
+                            Text {
+                                Layout.fillWidth: true
+                                visible: root.filteredEyepieces().length === 0
+                                text: "Nessun oculare trovato."
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                wrapMode: Text.WordWrap
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 8
+                color: "#171a20"
+                border.color: "#303641"
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Rectangle {
+                            Layout.preferredWidth: 4
+                            Layout.preferredHeight: 28
+                            radius: 2
+                            color: theme.amber
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Catalogo Barlow"
+                                color: theme.textPrimary
+                                font.pixelSize: 18
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.filteredBarlows().length + " di " + controller.barlowCatalog.length + " Barlow"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        DarkButton {
+                            text: "Aggiungi Barlow"
+                            accentColor: theme.amber
+                            onClicked: root.openBarlowDialog(null)
                         }
                     }
 
-                    Button {
+                    ScrollView {
+                        id: barlowScroll
                         Layout.fillWidth: true
-                        text: "Aggiungi oculare"
-                        onClicked: root.openEyepieceDialog(null)
-                    }
-                }
+                        Layout.fillHeight: true
+                        clip: true
+                        contentWidth: availableWidth
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Catalogo Barlow"
-                    subtitle: controller.barlowCatalog.length + " Barlow"
-                    accentColor: theme.amber
+                        ColumnLayout {
+                            width: barlowScroll.availableWidth
+                            spacing: 10
 
-                    Repeater {
-                        model: controller.barlowCatalog
+                            Repeater {
+                                model: root.filteredBarlows()
 
-                        delegate: Rectangle {
-                            Layout.fillWidth: true
-                            implicitHeight: 70
-                            radius: 8
-                            color: "#20242b"
-                            border.color: "#303641"
-                            border.width: 1
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.margins: 10
-                                spacing: 10
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.brand + " " + modelData.model
-                                        color: theme.textPrimary
-                                        font.pixelSize: 14
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: (modelData.barrel_size || "barilotto n/d") + "  -  " + (modelData.notes || "")
-                                        color: theme.textSecondary
-                                        font.pixelSize: 12
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                StatusPill { text: modelData.multiplier + "x"; accentColor: theme.amber }
-
-                                Button { text: "Modifica"; onClicked: root.openBarlowDialog(modelData) }
-                                Button {
-                                    text: "Elimina"
-                                    onClicked: {
+                                delegate: OpticRow {
+                                    itemData: modelData
+                                    isBarlow: true
+                                    accent: theme.amber
+                                    onEdit: root.openBarlowDialog(modelData)
+                                    onDeleteRequested: {
                                         root.deleteBarlow = modelData
                                         deleteBarlowDialog.open()
                                     }
                                 }
                             }
-                        }
-                    }
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: "Aggiungi Barlow"
-                        onClicked: root.openBarlowDialog(null)
+                            Text {
+                                Layout.fillWidth: true
+                                visible: root.filteredBarlows().length === 0
+                                text: "Nessuna Barlow trovata."
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                wrapMode: Text.WordWrap
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
 
-            Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
+    component OpticRow: Rectangle {
+        id: opticRow
+        property var itemData
+        property bool isBarlow: false
+        property color accent: "#65d6e8"
+        signal edit()
+        signal deleteRequested()
+
+        Layout.fillWidth: true
+        implicitHeight: rowContent.implicitHeight + 22
+        radius: 8
+        color: "#20242b"
+        border.color: "#303641"
+        border.width: 1
+
+        ColumnLayout {
+            id: rowContent
+            anchors.fill: parent
+            anchors.margins: 11
+            spacing: 7
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.brand + " " + itemData.model
+                    color: theme.textPrimary
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+
+                DarkButton {
+                    text: "Modifica"
+                    onClicked: opticRow.edit()
+                }
+
+                DarkButton {
+                    text: "Elimina"
+                    danger: true
+                    onClicked: opticRow.deleteRequested()
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: (itemData.barrel_size || "barilotto n/d") + "  -  " + (itemData.notes || "")
+                color: theme.textSecondary
+                font.pixelSize: 12
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            Flow {
+                Layout.fillWidth: true
+                spacing: 8
+
+                StatusPill {
+                    visible: !opticRow.isBarlow
+                    text: opticRow.isBarlow ? "" : (itemData.type || "")
+                    accentColor: opticRow.accent
+                }
+
+                StatusPill {
+                    visible: !opticRow.isBarlow
+                    text: opticRow.isBarlow ? "" : (itemData.focalRangeLabel || "")
+                    accentColor: theme.cyan
+                }
+
+                StatusPill {
+                    visible: !opticRow.isBarlow
+                    text: opticRow.isBarlow ? "" : ((itemData.apparent_field_deg || "") + " gradi")
+                    accentColor: theme.amber
+                }
+
+                StatusPill {
+                    visible: opticRow.isBarlow
+                    text: opticRow.isBarlow ? itemData.multiplier + "x" : ""
+                    accentColor: theme.amber
+                }
+            }
         }
     }
 
@@ -240,16 +426,16 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            TextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: "Brand" }
-            TextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            ComboBox { id: eyepieceType; Layout.fillWidth: true; model: ["Fixed", "Zoom"] }
-            TextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentText === "Zoom" ? "Focale max mm" : "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale min mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale max mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: "AFOV medio"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: "AFOV min-max opzionale" }
-            TextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
-            TextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: "Modello" }
+            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: ["Fixed", "Zoom"] }
+            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentText === "Zoom" ? "Focale max mm" : "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale min mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale max mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: "AFOV medio"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: "AFOV min-max opzionale" }
+            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
+            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: "Note" }
         }
     }
 
@@ -271,11 +457,11 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            TextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: "Brand" }
-            TextField { id: barlowModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            TextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: "Moltiplicatore"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            TextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
-            TextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: barlowModel; Layout.fillWidth: true; placeholderText: "Modello" }
+            DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: "Moltiplicatore"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
+            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
         }
     }
 
@@ -297,10 +483,17 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
-            Button { Layout.fillWidth: true; text: "Annulla"; onClicked: deleteEyepieceDialog.close() }
-            Button {
+
+            DarkButton {
+                Layout.fillWidth: true
+                text: "Annulla"
+                onClicked: deleteEyepieceDialog.close()
+            }
+
+            DarkButton {
                 Layout.fillWidth: true
                 text: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+                danger: true
                 onClicked: {
                     controller.deleteEyepieceModel(root.deleteEyepiece.id, controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0)
                     deleteEyepieceDialog.close()
@@ -327,10 +520,17 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
-            Button { Layout.fillWidth: true; text: "Annulla"; onClicked: deleteBarlowDialog.close() }
-            Button {
+
+            DarkButton {
+                Layout.fillWidth: true
+                text: "Annulla"
+                onClicked: deleteBarlowDialog.close()
+            }
+
+            DarkButton {
                 Layout.fillWidth: true
                 text: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+                danger: true
                 onClicked: {
                     controller.deleteBarlowModel(root.deleteBarlow.id, controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0)
                     deleteBarlowDialog.close()

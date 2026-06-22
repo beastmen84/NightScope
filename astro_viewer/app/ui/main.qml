@@ -15,6 +15,16 @@ ApplicationWindow {
     visibility: Window.Maximized
     title: "NightScope"
     color: theme.background
+    palette.window: theme.background
+    palette.windowText: theme.textPrimary
+    palette.base: theme.surfaceRaised
+    palette.alternateBase: theme.surface
+    palette.text: theme.textPrimary
+    palette.placeholderText: theme.textMuted
+    palette.button: theme.surfaceRaised
+    palette.buttonText: theme.textPrimary
+    palette.highlight: theme.cyan
+    palette.highlightedText: theme.background
 
     property string currentPage: "home"
 

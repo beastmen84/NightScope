@@ -18,8 +18,28 @@ Item {
             || (filter === "Telescopi" && item.kind === "telescope")
             || (filter === "Oculari" && item.kind === "eyepiece")
             || (filter === "Barlow" && item.kind === "barlow")
-        var text = (item.name + " " + item.badge + " " + item.details).toLowerCase()
-        return typeOk && text.indexOf(searchText.toLowerCase()) >= 0
+        var text = (item.name + " " + item.badge + " " + item.details + " " + (item.type || "")).toLowerCase()
+        return typeOk && text.indexOf((searchText || "").toLowerCase()) >= 0
+    }
+
+    function filteredAddEquipment() {
+        return controller.profileEquipmentCatalog.filter(function(item) {
+            return root.matchesFilter(item, root.addFilter, root.addSearch)
+        })
+    }
+
+    function filteredAssignedEquipment() {
+        return controller.profileAssignedEquipment.filter(function(item) {
+            return root.matchesFilter(item, root.removeFilter, root.removeSearch)
+        })
+    }
+
+    function equipmentAccent(item) {
+        if (item.kind === "telescope")
+            return theme.cyan
+        if (item.kind === "eyepiece")
+            return item.badge === "Zoom" ? theme.violet : theme.teal
+        return theme.amber
     }
 
     AppTheme { id: theme }
@@ -61,6 +81,7 @@ Item {
             }
 
             GridLayout {
+                id: profileGrid
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -69,6 +90,8 @@ Item {
                 rowSpacing: 16
 
                 GlassCard {
+                    id: activeProfileCard
+                    visible: controller.equipmentProfiles.length !== 1
                     Layout.fillWidth: true
                     title: "Profilo attivo"
                     subtitle: "Setup usato dalle raccomandazioni"
@@ -88,7 +111,8 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    title: "Lista profili"
+                    Layout.columnSpan: activeProfileCard.visible ? 1 : profileGrid.columns
+                    title: controller.equipmentProfiles.length === 1 ? "Profilo" : "Lista profili"
                     subtitle: "Profili osservativi salvati"
                     accentColor: theme.cyan
 
@@ -113,13 +137,13 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            Button {
+                            DarkButton {
                                 text: "Imposta attivo"
                                 enabled: modelData.active !== 1
                                 onClicked: controller.setActiveEquipmentProfile(modelData.id)
                             }
 
-                            Button {
+                            DarkButton {
                                 text: "Rinomina"
                                 onClicked: {
                                     root.renameProfileId = modelData.id
@@ -128,14 +152,15 @@ Item {
                                 }
                             }
 
-                            Button {
+                            DarkButton {
                                 text: "Elimina"
+                                danger: true
                                 onClicked: controller.deleteEquipmentProfile(modelData.id)
                             }
                         }
                     }
 
-                    Button {
+                    DarkButton {
                         Layout.fillWidth: true
                         text: "Aggiungi profilo"
                         onClicked: addProfileDialog.open()
@@ -183,13 +208,13 @@ Item {
                     Layout.fillWidth: true
                     spacing: 10
 
-                    Button {
+                    DarkButton {
                         Layout.fillWidth: true
                         text: "Aggiungi equipaggiamento"
                         onClicked: addEquipmentDialog.open()
                     }
 
-                    Button {
+                    DarkButton {
                         Layout.fillWidth: true
                         enabled: controller.profileAssignedEquipment.length > 0
                         text: "Rimuovi equipaggiamento"
@@ -326,10 +351,83 @@ Item {
 
             StatusPill { text: itemData.badge; accentColor: equipmentRow.accent }
 
-            Button {
+            DarkButton {
                 text: actionText
                 enabled: actionText.indexOf("Assegna") < 0 || !itemData.assigned
                 onClicked: equipmentRow.action()
+            }
+        }
+    }
+
+    component EquipmentCatalogCard: Rectangle {
+        id: equipmentCard
+        property var itemData
+        signal action()
+
+        width: addEquipmentGrid.cellWidth - 10
+        height: 118
+        radius: 8
+        color: cardMouse.containsMouse ? "#252b34" : "#20242b"
+        border.color: itemData.assigned ? Qt.rgba(theme.green.r, theme.green.g, theme.green.b, 0.52) : "#303641"
+        border.width: 1
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.name
+                    color: theme.textPrimary
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+
+                StatusPill {
+                    text: itemData.badge
+                    accentColor: root.equipmentAccent(itemData)
+                }
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: itemData.details
+                color: theme.textSecondary
+                font.pixelSize: 13
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Item { Layout.fillWidth: true }
+
+                DarkButton {
+                    text: itemData.assigned ? "Gia assegnato" : "Assegna"
+                    enabled: !itemData.assigned
+                    accentColor: root.equipmentAccent(itemData)
+                    onClicked: equipmentCard.action()
+                }
+            }
+        }
+
+        MouseArea {
+            id: cardMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: itemData.assigned ? Qt.ArrowCursor : Qt.PointingHandCursor
+            onClicked: {
+                if (!itemData.assigned)
+                    equipmentCard.action()
             }
         }
     }
@@ -340,7 +438,7 @@ Item {
         acceptText: "Aggiungi"
         onAccepted: controller.addEquipmentProfile(addProfileName.text)
 
-        TextField {
+        DarkTextField {
             id: addProfileName
             Layout.fillWidth: true
             placeholderText: "Nome profilo"
@@ -353,7 +451,7 @@ Item {
         acceptText: "Rinomina"
         onAccepted: controller.renameEquipmentProfile(root.renameProfileId, renameProfileName.text)
 
-        TextField {
+        DarkTextField {
             id: renameProfileName
             Layout.fillWidth: true
             placeholderText: "Nome profilo"
@@ -363,30 +461,62 @@ Item {
     DarkDialog {
         id: addEquipmentDialog
         title: "Aggiungi equipaggiamento"
+        preferredWidth: 960
         showAccept: false
 
-        RowLayout {
+        DarkTextField {
             Layout.fillWidth: true
-            spacing: 10
-            ComboBox {
-                Layout.preferredWidth: 160
+            placeholderText: "Cerca equipaggiamento..."
+            onTextChanged: root.addSearch = text
+        }
+
+        Flow {
+            Layout.fillWidth: true
+            spacing: 8
+
+            Repeater {
                 model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
-                onCurrentTextChanged: root.addFilter = currentText
-            }
-            TextField {
-                Layout.fillWidth: true
-                placeholderText: "Cerca..."
-                onTextChanged: root.addSearch = text
+
+                delegate: DarkButton {
+                    text: modelData
+                    checkable: true
+                    checked: root.addFilter === modelData
+                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : theme.violet
+                    onClicked: root.addFilter = modelData
+                }
             }
         }
 
-        Repeater {
-            model: controller.profileEquipmentCatalog.filter(function(item) { return root.matchesFilter(item, root.addFilter, root.addSearch) })
-            delegate: EquipmentRow {
+        Text {
+            Layout.fillWidth: true
+            text: root.filteredAddEquipment().length + " risultati"
+            color: theme.textMuted
+            font.pixelSize: 12
+            elide: Text.ElideRight
+        }
+
+        GridView {
+            id: addEquipmentGrid
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.max(240, Math.min(480, root.height - 340))
+            clip: true
+            cellWidth: width > 700 ? Math.floor(width / 2) : width
+            cellHeight: 128
+            boundsBehavior: Flickable.StopAtBounds
+            model: root.filteredAddEquipment()
+            ScrollBar.vertical: ScrollBar { }
+
+            delegate: EquipmentCatalogCard {
                 itemData: modelData
-                actionText: modelData.assigned ? "Gia assegnato" : "Assegna al profilo"
-                accent: modelData.kind === "telescope" ? theme.cyan : modelData.kind === "eyepiece" ? theme.teal : theme.violet
                 onAction: controller.assignEquipmentToActiveProfile(modelData.kind, modelData.id)
+            }
+
+            Text {
+                anchors.centerIn: parent
+                visible: addEquipmentGrid.count === 0
+                text: "Nessun elemento trovato."
+                color: theme.textSecondary
+                font.pixelSize: 13
             }
         }
     }
@@ -399,12 +529,12 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
-            ComboBox {
+            DarkComboBox {
                 Layout.preferredWidth: 160
                 model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
                 onCurrentTextChanged: root.removeFilter = currentText
             }
-            TextField {
+            DarkTextField {
                 Layout.fillWidth: true
                 placeholderText: "Cerca..."
                 onTextChanged: root.removeSearch = text
@@ -412,11 +542,11 @@ Item {
         }
 
         Repeater {
-            model: controller.profileAssignedEquipment.filter(function(item) { return root.matchesFilter(item, root.removeFilter, root.removeSearch) })
+            model: root.filteredAssignedEquipment()
             delegate: EquipmentRow {
                 itemData: modelData
                 actionText: "Rimuovi dal profilo"
-                accent: modelData.kind === "telescope" ? theme.cyan : modelData.kind === "eyepiece" ? theme.teal : theme.violet
+                accent: root.equipmentAccent(modelData)
                 onAction: controller.removeEquipmentFromActiveProfile(modelData.kind, modelData.id)
             }
         }

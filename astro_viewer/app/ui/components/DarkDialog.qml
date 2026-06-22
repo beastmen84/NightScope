@@ -9,6 +9,7 @@ Popup {
     property string acceptText: "Conferma"
     property string cancelText: "Annulla"
     property bool showAccept: true
+    property int preferredWidth: 720
     default property alias content: body.data
 
     signal accepted()
@@ -16,10 +17,12 @@ Popup {
 
     modal: true
     focus: true
-    width: Math.min(720, parent ? parent.width - 72 : 720)
+    width: Math.min(preferredWidth, parent ? parent.width - 72 : preferredWidth)
+    height: Math.min(dialogLayout.implicitHeight, parent ? parent.height - 72 : dialogLayout.implicitHeight)
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     x: parent ? Math.round((parent.width - width) / 2) : 0
     y: parent ? Math.round((parent.height - height) / 2) : 0
+    clip: true
 
     AppTheme {
         id: theme
@@ -33,6 +36,7 @@ Popup {
     }
 
     contentItem: ColumnLayout {
+        id: dialogLayout
         spacing: 16
 
         RowLayout {
@@ -50,7 +54,7 @@ Popup {
                 elide: Text.ElideRight
             }
 
-            Button {
+            DarkButton {
                 text: "Chiudi"
                 onClicked: {
                     root.rejected()
@@ -76,7 +80,7 @@ Popup {
 
             Item { Layout.fillWidth: true }
 
-            Button {
+            DarkButton {
                 text: root.cancelText
                 onClicked: {
                     root.rejected()
@@ -84,9 +88,10 @@ Popup {
                 }
             }
 
-            Button {
+            DarkButton {
                 visible: root.showAccept
                 text: root.acceptText
+                accentColor: theme.cyan
                 onClicked: {
                     root.accepted()
                     root.close()
