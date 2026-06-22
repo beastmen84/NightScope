@@ -23,6 +23,7 @@ from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
+from astro_viewer.app.services.earthdata_credentials import EarthdataConnectionTester, EarthdataCredentialStore
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.location_service import (
@@ -51,6 +52,7 @@ class AppController(QObject):
     equipmentChanged = Signal()
     observationChanged = Signal()
     statusChanged = Signal()
+    earthdataCredentialsChanged = Signal()
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -66,6 +68,11 @@ class AppController(QObject):
             preferences_path=database_path.parent / "user_preferences.json",
             cache_path=database_path.parent / "location_cache.json",
         )
+        self._earthdata_credential_store = EarthdataCredentialStore(
+            preferences_path=database_path.parent / "user_preferences.json",
+        )
+        self._earthdata_connection_tester = EarthdataConnectionTester()
+        self._earthdata_credentials_state = self._earthdata_credential_store.state()
         self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
@@ -181,6 +188,22 @@ class AppController(QObject):
     @Property(bool, notify=locationChanged)
     def useWindowsLocationOnStartup(self) -> bool:
         return self._startup_location_preferences.use_windows_location_on_startup
+
+    @Property(str, notify=earthdataCredentialsChanged)
+    def earthdataUsername(self) -> str:
+        return self._earthdata_credentials_state.username
+
+    @Property(bool, notify=earthdataCredentialsChanged)
+    def earthdataCredentialsConfigured(self) -> bool:
+        return self._earthdata_credentials_state.configured
+
+    @Property(bool, notify=earthdataCredentialsChanged)
+    def earthdataSecureStorageAvailable(self) -> bool:
+        return self._earthdata_credentials_state.secure_store_available
+
+    @Property(str, notify=earthdataCredentialsChanged)
+    def earthdataCredentialMessage(self) -> str:
+        return self._earthdata_credentials_state.message
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:
@@ -541,6 +564,43 @@ class AppController(QObject):
     def setUseWindowsLocationOnStartup(self, enabled: bool) -> None:
         self._update_startup_preferences(use_windows_location_on_startup=enabled)
         self.locationChanged.emit()
+
+    @Slot(str, str)
+    def saveEarthdataCredentials(self, username: str, password: str) -> None:
+        try:
+            self._earthdata_credentials_state = self._earthdata_credential_store.save(username, password)
+        except (RuntimeError, ValueError) as exc:
+            self._earthdata_credentials_state = self._earthdata_credential_store.state()
+            self._earthdata_credentials_state = replace(self._earthdata_credentials_state, message=str(exc))
+        self.earthdataCredentialsChanged.emit()
+
+    @Slot()
+    def removeEarthdataCredentials(self) -> None:
+        self._earthdata_credentials_state = self._earthdata_credential_store.remove()
+        self.earthdataCredentialsChanged.emit()
+
+    @Slot()
+    def testEarthdataConnection(self) -> None:
+        username = self._earthdata_credential_store.username()
+        password = self._earthdata_credential_store.password()
+        if not username or not password:
+            self._earthdata_credentials_state = replace(
+                self._earthdata_credential_store.state(),
+                message="Salva le credenziali Earthdata prima del test.",
+            )
+            self.earthdataCredentialsChanged.emit()
+            return
+        self._earthdata_credentials_state = replace(
+            self._earthdata_credentials_state,
+            message="Verifica connessione Earthdata in corso...",
+        )
+        self.earthdataCredentialsChanged.emit()
+        result = self._earthdata_connection_tester.test(username, password)
+        self._earthdata_credentials_state = replace(
+            self._earthdata_credential_store.state(),
+            message=result.message,
+        )
+        self.earthdataCredentialsChanged.emit()
 
     @Slot()
     def runWindowsLocationDiagnostics(self) -> None:

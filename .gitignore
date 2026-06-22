@@ -10,3 +10,4 @@ dist/
 astro_viewer/data/*.backup
 astro_viewer/data/*.corrupt-*.bak
 astro_viewer/data/location_cache.json
+nasa_login.txt

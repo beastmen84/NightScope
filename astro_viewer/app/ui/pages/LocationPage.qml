@@ -280,6 +280,105 @@ Item {
                 }
             }
 
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Earthdata NASA"
+                subtitle: controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS"
+                accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+
+                Connections {
+                    target: controller
+
+                    function onEarthdataCredentialsChanged() {
+                        if (!earthdataUsername.activeFocus)
+                            earthdataUsername.text = controller.earthdataUsername
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    StatusPill {
+                        text: controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback"
+                        accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: controller.earthdataCredentialMessage
+                        color: controller.earthdataSecureStorageAvailable ? theme.textSecondary : theme.coral
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: root.width > 920 ? 2 : 1
+                    columnSpacing: 12
+                    rowSpacing: 10
+
+                    DarkTextField {
+                        id: earthdataUsername
+                        Layout.fillWidth: true
+                        placeholderText: "Username Earthdata"
+                        enabled: controller.earthdataSecureStorageAvailable
+                        Component.onCompleted: text = controller.earthdataUsername
+                    }
+
+                    DarkTextField {
+                        id: earthdataPassword
+                        Layout.fillWidth: true
+                        placeholderText: controller.earthdataCredentialsConfigured ? "Nuova password" : "Password Earthdata"
+                        echoMode: TextInput.Password
+                        enabled: controller.earthdataSecureStorageAvailable
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    DarkButton {
+                        Layout.preferredWidth: 112
+                        text: "Salva"
+                        enabled: controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
+                        accentColor: theme.green
+                        onClicked: {
+                            controller.saveEarthdataCredentials(earthdataUsername.text, earthdataPassword.text)
+                            earthdataPassword.text = ""
+                        }
+                    }
+
+                    DarkButton {
+                        Layout.preferredWidth: 148
+                        text: "Test connessione"
+                        enabled: controller.earthdataCredentialsConfigured
+                        accentColor: theme.cyan
+                        onClicked: controller.testEarthdataConnection()
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    DarkButton {
+                        Layout.preferredWidth: 96
+                        text: "Rimuovi"
+                        enabled: controller.earthdataCredentialsConfigured
+                        danger: true
+                        onClicked: {
+                            controller.removeEarthdataCredentials()
+                            earthdataUsername.text = ""
+                            earthdataPassword.text = ""
+                        }
+                    }
+                }
+            }
+
             GridLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
