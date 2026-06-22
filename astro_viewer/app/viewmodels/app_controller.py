@@ -60,11 +60,13 @@ class AppController(QObject):
     earthdataCredentialsChanged = Signal()
     _earthdataConnectionTestFinished = Signal(bool, str, bool)
     _viirsSkyQualityFinished = Signal(str, object, str)
+    _startupLocationDetectionFinished = Signal(int, object, bool, str)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
         self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
+        self._startupLocationDetectionFinished.connect(self._finish_startup_location_detection)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -85,6 +87,8 @@ class AppController(QObject):
         self._earthdata_connection_test_running = False
         self._viirs_sky_quality_running = False
         self._light_pollution_status = ""
+        self._startup_location_detection_running = False
+        self._startup_location_detection_request_id = 0
         self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
@@ -201,6 +205,10 @@ class AppController(QObject):
     @Property(bool, notify=locationChanged)
     def useWindowsLocationOnStartup(self) -> bool:
         return self._startup_location_preferences.use_windows_location_on_startup
+
+    @Property(bool, notify=locationChanged)
+    def startupLocationDetectionRunning(self) -> bool:
+        return self._startup_location_detection_running
 
     @Property(str, notify=earthdataCredentialsChanged)
     def earthdataUsername(self) -> str:
@@ -520,6 +528,7 @@ class AppController(QObject):
     def selectRecentLocation(self, index: int) -> None:
         recent = self._recent_location_results()
         if 0 <= index < len(recent):
+            self._cancel_startup_location_detection()
             self._apply_location_result(recent[index])
             self._refresh_all()
             self.locationChanged.emit()
@@ -529,6 +538,7 @@ class AppController(QObject):
         city = self._city_repository.get_by_id(city_id)
         if not city:
             return
+        self._cancel_startup_location_detection()
         result = self._location_service.from_city_result(city)
         self._apply_location_result(result)
         self._refresh_all()
@@ -550,6 +560,7 @@ class AppController(QObject):
             return
 
         clean_label = label.strip() or "Coordinate manuali"
+        self._cancel_startup_location_detection()
         result = self._location_service.from_manual_coordinates_result(
             parsed_latitude,
             parsed_longitude,
@@ -561,6 +572,7 @@ class AppController(QObject):
 
     @Slot()
     def useWindowsLocation(self) -> None:
+        self._cancel_startup_location_detection()
         try:
             result = self._location_service.detect_windows_location()
         except LocationUnavailableError as exc:
@@ -575,6 +587,7 @@ class AppController(QObject):
 
     @Slot()
     def useApproximateOnlineLocation(self) -> None:
+        self._cancel_startup_location_detection()
         try:
             result = self._location_service.detect_ip_location(allow_online=True)
         except LocationUnavailableError as exc:
@@ -590,6 +603,8 @@ class AppController(QObject):
     @Slot(bool)
     def setAutoDetectLocationOnStartup(self, enabled: bool) -> None:
         self._update_startup_preferences(auto_detect_location_on_startup=enabled)
+        if not enabled:
+            self._cancel_startup_location_detection()
         self.locationChanged.emit()
 
     @Slot(bool)
@@ -1078,7 +1093,9 @@ class AppController(QObject):
         previous_status = self._service_status
         self._service_status = previous_status if "ephemeris unavailable" in previous_status.lower() else ""
         try:
-            if self._has_valid_location():
+            if self._startup_location_detection_running:
+                self._refresh_startup_location_pending_context()
+            elif self._has_valid_location():
                 self._refresh_astronomy()
                 self._refresh_weather_and_conditions()
             else:
@@ -1099,6 +1116,12 @@ class AppController(QObject):
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
         self.statusChanged.emit()
+
+    def _refresh_startup_location_pending_context(self) -> None:
+        self._refresh_no_location_context()
+        self._location_message = "Rilevamento posizione all'avvio in corso..."
+        self._weather_status = "Rilevamento posizione all'avvio in corso..."
+        self._service_status = "Rilevamento posizione all'avvio in corso."
 
     def _refresh_no_location_context(self) -> None:
         self._solar_system_objects = []
@@ -1324,48 +1347,98 @@ class AppController(QObject):
     def _initialize_startup_location(self) -> None:
         preferences = self._startup_location_preferences
         if preferences.auto_detect_location_on_startup:
-            if preferences.use_windows_location_on_startup:
-                try:
-                    result = self._location_service.detect_windows_location()
-                except LocationUnavailableError as exc:
-                    logger.info("Windows startup location detection unavailable: %s", exc.reason)
-                else:
-                    self._apply_location_result(result)
-                    return
-
-            if preferences.allow_approximate_online_location:
-                try:
-                    result = self._location_service.detect_ip_location(allow_online=True)
-                except LocationUnavailableError as exc:
-                    logger.info("Approximate startup location detection unavailable: %s", exc.reason)
-                else:
-                    self._apply_location_result(result)
-                    return
-
-            if self._apply_stored_startup_location():
-                return
-
-            self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
+            self._start_startup_location_detection()
+            return
         elif self._apply_stored_startup_location():
             return
 
         self._location_detection_result = None
         self._location = None
 
-    def _apply_stored_startup_location(self) -> bool:
-        saved = self._location_preferences.saved_location()
-        if saved and self._result_has_valid_location(saved):
-            self._apply_location_result(saved, persist=False)
-            self._location_message = f"Posizione salvata caricata: {saved.location.city}."
-            return True
+    def _start_startup_location_detection(self) -> None:
+        self._startup_location_detection_request_id += 1
+        request_id = self._startup_location_detection_request_id
+        preferences = self._startup_location_preferences
+        self._startup_location_detection_running = True
+        self._location_detection_result = None
+        self._location = None
+        self._location_message = "Rilevamento posizione all'avvio in corso..."
 
-        cached = self._location_preferences.cached_location()
-        if cached and self._result_has_valid_location(cached):
-            self._apply_location_result(cached, persist=False)
-            self._location_message = f"Ultima posizione caricata: {cached.location.city}."
+        def run_detection() -> None:
+            result, persist, message = self._resolve_startup_location(preferences)
+            self._startupLocationDetectionFinished.emit(request_id, result, persist, message)
+
+        Thread(target=run_detection, daemon=True).start()
+
+    def _resolve_startup_location(self, preferences) -> tuple[LocationDetectionResult | None, bool, str]:
+        if preferences.use_windows_location_on_startup:
+            try:
+                return self._location_service.detect_windows_location(), True, ""
+            except LocationUnavailableError as exc:
+                logger.info("Windows startup location detection unavailable: %s", exc.reason)
+
+        if preferences.allow_approximate_online_location:
+            try:
+                return self._location_service.detect_ip_location(allow_online=True), True, ""
+            except LocationUnavailableError as exc:
+                logger.info("Approximate startup location detection unavailable: %s", exc.reason)
+
+        stored = self._stored_startup_location_result()
+        if stored:
+            return stored
+        return None, False, "Configura una posizione per ottenere meteo e cielo locale."
+
+    @Slot(int, object, bool, str)
+    def _finish_startup_location_detection(
+        self,
+        request_id: int,
+        result: object,
+        persist: bool,
+        message: str,
+    ) -> None:
+        if request_id != self._startup_location_detection_request_id:
+            return
+
+        self._startup_location_detection_running = False
+        if isinstance(result, LocationDetectionResult) and self._result_has_valid_location(result):
+            self._apply_location_result(result, persist=persist)
+            if message:
+                self._location_message = message
+        else:
+            self._location_detection_result = None
+            self._location = None
+            self._location_message = message or "Configura una posizione per ottenere meteo e cielo locale."
+
+        self._refresh_all()
+        self.locationChanged.emit()
+
+    def _cancel_startup_location_detection(self) -> None:
+        if not self._startup_location_detection_running:
+            return
+        self._startup_location_detection_running = False
+        self._startup_location_detection_request_id += 1
+        self._light_pollution_status = ""
+
+    def _apply_stored_startup_location(self) -> bool:
+        stored = self._stored_startup_location_result()
+        if stored:
+            result, persist, message = stored
+            self._apply_location_result(result, persist=persist)
+            self._location_message = message
             return True
 
         return False
+
+    def _stored_startup_location_result(self) -> tuple[LocationDetectionResult, bool, str] | None:
+        saved = self._location_preferences.saved_location()
+        if saved and self._result_has_valid_location(saved):
+            return saved, False, f"Posizione salvata caricata: {saved.location.city}."
+
+        cached = self._location_preferences.cached_location()
+        if cached and self._result_has_valid_location(cached):
+            return cached, False, f"Ultima posizione caricata: {cached.location.city}."
+
+        return None
 
     @staticmethod
     def _result_has_valid_location(result: LocationDetectionResult | None) -> bool:

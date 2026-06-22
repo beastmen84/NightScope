@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
+
+from PySide6.QtCore import QCoreApplication
 
 import requests
 
@@ -79,9 +82,49 @@ class ReleaseScenarioTests(unittest.TestCase):
             },
             patch_location_requests=True,
         ) as controller:
+            self.assertTrue(_wait_for_startup_location(controller))
             self.assertEqual(controller.location["city"], "Addis Ababa")
             self.assertEqual(controller.location["timezone"], "Africa/Addis_Ababa")
             self.assertEqual(controller.activeLocationSource, "Approximate online")
+            self.assertGreater(len(controller.weatherHourly), 0)
+
+    def test_startup_auto_detection_does_not_refresh_weather_until_location_is_ready(self) -> None:
+        ip_response = Mock()
+        ip_response.raise_for_status.return_value = None
+        ip_response.json.return_value = {
+            "city": "Addis Ababa",
+            "region": "Addis Ababa",
+            "country_name": "Ethiopia",
+            "latitude": 9.03,
+            "longitude": 38.74,
+            "timezone": "Africa/Addis_Ababa",
+            "accuracy_radius": 25,
+        }
+        weather_response = _valid_weather_response()
+
+        def response_for_url(url, *args, **kwargs):
+            if "ipapi" in url or "ipwho" in url:
+                time.sleep(0.2)
+                return ip_response
+            return weather_response
+
+        context = self._controller_with_weather(
+            side_effect=response_for_url,
+            preferences={
+                "auto_detect_location_on_startup": True,
+                "allow_approximate_online_location": True,
+            },
+            patch_location_requests=True,
+        )
+        with context as controller:
+            self.assertTrue(controller.startupLocationDetectionRunning)
+            self.assertFalse(controller.hasValidLocation)
+            self.assertEqual(controller.weatherHourly, [])
+            self.assertEqual(controller.weatherStatus, "Rilevamento posizione all'avvio in corso...")
+            context.weather_requests.assert_not_called()
+
+            self.assertTrue(_wait_for_startup_location(controller))
+            self.assertEqual(controller.location["city"], "Addis Ababa")
             self.assertGreater(len(controller.weatherHourly), 0)
 
     def test_startup_auto_detection_overrides_saved_location(self) -> None:
@@ -113,6 +156,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             },
             patch_location_requests=True,
         ) as controller:
+            self.assertTrue(_wait_for_startup_location(controller))
             self.assertEqual(controller.location["city"], "Bologna")
             self.assertEqual(controller.location["timezone"], "Europe/Rome")
             self.assertEqual(controller.activeLocationSource, "Approximate online")
@@ -245,6 +289,8 @@ class _ControllerContext:
         return self._controller
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
+        if self._controller:
+            _wait_for_startup_location(self._controller)
         if self._controller and hasattr(self._controller._astronomy_engine, "close"):
             self._controller._astronomy_engine.close()
         if self._patcher:
@@ -277,6 +323,19 @@ class _ControllerContext:
                     message="Posizione impostata su Addis Ababa, Etiopia.",
                 )
             )
+
+
+def _wait_for_startup_location(controller: AppController, timeout_seconds: float = 3.0) -> bool:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        app.processEvents()
+        if not controller.startupLocationDetectionRunning:
+            app.processEvents()
+            return True
+        time.sleep(0.01)
+    app.processEvents()
+    return not controller.startupLocationDetectionRunning
 
 
 def _valid_weather_response() -> Mock:

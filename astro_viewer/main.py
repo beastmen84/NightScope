@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 
 
@@ -36,6 +37,7 @@ def _build_controller():
 
 def run_smoke_test() -> int:
     controller = _build_controller()
+    _wait_for_startup_location(controller)
     print(f"{APP_NAME} smoke test")
     print(f"location={controller.location['city']}, {controller.location['country']}")
     print(f"planets={len(controller.visiblePlanets)}")
@@ -49,6 +51,24 @@ def run_smoke_test() -> int:
     print(f"night_plan={len(controller.nightPlan)}")
     print(f"best_object={controller.bestObjectOfNight.get('name', 'n/d')}")
     return 0
+
+
+def _wait_for_startup_location(controller, timeout_seconds: float = 8.0) -> bool:
+    try:
+        from PySide6.QtCore import QCoreApplication
+    except ModuleNotFoundError:
+        return False
+
+    app = QCoreApplication.instance() or QCoreApplication([])
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        app.processEvents()
+        if not getattr(controller, "startupLocationDetectionRunning", False):
+            app.processEvents()
+            return True
+        time.sleep(0.02)
+    app.processEvents()
+    return not getattr(controller, "startupLocationDetectionRunning", False)
 
 
 def run_app() -> int:
