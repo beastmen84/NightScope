@@ -468,7 +468,9 @@ Item {
     DarkDialog {
         id: deleteEyepieceDialog
         title: "Elimina oculare"
-        showAccept: false
+        acceptText: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        acceptDanger: true
+        onAccepted: controller.deleteEyepieceModel(root.deleteEyepiece.id, controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
@@ -479,33 +481,14 @@ Item {
             font.pixelSize: 14
             wrapMode: Text.WordWrap
         }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: "Annulla"
-                onClicked: deleteEyepieceDialog.close()
-            }
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
-                danger: true
-                onClicked: {
-                    controller.deleteEyepieceModel(root.deleteEyepiece.id, controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0)
-                    deleteEyepieceDialog.close()
-                }
-            }
-        }
     }
 
     DarkDialog {
         id: deleteBarlowDialog
         title: "Elimina Barlow"
-        showAccept: false
+        acceptText: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        acceptDanger: true
+        onAccepted: controller.deleteBarlowModel(root.deleteBarlow.id, controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
@@ -515,27 +498,6 @@ Item {
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: "Annulla"
-                onClicked: deleteBarlowDialog.close()
-            }
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
-                danger: true
-                onClicked: {
-                    controller.deleteBarlowModel(root.deleteBarlow.id, controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0)
-                    deleteBarlowDialog.close()
-                }
-            }
         }
     }
 }

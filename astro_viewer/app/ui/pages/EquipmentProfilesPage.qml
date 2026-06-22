@@ -183,6 +183,7 @@ Item {
                     rowSpacing: 16
 
                     EquipmentGroup {
+                        Layout.preferredWidth: 1
                         title: "Telescopi"
                         emptyText: "Nessun telescopio assegnato. Il profilo usa Occhio nudo."
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "telescope" })
@@ -190,6 +191,7 @@ Item {
                     }
 
                     EquipmentGroup {
+                        Layout.preferredWidth: 1
                         title: "Oculari"
                         emptyText: "Nessun oculare assegnato."
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "eyepiece" })
@@ -197,6 +199,7 @@ Item {
                     }
 
                     EquipmentGroup {
+                        Layout.preferredWidth: 1
                         title: "Barlow"
                         emptyText: "Nessuna Barlow assegnata."
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "barlow" })
@@ -270,6 +273,8 @@ Item {
         property color accent: "#65d6e8"
 
         Layout.fillWidth: true
+        Layout.minimumWidth: 0
+        Layout.preferredWidth: 1
         spacing: 8
 
         Text {
@@ -509,7 +514,10 @@ Item {
 
             delegate: EquipmentCatalogCard {
                 itemData: modelData
-                onAction: controller.assignEquipmentToActiveProfile(modelData.kind, modelData.id)
+                onAction: {
+                    controller.assignEquipmentToActiveProfile(modelData.kind, modelData.id)
+                    addEquipmentDialog.close()
+                }
             }
 
             Text {

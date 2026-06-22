@@ -258,7 +258,9 @@ Item {
     DarkDialog {
         id: deleteTelescopeDialog
         title: "Elimina modello"
-        showAccept: false
+        acceptText: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        acceptDanger: true
+        onAccepted: controller.deleteTelescopeModel(root.deleteModel.id, controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
@@ -268,27 +270,6 @@ Item {
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: "Annulla"
-                onClicked: deleteTelescopeDialog.close()
-            }
-
-            DarkButton {
-                Layout.fillWidth: true
-                text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
-                danger: true
-                onClicked: {
-                    controller.deleteTelescopeModel(root.deleteModel.id, controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0)
-                    deleteTelescopeDialog.close()
-                }
-            }
         }
     }
 }

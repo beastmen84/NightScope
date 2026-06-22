@@ -9,7 +9,9 @@ Popup {
     property string acceptText: "Conferma"
     property string cancelText: "Annulla"
     property bool showAccept: true
+    property bool acceptDanger: false
     property int preferredWidth: 720
+    property int dialogPadding: 28
     default property alias content: body.data
 
     signal accepted()
@@ -41,9 +43,9 @@ Popup {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 18
-            Layout.rightMargin: 18
-            Layout.topMargin: 24
+            Layout.leftMargin: root.dialogPadding
+            Layout.rightMargin: root.dialogPadding
+            Layout.topMargin: root.dialogPadding
 
             Text {
                 Layout.fillWidth: true
@@ -53,29 +55,21 @@ Popup {
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
             }
-
-            DarkButton {
-                text: "Chiudi"
-                onClicked: {
-                    root.rejected()
-                    root.close()
-                }
-            }
         }
 
         ColumnLayout {
             id: body
             Layout.fillWidth: true
-            Layout.leftMargin: 18
-            Layout.rightMargin: 18
+            Layout.leftMargin: root.dialogPadding
+            Layout.rightMargin: root.dialogPadding
             spacing: 12
         }
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 18
-            Layout.rightMargin: 18
-            Layout.bottomMargin: 24
+            Layout.leftMargin: root.dialogPadding
+            Layout.rightMargin: root.dialogPadding
+            Layout.bottomMargin: root.dialogPadding
             spacing: 10
 
             Item { Layout.fillWidth: true }
@@ -92,6 +86,7 @@ Popup {
                 visible: root.showAccept
                 text: root.acceptText
                 accentColor: theme.cyan
+                danger: root.acceptDanger
                 onClicked: {
                     root.accepted()
                     root.close()
