@@ -205,7 +205,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.cloudCover + "% nuvole"
+                                    text: modelData.precipitationProbability + "% pioggia"
                                     color: theme.textSecondary
                                     font.pixelSize: 11
                                     horizontalAlignment: Text.AlignHCenter
