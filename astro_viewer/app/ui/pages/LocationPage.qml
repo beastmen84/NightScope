@@ -215,165 +215,174 @@ Item {
                 }
             }
 
-            GlassCard {
+            GridLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                visible: controller.recentLocations.length > 0
-                title: "Posizioni recenti"
-                subtitle: "Ultime posizioni salvate o caricate"
-                accentColor: theme.violet
+                columns: root.width > 1040 ? 2 : 1
+                columnSpacing: 16
+                rowSpacing: 16
 
-                Repeater {
-                    model: controller.recentLocations
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 206
+                    visible: controller.recentLocations.length > 0
+                    title: "Posizioni recenti"
+                    subtitle: "Ultime posizioni salvate o caricate"
+                    accentColor: theme.violet
 
-                    delegate: Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: 42
-                        radius: 8
-                        color: recentMouse.containsMouse ? "#20242b" : "#15181e"
-                        border.color: recentMouse.containsMouse ? "#303641" : "transparent"
-                        border.width: 1
+                    Repeater {
+                        model: controller.recentLocations
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 10
-                            anchors.rightMargin: 8
-                            spacing: 10
+                        delegate: Rectangle {
+                            Layout.fillWidth: true
+                            implicitHeight: 42
+                            radius: 8
+                            color: recentMouse.containsMouse ? "#20242b" : "#15181e"
+                            border.color: recentMouse.containsMouse ? "#303641" : "transparent"
+                            border.width: 1
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 1
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 8
+                                spacing: 10
 
-                                Text {
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    text: modelData.location.city + ", " + modelData.location.country
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
+                                    spacing: 1
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.location.city + ", " + modelData.location.country
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.location.timezone
+                                        color: theme.textMuted
+                                        font.pixelSize: 11
+                                        elide: Text.ElideRight
+                                    }
                                 }
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.location.timezone
-                                    color: theme.textMuted
-                                    font.pixelSize: 11
-                                    elide: Text.ElideRight
+                                Button {
+                                    Layout.preferredWidth: 64
+                                    text: "Usa"
+                                    onClicked: controller.selectRecentLocation(index)
                                 }
                             }
 
-                            Button {
-                                Layout.preferredWidth: 64
-                                text: "Usa"
-                                onClicked: controller.selectRecentLocation(index)
+                            MouseArea {
+                                id: recentMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                acceptedButtons: Qt.NoButton
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 206
+                    title: "Earthdata NASA"
+                    subtitle: controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS"
+                    accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+
+                    Connections {
+                        target: controller
+
+                        function onEarthdataCredentialsChanged() {
+                            if (!earthdataUsername.activeFocus)
+                                earthdataUsername.text = controller.earthdataUsername
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        StatusPill {
+                            text: controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback"
+                            accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: controller.earthdataCredentialMessage
+                            color: controller.earthdataSecureStorageAvailable ? theme.textSecondary : theme.coral
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 920 ? 2 : 1
+                        columnSpacing: 12
+                        rowSpacing: 10
+
+                        DarkTextField {
+                            id: earthdataUsername
+                            Layout.fillWidth: true
+                            placeholderText: "Username Earthdata"
+                            enabled: controller.earthdataSecureStorageAvailable
+                            Component.onCompleted: text = controller.earthdataUsername
+                        }
+
+                        DarkTextField {
+                            id: earthdataPassword
+                            Layout.fillWidth: true
+                            placeholderText: controller.earthdataCredentialsConfigured ? "Nuova password" : "Password Earthdata"
+                            echoMode: TextInput.Password
+                            enabled: controller.earthdataSecureStorageAvailable
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        DarkButton {
+                            Layout.preferredWidth: 112
+                            text: "Salva"
+                            enabled: controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
+                            accentColor: theme.green
+                            onClicked: {
+                                controller.saveEarthdataCredentials(earthdataUsername.text, earthdataPassword.text)
+                                earthdataPassword.text = ""
                             }
                         }
 
-                        MouseArea {
-                            id: recentMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            acceptedButtons: Qt.NoButton
+                        DarkButton {
+                            Layout.preferredWidth: 148
+                            text: "Test connessione"
+                            enabled: controller.earthdataCredentialsConfigured
+                            accentColor: theme.cyan
+                            onClicked: controller.testEarthdataConnection()
                         }
-                    }
-                }
-            }
 
-            GlassCard {
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                title: "Earthdata NASA"
-                subtitle: controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS"
-                accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
-
-                Connections {
-                    target: controller
-
-                    function onEarthdataCredentialsChanged() {
-                        if (!earthdataUsername.activeFocus)
-                            earthdataUsername.text = controller.earthdataUsername
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    StatusPill {
-                        text: controller.earthdataCredentialsConfigured ? "Configurato" : "Fallback"
-                        accentColor: controller.earthdataCredentialsConfigured ? theme.green : theme.amber
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: controller.earthdataCredentialMessage
-                        color: controller.earthdataSecureStorageAvailable ? theme.textSecondary : theme.coral
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-                }
-
-                GridLayout {
-                    Layout.fillWidth: true
-                    columns: root.width > 920 ? 2 : 1
-                    columnSpacing: 12
-                    rowSpacing: 10
-
-                    DarkTextField {
-                        id: earthdataUsername
-                        Layout.fillWidth: true
-                        placeholderText: "Username Earthdata"
-                        enabled: controller.earthdataSecureStorageAvailable
-                        Component.onCompleted: text = controller.earthdataUsername
-                    }
-
-                    DarkTextField {
-                        id: earthdataPassword
-                        Layout.fillWidth: true
-                        placeholderText: controller.earthdataCredentialsConfigured ? "Nuova password" : "Password Earthdata"
-                        echoMode: TextInput.Password
-                        enabled: controller.earthdataSecureStorageAvailable
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    DarkButton {
-                        Layout.preferredWidth: 112
-                        text: "Salva"
-                        enabled: controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
-                        accentColor: theme.green
-                        onClicked: {
-                            controller.saveEarthdataCredentials(earthdataUsername.text, earthdataPassword.text)
-                            earthdataPassword.text = ""
+                        Item {
+                            Layout.fillWidth: true
                         }
-                    }
 
-                    DarkButton {
-                        Layout.preferredWidth: 148
-                        text: "Test connessione"
-                        enabled: controller.earthdataCredentialsConfigured
-                        accentColor: theme.cyan
-                        onClicked: controller.testEarthdataConnection()
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
-
-                    DarkButton {
-                        Layout.preferredWidth: 96
-                        text: "Rimuovi"
-                        enabled: controller.earthdataCredentialsConfigured
-                        danger: true
-                        onClicked: {
-                            controller.removeEarthdataCredentials()
-                            earthdataUsername.text = ""
-                            earthdataPassword.text = ""
+                        DarkButton {
+                            Layout.preferredWidth: 96
+                            text: "Rimuovi"
+                            enabled: controller.earthdataCredentialsConfigured
+                            danger: true
+                            onClicked: {
+                                controller.removeEarthdataCredentials()
+                                earthdataUsername.text = ""
+                                earthdataPassword.text = ""
+                            }
                         }
                     }
                 }
