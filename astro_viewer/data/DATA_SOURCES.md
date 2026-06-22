@@ -33,7 +33,9 @@ Prepared external providers:
 - `light_pollution_seed.csv`: packaged NightScope local baseline used only when richer local datasets are absent.
 - Offline estimate fallback: used only when no local record matches the active location.
 
-The app does not download NASA/VIIRS or World Atlas raster products at runtime. Those products need an external preprocessing step into the CSV format above before packaging. NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
+When Earthdata credentials are configured, authorized and connection-verified, the app can query NASA LAADS OPeNDAP for a small NetCDF-4 subset (`.dap.nc4`) of the VIIRS Black Marble `VNP46A3` monthly product around the active location. The runtime query fetches only the local pixel window needed for the current location, reads `AllAngle_Composite_Snow_Free`, `AllAngle_Composite_Snow_Free_Num`, and `AllAngle_Composite_Snow_Free_Quality`, then caches the resulting local sky-quality estimate in `SkyQualityEstimate`.
+
+If Earthdata is not configured, the network is unavailable, NASA does not expose the matching product tile, or the returned subset cannot be parsed, NightScope keeps using the local CSV/cache fallback chain. Full raster products still require external preprocessing before packaging. NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
 ## Object Images And Descriptions
 

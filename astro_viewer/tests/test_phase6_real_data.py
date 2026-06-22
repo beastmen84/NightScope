@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import io
+import re
 import tempfile
 import unittest
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import Mock, patch
+
+import h5py
+import numpy as np
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
@@ -16,8 +21,9 @@ from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
+from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
-from astro_viewer.app.services.light_pollution_service import LightPollutionService
+from astro_viewer.app.services.light_pollution_service import LightPollutionService, NasaViirsBlackMarbleProvider
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
@@ -426,6 +432,28 @@ class Phase6RealDataTests(unittest.TestCase):
 
             self.assertEqual(quality.source, "Fonte: NightScope local urban baseline")
 
+    def test_viirs_tile_mapping_for_bologna(self) -> None:
+        tile = NasaViirsBlackMarbleProvider._tile_for_location(
+            ObserverLocation("Bologna", "Italy", 44.4938, 11.3387, "Europe/Rome")
+        )
+
+        self.assertEqual(tile.identifier, "h19v04")
+        self.assertEqual(tile.row, 1321)
+        self.assertEqual(tile.col, 321)
+
+    def test_viirs_provider_reads_opendap_nc4_subset(self) -> None:
+        session = FakeViirsSession(_viirs_nc4_payload(radiance=63.448333740234375, observations=10, quality=0))
+        provider = NasaViirsBlackMarbleProvider(FakeEarthdataCredentials(), months_to_search=1)
+
+        with patch.object(NasaViirsBlackMarbleProvider, "_session", return_value=session):
+            quality = provider.lookup(ObserverLocation("Bologna", "Italy", 44.4938, 11.3387, "Europe/Rome"))
+
+        self.assertIsNotNone(quality)
+        self.assertEqual(quality.bortle_class, 7)
+        self.assertEqual(quality.confidence, "high")
+        self.assertIn("NASA Black Marble VNP46A3", quality.source)
+        self.assertIn("[1320:1:1322][320:1:322]", session.last_constraint)
+
     def test_seeing_provider_fallback(self) -> None:
         hours = [
             WeatherHour(
@@ -451,6 +479,63 @@ class Phase6RealDataTests(unittest.TestCase):
 
         self.assertEqual(estimate.source, "BasicForecastSeeingProvider")
         self.assertIn(estimate.confidence, {"medium", "low"})
+
+
+class FakeEarthdataCredentials:
+    def state(self) -> EarthdataCredentialState:
+        return EarthdataCredentialState(
+            username="astro-user",
+            configured=True,
+            secure_store_available=True,
+            connection_verified=True,
+            message="Connessione Earthdata LAADS verificata.",
+        )
+
+    def password(self) -> str:
+        return "secret-password"
+
+
+class FakeViirsResponse:
+    def __init__(self, status_code: int = 200, text: str = "", content: bytes = b"") -> None:
+        self.status_code = status_code
+        self.text = text
+        self.content = content
+
+
+class FakeViirsSession:
+    def __init__(self, payload: bytes) -> None:
+        self._payload = payload
+        self.last_constraint = ""
+
+    def get(self, url: str, **kwargs) -> FakeViirsResponse:
+        if url.endswith(".dap.nc4"):
+            self.last_constraint = (kwargs.get("params") or {}).get("dap4.ce", "")
+            return FakeViirsResponse(content=self._payload)
+        match = re.search(r"/VNP46A3/(\d{4})/(\d{3})/$", url)
+        if not match:
+            return FakeViirsResponse(status_code=404)
+        year, doy = match.groups()
+        granule = f"VNP46A3.A{year}{doy}.h19v04.002.9999999999999.h5"
+        return FakeViirsResponse(text=f'<a href="{granule}">{granule}</a>')
+
+
+def _viirs_nc4_payload(radiance: float, observations: int, quality: int) -> bytes:
+    payload = io.BytesIO()
+    with h5py.File(payload, "w") as data:
+        group = data.create_group("HDFEOS/GRIDS/VIIRS_Grid_DNB_2d/Data_Fields")
+        group.create_dataset(
+            "AllAngle_Composite_Snow_Free",
+            data=np.array([[radiance]], dtype=np.float32),
+        )
+        group.create_dataset(
+            "AllAngle_Composite_Snow_Free_Num",
+            data=np.array([[observations]], dtype=np.uint16),
+        )
+        group.create_dataset(
+            "AllAngle_Composite_Snow_Free_Quality",
+            data=np.array([[quality]], dtype=np.uint8),
+        )
+    return payload.getvalue()
 
 
 def _object(object_id: str, name: str, object_type: str, magnitude: str) -> CelestialObject:

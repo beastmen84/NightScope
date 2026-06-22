@@ -59,10 +59,12 @@ class AppController(QObject):
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
     _earthdataConnectionTestFinished = Signal(bool, str, bool)
+    _viirsSkyQualityFinished = Signal(str, object, str)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
+        self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -81,6 +83,8 @@ class AppController(QObject):
         self._earthdata_connection_tester = EarthdataConnectionTester()
         self._earthdata_credentials_state = self._earthdata_credential_store.state()
         self._earthdata_connection_test_running = False
+        self._viirs_sky_quality_running = False
+        self._light_pollution_status = ""
         self._startup_location_preferences = self._location_preferences.preferences()
         self._location_service = LocationService(
             city_resolver=self._city_repository,
@@ -101,6 +105,7 @@ class AppController(QObject):
         self._light_pollution_service = LightPollutionService(
             self._sky_quality_repository,
             dataset_path=base_dir / "data" / "light_pollution_seed.csv",
+            earthdata_credentials=self._earthdata_credential_store,
         )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
@@ -312,6 +317,14 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def skyQuality(self) -> dict:
         return self._sky_quality.to_qml() if self._sky_quality else {}
+
+    @Property(bool, notify=weatherChanged)
+    def viirsSkyQualityRunning(self) -> bool:
+        return self._viirs_sky_quality_running
+
+    @Property(str, notify=weatherChanged)
+    def lightPollutionStatus(self) -> str:
+        return self._light_pollution_status
 
     @Property("QVariant", notify=weatherChanged)
     def seeingTransparency(self) -> dict:
@@ -645,6 +658,8 @@ class AppController(QObject):
         else:
             self._earthdata_credentials_state = self._earthdata_credential_store.clear_connection_status(message)
         self.earthdataCredentialsChanged.emit()
+        if ok:
+            self._schedule_viirs_sky_quality_refresh()
 
     @Slot()
     def runWindowsLocationDiagnostics(self) -> None:
@@ -1100,6 +1115,8 @@ class AppController(QObject):
         self._events = []
         self._weather_hours = []
         self._weather_status = "Configura una posizione per visualizzare il meteo."
+        self._light_pollution_status = ""
+        self._viirs_sky_quality_running = False
         self._weather_summary = WeatherSummary(
             "n/d",
             0,
@@ -1151,6 +1168,10 @@ class AppController(QObject):
         self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        self._recalculate_observing_outputs()
+        self._schedule_viirs_sky_quality_refresh()
+
+    def _recalculate_observing_outputs(self) -> None:
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
         self._advanced_scores = self._advanced_observing_service.scores(
             self._weather_summary,
@@ -1176,6 +1197,65 @@ class AppController(QObject):
             self._advanced_scores,
             self._moon,
         )
+
+    def _schedule_viirs_sky_quality_refresh(self) -> None:
+        if not self._has_valid_location():
+            return
+        if self._viirs_sky_quality_running:
+            return
+        if not self._earthdata_credentials_state.connection_verified:
+            self._light_pollution_status = ""
+            return
+        if self._sky_quality and "NASA Black Marble VNP46A3" in self._sky_quality.source:
+            self._light_pollution_status = ""
+            return
+
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        self._viirs_sky_quality_running = True
+        self._light_pollution_status = "Recupero dati VIIRS NASA..."
+        self.weatherChanged.emit()
+
+        def run_lookup() -> None:
+            try:
+                quality = self._light_pollution_service.remote_sky_quality(location)
+                message = "Dati VIIRS NASA aggiornati." if quality else "Dati VIIRS NASA non disponibili; uso fonte locale."
+                self._viirsSkyQualityFinished.emit(location_key, quality, message)
+            except Exception:
+                logger.warning("Unexpected VIIRS sky-quality refresh failure.", exc_info=True)
+                self._viirsSkyQualityFinished.emit(
+                    location_key,
+                    None,
+                    "Dati VIIRS NASA non disponibili; uso fonte locale.",
+                )
+
+        Thread(target=run_lookup, daemon=True).start()
+
+    @Slot(str, object, str)
+    def _finish_viirs_sky_quality_refresh(self, location_key: str, quality: object, message: str) -> None:
+        self._viirs_sky_quality_running = False
+        if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
+            self._light_pollution_status = ""
+            self.weatherChanged.emit()
+            self._schedule_viirs_sky_quality_refresh()
+            return
+
+        if isinstance(quality, SkyQuality):
+            self._sky_quality = quality
+            try:
+                self._deep_sky = self._apply_equipment(self._astronomy_engine.recommended_deep_sky(self._location))
+                self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+            except Exception:
+                logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
+            self._light_pollution_status = message
+            self._recalculate_observing_outputs()
+            self.dataChanged.emit()
+            self.weatherChanged.emit()
+            self.selectedObjectChanged.emit()
+            return
+
+        self._light_pollution_status = message
+        self.weatherChanged.emit()
 
     def _set_loading(self, value: bool) -> None:
         if self._is_loading == value:

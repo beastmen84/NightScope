@@ -142,6 +142,15 @@ Item {
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
                 }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.viirsSkyQualityRunning || controller.lightPollutionStatus.length > 0
+                    text: controller.viirsSkyQualityRunning ? "Recupero dati VIIRS NASA..." : controller.lightPollutionStatus
+                    color: controller.viirsSkyQualityRunning ? theme.cyan : theme.textMuted
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
             }
 
             GlassCard {
