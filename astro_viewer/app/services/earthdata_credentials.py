@@ -22,6 +22,7 @@ EARTHDATA_OPENDAP_DDS_URL = (
     "https://ladsweb.modaps.eosdis.nasa.gov/opendap/RemoteResources/laads/allData/5200/"
     "VNP46A3/2025/152/VNP46A3.A2025152.h19v04.002.2026064134300.h5.dds"
 )
+EARTHDATA_LAADS_AUTHORIZATION_URL = "https://urs.earthdata.nasa.gov/approve_app?client_id=A6th7HB-3EBoO7iOCiCLlA"
 
 
 class CredentialBackend(Protocol):
@@ -204,11 +205,26 @@ class EarthdataConnectionTester:
             return EarthdataConnectionResult(False, f"Earthdata ha risposto con HTTP {response.status_code}.")
         if "Dataset {" in response.text and "AllAngle_Composite_Snow_Free" in response.text:
             return EarthdataConnectionResult(True, "Connessione Earthdata LAADS verificata.")
-        if "approve_app" in response.text or "Pre authorization required" in response.text:
-            return EarthdataConnectionResult(False, "Autorizza l'app LAADS OPeNDAP nel profilo Earthdata.")
+        if self._requires_laads_authorization(response):
+            return EarthdataConnectionResult(
+                False,
+                "Autorizza l'app LAADS OPeNDAP, poi ripeti il test.",
+            )
         if "Earthdata Login" in response.text:
             return EarthdataConnectionResult(False, "Login Earthdata non riuscito. Verifica username e password.")
         return EarthdataConnectionResult(False, "Risposta Earthdata non riconosciuta.")
+
+    @staticmethod
+    def _requires_laads_authorization(response: requests.Response) -> bool:
+        text = response.text or ""
+        url = response.url or ""
+        return (
+            "approve_app" in text
+            or "Pre authorization required" in text
+            or "approve_app" in url
+            or "Pre+authorization+required" in url
+            or "Pre%20authorization%20required" in url
+        )
 
     @staticmethod
     def _session() -> requests.Session:

@@ -24,7 +24,11 @@ from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
-from astro_viewer.app.services.earthdata_credentials import EarthdataConnectionTester, EarthdataCredentialStore
+from astro_viewer.app.services.earthdata_credentials import (
+    EARTHDATA_LAADS_AUTHORIZATION_URL,
+    EarthdataConnectionTester,
+    EarthdataCredentialStore,
+)
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.location_service import (
@@ -212,6 +216,10 @@ class AppController(QObject):
     @Property(bool, notify=earthdataCredentialsChanged)
     def earthdataConnectionTestRunning(self) -> bool:
         return self._earthdata_connection_test_running
+
+    @Property(str, constant=True)
+    def earthdataAuthorizationUrl(self) -> str:
+        return EARTHDATA_LAADS_AUTHORIZATION_URL
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:

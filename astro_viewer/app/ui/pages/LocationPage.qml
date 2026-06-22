@@ -369,6 +369,14 @@ Item {
                             onClicked: controller.testEarthdataConnection()
                         }
 
+                        DarkButton {
+                            Layout.preferredWidth: 128
+                            text: "Autorizza app"
+                            enabled: !controller.earthdataConnectionTestRunning
+                            accentColor: theme.violet
+                            onClicked: Qt.openUrlExternally(controller.earthdataAuthorizationUrl)
+                        }
+
                         Item {
                             Layout.fillWidth: true
                         }

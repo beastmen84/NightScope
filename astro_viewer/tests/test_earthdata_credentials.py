@@ -3,8 +3,9 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
+from astro_viewer.app.services.earthdata_credentials import EarthdataConnectionTester, EarthdataCredentialStore
 
 
 class FakeCredentialBackend:
@@ -19,6 +20,21 @@ class FakeCredentialBackend:
 
     def delete_password(self, service_name: str, username: str) -> None:
         self.passwords.pop((service_name, username), None)
+
+
+class FakeEarthdataResponse:
+    def __init__(self, text: str, url: str = "https://example.test", status_code: int = 200) -> None:
+        self.text = text
+        self.url = url
+        self.status_code = status_code
+
+
+class FakeEarthdataSession:
+    def __init__(self, response: FakeEarthdataResponse) -> None:
+        self._response = response
+
+    def get(self, *_args, **_kwargs) -> FakeEarthdataResponse:
+        return self._response
 
 
 class EarthdataCredentialStoreTests(unittest.TestCase):
@@ -62,6 +78,21 @@ class EarthdataCredentialStoreTests(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 store.save("astro-user", "")
+
+
+class EarthdataConnectionTesterTests(unittest.TestCase):
+    def test_reports_laads_authorization_requirement(self) -> None:
+        response = FakeEarthdataResponse(
+            "Pre authorization required",
+            "https://urs.earthdata.nasa.gov/approve_app?client_id=A6th7HB-3EBoO7iOCiCLlA",
+        )
+        tester = EarthdataConnectionTester()
+
+        with patch.object(EarthdataConnectionTester, "_session", return_value=FakeEarthdataSession(response)):
+            result = tester.test("astro-user", "secret-password")
+
+        self.assertFalse(result.ok)
+        self.assertIn("Autorizza l'app LAADS OPeNDAP", result.message)
 
 
 if __name__ == "__main__":
