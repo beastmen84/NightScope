@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import os
 import re
 import tempfile
 import unittest
@@ -453,6 +454,16 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertEqual(quality.confidence, "high")
         self.assertIn("NASA Black Marble VNP46A3", quality.source)
         self.assertIn("[1320:1:1322][320:1:322]", session.last_constraint)
+
+    def test_viirs_session_uses_temporary_netrc_for_earthdata_redirects(self) -> None:
+        with patch.dict(os.environ, {"NETRC": "existing-netrc"}, clear=False):
+            with NasaViirsBlackMarbleProvider._session("astro-user", "secret-password") as session:
+                netrc_path = Path(os.environ["NETRC"])
+                self.assertTrue(netrc_path.exists())
+                self.assertIn("machine urs.earthdata.nasa.gov", netrc_path.read_text(encoding="ascii"))
+                self.assertTrue(session.trust_env)
+
+            self.assertEqual(os.environ["NETRC"], "existing-netrc")
 
     def test_seeing_provider_fallback(self) -> None:
         hours = [

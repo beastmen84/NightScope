@@ -4,14 +4,19 @@ import csv
 import io
 import logging
 import math
+import os
 import re
+import tempfile
 from collections.abc import Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Protocol
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
@@ -276,7 +281,19 @@ class NasaViirsBlackMarbleProvider:
             return None
 
         username, password = credentials
-        session = self._session(username, password)
+        session_source = self._session(username, password)
+        if hasattr(session_source, "__enter__"):
+            with session_source as session:
+                quality = self._lookup_with_session(session, location)
+        else:
+            quality = self._lookup_with_session(session_source, location)
+        if quality:
+            return quality
+
+        self.last_error = "Dati NASA VIIRS non disponibili per questa posizione."
+        return None
+
+    def _lookup_with_session(self, session: requests.Session, location: ObserverLocation) -> SkyQuality | None:
         tile = self._tile_for_location(location)
         for month_start in self._candidate_months(datetime.now(UTC).date(), self._months_to_search):
             granule = self._find_granule(session, tile, month_start)
@@ -288,8 +305,6 @@ class NasaViirsBlackMarbleProvider:
             quality = self._parse_subset(payload, granule.product_month)
             if quality:
                 return quality
-
-        self.last_error = "Dati NASA VIIRS non disponibili per questa posizione."
         return None
 
     def _verified_credentials(self) -> tuple[str, str] | None:
@@ -310,8 +325,8 @@ class NasaViirsBlackMarbleProvider:
         )
         try:
             response = session.get(directory_url, timeout=(5, 12), allow_redirects=True)
-        except requests.RequestException:
-            logger.info("VIIRS directory lookup failed for %s", directory_url, exc_info=True)
+        except requests.RequestException as exc:
+            logger.info("VIIRS directory lookup failed for %s: %s", directory_url, exc)
             return None
         if response.status_code != 200:
             return None
@@ -340,8 +355,8 @@ class NasaViirsBlackMarbleProvider:
         url = f"{granule.directory_url}{granule.file_name}.dap.nc4"
         try:
             response = session.get(url, params={"dap4.ce": constraint}, timeout=(8, 45), allow_redirects=True)
-        except requests.RequestException:
-            logger.info("VIIRS subset lookup failed for %s", url, exc_info=True)
+        except requests.RequestException as exc:
+            logger.info("VIIRS subset lookup failed for %s: %s", url, exc)
             return None
         if response.status_code != 200 or not response.content:
             return None
@@ -406,9 +421,44 @@ class NasaViirsBlackMarbleProvider:
                 year -= 1
 
     @staticmethod
-    def _session(username: str, password: str) -> requests.Session:
+    @contextmanager
+    def _session(username: str, password: str):
+        with tempfile.TemporaryDirectory(prefix="nightscope-viirs-") as temp_dir:
+            netrc_path = Path(temp_dir) / "_netrc"
+            netrc_path.write_text(
+                f"machine urs.earthdata.nasa.gov login {username} password {password}\n",
+                encoding="ascii",
+            )
+            try:
+                os.chmod(netrc_path, 0o600)
+            except OSError:
+                pass
+
+            previous_netrc = os.environ.get("NETRC")
+            os.environ["NETRC"] = str(netrc_path)
+            session = NasaViirsBlackMarbleProvider._requests_session()
+            try:
+                yield session
+            finally:
+                session.close()
+                if previous_netrc is None:
+                    os.environ.pop("NETRC", None)
+                else:
+                    os.environ["NETRC"] = previous_netrc
+
+    @staticmethod
+    def _requests_session() -> requests.Session:
         session = requests.Session()
-        session.auth = (username, password)
+        retries = Retry(
+            total=2,
+            connect=2,
+            read=1,
+            backoff_factor=1,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=("GET",),
+            raise_on_status=False,
+        )
+        session.mount("https://", HTTPAdapter(max_retries=retries, pool_connections=2, pool_maxsize=2))
         session.headers.update({"User-Agent": "NightScope NASA VIIRS light pollution lookup", "Accept": "*/*"})
         session.trust_env = True
         return session
