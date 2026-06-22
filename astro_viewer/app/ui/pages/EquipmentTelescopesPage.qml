@@ -110,9 +110,18 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Catalogo telescopi"
-                subtitle: root.filteredTelescopeModels().length + " di " + controller.telescopeCatalogModels.length + " modelli"
+                title: ""
+                subtitle: ""
                 accentColor: theme.cyan
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.filteredTelescopeModels().length + " di " + controller.telescopeCatalogModels.length + " modelli"
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
 
                 GridLayout {
                     id: telescopeCatalogGrid
@@ -164,8 +173,8 @@ Item {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 12
-            spacing: 8
+            anchors.margins: 10
+            spacing: 6
 
             RowLayout {
                 Layout.fillWidth: true
@@ -183,11 +192,17 @@ Item {
 
                 DarkButton {
                     text: "Modifica"
+                    implicitHeight: 32
+                    leftPadding: 10
+                    rightPadding: 10
                     onClicked: telescopeCard.edit()
                 }
 
                 DarkButton {
                     text: "Elimina"
+                    implicitHeight: 32
+                    leftPadding: 10
+                    rightPadding: 10
                     danger: true
                     onClicked: telescopeCard.deleteRequested()
                 }

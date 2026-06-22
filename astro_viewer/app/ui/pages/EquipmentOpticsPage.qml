@@ -194,10 +194,10 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        contentWidth: availableWidth
+                        contentWidth: Math.max(0, availableWidth - 14)
 
                         ColumnLayout {
-                            width: eyepieceScroll.availableWidth
+                            width: Math.max(0, eyepieceScroll.availableWidth - 14)
                             spacing: 10
 
                             Repeater {
@@ -285,10 +285,10 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        contentWidth: availableWidth
+                        contentWidth: Math.max(0, availableWidth - 14)
 
                         ColumnLayout {
-                            width: barlowScroll.availableWidth
+                            width: Math.max(0, barlowScroll.availableWidth - 14)
                             spacing: 10
 
                             Repeater {

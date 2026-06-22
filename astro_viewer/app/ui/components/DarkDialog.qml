@@ -43,7 +43,7 @@ Popup {
             Layout.fillWidth: true
             Layout.leftMargin: 18
             Layout.rightMargin: 18
-            Layout.topMargin: 18
+            Layout.topMargin: 24
 
             Text {
                 Layout.fillWidth: true
@@ -75,7 +75,7 @@ Popup {
             Layout.fillWidth: true
             Layout.leftMargin: 18
             Layout.rightMargin: 18
-            Layout.bottomMargin: 18
+            Layout.bottomMargin: 24
             spacing: 10
 
             Item { Layout.fillWidth: true }

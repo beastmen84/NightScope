@@ -365,7 +365,7 @@ Item {
         signal action()
 
         width: addEquipmentGrid.cellWidth - 10
-        height: 118
+        height: 96
         radius: 8
         color: cardMouse.containsMouse ? "#252b34" : "#20242b"
         border.color: itemData.assigned ? Qt.rgba(theme.green.r, theme.green.g, theme.green.b, 0.52) : "#303641"
@@ -373,7 +373,7 @@ Item {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 12
+            anchors.margins: 10
             spacing: 8
 
             RowLayout {
@@ -396,23 +396,24 @@ Item {
                 }
             }
 
-            Text {
-                Layout.fillWidth: true
-                text: itemData.details
-                color: theme.textSecondary
-                font.pixelSize: 13
-                elide: Text.ElideRight
-                maximumLineCount: 1
-            }
-
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 8
+                spacing: 10
 
-                Item { Layout.fillWidth: true }
+                Text {
+                    Layout.fillWidth: true
+                    text: itemData.details
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
 
                 DarkButton {
                     text: itemData.assigned ? "Gia assegnato" : "Assegna"
+                    implicitHeight: 32
+                    leftPadding: 10
+                    rightPadding: 10
                     enabled: !itemData.assigned
                     accentColor: root.equipmentAccent(itemData)
                     onClicked: equipmentCard.action()
@@ -501,7 +502,7 @@ Item {
             Layout.preferredHeight: Math.max(240, Math.min(480, root.height - 340))
             clip: true
             cellWidth: width > 700 ? Math.floor(width / 2) : width
-            cellHeight: 128
+            cellHeight: 106
             boundsBehavior: Flickable.StopAtBounds
             model: root.filteredAddEquipment()
             ScrollBar.vertical: ScrollBar { }
