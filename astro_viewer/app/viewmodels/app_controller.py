@@ -31,7 +31,7 @@ from astro_viewer.app.services.location_service import (
     LocationService,
     LocationUnavailableError,
 )
-from astro_viewer.app.services.location_preferences import LocationPreferenceStore, StartupLocationPreferences
+from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
@@ -1138,40 +1138,50 @@ class AppController(QObject):
         return -90 <= location.latitude <= 90 and -180 <= location.longitude <= 180
 
     def _initialize_startup_location(self) -> None:
+        preferences = self._startup_location_preferences
+        if preferences.auto_detect_location_on_startup:
+            if preferences.use_windows_location_on_startup:
+                try:
+                    result = self._location_service.detect_windows_location()
+                except LocationUnavailableError as exc:
+                    logger.info("Windows startup location detection unavailable: %s", exc.reason)
+                else:
+                    self._apply_location_result(result)
+                    return
+
+            if preferences.allow_approximate_online_location:
+                try:
+                    result = self._location_service.detect_ip_location(allow_online=True)
+                except LocationUnavailableError as exc:
+                    logger.info("Approximate startup location detection unavailable: %s", exc.reason)
+                else:
+                    self._apply_location_result(result)
+                    return
+
+            if self._apply_stored_startup_location():
+                return
+
+            self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
+        elif self._apply_stored_startup_location():
+            return
+
+        self._location_detection_result = None
+        self._location = None
+
+    def _apply_stored_startup_location(self) -> bool:
         saved = self._location_preferences.saved_location()
         if saved and self._result_has_valid_location(saved):
             self._apply_location_result(saved, persist=False)
             self._location_message = f"Posizione salvata caricata: {saved.location.city}."
-            return
+            return True
 
         cached = self._location_preferences.cached_location()
         if cached and self._result_has_valid_location(cached):
             self._apply_location_result(cached, persist=False)
             self._location_message = f"Ultima posizione caricata: {cached.location.city}."
-            return
+            return True
 
-        preferences = self._startup_location_preferences
-        if preferences.auto_detect_location_on_startup and preferences.use_windows_location_on_startup:
-            try:
-                result = self._location_service.detect_windows_location()
-            except LocationUnavailableError as exc:
-                logger.info("Windows startup location detection unavailable: %s", exc.reason)
-            else:
-                self._apply_location_result(result)
-                return
-
-        if preferences.auto_detect_location_on_startup and preferences.allow_approximate_online_location:
-            try:
-                result = self._location_service.detect_ip_location(allow_online=True)
-            except LocationUnavailableError as exc:
-                logger.info("Approximate startup location detection unavailable: %s", exc.reason)
-                self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
-            else:
-                self._apply_location_result(result)
-                return
-
-        self._location_detection_result = None
-        self._location = None
+        return False
 
     @staticmethod
     def _result_has_valid_location(result: LocationDetectionResult | None) -> bool:

@@ -84,6 +84,39 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.activeLocationSource, "Approximate online")
             self.assertGreater(len(controller.weatherHourly), 0)
 
+    def test_startup_auto_detection_overrides_saved_location(self) -> None:
+        ip_response = Mock()
+        ip_response.raise_for_status.return_value = None
+        ip_response.json.return_value = {
+            "city": "Bologna",
+            "region": "Emilia-Romagna",
+            "country_name": "Italy",
+            "latitude": 44.4938,
+            "longitude": 11.3387,
+            "timezone": "Europe/Rome",
+            "accuracy_radius": 25,
+        }
+        weather_response = _valid_weather_response()
+
+        def response_for_url(url, *args, **kwargs):
+            if "ipapi" in url or "ipwho" in url:
+                return ip_response
+            return weather_response
+
+        with self._controller_with_weather(
+            side_effect=response_for_url,
+            saved_location=True,
+            preferences={
+                "auto_detect_location_on_startup": True,
+                "allow_approximate_online_location": True,
+                "use_windows_location_on_startup": False,
+            },
+            patch_location_requests=True,
+        ) as controller:
+            self.assertEqual(controller.location["city"], "Bologna")
+            self.assertEqual(controller.location["timezone"], "Europe/Rome")
+            self.assertEqual(controller.activeLocationSource, "Approximate online")
+
     def test_windows_location_unavailable_keeps_current_location(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             previous_location = controller.location["city"]
