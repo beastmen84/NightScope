@@ -132,7 +132,7 @@ Rectangle {
         }
 
         Text {
-            Layout.preferredWidth: 64
+            Layout.preferredWidth: 96
             text: root.scoreLabel()
             horizontalAlignment: Text.AlignRight
             color: theme.cyan

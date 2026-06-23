@@ -110,6 +110,34 @@ Item {
         return null
     }
 
+    function isInVisiblePlan(limit, objectId) {
+        var plan = controller.nightPlan || []
+        var itemLimit = Math.min(limit, plan.length)
+        for (var i = 0; i < itemLimit; i++) {
+            if (plan[i].objectId === objectId)
+                return true
+        }
+        return false
+    }
+
+    function outsideVisiblePlan(items, limit) {
+        var result = []
+        var source = items || []
+        for (var i = 0; i < source.length; i++) {
+            if (!root.isInVisiblePlan(limit, source[i].id))
+                result.push(source[i])
+        }
+        return result
+    }
+
+    function otherVisiblePlanets() {
+        return root.outsideVisiblePlan(controller.visiblePlanets || [], 4)
+    }
+
+    function otherVisibleDeepSky() {
+        return root.outsideVisiblePlan(controller.recommendedDeepSky || [], 4)
+    }
+
     function planSetup(item) {
         var objectData = root.objectById(item.objectId)
         return objectData ? root.recommendedSetup(objectData) : item.setup
@@ -829,7 +857,7 @@ Item {
                     Layout.minimumHeight: 286
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: "Piano osservativo"
+                    title: "Piano osservativo consigliato"
                     subtitle: "Sequenza consigliata: cosa osservare e quando"
                     accentColor: theme.green
 
@@ -859,7 +887,7 @@ Item {
                                 visibilityText: modelData.timeLabel + "  -  " + modelData.direction
                                 recommendedSetup: root.planSetup(modelData)
                                 reasonText: root.planReason(modelData)
-                                scoreText: modelData.score + "/100"
+                                scoreText: "Rank " + (index + 1)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -871,14 +899,14 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
-                    title: "Pianeti visibili"
-                    subtitle: "Solo target utili per la sera, la notte o prima dell'alba"
+                    title: "Altri pianeti visibili"
+                    subtitle: "Target utili non gia presenti nel piano consigliato"
                     accentColor: theme.teal
 
                     Text {
                         Layout.fillWidth: true
-                        visible: controller.visiblePlanets.length === 0
-                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun pianeta utile nella finestra notturna."
+                        visible: root.otherVisiblePlanets().length === 0
+                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun altro pianeta utile fuori dal piano consigliato."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -891,7 +919,7 @@ Item {
                         rowSpacing: 4
 
                         Repeater {
-                            model: controller.visiblePlanets.slice(0, 4)
+                            model: root.otherVisiblePlanets().slice(0, 4)
 
                             delegate: ObjectRow {
                                 itemData: modelData
@@ -901,6 +929,50 @@ Item {
                                 visibilityText: root.objectWindow(modelData)
                                 recommendedSetup: root.recommendedSetup(modelData)
                                 reasonText: root.recommendationReason(modelData)
+                                scoreText: "Score " + modelData.score + "/100"
+                                onOpenRequested: function(objectId) {
+                                    root.openObject(objectId)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
+                    Layout.alignment: Qt.AlignTop
+                    title: "Oggetti cielo profondo visibili"
+                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Target utili non gia presenti nel piano consigliato"
+                    accentColor: theme.violet
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.otherVisibleDeepSky().length === 0
+                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun altro oggetto cielo profondo utile fuori dal piano consigliato."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 1180 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 4
+
+                        Repeater {
+                            model: root.otherVisibleDeepSky().slice(0, 4)
+
+                            delegate: ObjectRow {
+                                itemData: modelData
+                                assetBaseUrl: controller.assetBaseUrl
+                                typeText: modelData.type
+                                difficultyText: root.difficultyLabel(modelData)
+                                visibilityText: root.objectWindow(modelData)
+                                recommendedSetup: root.recommendedSetup(modelData)
+                                reasonText: root.recommendationReason(modelData)
+                                scoreText: "Score " + modelData.score + "/100"
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -925,48 +997,12 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1180 ? 2 : 1
+                columns: 1
                 columnSpacing: 14
                 rowSpacing: 14
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
-                    Layout.alignment: Qt.AlignTop
-                    title: "Oggetti cielo profondo consigliati"
-                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Priorita per la notte corrente"
-                    accentColor: theme.violet
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: controller.recommendedDeepSky.length === 0
-                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun oggetto cielo profondo utile nelle condizioni correnti."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: controller.recommendedDeepSky.slice(0, 4)
-
-                        delegate: ObjectRow {
-                            itemData: modelData
-                            assetBaseUrl: controller.assetBaseUrl
-                            typeText: modelData.type
-                            difficultyText: root.difficultyLabel(modelData)
-                            visibilityText: root.objectWindow(modelData)
-                            recommendedSetup: root.recommendedSetup(modelData)
-                            reasonText: root.recommendationReason(modelData)
-                            onOpenRequested: function(objectId) {
-                                root.openObject(objectId)
-                            }
-                        }
-                    }
-                }
-
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
