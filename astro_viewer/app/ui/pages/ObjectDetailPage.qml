@@ -185,9 +185,9 @@ Item {
                     Layout.fillWidth: true
                     text: objectData.descriptionText
                     color: theme.textPrimary
-                    font.pixelSize: 15
+                    font.pixelSize: 14
                     wrapMode: Text.WordWrap
-                    maximumLineCount: 3
+                    maximumLineCount: 5
                     elide: Text.ElideRight
                 }
             }
