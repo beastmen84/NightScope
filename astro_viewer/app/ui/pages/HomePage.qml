@@ -909,6 +909,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 388 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Mappa cielo"
                     subtitle: "Target principali per direzione cardinale"
@@ -985,52 +986,57 @@ Item {
                     }
                 }
 
-                ColumnLayout {
+                GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 388 : 0
                     Layout.alignment: Qt.AlignTop
-                    spacing: 14
+                    title: "Prossimi eventi"
+                    subtitle: "Ordinati per data"
+                    accentColor: theme.amber
 
-                    GlassCard {
-                        Layout.fillWidth: true
-                        title: "Prossimi eventi"
-                        subtitle: "Ordinati per data"
-                        accentColor: theme.amber
+                    Repeater {
+                        model: root.chronologicalEvents(lowerGrid.columns > 1 ? 6 : 4)
 
-                        Repeater {
-                            model: root.chronologicalEvents(4)
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
 
-                            delegate: RowLayout {
+                            StatusPill {
+                                text: modelData.date_label
+                                accentColor: theme.amber
+                            }
+
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                spacing: 12
+                                spacing: 1
 
-                                StatusPill {
-                                    text: modelData.date_label
-                                    accentColor: theme.amber
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.title
+                                    color: theme.textPrimary
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
                                 }
 
-                                ColumnLayout {
+                                Text {
                                     Layout.fillWidth: true
-                                    spacing: 2
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.title
-                                        color: theme.textPrimary
-                                        font.pixelSize: 14
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData.note
-                                        color: theme.textSecondary
-                                        font.pixelSize: 12
-                                        elide: Text.ElideRight
-                                    }
+                                    text: modelData.type + "  -  " + modelData.best_time
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
                                 }
                             }
                         }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.chronologicalEvents(1).length === 0
+                        text: "Nessun evento in calendario."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
                     }
                 }
             }
