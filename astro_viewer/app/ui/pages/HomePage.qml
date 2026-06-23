@@ -268,130 +268,95 @@ Item {
                 Layout.rightMargin: 28
                 spacing: 14
 
-                GlassCard {
-                    Layout.preferredWidth: 360
-                    Layout.fillHeight: true
-                    Layout.minimumHeight: 248
-                    title: "Qualita osservativa"
-                    subtitle: controller.observingQuality.explanation
-                    accentColor: theme.scoreColor(controller.observingQuality.score)
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 12
-
-                        Text {
-                            text: controller.observingQuality.scoreValue + "/100"
-                            color: theme.textPrimary
-                            font.pixelSize: 34
-                            font.weight: Font.DemiBold
-                        }
-
-                        StatusPill {
-                            text: controller.observingQuality.score
-                            accentColor: theme.scoreColor(controller.observingQuality.score)
-                        }
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
-                        color: theme.textSecondary
-                        font.pixelSize: 12
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                    }
-                }
-
-                GlassCard {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.minimumHeight: 248
-                    title: "Miglior oggetto della notte"
-                    subtitle: controller.bestObjectOfNight.observingStatusDetail
-                    accentColor: theme.amber
+                    spacing: 14
 
-                    Text {
+                    GlassCard {
                         Layout.fillWidth: true
-                        visible: !controller.bestObjectOfNight.name
-                        text: "Nessun oggetto visibile trovato per le condizioni correnti."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
+                        Layout.minimumHeight: 164
+                        title: "Qualita osservativa"
+                        subtitle: controller.observingQuality.explanation
+                        accentColor: theme.scoreColor(controller.observingQuality.score)
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        visible: !!controller.bestObjectOfNight.name
-                        spacing: 18
-
-                        Image {
-                            Layout.preferredWidth: 132
-                            Layout.preferredHeight: 132
-                            source: controller.assetBaseUrl + "/" + controller.bestObjectOfNight.image
-                            fillMode: Image.PreserveAspectFit
-                        }
-
-                        ColumnLayout {
+                        RowLayout {
                             Layout.fillWidth: true
-                            spacing: 5
+                            spacing: 12
 
                             Text {
-                                Layout.fillWidth: true
-                                text: controller.bestObjectOfNight.name
+                                text: controller.observingQuality.scoreValue + "/100"
                                 color: theme.textPrimary
                                 font.pixelSize: 34
                                 font.weight: Font.DemiBold
-                                elide: Text.ElideRight
                             }
 
                             StatusPill {
-                                text: controller.bestObjectOfNight.observingStatus
-                                accentColor: controller.bestObjectOfNight.observingStatus === "Visible now" ? theme.green : theme.amber
+                                text: controller.observingQuality.score
+                                accentColor: theme.scoreColor(controller.observingQuality.score)
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
+                            color: theme.textSecondary
+                            font.pixelSize: 12
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    GlassCard {
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: 164
+                        title: "Luna"
+                        subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
+                        accentColor: theme.amber
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            Image {
+                                Layout.preferredWidth: 70
+                                Layout.preferredHeight: 70
+                                source: controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                fillMode: Image.PreserveAspectFit
                             }
 
-                            Text {
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                text: controller.bestObjectOfNight.homeWindowLabel + "  -  " + controller.bestObjectOfNight.direction
-                                color: theme.amber
-                                font.pixelSize: 15
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
+                                spacing: 6
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Consigliato: " + root.recommendedSetup(controller.bestObjectOfNight)
-                                color: theme.textSecondary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
-                            }
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Motivo: " + root.recommendationReason(controller.bestObjectOfNight)
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.moonSummary.best_note
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 3
+                                }
                             }
                         }
                     }
                 }
 
                 ColumnLayout {
-                    Layout.preferredWidth: 360
-                    Layout.fillHeight: true
+                    Layout.preferredWidth: Math.max(320, topOverview.width * 0.33)
                     spacing: 14
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.minimumHeight: 117
+                        Layout.minimumHeight: 164
                         title: "Punteggio planetario"
                         subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
                         accentColor: theme.teal
@@ -418,8 +383,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.minimumHeight: 117
+                        Layout.minimumHeight: 164
                         title: "Punteggio cielo profondo"
                         subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
                         accentColor: theme.violet
@@ -441,6 +405,90 @@ Item {
                                 text: controller.advancedScores.deepSkyLabel
                                 accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
                             }
+                        }
+                    }
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Miglior oggetto della notte"
+                subtitle: controller.bestObjectOfNight.observingStatusDetail
+                accentColor: theme.amber
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: !controller.bestObjectOfNight.name
+                    text: "Nessun oggetto visibile trovato per le condizioni correnti."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    visible: !!controller.bestObjectOfNight.name
+                    spacing: 18
+
+                    Image {
+                        Layout.preferredWidth: 96
+                        Layout.preferredHeight: 96
+                        source: controller.assetBaseUrl + "/" + controller.bestObjectOfNight.image
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 5
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: controller.bestObjectOfNight.name
+                                color: theme.textPrimary
+                                font.pixelSize: 28
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            StatusPill {
+                                text: controller.bestObjectOfNight.observingStatus
+                                accentColor: controller.bestObjectOfNight.observingStatus === "Visible now" ? theme.green : theme.amber
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: controller.bestObjectOfNight.homeWindowLabel + "  -  " + controller.bestObjectOfNight.direction
+                            color: theme.amber
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Consigliato: " + root.recommendedSetup(controller.bestObjectOfNight)
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Motivo: " + root.recommendationReason(controller.bestObjectOfNight)
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
                         }
                     }
                 }
@@ -506,48 +554,6 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
-
-                    GlassCard {
-                        Layout.fillWidth: true
-                        Layout.minimumHeight: 160
-                        title: "Luna"
-                        subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
-                        accentColor: theme.amber
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 12
-
-                            Image {
-                                Layout.preferredWidth: 70
-                                Layout.preferredHeight: 70
-                                source: controller.assetBaseUrl + "/" + controller.moonSummary.image
-                                fillMode: Image.PreserveAspectFit
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.moonSummary.best_note
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    wrapMode: Text.WordWrap
-                                    maximumLineCount: 3
-                                }
-                            }
-                        }
-                    }
 
                     GlassCard {
                         Layout.fillWidth: true
