@@ -463,7 +463,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     def _window_duration(window: str) -> str:
         if " - " not in window or window.startswith("Non"):
             return "0 h"
-        return "finestra utile"
+        start_text, end_text = [part.strip() for part in window.split(" - ", 1)]
+        try:
+            start_hour, start_minute = [int(part) for part in start_text.split(":", 1)]
+            end_hour, end_minute = [int(part) for part in end_text.split(":", 1)]
+        except ValueError:
+            return "finestra utile"
+        start_minutes = start_hour * 60 + start_minute
+        end_minutes = end_hour * 60 + end_minute
+        if end_minutes < start_minutes:
+            end_minutes += 24 * 60
+        duration_minutes = max(0, end_minutes - start_minutes)
+        hours = duration_minutes // 60
+        minutes = duration_minutes % 60
+        if minutes == 0:
+            return f"{hours} h"
+        return f"{hours} h {minutes:02d} min"
 
     @staticmethod
     def _visibility_class(magnitude: float | None, object_id: str) -> str:

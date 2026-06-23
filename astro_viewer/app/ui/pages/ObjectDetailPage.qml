@@ -26,6 +26,47 @@ Item {
         return result
     }
 
+    function moonCycleFraction() {
+        var angle = Number(objectData.moonPhaseAngle || 0)
+        angle = ((angle % 360) + 360) % 360
+        return angle / 360
+    }
+
+    function drawMoonPhase(ctx, width, height, phaseAngle) {
+        var angle = ((phaseAngle % 360) + 360) % 360
+        var illumination = (1 - Math.cos(angle * Math.PI / 180)) / 2
+        var waxing = angle <= 180
+        var radius = Math.min(width, height) / 2 - 2
+        var centerX = width / 2
+        var centerY = height / 2
+        ctx.clearRect(0, 0, width, height)
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+        ctx.fillStyle = "#07090d"
+        ctx.fill()
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+        ctx.clip()
+        if (illumination > 0.98) {
+            ctx.fillStyle = "#dfe7f1"
+            ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2)
+        } else if (illumination > 0.02) {
+            ctx.fillStyle = "#dfe7f1"
+            var litWidth = radius * 2 * illumination
+            if (waxing)
+                ctx.fillRect(centerX + radius - litWidth, centerY - radius, litWidth, radius * 2)
+            else
+                ctx.fillRect(centerX - radius, centerY - radius, litWidth, radius * 2)
+        }
+        ctx.restore()
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+        ctx.strokeStyle = "#303641"
+        ctx.lineWidth = 1
+        ctx.stroke()
+    }
+
     AppTheme {
         id: theme
     }
@@ -210,6 +251,15 @@ Item {
                     wrapMode: Text.WordWrap
                 }
 
+                Text {
+                    visible: objectData.setupReason && objectData.setupReason.length > 0
+                    Layout.fillWidth: true
+                    text: "Perche questo setup: " + objectData.setupReason
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+
                 Repeater {
                     model: root.distinctSetupOptions(objectData.setupOptions)
 
@@ -252,6 +302,85 @@ Item {
             }
 
             GlassCard {
+                visible: root.hasObject && objectData.id === "moon"
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Ciclo lunare"
+                subtitle: (objectData.moonPhase || "Fase lunare") + "  -  " + (objectData.moonIllumination || "n/d") + "  -  " + (objectData.moonCycleDay || "")
+                accentColor: theme.cyan
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
+
+                    Repeater {
+                        model: [
+                            { "label": "Nuova", "angle": 0 },
+                            { "label": "Crescente", "angle": 45 },
+                            { "label": "Primo quarto", "angle": 90 },
+                            { "label": "Gibbosa", "angle": 135 },
+                            { "label": "Piena", "angle": 180 },
+                            { "label": "Calante", "angle": 225 },
+                            { "label": "Ultimo quarto", "angle": 270 },
+                            { "label": "Falce calante", "angle": 315 }
+                        ]
+
+                        delegate: ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            spacing: 6
+
+                            Canvas {
+                                Layout.alignment: Qt.AlignHCenter
+                                Layout.preferredWidth: 44
+                                Layout.preferredHeight: 44
+                                property real phaseAngle: modelData.angle
+                                onPaint: root.drawMoonPhase(getContext("2d"), width, height, phaseAngle)
+                                Component.onCompleted: requestPaint()
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.label
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+
+                Canvas {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 26
+                    property real cycleFraction: root.moonCycleFraction()
+                    onPaint: {
+                        var ctx = getContext("2d")
+                        ctx.clearRect(0, 0, width, height)
+                        var y = 7
+                        ctx.beginPath()
+                        ctx.moveTo(8, y)
+                        ctx.lineTo(width - 8, y)
+                        ctx.strokeStyle = "#303641"
+                        ctx.lineWidth = 1
+                        ctx.stroke()
+                        var x = 8 + (width - 16) * cycleFraction
+                        ctx.beginPath()
+                        ctx.moveTo(x, y + 3)
+                        ctx.lineTo(x - 7, y + 16)
+                        ctx.lineTo(x + 7, y + 16)
+                        ctx.closePath()
+                        ctx.fillStyle = theme.cyan
+                        ctx.fill()
+                    }
+                    onCycleFractionChanged: requestPaint()
+                    Component.onCompleted: requestPaint()
+                }
+            }
+
+            GlassCard {
                 visible: !root.hasObject
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -274,8 +403,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Perche consigliato"
-                subtitle: "Ragionamento sintetico per l'osservazione"
+                title: "Perche vale la pena osservarlo"
+                subtitle: "Condizioni locali e priorita osservativa"
                 accentColor: theme.green
 
                 Repeater {
@@ -285,9 +414,13 @@ Item {
                         Layout.fillWidth: true
                         spacing: 10
 
-                        StatusPill {
-                            text: "-"
-                            accentColor: theme.green
+                        Rectangle {
+                            Layout.preferredWidth: 8
+                            Layout.preferredHeight: 8
+                            Layout.alignment: Qt.AlignTop
+                            Layout.topMargin: 6
+                            radius: 4
+                            color: theme.green
                         }
 
                         Text {

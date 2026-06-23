@@ -1739,6 +1739,12 @@ class AppController(QObject):
         data["observingReasons"] = self._observing_reasons(item)
         data["descriptionText"] = description.get("short_description", "").strip() or item.notes
         data["bestSeen"] = description.get("best_seen", "").strip()
+        data["setupReason"] = self._setup_reason(item)
+        if item.id == "moon" and self._moon:
+            data["moonPhase"] = self._moon.phase
+            data["moonIllumination"] = self._moon.illumination
+            data["moonPhaseAngle"] = self._moon.phase_angle
+            data["moonCycleDay"] = self._moon_cycle_day_label(self._moon.phase_angle)
         return data
 
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
@@ -1897,18 +1903,88 @@ class AppController(QObject):
         reasons = []
         max_altitude = self._parse_degrees(item.max_altitude)
         if max_altitude is not None and max_altitude > 0:
-            reasons.append(f"Raggiunge {max_altitude:.0f} gradi di altezza massima")
-        if item.time_above_horizon and item.time_above_horizon != "n/d":
-            reasons.append(f"Resta sopra soglia per {item.time_above_horizon}")
-        if self._seeing_transparency and item.object_type == "Pianeta":
-            reasons.append(f"Seeing previsto: {self._seeing_transparency.seeing}")
-        if self._sky_quality and item.object_type != "Pianeta":
-            reasons.append(f"Compatibile con Bortle {self._sky_quality.bortle_class}: {item.difficulty}")
-        if item.equipment_explanation:
-            reasons.append(item.equipment_explanation)
-        elif item.recommended_setup:
-            reasons.append(f"Setup consigliato: {item.recommended_setup}")
+            reasons.append(self._altitude_reason(max_altitude))
+        if item.time_above_horizon and item.time_above_horizon not in {"n/d", "0 h"}:
+            reasons.append(f"Finestra utile sopra soglia: {item.time_above_horizon}.")
+        if item.id == "moon" and self._moon:
+            reasons.append(f"Fase lunare: {self._moon.phase}, illuminazione {self._moon.illumination}.")
+        elif self._seeing_transparency and item.object_type == "Pianeta":
+            seeing = self._localized_seeing(self._seeing_transparency.seeing)
+            reasons.append(f"Seeing previsto {seeing.lower()}: adatto a valutare dettagli planetari.")
+        elif self._sky_quality and item.object_type != "Pianeta":
+            reasons.append(self._sky_quality_reason(item))
         return reasons[:4]
+
+    @staticmethod
+    def _altitude_reason(max_altitude: float) -> str:
+        if max_altitude >= 65:
+            return f"Culmina molto alto ({max_altitude:.0f} gradi): meno atmosfera e immagine piu stabile."
+        if max_altitude >= 35:
+            return f"Raggiunge una buona altezza ({max_altitude:.0f} gradi): osservazione realistica."
+        if max_altitude >= 15:
+            return f"Resta basso ({max_altitude:.0f} gradi): serve orizzonte libero e cielo stabile."
+        return f"Altezza massima critica ({max_altitude:.0f} gradi): target difficile da sfruttare."
+
+    @staticmethod
+    def _localized_seeing(value: str) -> str:
+        labels = {
+            "Excellent": "Eccellente",
+            "Good": "Buono",
+            "Average": "Discreto",
+            "Poor": "Scarso",
+        }
+        return labels.get(value, value or "n/d")
+
+    def _sky_quality_reason(self, item: CelestialObject) -> str:
+        bortle = self._sky_quality.bortle_class
+        difficulty = item.difficulty if item.difficulty and item.difficulty != "n/d" else "da valutare"
+        if difficulty == "Facile":
+            return f"Cielo Bortle {bortle}: target ancora gestibile, difficolta stimata facile."
+        if difficulty == "Media":
+            return f"Cielo Bortle {bortle}: richiede adattamento al buio, difficolta media."
+        if difficulty == "Difficile":
+            return f"Cielo Bortle {bortle}: target penalizzato, meglio trasparenza alta e luci schermate."
+        return f"Cielo Bortle {bortle}: difficolta stimata {difficulty}."
+
+    def _setup_reason(self, item: CelestialObject) -> str:
+        if not item.recommended_setup:
+            return ""
+        option = self._recommended_setup_option(item)
+        magnification = option.get("magnification", "") if option else ""
+        true_field = option.get("trueField", "") if option else ""
+        exit_pupil = option.get("exitPupil", "") if option else ""
+        barlow = option.get("barlow", "") if option else item.barlow
+        lower_type = item.object_type.lower()
+        if magnification and exit_pupil:
+            if item.id == "moon":
+                return f"{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine."
+            if item.object_type == "Pianeta":
+                return f"{magnification} e pupilla {exit_pupil}: compromesso tra dettaglio planetario e seeing previsto."
+            if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
+                return f"Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare."
+            if "globular" in lower_type or "ammasso globulare" in lower_type:
+                return f"{magnification} e pupilla {exit_pupil}: aiuta a separare il nucleo senza scurire troppo."
+            if "galaxy" in lower_type or "galassia" in lower_type:
+                return f"Pupilla {exit_pupil} e campo {true_field}: privilegia contrasto e orientamento della galassia."
+            if "nebula" in lower_type or "nebul" in lower_type:
+                return f"Pupilla {exit_pupil} e campo {true_field}: equilibrio utile per oggetti diffusi."
+        if item.equipment_explanation:
+            return item.equipment_explanation
+        if barlow and barlow != "No":
+            return "Barlow inclusa per raggiungere un ingrandimento piu utile."
+        return "Setup scelto in base al profilo attivo e al tipo di oggetto."
+
+    @staticmethod
+    def _recommended_setup_option(item: CelestialObject) -> dict:
+        for option in item.setup_options:
+            if option.get("role") == "Consigliato":
+                return option
+        return item.setup_options[0] if item.setup_options else {}
+
+    @staticmethod
+    def _moon_cycle_day_label(phase_angle: float) -> str:
+        cycle_day = (phase_angle % 360.0) / 360.0 * 29.53
+        return f"Giorno {cycle_day:.1f} di 29,5"
 
     def _weather_digest(self) -> dict:
         night_hours = self._home_weather_hours(self._weather_hours)
