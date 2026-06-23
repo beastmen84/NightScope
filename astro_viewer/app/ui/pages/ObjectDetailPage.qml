@@ -28,35 +28,76 @@ Item {
 
     function drawMoonPhase(ctx, width, height, phaseAngle) {
         var angle = ((phaseAngle % 360) + 360) % 360
-        var illumination = (1 - Math.cos(angle * Math.PI / 180)) / 2
-        var waxing = angle <= 180
-        var radius = Math.min(width, height) / 2 - 2
+        var radius = Math.min(width, height) / 2 - 3
         var centerX = width / 2
         var centerY = height / 2
         ctx.clearRect(0, 0, width, height)
+
+        var glow = ctx.createRadialGradient(centerX, centerY, radius * 0.35, centerX, centerY, radius * 1.45)
+        glow.addColorStop(0, "rgba(202, 224, 244, 0.28)")
+        glow.addColorStop(1, "rgba(202, 224, 244, 0)")
+        ctx.fillStyle = glow
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, radius * 1.45, 0, Math.PI * 2)
+        ctx.fill()
+
+        var darkDisc = ctx.createRadialGradient(centerX - radius * 0.25, centerY - radius * 0.25, radius * 0.15, centerX, centerY, radius)
+        darkDisc.addColorStop(0, "#1d2430")
+        darkDisc.addColorStop(0.62, "#0b0f16")
+        darkDisc.addColorStop(1, "#05070b")
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-        ctx.fillStyle = "#07090d"
+        ctx.fillStyle = darkDisc
         ctx.fill()
+
         ctx.save()
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
         ctx.clip()
-        if (illumination > 0.98) {
-            ctx.fillStyle = "#dfe7f1"
+
+        if (angle > 2 && angle < 358) {
+            var lightDisc = ctx.createRadialGradient(centerX - radius * 0.35, centerY - radius * 0.45, radius * 0.1, centerX, centerY, radius)
+            lightDisc.addColorStop(0, "#fff7db")
+            lightDisc.addColorStop(0.48, "#d7dce3")
+            lightDisc.addColorStop(1, "#9ba6b4")
+            ctx.fillStyle = lightDisc
             ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2)
-        } else if (illumination > 0.02) {
-            ctx.fillStyle = "#dfe7f1"
-            var litWidth = radius * 2 * illumination
-            if (waxing)
-                ctx.fillRect(centerX + radius - litWidth, centerY - radius, litWidth, radius * 2)
+
+            ctx.globalAlpha = 0.18
+            ctx.fillStyle = "#75808d"
+            var craters = [
+                [-0.30, -0.22, 0.10],
+                [0.22, -0.18, 0.075],
+                [-0.10, 0.18, 0.065],
+                [0.36, 0.24, 0.045],
+                [-0.42, 0.30, 0.04]
+            ]
+            for (var i = 0; i < craters.length; i++) {
+                ctx.beginPath()
+                ctx.arc(centerX + radius * craters[i][0], centerY + radius * craters[i][1], radius * craters[i][2], 0, Math.PI * 2)
+                ctx.fill()
+            }
+            ctx.globalAlpha = 1
+
+            var shadow = ctx.createRadialGradient(centerX + radius * 0.2, centerY - radius * 0.2, radius * 0.08, centerX, centerY, radius)
+            shadow.addColorStop(0, "#151b24")
+            shadow.addColorStop(0.72, "#070a0f")
+            shadow.addColorStop(1, "#020305")
+            var shadowOffset
+            if (angle <= 180)
+                shadowOffset = -2 * radius * (angle / 180)
             else
-                ctx.fillRect(centerX - radius, centerY - radius, litWidth, radius * 2)
+                shadowOffset = 2 * radius * (1 - ((angle - 180) / 180))
+            ctx.fillStyle = shadow
+            ctx.beginPath()
+            ctx.arc(centerX + shadowOffset, centerY, radius, 0, Math.PI * 2)
+            ctx.fill()
         }
+
         ctx.restore()
         ctx.beginPath()
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-        ctx.strokeStyle = "#303641"
+        ctx.strokeStyle = "#46505f"
         ctx.lineWidth = 1
         ctx.stroke()
     }
@@ -232,7 +273,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Setup consigliato"
+                title: "Configurazione consigliata"
                 subtitle: "Suggerimento operativo"
                 accentColor: theme.amber
 
@@ -248,7 +289,7 @@ Item {
                 Text {
                     visible: objectData.setupReason && objectData.setupReason.length > 0
                     Layout.fillWidth: true
-                    text: "Perche questo setup: " + objectData.setupReason
+                    text: "Perché questa configurazione: " + objectData.setupReason
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -288,7 +329,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
+                    text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficoltà: " + objectData.difficulty
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -408,12 +449,12 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Seleziona un oggetto dalla Home"
-                subtitle: "Il dettaglio si apre dai target consigliati"
+                subtitle: "Il dettaglio si apre dagli oggetti consigliati"
                 accentColor: theme.cyan
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Torna alla Home e scegli un pianeta, un oggetto deep-sky o una voce del piano osservativo."
+                    text: "Torna alla Home e scegli un pianeta, un oggetto di cielo profondo o una voce del piano osservativo."
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -425,8 +466,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Perche vale la pena osservarlo"
-                subtitle: "Condizioni locali e priorita osservativa"
+                title: "Perché vale la pena osservarlo"
+                subtitle: "Condizioni locali e priorità osservativa"
                 accentColor: theme.green
 
                 Repeater {

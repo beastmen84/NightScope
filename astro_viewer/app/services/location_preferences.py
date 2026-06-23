@@ -91,7 +91,7 @@ class LocationPreferenceStore:
         return LocationDetectionResult(
             location=location,
             provider=str(payload.get("provider") or "cached"),
-            source=str(payload.get("source") or "Cached location"),
+            source=str(payload.get("source") or "Posizione salvata"),
             accuracy=str(payload.get("accuracy") or "cached"),
             approximate=bool(payload.get("approximate", False)),
             region=str(payload.get("region") or ""),

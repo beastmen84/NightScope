@@ -16,7 +16,7 @@ class EquipmentService:
             BeginnerPreset("naked-eye", "Occhio nudo", "Costellazioni e meteore", "Nessuna configurazione richiesta.", "Luna, Venere, Giove, sciami meteorici"),
             BeginnerPreset("binoculars", "Binocolo 10x50", "Ammassi aperti e Luna", "Campo ampio e uso immediato.", "M31, Pleiadi, Luna crescente"),
             BeginnerPreset("small-scope", "Telescopio piccolo", "Luna, pianeti luminosi, stelle doppie", "Rifrattore o Maksutov fino a 90 mm.", "Giove, Saturno, Albireo"),
-            BeginnerPreset("medium-scope", "Telescopio medio", "Pianeti e deep sky brillante", "Strumento versatile da 130-200 mm.", "M13, M57, nebulose luminose"),
+            BeginnerPreset("medium-scope", "Telescopio medio", "Pianeti e cielo profondo brillante", "Strumento versatile da 130-200 mm.", "M13, M57, nebulose luminose"),
             BeginnerPreset("large-scope", "Telescopio grande", "Oggetti deboli e dettagli planetari", "Richiede seeing e acclimatazione accurati.", "Galassie, nebulose planetarie, globulari risolti"),
         ]
 

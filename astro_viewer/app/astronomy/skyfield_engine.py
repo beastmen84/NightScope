@@ -75,7 +75,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             except Exception as retry_exc:
                 logger.error("Skyfield ephemeris recovery failed.", exc_info=True)
                 raise EphemerisUnavailableError(
-                    "Astronomical ephemeris is unavailable. Check network access or restore de421.bsp."
+                    "Effemeridi astronomiche non disponibili. Controlla la connessione o ripristina de421.bsp."
                 ) from retry_exc
 
     def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
@@ -197,7 +197,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     best_time=self._format_dt(local_dt),
                     usefulness=86 if int(eclipse_kind) >= 1 else 62,
                     setup="Occhio nudo o teleobiettivo",
-                    note="Evento calcolato con Skyfield; visibilita locale da verificare sull'orizzonte.",
+                    note="Evento calcolato con Skyfield; visibilità locale da verificare sull'orizzonte.",
                 )
             )
 
@@ -589,7 +589,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             return "Cielo favorevole per galassie e nebulose deboli."
         if illumination < 0.65:
             return "Buon compromesso per Luna, pianeti e oggetti brillanti."
-        return "Luna luminosa: deep sky debole penalizzato."
+        return "Luna luminosa: cielo profondo debole penalizzato."
 
     @staticmethod
     def _recurring_meteor_showers(now: datetime) -> list[AstronomicalEvent]:

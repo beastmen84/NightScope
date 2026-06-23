@@ -50,7 +50,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Configurazione location"
+                        text: "Configurazione località"
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -204,7 +204,7 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: "Online approssimato"
+                                text: "Fallback online"
                                 enabled: controller.autoDetectLocationOnStartup && (controller.useWindowsLocationOnStartup || !controller.allowApproximateOnlineLocation)
                                 checked: controller.autoDetectLocationOnStartup && controller.allowApproximateOnlineLocation
                                 opacity: enabled || checked ? 1 : 0.55
@@ -332,7 +332,7 @@ Item {
                         DarkTextField {
                             id: earthdataUsername
                             Layout.fillWidth: true
-                            placeholderText: "Username Earthdata"
+                            placeholderText: "Utente Earthdata"
                             enabled: controller.earthdataSecureStorageAvailable
                             Component.onCompleted: text = controller.earthdataUsername
                         }
@@ -441,7 +441,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Windows location is unavailable. Try approximate online location?"
+                                text: "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -464,7 +464,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Stima citta, paese, coordinate e timezone tramite connessione internet. Precisione limitata; non viene usata senza consenso."
+                        text: "Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -499,14 +499,14 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 248 : 0
-                    title: "Ricerca citta"
+                    title: "Ricerca città"
                     subtitle: "Catalogo GeoNames offline"
                     accentColor: theme.amber
 
                     TextField {
                         id: citySearch
                         Layout.fillWidth: true
-                        placeholderText: "Cerca citta"
+                        placeholderText: "Cerca città"
                         onTextChanged: controller.searchCities(text)
                     }
 
@@ -523,7 +523,7 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 12
                             visible: !controller.hasCitySearchQuery
-                            text: "Digita una citta per mostrare risultati offline."
+                            text: "Digita una città per mostrare risultati offline."
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
@@ -534,7 +534,7 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 12
                             visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
-                            text: "Nessuna citta trovata."
+                            text: "Nessuna città trovata."
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap

@@ -80,8 +80,8 @@ class BasicForecastSeeingProvider:
 
         explanation = (
             f"Vento medio {avg_wind:.0f} km/h, raffiche {avg_gust:.0f} km/h, "
-            f"nuvolosita bassa/media/alta {avg_low_cloud:.0f}/{avg_mid_cloud:.0f}/{avg_high_cloud:.0f}%, "
-            f"umidita {avg_humidity:.0f}%."
+            f"nuvolosità bassa/media/alta {avg_low_cloud:.0f}/{avg_mid_cloud:.0f}/{avg_high_cloud:.0f}%, "
+            f"umidità {avg_humidity:.0f}%."
         )
         return SeeingTransparency(
             seeing=self._label(seeing_score),

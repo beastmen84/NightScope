@@ -245,7 +245,7 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Marca" }
             DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Modello" }
             DarkTextField { id: telescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
             DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
@@ -265,7 +265,7 @@ Item {
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0
-                ? "Questo elemento e utilizzato da uno o piu profili."
+                ? "Questo elemento è utilizzato da uno o più profili."
                 : "Eliminare il modello dal catalogo?"
             color: theme.textPrimary
             font.pixelSize: 14

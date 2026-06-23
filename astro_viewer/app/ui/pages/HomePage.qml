@@ -87,16 +87,16 @@ Item {
         var role = option ? option.role : ""
         var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
         if (item.id === "venus" || item.id === "mercury")
-            return "Target molto luminoso: ingrandimento moderato e contrasto stabile."
+            return "Oggetto molto luminoso: ingrandimento moderato e contrasto stabile."
         if (role === "Campo largo" || typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
-            return "Campo reale piu ampio per inquadrare meglio l'oggetto."
+            return "Campo reale più ampio per inquadrare meglio l'oggetto."
         if ((item.type || "") === "Pianeta")
             return "Miglior compromesso tra dettaglio planetario e seeing previsto."
         if (typeText.indexOf("globular") >= 0)
             return "Ingrandimento medio-alto per separare meglio il nucleo."
         if (typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
             return "Pupilla e campo bilanciati per contrasto su cielo profondo."
-        return item.equipmentExplanation || "Setup scelto in base al profilo attivo."
+        return item.equipmentExplanation || "Configurazione scelta in base al profilo attivo."
     }
 
     function objectById(objectId) {
@@ -155,7 +155,7 @@ Item {
         if (value.indexOf("binocolo") >= 0)
             return "Visibile con binocolo"
         if (value.length > 0)
-            return "Visibilita: " + item.visibility_class
+            return "Visibilità: " + item.visibility_class
         return item.observingStatus || "Finestra utile"
     }
 
@@ -166,7 +166,7 @@ Item {
     }
 
     function difficultyLabel(item) {
-        return item.difficulty && item.difficulty !== "n/d" ? "Difficolta: " + item.difficulty : ""
+        return item.difficulty && item.difficulty !== "n/d" ? "Difficoltà: " + item.difficulty : ""
     }
 
     function eventDateValue(eventData) {
@@ -203,7 +203,7 @@ Item {
         if (rain >= 45)
             return "Fattore limitante: rischio precipitazioni"
         if (cloud >= 65)
-            return "Fattore limitante: nuvolosita elevata"
+            return "Fattore limitante: nuvolosità elevata"
         if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
             return "Fattore limitante: seeing scarso"
         if (controller.weatherDigest.windLabel === "forte")
@@ -220,7 +220,7 @@ Item {
         if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
             return "Seeing scarso"
         if ((controller.visiblePlanets || []).length > 0)
-            return "Migliori target: " + controller.visiblePlanets.slice(0, 2).map(function(item) { return item.name }).join(" • ")
+            return "Migliori oggetti: " + controller.visiblePlanets.slice(0, 2).map(function(item) { return item.name }).join(" • ")
         return "Seeing discreto"
     }
 
@@ -239,10 +239,10 @@ Item {
         var illuminationText = controller.moonSummary.illumination || "0%"
         var illumination = Number(illuminationText.toString().replace("%", "").trim())
         if (illumination >= 70)
-            return "Impatto deep sky: elevato"
+            return "Impatto cielo profondo: elevato"
         if (illumination >= 35)
-            return "Impatto deep sky: medio"
-        return "Impatto deep sky: basso"
+            return "Impatto cielo profondo: medio"
+        return "Impatto cielo profondo: basso"
     }
 
     function weatherMetricColor(kind, value) {
@@ -359,7 +359,7 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Qualita osservativa"
+                        title: "Qualità osservativa"
                         subtitle: controller.observingQuality.explanation
                         accentColor: theme.scoreColor(controller.observingQuality.score)
                         headerBadgeText: controller.observingQuality.score
@@ -598,7 +598,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Nuvole (Media)"
+                                    text: "Nuvole (media)"
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -632,7 +632,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Vento (Media)"
+                                    text: "Vento (media)"
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -666,7 +666,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Pioggia (Max)"
+                                    text: "Pioggia (max)"
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -814,7 +814,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: controller.nightPlan.length === 0
-                        text: controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun target utile nella finestra notturna."
+                        text: controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -833,11 +833,11 @@ Item {
                                 itemData: modelData
                                 assetBaseUrl: controller.assetBaseUrl
                                 typeText: "Tappa consigliata"
-                                difficultyText: "Difficolta: " + modelData.difficulty
+                                difficultyText: "Difficoltà: " + modelData.difficulty
                                 visibilityText: modelData.timeLabel + "  -  " + modelData.direction
                                 recommendedSetup: root.planSetup(modelData)
                                 reasonText: root.planReason(modelData)
-                                scoreText: "Rank " + (index + 1)
+                                scoreText: "Posizione " + (index + 1)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -850,13 +850,13 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     title: "Altri pianeti visibili"
-                    subtitle: "Target utili non gia presenti nel piano consigliato"
+                    subtitle: "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.teal
 
                     Text {
                         Layout.fillWidth: true
                         visible: root.otherVisiblePlanets().length === 0
-                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun altro pianeta utile fuori dal piano consigliato."
+                        text: controller.isLoading ? "Calcolo della visibilità..." : "Nessun altro pianeta utile fuori dal piano consigliato."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -879,7 +879,7 @@ Item {
                                 visibilityText: root.objectWindow(modelData)
                                 recommendedSetup: root.recommendedSetup(modelData)
                                 reasonText: root.recommendationReason(modelData)
-                                scoreText: "Score " + modelData.score + "/100"
+                                scoreText: "Punteggio " + modelData.score + "/100"
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -893,13 +893,13 @@ Item {
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
                     title: "Oggetti cielo profondo visibili"
-                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Target utili non gia presenti nel piano consigliato"
+                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.violet
 
                     Text {
                         Layout.fillWidth: true
                         visible: root.otherVisibleDeepSky().length === 0
-                        text: controller.isLoading ? "Calcolo della visibilita..." : "Nessun altro oggetto cielo profondo utile fuori dal piano consigliato."
+                        text: controller.isLoading ? "Calcolo della visibilità..." : "Nessun altro oggetto cielo profondo utile fuori dal piano consigliato."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -922,7 +922,7 @@ Item {
                                 visibilityText: root.objectWindow(modelData)
                                 recommendedSetup: root.recommendedSetup(modelData)
                                 reasonText: root.recommendationReason(modelData)
-                                scoreText: "Score " + modelData.score + "/100"
+                                scoreText: "Punteggio " + modelData.score + "/100"
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -956,7 +956,7 @@ Item {
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 388 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Mappa cielo"
-                    subtitle: "Target principali per direzione cardinale"
+                    subtitle: "Oggetti principali per direzione cardinale"
                     accentColor: theme.cyan
 
                     GridLayout {
@@ -994,14 +994,14 @@ Item {
                                         }
 
                                         StatusPill {
-                                            text: modelData.targets.length + " target"
+                                            text: modelData.targets.length + " oggetti"
                                             accentColor: theme.cyan
                                         }
                                     }
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: modelData.targets.length > 0 ? modelData.targets[0].name : "Nessun target prioritario"
+                                        text: modelData.targets.length > 0 ? modelData.targets[0].name : "Nessun oggetto prioritario"
                                         color: modelData.targets.length > 0 ? theme.textPrimary : theme.textMuted
                                         font.pixelSize: 14
                                         font.weight: modelData.targets.length > 0 ? Font.DemiBold : Font.Normal
@@ -1017,7 +1017,7 @@ Item {
                                     Text {
                                         Layout.fillWidth: true
                                         Layout.fillHeight: true
-                                        text: modelData.targets.length > 1 ? modelData.targets.slice(1, 5).map(function(item) { return item.name }).join("  -  ") : "Altri target non prioritari"
+                                        text: modelData.targets.length > 1 ? modelData.targets.slice(1, 5).map(function(item) { return item.name }).join("  -  ") : "Altri oggetti non prioritari"
                                         color: theme.textSecondary
                                         font.pixelSize: 12
                                         wrapMode: Text.WordWrap

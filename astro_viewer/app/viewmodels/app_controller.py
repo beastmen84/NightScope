@@ -109,7 +109,7 @@ class AppController(QObject):
         except EphemerisUnavailableError:
             logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
             self._astronomy_engine = MockAstronomyEngine()
-            self._service_status = "Astronomical ephemeris unavailable. Using fallback sky data."
+            self._service_status = "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._score_service = ObservingScoreService()
@@ -588,7 +588,7 @@ class AppController(QObject):
             result = self._location_service.detect_windows_location()
         except LocationUnavailableError as exc:
             logger.warning("Windows location unavailable in AppController: %s", exc.reason)
-            self._location_message = "Windows location is unavailable. Try approximate online location?"
+            self._location_message = "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
             self._offer_online_location_fallback = True
             self.locationChanged.emit()
             return
@@ -1193,7 +1193,7 @@ class AppController(QObject):
             self._visible_planets = []
             self._deep_sky = []
             self._events = []
-            self._append_service_status("Astronomical data temporarily unavailable.")
+            self._append_service_status("Dati astronomici temporaneamente non disponibili.")
 
     def _refresh_weather_and_conditions(self) -> None:
         if not self._has_valid_location():
@@ -1603,12 +1603,12 @@ class AppController(QObject):
     @staticmethod
     def _location_source_label(provider: str) -> str:
         labels = {
-            "windows_precise": "Windows precise",
-            "windows_coarse": "Windows approximate",
-            "ip_geolocation": "Approximate online",
-            "manual_city": "Manual city",
-            "manual_coordinates": "Manual coordinates",
-            "cached": "Cached location",
+            "windows_precise": "Windows precisa",
+            "windows_coarse": "Windows approssimata",
+            "ip_geolocation": "Online approssimata",
+            "manual_city": "Città manuale",
+            "manual_coordinates": "Coordinate manuali",
+            "cached": "Posizione salvata",
         }
         return labels.get(provider, provider or "Nessuna posizione")
 
@@ -1700,7 +1700,7 @@ class AppController(QObject):
                 penalty += 8
             score = max(0, round(item.score - penalty))
             note = item.notes
-            urban_note = "Cielo luminoso: visibilita limitata, serve trasparenza buona e schermare luci dirette."
+            urban_note = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
             if urban_note not in note:
                 note = f"{urban_note} {note}"
             updated.append(
@@ -1766,9 +1766,9 @@ class AppController(QObject):
             target = self._calendar_event_target(event)
             if target:
                 setup = self._calendar_profile_setup(target, event.setup)
-                if setup != "Bassa priorita osservativa":
-                    return f"Bassa priorita: {setup}"
-            return "Bassa priorita osservativa"
+                if setup != "Bassa priorità osservativa":
+                    return f"Bassa priorità: {setup}"
+            return "Bassa priorità osservativa"
         if event_type in {"opposizione", "pianeti"}:
             target = self._calendar_event_target(event)
             if target:
@@ -1777,7 +1777,7 @@ class AppController(QObject):
 
     def _calendar_moon_setup(self, title: str) -> str:
         if "nuova" in title:
-            return "Finestra deep-sky"
+            return "Finestra cielo profondo"
         target = CelestialObject(
             id="moon",
             name="Luna",
@@ -1876,7 +1876,7 @@ class AppController(QObject):
         if clean == "Telescopio medio":
             return "Telescopio consigliato"
         if clean == "Non prioritario":
-            return "Bassa priorita osservativa"
+            return "Bassa priorità osservativa"
         return clean
 
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
@@ -1894,7 +1894,7 @@ class AppController(QObject):
             if useful_time[0] <= 5:
                 return "Meglio prima dell'alba", f"Attualmente sotto orizzonte o basso. Migliore prima dell'alba: {window}."
             if useful_time[0] >= 20:
-                return "Meglio piu tardi", f"Non prioritario ora. Migliore piu tardi: {window}."
+                return "Meglio più tardi", f"Non prioritario ora. Migliore più tardi: {window}."
             return "Dopo il tramonto", f"Finestra utile dopo il tramonto: {label}."
         if item.visible:
             return "Finestra utile", f"Finestra osservativa: {item.observing_window}."
@@ -1919,7 +1919,7 @@ class AppController(QObject):
     @staticmethod
     def _altitude_reason(max_altitude: float) -> str:
         if max_altitude >= 65:
-            return f"Culmina molto alto ({max_altitude:.0f} gradi): meno atmosfera e immagine piu stabile."
+            return f"Culmina molto alto ({max_altitude:.0f} gradi): meno atmosfera e immagine più stabile."
         if max_altitude >= 35:
             return f"Raggiunge una buona altezza ({max_altitude:.0f} gradi): osservazione realistica."
         if max_altitude >= 15:
@@ -1940,12 +1940,12 @@ class AppController(QObject):
         bortle = self._sky_quality.bortle_class
         difficulty = item.difficulty if item.difficulty and item.difficulty != "n/d" else "da valutare"
         if difficulty == "Facile":
-            return f"Cielo Bortle {bortle}: target ancora gestibile, difficolta stimata facile."
+            return f"Cielo Bortle {bortle}: oggetto ancora gestibile, difficoltà stimata facile."
         if difficulty == "Media":
-            return f"Cielo Bortle {bortle}: richiede adattamento al buio, difficolta media."
+            return f"Cielo Bortle {bortle}: richiede adattamento al buio, difficoltà media."
         if difficulty == "Difficile":
             return f"Cielo Bortle {bortle}: target penalizzato, meglio trasparenza alta e luci schermate."
-        return f"Cielo Bortle {bortle}: difficolta stimata {difficulty}."
+        return f"Cielo Bortle {bortle}: difficoltà stimata {difficulty}."
 
     def _setup_reason(self, item: CelestialObject) -> str:
         if not item.recommended_setup:
@@ -1972,8 +1972,8 @@ class AppController(QObject):
         if item.equipment_explanation:
             return item.equipment_explanation
         if barlow and barlow != "No":
-            return "Barlow inclusa per raggiungere un ingrandimento piu utile."
-        return "Setup scelto in base al profilo attivo e al tipo di oggetto."
+            return "Barlow inclusa per raggiungere un ingrandimento più utile."
+        return "Configurazione scelta in base al profilo attivo e al tipo di oggetto."
 
     @staticmethod
     def _recommended_setup_option(item: CelestialObject) -> dict:

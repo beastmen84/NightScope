@@ -94,7 +94,7 @@ Item {
                     visible: controller.equipmentProfiles.length !== 1
                     Layout.fillWidth: true
                     title: "Profilo attivo"
-                    subtitle: "Setup usato dalle raccomandazioni"
+                    subtitle: "Configurazione usata dalle raccomandazioni"
                     accentColor: theme.green
 
                     Text {
@@ -230,7 +230,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Capacita del profilo"
+                title: "Capacità del profilo"
                 subtitle: controller.telescopeCapabilities.name
                 accentColor: theme.violet
 
@@ -415,7 +415,7 @@ Item {
                 }
 
                 DarkButton {
-                    text: itemData.assigned ? "Gia assegnato" : "Assegna"
+                    text: itemData.assigned ? "Già assegnato" : "Assegna"
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10

@@ -42,9 +42,9 @@ class ObservingScoreService:
         if avg_cloud < 25:
             explanation_parts.append("poche nuvole")
         elif avg_cloud < 55:
-            explanation_parts.append("nuvolosita moderata")
+            explanation_parts.append("nuvolosità moderata")
         else:
-            explanation_parts.append("nuvolosita elevata")
+            explanation_parts.append("nuvolosità elevata")
         if max_rain >= 35:
             explanation_parts.append("rischio precipitazioni")
         if avg_wind < 15:
@@ -55,7 +55,7 @@ class ObservingScoreService:
             explanation_parts.append("Luna luminosa")
 
         explanation = ", ".join(explanation_parts).capitalize() + "."
-        alert = f"Qualita osservativa stanotte: {score}/100, {label.lower()}. {explanation}"
+        alert = f"Qualità osservativa stanotte: {score}/100, {label.lower()}. {explanation}"
         return WeatherSummary(label, score, explanation, avg_cloud, max_rain, avg_wind, avg_humidity, avg_temp, alert)
 
     def best_object(self, objects: list[CelestialObject], weather_summary: WeatherSummary) -> CelestialObject | None:

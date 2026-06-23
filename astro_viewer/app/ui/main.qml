@@ -144,7 +144,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Location"
+                        text: "Località"
                         iconSource: appController.assetBaseUrl + "/resources/icons/location.svg"
                         selected: window.currentPage === "location"
                         onClicked: window.currentPage = "location"

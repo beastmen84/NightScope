@@ -341,7 +341,7 @@ class Phase6RealDataTests(unittest.TestCase):
 
             setup = controller._event_to_qml(event)["setup"]
 
-            self.assertTrue(setup.startswith("Bassa priorita: "))
+            self.assertTrue(setup.startswith("Bassa priorità: "))
             self.assertIn(controller.currentSetup["name"], setup)
 
     def test_calendar_moon_events_hide_generic_setup(self) -> None:
@@ -359,7 +359,7 @@ class Phase6RealDataTests(unittest.TestCase):
 
             setup = controller._event_to_qml(event)["setup"]
 
-            self.assertEqual(setup, "Finestra deep-sky")
+            self.assertEqual(setup, "Finestra cielo profondo")
             self.assertNotEqual(setup, "Qualsiasi setup")
 
     def test_controller_blocks_duplicate_catalog_telescopes(self) -> None:
@@ -370,7 +370,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.addTelescopeModel("Custom", "Newton 150/750", "Newton", "150", "750", "manuale", "")
 
             self.assertEqual(len(controller.equipmentSetups), count)
-            self.assertIn("gia presente", controller.equipmentMessage)
+            self.assertIn("già presente", controller.equipmentMessage)
 
     def test_equipment_navigation_is_split_into_three_pages(self) -> None:
         main_qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "main.qml").read_text(encoding="utf-8")

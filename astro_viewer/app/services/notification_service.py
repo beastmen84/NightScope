@@ -22,7 +22,7 @@ class NotificationService:
             notifications.append(
                 Notification(
                     title="Prima tappa del piano",
-                    message=f"{first_target.name} verso {first_target.direction}. Setup: {first_target.setup}.",
+                    message=f"{first_target.name} verso {first_target.direction}. Configurazione: {first_target.setup}.",
                     trigger_time=first_target.time_label,
                     priority=84,
                 )
@@ -39,7 +39,7 @@ class NotificationService:
         if scores.deep_sky_score >= 76:
             notifications.append(
                 Notification(
-                    title="Finestra deep-sky utile",
+                    title="Finestra cielo profondo utile",
                     message="Trasparenza, Luna e cielo locale sono favorevoli agli oggetti diffusi.",
                     trigger_time="Stanotte",
                     priority=78,

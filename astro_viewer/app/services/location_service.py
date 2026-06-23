@@ -34,13 +34,13 @@ WINDOWS_TO_IANA_TIMEZONES = {
 }
 
 WINDOWS_LOCATION_UNAVAILABLE_MESSAGE = (
-    "Windows location is not available. Please choose a city or enter coordinates manually."
+    "La posizione Windows non è disponibile. Scegli una città o inserisci le coordinate manualmente."
 )
 APPROXIMATE_LOCATION_SUCCESS_MESSAGE = (
-    "Approximate location detected from internet connection: {city}, {country}. Accuracy may be limited."
+    "Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata."
 )
 APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE = (
-    "Approximate online location is unavailable. Please choose a city or enter coordinates manually."
+    "La posizione approssimata online non è disponibile. Scegli una città o inserisci le coordinate manualmente."
 )
 
 
@@ -323,7 +323,7 @@ class ManualCoordinatesProvider:
         return LocationDetectionResult(
             location=location,
             provider=self.name,
-            source="Manual coordinates",
+            source="Coordinate manuali",
             accuracy="user supplied",
             approximate=False,
             message=f"Coordinate impostate: {latitude:.4f}, {longitude:.4f}.",

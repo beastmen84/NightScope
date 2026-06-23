@@ -88,7 +88,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
@@ -96,7 +96,7 @@ class EquipmentCatalogRepository:
                 (brand_id, clean_name),
             ).fetchone()
             if duplicate:
-                return False, "Questo modello e gia presente nel catalogo."
+                return False, "Questo modello è già presente nel catalogo."
             focal_ratio = round(focal_length_mm / aperture_mm, 1) if aperture_mm > 0 else None
             connection.execute(
                 """
@@ -125,7 +125,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
@@ -136,7 +136,7 @@ class EquipmentCatalogRepository:
                 (brand_id, clean_name, model_id),
             ).fetchone()
             if duplicate:
-                return False, "Questo modello e gia presente nel catalogo."
+                return False, "Questo modello è già presente nel catalogo."
             focal_ratio = round(focal_length_mm / aperture_mm, 1) if aperture_mm > 0 else None
             connection.execute(
                 """
@@ -173,7 +173,7 @@ class EquipmentCatalogRepository:
             legacy_id = old["catalog_id"]
             used = self._profile_usage_count(connection, "telescope", catalog_id, legacy_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento e utilizzato da uno o piu profili."
+                return False, "Questo elemento è utilizzato da uno o più profili."
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "telescope", catalog_id, legacy_id)
             connection.execute("DELETE FROM TelescopeModel WHERE id = ?", (model_id,))
@@ -210,7 +210,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -220,7 +220,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, focal_length_mm),
             ).fetchone()
             if duplicate:
-                return False, "Questo oculare e gia presente nel catalogo."
+                return False, "Questo oculare è già presente nel catalogo."
             connection.execute(
                 """
                 INSERT INTO EyepieceCatalog (
@@ -264,7 +264,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -274,7 +274,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, focal_length_mm, eyepiece_id),
             ).fetchone()
             if duplicate:
-                return False, "Questo oculare e gia presente nel catalogo."
+                return False, "Questo oculare è già presente nel catalogo."
             connection.execute(
                 """
                 UPDATE EyepieceCatalog
@@ -307,7 +307,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             used = self._profile_usage_count(connection, "eyepiece", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento e utilizzato da uno o piu profili."
+                return False, "Questo elemento è utilizzato da uno o più profili."
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "eyepiece", catalog_id)
             connection.execute("DELETE FROM EyepieceCatalog WHERE id = ?", (eyepiece_id,))
@@ -329,14 +329,14 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 "SELECT id FROM BarlowCatalog WHERE brand = ? AND model = ? AND multiplier = ?",
                 (clean_brand, clean_model, multiplier),
             ).fetchone()
             if duplicate:
-                return False, "Questa Barlow e gia presente nel catalogo."
+                return False, "Questa Barlow è già presente nel catalogo."
             connection.execute(
                 """
                 INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
@@ -351,7 +351,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Brand e modello sono obbligatori."
+            return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -361,7 +361,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, multiplier, barlow_id),
             ).fetchone()
             if duplicate:
-                return False, "Questa Barlow e gia presente nel catalogo."
+                return False, "Questa Barlow è già presente nel catalogo."
             connection.execute(
                 """
                 UPDATE BarlowCatalog
@@ -378,7 +378,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             used = self._profile_usage_count(connection, "barlow", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento e utilizzato da uno o piu profili."
+                return False, "Questo elemento è utilizzato da uno o più profili."
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "barlow", catalog_id)
             connection.execute("DELETE FROM BarlowCatalog WHERE id = ?", (barlow_id,))

@@ -86,7 +86,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(_wait_for_startup_location(controller))
             self.assertEqual(controller.location["city"], "Addis Ababa")
             self.assertEqual(controller.location["timezone"], "Africa/Addis_Ababa")
-            self.assertEqual(controller.activeLocationSource, "Approximate online")
+            self.assertEqual(controller.activeLocationSource, "Online approssimata")
             self.assertGreater(len(controller.weatherHourly), 0)
 
     def test_startup_auto_detection_does_not_refresh_weather_until_location_is_ready(self) -> None:
@@ -160,7 +160,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(_wait_for_startup_location(controller))
             self.assertEqual(controller.location["city"], "Bologna")
             self.assertEqual(controller.location["timezone"], "Europe/Rome")
-            self.assertEqual(controller.activeLocationSource, "Approximate online")
+            self.assertEqual(controller.activeLocationSource, "Online approssimata")
 
     def test_windows_location_unavailable_keeps_current_location(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
@@ -174,7 +174,7 @@ class ReleaseScenarioTests(unittest.TestCase):
                     controller.useWindowsLocation()
 
             self.assertEqual(controller.location["city"], previous_location)
-            self.assertEqual(controller.locationMessage, "Windows location is unavailable. Try approximate online location?")
+            self.assertEqual(controller.locationMessage, "La posizione Windows non è disponibile. Provare la posizione approssimata online?")
             self.assertTrue(controller.canUseApproximateOnlineLocation)
 
     def test_weather_not_called_without_valid_location(self) -> None:
@@ -238,13 +238,13 @@ class ReleaseScenarioTests(unittest.TestCase):
                 source="test",
                 accuracy="city-level",
                 approximate=True,
-                message="Approximate location detected from internet connection: Rome, Italy. Accuracy may be limited.",
+                message="Posizione approssimata rilevata tramite connessione internet: Rome, Italy. La precisione può essere limitata.",
             )
             with patch.object(controller._location_service, "detect_ip_location", return_value=result):
                 controller.useApproximateOnlineLocation()
 
             self.assertEqual(controller.location["city"], "Rome")
-            self.assertIn("Approximate location detected", controller.locationMessage)
+            self.assertIn("Posizione approssimata rilevata", controller.locationMessage)
             fake_weather_service.hourly_forecast.assert_called()
 
     def test_weather_page_displays_active_location_context(self) -> None:
@@ -258,7 +258,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("selectedWeatherHourIndex", qml)
         self.assertIn("controller.refreshWeatherNow()", qml)
         self.assertIn("controller.weatherRefreshRunning", qml)
-        self.assertIn("Radiance VIIRS", qml)
+        self.assertIn("Radianza VIIRS", qml)
         self.assertIn("Osservazioni VIIRS", qml)
         self.assertIn("SQM stimato", qml)
         self.assertNotIn("weatherLocationLayout", qml)

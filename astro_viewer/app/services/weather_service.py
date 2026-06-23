@@ -14,7 +14,7 @@ from astro_viewer.app.services.observing_score_service import ObservingScoreServ
 
 
 logger = logging.getLogger(__name__)
-WEATHER_UNAVAILABLE_MESSAGE = "Weather service temporarily unavailable."
+WEATHER_UNAVAILABLE_MESSAGE = "Servizio meteo temporaneamente non disponibile."
 
 
 class WeatherService(Protocol):
@@ -88,22 +88,22 @@ class OpenMeteoWeatherService:
             response.raise_for_status()
             payload = response.json()
         except requests.Timeout:
-            return self._fallback(cached, "Weather request timed out.")
+            return self._fallback(cached, "Richiesta meteo scaduta.")
         except requests.HTTPError as exc:
             if getattr(exc.response, "status_code", None) == 429:
-                return self._fallback(cached, "Weather API rate limit reached.")
-            return self._fallback(cached, "Weather API returned an HTTP error.")
+                return self._fallback(cached, "Limite richieste API meteo raggiunto.")
+            return self._fallback(cached, "L'API meteo ha restituito un errore HTTP.")
         except requests.RequestException:
-            return self._fallback(cached, "Weather API is not reachable.")
+            return self._fallback(cached, "API meteo non raggiungibile.")
         except (TypeError, ValueError):
-            return self._fallback(cached, "Weather API returned malformed JSON.")
+            return self._fallback(cached, "L'API meteo ha restituito JSON non valido.")
 
         if not isinstance(payload, dict):
-            return self._fallback(cached, "Weather API returned an unexpected payload.")
+            return self._fallback(cached, "L'API meteo ha restituito dati inattesi.")
 
         hours = self._parse_payload(payload)
         if not hours:
-            return self._fallback(cached, "Weather API returned an empty forecast.")
+            return self._fallback(cached, "L'API meteo ha restituito una previsione vuota.")
 
         if self._cache_repository:
             self._cache_repository.set(cache_key, datetime.now(UTC).isoformat(), json.dumps(payload))

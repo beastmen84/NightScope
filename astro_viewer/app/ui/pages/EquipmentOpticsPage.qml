@@ -414,9 +414,9 @@ Item {
         acceptText: "Salva"
         onAccepted: {
             if (root.editEyepiece.id !== undefined) {
-                controller.updateEyepieceModel(root.editEyepiece.id, eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentText, eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
+                controller.updateEyepieceModel(root.editEyepiece.id, eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
             } else {
-                controller.addEyepieceModel(eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentText, eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
+                controller.addEyepieceModel(eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
             }
         }
 
@@ -426,12 +426,12 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: "Marca" }
             DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: ["Fixed", "Zoom"] }
-            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentText === "Zoom" ? "Focale max mm" : "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale min mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentText === "Zoom"; placeholderText: "Focale max mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: ["Fisso", "Zoom"] }
+            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentIndex === 1 ? "Focale max mm" : "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: "Focale min mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: "Focale max mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: "AFOV medio"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: "AFOV min-max opzionale" }
             DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
@@ -457,7 +457,7 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: "Brand" }
+            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: "Marca" }
             DarkTextField { id: barlowModel; Layout.fillWidth: true; placeholderText: "Modello" }
             DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: "Moltiplicatore"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
@@ -475,7 +475,7 @@ Item {
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0
-                ? "Questo elemento e utilizzato da uno o piu profili."
+                ? "Questo elemento è utilizzato da uno o più profili."
                 : "Eliminare l'oculare dal catalogo?"
             color: theme.textPrimary
             font.pixelSize: 14
@@ -493,7 +493,7 @@ Item {
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0
-                ? "Questo elemento e utilizzato da uno o piu profili."
+                ? "Questo elemento è utilizzato da uno o più profili."
                 : "Eliminare la Barlow dal catalogo?"
             color: theme.textPrimary
             font.pixelSize: 14

@@ -37,8 +37,12 @@ class SeeingTransparency:
 
     def to_qml(self) -> dict:
         data = asdict(self)
+        data["seeing"] = _localized_quality_label(self.seeing)
+        data["transparency"] = _localized_quality_label(self.transparency)
         data["seeingScore"] = self.seeing_score
         data["transparencyScore"] = self.transparency_score
+        data["source"] = _localized_source(self.source)
+        data["confidence"] = _localized_confidence(self.confidence)
         return data
 
 
@@ -57,6 +61,34 @@ class AdvancedObservingScores:
         data["planetaryLabel"] = self.planetary_label
         data["deepSkyLabel"] = self.deep_sky_label
         return data
+
+
+def _localized_quality_label(value: str) -> str:
+    labels = {
+        "Excellent": "Eccellente",
+        "Good": "Buono",
+        "Average": "Discreto",
+        "Poor": "Scarso",
+    }
+    return labels.get(value, value or "n/d")
+
+
+def _localized_confidence(value: str) -> str:
+    labels = {
+        "high": "alta",
+        "medium": "media",
+        "low": "bassa",
+    }
+    return labels.get(value, value or "n/d")
+
+
+def _localized_source(value: str) -> str:
+    labels = {
+        "BasicForecastSeeingProvider": "Stima meteo base",
+        "MeteoblueSeeingProviderPlaceholder": "Stima meteo base",
+        "CustomModelSeeingProvider": "Modello seeing personalizzato",
+    }
+    return labels.get(value, value or "n/d")
 
 
 @dataclass(frozen=True)

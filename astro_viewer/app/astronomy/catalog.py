@@ -163,7 +163,7 @@ def mock_events() -> list[AstronomicalEvent]:
             best_time="00:30",
             usefulness=94,
             setup="Telescopio medio o grande",
-            note="Massimo diametro apparente e visibilita prolungata.",
+            note="Massimo diametro apparente e visibilità prolungata.",
         ),
         AstronomicalEvent(
             id="perseids",
@@ -177,7 +177,7 @@ def mock_events() -> list[AstronomicalEvent]:
         ),
         AstronomicalEvent(
             id="jupiter-visibility",
-            title="Giove in massima visibilita serale",
+            title="Giove in massima visibilità serale",
             event_type="Pianeti",
             date_label="18 novembre",
             best_time="23:00",
@@ -193,7 +193,7 @@ def mock_events() -> list[AstronomicalEvent]:
             best_time="22:15",
             usefulness=45,
             setup="Filtro lunare",
-            note="Buona per dettagli lunari, sfavorevole per deep sky.",
+            note="Buona per dettagli lunari, sfavorevole per cielo profondo.",
         ),
         AstronomicalEvent(
             id="future-eclipse",
@@ -207,4 +207,3 @@ def mock_events() -> list[AstronomicalEvent]:
         ),
     ]
     return sorted(events, key=lambda event: event.usefulness, reverse=True)
-
