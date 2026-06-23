@@ -9,6 +9,7 @@ Item {
     property var controller
     property var objectData: controller.selectedObject
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
+    property int detailMetricHeight: 88
     signal backToHome()
 
     function distinctSetupOptions(options) {
@@ -163,72 +164,75 @@ Item {
                         columnSpacing: 12
                         rowSpacing: 12
 
-                        MetricTile { label: "Magnitudine"; value: objectData.magnitude; accentColor: theme.cyan }
-                        MetricTile { label: "Distanza"; value: objectData.distance; accentColor: theme.violet }
-                        MetricTile { label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
-                        MetricTile { label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { label: "Finestra migliore"; value: objectData.homeWindowLabel; accentColor: theme.green }
-                        MetricTile { label: "Azimut"; value: objectData.azimuth; accentColor: theme.coral }
-                        MetricTile { label: "Altezza attuale"; value: objectData.currentAltitude; accentColor: theme.cyan }
-                        MetricTile { label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
-                        MetricTile { label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Magnitudine"; value: objectData.magnitude; accentColor: theme.cyan }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Distanza"; value: objectData.distance; accentColor: theme.violet }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Finestra migliore"; value: objectData.homeWindowLabel; accentColor: theme.green }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Azimut"; value: objectData.azimuth; accentColor: theme.coral }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza attuale"; value: objectData.currentAltitude; accentColor: theme.cyan }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
                     }
+                }
+            }
 
-                    GlassCard {
+            GlassCard {
+                visible: root.hasObject
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Setup consigliato"
+                subtitle: "Suggerimento operativo"
+                accentColor: theme.amber
+
+                Text {
+                    Layout.fillWidth: true
+                    text: objectData.recommended_setup
+                    color: theme.textPrimary
+                    font.pixelSize: 20
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
+
+                Repeater {
+                    model: root.distinctSetupOptions(objectData.setupOptions)
+
+                    delegate: RowLayout {
                         Layout.fillWidth: true
-                        title: "Setup consigliato"
-                        subtitle: "Suggerimento operativo"
-                        accentColor: theme.amber
+                        spacing: 10
+
+                        StatusPill {
+                            text: modelData.role
+                            accentColor: modelData.role === "Consigliato" ? theme.amber
+                                         : modelData.role === "Campo largo" ? theme.teal
+                                         : theme.cyan
+                        }
 
                         Text {
                             Layout.fillWidth: true
-                            text: objectData.recommended_setup
+                            text: modelData.detailLabel || modelData.label
                             color: theme.textPrimary
-                            font.pixelSize: 20
+                            font.pixelSize: 13
                             font.weight: Font.DemiBold
-                            wrapMode: Text.WordWrap
-                        }
-
-                        Repeater {
-                            model: root.distinctSetupOptions(objectData.setupOptions)
-
-                            delegate: RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-
-                                StatusPill {
-                                    text: modelData.role
-                                    accentColor: modelData.role === "Consigliato" ? theme.amber
-                                                 : modelData.role === "Campo largo" ? theme.teal
-                                                 : theme.cyan
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.detailLabel || modelData.label
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
+                            elide: Text.ElideRight
                         }
 
                         Text {
-                            Layout.fillWidth: true
-                            text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
+                            text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
                             color: theme.textSecondary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
                         }
                     }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 
