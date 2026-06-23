@@ -26,12 +26,6 @@ Item {
         return result
     }
 
-    function moonCycleFraction() {
-        var angle = Number(objectData.moonPhaseAngle || 0)
-        angle = ((angle % 360) + 360) % 360
-        return angle / 360
-    }
-
     function drawMoonPhase(ctx, width, height, phaseAngle) {
         var angle = ((phaseAngle % 360) + 360) % 360
         var illumination = (1 - Math.cos(angle * Math.PI / 180)) / 2
@@ -352,31 +346,59 @@ Item {
                     }
                 }
 
-                Canvas {
+                Item {
+                    id: moonCycleIndicator
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 26
-                    property real cycleFraction: root.moonCycleFraction()
-                    onPaint: {
-                        var ctx = getContext("2d")
-                        ctx.clearRect(0, 0, width, height)
-                        var y = 7
-                        ctx.beginPath()
-                        ctx.moveTo(8, y)
-                        ctx.lineTo(width - 8, y)
-                        ctx.strokeStyle = "#303641"
-                        ctx.lineWidth = 1
-                        ctx.stroke()
-                        var x = 8 + (width - 16) * cycleFraction
-                        ctx.beginPath()
-                        ctx.moveTo(x, y + 3)
-                        ctx.lineTo(x - 7, y + 16)
-                        ctx.lineTo(x + 7, y + 16)
-                        ctx.closePath()
-                        ctx.fillStyle = theme.cyan
-                        ctx.fill()
+                    Layout.preferredHeight: 14
+                    property real rawCycleFraction: {
+                        var dayText = String(objectData.moonCycleDay || "")
+                        var dayMatch = dayText.match(/[0-9]+([\\.,][0-9]+)?/)
+                        if (dayMatch && dayMatch.length > 0) {
+                            var dayValue = Number(dayMatch[0].replace(",", "."))
+                            if (!isNaN(dayValue))
+                                return dayValue / 29.53
+                        }
+                        var value = Number(objectData.moonCycleFraction)
+                        if (!isNaN(value))
+                            return value
+                        var angle = Number(objectData.moonPhaseAngle)
+                        return isNaN(angle) ? 0 : angle / 360
                     }
-                    onCycleFractionChanged: requestPaint()
-                    Component.onCompleted: requestPaint()
+                    property real cycleFraction: Math.max(0, Math.min(0.875, rawCycleFraction))
+                    property real indicatorCenter: width / 16 + cycleFraction * width
+
+                    Rectangle {
+                        height: 1
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: parent.width / 16
+                        anchors.rightMargin: parent.width / 16
+                        anchors.top: parent.top
+                        anchors.topMargin: 2
+                        color: "#303641"
+                    }
+
+                    Canvas {
+                        width: 16
+                        height: 12
+                        x: Math.max(0, Math.min(moonCycleIndicator.width - width, moonCycleIndicator.indicatorCenter - width / 2))
+                        y: 2
+                        property real cycleFraction: moonCycleIndicator.cycleFraction
+                        onPaint: {
+                            var ctx = getContext("2d")
+                            ctx.clearRect(0, 0, width, height)
+                            ctx.beginPath()
+                            ctx.moveTo(width / 2, 0)
+                            ctx.lineTo(0, height)
+                            ctx.lineTo(width, height)
+                            ctx.closePath()
+                            ctx.fillStyle = theme.cyan
+                            ctx.fill()
+                        }
+                        onCycleFractionChanged: requestPaint()
+                        onXChanged: requestPaint()
+                        Component.onCompleted: requestPaint()
+                    }
                 }
             }
 

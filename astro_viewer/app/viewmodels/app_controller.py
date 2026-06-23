@@ -1744,6 +1744,7 @@ class AppController(QObject):
             data["moonPhase"] = self._moon.phase
             data["moonIllumination"] = self._moon.illumination
             data["moonPhaseAngle"] = self._moon.phase_angle
+            data["moonCycleFraction"] = self._moon_cycle_fraction(self._moon.phase_angle)
             data["moonCycleDay"] = self._moon_cycle_day_label(self._moon.phase_angle)
         return data
 
@@ -1982,8 +1983,12 @@ class AppController(QObject):
         return item.setup_options[0] if item.setup_options else {}
 
     @staticmethod
+    def _moon_cycle_fraction(phase_angle: float) -> float:
+        return round((phase_angle % 360.0) / 360.0, 4)
+
+    @staticmethod
     def _moon_cycle_day_label(phase_angle: float) -> str:
-        cycle_day = (phase_angle % 360.0) / 360.0 * 29.53
+        cycle_day = AppController._moon_cycle_fraction(phase_angle) * 29.53
         return f"Giorno {cycle_day:.1f} di 29,5"
 
     def _weather_digest(self) -> dict:

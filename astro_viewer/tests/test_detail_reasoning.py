@@ -18,6 +18,12 @@ class DetailReasoningTests(unittest.TestCase):
         self.assertEqual(AppController._localized_seeing("Average"), "Discreto")
         self.assertEqual(AppController._localized_seeing("Poor"), "Scarso")
 
+    def test_moon_cycle_fraction_matches_phase_angle(self) -> None:
+        self.assertEqual(AppController._moon_cycle_fraction(0.0), 0.0)
+        self.assertAlmostEqual(AppController._moon_cycle_fraction(90.0), 0.25)
+        self.assertAlmostEqual(AppController._moon_cycle_fraction(180.0), 0.5)
+        self.assertAlmostEqual(AppController._moon_cycle_fraction(315.0), 0.875)
+
 
 if __name__ == "__main__":
     unittest.main()
