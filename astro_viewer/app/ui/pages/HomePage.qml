@@ -60,15 +60,26 @@ Item {
     }
 
     function recommendedSetup(item) {
+        if (!item)
+            return ""
         var option = root.displaySetupOption(item)
-        var setup = option ? option.detailLabel : (item.recommended_setup || item.setup || "")
+        var fullSetup = item.recommended_setup || item.setup || ""
+        var setup = option ? option.detailLabel : fullSetup
         if (!root.hasOpticalProfile())
             return setup
         var lower = setup.toLowerCase()
         if (lower.indexOf("occhio nudo") >= 0 || lower.indexOf("binocolo") >= 0 || lower.indexOf("serve almeno") >= 0)
             return setup
-        var telescope = root.firstAssignedName("telescope")
+        var telescope = option && option.telescopeName ? option.telescopeName : root.telescopeFromSetup(fullSetup)
         return telescope.length > 0 ? telescope + " + " + setup : setup
+    }
+
+    function telescopeFromSetup(setup) {
+        var text = setup || ""
+        var separator = text.indexOf(" + ")
+        if (separator <= 0)
+            return ""
+        return text.substring(0, separator)
     }
 
     function recommendationReason(item) {
@@ -355,6 +366,8 @@ Item {
                                 text: "Consigliato: " + root.recommendedSetup(controller.bestObjectOfNight)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                             }
 
@@ -363,6 +376,8 @@ Item {
                                 text: "Motivo: " + root.recommendationReason(controller.bestObjectOfNight)
                                 color: theme.textMuted
                                 font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                             }
                         }
@@ -572,6 +587,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
                     title: "Oggetti cielo profondo consigliati"
                     subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Priorita per la notte corrente"
                     accentColor: theme.violet
@@ -603,136 +619,142 @@ Item {
                     }
                 }
 
-                GlassCard {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    title: "Meteo osservativo"
-                    subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
-                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
+                    spacing: 14
 
-                    GridLayout {
+                    GlassCard {
                         Layout.fillWidth: true
-                        columns: 3
-                        columnSpacing: 8
-                        rowSpacing: 8
+                        title: "Meteo osservativo"
+                        subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
+                        accentColor: theme.scoreColor(controller.weatherSummary.score)
 
-                        Text {
+                        GridLayout {
                             Layout.fillWidth: true
-                            text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Vento\n" + controller.weatherDigest.windLabel
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-                    }
-
-                    Repeater {
-                        model: controller.weatherDigest.bestHours
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            StatusPill {
-                                text: modelData.time
-                                accentColor: theme.scoreColor(controller.weatherSummary.score)
-                            }
+                            columns: 3
+                            columnSpacing: 8
+                            rowSpacing: 8
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Mappa cielo"
-                    subtitle: "Vista cardinale minimale"
-                    accentColor: theme.cyan
-
-                    Repeater {
-                        model: controller.skyMap
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            Text {
-                                Layout.preferredWidth: 52
-                                text: modelData.direction
-                                color: theme.cyan
+                                text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
+                                color: theme.textPrimary
                                 font.pixelSize: 13
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
+                                wrapMode: Text.WordWrap
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
+                                text: "Vento\n" + controller.weatherDigest.windLabel
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                wrapMode: Text.WordWrap
                             }
                         }
-                    }
-                }
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Prossimi eventi"
-                    subtitle: "Ordinati per utilita osservativa"
-                    accentColor: theme.amber
+                        Repeater {
+                            model: controller.weatherDigest.bestHours
 
-                    Repeater {
-                        model: root.diverseEvents(3)
-
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 12
-
-                            StatusPill {
-                                text: modelData.date_label
-                                accentColor: theme.amber
-                            }
-
-                            ColumnLayout {
+                            delegate: RowLayout {
                                 Layout.fillWidth: true
-                                spacing: 2
+                                spacing: 10
+
+                                StatusPill {
+                                    text: modelData.time
+                                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+                                }
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.title
-                                    color: theme.textPrimary
-                                    font.pixelSize: 14
+                                    text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+
+                    GlassCard {
+                        Layout.fillWidth: true
+                        title: "Mappa cielo"
+                        subtitle: "Vista cardinale minimale"
+                        accentColor: theme.cyan
+
+                        Repeater {
+                            model: controller.skyMap
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Text {
+                                    Layout.preferredWidth: 52
+                                    text: modelData.direction
+                                    color: theme.cyan
+                                    font.pixelSize: 13
                                     font.weight: Font.DemiBold
                                     elide: Text.ElideRight
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.note
+                                    text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+
+                    GlassCard {
+                        Layout.fillWidth: true
+                        title: "Prossimi eventi"
+                        subtitle: "Ordinati per utilita osservativa"
+                        accentColor: theme.amber
+
+                        Repeater {
+                            model: root.diverseEvents(3)
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 12
+
+                                StatusPill {
+                                    text: modelData.date_label
+                                    accentColor: theme.amber
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.title
+                                        color: theme.textPrimary
+                                        font.pixelSize: 14
+                                        font.weight: Font.DemiBold
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.note
+                                        color: theme.textSecondary
+                                        font.pixelSize: 12
+                                        elide: Text.ElideRight
+                                    }
                                 }
                             }
                         }

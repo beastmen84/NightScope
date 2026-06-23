@@ -231,6 +231,7 @@ class EquipmentService:
                             "score": score,
                             "label": label,
                             "detail_label": detail_label,
+                            "telescope_name": telescope.name,
                         }
                     )
         return sorted(combinations, key=lambda item: item["score"], reverse=True)
@@ -325,6 +326,7 @@ class EquipmentService:
             "exitPupil": f"{combo['exit_pupil']:.1f} mm",
             "barlow": combo["barlow_label"],
             "score": max(0, min(100, round(combo["score"]))),
+            "telescopeName": combo.get("telescope_name", ""),
         }
 
     def _target_profile(

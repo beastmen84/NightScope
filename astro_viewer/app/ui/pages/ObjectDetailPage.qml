@@ -8,6 +8,22 @@ Item {
 
     property var controller
     property var objectData: controller.selectedObject
+    property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
+    signal backToHome()
+
+    function distinctSetupOptions(options) {
+        var result = []
+        var seen = {}
+        options = options || []
+        for (var i = 0; i < options.length; i++) {
+            var key = options[i].detailLabel || options[i].label || ""
+            if (key.length === 0 || seen[key])
+                continue
+            seen[key] = true
+            result.push(options[i])
+        }
+        return result
+    }
 
     AppTheme {
         id: theme
@@ -25,10 +41,32 @@ Item {
 
             Item {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 18
+                Layout.preferredHeight: 14
             }
 
             RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                spacing: 14
+
+                DarkButton {
+                    text: "Torna alla Home"
+                    accentColor: theme.cyan
+                    onClicked: root.backToHome()
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.hasObject ? "Dettaglio osservativo" : "Nessun oggetto selezionato"
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    elide: Text.ElideRight
+                }
+            }
+
+            RowLayout {
+                visible: root.hasObject
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -45,7 +83,7 @@ Item {
                     Image {
                         anchors.fill: parent
                         anchors.margins: 32
-                        source: controller.assetBaseUrl + "/" + objectData.image
+                        source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
                         fillMode: Image.PreserveAspectFit
                         sourceSize.width: 520
                         sourceSize.height: 520
@@ -109,6 +147,7 @@ Item {
             }
 
             GridLayout {
+                visible: root.hasObject
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -155,7 +194,7 @@ Item {
                     }
 
                     Repeater {
-                        model: objectData.setupOptions || []
+                        model: root.distinctSetupOptions(objectData.setupOptions)
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
@@ -197,6 +236,25 @@ Item {
             }
 
             GlassCard {
+                visible: !root.hasObject
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Seleziona un oggetto dalla Home"
+                subtitle: "Il dettaglio si apre dai target consigliati"
+                accentColor: theme.cyan
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Torna alla Home e scegli un pianeta, un oggetto deep-sky o una voce del piano osservativo."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            GlassCard {
+                visible: root.hasObject
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -228,6 +286,7 @@ Item {
             }
 
             GlassCard {
+                visible: root.hasObject
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -239,21 +298,22 @@ Item {
                     Layout.fillWidth: true
                     spacing: 10
 
-                    TextField {
+                    DarkTextField {
                         id: observationRating
                         Layout.preferredWidth: 120
                         placeholderText: "Rating 0-5"
                         inputMethodHints: Qt.ImhDigitsOnly
                     }
 
-                    TextField {
+                    DarkTextField {
                         id: observationNotes
                         Layout.fillWidth: true
                         placeholderText: "Note osservazione"
                     }
 
-                    Button {
+                    DarkButton {
                         text: "Salva"
+                        accentColor: theme.violet
                         onClicked: controller.saveObservation(observationRating.text, observationNotes.text)
                     }
                 }

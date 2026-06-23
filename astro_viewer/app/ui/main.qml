@@ -122,16 +122,8 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: "Home"
                         iconSource: appController.assetBaseUrl + "/resources/icons/home.svg"
-                        selected: window.currentPage === "home"
+                        selected: window.currentPage === "home" || window.currentPage === "detail"
                         onClicked: window.currentPage = "home"
-                    }
-
-                    NavButton {
-                        Layout.fillWidth: true
-                        text: "Dettaglio oggetto"
-                        iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
-                        selected: window.currentPage === "detail"
-                        onClicked: window.currentPage = "detail"
                     }
 
                     NavButton {
@@ -279,6 +271,7 @@ ApplicationWindow {
         id: detailPage
         ObjectDetailPage {
             controller: appController
+            onBackToHome: window.currentPage = "home"
         }
     }
 
