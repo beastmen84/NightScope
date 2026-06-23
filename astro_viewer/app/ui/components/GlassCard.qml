@@ -7,6 +7,8 @@ Rectangle {
     property string title: ""
     property string subtitle: ""
     property color accentColor: "#65d6e8"
+    property string headerBadgeText: ""
+    property color headerBadgeColor: accentColor
     default property alias content: contentColumn.data
 
     color: "#171a20"
@@ -54,6 +56,13 @@ Rectangle {
                     font.pixelSize: 12
                     elide: Text.ElideRight
                 }
+            }
+
+            StatusPill {
+                visible: root.headerBadgeText.length > 0
+                text: root.headerBadgeText
+                accentColor: root.headerBadgeColor
+                Layout.alignment: Qt.AlignTop
             }
         }
 

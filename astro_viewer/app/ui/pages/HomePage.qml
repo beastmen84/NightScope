@@ -331,6 +331,8 @@ Item {
                         title: "Qualita osservativa"
                         subtitle: controller.observingQuality.explanation
                         accentColor: theme.scoreColor(controller.observingQuality.score)
+                        headerBadgeText: controller.observingQuality.score
+                        headerBadgeColor: theme.scoreColor(controller.observingQuality.score)
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -343,28 +345,28 @@ Item {
                                 font.weight: Font.DemiBold
                             }
 
-                            StatusPill {
-                                text: controller.observingQuality.score
-                                accentColor: theme.scoreColor(controller.observingQuality.score)
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 4
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: root.observingLimitFactor()
+                                    color: theme.textMuted
+                                    font.pixelSize: 12
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
+                                }
                             }
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
-                            color: theme.textSecondary
-                            font.pixelSize: 12
-                            wrapMode: Text.WordWrap
-                            maximumLineCount: 2
-                            elide: Text.ElideRight
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.observingLimitFactor()
-                            color: theme.textMuted
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
                         }
                     }
 
@@ -372,7 +374,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 180
                         title: "Luna"
-                        subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
+                        subtitle: controller.moonSummary.best_note
                         accentColor: theme.amber
 
                         RowLayout {
@@ -386,25 +388,25 @@ Item {
                                 fillMode: Image.PreserveAspectFit
                             }
 
-                            ColumnLayout {
+                            Text {
                                 Layout.fillWidth: true
-                                spacing: 6
+                                text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                elide: Text.ElideRight
+                            }
+
+                            ColumnLayout {
+                                Layout.preferredWidth: 150
+                                spacing: 4
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.moonSummary.best_note
+                                    text: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
                                     color: theme.textSecondary
                                     font.pixelSize: 12
-                                    wrapMode: Text.WordWrap
-                                    maximumLineCount: 3
+                                    horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
                                 }
 
                                 Text {
@@ -412,6 +414,7 @@ Item {
                                     text: root.moonImpactHint()
                                     color: theme.textMuted
                                     font.pixelSize: 12
+                                    horizontalAlignment: Text.AlignRight
                                     elide: Text.ElideRight
                                 }
                             }
@@ -431,6 +434,8 @@ Item {
                         title: "Punteggio planetario"
                         subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
                         accentColor: theme.teal
+                        headerBadgeText: controller.advancedScores.planetaryLabel
+                        headerBadgeColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -445,18 +450,14 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            StatusPill {
-                                text: controller.advancedScores.planetaryLabel
-                                accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.planetaryHint()
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                horizontalAlignment: Text.AlignRight
+                                elide: Text.ElideRight
                             }
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.planetaryHint()
-                            color: theme.textMuted
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
                         }
                     }
 
@@ -466,6 +467,8 @@ Item {
                         title: "Punteggio cielo profondo"
                         subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
                         accentColor: theme.violet
+                        headerBadgeText: controller.advancedScores.deepSkyLabel
+                        headerBadgeColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -480,18 +483,14 @@ Item {
                                 elide: Text.ElideRight
                             }
 
-                            StatusPill {
-                                text: controller.advancedScores.deepSkyLabel
-                                accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.deepSkyHint()
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                horizontalAlignment: Text.AlignRight
+                                elide: Text.ElideRight
                             }
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.deepSkyHint()
-                            color: theme.textMuted
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
                         }
                     }
                 }
