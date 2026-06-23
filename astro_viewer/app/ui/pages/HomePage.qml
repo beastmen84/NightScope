@@ -178,6 +178,55 @@ Item {
         return result
     }
 
+    function observingLimitFactor() {
+        var rain = Number(controller.weatherDigest.rainProbability || 0)
+        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
+        var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
+        if (rain >= 45)
+            return "Fattore limitante: rischio precipitazioni"
+        if (cloud >= 65)
+            return "Fattore limitante: nuvolosita elevata"
+        if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
+            return "Fattore limitante: seeing scarso"
+        if (controller.weatherDigest.windLabel === "forte")
+            return "Fattore limitante: vento forte"
+        return "Fattore limitante: condizioni bilanciate"
+    }
+
+    function planetaryHint() {
+        var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
+        if (seeing.indexOf("excellent") >= 0 || seeing.indexOf("eccell") >= 0)
+            return "Seeing eccellente"
+        if (seeing.indexOf("good") >= 0 || seeing.indexOf("buon") >= 0)
+            return "Seeing buono"
+        if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
+            return "Seeing scarso"
+        if ((controller.visiblePlanets || []).length > 0)
+            return "Migliori target: " + controller.visiblePlanets.slice(0, 2).map(function(item) { return item.name }).join(" • ")
+        return "Seeing discreto"
+    }
+
+    function deepSkyHint() {
+        var bortle = Number(controller.skyQuality.bortleClass || 0)
+        if (bortle >= 8)
+            return "Evitare: oggetti deboli e diffusi"
+        if (bortle >= 6)
+            return "Consigliati: ammassi aperti e globulari"
+        if (bortle >= 4)
+            return "Consigliati: galassie brillanti"
+        return "Ottime condizioni per nebulose brillanti"
+    }
+
+    function moonImpactHint() {
+        var illuminationText = controller.moonSummary.illumination || "0%"
+        var illumination = Number(illuminationText.toString().replace("%", "").trim())
+        if (illumination >= 70)
+            return "Impatto deep sky: elevato"
+        if (illumination >= 35)
+            return "Impatto deep sky: medio"
+        return "Impatto deep sky: basso"
+    }
+
     AppTheme {
         id: theme
     }
@@ -309,6 +358,14 @@ Item {
                             maximumLineCount: 2
                             elide: Text.ElideRight
                         }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.observingLimitFactor()
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
                     }
 
                     GlassCard {
@@ -349,6 +406,14 @@ Item {
                                     wrapMode: Text.WordWrap
                                     maximumLineCount: 3
                                 }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: root.moonImpactHint()
+                                    color: theme.textMuted
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }
@@ -385,6 +450,14 @@ Item {
                                 accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
                             }
                         }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.planetaryHint()
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
                     }
 
                     GlassCard {
@@ -411,6 +484,14 @@ Item {
                                 text: controller.advancedScores.deepSkyLabel
                                 accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
                             }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.deepSkyHint()
+                            color: theme.textMuted
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
                         }
                     }
                 }
