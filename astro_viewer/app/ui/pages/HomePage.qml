@@ -263,7 +263,7 @@ Item {
 
             RowLayout {
                 id: topOverview
-                property real usableWidth: Math.max(0, scroll.availableWidth - 56 - spacing)
+                property real usableWidth: Math.max(0, scroll.availableWidth - 56 - (spacing * 2))
 
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -271,8 +271,8 @@ Item {
                 spacing: 14
 
                 ColumnLayout {
-                    Layout.preferredWidth: topOverview.usableWidth * 0.66
-                    Layout.maximumWidth: topOverview.usableWidth * 0.66
+                    Layout.preferredWidth: topOverview.usableWidth / 3
+                    Layout.maximumWidth: topOverview.usableWidth / 3
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
@@ -355,8 +355,8 @@ Item {
                 }
 
                 ColumnLayout {
-                    Layout.preferredWidth: topOverview.usableWidth * 0.34
-                    Layout.maximumWidth: topOverview.usableWidth * 0.34
+                    Layout.preferredWidth: topOverview.usableWidth / 3
+                    Layout.maximumWidth: topOverview.usableWidth / 3
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
@@ -410,6 +410,69 @@ Item {
                             StatusPill {
                                 text: controller.advancedScores.deepSkyLabel
                                 accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.preferredWidth: topOverview.usableWidth / 3
+                    Layout.maximumWidth: topOverview.usableWidth / 3
+                    Layout.preferredHeight: 374
+                    Layout.alignment: Qt.AlignTop
+                    title: "Meteo osservativo"
+                    subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
+                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 3
+                        columnSpacing: 8
+                        rowSpacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Vento\n" + controller.weatherDigest.windLabel
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+                    }
+
+                    Repeater {
+                        model: controller.weatherDigest.bestHours.slice(0, 5)
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            StatusPill {
+                                text: modelData.time
+                                accentColor: theme.scoreColor(controller.weatherSummary.score)
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                elide: Text.ElideRight
                             }
                         }
                     }
@@ -522,7 +585,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 286
-                    Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
+                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
                     title: "Piano osservativo"
                     subtitle: "Sequenza ordinata per utilita e finestra notturna"
@@ -551,72 +614,6 @@ Item {
                             scoreText: modelData.score + "/100"
                             onOpenRequested: function(objectId) {
                                 root.openObject(objectId)
-                            }
-                        }
-                    }
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                    spacing: 14
-
-                    GlassCard {
-                        Layout.fillWidth: true
-                        title: "Meteo osservativo"
-                        subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
-                        accentColor: theme.scoreColor(controller.weatherSummary.score)
-
-                        GridLayout {
-                            Layout.fillWidth: true
-                            columns: 3
-                            columnSpacing: 8
-                            rowSpacing: 8
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Vento\n" + controller.weatherDigest.windLabel
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-                        }
-
-                        Repeater {
-                            model: controller.weatherDigest.bestHours.slice(0, 3)
-
-                            delegate: RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-
-                                StatusPill {
-                                    text: modelData.time
-                                    accentColor: theme.scoreColor(controller.weatherSummary.score)
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
                             }
                         }
                     }
