@@ -830,7 +830,7 @@ Item {
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
                     title: "Piano osservativo"
-                    subtitle: "Sequenza ordinata per utilita e finestra notturna"
+                    subtitle: "Sequenza consigliata: cosa osservare e quando"
                     accentColor: theme.green
 
                     Text {
@@ -842,20 +842,27 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    Repeater {
-                        model: controller.nightPlan.slice(0, 4)
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 1180 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 4
 
-                        delegate: ObjectRow {
-                            itemData: modelData
-                            assetBaseUrl: controller.assetBaseUrl
-                            typeText: "Piano osservativo"
-                            difficultyText: "Difficolta: " + modelData.difficulty
-                            visibilityText: modelData.timeLabel + "  -  " + modelData.direction
-                            recommendedSetup: root.planSetup(modelData)
-                            reasonText: root.planReason(modelData)
-                            scoreText: modelData.score + "/100"
-                            onOpenRequested: function(objectId) {
-                                root.openObject(objectId)
+                        Repeater {
+                            model: controller.nightPlan.slice(0, 4)
+
+                            delegate: ObjectRow {
+                                itemData: modelData
+                                assetBaseUrl: controller.assetBaseUrl
+                                typeText: "Tappa consigliata"
+                                difficultyText: "Difficolta: " + modelData.difficulty
+                                visibilityText: modelData.timeLabel + "  -  " + modelData.direction
+                                recommendedSetup: root.planSetup(modelData)
+                                reasonText: root.planReason(modelData)
+                                scoreText: modelData.score + "/100"
+                                onOpenRequested: function(objectId) {
+                                    root.openObject(objectId)
+                                }
                             }
                         }
                     }
