@@ -19,6 +19,7 @@ from astro_viewer.app.services.location_service import (
     LocationService,
     LocationUnavailableError,
     WINDOWS_LOCATION_UNAVAILABLE_MESSAGE,
+    _hidden_subprocess_kwargs,
     _windows_diagnostics_script,
     _windows_geolocation_script,
 )
@@ -57,6 +58,31 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(result.provider, "windows_precise")
         self.assertEqual(result.location.latitude, 41.9028)
         self.assertEqual(result.location.longitude, 12.4964)
+
+    def test_windows_location_subprocess_is_hidden_when_supported(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=["powershell"],
+            returncode=0,
+            stdout='{"ok":true,"access_status":"Allowed","latitude":41.9028,"longitude":12.4964,"timezone":"W. Europe Standard Time","accuracy":20}',
+            stderr="",
+        )
+
+        with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed) as run:
+            self.service.detect_windows_location()
+
+        kwargs = run.call_args.kwargs
+        if hasattr(subprocess, "CREATE_NO_WINDOW"):
+            self.assertEqual(kwargs["creationflags"], subprocess.CREATE_NO_WINDOW)
+        if hasattr(subprocess, "STARTUPINFO"):
+            self.assertEqual(kwargs["startupinfo"].wShowWindow, 0)
+
+    def test_hidden_subprocess_kwargs_are_platform_safe(self) -> None:
+        kwargs = _hidden_subprocess_kwargs()
+
+        if hasattr(subprocess, "CREATE_NO_WINDOW"):
+            self.assertEqual(kwargs["creationflags"], subprocess.CREATE_NO_WINDOW)
+        else:
+            self.assertNotIn("creationflags", kwargs)
 
     def test_windows_coordinates_near_addis_resolve_to_local_city_timezone(self) -> None:
         with _temp_city_repository() as repository:

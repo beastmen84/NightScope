@@ -121,6 +121,7 @@ class WindowsLocationProvider:
                 text=True,
                 timeout=18,
                 check=False,
+                **_hidden_subprocess_kwargs(),
             )
         except subprocess.TimeoutExpired as exc:
             _log_windows_failure("timeout", "PowerShell location request timed out.")
@@ -615,6 +616,7 @@ def _run_windows_location_diagnostics() -> dict:
             text=True,
             timeout=25,
             check=False,
+            **_hidden_subprocess_kwargs(),
         )
     except subprocess.TimeoutExpired as exc:
         report = {
@@ -1024,6 +1026,7 @@ def system_timezone() -> str:
             text=True,
             timeout=3,
             check=False,
+            **_hidden_subprocess_kwargs(),
         )
         windows_timezone = result.stdout.strip()
         if windows_timezone in WINDOWS_TO_IANA_TIMEZONES:
@@ -1035,3 +1038,15 @@ def system_timezone() -> str:
     if isinstance(local_tz, ZoneInfo):
         return local_tz.key
     return "UTC"
+
+
+def _hidden_subprocess_kwargs() -> dict:
+    kwargs = {}
+    if hasattr(subprocess, "STARTUPINFO") and hasattr(subprocess, "STARTF_USESHOWWINDOW"):
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = 0
+        kwargs["startupinfo"] = startupinfo
+    if hasattr(subprocess, "CREATE_NO_WINDOW"):
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+    return kwargs
