@@ -196,20 +196,6 @@ Item {
         return result
     }
 
-    function smartNotifications(limit) {
-        var notifications = controller.notifications || []
-        var result = []
-        var seen = {}
-        for (var i = 0; i < notifications.length && result.length < limit; i++) {
-            var key = (notifications[i].title || "").toLowerCase()
-            if (seen[key])
-                continue
-            seen[key] = true
-            result.push(notifications[i])
-        }
-        return result
-    }
-
     function observingLimitFactor() {
         var rain = Number(controller.weatherDigest.rainProbability || 0)
         var cloud = Number(controller.weatherDigest.cloudAverage || 0)
@@ -939,7 +925,7 @@ Item {
 
                             delegate: Rectangle {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 118
+                                Layout.preferredHeight: 136
                                 radius: 8
                                 color: "#151a20"
                                 border.color: "#29313b"
@@ -948,28 +934,49 @@ Item {
                                 ColumnLayout {
                                     anchors.fill: parent
                                     anchors.margins: 12
-                                    spacing: 6
+                                    spacing: 8
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.direction
+                                            color: theme.cyan
+                                            font.pixelSize: 15
+                                            font.weight: Font.DemiBold
+                                            elide: Text.ElideRight
+                                        }
+
+                                        StatusPill {
+                                            text: modelData.targets.length + " target"
+                                            accentColor: theme.cyan
+                                        }
+                                    }
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: modelData.direction
-                                        color: theme.cyan
-                                        font.pixelSize: 15
-                                        font.weight: Font.DemiBold
-                                        horizontalAlignment: Text.AlignHCenter
+                                        text: modelData.targets.length > 0 ? modelData.targets[0].name : "Nessun target prioritario"
+                                        color: modelData.targets.length > 0 ? theme.textPrimary : theme.textMuted
+                                        font.pixelSize: 14
+                                        font.weight: modelData.targets.length > 0 ? Font.DemiBold : Font.Normal
                                         elide: Text.ElideRight
+                                    }
+
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 1
+                                        color: "#29313b"
                                     }
 
                                     Text {
                                         Layout.fillWidth: true
                                         Layout.fillHeight: true
-                                        text: modelData.targets.length > 0 ? modelData.targets.slice(0, 4).map(function(item) { return item.name }).join("\n") : "Nessun target"
-                                        color: modelData.targets.length > 0 ? theme.textSecondary : theme.textMuted
+                                        text: modelData.targets.length > 1 ? modelData.targets.slice(1, 5).map(function(item) { return item.name }).join("  -  ") : "Altri target non prioritari"
+                                        color: theme.textSecondary
                                         font.pixelSize: 12
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
                                         wrapMode: Text.WordWrap
-                                        maximumLineCount: 4
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
                                 }
@@ -990,7 +997,7 @@ Item {
                         accentColor: theme.amber
 
                         Repeater {
-                            model: root.chronologicalEvents(3)
+                            model: root.chronologicalEvents(4)
 
                             delegate: RowLayout {
                                 Layout.fillWidth: true
@@ -1021,45 +1028,6 @@ Item {
                                         font.pixelSize: 12
                                         elide: Text.ElideRight
                                     }
-                                }
-                            }
-                        }
-                    }
-
-                    GlassCard {
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        title: "Notifiche intelligenti"
-                        subtitle: "Promemoria operativi per la notte"
-                        accentColor: theme.coral
-
-                        Text {
-                            Layout.fillWidth: true
-                            visible: root.smartNotifications(3).length === 0
-                            text: "Nessun promemoria operativo per le condizioni correnti."
-                            color: theme.textSecondary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-
-                        Repeater {
-                            model: root.smartNotifications(3)
-
-                            delegate: RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 12
-
-                                StatusPill {
-                                    text: modelData.triggerTime
-                                    accentColor: theme.coral
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.title + "  -  " + modelData.message
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
                                 }
                             }
                         }
