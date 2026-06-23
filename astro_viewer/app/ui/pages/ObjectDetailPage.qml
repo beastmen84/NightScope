@@ -109,14 +109,6 @@ Item {
                             font.pixelSize: 30
                             font.weight: Font.DemiBold
                         }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: objectData.observingStatusDetail
-                            color: theme.textSecondary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
                     }
                 }
 

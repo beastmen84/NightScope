@@ -439,12 +439,25 @@ Item {
                                     }
                                 }
 
-                                Text {
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
-                                    color: theme.textPrimary
-                                    font.pixelSize: 13
-                                    elide: Text.ElideRight
+                                    spacing: 3
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: "Sorge " + controller.moonSummary.rise_time
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: "Tramonta " + controller.moonSummary.set_time
+                                        color: theme.textSecondary
+                                        font.pixelSize: 12
+                                        elide: Text.ElideRight
+                                    }
                                 }
 
                                 ColumnLayout {
