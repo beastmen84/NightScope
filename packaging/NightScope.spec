@@ -31,10 +31,15 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=["tzdata", "keyring.backends.Windows"],
-    hookspath=[],
+    hookspath=[str(ROOT / "packaging" / "pyinstaller_hooks")],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        "astropy.visualization",
+        "astropy.visualization.wcsaxes",
+        "matplotlib",
+        "pytest",
+    ],
     noarchive=False,
     optimize=0,
 )
