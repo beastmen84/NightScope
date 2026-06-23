@@ -75,6 +75,7 @@ Item {
 
                 ColumnLayout {
                     Layout.preferredWidth: 420
+                    Layout.fillHeight: true
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
@@ -98,6 +99,8 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: 118
                         title: "Finestra osservativa"
                         subtitle: objectData.time_above_horizon + " sopra l'orizzonte"
                         accentColor: theme.teal
@@ -166,6 +169,26 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
                     }
+                }
+            }
+
+            GlassCard {
+                visible: root.hasObject
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Descrizione"
+                subtitle: objectData.bestSeen && objectData.bestSeen.length > 0 ? "Periodo migliore: " + objectData.bestSeen : objectData.type
+                accentColor: theme.cyan
+
+                Text {
+                    Layout.fillWidth: true
+                    text: objectData.descriptionText
+                    color: theme.textPrimary
+                    font.pixelSize: 15
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 3
+                    elide: Text.ElideRight
                 }
             }
 

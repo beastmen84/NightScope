@@ -448,14 +448,16 @@ Item {
                                         text: "Sorge " + controller.moonSummary.rise_time
                                         color: theme.textPrimary
                                         font.pixelSize: 13
+                                        font.weight: Font.DemiBold
                                         elide: Text.ElideRight
                                     }
 
                                     Text {
                                         Layout.fillWidth: true
                                         text: "Tramonta " + controller.moonSummary.set_time
-                                        color: theme.textSecondary
-                                        font.pixelSize: 12
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
                                         elide: Text.ElideRight
                                     }
                                 }

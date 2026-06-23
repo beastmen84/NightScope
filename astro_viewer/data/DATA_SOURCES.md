@@ -41,4 +41,4 @@ If Earthdata is not configured, the network is unavailable, NASA does not expose
 
 `object_images_seed.csv` uses local NightScope-generated SVG assets or local placeholders unless a source URL and license are explicitly provided. This avoids shipping unverified image assets.
 
-`object_descriptions_seed.csv` contains concise observing notes for the Moon, planets, and the first 31 Messier entries. Remaining Messier objects still use the base Messier catalog text until richer content is imported.
+`object_descriptions_seed.csv` contains concise, UI-length descriptions and observing notes for the Moon, planets, and all 110 Messier entries. Messier rows are kept deliberately similar in length to avoid detail-page layout imbalance. The packaged descriptions are derived from the local Messier catalog attributes and checked against NASA's Hubble Messier Catalog overview (`https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/`) as a reference for amateur-observer relevance.

@@ -1730,12 +1730,15 @@ class AppController(QObject):
 
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
+        description = self._object_descriptions.get(item.id) or {}
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
         status, detail = self._observing_status(item)
         data["observingStatus"] = status
         data["observingStatusDetail"] = detail
         data["observingReasons"] = self._observing_reasons(item)
+        data["descriptionText"] = description.get("short_description", "").strip() or item.notes
+        data["bestSeen"] = description.get("best_seen", "").strip()
         return data
 
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
