@@ -686,7 +686,7 @@ Item {
 
                                         Text {
                                             Layout.fillWidth: true
-                                            text: modelData.windKmh
+                                            text: modelData.windKmh + " km/h"
                                             color: theme.textSecondary
                                             font.pixelSize: 11
                                             horizontalAlignment: Text.AlignHCenter
