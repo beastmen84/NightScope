@@ -69,15 +69,11 @@ Item {
 
                 DarkButton {
                     Layout.preferredWidth: 118
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     text: controller.weatherRefreshRunning ? "Aggiorno..." : "Aggiorna"
                     enabled: controller.hasValidLocation && !controller.weatherRefreshRunning && !controller.startupLocationDetectionRunning
                     accentColor: theme.cyan
                     onClicked: controller.refreshWeatherNow()
-                }
-
-                StatusPill {
-                    text: controller.weatherSummary.score
-                    accentColor: theme.scoreColor(controller.weatherSummary.score)
                 }
             }
 

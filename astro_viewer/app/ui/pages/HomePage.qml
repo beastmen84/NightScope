@@ -311,10 +311,6 @@ Item {
                     }
                 }
 
-                StatusPill {
-                    text: controller.observingQuality.score
-                    accentColor: theme.scoreColor(controller.observingQuality.score)
-                }
             }
 
             Rectangle {

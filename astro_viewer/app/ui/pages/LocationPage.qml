@@ -66,10 +66,6 @@ Item {
                     }
                 }
 
-                StatusPill {
-                    text: controller.location.city
-                    accentColor: theme.teal
-                }
             }
 
             GridLayout {
