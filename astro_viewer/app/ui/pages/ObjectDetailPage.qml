@@ -126,8 +126,8 @@ Item {
 
                     StatusPill {
                         text: objectData.observingStatus
-                        accentColor: objectData.observingStatus === "Visible now" ? theme.green
-                                     : objectData.observingStatus === "Below horizon" ? theme.coral
+                        accentColor: objectData.observingStatus === "Osservabile ora" ? theme.green
+                                     : objectData.observingStatus === "Non osservabile" ? theme.coral
                                      : theme.amber
                     }
 

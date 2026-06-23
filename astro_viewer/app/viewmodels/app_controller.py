@@ -1873,18 +1873,22 @@ class AppController(QObject):
         current_altitude = self._parse_degrees(item.current_altitude)
         useful_time = self._first_useful_time(item.best_time) or self._first_useful_time(item.observing_window)
         window = self._home_window_label(item)
+        now = datetime.now(self._zone())
+        is_observing_time = self._is_home_observing_time(now.hour, now.minute)
         if current_altitude is not None and current_altitude >= 10:
-            return "Visible now", f"Attualmente a {current_altitude:.0f} gradi. Finestra migliore: {window}."
+            if is_observing_time:
+                return "Osservabile ora", f"Attualmente a {current_altitude:.0f} gradi. Finestra migliore: {window}."
+            return "Sopra l'orizzonte", f"Attualmente a {current_altitude:.0f} gradi, ma fuori dalla fascia osservativa. Finestra migliore: {window}."
         if useful_time:
             label = self._format_home_time(*useful_time)
             if useful_time[0] <= 5:
-                return "Best before dawn", f"Attualmente sotto orizzonte o basso. Migliore prima dell'alba: {window}."
+                return "Meglio prima dell'alba", f"Attualmente sotto orizzonte o basso. Migliore prima dell'alba: {window}."
             if useful_time[0] >= 20:
-                return "Visible later tonight", f"Non prioritario ora. Migliore piu tardi: {window}."
-            return "Best after sunset", f"Finestra utile dopo il tramonto: {label}."
+                return "Meglio piu tardi", f"Non prioritario ora. Migliore piu tardi: {window}."
+            return "Dopo il tramonto", f"Finestra utile dopo il tramonto: {label}."
         if item.visible:
-            return "Visible later tonight", f"Finestra osservativa: {item.observing_window}."
-        return "Below horizon", "Nessuna finestra notturna utile per questa posizione."
+            return "Finestra utile", f"Finestra osservativa: {item.observing_window}."
+        return "Non osservabile", "Nessuna finestra notturna utile per questa posizione."
 
     def _observing_reasons(self, item: CelestialObject) -> list[str]:
         reasons = []
