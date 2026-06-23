@@ -7,6 +7,7 @@ ROOT = Path(SPECPATH).parent
 APP_DIR = ROOT / "astro_viewer"
 
 datas = [
+    (str(ROOT / "manuale.html"), "."),
     (str(APP_DIR / "app" / "ui"), "astro_viewer/app/ui"),
     (str(APP_DIR / "resources"), "astro_viewer/resources"),
     (str(APP_DIR / "data" / "schema.sql"), "astro_viewer/data"),
@@ -29,7 +30,7 @@ a = Analysis(
     pathex=[str(ROOT)],
     binaries=[],
     datas=datas,
-    hiddenimports=["tzdata"],
+    hiddenimports=["tzdata", "keyring.backends.Windows"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
