@@ -261,24 +261,24 @@ Item {
                 }
             }
 
-            GridLayout {
+            RowLayout {
                 id: topOverview
+                property real usableWidth: Math.max(0, scroll.availableWidth - 56 - spacing)
+
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 980 ? 3 : 1
-                columnSpacing: 14
-                rowSpacing: 14
+                spacing: 14
 
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: topOverview.columns > 1 ? 2 : 1
+                    Layout.preferredWidth: topOverview.usableWidth * 0.66
+                    Layout.maximumWidth: topOverview.usableWidth * 0.66
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.minimumHeight: 164
+                        Layout.preferredHeight: 180
                         title: "Qualita osservativa"
                         subtitle: controller.observingQuality.explanation
                         accentColor: theme.scoreColor(controller.observingQuality.score)
@@ -313,7 +313,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.minimumHeight: 164
+                        Layout.preferredHeight: 180
                         title: "Luna"
                         subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
                         accentColor: theme.amber
@@ -355,14 +355,14 @@ Item {
                 }
 
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: 1
+                    Layout.preferredWidth: topOverview.usableWidth * 0.34
+                    Layout.maximumWidth: topOverview.usableWidth * 0.34
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.minimumHeight: 164
+                        Layout.preferredHeight: 180
                         title: "Punteggio planetario"
                         subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
                         accentColor: theme.teal
@@ -389,7 +389,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.minimumHeight: 164
+                        Layout.preferredHeight: 180
                         title: "Punteggio cielo profondo"
                         subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
                         accentColor: theme.violet
