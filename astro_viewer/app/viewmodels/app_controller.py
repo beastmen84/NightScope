@@ -299,7 +299,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def recommendedDeepSky(self) -> list[dict]:
-        return [self._object_to_qml(deep_sky) for deep_sky in self._home_visible_objects(self._deep_sky)]
+        return [self._object_to_qml(deep_sky) for deep_sky in self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))]
 
     @Property("QVariant", notify=dataChanged)
     def moonSummary(self) -> dict:
@@ -387,11 +387,11 @@ class AppController(QObject):
     def selectedObject(self) -> dict:
         if not self._selected_object:
             return {}
-        return self._object_to_qml(self._selected_object)
+        return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
-        objects = self._home_visible_objects(self._visible_planets)[:2] + self._home_visible_objects(self._deep_sky)[:2]
+        objects = self._home_visible_objects(self._visible_planets)[:2] + self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))[:2]
         return [
             {
                 "name": item.name,
@@ -1312,6 +1312,7 @@ class AppController(QObject):
             self._advanced_scores,
             self._sky_quality,
             self._current_telescope(),
+            self._moon,
         )
         self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
         self._notifications = self._notification_service.notifications(
@@ -1415,6 +1416,7 @@ class AppController(QObject):
                 self._advanced_scores,
                 self._sky_quality,
                 self._current_telescope(),
+                self._moon,
             )
             self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
             self._notifications = self._notification_service.notifications(
@@ -1727,6 +1729,15 @@ class AppController(QObject):
     @staticmethod
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
         return [item for item in objects if AppController._first_useful_time(item.best_time) or AppController._first_useful_time(item.observing_window)]
+
+    def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
+        return sorted((self._moon_adjusted_object(item) for item in objects), key=lambda item: item.score, reverse=True)
+
+    def _moon_adjusted_object(self, item: CelestialObject) -> CelestialObject:
+        score = NightPlannerService.moon_adjusted_score(item, self._moon)
+        if score == item.score:
+            return item
+        return replace(item, score=score, score_label=self._score_service.score_label(score))
 
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()

@@ -8,7 +8,7 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Telescope
-from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
@@ -75,6 +75,78 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertEqual(len(plan), 1)
         self.assertEqual(plan[0].name, "Saturno")
         self.assertGreaterEqual(plan[0].score, 70)
+
+    def test_moon_penalty_is_object_dependent_for_deep_sky(self) -> None:
+        new_moon = MoonSummary("Nuova", "0%", "", "", "", "")
+        bright_moon = MoonSummary("Luna luminosa", "80%", "", "", "", "")
+        full_moon = MoonSummary("Piena", "100%", "", "", "", "")
+        open_cluster = _deep_sky_target("messier-11", "M11", "Open cluster")
+        globular = _deep_sky_target("messier-13", "M13", "Globular cluster")
+        galaxy = _deep_sky_target("messier-31", "M31", "Spiral galaxy")
+        diffuse_nebula = _deep_sky_target("messier-78", "M78", "Diffuse nebula")
+
+        self.assertEqual(NightPlannerService.moon_adjusted_score(galaxy, new_moon), 80)
+        self.assertEqual(NightPlannerService.moon_adjusted_score(open_cluster, full_moon), 70)
+        self.assertEqual(NightPlannerService.moon_adjusted_score(globular, full_moon), 62)
+        self.assertEqual(NightPlannerService.moon_adjusted_score(galaxy, full_moon), 42)
+        self.assertEqual(NightPlannerService.moon_adjusted_score(diffuse_nebula, full_moon), 38)
+
+        self.assertGreater(
+            NightPlannerService.moon_adjusted_score(open_cluster, bright_moon),
+            NightPlannerService.moon_adjusted_score(globular, bright_moon),
+        )
+        self.assertGreater(
+            NightPlannerService.moon_adjusted_score(globular, bright_moon),
+            NightPlannerService.moon_adjusted_score(galaxy, bright_moon),
+        )
+
+    def test_moon_penalty_does_not_affect_planets(self) -> None:
+        full_moon = MoonSummary("Piena", "100%", "", "", "", "")
+        saturn = _deep_sky_target("saturn", "Saturno", "Pianeta")
+
+        self.assertEqual(NightPlannerService.moon_penalty(saturn, full_moon), 0)
+        self.assertEqual(NightPlannerService.moon_adjusted_score(saturn, full_moon), 80)
+
+    def test_night_planner_reorders_deep_sky_under_bright_moon(self) -> None:
+        objects = [
+            _deep_sky_target("messier-31", "M31", "Spiral galaxy"),
+            _deep_sky_target("messier-13", "M13", "Globular cluster"),
+            _deep_sky_target("messier-11", "M11", "Open cluster"),
+        ]
+        weather = WeatherSummary("Ottima", 88, "Poche nuvole.", 10, 0, 8, 55, 18.0, "")
+        scores = AdvancedObservingScores(92, 70, "Ottima", "Buona", "")
+        sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
+        telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
+
+        new_moon_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, MoonSummary("Nuova", "0%", "", "", "", ""))
+        full_moon_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, MoonSummary("Piena", "100%", "", "", "", ""))
+
+        self.assertEqual(new_moon_plan[0].name, "M31")
+        self.assertEqual(full_moon_plan[0].name, "M11")
+        self.assertLess([item.name for item in full_moon_plan].index("M13"), [item.name for item in full_moon_plan].index("M31"))
+
+
+def _deep_sky_target(object_id: str, name: str, object_type: str) -> CelestialObject:
+    return CelestialObject(
+        id=object_id,
+        name=name,
+        object_type=object_type,
+        image="",
+        magnitude="6.0",
+        distance="",
+        max_altitude="55 gradi",
+        direction="Sud",
+        best_time="22:00",
+        observing_window="21:00 - 23:00",
+        notes="",
+        recommended_setup="",
+        visibility_class="",
+        azimuth="",
+        time_above_horizon="",
+        visible=True,
+        score=80,
+        difficulty="Facile",
+    )
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import math
 from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Telescope
-from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 
@@ -19,13 +19,14 @@ class NightPlannerService:
         scores: AdvancedObservingScores,
         sky_quality: SkyQuality,
         telescope: Telescope,
+        moon: MoonSummary | None = None,
     ) -> list[NightPlanItem]:
         visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
         if not visible:
             visible = [item for item in objects if item.visible and item.score > 0]
         ranked = sorted(
             visible,
-            key=lambda item: self._planner_score(item, weather, scores, sky_quality, telescope),
+            key=lambda item: self._planner_score(item, weather, scores, sky_quality, telescope, moon),
             reverse=True,
         )
         start = self._start_time(ranked)
@@ -35,7 +36,7 @@ class NightPlannerService:
             if item.name in used_names:
                 continue
             used_names.add(item.name)
-            score = round(self._planner_score(item, weather, scores, sky_quality, telescope))
+            score = round(self._planner_score(item, weather, scores, sky_quality, telescope, moon))
             time_label = self._time_for_item(item, start + timedelta(minutes=45 * len(items)))
             items.append(
                 NightPlanItem(
@@ -60,12 +61,72 @@ class NightPlannerService:
         scores: AdvancedObservingScores,
         sky_quality: SkyQuality,
         telescope: Telescope,
+        moon: MoonSummary | None = None,
     ) -> float:
         category_score = scores.planetary_score if item.object_type == "Pianeta" else scores.deep_sky_score
         aperture_bonus = min(14, telescope.aperture_mm / 18)
         pollution_penalty = NightPlannerService._pollution_penalty(item, sky_quality)
+        moon_penalty = NightPlannerService.moon_penalty(item, moon)
         difficulty_factor = {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
-        return (item.score * 0.48 + category_score * 0.34 + weather.score_value * 0.18 + aperture_bonus - pollution_penalty) * difficulty_factor
+        return (
+            item.score * 0.48
+            + category_score * 0.34
+            + weather.score_value * 0.18
+            + aperture_bonus
+            - pollution_penalty
+            - moon_penalty
+        ) * difficulty_factor
+
+    @staticmethod
+    def moon_adjusted_score(item: CelestialObject, moon: MoonSummary | None) -> int:
+        return max(0, min(100, round(item.score - NightPlannerService.moon_penalty(item, moon))))
+
+    @staticmethod
+    def moon_penalty(item: CelestialObject, moon: MoonSummary | None) -> float:
+        sensitivity = NightPlannerService._moon_sensitivity(item)
+        if sensitivity <= 0:
+            return 0.0
+        illumination = NightPlannerService._moon_illumination(moon)
+        illumination_factor = max(0.0, min(1.0, (illumination - 25.0) / 75.0))
+        return sensitivity * illumination_factor
+
+    @staticmethod
+    def _moon_illumination(moon: MoonSummary | None) -> float:
+        if moon is None:
+            return 0.0
+        try:
+            return float(moon.illumination.strip().replace("%", "").replace(",", "."))
+        except ValueError:
+            return 0.0
+
+    @staticmethod
+    def _moon_sensitivity(item: CelestialObject) -> float:
+        lower_type = item.object_type.lower()
+        if item.object_type == "Pianeta" or item.id in {
+            "sun",
+            "moon",
+            "mercury",
+            "venus",
+            "mars",
+            "jupiter",
+            "saturn",
+            "uranus",
+            "neptune",
+        }:
+            return 0.0
+        if "diffuse" in lower_type:
+            return 42.0
+        if "galaxy" in lower_type or "galassia" in lower_type:
+            return 38.0
+        if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
+            return 18.0
+        if "h ii" in lower_type or "emission" in lower_type or "supernova" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
+            return 26.0
+        if "globular" in lower_type or "ammasso globulare" in lower_type:
+            return 18.0
+        if "open" in lower_type or "cluster" in lower_type or "star cloud" in lower_type or "asterism" in lower_type:
+            return 10.0
+        return 14.0
 
     @staticmethod
     def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
