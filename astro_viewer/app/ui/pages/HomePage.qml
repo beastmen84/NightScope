@@ -227,6 +227,19 @@ Item {
         return "Impatto deep sky: basso"
     }
 
+    function weatherMetricColor(kind, value) {
+        if (kind === "cloud")
+            return value <= 30 ? theme.green : value <= 65 ? theme.amber : theme.red
+        if (kind === "rain")
+            return value <= 20 ? theme.green : value <= 50 ? theme.amber : theme.red
+        var wind = (value || "").toLowerCase()
+        if (wind.indexOf("forte") >= 0)
+            return theme.red
+        if (wind.indexOf("moder") >= 0)
+            return theme.amber
+        return theme.green
+    }
+
     AppTheme {
         id: theme
     }
@@ -327,7 +340,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 180
+                        Layout.preferredHeight: 160
                         title: "Qualita osservativa"
                         subtitle: controller.observingQuality.explanation
                         accentColor: theme.scoreColor(controller.observingQuality.score)
@@ -372,7 +385,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 180
+                        Layout.preferredHeight: 160
                         title: "Luna"
                         subtitle: controller.moonSummary.best_note
                         accentColor: theme.amber
@@ -430,7 +443,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 180
+                        Layout.preferredHeight: 160
                         title: "Punteggio planetario"
                         subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
                         accentColor: theme.teal
@@ -463,7 +476,7 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 180
+                        Layout.preferredHeight: 160
                         title: "Punteggio cielo profondo"
                         subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
                         accentColor: theme.violet
@@ -498,61 +511,210 @@ Item {
                 GlassCard {
                     Layout.preferredWidth: topOverview.usableWidth / 3
                     Layout.maximumWidth: topOverview.usableWidth / 3
-                    Layout.preferredHeight: 374
+                    Layout.preferredHeight: 334
                     Layout.alignment: Qt.AlignTop
                     title: "Meteo osservativo"
                     subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
                     accentColor: theme.scoreColor(controller.weatherSummary.score)
 
-                    GridLayout {
+                    RowLayout {
                         Layout.fillWidth: true
-                        columns: 3
-                        columnSpacing: 8
-                        rowSpacing: 8
+                        spacing: 8
 
-                        Text {
+                        Rectangle {
                             Layout.fillWidth: true
-                            text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
+                            Layout.preferredHeight: 54
+                            radius: 8
+                            color: Qt.rgba(root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).r, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).g, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).b, 0.14)
+                            border.color: Qt.rgba(root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).r, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).g, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).b, 0.5)
+                            border.width: 1
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 1
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Nuvole (Media)"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 10
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.weatherDigest.cloudAverage + "%"
+                                    color: root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage)
+                                    font.pixelSize: 15
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+                            }
                         }
 
-                        Text {
+                        Rectangle {
                             Layout.fillWidth: true
-                            text: "Vento\n" + controller.weatherDigest.windLabel
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
+                            Layout.preferredHeight: 54
+                            radius: 8
+                            color: Qt.rgba(root.weatherMetricColor("wind", controller.weatherDigest.windLabel).r, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).g, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).b, 0.14)
+                            border.color: Qt.rgba(root.weatherMetricColor("wind", controller.weatherDigest.windLabel).r, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).g, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).b, 0.5)
+                            border.width: 1
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 1
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Vento (Media)"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 10
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.weatherDigest.windLabel
+                                    color: root.weatherMetricColor("wind", controller.weatherDigest.windLabel)
+                                    font.pixelSize: 15
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+                            }
                         }
 
-                        Text {
+                        Rectangle {
                             Layout.fillWidth: true
-                            text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
-                            color: theme.textPrimary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
+                            Layout.preferredHeight: 54
+                            radius: 8
+                            color: Qt.rgba(root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).r, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).g, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).b, 0.14)
+                            border.color: Qt.rgba(root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).r, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).g, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).b, 0.5)
+                            border.width: 1
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 6
+                                spacing: 1
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Pioggia (Max)"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 10
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.weatherDigest.rainProbability + "%"
+                                    color: root.weatherMetricColor("rain", controller.weatherDigest.rainProbability)
+                                    font.pixelSize: 15
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+                            }
                         }
                     }
 
-                    Repeater {
-                        model: controller.weatherDigest.bestHours.slice(0, 5)
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: 5
+                        columnSpacing: 7
+                        rowSpacing: 0
 
-                        delegate: RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
+                        Repeater {
+                            model: controller.weatherDigest.bestHours.slice(0, 5)
 
-                            StatusPill {
-                                text: modelData.time
-                                accentColor: theme.scoreColor(controller.weatherSummary.score)
-                            }
-
-                            Text {
+                            delegate: Rectangle {
                                 Layout.fillWidth: true
-                                text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
+                                Layout.preferredHeight: 132
+                                radius: 8
+                                color: "#1c222b"
+                                border.color: "#303641"
+                                border.width: 1
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 6
+                                    spacing: 4
+
+                                    StatusPill {
+                                        Layout.alignment: Qt.AlignHCenter
+                                        text: modelData.time
+                                        accentColor: theme.scoreColor(controller.weatherSummary.score)
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+
+                                        Image {
+                                            Layout.preferredWidth: 14
+                                            Layout.preferredHeight: 14
+                                            source: controller.assetBaseUrl + "/resources/icons/cloud.svg"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.cloudCover + "%"
+                                            color: theme.textSecondary
+                                            font.pixelSize: 11
+                                            horizontalAlignment: Text.AlignHCenter
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+
+                                        Image {
+                                            Layout.preferredWidth: 14
+                                            Layout.preferredHeight: 14
+                                            source: controller.assetBaseUrl + "/resources/icons/wind.svg"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.windKmh
+                                            color: theme.textSecondary
+                                            font.pixelSize: 11
+                                            horizontalAlignment: Text.AlignHCenter
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+
+                                        Image {
+                                            Layout.preferredWidth: 14
+                                            Layout.preferredHeight: 14
+                                            source: controller.assetBaseUrl + "/resources/icons/rain.svg"
+                                            fillMode: Image.PreserveAspectFit
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.rainProbability + "%"
+                                            color: theme.textSecondary
+                                            font.pixelSize: 11
+                                            horizontalAlignment: Text.AlignHCenter
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
