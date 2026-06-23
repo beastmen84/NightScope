@@ -261,18 +261,17 @@ Item {
                 }
             }
 
-            GridLayout {
-                id: topGrid
+            RowLayout {
+                id: topOverview
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1420 ? 5 : root.width > 980 ? 3 : 1
-                columnSpacing: 14
-                rowSpacing: 14
+                spacing: 14
 
                 GlassCard {
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: 214
+                    Layout.preferredWidth: 360
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 248
                     title: "Qualita osservativa"
                     subtitle: controller.observingQuality.explanation
                     accentColor: theme.scoreColor(controller.observingQuality.score)
@@ -307,8 +306,8 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 214
-                    Layout.columnSpan: topGrid.columns >= 3 ? 2 : 1
+                    Layout.fillHeight: true
+                    Layout.minimumHeight: 248
                     title: "Miglior oggetto della notte"
                     subtitle: controller.bestObjectOfNight.observingStatusDetail
                     accentColor: theme.amber
@@ -325,11 +324,11 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         visible: !!controller.bestObjectOfNight.name
-                        spacing: 14
+                        spacing: 18
 
                         Image {
-                            Layout.preferredWidth: 104
-                            Layout.preferredHeight: 104
+                            Layout.preferredWidth: 132
+                            Layout.preferredHeight: 132
                             source: controller.assetBaseUrl + "/" + controller.bestObjectOfNight.image
                             fillMode: Image.PreserveAspectFit
                         }
@@ -342,7 +341,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: controller.bestObjectOfNight.name
                                 color: theme.textPrimary
-                                font.pixelSize: 30
+                                font.pixelSize: 34
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
@@ -365,7 +364,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: "Consigliato: " + root.recommendedSetup(controller.bestObjectOfNight)
                                 color: theme.textSecondary
-                                font.pixelSize: 12
+                                font.pixelSize: 13
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 2
                                 elide: Text.ElideRight
@@ -375,7 +374,7 @@ Item {
                                 Layout.fillWidth: true
                                 text: "Motivo: " + root.recommendationReason(controller.bestObjectOfNight)
                                 color: theme.textMuted
-                                font.pixelSize: 11
+                                font.pixelSize: 12
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 2
                                 elide: Text.ElideRight
@@ -384,45 +383,65 @@ Item {
                     }
                 }
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: 214
-                    title: "Punteggio planetario"
-                    subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
-                    accentColor: theme.teal
+                ColumnLayout {
+                    Layout.preferredWidth: 360
+                    Layout.fillHeight: true
+                    spacing: 14
 
-                    Text {
+                    GlassCard {
                         Layout.fillWidth: true
-                        text: controller.advancedScores.planetaryScore + "/100"
-                        color: theme.textPrimary
-                        font.pixelSize: 31
-                        font.weight: Font.DemiBold
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: 117
+                        title: "Punteggio planetario"
+                        subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
+                        accentColor: theme.teal
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: controller.advancedScores.planetaryScore + "/100"
+                                color: theme.textPrimary
+                                font.pixelSize: 28
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            StatusPill {
+                                text: controller.advancedScores.planetaryLabel
+                                accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
+                            }
+                        }
                     }
 
-                    StatusPill {
-                        text: controller.advancedScores.planetaryLabel
-                        accentColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.minimumHeight: 214
-                    title: "Punteggio cielo profondo"
-                    subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
-                    accentColor: theme.violet
-
-                    Text {
+                    GlassCard {
                         Layout.fillWidth: true
-                        text: controller.advancedScores.deepSkyScore + "/100"
-                        color: theme.textPrimary
-                        font.pixelSize: 31
-                        font.weight: Font.DemiBold
-                    }
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: 117
+                        title: "Punteggio cielo profondo"
+                        subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
+                        accentColor: theme.violet
 
-                    StatusPill {
-                        text: controller.advancedScores.deepSkyLabel
-                        accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: controller.advancedScores.deepSkyScore + "/100"
+                                color: theme.textPrimary
+                                font.pixelSize: 28
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            StatusPill {
+                                text: controller.advancedScores.deepSkyLabel
+                                accentColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                            }
+                        }
                     }
                 }
             }
@@ -450,6 +469,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 286
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
+                    Layout.alignment: Qt.AlignTop
                     title: "Piano osservativo"
                     subtitle: "Sequenza ordinata per utilita e finestra notturna"
                     accentColor: theme.green
@@ -482,43 +502,109 @@ Item {
                     }
                 }
 
-                GlassCard {
+                ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 286
-                    title: "Luna"
-                    subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
-                    accentColor: theme.amber
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 14
 
-                    RowLayout {
+                    GlassCard {
                         Layout.fillWidth: true
-                        spacing: 12
+                        Layout.minimumHeight: 160
+                        title: "Luna"
+                        subtitle: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
+                        accentColor: theme.amber
 
-                        Image {
-                            Layout.preferredWidth: 70
-                            Layout.preferredHeight: 70
-                            source: controller.assetBaseUrl + "/" + controller.moonSummary.image
-                            fillMode: Image.PreserveAspectFit
-                        }
-
-                        ColumnLayout {
+                        RowLayout {
                             Layout.fillWidth: true
-                            spacing: 6
+                            spacing: 12
+
+                            Image {
+                                Layout.preferredWidth: 70
+                                Layout.preferredHeight: 70
+                                source: controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                fillMode: Image.PreserveAspectFit
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.moonSummary.best_note
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 3
+                                }
+                            }
+                        }
+                    }
+
+                    GlassCard {
+                        Layout.fillWidth: true
+                        title: "Meteo osservativo"
+                        subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
+                        accentColor: theme.scoreColor(controller.weatherSummary.score)
+
+                        GridLayout {
+                            Layout.fillWidth: true
+                            columns: 3
+                            columnSpacing: 8
+                            rowSpacing: 8
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
+                                text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
                                 color: theme.textPrimary
                                 font.pixelSize: 13
-                                elide: Text.ElideRight
+                                wrapMode: Text.WordWrap
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: controller.moonSummary.best_note
-                                color: theme.textSecondary
-                                font.pixelSize: 12
+                                text: "Vento\n" + controller.weatherDigest.windLabel
+                                color: theme.textPrimary
+                                font.pixelSize: 13
                                 wrapMode: Text.WordWrap
-                                maximumLineCount: 3
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                wrapMode: Text.WordWrap
+                            }
+                        }
+
+                        Repeater {
+                            model: controller.weatherDigest.bestHours.slice(0, 3)
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                StatusPill {
+                                    text: modelData.time
+                                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }
@@ -588,6 +674,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
+                    Layout.alignment: Qt.AlignTop
                     title: "Oggetti cielo profondo consigliati"
                     subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Priorita per la notte corrente"
                     accentColor: theme.violet
@@ -622,67 +709,8 @@ Item {
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 432 : 0
+                    Layout.alignment: Qt.AlignTop
                     spacing: 14
-
-                    GlassCard {
-                        Layout.fillWidth: true
-                        title: "Meteo osservativo"
-                        subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
-                        accentColor: theme.scoreColor(controller.weatherSummary.score)
-
-                        GridLayout {
-                            Layout.fillWidth: true
-                            columns: 3
-                            columnSpacing: 8
-                            rowSpacing: 8
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Nuvolosita media\n" + controller.weatherDigest.cloudAverage + "%"
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Vento\n" + controller.weatherDigest.windLabel
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Pioggia max\n" + controller.weatherDigest.rainProbability + "%"
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                wrapMode: Text.WordWrap
-                            }
-                        }
-
-                        Repeater {
-                            model: controller.weatherDigest.bestHours
-
-                            delegate: RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-
-                                StatusPill {
-                                    text: modelData.time
-                                    accentColor: theme.scoreColor(controller.weatherSummary.score)
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Nuvole " + modelData.cloudCover + "%  -  Vento " + modelData.windKmh + " km/h  -  Pioggia " + modelData.rainProbability + "%"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-                    }
 
                     GlassCard {
                         Layout.fillWidth: true

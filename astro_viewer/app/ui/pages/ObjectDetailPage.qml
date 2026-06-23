@@ -70,28 +70,58 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                spacing: 22
+                spacing: 18
 
-                Rectangle {
-                    Layout.preferredWidth: 360
-                    Layout.preferredHeight: 320
-                    radius: 8
-                    color: "#111319"
-                    border.color: "#303641"
-                    border.width: 1
+                ColumnLayout {
+                    Layout.preferredWidth: 420
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 14
 
-                    Image {
-                        anchors.fill: parent
-                        anchors.margins: 32
-                        source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
-                        fillMode: Image.PreserveAspectFit
-                        sourceSize.width: 520
-                        sourceSize.height: 520
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 300
+                        radius: 8
+                        color: "#111319"
+                        border.color: "#303641"
+                        border.width: 1
+
+                        Image {
+                            anchors.fill: parent
+                            anchors.margins: 30
+                            source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
+                            fillMode: Image.PreserveAspectFit
+                            sourceSize.width: 520
+                            sourceSize.height: 520
+                        }
+                    }
+
+                    GlassCard {
+                        Layout.fillWidth: true
+                        title: "Finestra osservativa"
+                        subtitle: objectData.time_above_horizon + " sopra l'orizzonte"
+                        accentColor: theme.teal
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: objectData.homeWindowLabel
+                            color: theme.textPrimary
+                            font.pixelSize: 30
+                            font.weight: Font.DemiBold
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: objectData.observingStatusDetail
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     StatusPill {
@@ -143,94 +173,61 @@ Item {
                         MetricTile { label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
                         MetricTile { label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
                     }
-                }
-            }
 
-            GridLayout {
-                visible: root.hasObject
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                columns: root.width > 980 ? 2 : 1
-                columnSpacing: 16
-                rowSpacing: 16
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Finestra osservativa"
-                    subtitle: objectData.time_above_horizon + " sopra l'orizzonte"
-                    accentColor: theme.teal
-
-                    Text {
+                    GlassCard {
                         Layout.fillWidth: true
-                        text: objectData.homeWindowLabel
-                        color: theme.textPrimary
-                        font.pixelSize: 30
-                        font.weight: Font.DemiBold
-                    }
+                        title: "Setup consigliato"
+                        subtitle: "Suggerimento operativo"
+                        accentColor: theme.amber
 
-                    Text {
-                        Layout.fillWidth: true
-                        text: objectData.observingStatusDetail
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    title: "Setup consigliato"
-                    subtitle: "Suggerimento operativo"
-                    accentColor: theme.amber
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: objectData.recommended_setup
-                        color: theme.textPrimary
-                        font.pixelSize: 20
-                        font.weight: Font.DemiBold
-                        wrapMode: Text.WordWrap
-                    }
-
-                    Repeater {
-                        model: root.distinctSetupOptions(objectData.setupOptions)
-
-                        delegate: RowLayout {
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 10
+                            text: objectData.recommended_setup
+                            color: theme.textPrimary
+                            font.pixelSize: 20
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                        }
 
-                            StatusPill {
-                                text: modelData.role
-                                accentColor: modelData.role === "Consigliato" ? theme.amber
-                                             : modelData.role === "Campo largo" ? theme.teal
-                                             : theme.cyan
-                            }
+                        Repeater {
+                            model: root.distinctSetupOptions(objectData.setupOptions)
 
-                            Text {
+                            delegate: RowLayout {
                                 Layout.fillWidth: true
-                                text: modelData.detailLabel || modelData.label
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
+                                spacing: 10
 
-                            Text {
-                                text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
+                                StatusPill {
+                                    text: modelData.role
+                                    accentColor: modelData.role === "Consigliato" ? theme.amber
+                                                 : modelData.role === "Campo largo" ? theme.teal
+                                                 : theme.cyan
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.detailLabel || modelData.label
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
-                    }
 
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficolta: " + objectData.difficulty
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
             }
