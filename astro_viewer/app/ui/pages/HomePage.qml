@@ -408,46 +408,75 @@ Item {
                         subtitle: controller.moonSummary.best_note
                         accentColor: theme.amber
 
-                        RowLayout {
+                        Rectangle {
                             Layout.fillWidth: true
-                            spacing: 12
+                            Layout.preferredHeight: 82
+                            radius: 8
+                            color: moonMouse.containsMouse ? "#20242b" : "transparent"
+                            border.color: moonMouse.containsMouse ? "#303641" : "transparent"
+                            border.width: 1
 
-                            Image {
-                                Layout.preferredWidth: 70
-                                Layout.preferredHeight: 70
-                                source: controller.assetBaseUrl + "/" + controller.moonSummary.image
-                                fillMode: Image.PreserveAspectFit
-                            }
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 10
+                                spacing: 12
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
-                                color: theme.textPrimary
-                                font.pixelSize: 13
-                                elide: Text.ElideRight
-                            }
+                                Rectangle {
+                                    Layout.preferredWidth: 62
+                                    Layout.preferredHeight: 62
+                                    radius: 8
+                                    color: "#111319"
+                                    border.color: "#303641"
+                                    border.width: 1
 
-                            ColumnLayout {
-                                Layout.preferredWidth: 150
-                                spacing: 4
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    horizontalAlignment: Text.AlignRight
-                                    elide: Text.ElideRight
+                                    Image {
+                                        anchors.fill: parent
+                                        anchors.margins: 8
+                                        source: controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                        fillMode: Image.PreserveAspectFit
+                                        sourceSize.width: 96
+                                        sourceSize.height: 96
+                                    }
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: root.moonImpactHint()
-                                    color: theme.textMuted
-                                    font.pixelSize: 12
-                                    horizontalAlignment: Text.AlignRight
+                                    text: "Sorge " + controller.moonSummary.rise_time + "  -  tramonta " + controller.moonSummary.set_time
+                                    color: theme.textPrimary
+                                    font.pixelSize: 13
                                     elide: Text.ElideRight
                                 }
+
+                                ColumnLayout {
+                                    Layout.preferredWidth: 150
+                                    spacing: 4
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: controller.moonSummary.phase + "  -  " + controller.moonSummary.illumination
+                                        color: theme.textSecondary
+                                        font.pixelSize: 12
+                                        horizontalAlignment: Text.AlignRight
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: root.moonImpactHint()
+                                        color: theme.textMuted
+                                        font.pixelSize: 12
+                                        horizontalAlignment: Text.AlignRight
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                            }
+
+                            MouseArea {
+                                id: moonMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.openObject("moon")
                             }
                         }
                     }
