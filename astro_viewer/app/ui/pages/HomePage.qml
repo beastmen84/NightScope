@@ -261,15 +261,19 @@ Item {
                 }
             }
 
-            RowLayout {
+            GridLayout {
                 id: topOverview
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                spacing: 14
+                columns: root.width > 980 ? 3 : 1
+                columnSpacing: 14
+                rowSpacing: 14
 
                 ColumnLayout {
                     Layout.fillWidth: true
+                    Layout.columnSpan: topOverview.columns > 1 ? 2 : 1
+                    Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     GlassCard {
@@ -351,7 +355,9 @@ Item {
                 }
 
                 ColumnLayout {
-                    Layout.preferredWidth: Math.max(320, topOverview.width * 0.33)
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 1
+                    Layout.alignment: Qt.AlignTop
                     spacing: 14
 
                     GlassCard {
