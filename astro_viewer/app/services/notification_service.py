@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, Notification
 
@@ -17,33 +15,33 @@ class NotificationService:
         scores: AdvancedObservingScores,
         moon: MoonSummary,
     ) -> list[Notification]:
-        now = datetime.now()
         notifications: list[Notification] = []
 
-        if best_object:
+        if plan:
+            first_target = plan[0]
             notifications.append(
                 Notification(
-                    title=f"{best_object.name} al meglio",
-                    message=f"Tra poco {best_object.name} sara vicino alla finestra migliore: {best_object.observing_window}.",
-                    trigger_time=(now + timedelta(minutes=30)).strftime("%H:%M"),
-                    priority=90,
+                    title="Prima tappa del piano",
+                    message=f"{first_target.name} verso {first_target.direction}. Setup: {first_target.setup}.",
+                    trigger_time=first_target.time_label,
+                    priority=84,
                 )
             )
-        if plan:
+        if scores.planetary_score >= 76:
             notifications.append(
                 Notification(
-                    title="Piano osservativo pronto",
-                    message=f"Prima tappa consigliata: {plan[0].time_label} - {plan[0].name}.",
-                    trigger_time=plan[0].time_label,
-                    priority=84,
+                    title="Condizioni planetarie favorevoli",
+                    message="Seeing e vento supportano pianeti con ingrandimenti medio-alti.",
+                    trigger_time="Stasera",
+                    priority=80,
                 )
             )
         if scores.deep_sky_score >= 76:
             notifications.append(
                 Notification(
-                    title="Cielo profondo sopra la media",
-                    message="Le condizioni per il cielo profondo saranno migliori del normale.",
-                    trigger_time=(now + timedelta(hours=1)).strftime("%H:%M"),
+                    title="Finestra deep-sky utile",
+                    message="Trasparenza, Luna e cielo locale sono favorevoli agli oggetti diffusi.",
+                    trigger_time="Stanotte",
                     priority=78,
                 )
             )
@@ -54,15 +52,6 @@ class NotificationService:
                     message="Questa sera la Luna penalizza gli oggetti cielo profondo deboli.",
                     trigger_time="20:00",
                     priority=65,
-                )
-            )
-        for event in events[:2]:
-            notifications.append(
-                Notification(
-                    title=event.title,
-                    message=f"{event.event_type}: {event.note}",
-                    trigger_time=event.best_time,
-                    priority=event.usefulness,
                 )
             )
         return sorted(notifications, key=lambda item: item.priority, reverse=True)[:5]

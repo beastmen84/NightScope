@@ -169,25 +169,29 @@ Item {
         return item.difficulty && item.difficulty !== "n/d" ? "Difficolta: " + item.difficulty : ""
     }
 
-    function diverseEvents(limit) {
-        var events = controller.events || []
+    function eventDateValue(eventData) {
+        var parts = (eventData.date_label || "").split("/")
+        if (parts.length !== 3)
+            return 9999999999999
+        var day = Number(parts[0])
+        var month = Number(parts[1]) - 1
+        var year = Number(parts[2])
+        return new Date(year, month, day).getTime()
+    }
+
+    function chronologicalEvents(limit) {
+        var events = (controller.events || []).slice(0)
+        events.sort(function(left, right) {
+            return root.eventDateValue(left) - root.eventDateValue(right)
+        })
         var result = []
         var seenTitles = {}
-        var seenTypes = {}
         for (var i = 0; i < events.length && result.length < limit; i++) {
             var titleKey = (events[i].title || "").toLowerCase()
-            var typeKey = (events[i].type || "").toLowerCase()
             if (seenTitles[titleKey])
                 continue
-            if (seenTypes[typeKey] && result.length < Math.max(1, limit - 1))
-                continue
             seenTitles[titleKey] = true
-            seenTypes[typeKey] = true
             result.push(events[i])
-        }
-        for (var j = 0; j < events.length && result.length < limit; j++) {
-            if (result.indexOf(events[j]) < 0)
-                result.push(events[j])
         }
         return result
     }
@@ -913,9 +917,66 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: 1
+                columns: root.width > 1180 ? 2 : 1
                 columnSpacing: 14
                 rowSpacing: 14
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    title: "Mappa cielo"
+                    subtitle: "Target principali per direzione cardinale"
+                    accentColor: theme.cyan
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        columns: root.width > 1500 ? 4 : root.width > 900 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 10
+
+                        Repeater {
+                            model: controller.skyMap
+
+                            delegate: Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 118
+                                radius: 8
+                                color: "#151a20"
+                                border.color: "#29313b"
+                                border.width: 1
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 12
+                                    spacing: 6
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.direction
+                                        color: theme.cyan
+                                        font.pixelSize: 15
+                                        font.weight: Font.DemiBold
+                                        horizontalAlignment: Text.AlignHCenter
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        Layout.fillHeight: true
+                                        text: modelData.targets.length > 0 ? modelData.targets.slice(0, 4).map(function(item) { return item.name }).join("\n") : "Nessun target"
+                                        color: modelData.targets.length > 0 ? theme.textSecondary : theme.textMuted
+                                        font.pixelSize: 12
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 4
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -924,45 +985,12 @@ Item {
 
                     GlassCard {
                         Layout.fillWidth: true
-                        title: "Mappa cielo"
-                        subtitle: "Vista cardinale minimale"
-                        accentColor: theme.cyan
-
-                        Repeater {
-                            model: controller.skyMap
-
-                            delegate: RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-
-                                Text {
-                                    Layout.preferredWidth: 52
-                                    text: modelData.direction
-                                    color: theme.cyan
-                                    font.pixelSize: 13
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.targets.length > 0 ? modelData.targets.map(function(item) { return item.name }).join(", ") : "Nessun target prioritario"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-                    }
-
-                    GlassCard {
-                        Layout.fillWidth: true
                         title: "Prossimi eventi"
-                        subtitle: "Ordinati per utilita osservativa"
+                        subtitle: "Ordinati per data"
                         accentColor: theme.amber
 
                         Repeater {
-                            model: root.diverseEvents(3)
+                            model: root.chronologicalEvents(3)
 
                             delegate: RowLayout {
                                 Layout.fillWidth: true
@@ -997,33 +1025,42 @@ Item {
                             }
                         }
                     }
-                }
 
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: lowerGrid.columns > 1 ? 2 : 1
-                    title: "Notifiche intelligenti"
-                    subtitle: "Promemoria generati dal piano osservativo"
-                    accentColor: theme.coral
+                    GlassCard {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignTop
+                        title: "Notifiche intelligenti"
+                        subtitle: "Promemoria operativi per la notte"
+                        accentColor: theme.coral
 
-                    Repeater {
-                        model: root.smartNotifications(3)
-
-                        delegate: RowLayout {
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 12
+                            visible: root.smartNotifications(3).length === 0
+                            text: "Nessun promemoria operativo per le condizioni correnti."
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
 
-                            StatusPill {
-                                text: modelData.triggerTime
-                                accentColor: theme.coral
-                            }
+                        Repeater {
+                            model: root.smartNotifications(3)
 
-                            Text {
+                            delegate: RowLayout {
                                 Layout.fillWidth: true
-                                text: modelData.title + "  -  " + modelData.message
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                elide: Text.ElideRight
+                                spacing: 12
+
+                                StatusPill {
+                                    text: modelData.triggerTime
+                                    accentColor: theme.coral
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.title + "  -  " + modelData.message
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }
