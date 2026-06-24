@@ -283,6 +283,58 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertNotEqual(updated.best_eyepiece, f"{eyepiece_unassigned['brand']} {eyepiece_unassigned['model']}")
             self.assertEqual(len(controller.eyepieces), 1)
 
+    def test_empty_profile_equipment_assignment_refreshes_home_without_restart(self) -> None:
+        with _controller() as controller:
+            telescope = controller.telescopeCatalogModels[0]
+            eyepiece = controller.eyepieceCatalog[0]
+            target = _object("messier-M57-empty-refresh", "M57 refresh", "Planetary nebula", "8.8")
+            controller._base_solar_system_objects = []
+            controller._base_deep_sky = [target]
+            controller._solar_system_objects = []
+            controller._visible_planets = []
+            controller._deep_sky = [target]
+            controller._selected_object = target
+            controller._weather_hours = [
+                WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
+            ]
+            controller._weather_summary = controller._score_service.weather_score(
+                controller._weather_hours,
+                controller._moon,
+            )
+            controller._sky_quality = SkyQuality(3, 6.2, 21.4, "Fonte test", "Cielo rurale", "high")
+            controller._seeing_service = Mock()
+            controller._seeing_service.estimate.return_value = SeeingTransparency(
+                "Excellent",
+                "Excellent",
+                95,
+                95,
+                "Test seeing stabile.",
+            )
+            controller._refresh_active_profile_dependencies()
+
+            blocked_home = next(
+                item for item in controller.recommendedDeepSky if item["id"] == "messier-M57-empty-refresh"
+            )
+            self.assertIn("Serve almeno", blocked_home["recommended_setup"])
+            self.assertFalse(controller._deep_sky[0].visible)
+
+            controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
+            controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
+
+            refreshed_home = next(
+                item for item in controller.recommendedDeepSky if item["id"] == "messier-M57-empty-refresh"
+            )
+            self.assertNotEqual(blocked_home["recommended_setup"], refreshed_home["recommended_setup"])
+            self.assertNotIn("Serve almeno", refreshed_home["recommended_setup"])
+            self.assertTrue(controller._deep_sky[0].visible)
+            self.assertEqual(controller.selectedObject["recommended_setup"], refreshed_home["recommended_setup"])
+            self.assertTrue(
+                any(
+                    item["objectId"] == "messier-M57-empty-refresh" and "Serve almeno" not in item["setup"]
+                    for item in controller.nightPlan
+                )
+            )
+
     def test_active_profile_barlow_assignment_refreshes_home_and_detail_without_restart(self) -> None:
         with _controller() as controller:
             controller.addTelescopeModel("Refresh", "Maksutov 90/1250", "Maksutov", "90", "1250", "manuale", "")

@@ -135,6 +135,8 @@ class AppController(QObject):
         self._visible_planets: list[CelestialObject] = []
         self._solar_system_objects: list[CelestialObject] = []
         self._deep_sky: list[CelestialObject] = []
+        self._base_solar_system_objects: list[CelestialObject] = []
+        self._base_deep_sky: list[CelestialObject] = []
         self._moon = None
         self._events = []
         self._weather_hours = []
@@ -1134,6 +1136,8 @@ class AppController(QObject):
     def _refresh_no_location_context(self) -> None:
         self._weather_refresh_timer.stop()
         self._weather_refresh_running = False
+        self._base_solar_system_objects = []
+        self._base_deep_sky = []
         self._solar_system_objects = []
         self._visible_planets = []
         self._deep_sky = []
@@ -1172,15 +1176,15 @@ class AppController(QObject):
 
     def _refresh_astronomy(self) -> None:
         try:
-            self._solar_system_objects = self._apply_equipment(self._astronomy_engine.solar_system_objects(self._location))
-            self._visible_planets = [
-                item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible
-            ]
-            self._deep_sky = self._apply_equipment(self._astronomy_engine.recommended_deep_sky(self._location))
+            self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
+            self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+            self._refresh_equipment_recommendations_for_current_objects()
             self._moon = self._astronomy_engine.moon_summary(self._location)
             self._events = self._astronomy_engine.upcoming_events(self._location)
         except Exception:
             logger.exception("Astronomy refresh failed.")
+            self._base_solar_system_objects = []
+            self._base_deep_sky = []
             self._solar_system_objects = []
             self._visible_planets = []
             self._deep_sky = []
@@ -1360,7 +1364,7 @@ class AppController(QObject):
         if isinstance(quality, SkyQuality):
             self._sky_quality = quality
             try:
-                self._deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+                self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
                 self._refresh_equipment_recommendations_for_current_objects()
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
             except Exception:
@@ -1428,11 +1432,13 @@ class AppController(QObject):
         self.selectedObjectChanged.emit()
 
     def _refresh_equipment_recommendations_for_current_objects(self) -> None:
-        self._solar_system_objects = self._apply_equipment(self._solar_system_objects)
+        solar_system_source = self._base_solar_system_objects or self._solar_system_objects
+        deep_sky_source = self._base_deep_sky or self._deep_sky
+        self._solar_system_objects = self._apply_equipment(solar_system_source)
         self._visible_planets = [
             item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible
         ]
-        self._deep_sky = self._apply_equipment(self._deep_sky)
+        self._deep_sky = self._apply_equipment(deep_sky_source)
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._location_detection_result = result
