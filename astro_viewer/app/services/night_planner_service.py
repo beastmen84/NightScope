@@ -21,6 +21,9 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
     ) -> list[NightPlanItem]:
+        if self._weather_blocks_plan(weather):
+            return []
+
         visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
         if not visible:
             visible = [item for item in objects if item.visible and item.score > 0]
@@ -68,7 +71,7 @@ class NightPlannerService:
         pollution_penalty = NightPlannerService._pollution_penalty(item, sky_quality)
         moon_penalty = NightPlannerService.moon_penalty(item, moon)
         difficulty_factor = {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
-        return (
+        raw_score = (
             item.score * 0.48
             + category_score * 0.34
             + weather.score_value * 0.18
@@ -76,6 +79,25 @@ class NightPlannerService:
             - pollution_penalty
             - moon_penalty
         ) * difficulty_factor
+        return raw_score * NightPlannerService._weather_factor(weather)
+
+    @staticmethod
+    def _weather_blocks_plan(weather: WeatherSummary) -> bool:
+        return (
+            weather.score_value <= 25
+            or weather.precipitation_probability >= 65
+            or weather.cloud_cover >= 85
+        )
+
+    @staticmethod
+    def _weather_factor(weather: WeatherSummary) -> float:
+        if weather.score_value >= 70:
+            return 1.0
+        if weather.score_value >= 50:
+            return 0.85
+        if weather.score_value >= 25:
+            return 0.65
+        return 0.35
 
     @staticmethod
     def moon_adjusted_score(item: CelestialObject, moon: MoonSummary | None) -> int:

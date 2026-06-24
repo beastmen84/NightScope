@@ -32,11 +32,16 @@ class AdvancedObservingService:
             + self._light_pollution_quality(sky_quality) * 0.24
             + (100 - moon_illumination) * 0.12
         )
+        weather_cap = self._weather_cap(weather)
+        planetary = min(planetary, weather_cap)
+        deep_sky = min(deep_sky, weather_cap)
         planetary = max(0, min(100, planetary))
         deep_sky = max(0, min(100, deep_sky))
         explanation = (
             f"Planetario pesa seeing e vento; cielo profondo pesa trasparenza, Luna e Bortle {sky_quality.bortle_class}."
         )
+        if weather_cap < 100:
+            explanation = f"{explanation} Meteo bloccante: punteggi limitati a {weather_cap}/100."
         scorer = ObservingScoreService()
         deep_sky_label = scorer.score_label(deep_sky)
         if sky_quality.bortle_class >= 8 and 51 <= deep_sky <= 65:
@@ -64,3 +69,20 @@ class AdvancedObservingService:
         if radiance is not None:
             return max(8, min(100, round(100 - math.log10(max(0.0, radiance) + 1.0) * 38)))
         return 100 - max(0, sky_quality.bortle_class - 1) * 11
+
+    @staticmethod
+    def _weather_cap(weather: WeatherSummary) -> int:
+        cap = 100
+        if weather.precipitation_probability >= 70:
+            cap = min(cap, 25)
+        elif weather.precipitation_probability >= 45:
+            cap = min(cap, 40)
+        if weather.cloud_cover >= 85:
+            cap = min(cap, 30)
+        elif weather.cloud_cover >= 70:
+            cap = min(cap, 45)
+        if weather.score_value <= 25:
+            cap = min(cap, max(15, weather.score_value + 10))
+        elif weather.score_value <= 50:
+            cap = min(cap, max(35, weather.score_value + 8))
+        return max(0, min(100, cap))

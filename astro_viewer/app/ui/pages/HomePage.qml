@@ -83,6 +83,8 @@ Item {
     }
 
     function recommendationReason(item) {
+        if (root.hasBlockingWeather())
+            return "Meteo non favorevole: visibile solo se si apre una finestra libera."
         var option = root.displaySetupOption(item)
         var role = option ? option.role : ""
         var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
@@ -211,7 +213,42 @@ Item {
         return "Fattore limitante: condizioni bilanciate"
     }
 
+    function blockingWeatherReason() {
+        var score = Number(controller.observingQuality.scoreValue || 0)
+        var rain = Number(controller.weatherDigest.rainProbability || 0)
+        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
+        if (rain >= 65)
+            return "rischio precipitazioni"
+        if (cloud >= 85)
+            return "nuvolosità quasi coperta"
+        if (score > 0 && score <= 25)
+            return controller.observingQuality.explanation || "qualità osservativa pessima"
+        return ""
+    }
+
+    function hasBlockingWeather() {
+        return root.blockingWeatherReason().length > 0
+    }
+
+    function nightPlanEmptyText() {
+        if (root.hasBlockingWeather())
+            return "Meteo non favorevole: piano consigliato sospeso (" + root.blockingWeatherReason() + ")."
+        return controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
+    }
+
+    function scoreText(item) {
+        return item && item.score !== undefined && item.score !== null ? item.score + "/100" : ""
+    }
+
+    function planetarySubtitle() {
+        if (root.hasBlockingWeather())
+            return "Meteo bloccante: " + root.blockingWeatherReason()
+        return "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
+    }
+
     function planetaryHint() {
+        if (root.hasBlockingWeather())
+            return "Meteo bloccante"
         var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
         if (seeing.indexOf("excellent") >= 0 || seeing.indexOf("eccell") >= 0)
             return "Seeing eccellente"
@@ -225,6 +262,8 @@ Item {
     }
 
     function deepSkyHint() {
+        if (root.hasBlockingWeather())
+            return "Meteo bloccante"
         var bortle = Number(controller.skyQuality.bortleClass || 0)
         if (bortle >= 8)
             return "Evitare: oggetti deboli e diffusi"
@@ -503,7 +542,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
                         title: "Punteggio planetario"
-                        subtitle: "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
+                        subtitle: root.planetarySubtitle()
                         accentColor: theme.teal
                         headerBadgeText: controller.advancedScores.planetaryLabel
                         headerBadgeColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
@@ -810,7 +849,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: controller.nightPlan.length === 0
-                        text: controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
+                        text: root.nightPlanEmptyText()
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -833,7 +872,7 @@ Item {
                                 visibilityText: modelData.timeLabel + "  -  " + modelData.direction
                                 recommendedSetup: root.planSetup(modelData)
                                 reasonText: root.planReason(modelData)
-                                scoreText: "Posizione " + (index + 1)
+                                scoreText: "#" + (index + 1)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -875,7 +914,7 @@ Item {
                                 visibilityText: root.objectWindow(modelData)
                                 recommendedSetup: root.recommendedSetup(modelData)
                                 reasonText: root.recommendationReason(modelData)
-                                scoreText: "Punteggio " + modelData.score + "/100"
+                                scoreText: root.scoreText(modelData)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }
@@ -918,7 +957,7 @@ Item {
                                 visibilityText: root.objectWindow(modelData)
                                 recommendedSetup: root.recommendedSetup(modelData)
                                 reasonText: root.recommendationReason(modelData)
-                                scoreText: "Punteggio " + modelData.score + "/100"
+                                scoreText: root.scoreText(modelData)
                                 onOpenRequested: function(objectId) {
                                     root.openObject(objectId)
                                 }

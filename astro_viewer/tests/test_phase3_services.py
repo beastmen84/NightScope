@@ -9,7 +9,8 @@ from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores
+from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency
+from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
@@ -75,6 +76,28 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertEqual(len(plan), 1)
         self.assertEqual(plan[0].name, "Saturno")
         self.assertGreaterEqual(plan[0].score, 70)
+
+    def test_advanced_scores_are_capped_by_blocking_weather(self) -> None:
+        weather = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 99, 8, 78, 16.0, "")
+        seeing = SeeingTransparency("Excellent", "Poor", 96, 20, "Vento debole.")
+        sky_quality = type("SkyQualityStub", (), {"bortle_class": 6, "viirs_radiance": None})()
+        moon = MoonSummary("Gibbosa crescente", "72%", "", "", "", "")
+
+        scores = AdvancedObservingService().scores(weather, seeing, sky_quality, moon)
+
+        self.assertLessEqual(scores.planetary_score, 25)
+        self.assertEqual(scores.planetary_label, "Pessima")
+
+    def test_night_planner_suspends_plan_when_weather_is_blocking(self) -> None:
+        target = _deep_sky_target("saturn", "Saturno", "Pianeta")
+        weather = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 99, 8, 78, 16.0, "")
+        scores = AdvancedObservingScores(23, 23, "Pessima", "Pessima", "")
+        sky_quality = type("SkyQualityStub", (), {"bortle_class": 5})()
+        telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
+
+        plan = NightPlannerService().plan([target], weather, scores, sky_quality, telescope)
+
+        self.assertEqual(plan, [])
 
     def test_moon_penalty_is_object_dependent_for_deep_sky(self) -> None:
         new_moon = MoonSummary("Nuova", "0%", "", "", "", "")
