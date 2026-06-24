@@ -733,10 +733,18 @@ class AppController(QObject):
             self._equipment_message = "This profile already exists."
             self.equipmentChanged.emit()
             return
+        was_active = any(
+            int(profile["id"]) == profile_id and int(profile.get("active", 0)) == 1
+            for profile in self._equipment_profiles
+        )
         self._equipment_catalog_repository.rename_profile(profile_id, clean_name)
         self._refresh_profiles_from_repository()
         self._equipment_message = f"Profilo rinominato: {clean_name}."
-        self.equipmentChanged.emit()
+        if was_active:
+            self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+            self._emit_profile_dependent_changes()
+        else:
+            self.equipmentChanged.emit()
 
     @Slot(int)
     def deleteEquipmentProfile(self, profile_id: int) -> None:
@@ -748,9 +756,8 @@ class AppController(QObject):
         self._profile_equipment.pop(str(profile_id), None)
         self._refresh_profiles_from_repository()
         self._equipment_message = "Profilo eliminato."
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def assignTelescopeToActiveProfile(self, telescope_id: str) -> None:
@@ -765,12 +772,10 @@ class AppController(QObject):
             self._equipment_catalog_repository.assign_profile_telescope(int(profile["id"]), telescope.id)
             self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), telescope.id)
             self._refresh_profiles_from_repository()
-        self._selected_telescope_index = self._index_for_telescope(telescope.id)
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
-        self.selectedObjectChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._selected_telescope_index = self._index_for_telescope(telescope.id)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def removeTelescopeFromActiveProfile(self, telescope_id: str) -> None:
@@ -782,11 +787,9 @@ class AppController(QObject):
             replacement = state["telescope_ids"][0] if state["telescope_ids"] else self._equipment_service.NAKED_EYE_ID
             self._equipment_catalog_repository.update_profile_telescope(int(profile["id"]), replacement)
             self._refresh_profiles_from_repository()
-        self._selected_telescope_index = self._initial_telescope_index()
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def assignEyepieceToActiveProfile(self, eyepiece_id: str) -> None:
@@ -799,9 +802,8 @@ class AppController(QObject):
         if profile:
             self._equipment_catalog_repository.assign_profile_eyepiece(int(profile["id"]), eyepiece_id)
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def removeEyepieceFromActiveProfile(self, eyepiece_id: str) -> None:
@@ -811,9 +813,8 @@ class AppController(QObject):
         if profile:
             self._equipment_catalog_repository.remove_profile_eyepiece(int(profile["id"]), eyepiece_id)
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def assignBarlowToActiveProfile(self, barlow_id: str) -> None:
@@ -826,9 +827,8 @@ class AppController(QObject):
         if profile:
             self._equipment_catalog_repository.assign_profile_barlow(int(profile["id"]), barlow_id)
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def removeBarlowFromActiveProfile(self, barlow_id: str) -> None:
@@ -838,9 +838,8 @@ class AppController(QObject):
         if profile:
             self._equipment_catalog_repository.remove_profile_barlow(int(profile["id"]), barlow_id)
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
@@ -1045,13 +1044,9 @@ class AppController(QObject):
         clean_name = profile_name.strip() or "Nuovo profilo"
         self._equipment_catalog_repository.add_profile(clean_name, catalog_id, active=True)
         self._refresh_profiles_from_repository()
-        self._profile_equipment = self._initial_profile_equipment()
-        self._selected_telescope_index = self._initial_telescope_index()
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
-        self.selectedObjectChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str)
     def addCatalogTelescope(self, catalog_id: str) -> None:
@@ -1072,12 +1067,9 @@ class AppController(QObject):
     def setActiveEquipmentProfile(self, profile_id: int) -> None:
         self._equipment_catalog_repository.set_active_profile(profile_id)
         self._refresh_profiles_from_repository()
-        self._selected_telescope_index = self._initial_telescope_index()
         self._equipment_message = self._equipment_status_message()
-        self._apply_equipment_to_current_objects()
-        self.equipmentChanged.emit()
-        self.dataChanged.emit()
-        self.selectedObjectChanged.emit()
+        self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+        self._emit_profile_dependent_changes()
 
     @Slot(str, str)
     def saveObservation(self, rating: str, notes: str) -> None:
@@ -1400,37 +1392,40 @@ class AppController(QObject):
         self.statusChanged.emit()
 
     def _apply_equipment_to_current_objects(self) -> None:
+        self._refresh_active_profile_dependencies()
+
+    def _refresh_active_profile_dependencies(self, reload_profile_equipment: bool = False) -> None:
         selected_id = self._selected_object.id if self._selected_object else None
+        if reload_profile_equipment:
+            self._profile_equipment = self._initial_profile_equipment()
+        self._selected_telescope_index = self._initial_telescope_index()
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-        if self._weather_summary:
-            planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-            planning_objects = planning_objects or self._visible_planets + self._deep_sky
+        planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
+        planning_objects = planning_objects or self._visible_planets + self._deep_sky
+        if self._weather_summary and self._sky_quality:
+            self._recalculate_observing_outputs()
+        elif self._weather_summary:
             self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
-        if self._weather_summary and self._advanced_scores and self._sky_quality:
-            planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-            planning_objects = planning_objects or self._visible_planets + self._deep_sky
-            self._night_plan = self._night_planner_service.plan(
-                planning_objects,
-                self._weather_summary,
-                self._advanced_scores,
-                self._sky_quality,
-                self._current_telescope(),
-                self._moon,
-            )
+            self._night_plan = []
             self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
-            self._notifications = self._notification_service.notifications(
-                self._best_object,
-                self._night_plan,
-                self._events,
-                self._advanced_scores,
-                self._moon,
-            )
+            self._notifications = []
+        else:
+            self._best_object = None
+            self._night_plan = []
+            self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
+            self._notifications = []
         if selected_id:
             for item in self._solar_system_objects + self._deep_sky:
                 if item.id == selected_id:
                     self._selected_object = item
                     break
+
+    def _emit_profile_dependent_changes(self) -> None:
+        self.equipmentChanged.emit()
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.selectedObjectChanged.emit()
 
     def _refresh_equipment_recommendations_for_current_objects(self) -> None:
         self._solar_system_objects = self._apply_equipment(self._solar_system_objects)
@@ -2230,10 +2225,10 @@ class AppController(QObject):
         self._equipment_message = message
         if ok:
             self._refresh_equipment_catalogs()
-            self._apply_equipment_to_current_objects()
-            self.dataChanged.emit()
-            self.selectedObjectChanged.emit()
-        self.equipmentChanged.emit()
+            self._refresh_active_profile_dependencies(reload_profile_equipment=True)
+            self._emit_profile_dependent_changes()
+        else:
+            self.equipmentChanged.emit()
 
     def _parse_eyepiece_inputs(
         self,

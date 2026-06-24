@@ -83,8 +83,6 @@ Item {
     }
 
     function recommendationReason(item) {
-        if (root.hasBlockingWeather())
-            return "Meteo non favorevole: visibile solo se si apre una finestra libera."
         var option = root.displaySetupOption(item)
         var role = option ? option.role : ""
         var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
@@ -230,14 +228,50 @@ Item {
         return root.blockingWeatherReason().length > 0
     }
 
+    function blockingWeatherDetail() {
+        var score = Number(controller.observingQuality.scoreValue || 0)
+        var rain = Number(controller.weatherDigest.rainProbability || 0)
+        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
+        if (rain >= 65)
+            return "Rischio precipitazioni elevato."
+        if (cloud >= 85)
+            return "Copertura nuvolosa severa."
+        if (score > 0 && score <= 25)
+            return "Punteggio osservativo sotto la soglia minima."
+        return "Condizioni sotto la soglia minima."
+    }
+
+    function bestWindowText() {
+        var bestWindow = controller.weatherDigest.bestWindow || ""
+        if (bestWindow.length === 0 || bestWindow === "n/d")
+            return ""
+        return bestWindow.replace(" - ", "–")
+    }
+
     function nightPlanEmptyText() {
-        if (root.hasBlockingWeather())
-            return "Meteo non favorevole: piano consigliato sospeso (" + root.blockingWeatherReason() + ")."
         return controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
     }
 
     function scoreText(item) {
         return item && item.score !== undefined && item.score !== null ? item.score + "/100" : ""
+    }
+
+    function potentialTargetsText(limit) {
+        var sources = [controller.visiblePlanets || [], controller.recommendedDeepSky || []]
+        var names = []
+        var seen = {}
+        for (var groupIndex = 0; groupIndex < sources.length; groupIndex++) {
+            for (var itemIndex = 0; itemIndex < sources[groupIndex].length; itemIndex++) {
+                var name = sources[groupIndex][itemIndex].name || ""
+                if (name.length === 0 || seen[name])
+                    continue
+                seen[name] = true
+                names.push(name)
+                if (names.length >= limit)
+                    return "• " + names.join("\n• ")
+            }
+        }
+        return names.length > 0 ? "• " + names.join("\n• ") : ""
     }
 
     function planetarySubtitle() {
@@ -846,9 +880,99 @@ Item {
                     subtitle: "Sequenza consigliata: cosa osservare e quando"
                     accentColor: theme.green
 
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        visible: controller.nightPlan.length === 0 && root.hasBlockingWeather()
+                        spacing: 10
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                text: "⚠"
+                                color: theme.red
+                                font.pixelSize: 18
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Sessione sconsigliata"
+                                color: theme.textPrimary
+                                font.pixelSize: 17
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.blockingWeatherDetail()
+                            color: theme.red
+                            font.pixelSize: 14
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Le condizioni attuali non permettono una sessione osservativa affidabile."
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            visible: root.bestWindowText().length > 0
+                            spacing: 2
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Migliore finestra prevista:"
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.bestWindowText()
+                                color: theme.textPrimary
+                                font.pixelSize: 16
+                                font.weight: Font.DemiBold
+                                wrapMode: Text.WordWrap
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            visible: root.potentialTargetsText(3).length > 0
+                            spacing: 4
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Target potenzialmente interessanti se si apre una finestra libera:"
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: root.potentialTargetsText(3)
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                lineHeight: 1.15
+                                wrapMode: Text.WordWrap
+                            }
+                        }
+                    }
+
                     Text {
                         Layout.fillWidth: true
-                        visible: controller.nightPlan.length === 0
+                        visible: controller.nightPlan.length === 0 && !root.hasBlockingWeather()
                         text: root.nightPlanEmptyText()
                         color: theme.textSecondary
                         font.pixelSize: 13

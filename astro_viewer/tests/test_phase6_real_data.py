@@ -283,6 +283,94 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertNotEqual(updated.best_eyepiece, f"{eyepiece_unassigned['brand']} {eyepiece_unassigned['model']}")
             self.assertEqual(len(controller.eyepieces), 1)
 
+    def test_active_profile_barlow_assignment_refreshes_home_and_detail_without_restart(self) -> None:
+        with _controller() as controller:
+            controller.addTelescopeModel("Refresh", "Maksutov 90/1250", "Maksutov", "90", "1250", "manuale", "")
+            controller.addEyepieceModel("Refresh", "25 mm", "Plossl", "25", "", "", "52", "1.25", "", "")
+            controller.addBarlowModel("Refresh", "Barlow 2x", "2", "1.25", "")
+            telescope = next(
+                row
+                for row in controller.telescopeCatalogModels
+                if row["brand"] == "Refresh" and row["name"] == "Maksutov 90/1250"
+            )
+            eyepiece = next(
+                row
+                for row in controller.eyepieceCatalog
+                if row["brand"] == "Refresh" and row["model"] == "25 mm"
+            )
+            barlow = next(
+                row
+                for row in controller.barlowCatalog
+                if row["brand"] == "Refresh" and row["model"] == "Barlow 2x"
+            )
+            controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
+            controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
+            controller._seeing_service = Mock()
+            controller._seeing_service.estimate.return_value = SeeingTransparency(
+                "Excellent",
+                "Excellent",
+                95,
+                95,
+                "Test seeing stabile.",
+            )
+            controller._weather_hours = [
+                WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
+            ]
+            controller._weather_summary = controller._score_service.weather_score(
+                controller._weather_hours,
+                controller._moon,
+            )
+            controller._sky_quality = SkyQuality(3, 6.2, 21.4, "Fonte test", "Cielo rurale", "high")
+            target = _object("saturn-refresh-test", "Saturno refresh", "Pianeta", "0.8")
+            controller._solar_system_objects = [target]
+            controller._visible_planets = [target]
+            controller._deep_sky = []
+            controller._selected_object = target
+            controller._refresh_active_profile_dependencies()
+
+            before_detail = controller.selectedObject
+            events = {"equipment": 0, "data": 0, "weather": 0, "selected": 0}
+            controller.equipmentChanged.connect(lambda: events.__setitem__("equipment", events["equipment"] + 1))
+            controller.dataChanged.connect(lambda: events.__setitem__("data", events["data"] + 1))
+            controller.weatherChanged.connect(lambda: events.__setitem__("weather", events["weather"] + 1))
+            controller.selectedObjectChanged.connect(lambda: events.__setitem__("selected", events["selected"] + 1))
+
+            controller.assignEquipmentToActiveProfile("barlow", barlow["catalog_id"])
+
+            after_detail = controller.selectedObject
+            self.assertEqual(before_detail["barlow"], "No")
+            self.assertIn("Refresh Barlow 2x", after_detail["barlow"])
+            self.assertIn("Refresh Barlow 2x", after_detail["recommended_setup"])
+            self.assertTrue(
+                any(
+                    item["objectId"] == "saturn-refresh-test" and "Refresh Barlow 2x" in item["setup"]
+                    for item in controller.nightPlan
+                )
+            )
+            self.assertGreaterEqual(events["equipment"], 1)
+            self.assertGreaterEqual(events["data"], 1)
+            self.assertGreaterEqual(events["weather"], 1)
+            self.assertGreaterEqual(events["selected"], 1)
+
+    def test_active_profile_switch_emits_full_profile_refresh_chain(self) -> None:
+        with _controller() as controller:
+            controller.addEquipmentProfile("Profilo switch refresh")
+            profile = next(
+                item for item in controller.equipmentProfiles if item["profile_name"] == "Profilo switch refresh"
+            )
+            events = {"equipment": 0, "data": 0, "weather": 0, "selected": 0}
+            controller.equipmentChanged.connect(lambda: events.__setitem__("equipment", events["equipment"] + 1))
+            controller.dataChanged.connect(lambda: events.__setitem__("data", events["data"] + 1))
+            controller.weatherChanged.connect(lambda: events.__setitem__("weather", events["weather"] + 1))
+            controller.selectedObjectChanged.connect(lambda: events.__setitem__("selected", events["selected"] + 1))
+
+            controller.setActiveEquipmentProfile(int(profile["id"]))
+
+            self.assertGreaterEqual(events["equipment"], 1)
+            self.assertGreaterEqual(events["data"], 1)
+            self.assertGreaterEqual(events["weather"], 1)
+            self.assertGreaterEqual(events["selected"], 1)
+
     def test_calendar_opposition_setup_uses_active_profile(self) -> None:
         with _controller() as controller:
             telescope = controller.telescopeCatalogModels[0]
