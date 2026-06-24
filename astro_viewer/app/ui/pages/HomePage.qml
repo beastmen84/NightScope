@@ -883,7 +883,7 @@ Item {
                     ColumnLayout {
                         Layout.fillWidth: true
                         visible: controller.nightPlan.length === 0 && root.hasBlockingWeather()
-                        spacing: 10
+                        spacing: 14
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -906,66 +906,85 @@ Item {
                             }
                         }
 
-                        Text {
+                        GridLayout {
                             Layout.fillWidth: true
-                            text: root.blockingWeatherDetail()
-                            color: theme.red
-                            font.pixelSize: 14
-                            font.weight: Font.DemiBold
-                            wrapMode: Text.WordWrap
-                        }
+                            columns: root.width > 920 ? 2 : 1
+                            columnSpacing: 36
+                            rowSpacing: 12
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Le condizioni attuali non permettono una sessione osservativa affidabile."
-                            color: theme.textSecondary
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            visible: root.bestWindowText().length > 0
-                            spacing: 2
-
-                            Text {
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                text: "Migliore finestra prevista:"
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
+                                Layout.alignment: Qt.AlignTop
+                                spacing: 10
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: root.blockingWeatherDetail()
+                                    color: theme.red
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    wrapMode: Text.WordWrap
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Le condizioni attuali non permettono una sessione osservativa affidabile."
+                                    color: theme.textSecondary
+                                    font.pixelSize: 13
+                                    wrapMode: Text.WordWrap
+                                }
                             }
 
-                            Text {
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                text: root.bestWindowText()
-                                color: theme.textPrimary
-                                font.pixelSize: 16
-                                font.weight: Font.DemiBold
-                                wrapMode: Text.WordWrap
-                            }
-                        }
+                                Layout.alignment: Qt.AlignTop
+                                spacing: 12
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            visible: root.potentialTargetsText(3).length > 0
-                            spacing: 4
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    visible: root.bestWindowText().length > 0
+                                    spacing: 2
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Target potenzialmente interessanti se si apre una finestra libera:"
-                                color: theme.textMuted
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                            }
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: "Migliore finestra prevista:"
+                                        color: theme.textMuted
+                                        font.pixelSize: 12
+                                        wrapMode: Text.WordWrap
+                                    }
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: root.potentialTargetsText(3)
-                                color: theme.textSecondary
-                                font.pixelSize: 13
-                                lineHeight: 1.15
-                                wrapMode: Text.WordWrap
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: root.bestWindowText()
+                                        color: theme.textPrimary
+                                        font.pixelSize: 16
+                                        font.weight: Font.DemiBold
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    visible: root.potentialTargetsText(3).length > 0
+                                    spacing: 4
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: "Target potenzialmente interessanti se si apre una finestra libera:"
+                                        color: theme.textMuted
+                                        font.pixelSize: 12
+                                        wrapMode: Text.WordWrap
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: root.potentialTargetsText(3)
+                                        color: theme.textSecondary
+                                        font.pixelSize: 13
+                                        lineHeight: 1.15
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
                             }
                         }
                     }
