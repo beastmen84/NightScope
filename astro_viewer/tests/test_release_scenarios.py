@@ -267,6 +267,9 @@ class ReleaseScenarioTests(unittest.TestCase):
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
         self.assertIn("controller.activeLocationLabel", qml)
         self.assertIn("controller.activeLocationSource", qml)
+        self.assertIn("Pianeti potenzialmente visibili", qml)
+        self.assertIn("Oggetti cielo profondo potenzialmente visibili", qml)
+        self.assertIn("root.hasBlockingWeather() ? \"Pianeti potenzialmente visibili\"", qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)

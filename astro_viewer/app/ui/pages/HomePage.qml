@@ -1027,7 +1027,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
-                    title: "Altri pianeti visibili"
+                    title: root.hasBlockingWeather() ? "Pianeti potenzialmente visibili" : "Altri pianeti visibili"
                     subtitle: "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.teal
 
@@ -1070,7 +1070,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: "Oggetti cielo profondo visibili"
+                    title: root.hasBlockingWeather() ? "Oggetti cielo profondo potenzialmente visibili" : "Oggetti cielo profondo visibili"
                     subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.violet
 
