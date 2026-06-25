@@ -32,6 +32,14 @@ class SolarSystemBodyConfig:
     image: str
 
 
+def _italian_lunar_eclipse_kind(kind_name: str) -> str:
+    return {
+        "total": "totale",
+        "partial": "parziale",
+        "penumbral": "penombrale",
+    }.get(kind_name.strip().lower(), kind_name.strip().lower())
+
+
 class SkyfieldAstronomyEngine(AstronomyEngine):
     """Skyfield-backed astronomy service for Solar System and Messier visibility."""
 
@@ -187,11 +195,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         eclipse_times, eclipse_kinds, _ = eclipselib.lunar_eclipses(start, self._to_skyfield_time(now + timedelta(days=730)), self._ephemeris)
         for eclipse_time, eclipse_kind in zip(eclipse_times, eclipse_kinds):
             kind_name = eclipselib.LUNAR_ECLIPSES[int(eclipse_kind)]
+            eclipse_label = _italian_lunar_eclipse_kind(kind_name)
             local_dt = eclipse_time.utc_datetime().astimezone(self._zone(location))
             events.append(
                 AstronomicalEvent(
                     id=f"lunar-eclipse-{eclipse_time.tt}",
-                    title=f"Eclissi lunare {kind_name.lower()}",
+                    title=f"Eclissi lunare {eclipse_label}",
                     event_type="Eclissi",
                     date_label=self._format_date(local_dt),
                     best_time=self._format_dt(local_dt),
