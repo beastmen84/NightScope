@@ -1,0 +1,95 @@
+brand,model,magnification,objective_diameter_mm,true_fov_deg,weight_g,image_stabilized,notes
+Celestron,Cometron 7x50,7,50,,,0,Manufacturer catalog series.
+Celestron,SkyMaster 7x50,7,50,,,0,Manufacturer catalog series.
+Celestron,SkyMaster 8x56,8,56,,,0,Manufacturer catalog series.
+Celestron,Nature DX ED 8x42,8,42,,,0,Manufacturer catalog series.
+Celestron,Nature DX ED 10x42,10,42,,,0,Manufacturer catalog series.
+Celestron,Regal ED 8x42,8,42,,,0,Manufacturer catalog series.
+Celestron,Regal ED 10x42,10,42,,,0,Manufacturer catalog series.
+Celestron,SkyMaster 10x50,10,50,,,0,Manufacturer catalog series.
+Celestron,SkyMaster 12x60,12,60,,,0,Manufacturer catalog series.
+Celestron,SkyMaster Pro 15x70,15,70,,,0,Manufacturer catalog series.
+Celestron,SkyMaster Pro 20x80,20,80,,,0,Manufacturer catalog series.
+Celestron,SkyMaster 25x100,25,100,,,0,Manufacturer catalog series.
+Nikon,Aculon A211 7x50,7,50,,,0,Manufacturer catalog series.
+Nikon,Aculon A211 10x50,10,50,,,0,Manufacturer catalog series.
+Nikon,Aculon A211 12x50,12,50,,,0,Manufacturer catalog series.
+Nikon,Aculon A211 16x50,16,50,,,0,Manufacturer catalog series.
+Nikon,Action EX 7x50 CF,7,50,,,0,Manufacturer catalog series.
+Nikon,Action EX 10x50 CF,10,50,,,0,Manufacturer catalog series.
+Nikon,Action EX 12x50 CF,12,50,,,0,Manufacturer catalog series.
+Nikon,Monarch M5 8x42,8,42,,,0,Manufacturer catalog series.
+Nikon,Monarch M5 10x42,10,42,,,0,Manufacturer catalog series.
+Nikon,Monarch M7 8x42,8,42,,,0,Manufacturer catalog series.
+Nikon,Monarch M7 10x42,10,42,,,0,Manufacturer catalog series.
+Nikon,Prostaff P7 8x42,8,42,,,0,Manufacturer catalog series.
+Nikon,Prostaff P7 10x42,10,42,,,0,Manufacturer catalog series.
+Canon,8x20 IS,8,20,,,1,Image stabilized model.
+Canon,10x20 IS,10,20,,,1,Image stabilized model.
+Canon,10x30 IS II,10,30,,,1,Image stabilized model.
+Canon,12x32 IS,12,32,,,1,Image stabilized model.
+Canon,12x36 IS III,12,36,,,1,Image stabilized model.
+Canon,10x42 L IS WP,10,42,,,1,Image stabilized model.
+Canon,15x50 IS All Weather,15,50,,,1,Image stabilized model.
+Canon,18x50 IS All Weather,18,50,,,1,Image stabilized model.
+Fujinon,Mariner 7x50 WPC-XL,7,50,,,0,Manufacturer catalog series.
+Fujinon,FMT-SX 7x50,7,50,,,0,Manufacturer catalog series.
+Fujinon,FMTR-SX 7x50,7,50,,,0,Manufacturer catalog series.
+Fujinon,FMT-SX 10x50,10,50,,,0,Manufacturer catalog series.
+Fujinon,FMTR-SX 10x50,10,50,,,0,Manufacturer catalog series.
+Fujinon,Polaris 10x70 FMT-SX,10,70,,,0,Manufacturer catalog series.
+Fujinon,Polaris 16x70 FMT-SX,16,70,,,0,Manufacturer catalog series.
+Fujinon,Techno-Stabi TS 12x28,12,28,,,1,Image stabilized model.
+Fujinon,Techno-Stabi TS 16x28,16,28,,,1,Image stabilized model.
+Fujinon,Techno-Stabi TS-X 14x40,14,40,,,1,Image stabilized model.
+Pentax,SP 8x40 WP,8,40,,,0,Manufacturer catalog series.
+Pentax,SP 10x50 WP,10,50,,,0,Manufacturer catalog series.
+Pentax,SP 12x50 WP,12,50,,,0,Manufacturer catalog series.
+Pentax,SP 16x50 WP,16,50,,,0,Manufacturer catalog series.
+Pentax,SP 20x60 WP,20,60,,,0,Manufacturer catalog series.
+Pentax,SD 9x42 WP,9,42,,,0,Manufacturer catalog series.
+Pentax,SD 10x42 WP,10,42,,,0,Manufacturer catalog series.
+Pentax,ZD 8x43 ED,8,43,,,0,Manufacturer catalog series.
+Pentax,ZD 10x43 ED,10,43,,,0,Manufacturer catalog series.
+Oberwerk,8x56 LW,8,56,,,0,Manufacturer catalog series.
+Oberwerk,11x70 LW,11,70,,,0,Manufacturer catalog series.
+Oberwerk,12x60 LW,12,60,,,0,Manufacturer catalog series.
+Oberwerk,10x50 Ultra,10,50,,,0,Manufacturer catalog series.
+Oberwerk,15x70 Ultra,15,70,,,0,Manufacturer catalog series.
+Oberwerk,15x70 Deluxe,15,70,,,0,Manufacturer catalog series.
+Oberwerk,20x65 ED Deluxe,20,65,,,0,Manufacturer catalog series.
+Oberwerk,20x80 Deluxe III,20,80,,,0,Manufacturer catalog series.
+Oberwerk,25x100 Deluxe,25,100,,,0,Manufacturer catalog series.
+Omegon,Hunter 8x56,8,56,,,0,Manufacturer catalog series.
+Omegon,Brightsky 10x50,10,50,,,0,Manufacturer catalog series.
+Omegon,Nightstar 15x70,15,70,,,0,Manufacturer catalog series.
+Omegon,Nightstar 20x80,20,80,,,0,Manufacturer catalog series.
+Omegon,Nightstar 25x100,25,100,,,0,Manufacturer catalog series.
+Omegon,Talron HD 8x42,8,42,,,0,Manufacturer catalog series.
+Omegon,Talron HD 10x42,10,42,,,0,Manufacturer catalog series.
+Vortex,Crossfire HD 10x50,10,50,,,0,Manufacturer catalog series.
+Vortex,Diamondback HD 8x42,8,42,,,0,Manufacturer catalog series.
+Vortex,Diamondback HD 10x42,10,42,,,0,Manufacturer catalog series.
+Vortex,Diamondback HD 10x50,10,50,,,0,Manufacturer catalog series.
+Vortex,Diamondback HD 12x50,12,50,,,0,Manufacturer catalog series.
+Vortex,Viper HD 8x42,8,42,,,0,Manufacturer catalog series.
+Vortex,Viper HD 10x42,10,42,,,0,Manufacturer catalog series.
+Vortex,Kaibab HD 15x56,15,56,,,0,Manufacturer catalog series.
+Vortex,Kaibab HD 18x56,18,56,,,0,Manufacturer catalog series.
+Svbony,SV202 ED 8x42,8,42,,,0,Manufacturer catalog series.
+Svbony,SV202 ED 10x42,10,42,,,0,Manufacturer catalog series.
+Svbony,SV202 ED 10x50,10,50,,,0,Manufacturer catalog series.
+Svbony,SV47 8x42,8,42,,,0,Manufacturer catalog series.
+Svbony,SV47 10x42,10,42,,,0,Manufacturer catalog series.
+Explore Scientific,ED APO 8x42,8,42,,,0,Manufacturer catalog series.
+Explore Scientific,ED APO 10x42,10,42,,,0,Manufacturer catalog series.
+Explore Scientific,G400 10x50,10,50,,,0,Manufacturer catalog series.
+Explore Scientific,Astro 15x70,15,70,,,0,Manufacturer catalog series.
+Orion,Scenix 7x50,7,50,,,0,Manufacturer catalog series.
+Orion,Scenix 10x50,10,50,,,0,Manufacturer catalog series.
+Orion,Scenix 12x50,12,50,,,0,Manufacturer catalog series.
+Orion,Mini Giant 9x63,9,63,,,0,Manufacturer catalog series.
+Orion,Giant View 15x70,15,70,,,0,Manufacturer catalog series.
+Orion,Giant View 20x80,20,80,,,0,Manufacturer catalog series.
+Orion,Resolux 15x70,15,70,,,0,Manufacturer catalog series.
+Orion,Resolux 16x70,16,70,,,0,Manufacturer catalog series.

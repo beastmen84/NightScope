@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import sqlite3
 import shutil
 import tempfile
@@ -33,16 +34,40 @@ class DatabaseBootstrapTests(unittest.TestCase):
     def test_equipment_catalog_seed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
-            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            data_dir = Path(__file__).resolve().parents[1] / "data"
+            schema_path = data_dir / "schema.sql"
 
             initialize_database(database_path, schema_path)
 
             repository = EquipmentCatalogRepository(database_path)
+            binoculars = repository.binoculars()
+            with (data_dir / "binocular_catalog_seed.csv").open("r", encoding="utf-8", newline="") as file:
+                binocular_seed_count = sum(1 for _ in csv.DictReader(file))
             self.assertGreaterEqual(len(repository.brands()), 8)
             self.assertGreaterEqual(len(repository.models()), 12)
             self.assertGreaterEqual(len(repository.eyepieces()), 6)
             self.assertGreaterEqual(len(repository.barlows()), 4)
-            self.assertEqual(repository.binoculars(), [])
+            self.assertEqual(len(binoculars), binocular_seed_count)
+            self.assertGreaterEqual(len(binoculars), 60)
+            self.assertTrue(any(item["image_stabilized"] for item in binoculars))
+            binocular_classes = {
+                (item["magnification"], item["objective_diameter_mm"])
+                for item in binoculars
+            }
+            for binocular_class in {
+                (7, 50),
+                (8, 42),
+                (8, 56),
+                (10, 42),
+                (10, 50),
+                (12, 50),
+                (15, 56),
+                (15, 70),
+                (16, 70),
+                (20, 80),
+                (25, 100),
+            }:
+                self.assertIn(binocular_class, binocular_classes)
             self.assertIsNotNone(repository.active_profile())
 
     def test_missing_database_is_bootstrapped(self) -> None:
@@ -153,9 +178,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
             initialize_database(database_path, schema_path)
 
             repository = EquipmentCatalogRepository(database_path)
+            initial_count = len(repository.binoculars())
             ok, message = repository.add_binocular(
-                "Nikon",
-                "Monarch M5",
+                "NightScope",
+                "Test 10x50",
                 10,
                 50,
                 true_fov_deg=6.5,
@@ -168,14 +194,18 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             initialize_database(database_path, schema_path)
             binoculars = EquipmentCatalogRepository(database_path).binoculars()
+            saved = next(
+                item
+                for item in binoculars
+                if item["brand"] == "NightScope" and item["model"] == "Test 10x50"
+            )
 
-            self.assertEqual(len(binoculars), 1)
-            self.assertEqual(binoculars[0]["catalog_id"], "catalog-binocular-1")
-            self.assertEqual(binoculars[0]["display_name"], "Nikon Monarch M5")
-            self.assertEqual(binoculars[0]["spec_label"], "10×50")
-            self.assertEqual(binoculars[0]["fov_label"], "FOV 6.5°")
-            self.assertEqual(binoculars[0]["weight_label"], "920 g")
-            self.assertTrue(binoculars[0]["image_stabilized"])
+            self.assertEqual(len(binoculars), initial_count + 1)
+            self.assertEqual(saved["display_name"], "NightScope Test 10x50")
+            self.assertEqual(saved["spec_label"], "10×50")
+            self.assertEqual(saved["fov_label"], "FOV 6.5°")
+            self.assertEqual(saved["weight_label"], "920 g")
+            self.assertTrue(saved["image_stabilized"])
 
     def test_binocular_catalog_is_added_to_existing_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -289,6 +319,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertNotIn("nightscope.db", spec)
         self.assertIn("schema.sql", spec)
         self.assertIn("messier_seed.csv", spec)
+        self.assertIn("binocular_catalog_seed.csv", spec)
 
     def test_runtime_database_path_is_portable_and_copies_legacy_database(self) -> None:
         from astro_viewer import main as main_module

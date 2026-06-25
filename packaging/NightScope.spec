@@ -15,6 +15,7 @@ datas = [
     (str(APP_DIR / "data" / "telescope_catalog_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "eyepiece_catalog_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "barlow_catalog_seed.csv"), "astro_viewer/data"),
+    (str(APP_DIR / "data" / "binocular_catalog_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "light_pollution_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "object_images_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "object_descriptions_seed.csv"), "astro_viewer/data"),

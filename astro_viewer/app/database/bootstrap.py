@@ -40,6 +40,7 @@ SEEDED_TABLES = {
     "TelescopeModel": "telescope_catalog_seed.csv",
     "EyepieceCatalog": "eyepiece_catalog_seed.csv",
     "BarlowCatalog": "barlow_catalog_seed.csv",
+    "BinocularCatalog": "binocular_catalog_seed.csv",
     "ObjectImages": "object_images_seed.csv",
     "ObjectDescription": "object_descriptions_seed.csv",
     "EquipmentProfile": "",
@@ -198,6 +199,7 @@ def _build_database(
             data_dir / "eyepiece_catalog_seed.csv",
             data_dir / "barlow_catalog_seed.csv",
         )
+        _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_default_profiles(connection)
@@ -406,6 +408,16 @@ def _optional_float(value: str) -> float | None:
         return None
     try:
         return float(clean_value)
+    except ValueError:
+        return None
+
+
+def _optional_int(value: str) -> int | None:
+    clean_value = value.strip()
+    if not clean_value:
+        return None
+    try:
+        return int(float(clean_value))
     except ValueError:
         return None
 
@@ -640,6 +652,39 @@ def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:
                 row["model"],
                 float(row["multiplier"]),
                 row.get("barrel_size", ""),
+                row.get("notes", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
+
+
+def _seed_binocular_catalog(connection: sqlite3.Connection, binocular_path: Path | None = None) -> None:
+    connection.executemany(
+        """
+        INSERT INTO BinocularCatalog (
+            brand, model, magnification, objective_diameter_mm,
+            true_fov_deg, weight_g, image_stabilized, notes
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(brand, model, magnification, objective_diameter_mm) DO NOTHING
+        """,
+        _binocular_catalog_rows(binocular_path),
+    )
+
+
+def _binocular_catalog_rows(binocular_path: Path | None) -> list[tuple]:
+    if not binocular_path or not binocular_path.exists():
+        raise FileNotFoundError("Missing binocular catalog seed CSV.")
+    with binocular_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                int(float(row["magnification"])),
+                int(float(row["objective_diameter_mm"])),
+                _optional_float(row.get("true_fov_deg", "")),
+                _optional_int(row.get("weight_g", "")),
+                1 if str(row.get("image_stabilized", "")).strip().lower() in {"1", "true", "yes"} else 0,
                 row.get("notes", ""),
             )
             for row in csv.DictReader(file)
