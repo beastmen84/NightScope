@@ -381,6 +381,9 @@ class ReleaseScenarioTests(unittest.TestCase):
 
     def test_location_page_exposes_earthdata_registration_link(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
+        self.assertIn('title: "Posizioni recenti"', qml)
+        self.assertIn('text: "Nessuna posizione recente."', qml)
+        self.assertNotIn("visible: controller.recentLocations.length > 0", qml)
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
         self.assertIn('headerActionText: "Create account"', qml)
         self.assertIn("headerActionEnabled: !controller.earthdataConnectionVerified", qml)

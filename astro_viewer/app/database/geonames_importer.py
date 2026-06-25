@@ -6,6 +6,7 @@ import sqlite3
 import unicodedata
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Callable
 
 
 GEONAMES_COLUMNS = (
@@ -71,6 +72,8 @@ def import_geonames_cities(
     country_info_path: Path | None = None,
     admin1_codes_path: Path | None = None,
     proximity_km: float = 5.0,
+    progress_callback: Callable[[int], None] | None = None,
+    progress_interval: int = 500,
 ) -> GeoNamesImportReport:
     report = GeoNamesImportReport()
     country_names = _load_country_names(country_info_path)
@@ -78,6 +81,8 @@ def import_geonames_cities(
 
     for raw_row in _iter_source_rows(source_path):
         report.total_rows_read += 1
+        if progress_callback and report.total_rows_read % progress_interval == 0:
+            progress_callback(report.total_rows_read)
         city = _city_from_row(raw_row, country_names, admin_names)
         if city is None:
             if _is_non_city_row(raw_row):
@@ -101,6 +106,8 @@ def import_geonames_cities(
         report.total_imported += 1
         report.aliases_added += _insert_aliases(connection, city_id, city.aliases, "geonames")
 
+    if progress_callback:
+        progress_callback(report.total_rows_read)
     return report
 
 

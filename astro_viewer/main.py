@@ -102,7 +102,7 @@ def _database_initialization_required() -> bool:
 
 def _create_initialization_splash(app):
     from PySide6.QtCore import Qt
-    from PySide6.QtGui import QPixmap
+    from PySide6.QtGui import QIcon, QPixmap
     from PySide6.QtWidgets import QDialog, QLabel, QProgressBar, QVBoxLayout
 
     dialog = QDialog()
@@ -149,11 +149,17 @@ def _create_initialization_splash(app):
 
     icon_label = QLabel()
     icon_label.setAlignment(Qt.AlignHCenter)
-    icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
+    app_icon = QIcon(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
+    icon = app_icon.pixmap(80, 80) if not app_icon.isNull() else QPixmap()
     if icon.isNull():
-        icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg"))
+        icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg")).scaled(
+            80,
+            80,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation,
+        )
     if not icon.isNull():
-        icon_label.setPixmap(icon.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        icon_label.setPixmap(icon)
     layout.addWidget(icon_label)
 
     app_name = QLabel(APP_NAME)
@@ -177,20 +183,23 @@ def _create_initialization_splash(app):
     layout.addWidget(status)
 
     progress = QProgressBar()
-    progress.setRange(0, 0)
+    progress.setRange(0, 100)
+    progress.setValue(12)
     progress.setTextVisible(False)
     layout.addWidget(progress)
 
     dialog.show()
     app.processEvents()
-    return dialog, status
+    return dialog, status, progress
 
 
 def _update_initialization_splash(app, splash, message: str) -> None:
     if not splash:
         return
-    _, status = splash
+    _, status, progress = splash
     status.setText(message)
+    next_value = progress.value() + 9
+    progress.setValue(18 if next_value > 92 else next_value)
     app.processEvents()
 
 

@@ -13,6 +13,7 @@ from astro_viewer.app.database.equipment_catalog_repository import EquipmentCata
 from astro_viewer.app.database.messier_repository import MessierRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
+from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
 class DatabaseBootstrapTests(unittest.TestCase):
@@ -87,6 +88,23 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIn("Creazione database...", messages)
             self.assertIn("Importazione cataloghi...", messages)
             self.assertIn("Finalizzazione...", messages)
+
+    def test_geonames_initialization_reports_incremental_progress(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runtime_dir = Path(temp_dir)
+            write_small_geonames_fixture(runtime_dir, extra_rows=2)
+            database_path = runtime_dir / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            messages = []
+
+            initialize_database(
+                database_path,
+                schema_path,
+                progress_callback=messages.append,
+                geonames_data_dir=runtime_dir,
+            )
+
+            self.assertTrue(any(message.startswith("Importazione catalogo città...") for message in messages))
 
     def test_database_uses_sqlite_user_version(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

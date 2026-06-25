@@ -224,10 +224,18 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
-                    visible: controller.recentLocations.length > 0
                     title: "Posizioni recenti"
                     subtitle: "Ultime posizioni salvate o caricate"
                     accentColor: theme.violet
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: controller.recentLocations.length === 0
+                        text: "Nessuna posizione recente."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
 
                     Repeater {
                         model: controller.recentLocations

@@ -155,6 +155,7 @@ def _build_database(
             connection,
             geonames_source_dir,
             warn_if_missing=geonames_source_dir == data_dir,
+            progress_callback=progress_callback,
         )
         if seed_path.exists():
             with seed_path.open("r", encoding="utf-8", newline="") as file:
@@ -396,6 +397,7 @@ def _import_geonames_cities_if_available(
     connection: sqlite3.Connection,
     data_dir: Path,
     warn_if_missing: bool = True,
+    progress_callback: ProgressCallback | None = None,
 ) -> None:
     candidates = [
         data_dir / "cities15000.txt",
@@ -439,6 +441,9 @@ def _import_geonames_cities_if_available(
         return
     from astro_viewer.app.database.geonames_importer import import_geonames_cities
 
+    def report_progress(rows: int) -> None:
+        _notify_progress(progress_callback, f"Importazione catalogo città... {rows} righe")
+
     existing_city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
     if existing_city_count:
         logger.info("GeoNames cities15000 changed; rebuilding city catalog from source file.")
@@ -450,6 +455,7 @@ def _import_geonames_cities_if_available(
         source_path,
         country_info_path=country_info_path,
         admin1_codes_path=admin1_codes_path,
+        progress_callback=report_progress if progress_callback else None,
     )
     payload = report.to_dict()
     payload["aliases_generated"] = report.aliases_added
