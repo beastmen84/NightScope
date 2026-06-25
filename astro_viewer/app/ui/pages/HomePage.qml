@@ -836,7 +836,7 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.minimumHeight: 286
+                    Layout.minimumHeight: controller.nightPlan.length > 0 ? 286 : 0
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
                     title: "Piano osservativo consigliato"

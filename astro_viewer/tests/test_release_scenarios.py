@@ -340,6 +340,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("controller.activeLocationSource", qml)
         self.assertIn("Pianeti potenzialmente visibili", qml)
         self.assertIn("Oggetti cielo profondo potenzialmente visibili", qml)
+        self.assertIn("Layout.minimumHeight: controller.nightPlan.length > 0 ? 286 : 0", qml)
         self.assertIn("controller.isObservingSessionBlocked ? \"Pianeti potenzialmente visibili\"", qml)
         self.assertIn("controller.observingSessionIcon", qml)
         self.assertIn("controller.observingSessionTitle", qml)
