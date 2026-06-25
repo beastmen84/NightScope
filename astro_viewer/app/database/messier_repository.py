@@ -8,6 +8,12 @@ from pathlib import Path
 class MessierRepository:
     """SQLite repository for the embedded Messier catalog."""
 
+    _SELECT_COLUMNS = """
+        id, messier_id, nome, tipo, costellazione, magnitudine,
+        ascensione_retta, declinazione, dimensione_apparente,
+        max_angular_size_deg, recommended_observation_type, descrizione
+    """
+
     def __init__(self, database_path: Path):
         self._database_path = database_path
 
@@ -19,9 +25,8 @@ class MessierRepository:
     def list_objects(self) -> list[dict]:
         with closing(self._connect()) as connection:
             rows = connection.execute(
-                """
-                SELECT id, messier_id, nome, tipo, costellazione, magnitudine,
-                       ascensione_retta, declinazione, dimensione_apparente, descrizione
+                f"""
+                SELECT {self._SELECT_COLUMNS}
                 FROM MessierObject
                 ORDER BY CAST(SUBSTR(messier_id, 2) AS INTEGER)
                 """
@@ -32,9 +37,8 @@ class MessierRepository:
         normalized = f"%{query.strip()}%"
         with closing(self._connect()) as connection:
             rows = connection.execute(
-                """
-                SELECT id, messier_id, nome, tipo, costellazione, magnitudine,
-                       ascensione_retta, declinazione, dimensione_apparente, descrizione
+                f"""
+                SELECT {self._SELECT_COLUMNS}
                 FROM MessierObject
                 WHERE messier_id LIKE ?
                    OR nome LIKE ?
@@ -50,9 +54,8 @@ class MessierRepository:
     def filter_by_type(self, object_type: str, limit: int = 50) -> list[dict]:
         with closing(self._connect()) as connection:
             rows = connection.execute(
-                """
-                SELECT id, messier_id, nome, tipo, costellazione, magnitudine,
-                       ascensione_retta, declinazione, dimensione_apparente, descrizione
+                f"""
+                SELECT {self._SELECT_COLUMNS}
                 FROM MessierObject
                 WHERE tipo LIKE ?
                 ORDER BY magnitudine IS NULL, magnitudine ASC
@@ -74,5 +77,7 @@ class MessierRepository:
             "ra": row["ascensione_retta"],
             "dec": row["declinazione"],
             "apparent_size": row["dimensione_apparente"],
+            "max_angular_size_deg": row["max_angular_size_deg"],
+            "recommended_observation_type": row["recommended_observation_type"],
             "description": row["descrizione"],
         }

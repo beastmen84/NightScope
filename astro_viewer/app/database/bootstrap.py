@@ -13,7 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -172,6 +172,8 @@ def _build_database(
                         row["ascensione_retta"],
                         row["declinazione"],
                         row["dimensione_apparente"],
+                        _optional_float(row["max_angular_size_deg"]),
+                        row["recommended_observation_type"],
                         row["descrizione"],
                     )
                     for row in csv.DictReader(file)
@@ -187,10 +189,14 @@ def _build_database(
                     ascensione_retta,
                     declinazione,
                     dimensione_apparente,
+                    max_angular_size_deg,
+                    recommended_observation_type,
                     descrizione
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(messier_id) DO NOTHING
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(messier_id) DO UPDATE SET
+                    max_angular_size_deg = excluded.max_angular_size_deg,
+                    recommended_observation_type = excluded.recommended_observation_type
                 """,
                 rows,
             )
@@ -242,6 +248,14 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         },
     )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    _add_columns(
+        connection,
+        "MessierObject",
+        {
+            "max_angular_size_deg": "REAL",
+            "recommended_observation_type": "TEXT",
+        },
+    )
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})

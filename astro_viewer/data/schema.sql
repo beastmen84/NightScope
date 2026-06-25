@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS MessierObject (
     ascensione_retta TEXT NOT NULL,
     declinazione TEXT NOT NULL,
     dimensione_apparente TEXT,
+    max_angular_size_deg REAL,
+    recommended_observation_type TEXT,
     descrizione TEXT
 );
 

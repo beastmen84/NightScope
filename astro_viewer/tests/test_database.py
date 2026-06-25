@@ -17,7 +17,27 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
+MESSIER_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
+
+
 class DatabaseBootstrapTests(unittest.TestCase):
+    def test_messier_seed_observation_metadata_is_complete(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        with (data_dir / "messier_seed.csv").open("r", encoding="utf-8", newline="") as file:
+            reader = csv.DictReader(file)
+            self.assertIn("max_angular_size_deg", reader.fieldnames or [])
+            self.assertIn("recommended_observation_type", reader.fieldnames or [])
+            rows = list(reader)
+
+        self.assertEqual(len(rows), 110)
+        for row in rows:
+            self.assertGreater(float(row["max_angular_size_deg"]), 0.0, row["messier_id"])
+            self.assertIn(
+                row["recommended_observation_type"],
+                MESSIER_OBSERVATION_TYPES,
+                row["messier_id"],
+            )
+
     def test_messier_seed_contains_all_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
@@ -29,7 +49,11 @@ class DatabaseBootstrapTests(unittest.TestCase):
             objects = repository.list_objects()
             self.assertEqual(len(objects), 110)
             self.assertEqual(objects[0]["messier_id"], "M1")
+            self.assertEqual(objects[0]["max_angular_size_deg"], 0.117)
+            self.assertEqual(objects[0]["recommended_observation_type"], "General")
             self.assertEqual(objects[-1]["messier_id"], "M110")
+            self.assertGreater(objects[-1]["max_angular_size_deg"], 0.0)
+            self.assertIn(objects[-1]["recommended_observation_type"], MESSIER_OBSERVATION_TYPES)
 
     def test_equipment_catalog_seed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -400,6 +424,77 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(row_count, 110)
             self.assertEqual(preserved_description, "nota locale")
             self.assertIsNotNone(restored_object)
+
+    def test_messier_metadata_is_added_to_existing_database(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    CREATE TABLE MessierObject (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        messier_id TEXT NOT NULL UNIQUE,
+                        nome TEXT NOT NULL,
+                        tipo TEXT NOT NULL,
+                        costellazione TEXT NOT NULL,
+                        magnitudine REAL,
+                        ascensione_retta TEXT NOT NULL,
+                        declinazione TEXT NOT NULL,
+                        dimensione_apparente TEXT,
+                        descrizione TEXT
+                    )
+                    """
+                )
+                connection.execute(
+                    """
+                    INSERT INTO MessierObject (
+                        messier_id, nome, tipo, costellazione, magnitudine,
+                        ascensione_retta, declinazione, dimensione_apparente, descrizione
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        "M1",
+                        "Crab Nebula",
+                        "Supernova remnant",
+                        "Taurus",
+                        8.4,
+                        "05h 34m 31.9s",
+                        "+22° 00′ 52.2″",
+                        "420″ × 290″",
+                        "nota locale",
+                    ),
+                )
+                connection.execute("PRAGMA user_version = 4")
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.row_factory = sqlite3.Row
+                columns = [
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(MessierObject)").fetchall()
+                ]
+                version = connection.execute("PRAGMA user_version").fetchone()[0]
+                row = connection.execute(
+                    """
+                    SELECT descrizione, max_angular_size_deg, recommended_observation_type
+                    FROM MessierObject
+                    WHERE messier_id = ?
+                    """,
+                    ("M1",),
+                ).fetchone()
+                row_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
+
+            self.assertIn("max_angular_size_deg", columns)
+            self.assertIn("recommended_observation_type", columns)
+            self.assertEqual(version, SCHEMA_VERSION)
+            self.assertEqual(row_count, 110)
+            self.assertEqual(row["descrizione"], "nota locale")
+            self.assertEqual(row["max_angular_size_deg"], 0.117)
+            self.assertEqual(row["recommended_observation_type"], "General")
 
     def test_existing_user_data_survives_update_bootstrap(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
