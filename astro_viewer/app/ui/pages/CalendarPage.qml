@@ -9,6 +9,10 @@ Item {
     property var controller
     property string selectedDateFilter: "30 giorni"
     property string selectedTypeFilter: "Tutti"
+    property string selectedEventId: ""
+    property var selectedEventData: selectedEventById(selectedEventId)
+
+    signal openObject(string objectId)
 
     AppTheme {
         id: theme
@@ -97,8 +101,35 @@ Item {
         return events[0].date_label
     }
 
+    function hasSelectedEvent() {
+        return selectedEventData && selectedEventData.title !== undefined && selectedEventData.title !== ""
+    }
+
+    function selectedEventById(eventId) {
+        if (!eventId)
+            return null
+        for (var index = 0; index < controller.events.length; index += 1) {
+            if (controller.events[index].id === eventId)
+                return controller.events[index]
+        }
+        return null
+    }
+
+    EventDetailPage {
+        anchors.fill: parent
+        visible: root.hasSelectedEvent()
+        controller: root.controller
+        eventData: root.selectedEventData
+        accentColor: root.hasSelectedEvent() ? root.eventAccent(root.selectedEventData.type) : theme.cyan
+        onBackToCalendar: root.selectedEventId = ""
+        onOpenObject: function(objectId) {
+            root.openObject(objectId)
+        }
+    }
+
     ScrollView {
         id: scroll
+        visible: !root.hasSelectedEvent()
         anchors.fill: parent
         clip: true
         contentWidth: availableWidth
@@ -349,6 +380,7 @@ Item {
                         Layout.preferredWidth: (eventGrid.width - eventGrid.columnSpacing * (eventGrid.columns - 1)) / eventGrid.columns
                         eventData: modelData
                         accentColor: root.eventAccent(modelData.type)
+                        onClicked: root.selectedEventId = modelData.id
                     }
                 }
             }

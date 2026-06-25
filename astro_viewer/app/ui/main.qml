@@ -279,6 +279,10 @@ ApplicationWindow {
         id: calendarPage
         CalendarPage {
             controller: appController
+            onOpenObject: function(objectId) {
+                appController.selectObject(objectId)
+                window.currentPage = "detail"
+            }
         }
     }
 

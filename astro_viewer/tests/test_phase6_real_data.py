@@ -447,6 +447,23 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertIn(controller.currentSetup["name"], setup)
             self.assertNotEqual(setup, "Telescopio medio")
 
+    def test_calendar_opposition_event_exposes_target_object_id(self) -> None:
+        with _controller() as controller:
+            event = AstronomicalEvent(
+                id="saturn-1-test",
+                title="Saturno in opposizione",
+                event_type="Opposizione",
+                date_label="28/08/2026",
+                best_time="23:30",
+                usefulness=92,
+                setup="Telescopio medio",
+                note="Test",
+            )
+
+            data = controller._event_to_qml(event)
+
+            self.assertEqual(data["targetObjectId"], "saturn")
+
     def test_calendar_keeps_meteor_showers_naked_eye(self) -> None:
         with _controller() as controller:
             event = AstronomicalEvent(

@@ -325,6 +325,33 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
 
+    def test_calendar_event_cards_open_inline_detail_view(self) -> None:
+        base_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
+        calendar_qml = (base_dir / "pages" / "CalendarPage.qml").read_text(encoding="utf-8")
+        detail_qml = (base_dir / "pages" / "EventDetailPage.qml").read_text(encoding="utf-8")
+        row_qml = (base_dir / "components" / "EventRow.qml").read_text(encoding="utf-8")
+        main_qml = (base_dir / "main.qml").read_text(encoding="utf-8")
+
+        self.assertIn("property string selectedEventId", calendar_qml)
+        self.assertIn("property var selectedEventData: selectedEventById(selectedEventId)", calendar_qml)
+        self.assertIn("function selectedEventById(eventId)", calendar_qml)
+        self.assertIn("EventDetailPage", calendar_qml)
+        self.assertIn("visible: root.hasSelectedEvent()", calendar_qml)
+        self.assertIn("onClicked: root.selectedEventId = modelData.id", calendar_qml)
+        self.assertIn("signal clicked()", row_qml)
+        self.assertIn("MouseArea", row_qml)
+        self.assertIn("Torna al Calendario", detail_qml)
+        self.assertIn("Con il tuo profilo", detail_qml)
+        self.assertIn("Consigli osservativi", detail_qml)
+        self.assertIn("Apri dettaglio oggetto", detail_qml)
+        self.assertIn("L'opposizione è il periodo migliore", detail_qml)
+        self.assertIn("La Luna nuova offre il cielo più scuro", detail_qml)
+        self.assertIn("Gli sciami meteorici si osservano meglio", detail_qml)
+        self.assertIn("Un'eclissi lunare è osservabile", detail_qml)
+        self.assertIn("Una congiunzione avvicina prospetticamente", detail_qml)
+        self.assertIn("onOpenObject: function(objectId)", main_qml)
+        self.assertIn('window.currentPage = "detail"', main_qml)
+
     def test_location_page_exposes_earthdata_registration_link(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)

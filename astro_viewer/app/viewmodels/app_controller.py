@@ -1779,6 +1779,8 @@ class AppController(QObject):
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
         data = event.to_qml()
         data["setup"] = self._calendar_event_setup(event)
+        target = self._calendar_event_target(event)
+        data["targetObjectId"] = target.id if target else ""
         return data
 
     def _calendar_event_setup(self, event: AstronomicalEvent) -> str:

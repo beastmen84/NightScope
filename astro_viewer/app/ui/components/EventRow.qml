@@ -6,13 +6,25 @@ Rectangle {
 
     property var eventData
     property color accentColor: "#f6c768"
+    property bool hovered: false
+
+    signal clicked()
 
     Layout.fillWidth: true
     implicitHeight: 112
     radius: 8
-    color: "#171a20"
-    border.color: "#303641"
+    color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12) : "#171a20"
+    border.color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.55) : "#303641"
     border.width: 1
+
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onEntered: root.hovered = true
+        onExited: root.hovered = false
+        onClicked: root.clicked()
+    }
 
     RowLayout {
         anchors.fill: parent
