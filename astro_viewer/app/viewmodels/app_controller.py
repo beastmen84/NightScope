@@ -1261,7 +1261,7 @@ class AppController(QObject):
         Thread(target=run_refresh, daemon=True).start()
 
     def _refresh_weather_from_timer(self) -> None:
-        self._start_weather_refresh(force_refresh=True)
+        self._start_weather_refresh(force_refresh=False)
 
     @Slot(str, object, str)
     def _finish_weather_refresh(self, location_key: str, hours: object, error: str) -> None:

@@ -234,6 +234,47 @@ class ReleaseScenarioTests(unittest.TestCase):
             )
             controller._schedule_viirs_sky_quality_refresh.assert_not_called()
 
+    def test_automatic_weather_refresh_uses_cache_friendly_mode_and_clears_failure(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            fake_weather_service = _ForceRefreshFailingWeatherService()
+            controller._weather_service = fake_weather_service
+
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+            fake_weather_service.force_refresh_values.clear()
+            controller._weather_status = WEATHER_UNAVAILABLE_MESSAGE
+            controller._schedule_viirs_sky_quality_refresh = Mock()
+
+            controller._refresh_weather_from_timer()
+
+            self.assertTrue(_wait_for_weather_refresh(controller))
+            self.assertEqual(fake_weather_service.force_refresh_values, [False])
+            self.assertEqual(len(controller.weatherHourly), 1)
+            self.assertEqual(controller.weatherStatus, "")
+            self.assertTrue(controller._weather_refresh_timer.isActive())
+            controller._schedule_viirs_sky_quality_refresh.assert_not_called()
+
+    def test_automatic_weather_refresh_failure_keeps_existing_data_and_reschedules(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+            existing_weather = controller.weatherHourly
+
+            fake_weather_service = _AutomaticRefreshFailingWeatherService()
+            controller._weather_service = fake_weather_service
+            fake_weather_service.force_refresh_values.clear()
+            controller._schedule_viirs_sky_quality_refresh = Mock()
+
+            controller._refresh_weather_from_timer()
+
+            self.assertTrue(_wait_for_weather_refresh(controller))
+            self.assertEqual(fake_weather_service.force_refresh_values, [False])
+            self.assertEqual(controller.weatherHourly, existing_weather)
+            self.assertEqual(
+                controller.weatherStatus,
+                "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili.",
+            )
+            self.assertTrue(controller._weather_refresh_timer.isActive())
+            controller._schedule_viirs_sky_quality_refresh.assert_not_called()
+
     def test_approximate_online_location_refreshes_weather(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             fake_weather_service = Mock()
@@ -388,6 +429,17 @@ class _ForceRefreshFailingWeatherService:
             return []
         self.last_error = ""
         return [WeatherHour("2026-06-21T22:00", "22:00", 20, 0, 6, 55, 18.0, 18_000)]
+
+
+class _AutomaticRefreshFailingWeatherService:
+    def __init__(self) -> None:
+        self.last_error = ""
+        self.force_refresh_values: list[bool] = []
+
+    def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
+        self.force_refresh_values.append(force_refresh)
+        self.last_error = WEATHER_UNAVAILABLE_MESSAGE
+        return []
 
 
 def _wait_for_startup_location(controller: AppController, timeout_seconds: float = 3.0) -> bool:
