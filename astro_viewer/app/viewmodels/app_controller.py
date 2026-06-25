@@ -1809,13 +1809,12 @@ class AppController(QObject):
 
     def _calendar_event_setup(self, event: AstronomicalEvent) -> str:
         event_type = event.event_type.strip().lower()
-        title = event.title.strip().lower()
         if event_type == "sciame meteorico":
             return "Occhio nudo"
         if event_type == "luna":
-            return self._calendar_moon_setup(title)
+            return self._calendar_moon_setup(event)
         if event_type == "eclissi":
-            return "Occhio nudo; profilo attivo per dettagli lunari"
+            return "Occhio nudo; binocolo o basso ingrandimento"
         if event_type == "congiunzione":
             target = self._calendar_event_target(event)
             if target:
@@ -1829,10 +1828,22 @@ class AppController(QObject):
                 return self._calendar_profile_setup(target, event.setup)
         return self._calendar_clean_setup(event.setup)
 
-    def _calendar_moon_setup(self, title: str) -> str:
+    def _calendar_moon_setup(self, event: AstronomicalEvent) -> str:
+        title = event.title.strip().lower()
         if "nuova" in title:
-            return "Finestra cielo profondo"
-        target = CelestialObject(
+            telescope = self._current_telescope()
+            if self._equipment_service.has_optical_telescope(telescope):
+                return (
+                    f"Con il tuo {telescope.name} questa è la notte migliore del mese "
+                    "per osservare galassie, nebulose e ammassi deboli."
+                )
+            return "Notte migliore del mese per cielo profondo: usa binocolo o telescopio se disponibili."
+        target = self._calendar_moon_target(event)
+        return self._calendar_profile_setup(target, "Osservazione lunare")
+
+    @staticmethod
+    def _calendar_moon_target(event: AstronomicalEvent) -> CelestialObject:
+        return CelestialObject(
             id="moon",
             name="Luna",
             object_type="Luna",
@@ -1841,19 +1852,22 @@ class AppController(QObject):
             distance="384.000 km",
             max_altitude="45 gradi",
             direction="Sud",
-            best_time="22:00",
-            observing_window="Sera",
-            notes="",
+            best_time=event.best_time,
+            observing_window=event.best_time,
+            notes=event.note,
             recommended_setup="",
             visibility_class="Luna",
             azimuth="180 gradi",
             time_above_horizon="n/d",
             apparent_size="30 arcmin",
-            score=70,
+            score=event.usefulness,
         )
-        return self._calendar_profile_setup(target, "Osservazione lunare")
 
     def _calendar_event_target(self, event: AstronomicalEvent) -> CelestialObject | None:
+        event_type = event.event_type.strip().lower()
+        title = event.title.strip().lower()
+        if event_type == "luna" or (event_type == "eclissi" and "lunare" in title):
+            return self._calendar_moon_target(event)
         bodies = {
             "mercury": ("Mercurio", "-0.2"),
             "mercurio": ("Mercurio", "-0.2"),

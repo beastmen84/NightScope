@@ -44,6 +44,23 @@ Item {
         return dateLabel.length > 0 ? dateLabel : timeLabel
     }
 
+    function appendGuidance(setup, guidance) {
+        var base = root.cleanText(setup)
+        var detail = root.cleanText(guidance)
+        if (base.length === 0)
+            return detail
+        if (detail.length === 0)
+            return base
+        var lastChar = base.charAt(base.length - 1)
+        if (lastChar !== "." && lastChar !== "!" && lastChar !== "?")
+            base += "."
+        return base + " " + detail
+    }
+
+    function isGenericSetup(setup) {
+        return setup === "" || setup === "Nota osservativa" || setup === "Qualsiasi setup"
+    }
+
     function hasConfiguredEquipment() {
         var assigned = controller.profileAssignedEquipment || []
         for (var index = 0; index < assigned.length; index += 1) {
@@ -56,6 +73,30 @@ Item {
     function profileSetupText() {
         var setup = root.hasEvent ? root.cleanText(root.eventData.setup) : ""
         var type = root.eventType()
+        var title = root.lowerText(root.eventTitle())
+        if (type === "Sciame meteorico")
+            return "Il telescopio non serve: osserva a occhio nudo. Un binocolo può essere utile solo per esplorare il cielo tra una meteora e l'altra."
+        if (type === "Eclissi" && title.indexOf("solare") >= 0)
+            return "Osserva il Sole solo con filtri solari certificati davanti all'obiettivo. Non usare oculari o cercatori non filtrati."
+        if (type === "Eclissi")
+            return "Osservabile a occhio nudo. Con binocolo o telescopio usa basso ingrandimento: l'intero disco lunare deve restare nel campo."
+        if (type === "Luna" && title.indexOf("nuova") >= 0) {
+            if (!root.isGenericSetup(setup))
+                return setup
+            return "Configura un profilo per consigli più precisi; resta comunque la notte migliore del mese per galassie, nebulose e ammassi deboli."
+        }
+        if (type === "Luna") {
+            var lunarSetup = root.isGenericSetup(setup) ? "Osservabile a occhio nudo o con binocolo." : setup
+            if (title.indexOf("primo quarto") >= 0 || title.indexOf("ultimo quarto") >= 0)
+                return root.appendGuidance(lunarSetup, "Il terminatore evidenzia crateri e rilievi; l'ingrandimento consigliato mantiene dettagli e immagine luminosa.")
+            if (title.indexOf("piena") >= 0)
+                return root.appendGuidance(lunarSetup, "Usa filtro lunare o ingrandimenti moderati: il disco è luminoso e il cielo profondo debole rende poco.")
+            return root.appendGuidance(lunarSetup, "Mantieni il disco comodo nel campo e aumenta l'ingrandimento solo quando l'immagine resta stabile.")
+        }
+        if (type === "Opposizione" && setup.length > 0)
+            return root.appendGuidance(setup, "Aumenta l'ingrandimento solo se il seeing mantiene il pianeta nitido.")
+        if (type === "Congiunzione" && setup.length > 0)
+            return root.appendGuidance(setup, "Preferisci campo largo: l'obiettivo è vedere gli oggetti insieme, non spingerli al massimo ingrandimento.")
         if (setup === "Occhio nudo")
             return "Osservabile a occhio nudo"
         if (!root.hasConfiguredEquipment() && (type === "Opposizione" || type === "Congiunzione" || setup === "Telescopio consigliato"))
@@ -64,8 +105,6 @@ Item {
             return "Configura un profilo per consigli più precisi."
         if (setup.length > 0)
             return setup
-        if (type === "Sciame meteorico" || type === "Eclissi")
-            return "Osservabile a occhio nudo"
         return "Configura un profilo per consigli più precisi."
     }
 
@@ -73,17 +112,23 @@ Item {
         var type = root.eventType()
         var title = root.lowerText(root.eventTitle())
         if (type === "Opposizione")
-            return "L'opposizione è il periodo migliore dell'anno per osservare il pianeta: è più vicino alla Terra, più luminoso e visibile per gran parte della notte."
+            return "È la notte in cui il pianeta merita davvero spazio nel piano osservativo: resta visibile a lungo, diventa più luminoso e consente di aspettare i momenti di seeing stabile."
         if (type === "Luna" && title.indexOf("nuova") >= 0)
-            return "La Luna nuova offre il cielo più scuro del mese ed è il momento migliore per oggetti deboli del cielo profondo."
+            return "È la finestra con meno luce lunare: vale la pena riservarla a galassie, nebulose e ammassi deboli che nelle altre notti perdono contrasto."
+        if (type === "Luna" && (title.indexOf("primo quarto") >= 0 || title.indexOf("ultimo quarto") >= 0))
+            return "Il terminatore attraversa zone ricche di rilievi: crateri, ombre e catene montuose mostrano più dettaglio rispetto alla Luna piena."
+        if (type === "Luna" && title.indexOf("piena") >= 0)
+            return "La Luna piena è facile e luminosa, ma lava il cielo profondo debole. Usala per osservazione lunare, pianeti brillanti o sessioni rapide."
         if (type === "Luna")
-            return "Le fasi lunari aiutano a scegliere tra osservazione della Luna, pianeti e cielo profondo in base alla luminosità del cielo."
+            return "La fase lunare decide quanto cielo buio avrai e quali dettagli lunari conviene cercare durante la sessione."
         if (type === "Sciame meteorico")
-            return "Gli sciami meteorici si osservano meglio a occhio nudo, lontano da luci dirette, lasciando adattare la vista al buio."
+            return "Conta più il cielo buio del telescopio: serve campo visivo ampio, pazienza e vista adattata al buio per cogliere meteore sparse."
+        if (type === "Eclissi" && title.indexOf("solare") >= 0)
+            return "È un evento da pianificare con attenzione e protezione solare certificata. Senza filtri corretti non va osservato direttamente."
         if (type === "Eclissi")
-            return "Un'eclissi lunare è osservabile anche a occhio nudo e diventa più interessante con binocolo o telescopio a basso ingrandimento."
+            return "È un evento comodo da seguire anche a occhio nudo; binocolo o basso ingrandimento aiutano a vedere colore, ombra e avanzamento sul disco lunare."
         if (type === "Congiunzione")
-            return "Una congiunzione avvicina prospetticamente due oggetti nel cielo e offre una finestra interessante per osservazioni grandangolari o fotografie."
+            return "È interessante quando puoi inquadrare più oggetti insieme. Rende meglio con binocolo, bassi ingrandimenti o foto a campo largo."
         return root.hasEvent ? root.cleanText(root.eventData.note) : "Seleziona un evento dal calendario."
     }
 
@@ -99,7 +144,8 @@ Item {
         if (type === "Sciame meteorico")
             return [
                 "Non serve il telescopio.",
-                "Guarda verso una zona di cielo buia, non direttamente verso luci o schermi.",
+                "Scegli una zona di cielo ampia e buia, lontana da luci dirette.",
+                "Sdraiati o usa una sedia reclinabile: serve osservare a lungo.",
                 "Se possibile osserva dopo la mezzanotte."
             ]
         if (type === "Luna" && title.indexOf("nuova") >= 0)
@@ -108,10 +154,29 @@ Item {
                 "Evita luci dirette e lascia adattare la vista al buio.",
                 "Sfrutta finestre meteo con poca umidità e nubi basse."
             ]
+        if (type === "Luna" && (title.indexOf("primo quarto") >= 0 || title.indexOf("ultimo quarto") >= 0))
+            return [
+                "Osserva lungo il terminatore.",
+                "Aumenta l'ingrandimento a piccoli passi.",
+                "Usa un filtro lunare se l'immagine è troppo luminosa."
+            ]
+        if (type === "Luna" && title.indexOf("piena") >= 0)
+            return [
+                "Usa filtro lunare o riduci l'ingrandimento.",
+                "Non puntare oggetti deboli del cielo profondo.",
+                "Preferisci pianeti brillanti, stelle doppie e dettagli lunari evidenti."
+            ]
+        if (type === "Eclissi" && title.indexOf("solare") >= 0)
+            return [
+                "Usa solo filtri solari certificati davanti all'obiettivo.",
+                "Non guardare mai il Sole attraverso cercatore o oculare non filtrato.",
+                "Prepara il setup prima dell'inizio dell'evento."
+            ]
         if (type === "Eclissi")
             return [
                 "È osservabile anche a occhio nudo.",
-                "Usa binocolo o basso ingrandimento per seguire il disco lunare completo.",
+                "Usa binocolo o basso ingrandimento.",
+                "Mantieni il disco lunare completo nel campo.",
                 "Controlla in anticipo la finestra temporale dell'evento."
             ]
         if (type === "Congiunzione")
@@ -127,7 +192,7 @@ Item {
     }
 
     function eventObjectId() {
-        if (!root.hasEvent || root.eventType() !== "Opposizione")
+        if (!root.hasEvent)
             return ""
         var targetId = root.cleanText(root.eventData.targetObjectId)
         if (targetId.length === 0)

@@ -516,8 +516,34 @@ class Phase6RealDataTests(unittest.TestCase):
 
             setup = controller._event_to_qml(event)["setup"]
 
-            self.assertEqual(setup, "Finestra cielo profondo")
+            self.assertIn("notte migliore del mese", setup.lower())
             self.assertNotEqual(setup, "Qualsiasi setup")
+
+    def test_calendar_moon_events_expose_target_object_id(self) -> None:
+        with _controller() as controller:
+            moon_event = AstronomicalEvent(
+                id="moon-first-quarter-test",
+                title="Primo quarto",
+                event_type="Luna",
+                date_label="21/07/2026",
+                best_time="22:10",
+                usefulness=68,
+                setup="Qualsiasi setup",
+                note="Test",
+            )
+            eclipse_event = AstronomicalEvent(
+                id="lunar-eclipse-test",
+                title="Eclissi lunare parziale",
+                event_type="Eclissi",
+                date_label="07/09/2026",
+                best_time="21:35",
+                usefulness=76,
+                setup="Occhio nudo",
+                note="Test",
+            )
+
+            self.assertEqual(controller._event_to_qml(moon_event)["targetObjectId"], "moon")
+            self.assertEqual(controller._event_to_qml(eclipse_event)["targetObjectId"], "moon")
 
     def test_controller_blocks_duplicate_catalog_telescopes(self) -> None:
         with _controller() as controller:
