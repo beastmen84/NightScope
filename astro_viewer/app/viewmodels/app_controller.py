@@ -1752,6 +1752,7 @@ class AppController(QObject):
         telescopes = self._active_profile_telescopes()
         eyepieces = self._active_profile_eyepieces()
         barlows = self._active_profile_barlows()
+        binoculars = self._active_profile_binoculars()
         updated = []
         for item in objects:
             suggestion = self._equipment_service.suggest_for_profile(
@@ -1761,9 +1762,11 @@ class AppController(QObject):
                 barlows,
                 self._seeing_transparency,
                 self._sky_quality,
+                binoculars,
             )
             naked_eye_blocked = (
                 not telescopes
+                and not binoculars
                 and suggestion["setupText"].startswith("Serve almeno")
             )
             updated.append(

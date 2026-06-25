@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
@@ -209,20 +209,137 @@ class EquipmentService:
         barlows: list[Barlow] | None = None,
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
+        binoculars: list[Binocular] | None = None,
     ) -> dict:
+        barlows = barlows or []
+        binoculars = binoculars or []
         usable_telescopes = [telescope for telescope in telescopes if self.has_optical_telescope(telescope)]
-        if not usable_telescopes:
+        if not usable_telescopes and not binoculars:
             return self._naked_eye_suggestion(celestial_object)
 
+        if binoculars:
+            combinations = self._ranked_profile_combinations(
+                celestial_object,
+                usable_telescopes,
+                eyepieces,
+                barlows,
+                binoculars,
+                seeing,
+                sky_quality,
+            )
+            if combinations:
+                return self._suggestion_from_combinations(
+                    celestial_object,
+                    combinations,
+                    sky_quality,
+                    prefix_telescope=True,
+                )
+
         suggestions = [
-            self.suggest_for_object(celestial_object, telescope, eyepieces, barlows or [], seeing, sky_quality)
+            self.suggest_for_object(celestial_object, telescope, eyepieces, barlows, seeing, sky_quality)
             for telescope in usable_telescopes
         ]
+        if not suggestions:
+            return self._naked_eye_suggestion(celestial_object)
         best = max(suggestions, key=lambda item: item.get("selectionScore", 0.0))
         setup_text = best.get("setupText", "").strip()
         if setup_text and not setup_text.startswith(("Aggiungi", "Serve almeno")):
             best = {**best, "setupText": f"{best['telescopeName']} + {setup_text}"}
         return best
+
+    def _ranked_profile_combinations(
+        self,
+        celestial_object: CelestialObject,
+        telescopes: list[Telescope],
+        eyepieces: list[Eyepiece],
+        barlows: list[Barlow],
+        binoculars: list[Binocular],
+        seeing: SeeingTransparency | None = None,
+        sky_quality: SkyQuality | None = None,
+    ) -> list[dict]:
+        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
+
+        profiles: dict[str, dict] = {}
+
+        def profile_for(telescope: Telescope) -> dict:
+            if telescope.id not in profiles:
+                profiles[telescope.id] = self._target_profile(celestial_object, telescope, seeing, sky_quality)
+            return profiles[telescope.id]
+
+        def focal_position_provider(candidate_telescope: Telescope, eyepiece: Eyepiece, barlow: Barlow | None) -> list[dict]:
+            profile = profile_for(candidate_telescope)
+            multiplier = barlow.multiplier if barlow else 1.0
+            ideal_focal = candidate_telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
+            return self.eyepiece_focal_positions(eyepiece, ideal_focal)
+
+        configurations = ObservationConfigurationBuilder(self).build(
+            telescopes,
+            eyepieces,
+            barlows,
+            binoculars,
+            focal_position_provider,
+        )
+        combinations = []
+        for configuration in configurations:
+            if configuration.binocular:
+                combination = self._binocular_configuration_to_combination(configuration, celestial_object, sky_quality)
+            elif configuration.telescope:
+                combination = self._configuration_to_combination(
+                    configuration,
+                    celestial_object,
+                    profile_for(configuration.telescope),
+                    sky_quality,
+                )
+            else:
+                combination = None
+            if combination:
+                combinations.append(combination)
+        return sorted(combinations, key=lambda item: item["score"], reverse=True)
+
+    def _suggestion_from_combinations(
+        self,
+        celestial_object: CelestialObject,
+        combinations: list[dict],
+        sky_quality: SkyQuality | None,
+        prefix_telescope: bool = False,
+    ) -> dict:
+        recommended = self._recommended_combination(combinations)
+        options = self._option_set(combinations, recommended)
+        setup_options = [self._combo_to_option(role, combo) for role, combo in options]
+        alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
+        setup_text = recommended["detail_label"]
+        telescope = recommended.get("telescope")
+        binocular = recommended.get("binocular")
+        if prefix_telescope and recommended.get("equipment_type") == "Telescope" and telescope:
+            setup_text = f"{recommended['telescope_name']} + {setup_text}"
+        if recommended.get("equipment_type") == "Binocular":
+            difficulty = self._difficulty_for_binocular(recommended)
+            explanation = self._binocular_explanation(celestial_object, recommended)
+            best_eyepiece = "Non richiesto"
+            telescope_id = binocular.id if binocular else ""
+            telescope_name = "Binocolo"
+        else:
+            difficulty = self._difficulty_for_object(celestial_object, telescope, sky_quality) if telescope else "Media"
+            explanation = self._equipment_explanation(celestial_object, recommended)
+            best_eyepiece = recommended["eyepiece"].name
+            telescope_id = telescope.id if telescope else ""
+            telescope_name = telescope.name if telescope else ""
+        return {
+            "bestEyepiece": best_eyepiece,
+            "suggestedPosition": recommended.get("focal_position", ""),
+            "barlow": recommended["barlow_label"],
+            "difficulty": difficulty,
+            "alternative": alternative["detailLabel"] if alternative else "n/d",
+            "highMagnification": next((option["detailLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
+            "wideField": next((option["detailLabel"] for option in setup_options if option["role"] == "Campo largo"), ""),
+            "setupText": setup_text,
+            "setupOptions": setup_options,
+            "explanation": explanation,
+            "telescopeId": telescope_id,
+            "telescopeName": telescope_name,
+            "equipmentType": recommended.get("equipment_type", "Telescope"),
+            "selectionScore": recommended["score"],
+        }
 
     def _ranked_combinations(
         self,
@@ -282,6 +399,8 @@ class EquipmentService:
         if eyepiece.eyepiece_type == "Zoom":
             detail_label = f"{label} @ {configuration.focal_position_label}"
         return {
+            "equipment_type": "Telescope",
+            "telescope": telescope,
             "eyepiece": eyepiece,
             "barlow": barlow,
             "barlow_label": barlow.name if barlow else "No",
@@ -295,6 +414,34 @@ class EquipmentService:
             "label": label,
             "detail_label": detail_label,
             "telescope_name": telescope.name,
+        }
+
+    def _binocular_configuration_to_combination(
+        self,
+        configuration: ObservationConfiguration,
+        celestial_object: CelestialObject,
+        sky_quality: SkyQuality | None,
+    ) -> dict | None:
+        binocular = configuration.binocular
+        if not binocular or configuration.magnification <= 0 or configuration.exit_pupil_mm <= 0:
+            return None
+        label = self._binocular_setup_label(binocular)
+        return {
+            "equipment_type": "Binocular",
+            "binocular": binocular,
+            "eyepiece": None,
+            "barlow": None,
+            "barlow_label": "No",
+            "multiplier": 1.0,
+            "focal_position": "",
+            "focal_mm": None,
+            "magnification": configuration.magnification,
+            "true_field": None,
+            "exit_pupil": configuration.exit_pupil_mm,
+            "score": self._binocular_configuration_score(celestial_object, configuration, sky_quality),
+            "label": label,
+            "detail_label": label,
+            "telescope_name": "",
         }
 
     @staticmethod
@@ -352,7 +499,7 @@ class EquipmentService:
 
     def _recommended_combination(self, combinations: list[dict]) -> dict:
         best = combinations[0]
-        if best["multiplier"] <= 1.0:
+        if best.get("equipment_type") != "Telescope" or best["multiplier"] <= 1.0:
             return best
         best_without_barlow = next((combo for combo in combinations if combo["multiplier"] <= 1.0), None)
         if best_without_barlow and best["score"] <= best_without_barlow["score"] + 8:
@@ -365,7 +512,7 @@ class EquipmentService:
         if alternative:
             options.append(("Alternativa", alternative))
         options.append(("Alto ingrandimento", max(combinations, key=lambda item: item["magnification"])))
-        options.append(("Campo largo", max(combinations, key=lambda item: item["true_field"])))
+        options.append(("Campo largo", max(combinations, key=lambda item: item["true_field"] or 0.0)))
         return options
 
     @staticmethod
@@ -378,17 +525,20 @@ class EquipmentService:
 
     @staticmethod
     def _combo_to_option(role: str, combo: dict) -> dict:
+        true_field = combo["true_field"]
+        exit_pupil = combo["exit_pupil"]
         return {
             "role": role,
             "label": combo["label"],
             "detailLabel": combo["detail_label"],
-            "suggestedPosition": combo["focal_position"],
+            "suggestedPosition": combo.get("focal_position", ""),
             "magnification": f"{combo['magnification']:.0f}x",
-            "trueField": f"{combo['true_field']:.2f} gradi",
-            "exitPupil": f"{combo['exit_pupil']:.1f} mm",
+            "trueField": f"{true_field:.2f} gradi" if true_field is not None else "n/d",
+            "exitPupil": f"{exit_pupil:.1f} mm" if exit_pupil is not None else "n/d",
             "barlow": combo["barlow_label"],
             "score": max(0, min(100, round(combo["score"]))),
             "telescopeName": combo.get("telescope_name", ""),
+            "equipmentType": combo.get("equipment_type", "Telescope"),
         }
 
     def _target_profile(
@@ -519,6 +669,213 @@ class EquipmentService:
         if "open" in lower_type or "cluster" in lower_type:
             return min(12.0, aperture / 18.0)
         return min(14.0, aperture / 16.0)
+
+    def _binocular_configuration_score(
+        self,
+        celestial_object: CelestialObject,
+        configuration: ObservationConfiguration,
+        sky_quality: SkyQuality | None,
+    ) -> float:
+        binocular = configuration.binocular
+        if not binocular:
+            return 0.0
+
+        observation_type = self._observation_type_hint(celestial_object)
+        angular_size = self._angular_size_deg(celestial_object)
+        magnitude = self._parse_magnitude(celestial_object.magnitude)
+        lower_type = celestial_object.object_type.lower()
+        is_planetary_target = (
+            celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}
+            or "pianeta" in lower_type
+            or "luna" in lower_type
+        )
+
+        score = 35.0
+        if observation_type == "WideField":
+            score += 25.0
+            if angular_size and angular_size >= 1.0:
+                score += 15.0
+            if angular_size and angular_size >= 2.5:
+                score += 8.0
+        elif observation_type == "HighMagnification":
+            score -= 45.0
+        else:
+            score += 5.0
+
+        if angular_size is not None:
+            if angular_size >= 2.0:
+                score += 16.0
+            elif angular_size >= 1.0:
+                score += 12.0
+            elif angular_size >= 0.5:
+                score += 8.0
+            elif angular_size >= 0.15:
+                score += 2.0
+            elif angular_size < 0.05:
+                score -= 25.0
+            elif angular_size < 0.10:
+                score -= 16.0
+
+        if magnitude is not None:
+            if magnitude <= 4.0:
+                score += 12.0
+            elif magnitude <= 6.0:
+                score += 8.0
+            elif magnitude <= 8.0:
+                score += 4.0
+            elif magnitude > 9.0:
+                score -= 15.0
+
+        magnification = configuration.magnification
+        if observation_type == "WideField":
+            if magnification <= 10.0:
+                score += 12.0
+            elif magnification <= 15.0:
+                score += 6.0
+            elif magnification >= 16.0:
+                score -= 8.0
+        elif observation_type == "HighMagnification":
+            score -= 20.0
+        elif magnification <= 15.0:
+            score += 4.0
+        else:
+            score += 1.0
+
+        exit_pupil = configuration.exit_pupil_mm
+        if 4.0 <= exit_pupil <= 6.0:
+            score += 10.0
+        elif 3.0 <= exit_pupil < 4.0:
+            score += 6.0
+        elif 2.0 <= exit_pupil < 3.0:
+            score += 1.0
+        elif exit_pupil < 2.0:
+            score -= 10.0
+        else:
+            score -= 6.0
+
+        objective = binocular.objective_diameter_mm
+        if objective >= 70:
+            score += 8.0
+        elif objective >= 50:
+            score += 6.0
+        elif objective >= 42:
+            score += 2.0
+        elif objective < 35:
+            score -= 5.0
+
+        if binocular.image_stabilized:
+            if 12.0 <= magnification <= 18.0:
+                score += 6.0
+            elif magnification <= 10.0:
+                score += 2.0
+            else:
+                score += 3.0
+        elif magnification > 16.0:
+            score -= 10.0
+        elif magnification > 12.0:
+            score -= 4.0
+
+        if sky_quality and sky_quality.bortle_class >= 7 and magnitude and magnitude > 8.0:
+            score -= 8.0
+        if is_planetary_target:
+            score -= 35.0 if celestial_object.id != "moon" else 20.0
+
+        return max(0.0, min(100.0, score))
+
+    @staticmethod
+    def _binocular_setup_label(binocular: Binocular) -> str:
+        spec = f"{binocular.magnification}x{binocular.objective_diameter_mm}"
+        display_spec = spec.replace("x", "×")
+        name = binocular.name.strip()
+        normalized_name = name.lower().replace("×", "x")
+        if spec.lower() not in normalized_name:
+            name = f"{name} {display_spec}"
+        tokens = name.upper().replace("-", " ").split()
+        if binocular.image_stabilized and "IS" not in tokens:
+            name = f"{name} IS"
+        return name
+
+    def _difficulty_for_binocular(self, combination: dict) -> str:
+        score = combination["score"]
+        if score >= 75.0:
+            return "Facile"
+        if score >= 45.0:
+            return "Media"
+        return "Difficile"
+
+    def _binocular_explanation(self, celestial_object: CelestialObject, combination: dict) -> str:
+        observation_type = self._observation_type_hint(celestial_object)
+        magnification = combination["magnification"]
+        exit_pupil = combination["exit_pupil"]
+        if observation_type == "HighMagnification" or combination["score"] < 35.0:
+            return (
+                "Profilo non ideale: il target richiede piu' ingrandimento "
+                f"di quanto il binocolo possa offrire; {magnification:.0f}x con pupilla {exit_pupil:.1f} mm."
+            )
+        if observation_type == "WideField":
+            return (
+                "Configurazione adatta a campi ampi: "
+                f"{magnification:.0f}x con pupilla {exit_pupil:.1f} mm; "
+                "il campo reale non e' stimato perche' il catalogo binocoli non include il FOV."
+            )
+        return (
+            "Configurazione utilizzabile a basso ingrandimento: "
+            f"{magnification:.0f}x con pupilla {exit_pupil:.1f} mm; "
+            "un telescopio puo' mostrare piu' dettaglio se disponibile."
+        )
+
+    def _observation_type_hint(self, celestial_object: CelestialObject) -> str:
+        configured = celestial_object.recommended_observation_type.strip()
+        if configured in {"WideField", "General", "HighMagnification"}:
+            return configured
+        lower_type = celestial_object.object_type.lower()
+        angular_size = self._angular_size_deg(celestial_object)
+        if celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}:
+            return "HighMagnification"
+        if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
+            return "HighMagnification"
+        if angular_size and angular_size >= 1.0:
+            return "WideField"
+        if "open" in lower_type or "ammasso aperto" in lower_type:
+            return "WideField"
+        return "General"
+
+    def _angular_size_deg(self, celestial_object: CelestialObject) -> float | None:
+        if celestial_object.max_angular_size_deg and celestial_object.max_angular_size_deg > 0:
+            return celestial_object.max_angular_size_deg
+        value = celestial_object.apparent_size.strip().lower()
+        if not value:
+            return None
+        numbers = []
+        cleaned = (
+            value.replace(",", ".")
+            .replace("×", " ")
+            .replace("x", " ")
+            .replace("arcsec", " ")
+            .replace("arcmin", " ")
+            .replace("gradi", " ")
+            .replace("degrees", " ")
+            .replace("degree", " ")
+            .replace("deg", " ")
+            .replace("°", " ")
+            .replace("′", " ")
+            .replace("'", " ")
+            .replace("″", " ")
+            .replace('"', " ")
+        )
+        for token in cleaned.split():
+            try:
+                numbers.append(float(token))
+            except ValueError:
+                continue
+        if not numbers:
+            return None
+        maximum = max(numbers)
+        if "arcsec" in value or "″" in value or '"' in value:
+            return maximum / 3600.0
+        if "deg" in value or "degree" in value or "gradi" in value or "°" in value:
+            return maximum
+        return maximum / 60.0
 
     @staticmethod
     def _equipment_explanation(celestial_object: CelestialObject, combination: dict) -> str:

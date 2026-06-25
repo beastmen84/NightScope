@@ -33,6 +33,8 @@ class CelestialObject:
     barlow: str = "No"
     score_explanation: str = ""
     apparent_size: str = ""
+    max_angular_size_deg: float | None = None
+    recommended_observation_type: str = ""
     setup_options: list[dict] = field(default_factory=list)
     equipment_explanation: str = ""
 
@@ -48,6 +50,8 @@ class CelestialObject:
         data["bestEyepiece"] = self.best_eyepiece
         data["scoreExplanation"] = self.score_explanation
         data["apparentSize"] = self.apparent_size
+        data["maxAngularSizeDeg"] = self.max_angular_size_deg
+        data["recommendedObservationType"] = self.recommended_observation_type
         data["setupOptions"] = self.setup_options
         data["equipmentExplanation"] = self.equipment_explanation
         return data
