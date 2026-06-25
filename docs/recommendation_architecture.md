@@ -39,9 +39,9 @@ Two inputs meet inside the recommendation pipeline:
 - `TargetObservationTraits` describes what the target needs.
 - `ObservationConfigurationBuilder` describes what the active profile can do.
 
-`EquipmentService` compares those two sides and selects the best
-`RecommendationCandidate`. `RecommendationPresenter` serializes the selected
-candidate into the UI-facing DTO used by `AppController` and QML.
+`EquipmentService` compares those two sides with weighted scoring and selects
+the best `RecommendationCandidate`. `RecommendationPresenter` serializes the
+selected candidate into the UI-facing DTO used by `AppController` and QML.
 
 ## Responsibilities
 
@@ -130,6 +130,8 @@ Its responsibilities are:
 - apply seeing-limited magnification
 - apply Barlow preference rules
 - select the recommended candidate
+- build profile telescope capability DTOs from `ObservationConfiguration`
+  objects
 - choose fallback DTOs through `RecommendationPresenter` when no useful optical
   setup exists
 
@@ -250,12 +252,60 @@ altitude and useful magnification matter strongly.
 When metadata is absent, legacy object-type fallbacks still apply for globular
 clusters, planetary nebulae, open clusters, galaxies and nebulae.
 
+### Weighted Scoring v2
+
+Recommendation Engine v2 scores each `RecommendationCandidate` by comparing:
+
+```text
+TargetObservationTraits
+against
+ObservationConfiguration / RecommendationCandidate
+```
+
+Object type is now a fallback or modifier when better metadata is missing. The
+primary scoring dimensions are optical and observational:
+
+| Dimension | Weight |
+| --- | ---: |
+| Angular scale compatibility | 24 |
+| Magnification suitability | 24 |
+| Exit pupil suitability | 16 |
+| Light gathering / limiting magnitude | 16 |
+| Seeing compatibility | 10 |
+| Stability / Barlow / handheld practicality | 10 |
+
+The score is intentionally explainable. Each component maps to an observing
+concern a visual observer would recognize:
+
+- angular scale compares target size against true field when available
+- magnification compares the setup against the observing mode
+- exit pupil rewards useful brightness/contrast balance
+- light gathering considers aperture, binocular objective diameter and limiting
+  magnitude
+- seeing compatibility preserves the seeing-limited magnification cap
+- stability/Barlow/handling preserves conservative Barlow behavior and
+  binocular handheld practicality
+
+Representative behavior:
+
+- M31 may prefer a `32 mm` eyepiece or binoculars because its large angular
+  scale needs a wide field.
+- M45 and M44 favor wide-field telescope configurations or binoculars.
+- M57 and M76 remain high-magnification telescope targets.
+- M27, M97 and M107 behave as `General` targets and usually prefer
+  medium-magnification telescope configurations when available.
+- Planets and the Moon remain special physical cases because seeing, altitude
+  and useful magnification dominate their visual observing setup.
+- `object_type` remains a fallback/modifier when metadata is missing.
+- Binocular true field of view is not stored yet, so binocular field suitability
+  remains conservative and class-based by magnification range.
+
 ### Seeing-Limited Magnification
 
 `EquipmentService._seeing_limited_magnification()` caps useful magnification by
 seeing score and telescope aperture.
 
-The target profile stores `maxUsefulMag`; `_combination_score()` penalizes any
+The target profile stores `maxUsefulMag`; weighted scoring penalizes any
 candidate exceeding that limit. This keeps planetary and high-magnification
 recommendations from selecting unrealistic setups under poor seeing.
 
@@ -449,6 +499,28 @@ Planner items receive the `recommended_setup` already attached to
 `CelestialObject` after `AppController._apply_equipment()` has run. Planner
 ranking itself is not yet fully configuration-aware.
 
+## Profile Capabilities
+
+The profile telescope capability section now derives its available telescope
+configurations from
+`ObservationConfigurationBuilder.build_telescope_configurations()`.
+
+The UI-facing capability DTO still has the same shape as before:
+
+- available magnification range
+- exit pupil range
+- true field range
+- `availableConfigurations`
+- `availableConfigurationsText`
+
+This section intentionally includes only telescope, eyepiece and Barlow
+configurations. Assigned binoculars remain excluded from the legacy telescope
+capability summary because profiles already expose a dedicated `Binocoli del
+profilo` section with binocular-specific derived values such as exit pupil.
+
+This keeps the old telescope capability display visually unchanged while
+removing the duplicate manual telescope configuration enumeration path.
+
 ## Known Technical Debt
 
 ### EquipmentService Still Centralizes Scoring
@@ -492,14 +564,35 @@ formatting.
 Possible future cleanup: move all recommendation explanation formatting into
 `RecommendationPresenter`.
 
-### Legacy Capability Helpers Still Return Dictionaries
+### Profile Capability DTOs Still Return Dictionaries
 
 Severity: Low.
 
-Profile capability display still uses dictionary-shaped helper output for
-available telescope configurations. This is separate from recommendation
-selection, but it is another place where telescope configuration data is
-represented outside `ObservationConfiguration`.
+Profile capability display now derives configurations from
+`ObservationConfigurationBuilder`, but still serializes them into the existing
+dictionary-shaped QML DTO. This is acceptable for compatibility, but a future
+typed presenter could make the boundary cleaner.
+
+### Binocular True Field Is Not Stored
+
+Severity: Low to Medium.
+
+Binocular scoring uses conservative magnification-class assumptions because the
+binocular catalogue does not store true field of view. This is sufficient for
+NightScope 1.1, but precise binocular FOV would improve future wide-field
+matching.
+
+## Backlog for NightScope 1.2
+
+Recommended follow-up work for the next cycle:
+
+- extract scoring from `EquipmentService` into a dedicated
+  `ConfigurationScorer`
+- keep `EquipmentService` focused on orchestration and candidate selection
+- add binocular true field of view if the catalogue model is expanded
+- make Planner ranking more configuration-aware
+- consolidate all recommendation explanation text in `RecommendationPresenter`
+- keep QML presentation-only as new setup types are introduced
 
 ## Future Extension Points
 
