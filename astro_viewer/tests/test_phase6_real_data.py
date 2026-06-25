@@ -18,7 +18,7 @@ from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
-from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
@@ -501,6 +501,75 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(setup.startswith("Bassa priorità: "))
             self.assertIn(controller.currentSetup["name"], setup)
 
+    def test_calendar_profile_setup_matches_home_for_telescope_only_profile(self) -> None:
+        with _controller() as controller:
+            _set_profile_equipment(
+                controller,
+                telescopes=[Telescope("test-mak-90", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale")],
+                eyepieces=[
+                    Eyepiece("test-10", "10 mm", 10, 60),
+                    Eyepiece("test-25", "25 mm", 25, 52),
+                ],
+            )
+            target = _metadata_object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification")
+
+            calendar_setup, home_setup, object_detail_setup = _calendar_home_detail_setups(controller, target)
+
+            self.assertEqual(calendar_setup, home_setup)
+            self.assertEqual(calendar_setup, object_detail_setup)
+            self.assertIn("Maksutov 90/1250 +", calendar_setup)
+
+    def test_calendar_profile_setup_supports_binocular_only_targets(self) -> None:
+        with _controller() as controller:
+            _set_profile_equipment(
+                controller,
+                binoculars=[Binocular("test-nikon-10x50", "Nikon Monarch M5", 10, 50)],
+            )
+
+            for target in (
+                _metadata_object("messier-M31", "M31", "Galaxy", "3.4", "190 arcmin", 3.17, "WideField"),
+                _metadata_object("messier-M45", "M45", "Open cluster", "1.6", "110 arcmin", 1.83, "WideField"),
+                _metadata_object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification"),
+            ):
+                with self.subTest(target=target.id):
+                    calendar_setup, home_setup, object_detail_setup = _calendar_home_detail_setups(controller, target)
+
+                    self.assertEqual(calendar_setup, home_setup)
+                    self.assertEqual(calendar_setup, object_detail_setup)
+                    self.assertIn("Nikon Monarch M5 10×50", calendar_setup)
+
+    def test_calendar_profile_setup_matches_home_for_mixed_profile_targets(self) -> None:
+        with _controller() as controller:
+            _set_profile_equipment(
+                controller,
+                telescopes=[Telescope("test-mak-90", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale")],
+                eyepieces=[
+                    Eyepiece("test-10", "10 mm", 10, 60),
+                    Eyepiece("test-25", "25 mm", 25, 52),
+                ],
+                binoculars=[Binocular("test-nikon-10x50", "Nikon Monarch M5", 10, 50)],
+            )
+            targets = [
+                _metadata_object("messier-M31", "M31", "Galaxy", "3.4", "190 arcmin", 3.17, "WideField"),
+                _metadata_object("messier-M45", "M45", "Open cluster", "1.6", "110 arcmin", 1.83, "WideField"),
+                _metadata_object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification"),
+                _metadata_object("messier-M27", "M27", "Planetary nebula", "7.4", "8 arcmin", 0.133, "General"),
+            ]
+
+            setups = {}
+            for target in targets:
+                with self.subTest(target=target.id):
+                    calendar_setup, home_setup, object_detail_setup = _calendar_home_detail_setups(controller, target)
+
+                    self.assertEqual(calendar_setup, home_setup)
+                    self.assertEqual(calendar_setup, object_detail_setup)
+                    setups[target.id] = calendar_setup
+
+            self.assertIn("Nikon Monarch M5 10×50", setups["messier-M31"])
+            self.assertIn("Nikon Monarch M5 10×50", setups["messier-M45"])
+            self.assertIn("Maksutov 90/1250 +", setups["messier-M57"])
+            self.assertIn("Maksutov 90/1250 +", setups["messier-M27"])
+
     def test_calendar_moon_events_hide_generic_setup(self) -> None:
         with _controller() as controller:
             event = AstronomicalEvent(
@@ -908,6 +977,55 @@ def _object(object_id: str, name: str, object_type: str, magnitude: str) -> Cele
         time_above_horizon="",
         score=80,
     )
+
+
+def _metadata_object(
+    object_id: str,
+    name: str,
+    object_type: str,
+    magnitude: str,
+    apparent_size: str,
+    max_angular_size_deg: float,
+    recommended_observation_type: str,
+) -> CelestialObject:
+    base = _object(object_id, name, object_type, magnitude)
+    return base.__class__(
+        **{
+            **base.__dict__,
+            "apparent_size": apparent_size,
+            "max_angular_size_deg": max_angular_size_deg,
+            "recommended_observation_type": recommended_observation_type,
+        }
+    )
+
+
+def _set_profile_equipment(
+    controller: AppController,
+    telescopes: list[Telescope] | None = None,
+    eyepieces: list[Eyepiece] | None = None,
+    barlows: list[Barlow] | None = None,
+    binoculars: list[Binocular] | None = None,
+) -> None:
+    telescopes = telescopes or []
+    eyepieces = eyepieces or []
+    barlows = barlows or []
+    binoculars = binoculars or []
+    controller._telescopes.extend(telescope for telescope in telescopes if not controller._find_telescope(telescope.id))
+    controller._eyepieces.extend(eyepiece for eyepiece in eyepieces if not controller._find_eyepiece(eyepiece.id))
+    controller._barlows.extend(barlow for barlow in barlows if not controller._find_barlow(barlow.id))
+    controller._binoculars.extend(binocular for binocular in binoculars if not controller._find_binocular(binocular.id))
+    state = controller._active_profile_state()
+    state["telescope_ids"] = [telescope.id for telescope in telescopes]
+    state["eyepiece_ids"] = [eyepiece.id for eyepiece in eyepieces]
+    state["barlow_ids"] = [barlow.id for barlow in barlows]
+    state["binocular_ids"] = [binocular.id for binocular in binoculars]
+
+
+def _calendar_home_detail_setups(controller: AppController, target: CelestialObject) -> tuple[str, str, str]:
+    calendar_setup = controller._calendar_profile_setup(target, "Telescopio medio")
+    home_object = controller._apply_equipment([target])[0]
+    object_detail = controller._object_to_qml(home_object)
+    return calendar_setup, home_object.recommended_setup, object_detail["recommended_setup"]
 
 
 def _geonames_row(

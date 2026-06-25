@@ -2015,24 +2015,29 @@ class AppController(QObject):
         return None
 
     def _calendar_profile_setup(self, target: CelestialObject, fallback: str) -> str:
-        telescope = self._current_telescope()
-        if not self._equipment_service.has_optical_telescope(telescope):
+        telescopes = self._active_profile_telescopes()
+        binoculars = self._active_profile_binoculars()
+        if not telescopes and not binoculars:
             return self._calendar_clean_setup(fallback)
 
-        suggestion = self._equipment_service.suggest_for_object(
+        suggestion = self._equipment_service.suggest_for_profile(
             target,
-            telescope,
+            telescopes,
             self._active_profile_eyepieces(),
             self._active_profile_barlows(),
+            self._seeing_transparency,
+            self._sky_quality,
+            binoculars,
         )
         setup_text = suggestion.get("setupText", "").strip()
         if not setup_text:
-            return telescope.name
+            return self._calendar_clean_setup(fallback)
         if setup_text.startswith("Serve almeno"):
-            return telescope.name
+            return self._calendar_clean_setup(fallback)
         if setup_text.startswith("Aggiungi oculari"):
-            return f"{telescope.name}: aggiungi oculari"
-        return f"{telescope.name} + {setup_text}"
+            telescope_name = suggestion.get("telescopeName", "").strip()
+            return f"{telescope_name}: aggiungi oculari" if telescope_name else self._calendar_clean_setup(fallback)
+        return setup_text
 
     @staticmethod
     def _calendar_clean_setup(setup: str) -> str:
