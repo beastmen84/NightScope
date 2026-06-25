@@ -417,6 +417,11 @@ class EquipmentService:
         max_altitude = traits.max_altitude_deg
         magnitude = traits.magnitude
         size_arcmin = traits.profile_size_arcmin
+        angular_size = traits.angular_size_deg
+        has_observation_metadata = (
+            celestial_object.recommended_observation_type.strip() in {"WideField", "General", "HighMagnification"}
+            or traits.max_angular_size_deg is not None
+        )
         max_useful_magnification = self._seeing_limited_magnification(telescope, seeing)
         practical_max = max(30.0, max_useful_magnification)
         altitude_factor = 1.0 if max_altitude >= 35 else 0.75 if max_altitude >= 20 else 0.55
@@ -432,6 +437,75 @@ class EquipmentService:
             }
         if celestial_object.id == "moon" or "luna" in lower_type:
             return {"mode": "balanced", "idealMag": min(practical_max * 0.55, 120.0), "idealExit": 1.8, "idealField": 0.75, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
+        if has_observation_metadata:
+            if traits.is_wide_field:
+                if angular_size and angular_size >= 2.5:
+                    ideal_magnification = 24.0
+                elif angular_size and angular_size >= 1.0:
+                    ideal_magnification = 28.0
+                elif angular_size and angular_size >= 0.4:
+                    ideal_magnification = 36.0
+                else:
+                    ideal_magnification = 45.0
+                desired_field = 1.2 if angular_size is None else max(0.9, min(3.2, angular_size * 1.1))
+                ideal_exit = 3.8 if sky_quality and sky_quality.bortle_class >= 7 else 4.4
+                return {
+                    "mode": "wide",
+                    "idealMag": min(ideal_magnification, practical_max * 0.45),
+                    "idealExit": ideal_exit,
+                    "idealField": desired_field,
+                    "barlowFriendly": False,
+                    "maxUsefulMag": max_useful_magnification,
+                }
+            if traits.is_high_magnification:
+                if angular_size and angular_size < 0.05:
+                    ideal_magnification = min(practical_max * 0.7, 155.0)
+                    ideal_field = 0.22
+                elif angular_size and angular_size < 0.12:
+                    ideal_magnification = min(practical_max * 0.6, 130.0)
+                    ideal_field = 0.32
+                else:
+                    ideal_magnification = min(practical_max * 0.5, 110.0)
+                    ideal_field = 0.45
+                return {
+                    "mode": "high",
+                    "idealMag": max(55.0, ideal_magnification * altitude_factor),
+                    "idealExit": 1.2,
+                    "idealField": ideal_field,
+                    "barlowFriendly": True,
+                    "maxUsefulMag": max_useful_magnification,
+                }
+            if traits.is_general:
+                if angular_size and angular_size >= 0.18:
+                    ideal_magnification = 55.0
+                    ideal_field = max(0.55, min(1.6, angular_size * 1.4))
+                    ideal_exit = 2.8
+                elif angular_size and angular_size >= 0.08:
+                    ideal_magnification = 58.0
+                    ideal_field = max(0.45, min(1.2, angular_size * 1.5))
+                    ideal_exit = 1.9
+                elif angular_size and angular_size >= 0.03:
+                    ideal_magnification = 78.0
+                    ideal_field = 0.45
+                    ideal_exit = 2.2
+                else:
+                    ideal_magnification = 88.0
+                    ideal_field = 0.35
+                    ideal_exit = 1.9
+                if magnitude is not None and magnitude > 9.0 and angular_size and angular_size >= 0.03:
+                    ideal_magnification = min(ideal_magnification, 65.0)
+                    ideal_exit = max(ideal_exit, 2.8)
+                if "globular" in lower_type or "ammasso globulare" in lower_type:
+                    ideal_magnification = min(ideal_magnification + 8.0, 85.0)
+                    ideal_exit = min(ideal_exit, 2.2)
+                return {
+                    "mode": "balanced",
+                    "idealMag": min(practical_max * 0.95, ideal_magnification) * altitude_factor,
+                    "idealExit": ideal_exit,
+                    "idealField": ideal_field,
+                    "barlowFriendly": False,
+                    "maxUsefulMag": max_useful_magnification,
+                }
         if "globular" in lower_type or "ammasso globulare" in lower_type:
             return {"mode": "high", "idealMag": min(practical_max * 0.65, 135.0), "idealExit": 1.5, "idealField": 0.35, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
         if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
