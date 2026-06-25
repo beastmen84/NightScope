@@ -7,6 +7,7 @@ Item {
     id: root
 
     property var controller
+    readonly property string earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"
 
     function compactCountry() {
         if (!controller.hasValidLocation)
@@ -291,6 +292,11 @@ Item {
                     title: "Earthdata NASA"
                     subtitle: controller.earthdataConnectionVerified ? "Connessione LAADS verificata" : (controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS")
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
+                    headerActionText: "Create account"
+                    headerActionEnabled: !controller.earthdataConnectionVerified
+                    headerActionAccentColor: theme.cyan
+                    headerActionToolTip: controller.earthdataConnectionVerified ? "Account already configured" : "Create a NASA Earthdata account"
+                    onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)
 
                     Connections {
                         target: controller

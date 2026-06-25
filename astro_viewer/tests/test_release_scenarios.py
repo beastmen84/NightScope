@@ -284,6 +284,14 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
 
+    def test_location_page_exposes_earthdata_registration_link(self) -> None:
+        qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
+        self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
+        self.assertIn('headerActionText: "Create account"', qml)
+        self.assertIn("headerActionEnabled: !controller.earthdataConnectionVerified", qml)
+        self.assertIn('headerActionToolTip: controller.earthdataConnectionVerified ? "Account already configured"', qml)
+        self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
+
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)
 

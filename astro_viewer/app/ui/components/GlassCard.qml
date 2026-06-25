@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
@@ -9,7 +10,13 @@ Rectangle {
     property color accentColor: "#65d6e8"
     property string headerBadgeText: ""
     property color headerBadgeColor: accentColor
+    property string headerActionText: ""
+    property bool headerActionEnabled: true
+    property color headerActionAccentColor: accentColor
+    property string headerActionToolTip: ""
     default property alias content: contentColumn.data
+
+    signal headerActionClicked()
 
     color: "#171a20"
     border.color: "#303641"
@@ -63,6 +70,18 @@ Rectangle {
                 text: root.headerBadgeText
                 accentColor: root.headerBadgeColor
                 Layout.alignment: Qt.AlignTop
+            }
+
+            DarkButton {
+                visible: root.headerActionText.length > 0
+                Layout.preferredWidth: 116
+                Layout.alignment: Qt.AlignTop
+                text: root.headerActionText
+                enabled: root.headerActionEnabled
+                accentColor: root.headerActionAccentColor
+                ToolTip.visible: hovered && root.headerActionToolTip.length > 0
+                ToolTip.text: root.headerActionToolTip
+                onClicked: root.headerActionClicked()
             }
         }
 
