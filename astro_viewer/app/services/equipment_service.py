@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+
 from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
@@ -306,10 +308,13 @@ class EquipmentService:
         eyepiece = configuration.eyepiece
         barlow = configuration.barlow
         multiplier = barlow.multiplier if barlow else 1.0
-        true_field = configuration.true_field_of_view_deg
-        exit_pupil = configuration.exit_pupil_mm
-        score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
-        score += self._telescope_suitability_score(celestial_object, telescope, sky_quality)
+        score = self._configuration_score(
+            TargetObservationTraits.from_object(celestial_object),
+            configuration,
+            profile,
+            sky_quality,
+            multiplier,
+        )
         label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
         detail_label = label
         if eyepiece.eyepiece_type == "Zoom":
@@ -334,9 +339,11 @@ class EquipmentService:
         if not binocular or configuration.magnification <= 0 or configuration.exit_pupil_mm <= 0:
             return None
         label = self._binocular_setup_label(binocular)
+        traits = TargetObservationTraits.from_object(celestial_object)
+        profile = self._binocular_target_profile(traits, sky_quality)
         return RecommendationCandidate(
             configuration=configuration,
-            score=self._binocular_configuration_score(celestial_object, configuration, sky_quality),
+            score=self._configuration_score(traits, configuration, profile, sky_quality),
             label=label,
             detail_label=label,
             multiplier=1.0,
@@ -523,30 +530,235 @@ class EquipmentService:
         return {"mode": "balanced", "idealMag": 70.0, "idealExit": 2.0, "idealField": 0.6, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
 
     @staticmethod
-    def _combination_score(profile: dict, magnification: float, true_field: float, exit_pupil: float, multiplier: float) -> float:
-        score = 100.0
-        score -= min(70.0, abs(magnification - profile["idealMag"]) / max(profile["idealMag"], 1.0) * 70.0)
-        score -= min(35.0, abs(exit_pupil - profile["idealExit"]) / max(profile["idealExit"], 0.1) * 22.0)
-        if profile["mode"] == "wide":
-            if true_field < profile["idealField"]:
-                score -= min(45.0, (profile["idealField"] - true_field) / profile["idealField"] * 55.0)
+    def _binocular_target_profile(traits: TargetObservationTraits, sky_quality: SkyQuality | None = None) -> dict:
+        angular_size = traits.angular_size_deg
+        if traits.is_planetary_or_lunar or traits.is_high_magnification:
+            return {
+                "mode": "high",
+                "idealMag": 120.0,
+                "idealExit": 1.0,
+                "idealField": 0.25 if angular_size is None else max(0.18, angular_size * 5.0),
+                "barlowFriendly": False,
+                "maxUsefulMag": 999.0,
+            }
+        if traits.is_wide_field:
+            if angular_size and angular_size >= 2.5:
+                ideal_magnification = 8.0
+            elif angular_size and angular_size >= 1.0:
+                ideal_magnification = 10.0
             else:
-                score += min(12.0, true_field / profile["idealField"] * 4.0)
-        elif true_field < profile["idealField"]:
-            score -= min(20.0, (profile["idealField"] - true_field) / profile["idealField"] * 20.0)
+                ideal_magnification = 12.0
+            ideal_exit = 4.5 if sky_quality and sky_quality.bortle_class >= 7 else 5.0
+            return {
+                "mode": "wide",
+                "idealMag": ideal_magnification,
+                "idealExit": ideal_exit,
+                "idealField": 1.4 if angular_size is None else max(1.0, angular_size * 1.15),
+                "barlowFriendly": False,
+                "maxUsefulMag": 999.0,
+            }
+        if angular_size and angular_size >= 0.15:
+            ideal_magnification = 16.0
+            ideal_field = max(0.8, angular_size * 2.0)
+        elif angular_size and angular_size >= 0.05:
+            ideal_magnification = 24.0
+            ideal_field = 0.55
+        else:
+            ideal_magnification = 38.0
+            ideal_field = 0.35
+        ideal_exit = 4.2 if traits.magnitude is not None and traits.magnitude > 8.5 else 3.8
+        return {
+            "mode": "balanced",
+            "idealMag": ideal_magnification,
+            "idealExit": ideal_exit,
+            "idealField": ideal_field,
+            "barlowFriendly": False,
+            "maxUsefulMag": 999.0,
+        }
+
+    def _configuration_score(
+        self,
+        traits: TargetObservationTraits,
+        configuration: ObservationConfiguration,
+        profile: dict,
+        sky_quality: SkyQuality | None,
+        multiplier: float = 1.0,
+    ) -> float:
+        score = 0.0
+        score += self._angular_scale_score(traits, configuration, profile, 24.0)
+        score += self._magnification_score(configuration.magnification, profile, 24.0)
+        score += self._exit_pupil_score(configuration.exit_pupil_mm, profile, 16.0)
+        score += self._light_gathering_score(traits, configuration, sky_quality, 16.0)
+        score += self._seeing_compatibility_score(configuration.magnification, profile, 10.0)
+        score += self._handling_score(configuration, profile, multiplier, 10.0)
+        return max(0.0, min(100.0, score))
+
+    def _angular_scale_score(
+        self,
+        traits: TargetObservationTraits,
+        configuration: ObservationConfiguration,
+        profile: dict,
+        weight: float,
+    ) -> float:
+        true_field = configuration.true_field_of_view_deg
+        if true_field is None:
+            return self._binocular_scale_score(traits, configuration.magnification, profile, weight)
+
+        angular_size = traits.angular_size_deg
+        mode = profile["mode"]
+        if angular_size is None or angular_size <= 0:
+            return weight * 0.7
+        if mode == "wide":
+            minimum_field = angular_size * 0.95
+            if true_field < minimum_field:
+                return weight * 0.45 * max(0.0, true_field / minimum_field) ** 2
+            ideal_ratio = 1.35 if angular_size >= 2.0 else 1.65
+            return self._ratio_score(true_field / angular_size, ideal_ratio, weight, 0.8)
+        if mode == "high":
+            minimum_field = max(0.12, angular_size * 4.0)
+            if true_field < minimum_field:
+                return weight * 0.75 * max(0.0, true_field / minimum_field) ** 2
+            return weight * min(1.0, 0.86 + true_field / max(minimum_field * 10.0, 1.0))
+
+        minimum_field = max(0.25, angular_size * 1.2)
+        if true_field < minimum_field:
+            return weight * 0.65 * max(0.0, true_field / minimum_field) ** 2
+        desired_field = max(profile["idealField"], angular_size * 2.0)
+        if true_field >= desired_field:
+            return weight
+        return self._ratio_score(true_field, desired_field, weight, 1.1)
+
+    @staticmethod
+    def _binocular_scale_score(
+        traits: TargetObservationTraits,
+        magnification: float,
+        profile: dict,
+        weight: float,
+    ) -> float:
+        angular_size = traits.angular_size_deg
+        mode = profile["mode"]
+        if mode == "wide":
+            if magnification <= 10.0:
+                factor = 1.0
+            elif magnification <= 15.0:
+                factor = 0.78
+            elif magnification <= 20.0:
+                factor = 0.55
+            else:
+                factor = 0.35
+            if angular_size and angular_size >= 2.5 and magnification > 12.0:
+                factor *= 0.75
+            return weight * factor
+        if mode == "high":
+            return weight * (0.04 if angular_size is None or angular_size < 0.1 else 0.18)
+        if angular_size is None:
+            factor = 0.5
+        elif angular_size >= 0.5:
+            factor = 0.75
+        elif angular_size >= 0.15:
+            factor = 0.65
+        elif angular_size >= 0.05:
+            factor = 0.45
+        else:
+            factor = 0.22
+        return weight * factor
+
+    def _magnification_score(self, magnification: float, profile: dict, weight: float) -> float:
+        tolerance = {"wide": 0.85, "balanced": 0.7, "high": 0.55}.get(profile["mode"], 0.7)
+        return self._ratio_score(magnification, profile["idealMag"], weight, tolerance)
+
+    def _exit_pupil_score(self, exit_pupil: float, profile: dict, weight: float) -> float:
+        tolerance = {"wide": 0.65, "balanced": 0.75, "high": 0.9}.get(profile["mode"], 0.75)
+        score = self._ratio_score(exit_pupil, profile["idealExit"], weight, tolerance)
         if exit_pupil < 0.45:
-            score -= 28.0
+            score *= 0.25
+        elif exit_pupil > 7.0:
+            score *= 0.35
         elif exit_pupil > 6.0:
-            score -= 22.0
-        if multiplier > 1.0 and not profile["barlowFriendly"]:
-            score -= 18.0
-            if profile["mode"] == "wide":
-                score -= 16.0
-        elif multiplier > 1.0:
-            score -= 4.0
-        if magnification > profile.get("maxUsefulMag", magnification):
-            score -= min(45.0, (magnification - profile["maxUsefulMag"]) / max(profile["maxUsefulMag"], 1.0) * 70.0)
-        return max(0.0, score)
+            score *= 0.65
+        return score
+
+    def _light_gathering_score(
+        self,
+        traits: TargetObservationTraits,
+        configuration: ObservationConfiguration,
+        sky_quality: SkyQuality | None,
+        weight: float,
+    ) -> float:
+        objective = self._configuration_objective_mm(configuration)
+        limiting_magnitude = configuration.limiting_magnitude_estimate or (2 + 5 * self._log10(max(1.0, objective)))
+        magnitude = traits.magnitude
+        if magnitude is None:
+            factor = 0.65
+        else:
+            factor = self._clamp((limiting_magnitude - magnitude + 0.8) / 4.0)
+            if magnitude <= 4.0:
+                factor = max(factor, 0.85)
+        surface_brightness = traits.surface_brightness_proxy
+        if surface_brightness and surface_brightness >= 13.5:
+            aperture_factor = self._clamp((objective - 40.0) / 160.0)
+            factor = factor * 0.65 + aperture_factor * 0.35
+        if sky_quality and sky_quality.bortle_class >= 7 and magnitude is not None and magnitude > 8.0:
+            factor *= 0.85
+        return weight * self._clamp(factor)
+
+    @staticmethod
+    def _seeing_compatibility_score(magnification: float, profile: dict, weight: float) -> float:
+        max_useful = profile.get("maxUsefulMag", magnification)
+        if magnification <= max_useful:
+            return weight
+        excess_ratio = (magnification - max_useful) / max(max_useful, 1.0)
+        return weight * max(0.0, 1.0 - excess_ratio * 2.2)
+
+    @staticmethod
+    def _handling_score(
+        configuration: ObservationConfiguration,
+        profile: dict,
+        multiplier: float,
+        weight: float,
+    ) -> float:
+        if configuration.binocular:
+            magnification = configuration.magnification
+            if magnification <= 10.0:
+                factor = 1.0
+            elif magnification <= 12.0:
+                factor = 0.85
+            elif magnification <= 15.0:
+                factor = 0.65
+            elif magnification <= 18.0:
+                factor = 0.45
+            else:
+                factor = 0.25
+            if configuration.image_stabilized:
+                factor = min(1.0, factor + 0.25)
+            return weight * factor
+
+        if multiplier <= 1.0:
+            return weight
+        if profile["barlowFriendly"]:
+            return weight * 0.82
+        if profile["mode"] == "wide":
+            return 0.0
+        return weight * 0.25
+
+    @staticmethod
+    def _configuration_objective_mm(configuration: ObservationConfiguration) -> float:
+        if configuration.telescope:
+            return configuration.telescope.aperture_mm
+        if configuration.binocular:
+            return configuration.binocular.objective_diameter_mm
+        return 7.0
+
+    @staticmethod
+    def _ratio_score(value: float, ideal: float, weight: float, tolerance_octaves: float) -> float:
+        if value <= 0 or ideal <= 0:
+            return 0.0
+        distance = abs(math.log(value / ideal, 2))
+        return weight / (1.0 + (distance / max(tolerance_octaves, 0.01)) ** 2)
+
+    @staticmethod
+    def _clamp(value: float, lower: float = 0.0, upper: float = 1.0) -> float:
+        return max(lower, min(upper, value))
 
     @staticmethod
     def _seeing_limited_magnification(telescope: Telescope, seeing: SeeingTransparency | None) -> float:
@@ -561,135 +773,6 @@ class EquipmentService:
         if score >= 42:
             return min(theoretical, 125.0, telescope.aperture_mm * 0.95)
         return min(theoretical, 85.0, telescope.aperture_mm * 0.6)
-
-    def _telescope_suitability_score(
-        self,
-        celestial_object: CelestialObject,
-        telescope: Telescope,
-        sky_quality: SkyQuality | None = None,
-    ) -> float:
-        lower_type = celestial_object.object_type.lower()
-        aperture = telescope.aperture_mm
-        if "pianeta" in lower_type or celestial_object.id in {"mars", "jupiter", "saturn", "mercury", "venus", "moon"}:
-            return min(18.0, aperture / 12.0)
-        if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
-            bonus = min(24.0, aperture / 9.0)
-            if sky_quality and sky_quality.bortle_class >= 7:
-                bonus *= 0.7
-            return bonus
-        if "globular" in lower_type:
-            return min(22.0, aperture / 9.5)
-        if "open" in lower_type or "cluster" in lower_type:
-            return min(12.0, aperture / 18.0)
-        return min(14.0, aperture / 16.0)
-
-    def _binocular_configuration_score(
-        self,
-        celestial_object: CelestialObject,
-        configuration: ObservationConfiguration,
-        sky_quality: SkyQuality | None,
-    ) -> float:
-        binocular = configuration.binocular
-        if not binocular:
-            return 0.0
-
-        traits = TargetObservationTraits.from_object(celestial_object)
-        observation_type = traits.recommended_observation_type
-        angular_size = traits.angular_size_deg
-        magnitude = traits.magnitude
-        is_planetary_target = traits.is_planetary_or_lunar
-
-        score = 35.0
-        if observation_type == "WideField":
-            score += 25.0
-            if angular_size and angular_size >= 1.0:
-                score += 15.0
-            if angular_size and angular_size >= 2.5:
-                score += 8.0
-        elif observation_type == "HighMagnification":
-            score -= 45.0
-        else:
-            score += 5.0
-
-        if angular_size is not None:
-            if angular_size >= 2.0:
-                score += 16.0
-            elif angular_size >= 1.0:
-                score += 12.0
-            elif angular_size >= 0.5:
-                score += 8.0
-            elif angular_size >= 0.15:
-                score += 2.0
-            elif angular_size < 0.05:
-                score -= 25.0
-            elif angular_size < 0.10:
-                score -= 16.0
-
-        if magnitude is not None:
-            if magnitude <= 4.0:
-                score += 12.0
-            elif magnitude <= 6.0:
-                score += 8.0
-            elif magnitude <= 8.0:
-                score += 4.0
-            elif magnitude > 9.0:
-                score -= 15.0
-
-        magnification = configuration.magnification
-        if observation_type == "WideField":
-            if magnification <= 10.0:
-                score += 12.0
-            elif magnification <= 15.0:
-                score += 6.0
-            elif magnification >= 16.0:
-                score -= 8.0
-        elif observation_type == "HighMagnification":
-            score -= 20.0
-        elif magnification <= 15.0:
-            score += 4.0
-        else:
-            score += 1.0
-
-        exit_pupil = configuration.exit_pupil_mm
-        if 4.0 <= exit_pupil <= 6.0:
-            score += 10.0
-        elif 3.0 <= exit_pupil < 4.0:
-            score += 6.0
-        elif 2.0 <= exit_pupil < 3.0:
-            score += 1.0
-        elif exit_pupil < 2.0:
-            score -= 10.0
-        else:
-            score -= 6.0
-
-        objective = binocular.objective_diameter_mm
-        if objective >= 70:
-            score += 8.0
-        elif objective >= 50:
-            score += 6.0
-        elif objective >= 42:
-            score += 2.0
-        elif objective < 35:
-            score -= 5.0
-
-        if binocular.image_stabilized:
-            if 12.0 <= magnification <= 18.0:
-                score += 6.0
-            elif magnification <= 10.0:
-                score += 2.0
-            else:
-                score += 3.0
-        elif magnification > 16.0:
-            score -= 10.0
-        elif magnification > 12.0:
-            score -= 4.0
-
-        if sky_quality and sky_quality.bortle_class >= 7 and magnitude and magnitude > 8.0:
-            score -= 8.0
-        if is_planetary_target:
-            score -= 35.0 if celestial_object.id != "moon" else 20.0
-
-        return max(0.0, min(100.0, score))
 
     @staticmethod
     def _binocular_setup_label(binocular: Binocular) -> str:

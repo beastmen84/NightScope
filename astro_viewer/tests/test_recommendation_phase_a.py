@@ -21,7 +21,7 @@ def test_fixed_eyepiece_telescope_recommendation_baseline() -> None:
     assert suggestion["bestEyepiece"] == "25 mm"
     assert suggestion["suggestedPosition"] == "25 mm"
     assert suggestion["barlow"] == "No"
-    assert suggestion["selectionScore"] == pytest.approx(90.487, abs=0.001)
+    assert suggestion["selectionScore"] == pytest.approx(87.208, abs=0.001)
 
 
 def test_ranked_telescope_recommendations_use_typed_candidates() -> None:

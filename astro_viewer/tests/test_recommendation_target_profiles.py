@@ -16,9 +16,9 @@ def test_wide_field_m45_keeps_low_power_no_barlow_telescope_setup() -> None:
 def test_very_large_m31_uses_wider_telescope_setup_from_metadata() -> None:
     suggestion = _suggest(_object("messier-M31", "M31", "Galaxy", "3.4", "190 arcmin", 3.17, "WideField"))
 
-    assert suggestion["setupText"] == "25 mm"
+    assert suggestion["setupText"] == "32 mm"
     assert suggestion["barlow"] == "No"
-    assert suggestion["setupOptions"][0]["trueField"] == "2.00 gradi"
+    assert suggestion["setupOptions"][0]["trueField"] == "3.35 gradi"
 
 
 def test_high_magnification_m57_still_prefers_compact_telescope_setup() -> None:
