@@ -160,6 +160,8 @@ class EquipmentService:
                 "explanation": "Telescopio presente, ma nessun oculare configurato.",
                 "telescopeId": telescope.id,
                 "telescopeName": telescope.name,
+                "equipmentType": "Telescope",
+                "setupType": "telescope",
                 "selectionScore": 12.0,
             }
 
@@ -177,6 +179,8 @@ class EquipmentService:
                 "explanation": "Le combinazioni disponibili superano i limiti pratici dello strumento.",
                 "telescopeId": telescope.id,
                 "telescopeName": telescope.name,
+                "equipmentType": "Telescope",
+                "setupType": "telescope",
                 "selectionScore": 8.0,
             }
 
@@ -198,6 +202,8 @@ class EquipmentService:
             "explanation": self._equipment_explanation(celestial_object, recommended),
             "telescopeId": telescope.id,
             "telescopeName": telescope.name,
+            "equipmentType": "Telescope",
+            "setupType": "telescope",
             "selectionScore": recommended["score"],
         }
 
@@ -338,6 +344,7 @@ class EquipmentService:
             "telescopeId": telescope_id,
             "telescopeName": telescope_name,
             "equipmentType": recommended.get("equipment_type", "Telescope"),
+            "setupType": "binocular" if recommended.get("equipment_type") == "Binocular" else "telescope",
             "selectionScore": recommended["score"],
         }
 
@@ -786,7 +793,7 @@ class EquipmentService:
     def _binocular_setup_label(binocular: Binocular) -> str:
         spec = f"{binocular.magnification}x{binocular.objective_diameter_mm}"
         display_spec = spec.replace("x", "×")
-        name = binocular.name.strip()
+        name = binocular.name.strip().replace(spec, display_spec).replace(spec.upper(), display_spec)
         normalized_name = name.lower().replace("×", "x")
         if spec.lower() not in normalized_name:
             name = f"{name} {display_spec}"
@@ -809,19 +816,22 @@ class EquipmentService:
         exit_pupil = combination["exit_pupil"]
         if observation_type == "HighMagnification" or combination["score"] < 35.0:
             return (
-                "Profilo non ideale: il target richiede piu' ingrandimento "
-                f"di quanto il binocolo possa offrire; {magnification:.0f}x con pupilla {exit_pupil:.1f} mm."
+                "Il binocolo permette di individuare l'oggetto, ma non è ideale per i dettagli: "
+                "servirebbe maggiore ingrandimento. "
+                f"Configurazione disponibile: {magnification:.0f}x con pupilla {exit_pupil:.1f} mm."
             )
         if observation_type == "WideField":
+            stabilization = " Binocolo stabilizzato: immagine più ferma." if combination.get("binocular") and combination["binocular"].image_stabilized else ""
             return (
-                "Configurazione adatta a campi ampi: "
+                "Oggetto esteso: il binocolo offre una visione più naturale a largo campo. "
                 f"{magnification:.0f}x con pupilla {exit_pupil:.1f} mm; "
-                "il campo reale non e' stimato perche' il catalogo binocoli non include il FOV."
+                "il campo reale non è stimato perché il catalogo binocoli non include il FOV."
+                + stabilization
             )
         return (
             "Configurazione utilizzabile a basso ingrandimento: "
             f"{magnification:.0f}x con pupilla {exit_pupil:.1f} mm; "
-            "un telescopio puo' mostrare piu' dettaglio se disponibile."
+            "un telescopio può mostrare più dettaglio se disponibile."
         )
 
     def _observation_type_hint(self, celestial_object: CelestialObject) -> str:
@@ -918,6 +928,8 @@ class EquipmentService:
             "explanation": "Oggetto compatibile con osservazione a occhio nudo." if naked_eye_realistic else "Target non realistico senza strumento ottico.",
             "telescopeId": self.NAKED_EYE_ID,
             "telescopeName": "Occhio nudo",
+            "equipmentType": "NakedEye",
+            "setupType": "naked_eye",
             "selectionScore": 20.0 if naked_eye_realistic else 0.0,
         }
 

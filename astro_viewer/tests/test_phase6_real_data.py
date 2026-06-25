@@ -642,6 +642,8 @@ class Phase6RealDataTests(unittest.TestCase):
         main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
         binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
         profiles_qml = (ui_dir / "pages" / "EquipmentProfilesPage.qml").read_text(encoding="utf-8")
+        home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+        object_detail_qml = (ui_dir / "pages" / "ObjectDetailPage.qml").read_text(encoding="utf-8")
 
         expected_labels = [
             'text: "Home"',
@@ -677,6 +679,10 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('title: "Binocoli"', profiles_qml)
         self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
         self.assertIn('model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]', profiles_qml)
+        self.assertIn('equipmentType === "Binocular"', home_qml)
+        self.assertIn('equipmentType === "Binocular"', object_detail_qml)
+        self.assertIn("setupDetailText()", object_detail_qml)
+        self.assertIn("Pupilla d'uscita", object_detail_qml)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

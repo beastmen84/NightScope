@@ -48,15 +48,22 @@ Item {
         return null
     }
 
+    function isBinocularOption(option) {
+        return option && option.equipmentType === "Binocular"
+    }
+
     function displaySetupOption(item) {
         var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
+        var recommended = root.optionByRole(item, "Consigliato")
+        if (root.isBinocularOption(recommended))
+            return recommended
         if (item.id === "venus" || item.id === "mercury")
-            return root.optionByRole(item, "Alternativa") || root.optionByRole(item, "Consigliato")
+            return root.optionByRole(item, "Alternativa") || recommended
         if (typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
-            return root.optionByRole(item, "Campo largo") || root.optionByRole(item, "Consigliato")
+            return root.optionByRole(item, "Campo largo") || recommended
         if (typeText.indexOf("globular") >= 0 || typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
-            return root.optionByRole(item, "Alternativa") || root.optionByRole(item, "Consigliato")
-        return root.optionByRole(item, "Consigliato")
+            return root.optionByRole(item, "Alternativa") || recommended
+        return recommended
     }
 
     function recommendedSetup(item) {
@@ -86,6 +93,13 @@ Item {
         var option = root.displaySetupOption(item)
         var role = option ? option.role : ""
         var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
+        if (root.isBinocularOption(option)) {
+            if (option.detailLabel && option.detailLabel.toLowerCase().indexOf(" is") >= 0)
+                return "Binocolo stabilizzato: visione più ferma a basso o medio ingrandimento."
+            if (typeText.indexOf("open") >= 0 || typeText.indexOf("galaxy") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("star cloud") >= 0)
+                return "Oggetto esteso: il binocolo offre una visione più naturale a largo campo."
+            return item.equipmentExplanation || "Binocolo adatto a una visione rapida e a basso ingrandimento."
+        }
         if (item.id === "venus" || item.id === "mercury")
             return "Oggetto molto luminoso: ingrandimento moderato e contrasto stabile."
         if (role === "Campo largo" || typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)

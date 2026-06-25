@@ -1769,6 +1769,7 @@ class AppController(QObject):
                 and not binoculars
                 and suggestion["setupText"].startswith("Serve almeno")
             )
+            setup_type = self._recommendation_setup_type(suggestion)
             updated.append(
                 self._apply_object_content(
                     replace(
@@ -1779,6 +1780,7 @@ class AppController(QObject):
                         best_eyepiece=suggestion["bestEyepiece"],
                         barlow=suggestion["barlow"],
                         difficulty=suggestion["difficulty"],
+                        recommended_setup_type=setup_type,
                         setup_options=suggestion.get("setupOptions", []),
                         equipment_explanation=suggestion.get("explanation", ""),
                     )
@@ -2120,6 +2122,14 @@ class AppController(QObject):
         exit_pupil = option.get("exitPupil", "") if option else ""
         barlow = option.get("barlow", "") if option else item.barlow
         lower_type = item.object_type.lower()
+        if option.get("equipmentType") == "Binocular":
+            if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
+                return f"{magnification} e pupilla {exit_pupil}: campo ampio e visione naturale dell'ammasso."
+            if "galaxy" in lower_type or "galassia" in lower_type:
+                return f"{magnification} e pupilla {exit_pupil}: adatto a oggetti molto estesi e a basso contrasto."
+            if "nebula" in lower_type or "nebul" in lower_type:
+                return f"{magnification} e pupilla {exit_pupil}: utile per individuare l'oggetto senza stringere troppo il campo."
+            return item.equipment_explanation or f"{magnification} e pupilla {exit_pupil}: configurazione binoculare a basso ingrandimento."
         if magnification and exit_pupil:
             if item.id == "moon":
                 return f"{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine."
@@ -2145,6 +2155,25 @@ class AppController(QObject):
             if option.get("role") == "Consigliato":
                 return option
         return item.setup_options[0] if item.setup_options else {}
+
+    @staticmethod
+    def _recommendation_setup_type(suggestion: dict) -> str:
+        setup_type = suggestion.get("setupType", "")
+        if setup_type:
+            return setup_type
+        equipment_type = suggestion.get("equipmentType", "")
+        if equipment_type == "Binocular":
+            return "binocular"
+        if equipment_type == "Telescope":
+            return "telescope"
+        for option in suggestion.get("setupOptions", []):
+            if option.get("role") == "Consigliato":
+                option_type = option.get("equipmentType", "")
+                if option_type == "Binocular":
+                    return "binocular"
+                if option_type == "Telescope":
+                    return "telescope"
+        return ""
 
     @staticmethod
     def _moon_cycle_fraction(phase_angle: float) -> float:

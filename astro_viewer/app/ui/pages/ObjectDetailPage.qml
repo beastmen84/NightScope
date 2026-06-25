@@ -26,6 +26,49 @@ Item {
         return result
     }
 
+    function recommendedSetupOption() {
+        var options = objectData.setupOptions || []
+        for (var i = 0; i < options.length; i++) {
+            if (options[i].role === "Consigliato")
+                return options[i]
+        }
+        return options.length > 0 ? options[0] : null
+    }
+
+    function isBinocularRecommendation() {
+        var option = root.recommendedSetupOption()
+        return objectData.recommendedSetupType === "binocular"
+            || (option && option.equipmentType === "Binocular")
+    }
+
+    function setupOptionMetrics(option) {
+        if (!option)
+            return ""
+        if (option.equipmentType === "Binocular") {
+            var parts = []
+            if (option.magnification && option.magnification.length > 0)
+                parts.push(option.magnification)
+            if (option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
+                parts.push("Pupilla " + option.exitPupil)
+            return parts.join("  -  ")
+        }
+        return option.magnification + "  -  " + option.trueField + "  -  " + option.exitPupil
+    }
+
+    function setupDetailText() {
+        if (root.isBinocularRecommendation()) {
+            var option = root.recommendedSetupOption()
+            var parts = ["Binocolo: " + objectData.recommended_setup]
+            if (option && option.magnification && option.magnification.length > 0)
+                parts.push("Ingrandimento: " + option.magnification)
+            if (option && option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
+                parts.push("Pupilla d'uscita: " + option.exitPupil)
+            parts.push("Difficoltà: " + objectData.difficulty)
+            return parts.join("  -  ")
+        }
+        return "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficoltà: " + objectData.difficulty
+    }
+
     function drawMoonPhase(ctx, width, height, phaseAngle) {
         var angle = ((phaseAngle % 360) + 360) % 360
         var radius = Math.min(width, height) / 2 - 3
@@ -319,7 +362,7 @@ Item {
                         }
 
                         Text {
-                            text: modelData.magnification + "  -  " + modelData.trueField + "  -  " + modelData.exitPupil
+                            text: root.setupOptionMetrics(modelData)
                             color: theme.textSecondary
                             font.pixelSize: 12
                             elide: Text.ElideRight
@@ -329,7 +372,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficoltà: " + objectData.difficulty
+                    text: root.setupDetailText()
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
