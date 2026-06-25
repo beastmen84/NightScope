@@ -8,9 +8,40 @@ import sqlite3
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
+from typing import Callable
 
 
 logger = logging.getLogger(__name__)
+ProgressCallback = Callable[[str], None]
+REQUIRED_TABLES = {
+    "City",
+    "CityAlias",
+    "DataImportLog",
+    "MessierObject",
+    "WeatherCache",
+    "ObservationHistory",
+    "TelescopeBrand",
+    "TelescopeModel",
+    "EyepieceCatalog",
+    "BarlowCatalog",
+    "SkyQualityEstimate",
+    "ObjectImages",
+    "ObjectDescription",
+    "EquipmentProfile",
+    "EquipmentProfileTelescope",
+    "EquipmentProfileEyepiece",
+    "EquipmentProfileBarlow",
+}
+SEEDED_TABLES = {
+    "MessierObject": "messier_seed.csv",
+    "TelescopeBrand": "telescope_catalog_seed.csv",
+    "TelescopeModel": "telescope_catalog_seed.csv",
+    "EyepieceCatalog": "eyepiece_catalog_seed.csv",
+    "BarlowCatalog": "barlow_catalog_seed.csv",
+    "ObjectImages": "object_images_seed.csv",
+    "ObjectDescription": "object_descriptions_seed.csv",
+    "EquipmentProfile": "",
+}
 
 OBJECT_IMAGES = [
     ("sun", "resources/images/sun.svg", "NightScope generated local SVG"),
@@ -28,33 +59,74 @@ OBJECT_IMAGES = [
 ]
 
 
-def initialize_database(database_path: Path, schema_path: Path) -> None:
+def initialize_database(
+    database_path: Path,
+    schema_path: Path,
+    progress_callback: ProgressCallback | None = None,
+) -> None:
+    _notify_progress(progress_callback, "Creazione database...")
     database_path.parent.mkdir(parents=True, exist_ok=True)
     schema_sql = schema_path.read_text(encoding="utf-8")
     seed_path = schema_path.with_name("messier_seed.csv")
 
     if database_path.exists() and not _database_is_healthy(database_path):
+        _notify_progress(progress_callback, "Ricostruzione database locale...")
         _quarantine_database(database_path)
     elif database_path.exists():
         _backup_database(database_path)
 
     try:
-        _build_database(database_path, schema_sql, seed_path)
+        _build_database(database_path, schema_sql, seed_path, progress_callback=progress_callback)
     except sqlite3.DatabaseError as exc:
         if not _is_recoverable_database_error(exc):
             logger.exception("Database bootstrap failed during schema migration.")
             raise
         logger.warning("Database appears damaged; rebuilding from local schema.", exc_info=True)
+        _notify_progress(progress_callback, "Ricostruzione database locale...")
         _quarantine_database(database_path)
-        _build_database(database_path, schema_sql, seed_path)
+        _build_database(database_path, schema_sql, seed_path, progress_callback=progress_callback)
 
 
-def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> None:
+def database_initialization_required(database_path: Path, schema_path: Path) -> bool:
+    if not database_path.exists():
+        return True
+    try:
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.row_factory = sqlite3.Row
+            tables = {
+                row["name"]
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                ).fetchall()
+            }
+            if not REQUIRED_TABLES.issubset(tables):
+                return True
+            data_dir = schema_path.parent
+            for table_name, seed_name in SEEDED_TABLES.items():
+                if seed_name and not (data_dir / seed_name).exists():
+                    continue
+                if _table_count(connection, table_name) == 0:
+                    return True
+            if _geonames_import_needed(connection, database_path.parent):
+                return True
+    except sqlite3.DatabaseError:
+        logger.warning("Database preflight check failed; initialization is required.", exc_info=True)
+        return True
+    return False
+
+
+def _build_database(
+    database_path: Path,
+    schema_sql: str,
+    seed_path: Path,
+    progress_callback: ProgressCallback | None = None,
+) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
         connection.row_factory = sqlite3.Row
         connection.executescript(schema_sql)
         _migrate_database(connection)
         data_dir = seed_path.parent
+        _notify_progress(progress_callback, "Importazione cataloghi...")
         _import_geonames_cities_if_available(connection, database_path.parent, warn_if_missing=database_path.parent == data_dir)
         messier_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
         if messier_count == 0 and seed_path.exists():
@@ -99,8 +171,14 @@ def _build_database(database_path: Path, schema_sql: str, seed_path: Path) -> No
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_default_profiles(connection)
+        _notify_progress(progress_callback, "Finalizzazione...")
         connection.commit()
     logger.info("Database ready.")
+
+
+def _notify_progress(progress_callback: ProgressCallback | None, message: str) -> None:
+    if progress_callback:
+        progress_callback(message)
 
 
 def _migrate_database(connection: sqlite3.Connection) -> None:
@@ -193,6 +271,39 @@ def _database_is_healthy(database_path: Path) -> bool:
         logger.warning("Database integrity check failed.", exc_info=True)
         return False
     return bool(result and result[0] == "ok")
+
+
+def _table_count(connection: sqlite3.Connection, table_name: str) -> int:
+    return int(connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0])
+
+
+def _geonames_import_needed(connection: sqlite3.Connection, data_dir: Path) -> bool:
+    source_path = _first_existing_path(data_dir / "cities15000.txt", data_dir / "geonames" / "cities15000.txt")
+    if source_path is None:
+        return False
+    if _table_count(connection, "City") == 0:
+        return True
+
+    source_stat = source_path.stat()
+    source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
+    country_info_path = _first_existing_path(data_dir / "countryInfo.txt", data_dir / "geonames" / "countryInfo.txt")
+    admin1_codes_path = _first_existing_path(data_dir / "admin1CodesASCII.txt", data_dir / "geonames" / "admin1CodesASCII.txt")
+    existing_import = connection.execute(
+        """
+        SELECT source_size, source_mtime, report_json
+        FROM DataImportLog
+        WHERE source_name = ?
+        """,
+        ("cities15000.txt",),
+    ).fetchone()
+    existing_report = _json_dict(existing_import["report_json"]) if existing_import else {}
+    return not (
+        existing_import
+        and int(existing_import["source_size"]) == source_stat.st_size
+        and str(existing_import["source_mtime"]) == source_mtime
+        and existing_report.get("country_info") == _file_signature(country_info_path)
+        and existing_report.get("admin1_codes") == _file_signature(admin1_codes_path)
+    )
 
 
 def _backup_database(database_path: Path) -> None:

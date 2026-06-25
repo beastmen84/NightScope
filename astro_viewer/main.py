@@ -23,16 +23,120 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
-def _build_controller():
+def _database_paths() -> tuple[Path, Path]:
+    return BASE_DIR / "data" / "nightscope.db", BASE_DIR / "data" / "schema.sql"
+
+
+def _build_controller(progress_callback=None):
     from astro_viewer.app.database.bootstrap import initialize_database
     from astro_viewer.app.services.logging_service import configure_logging
     from astro_viewer.app.viewmodels.app_controller import AppController
 
     configure_logging(BASE_DIR)
-    database_path = BASE_DIR / "data" / "nightscope.db"
-    schema_path = BASE_DIR / "data" / "schema.sql"
-    initialize_database(database_path, schema_path)
+    database_path, schema_path = _database_paths()
+    initialize_database(database_path, schema_path, progress_callback=progress_callback)
     return AppController(base_dir=BASE_DIR, database_path=database_path)
+
+
+def _database_initialization_required() -> bool:
+    from astro_viewer.app.database.bootstrap import database_initialization_required
+
+    database_path, schema_path = _database_paths()
+    return database_initialization_required(database_path, schema_path)
+
+
+def _create_initialization_splash(app):
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QPixmap
+    from PySide6.QtWidgets import QDialog, QLabel, QProgressBar, QVBoxLayout
+
+    dialog = QDialog()
+    dialog.setWindowTitle(APP_NAME)
+    dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+    dialog.setModal(False)
+    dialog.setFixedWidth(420)
+    dialog.setStyleSheet(
+        """
+        QDialog {
+            background-color: #171a20;
+            border: 1px solid #303641;
+            border-radius: 8px;
+        }
+        QLabel#appName {
+            color: #f4f7fb;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        QLabel#message {
+            color: #d7dee8;
+            font-size: 14px;
+        }
+        QLabel#secondary, QLabel#status {
+            color: #aeb7c4;
+            font-size: 12px;
+        }
+        QProgressBar {
+            min-height: 8px;
+            border: 1px solid #303641;
+            border-radius: 4px;
+            background-color: #252b34;
+        }
+        QProgressBar::chunk {
+            border-radius: 4px;
+            background-color: #65d6e8;
+        }
+        """
+    )
+
+    layout = QVBoxLayout(dialog)
+    layout.setContentsMargins(34, 28, 34, 28)
+    layout.setSpacing(10)
+
+    icon_label = QLabel()
+    icon_label.setAlignment(Qt.AlignHCenter)
+    icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "nightscope.ico"))
+    if icon.isNull():
+        icon = QPixmap(str(BASE_DIR / "resources" / "icons" / "telescope.svg"))
+    if not icon.isNull():
+        icon_label.setPixmap(icon.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+    layout.addWidget(icon_label)
+
+    app_name = QLabel(APP_NAME)
+    app_name.setObjectName("appName")
+    app_name.setAlignment(Qt.AlignHCenter)
+    layout.addWidget(app_name)
+
+    message = QLabel("Inizializzazione database al primo avvio...")
+    message.setObjectName("message")
+    message.setAlignment(Qt.AlignHCenter)
+    layout.addWidget(message)
+
+    secondary = QLabel("Preparazione cataloghi e dati locali.")
+    secondary.setObjectName("secondary")
+    secondary.setAlignment(Qt.AlignHCenter)
+    layout.addWidget(secondary)
+
+    status = QLabel("Creazione database...")
+    status.setObjectName("status")
+    status.setAlignment(Qt.AlignHCenter)
+    layout.addWidget(status)
+
+    progress = QProgressBar()
+    progress.setRange(0, 0)
+    progress.setTextVisible(False)
+    layout.addWidget(progress)
+
+    dialog.show()
+    app.processEvents()
+    return dialog, status
+
+
+def _update_initialization_splash(app, splash, message: str) -> None:
+    if not splash:
+        return
+    _, status = splash
+    status.setText(message)
+    app.processEvents()
 
 
 def run_smoke_test() -> int:
@@ -74,8 +178,8 @@ def _wait_for_startup_location(controller, timeout_seconds: float = 8.0) -> bool
 def run_app() -> int:
     try:
         from PySide6.QtCore import QUrl
-        from PySide6.QtGui import QGuiApplication
         from PySide6.QtQml import QQmlApplicationEngine
+        from PySide6.QtWidgets import QApplication, QMessageBox
     except ModuleNotFoundError as exc:
         missing = exc.name or "PySide6"
         print(
@@ -84,11 +188,34 @@ def run_app() -> int:
         )
         return 1
 
-    app = QGuiApplication(sys.argv)
+    app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORG_NAME)
 
-    controller = _build_controller()
+    try:
+        initialization_required = _database_initialization_required()
+    except Exception:
+        logging.getLogger(__name__).warning("Database initialization preflight failed.", exc_info=True)
+        initialization_required = True
+    splash = _create_initialization_splash(app) if initialization_required else None
+    progress_callback = (lambda message: _update_initialization_splash(app, splash, message)) if splash else None
+    try:
+        controller = _build_controller(progress_callback=progress_callback)
+    except Exception:
+        logging.getLogger(__name__).exception("NightScope database initialization failed.")
+        if splash:
+            _update_initialization_splash(app, splash, "Impossibile inizializzare il database locale.")
+            splash[0].close()
+        QMessageBox.critical(
+            None,
+            APP_NAME,
+            "Impossibile inizializzare il database locale.\n\n"
+            "Verifica i permessi della cartella dell'applicazione e riavvia NightScope.",
+        )
+        return 1
+    if splash:
+        splash[0].close()
+
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
