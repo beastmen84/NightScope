@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.services.equipment_service import EquipmentService
+
+FocalPositionProvider = Callable[[Telescope, Eyepiece, Barlow | None], list[dict]]
 
 
 class ObservationConfigurationBuilder:
@@ -18,17 +22,26 @@ class ObservationConfigurationBuilder:
         eyepieces: list[Eyepiece],
         barlows: list[Barlow] | None = None,
         binoculars: list[Binocular] | None = None,
+        focal_position_provider: FocalPositionProvider | None = None,
     ) -> list[ObservationConfiguration]:
         configurations: list[ObservationConfiguration] = []
-        configurations.extend(self._telescope_configurations(telescopes, eyepieces, barlows or []))
+        configurations.extend(
+            self.build_telescope_configurations(
+                telescopes,
+                eyepieces,
+                barlows or [],
+                focal_position_provider,
+            )
+        )
         configurations.extend(self._binocular_configurations(binoculars or []))
         return configurations
 
-    def _telescope_configurations(
+    def build_telescope_configurations(
         self,
         telescopes: list[Telescope],
         eyepieces: list[Eyepiece],
         barlows: list[Barlow],
+        focal_position_provider: FocalPositionProvider | None = None,
     ) -> list[ObservationConfiguration]:
         if not eyepieces:
             return []
@@ -39,7 +52,12 @@ class ObservationConfigurationBuilder:
                 continue
             for eyepiece in eyepieces:
                 for barlow in self._equipment_service.barlow_options(barlows):
-                    for focal_position in self._equipment_service.eyepiece_focal_positions(eyepiece):
+                    focal_positions = (
+                        focal_position_provider(telescope, eyepiece, barlow)
+                        if focal_position_provider
+                        else self._equipment_service.eyepiece_focal_positions(eyepiece)
+                    )
+                    for focal_position in focal_positions:
                         values = self._equipment_service.telescope_configuration_values(
                             telescope,
                             eyepiece,

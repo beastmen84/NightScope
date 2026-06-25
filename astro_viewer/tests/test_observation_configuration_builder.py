@@ -69,6 +69,30 @@ def test_zoom_eyepiece_generates_sampled_focal_positions() -> None:
     assert {round(configuration.magnification) for configuration in configurations} == {62, 94, 188}
 
 
+def test_telescope_configuration_builder_accepts_external_focal_position_policy() -> None:
+    telescope = Telescope("scope-150", "SCT 150", 150, 1500, "SCT", "Altazimutale")
+    zoom = Eyepiece(
+        "zoom-8-24",
+        "Zoom 8-24 mm",
+        24.0,
+        68.0,
+        eyepiece_type="Zoom",
+        min_focal_length_mm=8.0,
+        max_focal_length_mm=24.0,
+    )
+
+    configurations = ObservationConfigurationBuilder().build_telescope_configurations(
+        [telescope],
+        [zoom],
+        [],
+        lambda _telescope, _eyepiece, _barlow: [{"focal": 12.0, "position": "12 mm"}],
+    )
+
+    assert len(configurations) == 1
+    assert configurations[0].focal_position_label == "12 mm"
+    assert configurations[0].magnification == pytest.approx(125.0)
+
+
 def test_binocular_only_profile_generates_binocular_configuration() -> None:
     binocular = Binocular("nikon-10x50", "Nikon 10x50", 10, 50, image_stabilized=True)
 

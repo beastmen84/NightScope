@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Eyepiece, Telescope
+from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 
@@ -232,44 +233,69 @@ class EquipmentService:
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
     ) -> list[dict]:
+        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
+
         profile = self._target_profile(celestial_object, telescope, seeing, sky_quality)
         combinations = []
-        for eyepiece in eyepieces:
-            for barlow in self.barlow_options(barlows):
-                multiplier = barlow.multiplier if barlow else 1.0
-                ideal_focal = telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
-                for focal_position in self.eyepiece_focal_positions(eyepiece, ideal_focal):
-                    focal_mm = focal_position["focal"]
-                    values = self.telescope_configuration_values(telescope, eyepiece, focal_mm, barlow)
-                    magnification = values["magnification"]
-                    if magnification <= 0:
-                        continue
-                    true_field = values["true_field_of_view_deg"]
-                    exit_pupil = values["exit_pupil_mm"]
-                    score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
-                    score += self._telescope_suitability_score(celestial_object, telescope, sky_quality)
-                    label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
-                    detail_label = label
-                    if eyepiece.eyepiece_type == "Zoom":
-                        detail_label = f"{label} @ {focal_position['position']}"
-                    combinations.append(
-                        {
-                            "eyepiece": eyepiece,
-                            "barlow": barlow,
-                            "barlow_label": barlow.name if barlow else "No",
-                            "multiplier": multiplier,
-                            "focal_position": focal_position["position"],
-                            "focal_mm": focal_mm,
-                            "magnification": magnification,
-                            "true_field": true_field,
-                            "exit_pupil": exit_pupil,
-                            "score": score,
-                            "label": label,
-                            "detail_label": detail_label,
-                            "telescope_name": telescope.name,
-                        }
-                    )
+
+        def focal_position_provider(candidate_telescope: Telescope, eyepiece: Eyepiece, barlow: Barlow | None) -> list[dict]:
+            multiplier = barlow.multiplier if barlow else 1.0
+            ideal_focal = candidate_telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
+            return self.eyepiece_focal_positions(eyepiece, ideal_focal)
+
+        configurations = ObservationConfigurationBuilder(self).build_telescope_configurations(
+            [telescope],
+            eyepieces,
+            barlows,
+            focal_position_provider,
+        )
+        for configuration in configurations:
+            combination = self._configuration_to_combination(configuration, celestial_object, profile, sky_quality)
+            if combination:
+                combinations.append(combination)
         return sorted(combinations, key=lambda item: item["score"], reverse=True)
+
+    def _configuration_to_combination(
+        self,
+        configuration: ObservationConfiguration,
+        celestial_object: CelestialObject,
+        profile: dict,
+        sky_quality: SkyQuality | None,
+    ) -> dict | None:
+        if not configuration.telescope or not configuration.eyepiece:
+            return None
+        if configuration.true_field_of_view_deg is None or configuration.focal_position_mm is None:
+            return None
+        magnification = configuration.magnification
+        if magnification <= 0:
+            return None
+        telescope = configuration.telescope
+        eyepiece = configuration.eyepiece
+        barlow = configuration.barlow
+        multiplier = barlow.multiplier if barlow else 1.0
+        true_field = configuration.true_field_of_view_deg
+        exit_pupil = configuration.exit_pupil_mm
+        score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
+        score += self._telescope_suitability_score(celestial_object, telescope, sky_quality)
+        label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
+        detail_label = label
+        if eyepiece.eyepiece_type == "Zoom":
+            detail_label = f"{label} @ {configuration.focal_position_label}"
+        return {
+            "eyepiece": eyepiece,
+            "barlow": barlow,
+            "barlow_label": barlow.name if barlow else "No",
+            "multiplier": multiplier,
+            "focal_position": configuration.focal_position_label,
+            "focal_mm": configuration.focal_position_mm,
+            "magnification": magnification,
+            "true_field": true_field,
+            "exit_pupil": exit_pupil,
+            "score": score,
+            "label": label,
+            "detail_label": detail_label,
+            "telescope_name": telescope.name,
+        }
 
     @staticmethod
     def _barlow_options(barlows: list[Barlow]) -> list[Barlow | None]:
