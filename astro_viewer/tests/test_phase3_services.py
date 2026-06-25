@@ -99,6 +99,25 @@ class Phase3ServiceTests(unittest.TestCase):
 
         self.assertEqual(plan, [])
 
+    def test_weather_blocking_status_centralizes_plan_and_home_state(self) -> None:
+        rain = WeatherSummary("Discreta", 66, "Pioggia possibile.", 20, 80, 8, 78, 16.0, "")
+        poor_score = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 20, 8, 78, 16.0, "")
+        unavailable = WeatherSummary("Pessima", 0, "Previsioni non disponibili.", 0, 0, 0, 0, 0.0, "")
+
+        rain_status = NightPlannerService.weather_blocking_status(rain)
+        poor_score_status = NightPlannerService.weather_blocking_status(poor_score)
+        unavailable_status = NightPlannerService.weather_blocking_status(unavailable)
+
+        self.assertTrue(rain_status.blocks_plan)
+        self.assertTrue(rain_status.show_warning)
+        self.assertEqual(rain_status.reason, "rischio precipitazioni")
+        self.assertEqual(rain_status.detail, "Rischio precipitazioni elevato.")
+        self.assertTrue(poor_score_status.blocks_plan)
+        self.assertTrue(poor_score_status.show_warning)
+        self.assertEqual(poor_score_status.reason, "Nuvolosità elevata.")
+        self.assertTrue(unavailable_status.blocks_plan)
+        self.assertFalse(unavailable_status.show_warning)
+
     def test_moon_penalty_is_object_dependent_for_deep_sky(self) -> None:
         new_moon = MoonSummary("Nuova", "0%", "", "", "", "")
         bright_moon = MoonSummary("Luna luminosa", "80%", "", "", "", "")

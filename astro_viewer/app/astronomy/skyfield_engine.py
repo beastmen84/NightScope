@@ -60,7 +60,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
         try:
             return self._loader("de421.bsp")
-        except Exception as exc:
+        except Exception:
             logger.warning("Skyfield ephemeris could not be loaded.", exc_info=True)
             if ephemeris_path.exists():
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")

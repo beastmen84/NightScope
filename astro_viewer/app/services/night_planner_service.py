@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
-from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 
 
 class NightPlannerService:
@@ -21,7 +21,7 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
     ) -> list[NightPlanItem]:
-        if self._weather_blocks_plan(weather):
+        if self.weather_blocking_status(weather).blocks_plan:
             return []
 
         visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
@@ -82,12 +82,30 @@ class NightPlannerService:
         return raw_score * NightPlannerService._weather_factor(weather)
 
     @staticmethod
-    def _weather_blocks_plan(weather: WeatherSummary) -> bool:
-        return (
-            weather.score_value <= 25
-            or weather.precipitation_probability >= 65
-            or weather.cloud_cover >= 85
-        )
+    def weather_blocking_status(weather: WeatherSummary) -> WeatherBlockingStatus:
+        if weather.precipitation_probability >= 65:
+            return WeatherBlockingStatus(
+                blocks_plan=True,
+                show_warning=True,
+                reason="rischio precipitazioni",
+                detail="Rischio precipitazioni elevato.",
+            )
+        if weather.cloud_cover >= 85:
+            return WeatherBlockingStatus(
+                blocks_plan=True,
+                show_warning=True,
+                reason="nuvolosità quasi coperta",
+                detail="Copertura nuvolosa severa.",
+            )
+        if weather.score_value <= 25:
+            show_warning = weather.score_value > 0
+            return WeatherBlockingStatus(
+                blocks_plan=True,
+                show_warning=show_warning,
+                reason=(weather.explanation or "qualità osservativa pessima") if show_warning else "",
+                detail="Punteggio osservativo sotto la soglia minima." if show_warning else "",
+            )
+        return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
 
     @staticmethod
     def _weather_factor(weather: WeatherSummary) -> float:

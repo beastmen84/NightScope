@@ -57,3 +57,11 @@ class WeatherSummary:
         data["windKmh"] = self.wind_kmh
         data["temperatureC"] = self.temperature_c
         return data
+
+
+@dataclass(frozen=True)
+class WeatherBlockingStatus:
+    blocks_plan: bool
+    show_warning: bool
+    reason: str = ""
+    detail: str = ""

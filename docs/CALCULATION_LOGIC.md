@@ -169,17 +169,17 @@ true:
 - cloud cover >= 85.
 
 The home page displays a global warning when the plan is empty and blocking
-weather is detected. The current QML warning logic mirrors the same conceptual
-conditions.
+weather is detected. The blocking decision is centralized in
+`NightPlannerService.weather_blocking_status` and exposed through
+`AppController`.
 
 When blocking weather is active, object-specific astronomical reasoning is still
 kept, but the global warning explains that the session is not reliable.
 
-Known consistency risk:
+Presentation:
 
-- The blocking thresholds are duplicated between Python planner logic and QML
-  presentation logic. If one changes without the other, the UI can disagree with
-  the planner.
+- QML renders `isObservingSessionBlocked`, `blockingReason`, `blockingDetail`
+  and `suggestedObservingWindow`; it does not duplicate the blocking thresholds.
 
 ## Seeing And Transparency
 
@@ -472,8 +472,8 @@ VIIRS completion triggers:
 - No local horizon mask is implemented.
 - No atmospheric extinction model is implemented.
 - No surface-brightness model for extended objects is implemented.
-- Weather blocking thresholds are duplicated between planner and QML warning
-  presentation.
+- Weather blocking thresholds are intentionally owned by
+  `NightPlannerService.weather_blocking_status`.
 - Seeing can remain high while observing quality is poor, because seeing and
   transparency/global weather are separate concepts.
 - Sky-quality cache has no broad TTL policy.

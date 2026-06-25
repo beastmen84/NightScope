@@ -211,43 +211,6 @@ Item {
         return "Fattore limitante: condizioni bilanciate"
     }
 
-    function blockingWeatherReason() {
-        var score = Number(controller.observingQuality.scoreValue || 0)
-        var rain = Number(controller.weatherDigest.rainProbability || 0)
-        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
-        if (rain >= 65)
-            return "rischio precipitazioni"
-        if (cloud >= 85)
-            return "nuvolosità quasi coperta"
-        if (score > 0 && score <= 25)
-            return controller.observingQuality.explanation || "qualità osservativa pessima"
-        return ""
-    }
-
-    function hasBlockingWeather() {
-        return root.blockingWeatherReason().length > 0
-    }
-
-    function blockingWeatherDetail() {
-        var score = Number(controller.observingQuality.scoreValue || 0)
-        var rain = Number(controller.weatherDigest.rainProbability || 0)
-        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
-        if (rain >= 65)
-            return "Rischio precipitazioni elevato."
-        if (cloud >= 85)
-            return "Copertura nuvolosa severa."
-        if (score > 0 && score <= 25)
-            return "Punteggio osservativo sotto la soglia minima."
-        return "Condizioni sotto la soglia minima."
-    }
-
-    function bestWindowText() {
-        var bestWindow = controller.weatherDigest.bestWindow || ""
-        if (bestWindow.length === 0 || bestWindow === "n/d")
-            return ""
-        return bestWindow.replace(" - ", "–")
-    }
-
     function nightPlanEmptyText() {
         return controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
     }
@@ -275,13 +238,13 @@ Item {
     }
 
     function planetarySubtitle() {
-        if (root.hasBlockingWeather())
-            return "Meteo bloccante: " + root.blockingWeatherReason()
+        if (controller.isObservingSessionBlocked)
+            return "Meteo bloccante: " + controller.blockingReason
         return "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
     }
 
     function planetaryHint() {
-        if (root.hasBlockingWeather())
+        if (controller.isObservingSessionBlocked)
             return "Meteo bloccante"
         var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
         if (seeing.indexOf("excellent") >= 0 || seeing.indexOf("eccell") >= 0)
@@ -296,7 +259,7 @@ Item {
     }
 
     function deepSkyHint() {
-        if (root.hasBlockingWeather())
+        if (controller.isObservingSessionBlocked)
             return "Meteo bloccante"
         var bortle = Number(controller.skyQuality.bortleClass || 0)
         if (bortle >= 8)
@@ -882,7 +845,7 @@ Item {
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        visible: controller.nightPlan.length === 0 && root.hasBlockingWeather()
+                        visible: controller.nightPlan.length === 0 && controller.isObservingSessionBlocked
                         spacing: 14
 
                         RowLayout {
@@ -919,7 +882,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: root.blockingWeatherDetail()
+                                    text: controller.blockingDetail
                                     color: theme.red
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
@@ -942,7 +905,7 @@ Item {
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    visible: root.bestWindowText().length > 0
+                                    visible: controller.suggestedObservingWindow.length > 0
                                     spacing: 2
 
                                     Text {
@@ -955,7 +918,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: root.bestWindowText()
+                                        text: controller.suggestedObservingWindow
                                         color: theme.textPrimary
                                         font.pixelSize: 16
                                         font.weight: Font.DemiBold
@@ -991,7 +954,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        visible: controller.nightPlan.length === 0 && !root.hasBlockingWeather()
+                        visible: controller.nightPlan.length === 0 && !controller.isObservingSessionBlocked
                         text: root.nightPlanEmptyText()
                         color: theme.textSecondary
                         font.pixelSize: 13
@@ -1027,7 +990,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
-                    title: root.hasBlockingWeather() ? "Pianeti potenzialmente visibili" : "Altri pianeti visibili"
+                    title: controller.isObservingSessionBlocked ? "Pianeti potenzialmente visibili" : "Altri pianeti visibili"
                     subtitle: "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.teal
 
@@ -1070,7 +1033,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: root.hasBlockingWeather() ? "Oggetti cielo profondo potenzialmente visibili" : "Oggetti cielo profondo visibili"
+                    title: controller.isObservingSessionBlocked ? "Oggetti cielo profondo potenzialmente visibili" : "Oggetti cielo profondo visibili"
                     subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Oggetti utili non già presenti nel piano consigliato"
                     accentColor: theme.violet
 

@@ -160,7 +160,8 @@ Home recommendation flow:
 3. Deep-sky objects may be adjusted by light-pollution and Moon context.
 4. `ObservingScoreService` selects the best object.
 5. `NightPlannerService` produces the observing plan unless weather is blocking.
-6. QML presents either the plan or a global "Sessione sconsigliata" warning.
+6. `AppController` exposes the centralized blocking state to QML.
+7. QML presents either the plan or a global "Sessione sconsigliata" warning.
 
 Object detail flow:
 
@@ -249,9 +250,10 @@ manager.
 
 The following duplication or concentration of responsibility should be tracked:
 
-- Weather blocking thresholds exist in both `NightPlannerService` and
-  `HomePage.qml`. Current thresholds match conceptually, but future drift could
-  make the plan and warning disagree.
+- Weather blocking is centralized in `NightPlannerService.weather_blocking_status`.
+  `AppController` exposes `isObservingSessionBlocked`, `blockingReason`,
+  `blockingDetail` and `suggestedObservingWindow`; QML renders those values
+  without duplicating the thresholds.
 - Score labels are implemented in `ObservingScoreService` and also separately
   in the astronomy engine for raw object scores.
 - Night-hour selection is repeated in observing score, seeing estimation and
@@ -279,7 +281,8 @@ For future changes:
   algorithms there unless they are purely presentation-specific.
 - When changing profile/equipment behavior, add tests that assert immediate
   refresh of home, detail and calendar/profile-dependent outputs.
-- When changing weather blocking thresholds, update or centralize the planner
-  and QML warning criteria together.
+- When changing weather blocking thresholds, update
+  `NightPlannerService.weather_blocking_status` and keep QML as a renderer of
+  controller state.
 - When changing Moon or light-pollution logic, verify galaxy, nebula, globular
   cluster and open-cluster ranking separately.

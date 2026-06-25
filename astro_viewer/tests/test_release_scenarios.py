@@ -38,6 +38,16 @@ class ReleaseScenarioTests(unittest.TestCase):
                 self.assertEqual(controller.weatherStatus, "Dati meteo non disponibili al momento.")
                 self.assertGreater(len(controller.solarSystemObjects), 0)
                 self.assertIn("Meteo non disponibile", controller.weatherSummary["alert"])
+                self.assertFalse(controller.isObservingSessionBlocked)
+                self.assertEqual(controller.blockingReason, "")
+
+    def test_blocking_weather_state_is_exposed_by_controller(self) -> None:
+        with self._controller_with_weather(_rainy_weather_response(), saved_location=True) as controller:
+            self.assertTrue(controller.isObservingSessionBlocked)
+            self.assertEqual(controller.blockingReason, "rischio precipitazioni")
+            self.assertEqual(controller.blockingDetail, "Rischio precipitazioni elevato.")
+            self.assertIn("–", controller.suggestedObservingWindow)
+            self.assertEqual(controller.nightPlan, [])
 
     def test_app_starts_with_saved_location_and_refreshes_weather(self) -> None:
         with self._controller_with_weather(_valid_weather_response(), saved_location=True) as controller:
@@ -269,7 +279,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("controller.activeLocationSource", qml)
         self.assertIn("Pianeti potenzialmente visibili", qml)
         self.assertIn("Oggetti cielo profondo potenzialmente visibili", qml)
-        self.assertIn("root.hasBlockingWeather() ? \"Pianeti potenzialmente visibili\"", qml)
+        self.assertIn("controller.isObservingSessionBlocked ? \"Pianeti potenzialmente visibili\"", qml)
+        self.assertNotIn("function hasBlockingWeather", qml)
+        self.assertNotIn("function blockingWeatherReason", qml)
+        self.assertNotIn("function blockingWeatherDetail", qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)
@@ -409,6 +422,12 @@ def _valid_weather_response() -> Mock:
             "visibility": [18000] * 24,
         }
     }
+    return response
+
+
+def _rainy_weather_response() -> Mock:
+    response = _valid_weather_response()
+    response.json.return_value["hourly"]["precipitation_probability"] = [80] * 24
     return response
 
 

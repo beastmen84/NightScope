@@ -23,7 +23,7 @@ from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepos
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
-from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
+from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
@@ -358,6 +358,22 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def weatherDigest(self) -> dict:
         return self._weather_digest()
+
+    @Property(bool, notify=weatherChanged)
+    def isObservingSessionBlocked(self) -> bool:
+        return self._weather_blocking_status().show_warning
+
+    @Property(str, notify=weatherChanged)
+    def blockingReason(self) -> str:
+        return self._weather_blocking_status().reason
+
+    @Property(str, notify=weatherChanged)
+    def blockingDetail(self) -> str:
+        return self._weather_blocking_status().detail
+
+    @Property(str, notify=weatherChanged)
+    def suggestedObservingWindow(self) -> str:
+        return self._suggested_observing_window()
 
     @Property(str, notify=weatherChanged)
     def skyQualityWarning(self) -> str:
@@ -2032,6 +2048,17 @@ class AppController(QObject):
                 for hour in self._selected_weather_hours(night_hours)
             ],
         }
+
+    def _weather_blocking_status(self) -> WeatherBlockingStatus:
+        if not self._weather_summary:
+            return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
+        return self._night_planner_service.weather_blocking_status(self._weather_summary)
+
+    def _suggested_observing_window(self) -> str:
+        best_window = self._weather_digest().get("bestWindow", "")
+        if not best_window or best_window == "n/d":
+            return ""
+        return best_window.replace(" - ", "–")
 
     @staticmethod
     def _home_weather_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
