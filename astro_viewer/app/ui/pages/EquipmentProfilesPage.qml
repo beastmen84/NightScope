@@ -45,6 +45,14 @@ Item {
         return theme.amber
     }
 
+    function binocularExitPupil(binocular) {
+        var magnification = Number(binocular.magnification || 0)
+        var objective = Number(binocular.objectiveDiameterMm || binocular.objective_diameter_mm || 0)
+        if (magnification <= 0 || objective <= 0)
+            return "n/d"
+        return (objective / magnification).toFixed(1) + " mm"
+    }
+
     AppTheme { id: theme }
 
     ScrollView {
@@ -272,7 +280,90 @@ Item {
                 }
             }
 
+            GlassCard {
+                visible: controller.profileBinoculars.length > 0
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Binocoli del profilo"
+                subtitle: "Capacità derivate dai binocoli assegnati"
+                accentColor: theme.cyan
+
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Repeater {
+                        model: controller.profileBinoculars
+                        delegate: BinocularCapabilityCard { itemData: modelData }
+                    }
+                }
+            }
+
             Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
+        }
+    }
+
+    component BinocularCapabilityCard: Rectangle {
+        id: binocularCard
+        property var itemData
+
+        width: Math.min(260, Math.max(190, root.width > 900 ? (root.width - 112) / 3 : root.width - 88))
+        height: 132
+        radius: 8
+        color: "#20242b"
+        border.color: "#303641"
+        border.width: 1
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            Text {
+                Layout.fillWidth: true
+                text: itemData.name
+                color: theme.textPrimary
+                font.pixelSize: 14
+                font.weight: Font.DemiBold
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                StatusPill { text: itemData.specLabel || ""; accentColor: theme.cyan }
+                StatusPill {
+                    visible: itemData.imageStabilized === true
+                    text: "IS"
+                    accentColor: theme.violet
+                }
+                Item { Layout.fillWidth: true }
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Exit pupil"
+                    color: theme.textSecondary
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: root.binocularExitPupil(itemData)
+                    color: theme.textPrimary
+                    font.pixelSize: 20
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+            }
         }
     }
 
