@@ -844,41 +844,50 @@ Item {
                     accentColor: theme.green
 
                     ColumnLayout {
+                        id: sessionDecisionContent
+
                         Layout.fillWidth: true
                         visible: controller.nightPlan.length === 0 && controller.isObservingSessionBlocked
                         spacing: 14
 
+                        property bool opportunityWide: root.width > 760 && controller.showObservingSessionOpportunity
+
                         GridLayout {
                             Layout.fillWidth: true
-                            columns: root.width > 920 && controller.showObservingSessionOpportunity ? 2 : 1
+                            columns: sessionDecisionContent.opportunityWide ? 2 : 1
                             columnSpacing: 36
                             rowSpacing: 12
 
+                            RowLayout {
+                                Layout.row: 0
+                                Layout.column: 0
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                                spacing: 8
+
+                                Text {
+                                    text: controller.observingSessionIcon
+                                    color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
+                                    font.pixelSize: 18
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: controller.observingSessionTitle
+                                    color: theme.textPrimary
+                                    font.pixelSize: 17
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+                            }
+
                             ColumnLayout {
+                                Layout.row: 1
+                                Layout.column: 0
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignTop
                                 spacing: 10
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 8
-
-                                    Text {
-                                        text: controller.observingSessionIcon
-                                        color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
-                                        font.pixelSize: 18
-                                        font.weight: Font.DemiBold
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: controller.observingSessionTitle
-                                        color: theme.textPrimary
-                                        font.pixelSize: 17
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
-                                }
 
                                 Text {
                                     Layout.fillWidth: true
@@ -899,6 +908,9 @@ Item {
                             }
 
                             ColumnLayout {
+                                Layout.row: sessionDecisionContent.opportunityWide ? 0 : 2
+                                Layout.column: sessionDecisionContent.opportunityWide ? 1 : 0
+                                Layout.rowSpan: sessionDecisionContent.opportunityWide ? 2 : 1
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignTop
                                 visible: controller.showObservingSessionOpportunity
