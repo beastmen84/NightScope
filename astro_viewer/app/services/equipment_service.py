@@ -3,6 +3,7 @@ from __future__ import annotations
 from astro_viewer.app.models.equipment import Barlow, BeginnerPreset, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 
 
@@ -166,8 +167,8 @@ class EquipmentService:
             }
 
         barlows = barlows or []
-        combinations = self._ranked_combinations(celestial_object, telescope, eyepieces, barlows, seeing, sky_quality)
-        if not combinations:
+        candidates = self._ranked_candidates(celestial_object, telescope, eyepieces, barlows, seeing, sky_quality)
+        if not candidates:
             return {
                 "bestEyepiece": "",
                 "suggestedPosition": "",
@@ -184,27 +185,27 @@ class EquipmentService:
                 "selectionScore": 8.0,
             }
 
-        recommended = self._recommended_combination(combinations)
-        options = self._option_set(combinations, recommended)
+        recommended = self._recommended_candidate(candidates)
+        options = self._option_set(candidates, recommended)
         difficulty = self._difficulty_for_object(celestial_object, telescope, sky_quality)
-        setup_options = [self._combo_to_option(role, combo) for role, combo in options]
+        setup_options = [self._candidate_to_option(role, candidate) for role, candidate in options]
         alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
         return {
-            "bestEyepiece": recommended["eyepiece"].name,
-            "suggestedPosition": recommended["focal_position"],
-            "barlow": recommended["barlow_label"],
+            "bestEyepiece": recommended.eyepiece.name if recommended.eyepiece else "",
+            "suggestedPosition": recommended.focal_position,
+            "barlow": recommended.barlow_label,
             "difficulty": difficulty,
             "alternative": alternative["detailLabel"] if alternative else "n/d",
             "highMagnification": next((option["detailLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
             "wideField": next((option["detailLabel"] for option in setup_options if option["role"] == "Campo largo"), ""),
-            "setupText": recommended["detail_label"],
+            "setupText": recommended.detail_label,
             "setupOptions": setup_options,
             "explanation": self._equipment_explanation(celestial_object, recommended),
             "telescopeId": telescope.id,
             "telescopeName": telescope.name,
             "equipmentType": "Telescope",
             "setupType": "telescope",
-            "selectionScore": recommended["score"],
+            "selectionScore": recommended.score,
         }
 
     def suggest_for_profile(
@@ -224,7 +225,7 @@ class EquipmentService:
             return self._naked_eye_suggestion(celestial_object)
 
         if binoculars:
-            combinations = self._ranked_profile_combinations(
+            candidates = self._ranked_profile_candidates(
                 celestial_object,
                 usable_telescopes,
                 eyepieces,
@@ -233,10 +234,10 @@ class EquipmentService:
                 seeing,
                 sky_quality,
             )
-            if combinations:
-                return self._suggestion_from_combinations(
+            if candidates:
+                return self._suggestion_from_candidates(
                     celestial_object,
-                    combinations,
+                    candidates,
                     sky_quality,
                     prefix_telescope=True,
                 )
@@ -253,7 +254,7 @@ class EquipmentService:
             best = {**best, "setupText": f"{best['telescopeName']} + {setup_text}"}
         return best
 
-    def _ranked_profile_combinations(
+    def _ranked_profile_candidates(
         self,
         celestial_object: CelestialObject,
         telescopes: list[Telescope],
@@ -262,7 +263,7 @@ class EquipmentService:
         binoculars: list[Binocular],
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
-    ) -> list[dict]:
+    ) -> list[RecommendationCandidate]:
         from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
 
         profiles: dict[str, dict] = {}
@@ -285,40 +286,40 @@ class EquipmentService:
             binoculars,
             focal_position_provider,
         )
-        combinations = []
+        candidates = []
         for configuration in configurations:
             if configuration.binocular:
-                combination = self._binocular_configuration_to_combination(configuration, celestial_object, sky_quality)
+                candidate = self._binocular_candidate(configuration, celestial_object, sky_quality)
             elif configuration.telescope:
-                combination = self._configuration_to_combination(
+                candidate = self._telescope_candidate(
                     configuration,
                     celestial_object,
                     profile_for(configuration.telescope),
                     sky_quality,
                 )
             else:
-                combination = None
-            if combination:
-                combinations.append(combination)
-        return sorted(combinations, key=lambda item: item["score"], reverse=True)
+                candidate = None
+            if candidate:
+                candidates.append(candidate)
+        return sorted(candidates, key=lambda item: item.score, reverse=True)
 
-    def _suggestion_from_combinations(
+    def _suggestion_from_candidates(
         self,
         celestial_object: CelestialObject,
-        combinations: list[dict],
+        candidates: list[RecommendationCandidate],
         sky_quality: SkyQuality | None,
         prefix_telescope: bool = False,
     ) -> dict:
-        recommended = self._recommended_combination(combinations)
-        options = self._option_set(combinations, recommended)
-        setup_options = [self._combo_to_option(role, combo) for role, combo in options]
+        recommended = self._recommended_candidate(candidates)
+        options = self._option_set(candidates, recommended)
+        setup_options = [self._candidate_to_option(role, candidate) for role, candidate in options]
         alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
-        setup_text = recommended["detail_label"]
-        telescope = recommended.get("telescope")
-        binocular = recommended.get("binocular")
-        if prefix_telescope and recommended.get("equipment_type") == "Telescope" and telescope:
-            setup_text = f"{recommended['telescope_name']} + {setup_text}"
-        if recommended.get("equipment_type") == "Binocular":
+        setup_text = recommended.detail_label
+        telescope = recommended.telescope
+        binocular = recommended.binocular
+        if prefix_telescope and recommended.equipment_type == "Telescope" and telescope:
+            setup_text = f"{recommended.telescope_name} + {setup_text}"
+        if recommended.equipment_type == "Binocular":
             difficulty = self._difficulty_for_binocular(recommended)
             explanation = self._binocular_explanation(celestial_object, recommended)
             best_eyepiece = "Non richiesto"
@@ -327,13 +328,13 @@ class EquipmentService:
         else:
             difficulty = self._difficulty_for_object(celestial_object, telescope, sky_quality) if telescope else "Media"
             explanation = self._equipment_explanation(celestial_object, recommended)
-            best_eyepiece = recommended["eyepiece"].name
+            best_eyepiece = recommended.eyepiece.name if recommended.eyepiece else ""
             telescope_id = telescope.id if telescope else ""
             telescope_name = telescope.name if telescope else ""
         return {
             "bestEyepiece": best_eyepiece,
-            "suggestedPosition": recommended.get("focal_position", ""),
-            "barlow": recommended["barlow_label"],
+            "suggestedPosition": recommended.focal_position,
+            "barlow": recommended.barlow_label,
             "difficulty": difficulty,
             "alternative": alternative["detailLabel"] if alternative else "n/d",
             "highMagnification": next((option["detailLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
@@ -343,12 +344,12 @@ class EquipmentService:
             "explanation": explanation,
             "telescopeId": telescope_id,
             "telescopeName": telescope_name,
-            "equipmentType": recommended.get("equipment_type", "Telescope"),
-            "setupType": "binocular" if recommended.get("equipment_type") == "Binocular" else "telescope",
-            "selectionScore": recommended["score"],
+            "equipmentType": recommended.equipment_type,
+            "setupType": recommended.setup_type,
+            "selectionScore": recommended.score,
         }
 
-    def _ranked_combinations(
+    def _ranked_candidates(
         self,
         celestial_object: CelestialObject,
         telescope: Telescope,
@@ -356,11 +357,11 @@ class EquipmentService:
         barlows: list[Barlow],
         seeing: SeeingTransparency | None = None,
         sky_quality: SkyQuality | None = None,
-    ) -> list[dict]:
+    ) -> list[RecommendationCandidate]:
         from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
 
         profile = self._target_profile(celestial_object, telescope, seeing, sky_quality)
-        combinations = []
+        candidates = []
 
         def focal_position_provider(candidate_telescope: Telescope, eyepiece: Eyepiece, barlow: Barlow | None) -> list[dict]:
             multiplier = barlow.multiplier if barlow else 1.0
@@ -374,18 +375,18 @@ class EquipmentService:
             focal_position_provider,
         )
         for configuration in configurations:
-            combination = self._configuration_to_combination(configuration, celestial_object, profile, sky_quality)
-            if combination:
-                combinations.append(combination)
-        return sorted(combinations, key=lambda item: item["score"], reverse=True)
+            candidate = self._telescope_candidate(configuration, celestial_object, profile, sky_quality)
+            if candidate:
+                candidates.append(candidate)
+        return sorted(candidates, key=lambda item: item.score, reverse=True)
 
-    def _configuration_to_combination(
+    def _telescope_candidate(
         self,
         configuration: ObservationConfiguration,
         celestial_object: CelestialObject,
         profile: dict,
         sky_quality: SkyQuality | None,
-    ) -> dict | None:
+    ) -> RecommendationCandidate | None:
         if not configuration.telescope or not configuration.eyepiece:
             return None
         if configuration.true_field_of_view_deg is None or configuration.focal_position_mm is None:
@@ -405,51 +406,34 @@ class EquipmentService:
         detail_label = label
         if eyepiece.eyepiece_type == "Zoom":
             detail_label = f"{label} @ {configuration.focal_position_label}"
-        return {
-            "equipment_type": "Telescope",
-            "telescope": telescope,
-            "eyepiece": eyepiece,
-            "barlow": barlow,
-            "barlow_label": barlow.name if barlow else "No",
-            "multiplier": multiplier,
-            "focal_position": configuration.focal_position_label,
-            "focal_mm": configuration.focal_position_mm,
-            "magnification": magnification,
-            "true_field": true_field,
-            "exit_pupil": exit_pupil,
-            "score": score,
-            "label": label,
-            "detail_label": detail_label,
-            "telescope_name": telescope.name,
-        }
+        return RecommendationCandidate(
+            configuration=configuration,
+            score=score,
+            label=label,
+            detail_label=detail_label,
+            multiplier=multiplier,
+            barlow_label=barlow.name if barlow else "No",
+            telescope_name=telescope.name,
+        )
 
-    def _binocular_configuration_to_combination(
+    def _binocular_candidate(
         self,
         configuration: ObservationConfiguration,
         celestial_object: CelestialObject,
         sky_quality: SkyQuality | None,
-    ) -> dict | None:
+    ) -> RecommendationCandidate | None:
         binocular = configuration.binocular
         if not binocular or configuration.magnification <= 0 or configuration.exit_pupil_mm <= 0:
             return None
         label = self._binocular_setup_label(binocular)
-        return {
-            "equipment_type": "Binocular",
-            "binocular": binocular,
-            "eyepiece": None,
-            "barlow": None,
-            "barlow_label": "No",
-            "multiplier": 1.0,
-            "focal_position": "",
-            "focal_mm": None,
-            "magnification": configuration.magnification,
-            "true_field": None,
-            "exit_pupil": configuration.exit_pupil_mm,
-            "score": self._binocular_configuration_score(celestial_object, configuration, sky_quality),
-            "label": label,
-            "detail_label": label,
-            "telescope_name": "",
-        }
+        return RecommendationCandidate(
+            configuration=configuration,
+            score=self._binocular_configuration_score(celestial_object, configuration, sky_quality),
+            label=label,
+            detail_label=label,
+            multiplier=1.0,
+            barlow_label="No",
+        )
 
     @staticmethod
     def _barlow_options(barlows: list[Barlow]) -> list[Barlow | None]:
@@ -504,48 +488,55 @@ class EquipmentService:
             positions.append({"focal": rounded, "position": f"{rounded:g} mm"})
         return positions
 
-    def _recommended_combination(self, combinations: list[dict]) -> dict:
-        best = combinations[0]
-        if best.get("equipment_type") != "Telescope" or best["multiplier"] <= 1.0:
+    def _recommended_candidate(self, candidates: list[RecommendationCandidate]) -> RecommendationCandidate:
+        best = candidates[0]
+        if best.equipment_type != "Telescope" or best.multiplier <= 1.0:
             return best
-        best_without_barlow = next((combo for combo in combinations if combo["multiplier"] <= 1.0), None)
-        if best_without_barlow and best["score"] <= best_without_barlow["score"] + 8:
+        best_without_barlow = next((candidate for candidate in candidates if candidate.multiplier <= 1.0), None)
+        if best_without_barlow and best.score <= best_without_barlow.score + 8:
             return best_without_barlow
         return best
 
-    def _option_set(self, combinations: list[dict], recommended: dict) -> list[tuple[str, dict]]:
-        options: list[tuple[str, dict]] = [("Consigliato", recommended)]
-        alternative = self._first_distinct(combinations, options)
+    def _option_set(
+        self,
+        candidates: list[RecommendationCandidate],
+        recommended: RecommendationCandidate,
+    ) -> list[tuple[str, RecommendationCandidate]]:
+        options: list[tuple[str, RecommendationCandidate]] = [("Consigliato", recommended)]
+        alternative = self._first_distinct(candidates, options)
         if alternative:
             options.append(("Alternativa", alternative))
-        options.append(("Alto ingrandimento", max(combinations, key=lambda item: item["magnification"])))
-        options.append(("Campo largo", max(combinations, key=lambda item: item["true_field"] or 0.0)))
+        options.append(("Alto ingrandimento", max(candidates, key=lambda item: item.magnification)))
+        options.append(("Campo largo", max(candidates, key=lambda item: item.true_field or 0.0)))
         return options
 
     @staticmethod
-    def _first_distinct(candidates: list[dict], selected: list[tuple[str, dict]]) -> dict | None:
-        selected_labels = {combo["detail_label"] for _, combo in selected}
+    def _first_distinct(
+        candidates: list[RecommendationCandidate],
+        selected: list[tuple[str, RecommendationCandidate]],
+    ) -> RecommendationCandidate | None:
+        selected_labels = {candidate.detail_label for _, candidate in selected}
         for candidate in candidates:
-            if candidate["detail_label"] not in selected_labels:
+            if candidate.detail_label not in selected_labels:
                 return candidate
         return None
 
     @staticmethod
-    def _combo_to_option(role: str, combo: dict) -> dict:
-        true_field = combo["true_field"]
-        exit_pupil = combo["exit_pupil"]
+    def _candidate_to_option(role: str, candidate: RecommendationCandidate) -> dict:
+        true_field = candidate.true_field
+        exit_pupil = candidate.exit_pupil
         return {
             "role": role,
-            "label": combo["label"],
-            "detailLabel": combo["detail_label"],
-            "suggestedPosition": combo.get("focal_position", ""),
-            "magnification": f"{combo['magnification']:.0f}x",
+            "label": candidate.label,
+            "detailLabel": candidate.detail_label,
+            "suggestedPosition": candidate.focal_position,
+            "magnification": f"{candidate.magnification:.0f}x",
             "trueField": f"{true_field:.2f} gradi" if true_field is not None else "n/d",
             "exitPupil": f"{exit_pupil:.1f} mm" if exit_pupil is not None else "n/d",
-            "barlow": combo["barlow_label"],
-            "score": max(0, min(100, round(combo["score"]))),
-            "telescopeName": combo.get("telescope_name", ""),
-            "equipmentType": combo.get("equipment_type", "Telescope"),
+            "barlow": candidate.barlow_label,
+            "score": max(0, min(100, round(candidate.score))),
+            "telescopeName": candidate.telescope_name,
+            "equipmentType": candidate.equipment_type,
         }
 
     def _target_profile(
@@ -802,26 +793,26 @@ class EquipmentService:
             name = f"{name} IS"
         return name
 
-    def _difficulty_for_binocular(self, combination: dict) -> str:
-        score = combination["score"]
+    def _difficulty_for_binocular(self, candidate: RecommendationCandidate) -> str:
+        score = candidate.score
         if score >= 75.0:
             return "Facile"
         if score >= 45.0:
             return "Media"
         return "Difficile"
 
-    def _binocular_explanation(self, celestial_object: CelestialObject, combination: dict) -> str:
+    def _binocular_explanation(self, celestial_object: CelestialObject, candidate: RecommendationCandidate) -> str:
         observation_type = self._observation_type_hint(celestial_object)
-        magnification = combination["magnification"]
-        exit_pupil = combination["exit_pupil"]
-        if observation_type == "HighMagnification" or combination["score"] < 35.0:
+        magnification = candidate.magnification
+        exit_pupil = candidate.exit_pupil
+        if observation_type == "HighMagnification" or candidate.score < 35.0:
             return (
                 "Il binocolo permette di individuare l'oggetto, ma non è ideale per i dettagli: "
                 "servirebbe maggiore ingrandimento. "
                 f"Configurazione disponibile: {magnification:.0f}x con pupilla {exit_pupil:.1f} mm."
             )
         if observation_type == "WideField":
-            stabilization = " Binocolo stabilizzato: immagine più ferma." if combination.get("binocular") and combination["binocular"].image_stabilized else ""
+            stabilization = " Binocolo stabilizzato: immagine più ferma." if candidate.binocular and candidate.binocular.image_stabilized else ""
             return (
                 "Oggetto esteso: il binocolo offre una visione più naturale a largo campo. "
                 f"{magnification:.0f}x con pupilla {exit_pupil:.1f} mm; "
@@ -888,12 +879,12 @@ class EquipmentService:
         return maximum / 60.0
 
     @staticmethod
-    def _equipment_explanation(celestial_object: CelestialObject, combination: dict) -> str:
+    def _equipment_explanation(celestial_object: CelestialObject, candidate: RecommendationCandidate) -> str:
         parts = [
-            f"{combination['magnification']:.0f}x con pupilla {combination['exit_pupil']:.1f} mm",
-            f"campo reale {combination['true_field']:.2f} gradi",
+            f"{candidate.magnification:.0f}x con pupilla {candidate.exit_pupil:.1f} mm",
+            f"campo reale {candidate.true_field:.2f} gradi",
         ]
-        if combination["multiplier"] > 1.0:
+        if candidate.multiplier > 1.0:
             parts.append("Barlow usata per aumentare l'ingrandimento utile")
         else:
             parts.append("senza Barlow per mantenere contrasto e campo")

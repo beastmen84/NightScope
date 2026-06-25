@@ -4,6 +4,7 @@ import pytest
 
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.services.equipment_service import EquipmentService
 
@@ -21,6 +22,20 @@ def test_fixed_eyepiece_telescope_recommendation_baseline() -> None:
     assert suggestion["suggestedPosition"] == "25 mm"
     assert suggestion["barlow"] == "No"
     assert suggestion["selectionScore"] == pytest.approx(90.487, abs=0.001)
+
+
+def test_ranked_telescope_recommendations_use_typed_candidates() -> None:
+    candidates = EquipmentService()._ranked_candidates(
+        _object("messier-M51", "M51", "Galaxy", "8.4", "11 arcmin"),
+        Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson"),
+        [Eyepiece("e25", "25 mm", 25, 52)],
+        [],
+    )
+
+    assert candidates
+    assert all(isinstance(candidate, RecommendationCandidate) for candidate in candidates)
+    assert candidates[0].configuration.telescope is not None
+    assert candidates[0].equipment_type == "Telescope"
 
 
 def test_zoom_eyepiece_recommendation_preserves_target_aware_sampling() -> None:
