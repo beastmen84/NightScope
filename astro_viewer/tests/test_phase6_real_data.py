@@ -607,10 +607,41 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(len(controller.binocularCatalog), initial_count)
             self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
 
+    def test_binoculars_can_be_assigned_to_profiles_without_changing_capabilities(self) -> None:
+        with _controller() as controller:
+            binocular = next(item for item in controller.binocularCatalog if item["image_stabilized"])
+            before_capabilities = dict(controller.telescopeCapabilities)
+
+            controller.assignEquipmentToActiveProfile("binocular", binocular["catalog_id"])
+
+            assigned_binocular = next(
+                item
+                for item in controller.profileAssignedEquipment
+                if item["kind"] == "binocular" and item["id"] == binocular["catalog_id"]
+            )
+            catalog_item = next(
+                item
+                for item in controller.profileEquipmentCatalog
+                if item["kind"] == "binocular" and item["id"] == binocular["catalog_id"]
+            )
+            self.assertEqual(assigned_binocular["name"], binocular["display_name"])
+            self.assertEqual(assigned_binocular["details"], binocular["spec_label"])
+            self.assertEqual(assigned_binocular["secondaryBadge"], "IS")
+            self.assertTrue(catalog_item["assigned"])
+            self.assertEqual(controller.profileBinoculars[0]["specLabel"], binocular["spec_label"])
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+
+            controller.removeEquipmentFromActiveProfile("binocular", binocular["catalog_id"])
+
+            self.assertFalse(any(item["kind"] == "binocular" for item in controller.profileAssignedEquipment))
+            self.assertTrue(any(item["catalog_id"] == binocular["catalog_id"] for item in controller.binocularCatalog))
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+
     def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
         ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
         main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
         binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
+        profiles_qml = (ui_dir / "pages" / "EquipmentProfilesPage.qml").read_text(encoding="utf-8")
 
         expected_labels = [
             'text: "Home"',
@@ -643,6 +674,9 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
         self.assertIn('text: "Stabilizzato"', binoculars_qml)
+        self.assertIn('title: "Binocoli"', profiles_qml)
+        self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
+        self.assertIn('model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]', profiles_qml)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

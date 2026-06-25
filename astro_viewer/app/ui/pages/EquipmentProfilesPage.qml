@@ -18,6 +18,7 @@ Item {
             || (filter === "Telescopi" && item.kind === "telescope")
             || (filter === "Oculari" && item.kind === "eyepiece")
             || (filter === "Barlow" && item.kind === "barlow")
+            || (filter === "Binocoli" && item.kind === "binocular")
         var text = (item.name + " " + item.badge + " " + item.details + " " + (item.type || "")).toLowerCase()
         return typeOk && text.indexOf((searchText || "").toLowerCase()) >= 0
     }
@@ -39,6 +40,8 @@ Item {
             return theme.cyan
         if (item.kind === "eyepiece")
             return item.badge === "Zoom" ? theme.violet : theme.teal
+        if (item.kind === "binocular")
+            return theme.cyan
         return theme.amber
     }
 
@@ -205,6 +208,14 @@ Item {
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "barlow" })
                         accent: theme.violet
                     }
+
+                    EquipmentGroup {
+                        Layout.preferredWidth: 1
+                        title: "Binocoli"
+                        emptyText: "Nessun binocolo assegnato."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "binocular" })
+                        accent: theme.cyan
+                    }
                 }
 
                 RowLayout {
@@ -309,6 +320,11 @@ Item {
                     elide: Text.ElideRight
                 }
                 StatusPill { text: modelData.details; accentColor: group.accent }
+                StatusPill {
+                    visible: (modelData.secondaryBadge || "").length > 0
+                    text: modelData.secondaryBadge || ""
+                    accentColor: theme.violet
+                }
             }
         }
     }
@@ -482,13 +498,13 @@ Item {
             spacing: 8
 
             Repeater {
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]
 
                 delegate: DarkButton {
                     text: modelData
                     checkable: true
                     checked: root.addFilter === modelData
-                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : theme.violet
+                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : modelData === "Binocoli" ? theme.cyan : theme.violet
                     onClicked: root.addFilter = modelData
                 }
             }
@@ -542,7 +558,7 @@ Item {
             spacing: 10
             DarkComboBox {
                 Layout.preferredWidth: 160
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow"]
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]
                 onCurrentTextChanged: root.removeFilter = currentText
             }
             DarkTextField {

@@ -489,6 +489,7 @@ class EquipmentCatalogRepository:
         return True, "Binocolo aggiornato."
 
     def delete_binocular(self, binocular_id: int) -> tuple[bool, str]:
+        catalog_id = f"catalog-binocular-{binocular_id}"
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id FROM BinocularCatalog WHERE id = ?",
@@ -496,6 +497,10 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, "Binocolo non trovato."
+            connection.execute(
+                "DELETE FROM EquipmentProfileBinocular WHERE binocular_id = ?",
+                (catalog_id,),
+            )
             connection.execute("DELETE FROM BinocularCatalog WHERE id = ?", (binocular_id,))
             connection.commit()
         return True, "Binocolo eliminato."
@@ -594,6 +599,9 @@ class EquipmentCatalogRepository:
     def profile_barlow_ids(self, profile_id: int) -> list[str]:
         return self._profile_item_ids("EquipmentProfileBarlow", "barlow_id", profile_id)
 
+    def profile_binocular_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileBinocular", "binocular_id", profile_id)
+
     def assign_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
         self._assign_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
 
@@ -611,6 +619,12 @@ class EquipmentCatalogRepository:
 
     def remove_profile_barlow(self, profile_id: int, barlow_id: str) -> None:
         self._remove_profile_item("EquipmentProfileBarlow", "barlow_id", profile_id, barlow_id)
+
+    def assign_profile_binocular(self, profile_id: int, binocular_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileBinocular", "binocular_id", profile_id, binocular_id)
+
+    def remove_profile_binocular(self, profile_id: int, binocular_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileBinocular", "binocular_id", profile_id, binocular_id)
 
     def profile_usage_count(self, kind: str, item_id: str) -> int:
         with closing(self._connect()) as connection:
@@ -749,6 +763,11 @@ class EquipmentCatalogRepository:
                 f"SELECT COUNT(*) FROM EquipmentProfileBarlow WHERE barlow_id IN ({placeholders})",
                 ids,
             ).fetchone()[0])
+        if kind == "binocular":
+            return int(connection.execute(
+                f"SELECT COUNT(*) FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})",
+                ids,
+            ).fetchone()[0])
         return 0
 
     @staticmethod
@@ -767,3 +786,5 @@ class EquipmentCatalogRepository:
             connection.execute(f"DELETE FROM EquipmentProfileEyepiece WHERE eyepiece_id IN ({placeholders})", ids)
         elif kind == "barlow":
             connection.execute(f"DELETE FROM EquipmentProfileBarlow WHERE barlow_id IN ({placeholders})", ids)
+        elif kind == "binocular":
+            connection.execute(f"DELETE FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})", ids)

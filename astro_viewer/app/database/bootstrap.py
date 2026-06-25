@@ -13,7 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -33,6 +33,7 @@ REQUIRED_TABLES = {
     "EquipmentProfileTelescope",
     "EquipmentProfileEyepiece",
     "EquipmentProfileBarlow",
+    "EquipmentProfileBinocular",
 }
 SEEDED_TABLES = {
     "MessierObject": "messier_seed.csv",
@@ -242,6 +243,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
     _migrate_binocular_catalog(connection)
+    _ensure_profile_binocular_table(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
         connection,
@@ -353,6 +355,19 @@ def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
     )
     connection.execute("DROP TABLE BinocularCatalog")
     connection.execute("ALTER TABLE BinocularCatalog_new RENAME TO BinocularCatalog")
+
+
+def _ensure_profile_binocular_table(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS EquipmentProfileBinocular (
+            profile_id INTEGER NOT NULL,
+            binocular_id TEXT NOT NULL,
+            PRIMARY KEY (profile_id, binocular_id),
+            FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+        )
+        """
+    )
 
 
 def _database_is_healthy(database_path: Path) -> bool:

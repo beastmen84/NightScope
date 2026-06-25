@@ -213,6 +213,31 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(saved["spec_label"], "10×50")
             self.assertTrue(saved["image_stabilized"])
 
+    def test_profile_binocular_assignments_persist_and_do_not_delete_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            repository = EquipmentCatalogRepository(database_path)
+            profile = repository.active_profile()
+            binocular = next(item for item in repository.binoculars() if item["image_stabilized"])
+
+            repository.assign_profile_binocular(int(profile["id"]), binocular["catalog_id"])
+
+            reopened = EquipmentCatalogRepository(database_path)
+            self.assertIn(binocular["catalog_id"], reopened.profile_binocular_ids(int(profile["id"])))
+            self.assertEqual(reopened.profile_usage_count("binocular", binocular["catalog_id"]), 1)
+
+            reopened.remove_profile_binocular(int(profile["id"]), binocular["catalog_id"])
+            self.assertNotIn(
+                binocular["catalog_id"],
+                EquipmentCatalogRepository(database_path).profile_binocular_ids(int(profile["id"])),
+            )
+            self.assertTrue(
+                any(item["catalog_id"] == binocular["catalog_id"] for item in EquipmentCatalogRepository(database_path).binoculars())
+            )
+
     def test_binocular_catalog_is_added_to_existing_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
@@ -319,6 +344,32 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 ],
             )
             self.assertEqual(row, ("NightScope", "Legacy 10x50", 10, 50, 1))
+
+    def test_profile_binocular_table_is_added_to_existing_database(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute("DROP TABLE EquipmentProfileBinocular")
+                connection.execute("PRAGMA user_version = 3")
+                connection.commit()
+
+            self.assertTrue(database_initialization_required(database_path, schema_path))
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                table = connection.execute(
+                    """
+                    SELECT name FROM sqlite_master
+                    WHERE type = 'table' AND name = 'EquipmentProfileBinocular'
+                    """
+                ).fetchone()
+                version = connection.execute("PRAGMA user_version").fetchone()[0]
+            self.assertIsNotNone(table)
+            self.assertEqual(version, SCHEMA_VERSION)
 
     def test_messier_seed_restores_missing_rows_without_overwriting(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

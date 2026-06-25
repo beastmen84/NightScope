@@ -60,6 +60,22 @@ class Barlow:
 
 
 @dataclass(frozen=True)
+class Binocular:
+    id: str
+    name: str
+    magnification: int
+    objective_diameter_mm: int
+    image_stabilized: bool = False
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["objectiveDiameterMm"] = self.objective_diameter_mm
+        data["imageStabilized"] = self.image_stabilized
+        data["specLabel"] = f"{self.magnification}×{self.objective_diameter_mm}"
+        return data
+
+
+@dataclass(frozen=True)
 class BeginnerPreset:
     id: str
     name: str

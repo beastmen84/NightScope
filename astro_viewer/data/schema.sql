@@ -198,3 +198,10 @@ CREATE TABLE IF NOT EXISTS EquipmentProfileBarlow (
     PRIMARY KEY (profile_id, barlow_id),
     FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileBinocular (
+    profile_id INTEGER NOT NULL,
+    binocular_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, binocular_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);

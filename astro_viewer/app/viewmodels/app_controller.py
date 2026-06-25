@@ -20,7 +20,7 @@ from astro_viewer.app.database.object_image_repository import ObjectImageReposit
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
-from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
@@ -164,6 +164,7 @@ class AppController(QObject):
         self._telescopes: list[Telescope] = self._initial_telescopes()
         self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
+        self._binoculars: list[Binocular] = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
         self._barlow = 1.0
@@ -532,6 +533,15 @@ class AppController(QObject):
         assigned = {barlow.id for barlow in self._active_profile_barlows()}
         return [barlow.to_qml() for barlow in self._barlows if barlow.id not in assigned]
 
+    @Property("QVariant", notify=equipmentChanged)
+    def profileBinoculars(self) -> list[dict]:
+        return [binocular.to_qml() for binocular in self._active_profile_binoculars()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def availableProfileBinoculars(self) -> list[dict]:
+        assigned = {binocular.id for binocular in self._active_profile_binoculars()}
+        return [binocular.to_qml() for binocular in self._binoculars if binocular.id not in assigned]
+
     @Property(bool, notify=equipmentChanged)
     def canUseEyepieces(self) -> bool:
         return self._equipment_service.can_use_eyepieces(self._current_telescope())
@@ -765,7 +775,7 @@ class AppController(QObject):
             return
         self._equipment_catalog_repository.add_profile(clean_name, self._equipment_service.NAKED_EYE_ID, active=False)
         self._refresh_profiles_from_repository()
-        self._profile_equipment.setdefault(self._profile_key_by_name(clean_name), {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []})
+        self._profile_equipment.setdefault(self._profile_key_by_name(clean_name), self._empty_profile_equipment_state())
         self._equipment_message = f"Profilo creato: {clean_name}."
         self.equipmentChanged.emit()
 
@@ -888,6 +898,29 @@ class AppController(QObject):
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
 
+    @Slot(str)
+    def assignBinocularToActiveProfile(self, binocular_id: str) -> None:
+        if not self._find_binocular(binocular_id):
+            return
+        state = self._active_profile_state()
+        if binocular_id not in state["binocular_ids"]:
+            state["binocular_ids"].append(binocular_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_binocular(int(profile["id"]), binocular_id)
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
+    @Slot(str)
+    def removeBinocularFromActiveProfile(self, binocular_id: str) -> None:
+        state = self._active_profile_state()
+        state["binocular_ids"] = [item for item in state["binocular_ids"] if item != binocular_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_binocular(int(profile["id"]), binocular_id)
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
         if not self.canUseEyepieces:
@@ -905,6 +938,8 @@ class AppController(QObject):
             self.assignEyepieceToActiveProfile(item_id)
         elif kind == "barlow":
             self.assignBarlowToActiveProfile(item_id)
+        elif kind == "binocular":
+            self.assignBinocularToActiveProfile(item_id)
 
     @Slot(str, str)
     def removeEquipmentFromActiveProfile(self, kind: str, item_id: str) -> None:
@@ -914,6 +949,8 @@ class AppController(QObject):
             self.removeEyepieceFromActiveProfile(item_id)
         elif kind == "barlow":
             self.removeBarlowFromActiveProfile(item_id)
+        elif kind == "binocular":
+            self.removeBinocularFromActiveProfile(item_id)
 
     @Slot(str, str, result=int)
     def equipmentUsage(self, kind: str, item_id: str) -> int:
@@ -2432,11 +2469,14 @@ class AppController(QObject):
         self._telescopes = self._initial_telescopes()
         self._eyepieces = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
+        self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
 
     def _refresh_binocular_catalog(self) -> None:
         self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
+        self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
+        self._profile_equipment = self._initial_profile_equipment()
 
     def _after_catalog_change(self, message: str, ok: bool) -> None:
         self._equipment_message = message
@@ -2541,6 +2581,16 @@ class AppController(QObject):
             barrel_size=str(row.get("barrel_size") or ""),
         )
 
+    @staticmethod
+    def _binocular_from_catalog_row(row: dict) -> Binocular:
+        return Binocular(
+            id=row["catalog_id"],
+            name=f"{row['brand']} {row['model']}",
+            magnification=int(row["magnification"]),
+            objective_diameter_mm=int(row["objective_diameter_mm"]),
+            image_stabilized=bool(row["image_stabilized"]),
+        )
+
     def _initial_profile_equipment(self) -> dict[str, dict[str, list[str]]]:
         equipment: dict[str, dict[str, list[str]]] = {}
         for profile in self._equipment_profiles:
@@ -2560,16 +2610,18 @@ class AppController(QObject):
                 "telescope_ids": telescope_ids,
                 "eyepiece_ids": self._equipment_catalog_repository.profile_eyepiece_ids(profile_id),
                 "barlow_ids": self._equipment_catalog_repository.profile_barlow_ids(profile_id),
+                "binocular_ids": self._equipment_catalog_repository.profile_binocular_ids(profile_id),
             }
         return equipment
 
     def _refresh_profiles_from_repository(self) -> None:
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         for profile in self._equipment_profiles:
-            self._profile_equipment.setdefault(
+            state = self._profile_equipment.setdefault(
                 str(profile["id"]),
-                {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []},
+                self._empty_profile_equipment_state(),
             )
+            self._ensure_profile_equipment_state(state)
 
     def _active_profile(self) -> dict | None:
         return next((profile for profile in self._equipment_profiles if int(profile.get("active", 0)) == 1), None)
@@ -2577,11 +2629,22 @@ class AppController(QObject):
     def _active_profile_state(self) -> dict[str, list[str]]:
         profile = self._active_profile()
         if not profile:
-            return {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []}
-        return self._profile_equipment.setdefault(
+            return self._empty_profile_equipment_state()
+        state = self._profile_equipment.setdefault(
             str(profile["id"]),
-            {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": []},
+            self._empty_profile_equipment_state(),
         )
+        self._ensure_profile_equipment_state(state)
+        return state
+
+    @staticmethod
+    def _empty_profile_equipment_state() -> dict[str, list[str]]:
+        return {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": [], "binocular_ids": []}
+
+    @staticmethod
+    def _ensure_profile_equipment_state(state: dict[str, list[str]]) -> None:
+        for key in ("telescope_ids", "eyepiece_ids", "barlow_ids", "binocular_ids"):
+            state.setdefault(key, [])
 
     def _profile_key_by_name(self, profile_name: str) -> str:
         for profile in self._equipment_profiles:
@@ -2605,6 +2668,10 @@ class AppController(QObject):
         state = self._active_profile_state()
         return [barlow for barlow_id in state["barlow_ids"] if (barlow := self._find_barlow(barlow_id))]
 
+    def _active_profile_binoculars(self) -> list[Binocular]:
+        state = self._active_profile_state()
+        return [binocular for binocular_id in state["binocular_ids"] if (binocular := self._find_binocular(binocular_id))]
+
     def _find_telescope(self, telescope_id: str) -> Telescope | None:
         return next((telescope for telescope in self._telescopes if telescope.id == telescope_id), None)
 
@@ -2613,6 +2680,9 @@ class AppController(QObject):
 
     def _find_barlow(self, barlow_id: str) -> Barlow | None:
         return next((barlow for barlow in self._barlows if barlow.id == barlow_id), None)
+
+    def _find_binocular(self, binocular_id: str) -> Binocular | None:
+        return next((binocular for binocular in self._binoculars if binocular.id == binocular_id), None)
 
     def _index_for_telescope(self, telescope_id: str) -> int:
         for index, telescope in enumerate(self._telescopes):
@@ -2664,6 +2734,18 @@ class AppController(QObject):
                     "type": "Barlow",
                 }
             )
+        for binocular in self._binoculars:
+            items.append(
+                {
+                    "kind": "binocular",
+                    "id": binocular.id,
+                    "name": binocular.name,
+                    "badge": "Binocolo",
+                    "details": binocular.to_qml()["specLabel"],
+                    "type": "Binocolo stabilizzato" if binocular.image_stabilized else "Binocolo",
+                    "secondaryBadge": "IS" if binocular.image_stabilized else "",
+                }
+            )
         return items
 
     def _profile_assigned_equipment(self) -> list[dict]:
@@ -2696,6 +2778,17 @@ class AppController(QObject):
                     "name": barlow.name,
                     "badge": "Barlow",
                     "details": f"{barlow.multiplier:g}x",
+                }
+            )
+        for binocular in self._active_profile_binoculars():
+            items.append(
+                {
+                    "kind": "binocular",
+                    "id": binocular.id,
+                    "name": binocular.name,
+                    "badge": "Binocolo",
+                    "details": binocular.to_qml()["specLabel"],
+                    "secondaryBadge": "IS" if binocular.image_stabilized else "",
                 }
             )
         return items
