@@ -48,22 +48,14 @@ Item {
         return null
     }
 
-    function isBinocularOption(option) {
-        return option && option.equipmentType === "Binocular"
-    }
-
     function displaySetupOption(item) {
-        var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
+        if (!item)
+            return null
         var recommended = root.optionByRole(item, "Consigliato")
-        if (root.isBinocularOption(recommended))
+        if (recommended)
             return recommended
-        if (item.id === "venus" || item.id === "mercury")
-            return root.optionByRole(item, "Alternativa") || recommended
-        if (typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
-            return root.optionByRole(item, "Campo largo") || recommended
-        if (typeText.indexOf("globular") >= 0 || typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
-            return root.optionByRole(item, "Alternativa") || recommended
-        return recommended
+        var options = item.setupOptions || []
+        return options.length > 0 ? options[0] : null
     }
 
     function recommendedSetup(item) {
@@ -73,6 +65,8 @@ Item {
         var fullSetup = item.recommended_setup || item.setup || ""
         var setup = option ? option.detailLabel : fullSetup
         if (!root.hasOpticalProfile())
+            return setup
+        if (option && option.equipmentType === "Binocular")
             return setup
         var lower = setup.toLowerCase()
         if (lower.indexOf("occhio nudo") >= 0 || lower.indexOf("binocolo") >= 0 || lower.indexOf("serve almeno") >= 0)
@@ -90,26 +84,8 @@ Item {
     }
 
     function recommendationReason(item) {
-        var option = root.displaySetupOption(item)
-        var role = option ? option.role : ""
-        var typeText = ((item.type || "") + " " + (item.name || "")).toLowerCase()
-        if (root.isBinocularOption(option)) {
-            if (option.detailLabel && option.detailLabel.toLowerCase().indexOf(" is") >= 0)
-                return "Binocolo stabilizzato: visione più ferma a basso o medio ingrandimento."
-            if (typeText.indexOf("open") >= 0 || typeText.indexOf("galaxy") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("star cloud") >= 0)
-                return "Oggetto esteso: il binocolo offre una visione più naturale a largo campo."
-            return item.equipmentExplanation || "Binocolo adatto a una visione rapida e a basso ingrandimento."
-        }
-        if (item.id === "venus" || item.id === "mercury")
-            return "Oggetto molto luminoso: ingrandimento moderato e contrasto stabile."
-        if (role === "Campo largo" || typeText.indexOf("star cloud") >= 0 || typeText.indexOf("milky way") >= 0 || typeText.indexOf("open") >= 0)
-            return "Campo reale più ampio per inquadrare meglio l'oggetto."
-        if ((item.type || "") === "Pianeta")
-            return "Miglior compromesso tra dettaglio planetario e seeing previsto."
-        if (typeText.indexOf("globular") >= 0)
-            return "Ingrandimento medio-alto per separare meglio il nucleo."
-        if (typeText.indexOf("galaxy") >= 0 || typeText.indexOf("nebula") >= 0 || typeText.indexOf("nebul") >= 0)
-            return "Pupilla e campo bilanciati per contrasto su cielo profondo."
+        if (!item)
+            return ""
         return item.equipmentExplanation || "Configurazione scelta in base al profilo attivo."
     }
 
