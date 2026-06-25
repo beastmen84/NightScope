@@ -273,6 +273,34 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(controller._weather_refresh_timer.isActive())
             controller._schedule_viirs_sky_quality_refresh.assert_not_called()
 
+    def test_manual_weather_refresh_clears_unavailable_status_after_initial_failure(self) -> None:
+        with self._controller_with_weather(side_effect=[requests.Timeout(), _valid_weather_response()]) as controller:
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+            self.assertEqual(controller.weatherHourly, [])
+            self.assertEqual(controller.weatherStatus, "Dati meteo non disponibili al momento.")
+
+            controller.refreshWeatherNow()
+
+            self.assertTrue(_wait_for_weather_refresh(controller))
+            self.assertGreater(len(controller.weatherHourly), 0)
+            self.assertEqual(controller.weatherStatus, "")
+            self.assertNotIn("Meteo non disponibile", controller.weatherSummary["alert"])
+            self.assertNotEqual(controller.weatherDigest["bestWindow"], "n/d")
+
+    def test_stale_weather_refresh_result_does_not_override_current_weather_state(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            controller.setManualLocation("41.9028", "12.4964", "Roma")
+            current_weather = controller.weatherHourly
+            stale_request_id = controller._weather_refresh_request_id
+            controller._weather_refresh_request_id += 1
+            controller._weather_status = "Dati meteo non disponibili al momento."
+
+            controller._finish_weather_refresh(stale_request_id, "stale-location", [], WEATHER_UNAVAILABLE_MESSAGE)
+
+            self.assertEqual(controller.weatherHourly, current_weather)
+            self.assertEqual(controller.weatherStatus, "")
+            self.assertGreater(len(controller.weatherHourly), 0)
+
     def test_automatic_weather_refresh_failure_keeps_existing_data_and_reschedules(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             controller.setManualLocation("41.9028", "12.4964", "Roma")

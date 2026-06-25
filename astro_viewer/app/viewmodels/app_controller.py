@@ -62,7 +62,7 @@ class AppController(QObject):
     _earthdataConnectionTestFinished = Signal(bool, str, bool)
     _viirsSkyQualityFinished = Signal(str, object, str)
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
-    _weatherRefreshFinished = Signal(str, object, str)
+    _weatherRefreshFinished = Signal(int, str, object, str)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -101,6 +101,7 @@ class AppController(QObject):
         self._service_status = ""
         self._weather_status = ""
         self._weather_refresh_running = False
+        self._weather_refresh_request_id = 0
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
@@ -271,6 +272,8 @@ class AppController(QObject):
 
     @Property(str, notify=weatherChanged)
     def weatherStatus(self) -> str:
+        if self._weather_status == "Dati meteo non disponibili al momento." and self._weather_hours:
+            return ""
         return self._weather_status
 
     @Property(bool, notify=weatherChanged)
@@ -1325,6 +1328,8 @@ class AppController(QObject):
             self._append_service_status("Dati astronomici temporaneamente non disponibili.")
 
     def _refresh_weather_and_conditions(self) -> None:
+        self._weather_refresh_request_id += 1
+        self._weather_refresh_running = False
         if not self._has_valid_location():
             logger.warning("Weather refresh skipped because no valid location is available.")
             self._weather_hours = []
@@ -1353,6 +1358,7 @@ class AppController(QObject):
             self._schedule_next_weather_refresh()
             return
         if not self._has_valid_location():
+            self._weather_refresh_request_id += 1
             self._weather_status = "Dati meteo non disponibili al momento."
             self._weather_refresh_running = False
             self._weather_refresh_timer.stop()
@@ -1363,6 +1369,8 @@ class AppController(QObject):
 
         location = self._location
         location_key = LightPollutionService._location_key(location)
+        self._weather_refresh_request_id += 1
+        request_id = self._weather_refresh_request_id
         self._weather_refresh_running = True
         self.weatherChanged.emit()
 
@@ -1370,18 +1378,20 @@ class AppController(QObject):
             try:
                 hours = self._weather_service.hourly_forecast(location, force_refresh=force_refresh)
                 error = getattr(self._weather_service, "last_error", "") or ""
-                self._weatherRefreshFinished.emit(location_key, hours, error)
+                self._weatherRefreshFinished.emit(request_id, location_key, hours, error)
             except Exception:
                 logger.warning("Unexpected weather refresh failure.", exc_info=True)
-                self._weatherRefreshFinished.emit(location_key, [], WEATHER_UNAVAILABLE_MESSAGE)
+                self._weatherRefreshFinished.emit(request_id, location_key, [], WEATHER_UNAVAILABLE_MESSAGE)
 
         Thread(target=run_refresh, daemon=True).start()
 
     def _refresh_weather_from_timer(self) -> None:
         self._start_weather_refresh(force_refresh=False)
 
-    @Slot(str, object, str)
-    def _finish_weather_refresh(self, location_key: str, hours: object, error: str) -> None:
+    @Slot(int, str, object, str)
+    def _finish_weather_refresh(self, request_id: int, location_key: str, hours: object, error: str) -> None:
+        if request_id != self._weather_refresh_request_id:
+            return
         self._weather_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
