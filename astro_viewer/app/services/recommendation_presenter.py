@@ -4,6 +4,7 @@ from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 
 
 class RecommendationPresenter:
@@ -89,8 +90,9 @@ class RecommendationPresenter:
         }
 
     def naked_eye(self, celestial_object: CelestialObject, naked_eye_id: str) -> dict:
-        magnitude = self._parse_magnitude(celestial_object.magnitude)
-        lower_type = celestial_object.object_type.lower()
+        traits = TargetObservationTraits.from_object(celestial_object)
+        magnitude = traits.magnitude
+        lower_type = traits.object_type_lower
         naked_eye_realistic = (
             celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn"}
             or magnitude is not None
@@ -161,9 +163,10 @@ class RecommendationPresenter:
         telescope: Telescope,
         sky_quality: SkyQuality | None = None,
     ) -> str:
-        lower_type = celestial_object.object_type.lower()
-        magnitude = self._parse_magnitude(celestial_object.magnitude)
-        max_altitude = self._parse_altitude(celestial_object.max_altitude)
+        traits = TargetObservationTraits.from_object(celestial_object)
+        lower_type = traits.object_type_lower
+        magnitude = traits.magnitude
+        max_altitude = traits.max_altitude_deg
         if max_altitude < 15:
             return "Difficile"
         if "pianeta" in lower_type or celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
@@ -171,7 +174,7 @@ class RecommendationPresenter:
         if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
             if sky_quality and sky_quality.bortle_class >= 8:
                 return "Difficile"
-            surface_brightness = self._surface_brightness_proxy(celestial_object)
+            surface_brightness = traits.surface_brightness_proxy
             if sky_quality and sky_quality.bortle_class >= 7 and surface_brightness and surface_brightness >= 13.5:
                 return "Difficile"
             if telescope.aperture_mm < 120 or (magnitude is not None and magnitude > 9.0):
@@ -191,7 +194,7 @@ class RecommendationPresenter:
         return "Difficile"
 
     def _binocular_explanation(self, celestial_object: CelestialObject, candidate: RecommendationCandidate) -> str:
-        observation_type = self._observation_type_hint(celestial_object)
+        observation_type = TargetObservationTraits.from_object(celestial_object).recommended_observation_type
         magnification = candidate.magnification
         exit_pupil = candidate.exit_pupil
         if observation_type == "HighMagnification" or candidate.score < 35.0:
@@ -224,115 +227,15 @@ class RecommendationPresenter:
             parts.append("Barlow usata per aumentare l'ingrandimento utile")
         else:
             parts.append("senza Barlow per mantenere contrasto e campo")
-        max_altitude = RecommendationPresenter._parse_altitude(celestial_object.max_altitude)
+        max_altitude = TargetObservationTraits.from_object(celestial_object).max_altitude_deg
         if max_altitude > 0:
             parts.append(f"altezza massima {max_altitude:.0f} gradi")
         return "; ".join(parts) + "."
 
     def _difficulty_without_eyepieces(self, celestial_object: CelestialObject) -> str:
-        lower_type = celestial_object.object_type.lower()
+        lower_type = TargetObservationTraits.from_object(celestial_object).object_type_lower
         if celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
             return "Limitata"
         if "galaxy" in lower_type or "nebula" in lower_type:
             return "Difficile"
         return "Media"
-
-    def _observation_type_hint(self, celestial_object: CelestialObject) -> str:
-        configured = celestial_object.recommended_observation_type.strip()
-        if configured in {"WideField", "General", "HighMagnification"}:
-            return configured
-        lower_type = celestial_object.object_type.lower()
-        angular_size = self._angular_size_deg(celestial_object)
-        if celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}:
-            return "HighMagnification"
-        if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
-            return "HighMagnification"
-        if angular_size and angular_size >= 1.0:
-            return "WideField"
-        if "open" in lower_type or "ammasso aperto" in lower_type:
-            return "WideField"
-        return "General"
-
-    def _angular_size_deg(self, celestial_object: CelestialObject) -> float | None:
-        if celestial_object.max_angular_size_deg and celestial_object.max_angular_size_deg > 0:
-            return celestial_object.max_angular_size_deg
-        value = celestial_object.apparent_size.strip().lower()
-        if not value:
-            return None
-        numbers = []
-        cleaned = (
-            value.replace(",", ".")
-            .replace("×", " ")
-            .replace("x", " ")
-            .replace("arcsec", " ")
-            .replace("arcmin", " ")
-            .replace("gradi", " ")
-            .replace("degrees", " ")
-            .replace("degree", " ")
-            .replace("deg", " ")
-            .replace("°", " ")
-            .replace("′", " ")
-            .replace("'", " ")
-            .replace("″", " ")
-            .replace('"', " ")
-        )
-        for token in cleaned.split():
-            try:
-                numbers.append(float(token))
-            except ValueError:
-                continue
-        if not numbers:
-            return None
-        maximum = max(numbers)
-        if "arcsec" in value or "″" in value or '"' in value:
-            return maximum / 3600.0
-        if "deg" in value or "degree" in value or "gradi" in value or "°" in value:
-            return maximum
-        return maximum / 60.0
-
-    def _surface_brightness_proxy(self, celestial_object: CelestialObject) -> float | None:
-        magnitude = self._parse_magnitude(celestial_object.magnitude)
-        size_arcmin = self._parse_apparent_size(celestial_object.apparent_size)
-        if magnitude is None or not size_arcmin or size_arcmin <= 0:
-            return None
-        return magnitude + 2.5 * self._log10(max(size_arcmin * size_arcmin, 1.0))
-
-    @staticmethod
-    def _parse_magnitude(value: str) -> float | None:
-        try:
-            return float(value.split("/")[0].strip().replace(",", "."))
-        except (ValueError, IndexError):
-            return None
-
-    @staticmethod
-    def _parse_altitude(value: str) -> float:
-        try:
-            return float(value.split()[0].replace(",", "."))
-        except (ValueError, IndexError):
-            return 0.0
-
-    @staticmethod
-    def _parse_apparent_size(value: str) -> float | None:
-        cleaned = value.strip().lower().replace(",", ".")
-        if not cleaned:
-            return None
-        numbers = []
-        for token in cleaned.replace("×", " ").replace("x", " ").replace("'", " ").replace('"', " ").split():
-            try:
-                numbers.append(float(token))
-            except ValueError:
-                continue
-        if not numbers:
-            return None
-        size = max(numbers)
-        if "arcsec" in cleaned or "″" in cleaned or '"' in cleaned:
-            return size / 60.0
-        if "deg" in cleaned or "degree" in cleaned or "gradi" in cleaned or "°" in cleaned:
-            return size * 60.0
-        return size
-
-    @staticmethod
-    def _log10(value: float) -> float:
-        import math
-
-        return math.log10(value)
