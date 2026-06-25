@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -16,6 +17,7 @@ def _resolve_base_dir() -> Path:
 
 BASE_DIR = _resolve_base_dir()
 PROJECT_ROOT = BASE_DIR.parent
+RUNTIME_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else PROJECT_ROOT
 APP_NAME = "NightScope"
 ORG_NAME = "NightScope"
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
@@ -24,7 +26,55 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 def _database_paths() -> tuple[Path, Path]:
-    return BASE_DIR / "data" / "nightscope.db", BASE_DIR / "data" / "schema.sql"
+    database_path = RUNTIME_DIR / "nightscope.db"
+    schema_path = _data_dir() / "schema.sql"
+    _copy_legacy_runtime_files(database_path)
+    return database_path, schema_path
+
+
+def _data_dir() -> Path:
+    return BASE_DIR / "data"
+
+
+def _legacy_runtime_paths() -> list[Path]:
+    candidates = [
+        BASE_DIR / "data" / "nightscope.db",
+        RUNTIME_DIR / "data" / "nightscope.db",
+    ]
+    unique = []
+    seen = set()
+    for path in candidates:
+        key = path.resolve() if path.exists() else path.absolute()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(path)
+    return unique
+
+
+def _copy_legacy_runtime_files(database_path: Path) -> None:
+    if database_path.exists():
+        return
+    for legacy_database_path in _legacy_runtime_paths():
+        if legacy_database_path == database_path or not legacy_database_path.exists():
+            continue
+        database_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(legacy_database_path, database_path)
+        _copy_legacy_sidecar(
+            legacy_database_path.parent / "user_preferences.json",
+            database_path.parent / "user_preferences.json",
+        )
+        _copy_legacy_sidecar(
+            legacy_database_path.parent / "location_cache.json",
+            database_path.parent / "location_cache.json",
+        )
+        logging.getLogger(__name__).info("Runtime database copied from legacy location: %s", legacy_database_path)
+        return
+
+
+def _copy_legacy_sidecar(source: Path, target: Path) -> None:
+    if source.exists() and not target.exists():
+        shutil.copy2(source, target)
 
 
 def _build_controller(progress_callback=None):
@@ -34,7 +84,12 @@ def _build_controller(progress_callback=None):
 
     configure_logging(BASE_DIR)
     database_path, schema_path = _database_paths()
-    initialize_database(database_path, schema_path, progress_callback=progress_callback)
+    initialize_database(
+        database_path,
+        schema_path,
+        progress_callback=progress_callback,
+        geonames_data_dir=_data_dir(),
+    )
     return AppController(base_dir=BASE_DIR, database_path=database_path)
 
 
@@ -42,7 +97,7 @@ def _database_initialization_required() -> bool:
     from astro_viewer.app.database.bootstrap import database_initialization_required
 
     database_path, schema_path = _database_paths()
-    return database_initialization_required(database_path, schema_path)
+    return database_initialization_required(database_path, schema_path, geonames_data_dir=_data_dir())
 
 
 def _create_initialization_splash(app):

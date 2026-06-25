@@ -21,7 +21,6 @@ datas = [
     (str(APP_DIR / "data" / "cities15000.txt"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "countryInfo.txt"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "admin1CodesASCII.txt"), "astro_viewer/data"),
-    (str(APP_DIR / "data" / "nightscope.db"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "skyfield" / "de421.bsp"), "astro_viewer/data/skyfield"),
 ]
 

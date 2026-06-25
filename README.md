@@ -71,7 +71,6 @@ La build usa `packaging/NightScope.spec` e include:
 
 - UI QML e componenti;
 - `resources/` con icone e immagini locali;
-- `data/nightscope.db`;
 - `data/schema.sql`;
 - seed CSV per Messier, immagini, descrizioni, telescopi, oculari, Barlow e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
@@ -107,7 +106,7 @@ README.md
 
 ## Database e dati
 
-Il database runtime è `astro_viewer/data/nightscope.db`. Per la release deve essere un DB pulito generato dai seed locali:
+Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene distribuito nel pacchetto: al primo avvio viene creato da `data/schema.sql` e dai seed locali. In sviluppo viene creato nella root del repository.
 
 - città e alias GeoNames importati;
 - cataloghi strumenti importati;
@@ -116,7 +115,9 @@ Il database runtime è `astro_viewer/data/nightscope.db`. Per la release deve es
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali.
+All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento.
+
+I sidecar runtime `user_preferences.json` e `location_cache.json` vivono nella stessa cartella di `nightscope.db`. Copiando la cartella NightScope completa si preservano profili, osservazioni, cache e preferenze. La password Earthdata resta nel vault di sistema e va reinserita sul nuovo computer.
 
 ## Dataset locali
 
@@ -152,7 +153,7 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 
 - `dist/`, `build/`, `logs/`, cache Python e report generati non sono parte del repository.
 - `nasa_login.txt` non deve essere committato.
-- Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database.
+- Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
 - PyInstaller è il percorso di build supportato.
 
 ## Manuale utente

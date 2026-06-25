@@ -11,7 +11,7 @@ def parser(description: str) -> argparse.ArgumentParser:
     argument_parser = argparse.ArgumentParser(description=description)
     base_dir = Path(__file__).resolve().parents[1]
     argument_parser.add_argument("csv_path", type=Path)
-    argument_parser.add_argument("--database", type=Path, default=base_dir / "data" / "nightscope.db")
+    argument_parser.add_argument("--database", type=Path, default=base_dir.parent / "nightscope.db")
     return argument_parser
 
 

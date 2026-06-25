@@ -13,6 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
+SCHEMA_VERSION = 1
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -63,6 +64,7 @@ def initialize_database(
     database_path: Path,
     schema_path: Path,
     progress_callback: ProgressCallback | None = None,
+    geonames_data_dir: Path | None = None,
 ) -> None:
     _notify_progress(progress_callback, "Creazione database...")
     database_path.parent.mkdir(parents=True, exist_ok=True)
@@ -76,7 +78,13 @@ def initialize_database(
         _backup_database(database_path)
 
     try:
-        _build_database(database_path, schema_sql, seed_path, progress_callback=progress_callback)
+        _build_database(
+            database_path,
+            schema_sql,
+            seed_path,
+            progress_callback=progress_callback,
+            geonames_data_dir=geonames_data_dir,
+        )
     except sqlite3.DatabaseError as exc:
         if not _is_recoverable_database_error(exc):
             logger.exception("Database bootstrap failed during schema migration.")
@@ -84,10 +92,20 @@ def initialize_database(
         logger.warning("Database appears damaged; rebuilding from local schema.", exc_info=True)
         _notify_progress(progress_callback, "Ricostruzione database locale...")
         _quarantine_database(database_path)
-        _build_database(database_path, schema_sql, seed_path, progress_callback=progress_callback)
+        _build_database(
+            database_path,
+            schema_sql,
+            seed_path,
+            progress_callback=progress_callback,
+            geonames_data_dir=geonames_data_dir,
+        )
 
 
-def database_initialization_required(database_path: Path, schema_path: Path) -> bool:
+def database_initialization_required(
+    database_path: Path,
+    schema_path: Path,
+    geonames_data_dir: Path | None = None,
+) -> bool:
     if not database_path.exists():
         return True
     try:
@@ -107,7 +125,8 @@ def database_initialization_required(database_path: Path, schema_path: Path) -> 
                     continue
                 if _table_count(connection, table_name) == 0:
                     return True
-            if _geonames_import_needed(connection, database_path.parent):
+            geonames_source_dir = geonames_data_dir or database_path.parent
+            if _geonames_import_needed(connection, geonames_source_dir):
                 return True
     except sqlite3.DatabaseError:
         logger.warning("Database preflight check failed; initialization is required.", exc_info=True)
@@ -120,16 +139,24 @@ def _build_database(
     schema_sql: str,
     seed_path: Path,
     progress_callback: ProgressCallback | None = None,
+    geonames_data_dir: Path | None = None,
 ) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
         connection.row_factory = sqlite3.Row
         connection.executescript(schema_sql)
+        existing_schema_version = _schema_version(connection)
         _migrate_database(connection)
+        if existing_schema_version <= SCHEMA_VERSION:
+            connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         data_dir = seed_path.parent
+        geonames_source_dir = geonames_data_dir or database_path.parent
         _notify_progress(progress_callback, "Importazione cataloghi...")
-        _import_geonames_cities_if_available(connection, database_path.parent, warn_if_missing=database_path.parent == data_dir)
-        messier_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
-        if messier_count == 0 and seed_path.exists():
+        _import_geonames_cities_if_available(
+            connection,
+            geonames_source_dir,
+            warn_if_missing=geonames_source_dir == data_dir,
+        )
+        if seed_path.exists():
             with seed_path.open("r", encoding="utf-8", newline="") as file:
                 rows = [
                     (
@@ -159,6 +186,7 @@ def _build_database(
                     descrizione
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(messier_id) DO NOTHING
                 """,
                 rows,
             )
@@ -253,6 +281,10 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     )
 
 
+def _schema_version(connection: sqlite3.Connection) -> int:
+    return int(connection.execute("PRAGMA user_version").fetchone()[0])
+
+
 def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[str, str]) -> None:
     existing = {
         row[1]
@@ -277,8 +309,15 @@ def _table_count(connection: sqlite3.Connection, table_name: str) -> int:
     return int(connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0])
 
 
-def _geonames_import_needed(connection: sqlite3.Connection, data_dir: Path) -> bool:
-    source_path = _first_existing_path(data_dir / "cities15000.txt", data_dir / "geonames" / "cities15000.txt")
+def _geonames_import_needed(
+    connection: sqlite3.Connection,
+    data_dir: Path,
+) -> bool:
+    candidates = [
+        data_dir / "cities15000.txt",
+        data_dir / "geonames" / "cities15000.txt",
+    ]
+    source_path = _first_existing_path(*candidates)
     if source_path is None:
         return False
     if _table_count(connection, "City") == 0:
@@ -286,8 +325,9 @@ def _geonames_import_needed(connection: sqlite3.Connection, data_dir: Path) -> b
 
     source_stat = source_path.stat()
     source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
-    country_info_path = _first_existing_path(data_dir / "countryInfo.txt", data_dir / "geonames" / "countryInfo.txt")
-    admin1_codes_path = _first_existing_path(data_dir / "admin1CodesASCII.txt", data_dir / "geonames" / "admin1CodesASCII.txt")
+    source_data_dir = source_path.parent
+    country_info_path = _first_existing_path(source_data_dir / "countryInfo.txt", source_data_dir / "geonames" / "countryInfo.txt")
+    admin1_codes_path = _first_existing_path(source_data_dir / "admin1CodesASCII.txt", source_data_dir / "geonames" / "admin1CodesASCII.txt")
     existing_import = connection.execute(
         """
         SELECT source_size, source_mtime, report_json
@@ -355,20 +395,12 @@ def _optional_float(value: str) -> float | None:
 def _import_geonames_cities_if_available(
     connection: sqlite3.Connection,
     data_dir: Path,
-    fallback_data_dir: Path | None = None,
     warn_if_missing: bool = True,
 ) -> None:
     candidates = [
         data_dir / "cities15000.txt",
         data_dir / "geonames" / "cities15000.txt",
     ]
-    if fallback_data_dir and fallback_data_dir != data_dir:
-        candidates.extend(
-            [
-                fallback_data_dir / "cities15000.txt",
-                fallback_data_dir / "geonames" / "cities15000.txt",
-            ]
-        )
     source_path = next((candidate for candidate in candidates if candidate.exists()), None)
     if source_path is None:
         log = logger.warning if warn_if_missing else logger.info
@@ -376,13 +408,14 @@ def _import_geonames_cities_if_available(
         return
     source_stat = source_path.stat()
     source_mtime = datetime.fromtimestamp(source_stat.st_mtime).isoformat(timespec="seconds")
+    source_data_dir = source_path.parent
     country_info_path = _first_existing_path(
-        data_dir / "countryInfo.txt",
-        data_dir / "geonames" / "countryInfo.txt",
+        source_data_dir / "countryInfo.txt",
+        source_data_dir / "geonames" / "countryInfo.txt",
     )
     admin1_codes_path = _first_existing_path(
-        data_dir / "admin1CodesASCII.txt",
-        data_dir / "geonames" / "admin1CodesASCII.txt",
+        source_data_dir / "admin1CodesASCII.txt",
+        source_data_dir / "geonames" / "admin1CodesASCII.txt",
     )
     country_info_signature = _file_signature(country_info_path)
     admin1_codes_signature = _file_signature(admin1_codes_path)
@@ -485,12 +518,10 @@ def _database_size_bytes(connection: sqlite3.Connection) -> int:
 def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:
     catalog_rows = _telescope_catalog_rows(catalog_path)
     brand_names = sorted({row[0] for row in catalog_rows})
-    brand_count = connection.execute("SELECT COUNT(*) FROM TelescopeBrand").fetchone()[0]
-    if brand_count < len(brand_names):
-        connection.executemany(
-            "INSERT OR IGNORE INTO TelescopeBrand (name) VALUES (?)",
-            [(name,) for name in brand_names],
-        )
+    connection.executemany(
+        "INSERT OR IGNORE INTO TelescopeBrand (name) VALUES (?)",
+        [(name,) for name in brand_names],
+    )
 
     brand_ids = {
         row[1]: row[0]
@@ -503,13 +534,7 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
             focal_ratio, mount_type, notes
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(brand_id, name) DO UPDATE SET
-            optical_type = excluded.optical_type,
-            aperture_mm = excluded.aperture_mm,
-            focal_length_mm = excluded.focal_length_mm,
-            focal_ratio = excluded.focal_ratio,
-            mount_type = excluded.mount_type,
-            notes = excluded.notes
+        ON CONFLICT(brand_id, name) DO NOTHING
         """,
         [
             (brand_ids[brand], name, optical_type, aperture, focal, ratio, mount, notes)
@@ -545,15 +570,7 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
             max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size, notes
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET
-            eyepiece_type = excluded.eyepiece_type,
-            min_focal_length_mm = excluded.min_focal_length_mm,
-            max_focal_length_mm = excluded.max_focal_length_mm,
-            apparent_field_deg = excluded.apparent_field_deg,
-            afov_min = excluded.afov_min,
-            afov_max = excluded.afov_max,
-            barrel_size = excluded.barrel_size,
-            notes = excluded.notes
+        ON CONFLICT(brand, model, focal_length_mm) DO NOTHING
         """,
         _eyepiece_catalog_rows(eyepiece_path),
     )
@@ -562,9 +579,7 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
         """
         INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
         VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(brand, model, multiplier) DO UPDATE SET
-            barrel_size = excluded.barrel_size,
-            notes = excluded.notes
+        ON CONFLICT(brand, model, multiplier) DO NOTHING
         """,
         _barlow_catalog_rows(barlow_path),
     )
@@ -615,13 +630,7 @@ def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None
             object_id, image_path, thumbnail_path, attribution, source_url, license, verified
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(object_id) DO UPDATE SET
-            image_path = excluded.image_path,
-            thumbnail_path = excluded.thumbnail_path,
-            attribution = excluded.attribution,
-            source_url = excluded.source_url,
-            license = excluded.license,
-            verified = excluded.verified
+        ON CONFLICT(object_id) DO NOTHING
         """,
         _object_image_rows(images_path),
     )
@@ -671,15 +680,7 @@ def _seed_object_descriptions(connection: sqlite3.Connection, descriptions_path:
             difficulty_medium_scope, difficulty_large_scope
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(object_id) DO UPDATE SET
-            short_description = excluded.short_description,
-            observing_notes = excluded.observing_notes,
-            best_seen = excluded.best_seen,
-            difficulty_naked_eye = excluded.difficulty_naked_eye,
-            difficulty_binocular = excluded.difficulty_binocular,
-            difficulty_small_scope = excluded.difficulty_small_scope,
-            difficulty_medium_scope = excluded.difficulty_medium_scope,
-            difficulty_large_scope = excluded.difficulty_large_scope
+        ON CONFLICT(object_id) DO NOTHING
         """,
         rows,
     )
@@ -701,5 +702,7 @@ def _seed_default_profiles(connection: sqlite3.Connection) -> None:
 
 if __name__ == "__main__":
     base_dir = Path(__file__).resolve().parents[2]
-    initialize_database(base_dir / "data" / "nightscope.db", base_dir / "data" / "schema.sql")
-    print("Database inizializzato:", base_dir / "data" / "nightscope.db")
+    runtime_database_path = base_dir.parent / "nightscope.db"
+    data_dir = base_dir / "data"
+    initialize_database(runtime_database_path, data_dir / "schema.sql", geonames_data_dir=data_dir)
+    print("Database inizializzato:", runtime_database_path)

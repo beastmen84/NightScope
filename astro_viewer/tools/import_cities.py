@@ -43,7 +43,7 @@ def _parser() -> argparse.ArgumentParser:
         )
     )
     parser.add_argument("geonames_path", type=Path, help="GeoNames tab-delimited geoname table file")
-    parser.add_argument("--database", type=Path, default=base_dir / "data" / "nightscope.db")
+    parser.add_argument("--database", type=Path, default=base_dir.parent / "nightscope.db")
     parser.add_argument(
         "--country-info",
         type=Path,

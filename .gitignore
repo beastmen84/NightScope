@@ -8,7 +8,14 @@ logs/
 astro_viewer/reports/
 build/
 dist/
+nightscope.db
+nightscope.db.backup
+nightscope.db.corrupt-*.bak
+user_preferences.json
+location_cache.json
+astro_viewer/data/nightscope.db
 astro_viewer/data/*.backup
 astro_viewer/data/*.corrupt-*.bak
+astro_viewer/data/user_preferences.json
 astro_viewer/data/location_cache.json
 nasa_login.txt

@@ -41,7 +41,7 @@ class ValidationResult:
 
 
 def validate_astronomy(base_dir: Path, database_path: Path | None = None) -> list[ValidationResult]:
-    database_path = database_path or base_dir / "data" / "nightscope.db"
+    database_path = database_path or base_dir.parent / "nightscope.db"
     initialize_database(database_path, base_dir / "data" / "schema.sql")
     engine = SkyfieldAstronomyEngine(base_dir / "data", MessierRepository(database_path))
 

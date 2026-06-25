@@ -55,8 +55,8 @@ class DatabaseStats:
 def main() -> None:
     args = _parser().parse_args()
     base_dir = Path(__file__).resolve().parents[1]
-    database_path = args.database or base_dir / "data" / "nightscope.db"
-    data_dir = database_path.parent
+    data_dir = base_dir / "data"
+    database_path = args.database or base_dir.parent / "nightscope.db"
     geonames_path = args.geonames_path or data_dir / "cities15000.txt"
     report_path = args.report or base_dir / "reports" / "runtime_database_cleanup_report.md"
     if not database_path.exists():
@@ -436,7 +436,7 @@ def _markdown_table(headers: list[str], rows: list[list[object]]) -> str:
 def _parser() -> argparse.ArgumentParser:
     base_dir = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description="Rebuild NightScope runtime City and CityAlias data with the corrected GeoNames importer.")
-    parser.add_argument("--database", type=Path, default=base_dir / "data" / "nightscope.db")
+    parser.add_argument("--database", type=Path, default=base_dir.parent / "nightscope.db")
     parser.add_argument("--geonames-path", type=Path, default=base_dir / "data" / "cities15000.txt")
     parser.add_argument("--report", type=Path, default=base_dir / "reports" / "runtime_database_cleanup_report.md")
     return parser
