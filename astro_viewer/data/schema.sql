@@ -126,6 +126,19 @@ CREATE TABLE IF NOT EXISTS BarlowCatalog (
     UNIQUE (brand, model, multiplier)
 );
 
+CREATE TABLE IF NOT EXISTS BinocularCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    magnification INTEGER NOT NULL,
+    objective_diameter_mm INTEGER NOT NULL,
+    true_fov_deg REAL,
+    weight_g INTEGER,
+    image_stabilized INTEGER NOT NULL DEFAULT 0,
+    notes TEXT,
+    UNIQUE (brand, model, magnification, objective_diameter_mm)
+);
+
 CREATE TABLE IF NOT EXISTS SkyQualityEstimate (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     location_key TEXT NOT NULL UNIQUE,

@@ -385,6 +385,143 @@ class EquipmentCatalogRepository:
             connection.commit()
         return True, "Barlow eliminata."
 
+    def binoculars(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, brand, model, magnification, objective_diameter_mm,
+                       true_fov_deg, weight_g, image_stabilized, notes
+                FROM BinocularCatalog
+                ORDER BY brand, model, magnification, objective_diameter_mm
+                """
+            ).fetchall()
+        return [self._binocular_model(row) for row in rows]
+
+    def add_binocular(
+        self,
+        brand: str,
+        model: str,
+        magnification: int,
+        objective_diameter_mm: int,
+        true_fov_deg: float | None = None,
+        weight_g: int | None = None,
+        image_stabilized: bool = False,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        if not clean_brand or not clean_model:
+            return False, "Marca e modello sono obbligatori."
+        if magnification <= 0 or objective_diameter_mm <= 0:
+            return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
+        if true_fov_deg is not None and true_fov_deg <= 0:
+            return False, "Il campo reale deve essere maggiore di zero."
+        if weight_g is not None and weight_g <= 0:
+            return False, "Il peso deve essere maggiore di zero."
+        with closing(self._connect()) as connection:
+            duplicate = connection.execute(
+                """
+                SELECT id FROM BinocularCatalog
+                WHERE brand = ? AND model = ? AND magnification = ? AND objective_diameter_mm = ?
+                """,
+                (clean_brand, clean_model, magnification, objective_diameter_mm),
+            ).fetchone()
+            if duplicate:
+                return False, "Questo binocolo è già presente nel catalogo."
+            connection.execute(
+                """
+                INSERT INTO BinocularCatalog (
+                    brand, model, magnification, objective_diameter_mm,
+                    true_fov_deg, weight_g, image_stabilized, notes
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    clean_brand,
+                    clean_model,
+                    magnification,
+                    objective_diameter_mm,
+                    true_fov_deg,
+                    weight_g,
+                    1 if image_stabilized else 0,
+                    notes,
+                ),
+            )
+            connection.commit()
+        return True, "Binocolo aggiunto."
+
+    def update_binocular(
+        self,
+        binocular_id: int,
+        brand: str,
+        model: str,
+        magnification: int,
+        objective_diameter_mm: int,
+        true_fov_deg: float | None = None,
+        weight_g: int | None = None,
+        image_stabilized: bool = False,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        if not clean_brand or not clean_model:
+            return False, "Marca e modello sono obbligatori."
+        if magnification <= 0 or objective_diameter_mm <= 0:
+            return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
+        if true_fov_deg is not None and true_fov_deg <= 0:
+            return False, "Il campo reale deve essere maggiore di zero."
+        if weight_g is not None and weight_g <= 0:
+            return False, "Il peso deve essere maggiore di zero."
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM BinocularCatalog WHERE id = ?",
+                (binocular_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Binocolo non trovato."
+            duplicate = connection.execute(
+                """
+                SELECT id FROM BinocularCatalog
+                WHERE brand = ? AND model = ? AND magnification = ? AND objective_diameter_mm = ? AND id <> ?
+                """,
+                (clean_brand, clean_model, magnification, objective_diameter_mm, binocular_id),
+            ).fetchone()
+            if duplicate:
+                return False, "Questo binocolo è già presente nel catalogo."
+            connection.execute(
+                """
+                UPDATE BinocularCatalog
+                SET brand = ?, model = ?, magnification = ?, objective_diameter_mm = ?,
+                    true_fov_deg = ?, weight_g = ?, image_stabilized = ?, notes = ?
+                WHERE id = ?
+                """,
+                (
+                    clean_brand,
+                    clean_model,
+                    magnification,
+                    objective_diameter_mm,
+                    true_fov_deg,
+                    weight_g,
+                    1 if image_stabilized else 0,
+                    notes,
+                    binocular_id,
+                ),
+            )
+            connection.commit()
+        return True, "Binocolo aggiornato."
+
+    def delete_binocular(self, binocular_id: int) -> tuple[bool, str]:
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM BinocularCatalog WHERE id = ?",
+                (binocular_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Binocolo non trovato."
+            connection.execute("DELETE FROM BinocularCatalog WHERE id = ?", (binocular_id,))
+            connection.commit()
+        return True, "Binocolo eliminato."
+
     def profiles(self) -> list[dict]:
         with closing(self._connect()) as connection:
             rows = connection.execute(
@@ -572,6 +709,27 @@ class EquipmentCatalogRepository:
             "multiplier": row["multiplier"],
             "barrel_size": row["barrel_size"] or "",
             "notes": row["notes"] or "",
+        }
+
+    @staticmethod
+    def _binocular_model(row: sqlite3.Row) -> dict:
+        true_fov = row["true_fov_deg"]
+        weight = row["weight_g"]
+        return {
+            "id": row["id"],
+            "catalog_id": f"catalog-binocular-{row['id']}",
+            "brand": row["brand"],
+            "model": row["model"],
+            "display_name": f"{row['brand']} {row['model']}",
+            "magnification": row["magnification"],
+            "objective_diameter_mm": row["objective_diameter_mm"],
+            "true_fov_deg": true_fov,
+            "weight_g": weight,
+            "image_stabilized": bool(row["image_stabilized"]),
+            "notes": row["notes"] or "",
+            "spec_label": f"{row['magnification']}×{row['objective_diameter_mm']}",
+            "fov_label": f"FOV {true_fov:g}°" if true_fov else "",
+            "weight_label": f"{weight:g} g" if weight else "",
         }
 
     @staticmethod

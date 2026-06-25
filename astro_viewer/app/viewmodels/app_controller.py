@@ -156,6 +156,7 @@ class AppController(QObject):
         self._telescope_catalog_models = self._equipment_catalog_repository.models()
         self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
+        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
@@ -476,6 +477,10 @@ class AppController(QObject):
     @Property("QVariant", notify=equipmentChanged)
     def barlowCatalog(self) -> list[dict]:
         return self._catalog_barlows
+
+    @Property("QVariant", notify=equipmentChanged)
+    def binocularCatalog(self) -> list[dict]:
+        return self._catalog_binoculars
 
     @Property("QVariant", notify=equipmentChanged)
     def equipmentProfiles(self) -> list[dict]:
@@ -1042,6 +1047,69 @@ class AppController(QObject):
     def deleteBarlowModel(self, barlow_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_barlow(barlow_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
+
+    @Slot(str, str, str, str, str, str, bool, str)
+    def addBinocularModel(
+        self,
+        brand: str,
+        model: str,
+        magnification: str,
+        objective_diameter: str,
+        true_fov: str,
+        weight: str,
+        image_stabilized: bool,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_binocular_inputs(magnification, objective_diameter, true_fov, weight)
+        if not parsed:
+            return
+        magnification_value, objective_value, true_fov_value, weight_value = parsed
+        ok, message = self._equipment_catalog_repository.add_binocular(
+            brand,
+            model,
+            magnification_value,
+            objective_value,
+            true_fov_value,
+            weight_value,
+            image_stabilized,
+            notes,
+        )
+        self._after_binocular_catalog_change(message, ok)
+
+    @Slot(int, str, str, str, str, str, str, bool, str)
+    def updateBinocularModel(
+        self,
+        binocular_id: int,
+        brand: str,
+        model: str,
+        magnification: str,
+        objective_diameter: str,
+        true_fov: str,
+        weight: str,
+        image_stabilized: bool,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_binocular_inputs(magnification, objective_diameter, true_fov, weight)
+        if not parsed:
+            return
+        magnification_value, objective_value, true_fov_value, weight_value = parsed
+        ok, message = self._equipment_catalog_repository.update_binocular(
+            binocular_id,
+            brand,
+            model,
+            magnification_value,
+            objective_value,
+            true_fov_value,
+            weight_value,
+            image_stabilized,
+            notes,
+        )
+        self._after_binocular_catalog_change(message, ok)
+
+    @Slot(int)
+    def deleteBinocularModel(self, binocular_id: int) -> None:
+        ok, message = self._equipment_catalog_repository.delete_binocular(binocular_id)
+        self._after_binocular_catalog_change(message, ok)
 
     @Slot(str, str, str)
     def addEyepiece(self, name: str, focal: str, apparent_field: str) -> None:
@@ -2372,11 +2440,15 @@ class AppController(QObject):
         self._telescope_catalog_models = self._equipment_catalog_repository.models()
         self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
+        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
         self._telescopes = self._initial_telescopes()
         self._eyepieces = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
+
+    def _refresh_binocular_catalog(self) -> None:
+        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
 
     def _after_catalog_change(self, message: str, ok: bool) -> None:
         self._equipment_message = message
@@ -2386,6 +2458,57 @@ class AppController(QObject):
             self._emit_profile_dependent_changes()
         else:
             self.equipmentChanged.emit()
+
+    def _after_binocular_catalog_change(self, message: str, ok: bool) -> None:
+        self._equipment_message = message
+        if ok:
+            self._refresh_binocular_catalog()
+        self.equipmentChanged.emit()
+
+    def _parse_binocular_inputs(
+        self,
+        magnification: str,
+        objective_diameter: str,
+        true_fov: str,
+        weight: str,
+    ) -> tuple[int, int, float | None, int | None] | None:
+        try:
+            magnification_value = self._positive_int(magnification)
+            objective_value = self._positive_int(objective_diameter)
+            true_fov_value = self._optional_positive_float(true_fov)
+            weight_value = self._optional_positive_int(weight)
+        except ValueError:
+            self._equipment_message = "Dati binocolo non validi."
+            self.equipmentChanged.emit()
+            return None
+        return magnification_value, objective_value, true_fov_value, weight_value
+
+    @staticmethod
+    def _positive_int(value: str) -> int:
+        parsed = float(value.strip().replace(",", "."))
+        if parsed <= 0 or not parsed.is_integer():
+            raise ValueError
+        return int(parsed)
+
+    @staticmethod
+    def _optional_positive_float(value: str) -> float | None:
+        clean = value.strip()
+        if not clean:
+            return None
+        parsed = float(clean.replace(",", "."))
+        if parsed <= 0:
+            raise ValueError
+        return parsed
+
+    @staticmethod
+    def _optional_positive_int(value: str) -> int | None:
+        clean = value.strip()
+        if not clean:
+            return None
+        parsed = float(clean.replace(",", "."))
+        if parsed <= 0 or not parsed.is_integer():
+            raise ValueError
+        return int(parsed)
 
     def _parse_eyepiece_inputs(
         self,

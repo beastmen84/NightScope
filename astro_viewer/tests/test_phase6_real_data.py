@@ -555,6 +555,51 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(len(controller.equipmentSetups), count)
             self.assertIn("già presente", controller.equipmentMessage)
 
+    def test_binocular_catalog_crud_is_persistent_in_controller(self) -> None:
+        with _controller() as controller:
+            controller.addBinocularModel("Nikon", "Monarch M5", "10", "50", "6.5", "920", True, "Stabilizzato")
+
+            self.assertEqual(len(controller.binocularCatalog), 1)
+            item = controller.binocularCatalog[0]
+            self.assertEqual(item["display_name"], "Nikon Monarch M5")
+            self.assertEqual(item["spec_label"], "10×50")
+            self.assertEqual(item["fov_label"], "FOV 6.5°")
+            self.assertEqual(item["weight_label"], "920 g")
+            self.assertTrue(item["image_stabilized"])
+            self.assertIn("aggiunto", controller.equipmentMessage.lower())
+
+            controller.updateBinocularModel(item["id"], "Nikon", "Monarch M7", "8", "42", "", "", False, "")
+
+            updated = controller.binocularCatalog[0]
+            self.assertEqual(updated["display_name"], "Nikon Monarch M7")
+            self.assertEqual(updated["spec_label"], "8×42")
+            self.assertEqual(updated["fov_label"], "")
+            self.assertFalse(updated["image_stabilized"])
+            self.assertIn("aggiornato", controller.equipmentMessage.lower())
+
+            controller.deleteBinocularModel(updated["id"])
+
+            self.assertEqual(controller.binocularCatalog, [])
+            self.assertIn("eliminato", controller.equipmentMessage.lower())
+
+    def test_binocular_catalog_validates_required_numeric_fields(self) -> None:
+        with _controller() as controller:
+            controller.addBinocularModel("", "Monarch M5", "10", "50", "", "", False, "")
+            self.assertEqual(controller.binocularCatalog, [])
+            self.assertIn("obbligatori", controller.equipmentMessage)
+
+            controller.addBinocularModel("Nikon", "Monarch M5", "0", "50", "", "", False, "")
+            self.assertEqual(controller.binocularCatalog, [])
+            self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
+
+            controller.addBinocularModel("Nikon", "Monarch M5", "10.5", "50", "", "", False, "")
+            self.assertEqual(controller.binocularCatalog, [])
+            self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
+
+            controller.addBinocularModel("Nikon", "Monarch M5", "10", "50", "0", "", False, "")
+            self.assertEqual(controller.binocularCatalog, [])
+            self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
+
     def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
         ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
         main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
@@ -583,7 +628,13 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
         self.assertIn("EquipmentBinocularsPage", main_qml)
-        self.assertIn("Catalogo in preparazione", binoculars_qml)
+        self.assertIn('text: "Binocoli"', binoculars_qml)
+        self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
+        self.assertIn("controller.binocularCatalog", binoculars_qml)
+        self.assertIn("controller.addBinocularModel", binoculars_qml)
+        self.assertIn("controller.updateBinocularModel", binoculars_qml)
+        self.assertIn("controller.deleteBinocularModel", binoculars_qml)
+        self.assertIn('text: "Stabilizzato"', binoculars_qml)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

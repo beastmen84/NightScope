@@ -42,6 +42,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertGreaterEqual(len(repository.models()), 12)
             self.assertGreaterEqual(len(repository.eyepieces()), 6)
             self.assertGreaterEqual(len(repository.barlows()), 4)
+            self.assertEqual(repository.binoculars(), [])
             self.assertIsNotNone(repository.active_profile())
 
     def test_missing_database_is_bootstrapped(self) -> None:
@@ -144,6 +145,63 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 preserved_count = connection.execute("SELECT COUNT(*) FROM TelescopeModel").fetchone()[0]
             self.assertEqual(preserved_note, "modifica utente")
             self.assertEqual(preserved_count, telescope_count)
+
+    def test_binocular_catalog_persists_across_bootstrap(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            repository = EquipmentCatalogRepository(database_path)
+            ok, message = repository.add_binocular(
+                "Nikon",
+                "Monarch M5",
+                10,
+                50,
+                true_fov_deg=6.5,
+                weight_g=920,
+                image_stabilized=True,
+                notes="Stabilizzato",
+            )
+
+            self.assertTrue(ok, message)
+
+            initialize_database(database_path, schema_path)
+            binoculars = EquipmentCatalogRepository(database_path).binoculars()
+
+            self.assertEqual(len(binoculars), 1)
+            self.assertEqual(binoculars[0]["catalog_id"], "catalog-binocular-1")
+            self.assertEqual(binoculars[0]["display_name"], "Nikon Monarch M5")
+            self.assertEqual(binoculars[0]["spec_label"], "10×50")
+            self.assertEqual(binoculars[0]["fov_label"], "FOV 6.5°")
+            self.assertEqual(binoculars[0]["weight_label"], "920 g")
+            self.assertTrue(binoculars[0]["image_stabilized"])
+
+    def test_binocular_catalog_is_added_to_existing_database(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute("DROP TABLE BinocularCatalog")
+                connection.execute("PRAGMA user_version = 1")
+                connection.commit()
+
+            self.assertTrue(database_initialization_required(database_path, schema_path))
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                table = connection.execute(
+                    """
+                    SELECT name FROM sqlite_master
+                    WHERE type = 'table' AND name = 'BinocularCatalog'
+                    """
+                ).fetchone()
+                version = connection.execute("PRAGMA user_version").fetchone()[0]
+            self.assertIsNotNone(table)
+            self.assertEqual(version, SCHEMA_VERSION)
 
     def test_messier_seed_restores_missing_rows_without_overwriting(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

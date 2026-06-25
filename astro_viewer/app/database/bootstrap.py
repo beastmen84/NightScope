@@ -13,7 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -25,6 +25,7 @@ REQUIRED_TABLES = {
     "TelescopeModel",
     "EyepieceCatalog",
     "BarlowCatalog",
+    "BinocularCatalog",
     "SkyQualityEstimate",
     "ObjectImages",
     "ObjectDescription",
@@ -238,6 +239,22 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         },
     )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS BinocularCatalog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand TEXT NOT NULL,
+            model TEXT NOT NULL,
+            magnification INTEGER NOT NULL,
+            objective_diameter_mm INTEGER NOT NULL,
+            true_fov_deg REAL,
+            weight_g INTEGER,
+            image_stabilized INTEGER NOT NULL DEFAULT 0,
+            notes TEXT,
+            UNIQUE (brand, model, magnification, objective_diameter_mm)
+        )
+        """
+    )
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
         connection,
