@@ -121,7 +121,7 @@ class EquipmentService:
         light_gathering = round((telescope.aperture_mm / 7.0) ** 2)
         limiting_magnitude = 2 + 5 * self._log10(max(1.0, telescope.aperture_mm))
         resolution = 116 / telescope.aperture_mm
-        configurations = self._available_configurations(telescope, eyepieces, barlows)
+        configurations = self._profile_capability_configurations(telescope, eyepieces, barlows)
         magnifications = [item["magnificationValue"] for item in configurations]
         exit_pupils = [item["exitPupilValue"] for item in configurations]
         true_fields = [item["trueFieldValue"] for item in configurations]
@@ -355,31 +355,41 @@ class EquipmentService:
         owned = [barlow for barlow in barlows if barlow.multiplier > 1.0]
         return [None, *owned]
 
-    def _available_configurations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> list[dict]:
+    def _profile_capability_configurations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlows: list[Barlow]) -> list[dict]:
         if not eyepieces:
             return []
+
+        from astro_viewer.app.services.observation_configuration_builder import ObservationConfigurationBuilder
+
         configurations = []
         seen = set()
-        for eyepiece in eyepieces:
-            for barlow in self.barlow_options(barlows):
-                multiplier = barlow.multiplier if barlow else 1.0
-                for focal_position in self.eyepiece_focal_positions(eyepiece):
-                    values = self.telescope_configuration_values(telescope, eyepiece, focal_position["focal"], barlow)
-                    magnification = round(values["magnification"])
-                    key = (eyepiece.id, focal_position["position"], multiplier, magnification)
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    configurations.append(
-                        {
-                            "label": eyepiece.name + (f" @ {focal_position['position']}" if eyepiece.eyepiece_type == "Zoom" else ""),
-                            "magnification": f"{magnification}x",
-                            "magnificationValue": float(magnification),
-                            "trueFieldValue": eyepiece.apparent_field_deg / max(magnification, 1),
-                            "exitPupilValue": telescope.aperture_mm / max(magnification, 1),
-                            "barlow": barlow.name if barlow else "No",
-                        }
-                    )
+
+        builder_configurations = ObservationConfigurationBuilder(self).build_telescope_configurations(
+            [telescope],
+            eyepieces,
+            barlows,
+        )
+        for configuration in builder_configurations:
+            eyepiece = configuration.eyepiece
+            if not eyepiece:
+                continue
+            barlow = configuration.barlow
+            multiplier = barlow.multiplier if barlow else 1.0
+            magnification = round(configuration.magnification)
+            key = (eyepiece.id, configuration.focal_position_label, multiplier, magnification)
+            if key in seen:
+                continue
+            seen.add(key)
+            configurations.append(
+                {
+                    "label": eyepiece.name + (f" @ {configuration.focal_position_label}" if eyepiece.eyepiece_type == "Zoom" else ""),
+                    "magnification": f"{magnification}x",
+                    "magnificationValue": float(magnification),
+                    "trueFieldValue": eyepiece.apparent_field_deg / max(magnification, 1),
+                    "exitPupilValue": telescope.aperture_mm / max(magnification, 1),
+                    "barlow": barlow.name if barlow else "No",
+                }
+            )
         return sorted(configurations, key=lambda item: int(item["magnification"].replace("x", "")))
 
     @staticmethod
