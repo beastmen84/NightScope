@@ -142,18 +142,10 @@ ApplicationWindow {
                         onClicked: window.currentPage = "weather"
                     }
 
-                    NavButton {
-                        Layout.fillWidth: true
-                        text: "Località"
-                        iconSource: appController.assetBaseUrl + "/resources/icons/location.svg"
-                        selected: window.currentPage === "location"
-                        onClicked: window.currentPage = "location"
-                    }
-
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 8
-                        text: "Strumenti"
+                        text: "Configurazione"
                         color: theme.textMuted
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -162,10 +154,28 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
+                        text: "Località"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/location.svg"
+                        selected: window.currentPage === "location"
+                        onClicked: window.currentPage = "location"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
                         text: "Profili"
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentProfiles"
                         onClicked: window.currentPage = "equipmentProfiles"
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.topMargin: 8
+                        text: "Cataloghi"
+                        color: theme.textMuted
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
                     }
 
                     NavButton {
@@ -182,6 +192,14 @@ ApplicationWindow {
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentOptics"
                         onClicked: window.currentPage = "equipmentOptics"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
+                        text: "Binocoli"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
+                        selected: window.currentPage === "equipmentBinoculars"
+                        onClicked: window.currentPage = "equipmentBinoculars"
                     }
                 }
 
@@ -251,6 +269,7 @@ ApplicationWindow {
                 if (window.currentPage === "equipmentProfiles") return equipmentProfilesPage
                 if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
                 if (window.currentPage === "equipmentOptics") return equipmentOpticsPage
+                if (window.currentPage === "equipmentBinoculars") return equipmentBinocularsPage
                 return homePage
             }
         }
@@ -317,6 +336,13 @@ ApplicationWindow {
     Component {
         id: equipmentOpticsPage
         EquipmentOpticsPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: equipmentBinocularsPage
+        EquipmentBinocularsPage {
             controller: appController
         }
     }

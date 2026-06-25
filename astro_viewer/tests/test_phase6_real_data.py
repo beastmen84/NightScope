@@ -555,15 +555,35 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(len(controller.equipmentSetups), count)
             self.assertIn("già presente", controller.equipmentMessage)
 
-    def test_equipment_navigation_is_split_into_three_pages(self) -> None:
-        main_qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "main.qml").read_text(encoding="utf-8")
+    def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
+        ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
+        main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
+        binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
 
+        expected_labels = [
+            'text: "Home"',
+            'text: "Calendario"',
+            'text: "Meteo"',
+            'text: "Configurazione"',
+            'text: "Località"',
+            'text: "Profili"',
+            'text: "Cataloghi"',
+            'text: "Telescopi"',
+            'text: "Oculari e Barlow"',
+            'text: "Binocoli"',
+        ]
+        positions = [main_qml.index(label) for label in expected_labels]
+        self.assertEqual(positions, sorted(positions))
+        self.assertNotIn('text: "Strumenti"', main_qml)
         self.assertIn("equipmentProfiles", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
         self.assertIn("equipmentOptics", main_qml)
+        self.assertIn("equipmentBinoculars", main_qml)
         self.assertIn("EquipmentProfilesPage", main_qml)
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
+        self.assertIn("EquipmentBinocularsPage", main_qml)
+        self.assertIn("Catalogo in preparazione", binoculars_qml)
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:
