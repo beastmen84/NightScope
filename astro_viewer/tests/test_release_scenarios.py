@@ -46,7 +46,27 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(controller.isObservingSessionBlocked)
             self.assertEqual(controller.blockingReason, "rischio precipitazioni")
             self.assertEqual(controller.blockingDetail, "Rischio precipitazioni elevato.")
-            self.assertIn("–", controller.suggestedObservingWindow)
+            self.assertEqual(controller.observingSessionState, "discouraged")
+            self.assertEqual(controller.observingSessionTitle, "Sessione sconsigliata")
+            self.assertEqual(controller.observingSessionIcon, "🚫")
+            self.assertEqual(
+                controller.observingSessionDetail,
+                "Le condizioni previste rimangono sfavorevoli per tutta la notte.",
+            )
+            self.assertFalse(controller.showObservingSessionOpportunity)
+            self.assertEqual(controller.suggestedObservingWindow, "")
+            self.assertEqual(controller.nightPlan, [])
+
+    def test_blocking_weather_with_later_window_is_monitor_state(self) -> None:
+        with self._controller_with_weather(_monitoring_weather_response(), saved_location=True) as controller:
+            self.assertTrue(controller.isObservingSessionBlocked)
+            self.assertEqual(controller.observingSessionState, "monitor")
+            self.assertEqual(controller.observingSessionTitle, "Sessione da monitorare")
+            self.assertEqual(controller.observingSessionIcon, "⚠")
+            self.assertEqual(controller.observingSessionDetail, "Le condizioni attuali non sono ancora favorevoli.")
+            self.assertIn("finestra osservativa promettente", controller.observingSessionDescription)
+            self.assertTrue(controller.showObservingSessionOpportunity)
+            self.assertEqual(controller.suggestedObservingWindow, "03:00–06:00")
             self.assertEqual(controller.nightPlan, [])
 
     def test_app_starts_with_saved_location_and_refreshes_weather(self) -> None:
@@ -321,6 +341,13 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Pianeti potenzialmente visibili", qml)
         self.assertIn("Oggetti cielo profondo potenzialmente visibili", qml)
         self.assertIn("controller.isObservingSessionBlocked ? \"Pianeti potenzialmente visibili\"", qml)
+        self.assertIn("controller.observingSessionIcon", qml)
+        self.assertIn("controller.observingSessionTitle", qml)
+        self.assertIn("controller.observingSessionDetail", qml)
+        self.assertIn("controller.observingSessionDescription", qml)
+        self.assertIn("controller.showObservingSessionOpportunity", qml)
+        self.assertIn("Migliore finestra prevista", qml)
+        self.assertIn("Target potenzialmente interessanti", qml)
         self.assertNotIn("function hasBlockingWeather", qml)
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
@@ -515,6 +542,19 @@ def _valid_weather_response() -> Mock:
 def _rainy_weather_response() -> Mock:
     response = _valid_weather_response()
     response.json.return_value["hourly"]["precipitation_probability"] = [80] * 24
+    return response
+
+
+def _monitoring_weather_response() -> Mock:
+    response = _valid_weather_response()
+    hourly = response.json.return_value["hourly"]
+    hourly["cloud_cover"] = [88] * 24
+    hourly["precipitation_probability"] = [80] * 24
+    hourly["wind_speed_10m"] = [9] * 24
+    hourly["relative_humidity_2m"] = [64] * 24
+    for hour in [3, 4, 5]:
+        hourly["cloud_cover"][hour] = 24
+        hourly["precipitation_probability"][hour] = 0
     return response
 
 

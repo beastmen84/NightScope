@@ -848,30 +848,9 @@ Item {
                         visible: controller.nightPlan.length === 0 && controller.isObservingSessionBlocked
                         spacing: 14
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 8
-
-                            Text {
-                                text: "⚠"
-                                color: theme.red
-                                font.pixelSize: 18
-                                font.weight: Font.DemiBold
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Sessione sconsigliata"
-                                color: theme.textPrimary
-                                font.pixelSize: 17
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-                        }
-
                         GridLayout {
                             Layout.fillWidth: true
-                            columns: root.width > 920 ? 2 : 1
+                            columns: root.width > 920 && controller.showObservingSessionOpportunity ? 2 : 1
                             columnSpacing: 36
                             rowSpacing: 12
 
@@ -880,10 +859,31 @@ Item {
                                 Layout.alignment: Qt.AlignTop
                                 spacing: 10
 
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Text {
+                                        text: controller.observingSessionIcon
+                                        color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
+                                        font.pixelSize: 18
+                                        font.weight: Font.DemiBold
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: controller.observingSessionTitle
+                                        color: theme.textPrimary
+                                        font.pixelSize: 17
+                                        font.weight: Font.DemiBold
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
                                 Text {
                                     Layout.fillWidth: true
-                                    text: controller.blockingDetail
-                                    color: theme.red
+                                    text: controller.observingSessionDetail
+                                    color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
                                     wrapMode: Text.WordWrap
@@ -891,7 +891,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Le condizioni attuali non permettono una sessione osservativa affidabile."
+                                    text: controller.observingSessionDescription
                                     color: theme.textSecondary
                                     font.pixelSize: 13
                                     wrapMode: Text.WordWrap
@@ -901,6 +901,7 @@ Item {
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignTop
+                                visible: controller.showObservingSessionOpportunity
                                 spacing: 12
 
                                 ColumnLayout {
@@ -910,7 +911,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: "Migliore finestra prevista:"
+                                        text: "Migliore finestra prevista"
                                         color: theme.textMuted
                                         font.pixelSize: 12
                                         wrapMode: Text.WordWrap
@@ -933,7 +934,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: "Target potenzialmente interessanti se si apre una finestra libera:"
+                                        text: "Target potenzialmente interessanti"
                                         color: theme.textMuted
                                         font.pixelSize: 12
                                         wrapMode: Text.WordWrap

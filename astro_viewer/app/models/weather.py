@@ -65,3 +65,13 @@ class WeatherBlockingStatus:
     show_warning: bool
     reason: str = ""
     detail: str = ""
+
+
+@dataclass(frozen=True)
+class ObservingSessionDecision:
+    state: str
+    title: str = ""
+    icon: str = ""
+    detail: str = ""
+    description: str = ""
+    show_opportunity: bool = False

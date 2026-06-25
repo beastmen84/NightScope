@@ -23,7 +23,7 @@ from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepos
 from astro_viewer.app.models.equipment import Barlow, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
-from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherHour, WeatherSummary
+from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
@@ -361,7 +361,7 @@ class AppController(QObject):
 
     @Property(bool, notify=weatherChanged)
     def isObservingSessionBlocked(self) -> bool:
-        return self._weather_blocking_status().show_warning
+        return self._observing_session_decision().state != "recommended"
 
     @Property(str, notify=weatherChanged)
     def blockingReason(self) -> str:
@@ -374,6 +374,30 @@ class AppController(QObject):
     @Property(str, notify=weatherChanged)
     def suggestedObservingWindow(self) -> str:
         return self._suggested_observing_window()
+
+    @Property(str, notify=weatherChanged)
+    def observingSessionState(self) -> str:
+        return self._observing_session_decision().state
+
+    @Property(str, notify=weatherChanged)
+    def observingSessionTitle(self) -> str:
+        return self._observing_session_decision().title
+
+    @Property(str, notify=weatherChanged)
+    def observingSessionIcon(self) -> str:
+        return self._observing_session_decision().icon
+
+    @Property(str, notify=weatherChanged)
+    def observingSessionDetail(self) -> str:
+        return self._observing_session_decision().detail
+
+    @Property(str, notify=weatherChanged)
+    def observingSessionDescription(self) -> str:
+        return self._observing_session_decision().description
+
+    @Property(bool, notify=weatherChanged)
+    def showObservingSessionOpportunity(self) -> bool:
+        return self._observing_session_decision().show_opportunity
 
     @Property(str, notify=weatherChanged)
     def skyQualityWarning(self) -> str:
@@ -2056,7 +2080,39 @@ class AppController(QObject):
             return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
         return self._night_planner_service.weather_blocking_status(self._weather_summary)
 
+    def _observing_session_decision(self) -> ObservingSessionDecision:
+        blocking = self._weather_blocking_status()
+        if not blocking.show_warning:
+            return ObservingSessionDecision(state="recommended")
+
+        if self._best_usable_observing_window():
+            return ObservingSessionDecision(
+                state="monitor",
+                title="Sessione da monitorare",
+                icon="⚠",
+                detail="Le condizioni attuali non sono ancora favorevoli.",
+                description=(
+                    "È però prevista una finestra osservativa promettente.\n"
+                    "Ti consigliamo di ricontrollare il meteo prima di preparare la sessione."
+                ),
+                show_opportunity=True,
+            )
+
+        return ObservingSessionDecision(
+            state="discouraged",
+            title="Sessione sconsigliata",
+            icon="🚫",
+            detail="Le condizioni previste rimangono sfavorevoli per tutta la notte.",
+            description="Non è consigliabile preparare una sessione osservativa.",
+            show_opportunity=False,
+        )
+
     def _suggested_observing_window(self) -> str:
+        decision = self._observing_session_decision()
+        if decision.state == "discouraged":
+            return ""
+        if decision.state == "monitor":
+            return self._weather_window_label(self._best_usable_observing_window()).replace(" - ", "–")
         best_window = self._weather_digest().get("bestWindow", "")
         if not best_window or best_window == "n/d":
             return ""
@@ -2084,6 +2140,58 @@ class AppController(QObject):
                 best_score = score
                 best_slice = candidate
         return best_slice
+
+    def _best_usable_observing_window(self) -> list[WeatherHour]:
+        night_hours = self._home_weather_hours(self._weather_hours)
+        best_group: list[WeatherHour] = []
+        current_group: list[WeatherHour] = []
+        previous_minutes: int | None = None
+        day_offset = 0
+
+        for hour in night_hours:
+            parsed = self._parse_hour_minute(hour.time)
+            if not parsed:
+                current_group = []
+                previous_minutes = None
+                continue
+
+            current_minutes = day_offset + parsed[0] * 60 + parsed[1]
+            if previous_minutes is not None and current_minutes < previous_minutes:
+                day_offset += 24 * 60
+                current_minutes += 24 * 60
+
+            is_consecutive = previous_minutes is None or current_minutes - previous_minutes <= 90
+            if not is_consecutive:
+                current_group = []
+
+            if self._is_usable_weather_hour(hour):
+                current_group.append(hour)
+                if len(current_group) > len(best_group):
+                    best_group = list(current_group)
+            else:
+                current_group = []
+
+            previous_minutes = current_minutes
+
+        return best_group if len(best_group) >= 2 else []
+
+    @staticmethod
+    def _is_usable_weather_hour(hour: WeatherHour) -> bool:
+        return (
+            hour.precipitation_probability <= 35
+            and hour.cloud_cover <= 65
+            and hour.wind_kmh <= 28
+            and AppController._weather_hour_observing_score(hour) >= 45
+        )
+
+    @staticmethod
+    def _weather_hour_observing_score(hour: WeatherHour) -> int:
+        score = 100
+        score -= min(55, round(hour.cloud_cover * 0.55))
+        score -= min(30, round(hour.precipitation_probability * 0.45))
+        score -= max(0, hour.wind_kmh - 10)
+        score -= max(0, round((hour.humidity - 70) * 0.25))
+        return max(0, min(100, score))
 
     @staticmethod
     def _weather_slice_score(hours: list[WeatherHour]) -> float:
