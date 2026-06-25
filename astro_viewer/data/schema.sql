@@ -132,10 +132,7 @@ CREATE TABLE IF NOT EXISTS BinocularCatalog (
     model TEXT NOT NULL,
     magnification INTEGER NOT NULL,
     objective_diameter_mm INTEGER NOT NULL,
-    true_fov_deg REAL,
-    weight_g INTEGER,
     image_stabilized INTEGER NOT NULL DEFAULT 0,
-    notes TEXT,
     UNIQUE (brand, model, magnification, objective_diameter_mm)
 );
 

@@ -1048,35 +1048,29 @@ class AppController(QObject):
         ok, message = self._equipment_catalog_repository.delete_barlow(barlow_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, bool, str)
+    @Slot(str, str, str, str, bool)
     def addBinocularModel(
         self,
         brand: str,
         model: str,
         magnification: str,
         objective_diameter: str,
-        true_fov: str,
-        weight: str,
         image_stabilized: bool,
-        notes: str,
     ) -> None:
-        parsed = self._parse_binocular_inputs(magnification, objective_diameter, true_fov, weight)
+        parsed = self._parse_binocular_inputs(magnification, objective_diameter)
         if not parsed:
             return
-        magnification_value, objective_value, true_fov_value, weight_value = parsed
+        magnification_value, objective_value = parsed
         ok, message = self._equipment_catalog_repository.add_binocular(
             brand,
             model,
             magnification_value,
             objective_value,
-            true_fov_value,
-            weight_value,
             image_stabilized,
-            notes,
         )
         self._after_binocular_catalog_change(message, ok)
 
-    @Slot(int, str, str, str, str, str, str, bool, str)
+    @Slot(int, str, str, str, str, bool)
     def updateBinocularModel(
         self,
         binocular_id: int,
@@ -1084,25 +1078,19 @@ class AppController(QObject):
         model: str,
         magnification: str,
         objective_diameter: str,
-        true_fov: str,
-        weight: str,
         image_stabilized: bool,
-        notes: str,
     ) -> None:
-        parsed = self._parse_binocular_inputs(magnification, objective_diameter, true_fov, weight)
+        parsed = self._parse_binocular_inputs(magnification, objective_diameter)
         if not parsed:
             return
-        magnification_value, objective_value, true_fov_value, weight_value = parsed
+        magnification_value, objective_value = parsed
         ok, message = self._equipment_catalog_repository.update_binocular(
             binocular_id,
             brand,
             model,
             magnification_value,
             objective_value,
-            true_fov_value,
-            weight_value,
             image_stabilized,
-            notes,
         )
         self._after_binocular_catalog_change(message, ok)
 
@@ -2469,43 +2457,19 @@ class AppController(QObject):
         self,
         magnification: str,
         objective_diameter: str,
-        true_fov: str,
-        weight: str,
-    ) -> tuple[int, int, float | None, int | None] | None:
+    ) -> tuple[int, int] | None:
         try:
             magnification_value = self._positive_int(magnification)
             objective_value = self._positive_int(objective_diameter)
-            true_fov_value = self._optional_positive_float(true_fov)
-            weight_value = self._optional_positive_int(weight)
         except ValueError:
             self._equipment_message = "Dati binocolo non validi."
             self.equipmentChanged.emit()
             return None
-        return magnification_value, objective_value, true_fov_value, weight_value
+        return magnification_value, objective_value
 
     @staticmethod
     def _positive_int(value: str) -> int:
         parsed = float(value.strip().replace(",", "."))
-        if parsed <= 0 or not parsed.is_integer():
-            raise ValueError
-        return int(parsed)
-
-    @staticmethod
-    def _optional_positive_float(value: str) -> float | None:
-        clean = value.strip()
-        if not clean:
-            return None
-        parsed = float(clean.replace(",", "."))
-        if parsed <= 0:
-            raise ValueError
-        return parsed
-
-    @staticmethod
-    def _optional_positive_int(value: str) -> int | None:
-        clean = value.strip()
-        if not clean:
-            return None
-        parsed = float(clean.replace(",", "."))
         if parsed <= 0 or not parsed.is_integer():
             raise ValueError
         return int(parsed)

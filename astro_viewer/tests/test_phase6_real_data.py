@@ -558,7 +558,7 @@ class Phase6RealDataTests(unittest.TestCase):
     def test_binocular_catalog_crud_is_persistent_in_controller(self) -> None:
         with _controller() as controller:
             initial_count = len(controller.binocularCatalog)
-            controller.addBinocularModel("NightScope", "Test 10x50", "10", "50", "6.5", "920", True, "Stabilizzato")
+            controller.addBinocularModel("NightScope", "Test 10x50", "10", "50", True)
 
             self.assertEqual(len(controller.binocularCatalog), initial_count + 1)
             item = next(
@@ -568,12 +568,10 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertEqual(item["display_name"], "NightScope Test 10x50")
             self.assertEqual(item["spec_label"], "10×50")
-            self.assertEqual(item["fov_label"], "FOV 6.5°")
-            self.assertEqual(item["weight_label"], "920 g")
             self.assertTrue(item["image_stabilized"])
             self.assertIn("aggiunto", controller.equipmentMessage.lower())
 
-            controller.updateBinocularModel(item["id"], "NightScope", "Test 8x42", "8", "42", "", "", False, "")
+            controller.updateBinocularModel(item["id"], "NightScope", "Test 8x42", "8", "42", False)
 
             updated = next(
                 row
@@ -582,7 +580,6 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertEqual(updated["display_name"], "NightScope Test 8x42")
             self.assertEqual(updated["spec_label"], "8×42")
-            self.assertEqual(updated["fov_label"], "")
             self.assertFalse(updated["image_stabilized"])
             self.assertIn("aggiornato", controller.equipmentMessage.lower())
 
@@ -594,19 +591,19 @@ class Phase6RealDataTests(unittest.TestCase):
     def test_binocular_catalog_validates_required_numeric_fields(self) -> None:
         with _controller() as controller:
             initial_count = len(controller.binocularCatalog)
-            controller.addBinocularModel("", "Monarch M5", "10", "50", "", "", False, "")
+            controller.addBinocularModel("", "Monarch M5", "10", "50", False)
             self.assertEqual(len(controller.binocularCatalog), initial_count)
             self.assertIn("obbligatori", controller.equipmentMessage)
 
-            controller.addBinocularModel("Nikon", "Monarch M5", "0", "50", "", "", False, "")
+            controller.addBinocularModel("Nikon", "Monarch M5", "0", "50", False)
             self.assertEqual(len(controller.binocularCatalog), initial_count)
             self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
 
-            controller.addBinocularModel("Nikon", "Monarch M5", "10.5", "50", "", "", False, "")
+            controller.addBinocularModel("Nikon", "Monarch M5", "10.5", "50", False)
             self.assertEqual(len(controller.binocularCatalog), initial_count)
             self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
 
-            controller.addBinocularModel("Nikon", "Monarch M5", "10", "50", "0", "", False, "")
+            controller.addBinocularModel("Nikon", "Monarch M5", "10", "0", False)
             self.assertEqual(len(controller.binocularCatalog), initial_count)
             self.assertIn("Dati binocolo non validi", controller.equipmentMessage)
 
@@ -640,10 +637,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("EquipmentBinocularsPage", main_qml)
         self.assertIn('text: "Catalogo binocoli"', binoculars_qml)
         self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
-        self.assertIn('placeholderText: "Campo reale (°)"', binoculars_qml)
-        self.assertIn('placeholderText: "Peso (g)"', binoculars_qml)
-        self.assertNotIn("binocularNotes", binoculars_qml)
-        self.assertNotIn('placeholderText: "Note"', binoculars_qml)
+        self.assertIn('placeholderText: "Diametro obiettivo (mm)"', binoculars_qml)
         self.assertIn("controller.binocularCatalog", binoculars_qml)
         self.assertIn("controller.addBinocularModel", binoculars_qml)
         self.assertIn("controller.updateBinocularModel", binoculars_qml)

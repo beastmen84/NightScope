@@ -389,8 +389,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, magnification, objective_diameter_mm,
-                       true_fov_deg, weight_g, image_stabilized, notes
+                SELECT id, brand, model, magnification, objective_diameter_mm, image_stabilized
                 FROM BinocularCatalog
                 ORDER BY brand, model, magnification, objective_diameter_mm
                 """
@@ -403,10 +402,7 @@ class EquipmentCatalogRepository:
         model: str,
         magnification: int,
         objective_diameter_mm: int,
-        true_fov_deg: float | None = None,
-        weight_g: int | None = None,
         image_stabilized: bool = False,
-        notes: str = "",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_model = model.strip()
@@ -414,10 +410,6 @@ class EquipmentCatalogRepository:
             return False, "Marca e modello sono obbligatori."
         if magnification <= 0 or objective_diameter_mm <= 0:
             return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
-        if true_fov_deg is not None and true_fov_deg <= 0:
-            return False, "Il campo reale deve essere maggiore di zero."
-        if weight_g is not None and weight_g <= 0:
-            return False, "Il peso deve essere maggiore di zero."
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -431,20 +423,16 @@ class EquipmentCatalogRepository:
             connection.execute(
                 """
                 INSERT INTO BinocularCatalog (
-                    brand, model, magnification, objective_diameter_mm,
-                    true_fov_deg, weight_g, image_stabilized, notes
+                    brand, model, magnification, objective_diameter_mm, image_stabilized
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 """,
                 (
                     clean_brand,
                     clean_model,
                     magnification,
                     objective_diameter_mm,
-                    true_fov_deg,
-                    weight_g,
                     1 if image_stabilized else 0,
-                    notes,
                 ),
             )
             connection.commit()
@@ -457,10 +445,7 @@ class EquipmentCatalogRepository:
         model: str,
         magnification: int,
         objective_diameter_mm: int,
-        true_fov_deg: float | None = None,
-        weight_g: int | None = None,
         image_stabilized: bool = False,
-        notes: str = "",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_model = model.strip()
@@ -468,10 +453,6 @@ class EquipmentCatalogRepository:
             return False, "Marca e modello sono obbligatori."
         if magnification <= 0 or objective_diameter_mm <= 0:
             return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
-        if true_fov_deg is not None and true_fov_deg <= 0:
-            return False, "Il campo reale deve essere maggiore di zero."
-        if weight_g is not None and weight_g <= 0:
-            return False, "Il peso deve essere maggiore di zero."
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id FROM BinocularCatalog WHERE id = ?",
@@ -492,7 +473,7 @@ class EquipmentCatalogRepository:
                 """
                 UPDATE BinocularCatalog
                 SET brand = ?, model = ?, magnification = ?, objective_diameter_mm = ?,
-                    true_fov_deg = ?, weight_g = ?, image_stabilized = ?, notes = ?
+                    image_stabilized = ?
                 WHERE id = ?
                 """,
                 (
@@ -500,10 +481,7 @@ class EquipmentCatalogRepository:
                     clean_model,
                     magnification,
                     objective_diameter_mm,
-                    true_fov_deg,
-                    weight_g,
                     1 if image_stabilized else 0,
-                    notes,
                     binocular_id,
                 ),
             )
@@ -713,8 +691,6 @@ class EquipmentCatalogRepository:
 
     @staticmethod
     def _binocular_model(row: sqlite3.Row) -> dict:
-        true_fov = row["true_fov_deg"]
-        weight = row["weight_g"]
         return {
             "id": row["id"],
             "catalog_id": f"catalog-binocular-{row['id']}",
@@ -723,13 +699,8 @@ class EquipmentCatalogRepository:
             "display_name": f"{row['brand']} {row['model']}",
             "magnification": row["magnification"],
             "objective_diameter_mm": row["objective_diameter_mm"],
-            "true_fov_deg": true_fov,
-            "weight_g": weight,
             "image_stabilized": bool(row["image_stabilized"]),
-            "notes": row["notes"] or "",
             "spec_label": f"{row['magnification']}×{row['objective_diameter_mm']}",
-            "fov_label": f"FOV {true_fov:g}°" if true_fov else "",
-            "weight_label": f"{weight:g} g" if weight else "",
         }
 
     @staticmethod

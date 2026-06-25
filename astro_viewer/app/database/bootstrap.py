@@ -13,7 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -241,22 +241,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         },
     )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
-    connection.execute(
-        """
-        CREATE TABLE IF NOT EXISTS BinocularCatalog (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            brand TEXT NOT NULL,
-            model TEXT NOT NULL,
-            magnification INTEGER NOT NULL,
-            objective_diameter_mm INTEGER NOT NULL,
-            true_fov_deg REAL,
-            weight_g INTEGER,
-            image_stabilized INTEGER NOT NULL DEFAULT 0,
-            notes TEXT,
-            UNIQUE (brand, model, magnification, objective_diameter_mm)
-        )
-        """
-    )
+    _migrate_binocular_catalog(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
         connection,
@@ -313,6 +298,61 @@ def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[
     for column_name, definition in columns.items():
         if column_name not in existing:
             connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
+
+
+def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS BinocularCatalog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand TEXT NOT NULL,
+            model TEXT NOT NULL,
+            magnification INTEGER NOT NULL,
+            objective_diameter_mm INTEGER NOT NULL,
+            image_stabilized INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (brand, model, magnification, objective_diameter_mm)
+        )
+        """
+    )
+    existing_columns = {
+        row[1]
+        for row in connection.execute("PRAGMA table_info(BinocularCatalog)").fetchall()
+    }
+    expected_columns = {
+        "id",
+        "brand",
+        "model",
+        "magnification",
+        "objective_diameter_mm",
+        "image_stabilized",
+    }
+    if existing_columns == expected_columns:
+        return
+    connection.execute("DROP TABLE IF EXISTS BinocularCatalog_new")
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS BinocularCatalog_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand TEXT NOT NULL,
+            model TEXT NOT NULL,
+            magnification INTEGER NOT NULL,
+            objective_diameter_mm INTEGER NOT NULL,
+            image_stabilized INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (brand, model, magnification, objective_diameter_mm)
+        )
+        """
+    )
+    connection.execute(
+        """
+        INSERT OR IGNORE INTO BinocularCatalog_new (
+            id, brand, model, magnification, objective_diameter_mm, image_stabilized
+        )
+        SELECT id, brand, model, magnification, objective_diameter_mm, image_stabilized
+        FROM BinocularCatalog
+        """
+    )
+    connection.execute("DROP TABLE BinocularCatalog")
+    connection.execute("ALTER TABLE BinocularCatalog_new RENAME TO BinocularCatalog")
 
 
 def _database_is_healthy(database_path: Path) -> bool:
@@ -408,16 +448,6 @@ def _optional_float(value: str) -> float | None:
         return None
     try:
         return float(clean_value)
-    except ValueError:
-        return None
-
-
-def _optional_int(value: str) -> int | None:
-    clean_value = value.strip()
-    if not clean_value:
-        return None
-    try:
-        return int(float(clean_value))
     except ValueError:
         return None
 
@@ -662,10 +692,9 @@ def _seed_binocular_catalog(connection: sqlite3.Connection, binocular_path: Path
     connection.executemany(
         """
         INSERT INTO BinocularCatalog (
-            brand, model, magnification, objective_diameter_mm,
-            true_fov_deg, weight_g, image_stabilized, notes
+            brand, model, magnification, objective_diameter_mm, image_stabilized
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(brand, model, magnification, objective_diameter_mm) DO NOTHING
         """,
         _binocular_catalog_rows(binocular_path),
@@ -682,10 +711,7 @@ def _binocular_catalog_rows(binocular_path: Path | None) -> list[tuple]:
                 row["model"],
                 int(float(row["magnification"])),
                 int(float(row["objective_diameter_mm"])),
-                _optional_float(row.get("true_fov_deg", "")),
-                _optional_int(row.get("weight_g", "")),
                 1 if str(row.get("image_stabilized", "")).strip().lower() in {"1", "true", "yes"} else 0,
-                row.get("notes", ""),
             )
             for row in csv.DictReader(file)
         ]

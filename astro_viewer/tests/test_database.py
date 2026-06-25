@@ -42,7 +42,18 @@ class DatabaseBootstrapTests(unittest.TestCase):
             repository = EquipmentCatalogRepository(database_path)
             binoculars = repository.binoculars()
             with (data_dir / "binocular_catalog_seed.csv").open("r", encoding="utf-8", newline="") as file:
-                binocular_seed_count = sum(1 for _ in csv.DictReader(file))
+                reader = csv.DictReader(file)
+                self.assertEqual(
+                    reader.fieldnames,
+                    [
+                        "brand",
+                        "model",
+                        "magnification",
+                        "objective_diameter_mm",
+                        "image_stabilized",
+                    ],
+                )
+                binocular_seed_count = sum(1 for _ in reader)
             self.assertGreaterEqual(len(repository.brands()), 8)
             self.assertGreaterEqual(len(repository.models()), 12)
             self.assertGreaterEqual(len(repository.eyepieces()), 6)
@@ -184,10 +195,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 "Test 10x50",
                 10,
                 50,
-                true_fov_deg=6.5,
-                weight_g=920,
                 image_stabilized=True,
-                notes="Stabilizzato",
             )
 
             self.assertTrue(ok, message)
@@ -203,8 +211,6 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(len(binoculars), initial_count + 1)
             self.assertEqual(saved["display_name"], "NightScope Test 10x50")
             self.assertEqual(saved["spec_label"], "10×50")
-            self.assertEqual(saved["fov_label"], "FOV 6.5°")
-            self.assertEqual(saved["weight_label"], "920 g")
             self.assertTrue(saved["image_stabilized"])
 
     def test_binocular_catalog_is_added_to_existing_database(self) -> None:
@@ -229,9 +235,90 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     WHERE type = 'table' AND name = 'BinocularCatalog'
                     """
                 ).fetchone()
+                columns = [
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(BinocularCatalog)").fetchall()
+                ]
                 version = connection.execute("PRAGMA user_version").fetchone()[0]
             self.assertIsNotNone(table)
+            self.assertEqual(
+                columns,
+                [
+                    "id",
+                    "brand",
+                    "model",
+                    "magnification",
+                    "objective_diameter_mm",
+                    "image_stabilized",
+                ],
+            )
             self.assertEqual(version, SCHEMA_VERSION)
+
+    def test_binocular_catalog_migration_removes_obsolete_columns(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute("ALTER TABLE BinocularCatalog RENAME TO BinocularCatalog_old")
+                connection.execute(
+                    """
+                    CREATE TABLE BinocularCatalog (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        brand TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        magnification INTEGER NOT NULL,
+                        objective_diameter_mm INTEGER NOT NULL,
+                        legacy_real REAL,
+                        legacy_integer INTEGER,
+                        image_stabilized INTEGER NOT NULL DEFAULT 0,
+                        legacy_text TEXT,
+                        UNIQUE (brand, model, magnification, objective_diameter_mm)
+                    )
+                    """
+                )
+                connection.execute(
+                    """
+                    INSERT INTO BinocularCatalog (
+                        id, brand, model, magnification, objective_diameter_mm,
+                        legacy_real, legacy_integer, image_stabilized, legacy_text
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (999, "NightScope", "Legacy 10x50", 10, 50, 6.5, 920, 1, "Legacy"),
+                )
+                connection.execute("DROP TABLE BinocularCatalog_old")
+                connection.execute("PRAGMA user_version = 2")
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                columns = [
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(BinocularCatalog)").fetchall()
+                ]
+                row = connection.execute(
+                    """
+                    SELECT brand, model, magnification, objective_diameter_mm, image_stabilized
+                    FROM BinocularCatalog
+                    WHERE id = ?
+                    """,
+                    (999,),
+                ).fetchone()
+            self.assertEqual(
+                columns,
+                [
+                    "id",
+                    "brand",
+                    "model",
+                    "magnification",
+                    "objective_diameter_mm",
+                    "image_stabilized",
+                ],
+            )
+            self.assertEqual(row, ("NightScope", "Legacy 10x50", 10, 50, 1))
 
     def test_messier_seed_restores_missing_rows_without_overwriting(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
