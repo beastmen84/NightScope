@@ -20,8 +20,9 @@ NightScope is organized around a small desktop application package:
 - `astro_viewer/app/database`: SQLite bootstrap, migrations, repositories and
   import helpers.
 - `astro_viewer/app/models`: dataclasses used as service and controller DTOs.
-- `astro_viewer/data`: runtime database, schema, catalog CSV files, seed data and
-  Skyfield ephemeris files.
+- `astro_viewer/data`: schema, catalog CSV files, seed data and Skyfield
+  ephemeris files. The runtime SQLite database is created as `nightscope.db`
+  next to the application/repository root and is not distributed as seed data.
 - `astro_viewer/resources`: icons, images and themes consumed by QML and build
   packaging.
 - `astro_viewer/tests`: unittest/pytest-compatible regression tests.
@@ -77,8 +78,9 @@ Important pages:
 - `ObjectDetailPage.qml`: selected object detail and setup alternatives.
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`: profile and equipment management.
-- `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`: location, weather
-  and calendar workflows.
+- `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
+  `EventDetailPage.qml`: location, weather, calendar list and calendar event
+  detail workflows.
 
 ### AppController
 
@@ -94,6 +96,7 @@ Important pages:
 - sky quality, seeing/transparency and advanced scores,
 - night plan, sky map and notifications,
 - selected object and detail dictionaries,
+- calendar event setup text and object-detail target mapping,
 - QML signals for every major dependent property.
 
 It also coordinates:
@@ -161,7 +164,9 @@ Home recommendation flow:
 4. `ObservingScoreService` selects the best object.
 5. `NightPlannerService` produces the observing plan unless weather is blocking.
 6. `AppController` exposes the centralized blocking state to QML.
-7. QML presents either the plan or a global "Sessione sconsigliata" warning.
+7. QML presents the plan, a global "Sessione da monitorare" warning with a
+   potential observing window, or a full "Sessione sconsigliata" warning when
+   no useful window is expected.
 
 Object detail flow:
 
@@ -169,6 +174,17 @@ Object detail flow:
 2. `AppController` resolves the selected object from current enriched lists.
 3. Detail fields, setup options and reasoning are generated from the selected
    object, active equipment, weather, Moon, seeing and sky quality.
+
+Calendar event detail flow:
+
+1. `CalendarPage.qml` selects an event from the inline calendar list.
+2. `EventDetailPage.qml` renders practical observing text, profile guidance and
+   field tips without changing event calculations.
+3. `AppController._event_to_qml` enriches events with active-profile setup text
+   and `targetObjectId` when the event maps to a known object.
+4. Planetary opposition/conjunction events map to their planet object. Moon
+   phases and lunar eclipses map to `moon`, allowing the existing object detail
+   navigation to be reused.
 
 ## Refresh Flow
 
@@ -286,3 +302,5 @@ For future changes:
   controller state.
 - When changing Moon or light-pollution logic, verify galaxy, nebula, globular
   cluster and open-cluster ranking separately.
+- When changing calendar event copy or event-to-object linking, keep practical
+  text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.

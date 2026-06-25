@@ -159,27 +159,51 @@ Labels:
 
 If no forecast is available, the output is `Pessima`, score 0.
 
-## Blocking Weather And "Sessione Sconsigliata"
+## Blocking Weather And Session State
 
-The observing plan is blocked by `NightPlannerService` when any of these are
-true:
+The observing plan is blocked by `NightPlannerService.weather_blocking_status`
+when any of these are true:
 
 - observing score <= 25,
 - precipitation probability >= 65,
 - cloud cover >= 85.
 
-The home page displays a global warning when the plan is empty and blocking
-weather is detected. The blocking decision is centralized in
-`NightPlannerService.weather_blocking_status` and exposed through
-`AppController`.
+The blocking decision is centralized in Python and exposed through
+`AppController`. QML renders the computed state and does not duplicate the
+blocking thresholds.
 
-When blocking weather is active, object-specific astronomical reasoning is still
-kept, but the global warning explains that the session is not reliable.
+NightScope presents three session states:
+
+- `recommended`: no global blocking warning; the normal observing plan is
+  displayed.
+- `monitor`: current summary is blocked, but the forecast still contains a
+  realistic later observing window. The warning shows "Sessione da monitorare",
+  the best predicted window and potential targets.
+- `discouraged`: current summary is blocked and no useful observing window is
+  found. The warning shows "Sessione sconsigliata" and hides target/window
+  suggestions.
+
+The `monitor` state is selected when `AppController` finds at least two
+consecutive usable night forecast hours. A usable hour currently requires:
+
+- precipitation probability <= 35,
+- cloud cover <= 65,
+- wind <= 28 km/h,
+- per-hour observing score >= 45.
+
+Hours are considered consecutive if they are no more than about 90 minutes
+apart, allowing normal hourly forecast spacing across midnight.
+
+When a session warning is active, object-specific astronomical reasoning is
+still kept, but the global warning explains whether targets are only potential
+or whether the session is not advisable.
 
 Presentation:
 
-- QML renders `isObservingSessionBlocked`, `blockingReason`, `blockingDetail`
-  and `suggestedObservingWindow`; it does not duplicate the blocking thresholds.
+- QML renders `observingSessionState`, `observingSessionTitle`,
+  `observingSessionIcon`, `observingSessionDetail`,
+  `observingSessionDescription`, `showObservingSessionOpportunity`,
+  `blockingReason`, `blockingDetail` and `suggestedObservingWindow`.
 
 ## Seeing And Transparency
 

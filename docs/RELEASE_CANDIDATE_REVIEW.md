@@ -6,6 +6,12 @@ Scope: architecture, calculations, code quality, documentation, tests, coverage
 and maintainability. No new features were implemented. PyInstaller was not run
 and `dist/` was not modified.
 
+Post-review note: this file preserves the original release-candidate findings.
+Several release-gate items were later addressed during v1.0 stabilization:
+`ruff` is clean, weather blocking is centralized in Python, the runtime
+database initialization/update path is portable, and standard validation can be
+run with `python tools/run_checks.py`.
+
 ## Executive Result
 
 NightScope is functionally coherent and the core calculation services are better
