@@ -12,6 +12,7 @@ Rectangle {
     property color headerBadgeColor: accentColor
     property string headerActionText: ""
     property bool headerActionEnabled: true
+    property int headerActionWidth: 116
     property color headerActionAccentColor: accentColor
     property string headerActionToolTip: ""
     default property alias content: contentColumn.data
@@ -74,7 +75,7 @@ Rectangle {
 
             DarkButton {
                 visible: root.headerActionText.length > 0
-                Layout.preferredWidth: 116
+                Layout.preferredWidth: root.headerActionWidth
                 Layout.alignment: Qt.AlignTop
                 text: root.headerActionText
                 enabled: root.headerActionEnabled

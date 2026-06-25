@@ -301,9 +301,10 @@ Item {
                     subtitle: controller.earthdataConnectionVerified ? "Connessione LAADS verificata" : (controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS")
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
                     headerActionText: "Create account"
-                    headerActionEnabled: !controller.earthdataConnectionVerified
+                    headerActionWidth: 148
+                    headerActionEnabled: !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified && !controller.earthdataAuthorizationRequired
                     headerActionAccentColor: theme.cyan
-                    headerActionToolTip: controller.earthdataConnectionVerified ? "Account already configured" : "Create a NASA Earthdata account"
+                    headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired ? "Account already configured" : "Create a NASA Earthdata account"
                     onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)
 
                     Connections {

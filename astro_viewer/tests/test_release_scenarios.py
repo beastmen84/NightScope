@@ -386,8 +386,13 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("visible: controller.recentLocations.length > 0", qml)
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
         self.assertIn('headerActionText: "Create account"', qml)
-        self.assertIn("headerActionEnabled: !controller.earthdataConnectionVerified", qml)
-        self.assertIn('headerActionToolTip: controller.earthdataConnectionVerified ? "Account already configured"', qml)
+        self.assertIn("headerActionWidth: 148", qml)
+        self.assertIn("!controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified", qml)
+        self.assertIn("&& !controller.earthdataAuthorizationRequired", qml)
+        self.assertIn(
+            'headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired',
+            qml,
+        )
         self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
