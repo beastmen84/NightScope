@@ -469,6 +469,7 @@ Item {
         title: "Aggiungi equipaggiamento"
         preferredWidth: 960
         showAccept: false
+        cancelText: "Chiudi"
 
         DarkTextField {
             Layout.fillWidth: true
@@ -534,6 +535,7 @@ Item {
         id: removeEquipmentDialog
         title: "Rimuovi equipaggiamento"
         showAccept: false
+        cancelText: "Chiudi"
 
         RowLayout {
             Layout.fillWidth: true
