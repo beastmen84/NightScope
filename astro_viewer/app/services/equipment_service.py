@@ -36,20 +36,54 @@ class EquipmentService:
             return []
         rows = []
         for eyepiece in eyepieces:
-            for focal_position in self._eyepiece_focal_positions(eyepiece, eyepiece.focal_length_mm):
-                magnification = (telescope.focal_length_mm / focal_position["focal"]) * barlow
-                true_field = eyepiece.apparent_field_deg / magnification
-                exit_pupil = telescope.aperture_mm / magnification
+            for focal_position in self.eyepiece_focal_positions(eyepiece):
+                values = self.telescope_configuration_values(
+                    telescope,
+                    eyepiece,
+                    focal_position["focal"],
+                    barlow_multiplier=barlow,
+                )
                 rows.append(
                     {
                         "eyepiece": eyepiece.name if eyepiece.eyepiece_type != "Zoom" else f"{eyepiece.name} @ {focal_position['position']}",
-                        "magnification": f"{magnification:.0f}x",
-                        "trueField": f"{true_field:.2f} gradi",
-                        "exitPupil": f"{exit_pupil:.1f} mm",
+                        "magnification": f"{values['magnification']:.0f}x",
+                        "trueField": f"{values['true_field_of_view_deg']:.2f} gradi",
+                        "exitPupil": f"{values['exit_pupil_mm']:.1f} mm",
                         "barlow": f"{barlow:g}x",
                     }
                 )
         return rows
+
+    def barlow_options(self, barlows: list[Barlow]) -> list[Barlow | None]:
+        return self._barlow_options(barlows)
+
+    def eyepiece_focal_positions(self, eyepiece: Eyepiece, ideal_focal_mm: float | None = None) -> list[dict]:
+        return self._eyepiece_focal_positions(
+            eyepiece,
+            eyepiece.focal_length_mm if ideal_focal_mm is None else ideal_focal_mm,
+        )
+
+    def telescope_configuration_values(
+        self,
+        telescope: Telescope,
+        eyepiece: Eyepiece,
+        focal_mm: float,
+        barlow: Barlow | None = None,
+        barlow_multiplier: float | None = None,
+    ) -> dict[str, float]:
+        multiplier = barlow_multiplier if barlow_multiplier is not None else (barlow.multiplier if barlow else 1.0)
+        magnification = (telescope.focal_length_mm / focal_mm) * multiplier
+        true_field = eyepiece.apparent_field_deg / magnification
+        exit_pupil = telescope.aperture_mm / magnification
+        limiting_magnitude = 2 + 5 * self._log10(max(1.0, telescope.aperture_mm))
+        resolution = 116 / telescope.aperture_mm
+        return {
+            "magnification": magnification,
+            "true_field_of_view_deg": true_field,
+            "exit_pupil_mm": exit_pupil,
+            "limiting_magnitude_estimate": limiting_magnitude,
+            "resolution_estimate": resolution,
+        }
 
     def telescope_capabilities(self, telescope: Telescope) -> dict:
         return self.profile_capabilities(telescope, [], [])
@@ -201,16 +235,17 @@ class EquipmentService:
         profile = self._target_profile(celestial_object, telescope, seeing, sky_quality)
         combinations = []
         for eyepiece in eyepieces:
-            for barlow in self._barlow_options(barlows):
+            for barlow in self.barlow_options(barlows):
                 multiplier = barlow.multiplier if barlow else 1.0
                 ideal_focal = telescope.focal_length_mm * multiplier / max(profile["idealMag"], 1.0)
-                for focal_position in self._eyepiece_focal_positions(eyepiece, ideal_focal):
+                for focal_position in self.eyepiece_focal_positions(eyepiece, ideal_focal):
                     focal_mm = focal_position["focal"]
-                    magnification = (telescope.focal_length_mm / focal_mm) * multiplier
+                    values = self.telescope_configuration_values(telescope, eyepiece, focal_mm, barlow)
+                    magnification = values["magnification"]
                     if magnification <= 0:
                         continue
-                    true_field = eyepiece.apparent_field_deg / magnification
-                    exit_pupil = telescope.aperture_mm / magnification
+                    true_field = values["true_field_of_view_deg"]
+                    exit_pupil = values["exit_pupil_mm"]
                     score = self._combination_score(profile, magnification, true_field, exit_pupil, multiplier)
                     score += self._telescope_suitability_score(celestial_object, telescope, sky_quality)
                     label = eyepiece.name + (f" + {barlow.name}" if barlow else "")
@@ -247,10 +282,11 @@ class EquipmentService:
         configurations = []
         seen = set()
         for eyepiece in eyepieces:
-            for barlow in self._barlow_options(barlows):
+            for barlow in self.barlow_options(barlows):
                 multiplier = barlow.multiplier if barlow else 1.0
-                for focal_position in self._eyepiece_focal_positions(eyepiece, eyepiece.focal_length_mm):
-                    magnification = round((telescope.focal_length_mm / focal_position["focal"]) * multiplier)
+                for focal_position in self.eyepiece_focal_positions(eyepiece):
+                    values = self.telescope_configuration_values(telescope, eyepiece, focal_position["focal"], barlow)
+                    magnification = round(values["magnification"])
                     key = (eyepiece.id, focal_position["position"], multiplier, magnification)
                     if key in seen:
                         continue
