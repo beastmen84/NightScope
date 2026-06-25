@@ -37,6 +37,13 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 MESSIER_OBSERVATION_TYPES,
                 row["messier_id"],
             )
+        observation_types = {
+            row["messier_id"]: row["recommended_observation_type"]
+            for row in rows
+        }
+        self.assertEqual(observation_types["M27"], "General")
+        self.assertEqual(observation_types["M97"], "General")
+        self.assertEqual(observation_types["M107"], "General")
 
     def test_messier_seed_contains_all_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
