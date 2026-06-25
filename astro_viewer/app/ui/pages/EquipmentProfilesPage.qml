@@ -349,7 +349,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Exit pupil"
+                    text: "Pupilla d’uscita"
                     color: theme.textSecondary
                     font.pixelSize: 12
                     elide: Text.ElideRight
@@ -593,10 +593,13 @@ Item {
 
                 delegate: DarkButton {
                     text: modelData
-                    checkable: true
+                    checkable: false
                     checked: root.addFilter === modelData
                     accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : modelData === "Binocoli" ? theme.cyan : theme.violet
-                    onClicked: root.addFilter = modelData
+                    onClicked: {
+                        if (root.addFilter !== modelData)
+                            root.addFilter = modelData
+                    }
                 }
             }
         }
