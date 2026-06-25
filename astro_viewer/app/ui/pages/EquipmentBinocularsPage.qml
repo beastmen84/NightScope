@@ -20,7 +20,6 @@ Item {
         binocularFov.text = item.true_fov_deg ? String(item.true_fov_deg) : ""
         binocularWeight.text = item.weight_g ? String(item.weight_g) : ""
         binocularStabilized.checked = item.image_stabilized || false
-        binocularNotes.text = item.notes || ""
         binocularDialog.title = "Modifica modello"
         binocularDialog.open()
     }
@@ -34,7 +33,6 @@ Item {
         binocularFov.text = ""
         binocularWeight.text = ""
         binocularStabilized.checked = false
-        binocularNotes.text = ""
         binocularDialog.title = "Aggiungi modello"
         binocularDialog.open()
     }
@@ -79,7 +77,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Binocoli"
+                        text: "Catalogo binocoli"
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -210,15 +208,6 @@ Item {
                 }
             }
 
-            Text {
-                Layout.fillWidth: true
-                text: itemData.spec_label
-                color: theme.textSecondary
-                font.pixelSize: 12
-                elide: Text.ElideRight
-                maximumLineCount: 1
-            }
-
             Flow {
                 Layout.fillWidth: true
                 spacing: 8
@@ -236,9 +225,9 @@ Item {
         acceptText: "Salva"
         onAccepted: {
             if (root.editModel.id !== undefined) {
-                controller.updateBinocularModel(root.editModel.id, binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularFov.text, binocularWeight.text, binocularStabilized.checked, binocularNotes.text)
+                controller.updateBinocularModel(root.editModel.id, binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularFov.text, binocularWeight.text, binocularStabilized.checked, "")
             } else {
-                controller.addBinocularModel(binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularFov.text, binocularWeight.text, binocularStabilized.checked, binocularNotes.text)
+                controller.addBinocularModel(binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularFov.text, binocularWeight.text, binocularStabilized.checked, "")
             }
         }
 
@@ -252,10 +241,9 @@ Item {
             DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: "Modello" }
             DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: "Ingrandimento"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: "Diametro obiettivo mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: binocularFov; Layout.fillWidth: true; placeholderText: "Campo reale °"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: binocularWeight; Layout.fillWidth: true; placeholderText: "Peso g"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularFov; Layout.fillWidth: true; placeholderText: "Campo reale (°)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularWeight; Layout.fillWidth: true; placeholderText: "Peso (g)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: "Stabilizzato" }
-            DarkTextField { id: binocularNotes; Layout.fillWidth: true; placeholderText: "Note" }
         }
     }
 
