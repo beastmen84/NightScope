@@ -61,6 +61,20 @@ Suite test:
 .\.venv\Scripts\python.exe -m compileall astro_viewer
 ```
 
+## Validazione
+
+Esegui tutti i controlli standard con:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py
+```
+
+Modalità rapida senza coverage:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --fast
+```
+
 ## Build Windows
 
 ```powershell
