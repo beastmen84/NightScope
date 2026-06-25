@@ -1,0 +1,588 @@
+# NightScope 1.1 Recommendation Architecture
+
+This document describes the current recommendation architecture after the
+NightScope 1.1 profile, binocular and recommendation refactors.
+
+The recommendation system has one main rule:
+
+> Python owns recommendation decisions. QML renders the recommendation data
+> already produced by the backend.
+
+## High-Level Flow
+
+```text
+TargetObservationTraits
++
+ObservationConfigurationBuilder
+    |
+    v
+ObservationConfiguration
+    |
+    v
+RecommendationCandidate
+    |
+    v
+EquipmentService scoring and selection
+    |
+    v
+RecommendationPresenter
+    |
+    v
+AppController
+    |
+    v
+Home / Object Detail / Calendar / Planner
+```
+
+Two inputs meet inside the recommendation pipeline:
+
+- `TargetObservationTraits` describes what the target needs.
+- `ObservationConfigurationBuilder` describes what the active profile can do.
+
+`EquipmentService` compares those two sides and selects the best
+`RecommendationCandidate`. `RecommendationPresenter` serializes the selected
+candidate into the UI-facing DTO used by `AppController` and QML.
+
+## Responsibilities
+
+### TargetObservationTraits
+
+`TargetObservationTraits` is the normalized target-observation model.
+
+It reads a `CelestialObject` and exposes:
+
+- object type and lower-case object type
+- parsed magnitude
+- parsed apparent size in arcminutes
+- angular size in degrees
+- Messier `max_angular_size_deg`, when available
+- max altitude in degrees
+- `recommended_observation_type`
+- surface-brightness proxy
+- booleans for wide-field, high-magnification, general, planetary/lunar and
+  deep-sky targets
+
+It prefers machine-readable Messier metadata and falls back to text parsing and
+legacy object-type interpretation when metadata is missing.
+
+### ObservationConfigurationBuilder
+
+`ObservationConfigurationBuilder` is target-agnostic.
+
+It enumerates every physically available observing configuration from the
+active profile. It does not know about targets, object types, Messier metadata,
+scores, rankings or explanations.
+
+It currently builds:
+
+- telescope configurations from assigned telescopes, eyepieces and Barlows
+- binocular configurations from assigned binoculars
+
+### ObservationConfiguration
+
+`ObservationConfiguration` is the normalized optical setup model.
+
+It represents one complete setup and stores:
+
+- `configuration_id`
+- `equipment_type`
+- magnification
+- exit pupil
+- true field of view, when known
+- limiting magnitude estimate, when known
+- resolution estimate, when known
+- image-stabilization flag
+- references to telescope, eyepiece, Barlow or binocular as applicable
+- sampled zoom focal position when applicable
+
+The recommendation system should not need to infer whether a setup came from a
+telescope, a telescope plus Barlow, a zoom eyepiece position or a binocular.
+That information is normalized here.
+
+### RecommendationCandidate
+
+`RecommendationCandidate` wraps an `ObservationConfiguration` with
+recommendation-scoring metadata:
+
+- score
+- display label
+- detail label
+- Barlow multiplier and label
+- telescope name
+
+It exposes convenience properties for equipment type, setup type, telescope,
+eyepiece, Barlow, binocular, focal position, magnification, true field and exit
+pupil.
+
+This is the primary internal representation passed from configuration
+enumeration into scoring and presentation.
+
+### EquipmentService
+
+`EquipmentService` owns recommendation scoring and selection.
+
+Its responsibilities are:
+
+- build ranked candidates for one telescope or the whole active profile
+- derive target profiles from `TargetObservationTraits`
+- score telescope configurations against target profiles
+- score binocular configurations conservatively
+- apply seeing-limited magnification
+- apply Barlow preference rules
+- select the recommended candidate
+- choose fallback DTOs through `RecommendationPresenter` when no useful optical
+  setup exists
+
+It does not own QML layout. It still contains the central scoring logic and is
+the main domain service for equipment recommendations.
+
+### RecommendationPresenter
+
+`RecommendationPresenter` owns UI-facing serialization.
+
+It converts selected `RecommendationCandidate` objects into the existing DTO
+shape consumed by QML:
+
+- `setupText`
+- `setupOptions`
+- `bestEyepiece`
+- `barlow`
+- `difficulty`
+- `alternative`
+- `highMagnification`
+- `wideField`
+- `explanation`
+- `equipmentType`
+- `setupType`
+- `selectionScore`
+
+It formats telescope, binocular, naked-eye and fallback recommendations without
+changing scoring.
+
+### AppController
+
+`AppController` is the application-facing coordinator.
+
+It:
+
+- reads the active profile equipment
+- calls `EquipmentService.suggest_for_profile()`
+- stores the presenter DTO fields into `CelestialObject`
+- exposes objects and recommendations to QML
+- keeps Calendar recommendations aligned with Home and Object Detail by using
+  the same profile-aware recommendation path
+
+It also contains some object-detail explanatory text helpers. Those helpers are
+presentation-oriented and should not become a second recommendation decision
+engine.
+
+### QML / UI
+
+QML should render backend recommendation data.
+
+Home now uses the backend-provided `Consigliato` setup option and
+`equipmentExplanation`. It no longer decides that a target should display
+`Campo largo` or `Alternativa` by inspecting object type strings.
+
+Object Detail, Calendar and Planner consume the same backend fields. UI code may
+format a binocular setup differently from a telescope setup, but it should not
+choose the recommendation.
+
+## Telescope Path
+
+### Configuration Generation
+
+For telescope profiles, the builder generates combinations of:
+
+```text
+assigned telescope
+x assigned eyepiece
+x assigned Barlow option
+```
+
+The Barlow options include the explicit no-Barlow setup plus every assigned
+Barlow with multiplier greater than 1.0.
+
+For each combination, `EquipmentService.telescope_configuration_values()`
+provides:
+
+- magnification
+- true field of view
+- exit pupil
+- limiting magnitude estimate
+- resolution estimate
+
+These become `ObservationConfiguration` instances.
+
+### Zoom Eyepiece Sampling
+
+Zoom eyepieces remain a single catalogue/profile equipment record.
+
+Target-aware zoom sampling is preserved by passing a focal-position provider
+from `EquipmentService` into `ObservationConfigurationBuilder`. The provider
+derives an ideal focal length from the target profile and samples:
+
+- clamped ideal zoom focal position
+- low end
+- high end
+- midpoint
+
+Duplicate sampled positions are removed.
+
+This keeps the builder target-agnostic while preserving the existing
+target-aware zoom recommendation behavior.
+
+### Telescope Target Profiles
+
+`EquipmentService._target_profile()` derives the observing profile from
+`TargetObservationTraits`.
+
+When Messier metadata exists:
+
+- `WideField` favors lower magnification, larger true field and no Barlow.
+- `HighMagnification` favors higher magnification and allows Barlow when seeing
+  supports it.
+- `General` favors medium magnification and balanced exit pupil/field.
+
+Planetary and lunar targets remain special physical cases because seeing,
+altitude and useful magnification matter strongly.
+
+When metadata is absent, legacy object-type fallbacks still apply for globular
+clusters, planetary nebulae, open clusters, galaxies and nebulae.
+
+### Seeing-Limited Magnification
+
+`EquipmentService._seeing_limited_magnification()` caps useful magnification by
+seeing score and telescope aperture.
+
+The target profile stores `maxUsefulMag`; `_combination_score()` penalizes any
+candidate exceeding that limit. This keeps planetary and high-magnification
+recommendations from selecting unrealistic setups under poor seeing.
+
+### Barlow Selection Rule
+
+All telescope candidates are scored, including no-Barlow and Barlow variants.
+
+Barlow use is:
+
+- penalized when the target profile is not Barlow-friendly
+- lightly penalized even when allowed
+- additionally penalized for wide-field mode
+
+After scoring, `_recommended_candidate()` keeps the best candidate unless it is
+a Barlow telescope candidate only marginally better than the best no-Barlow
+candidate. If the Barlow advantage is not meaningful, the no-Barlow candidate is
+selected.
+
+## Binocular Path
+
+### Catalogue and Profile Support
+
+Binoculars have a global catalogue and can be assigned to profiles. The
+recommendation engine only considers binoculars assigned to the active profile.
+Global catalogue binoculars are ignored unless assigned.
+
+The current binocular model stores:
+
+- brand/model name
+- magnification
+- objective diameter in millimeters
+- image-stabilized flag
+
+### Configuration Generation
+
+One assigned binocular creates one `ObservationConfiguration`.
+
+The builder sets:
+
+- `equipment_type = "Binocular"`
+- magnification from the binocular model
+- exit pupil as `objective_diameter_mm / magnification`
+- image-stabilized flag
+
+Binocular true field of view is currently not stored, so
+`true_field_of_view_deg` remains `None`.
+
+### Binocular Scoring Principles
+
+Binocular scoring is conservative and target-aware inside `EquipmentService`.
+
+Wide-field targets receive meaningful bonuses, especially when angular size is
+large. Examples include M31, M45, M44 and other large bright targets.
+
+High-magnification targets are strongly penalized. Small planetary nebulae,
+planets and compact targets should prefer telescopes when available.
+
+General targets may be acceptable in binoculars, but binoculars should not
+automatically beat a suitable telescope. Magnitude, angular size, objective
+diameter, exit pupil, magnification class, image stabilization and sky quality
+all influence the binocular score.
+
+Current binocular assumptions:
+
+- 7x to 10x: wide-field capable
+- 11x to 15x: medium/wide capable
+- 16x and higher: narrower binocular use, with handheld penalty unless image
+  stabilized
+- exit pupil around 4-6 mm is favorable
+- image stabilization gives a small bonus, especially around 12x-18x
+
+### Binocular-Only Profiles
+
+If a profile has binoculars and no telescopes:
+
+- wide-field targets can receive useful binocular recommendations
+- high-magnification targets can still return a cautious binocular
+  recommendation rather than a telescope placeholder
+- if no optical equipment exists, the existing naked-eye fallback remains
+
+### Mixed Profiles
+
+In mixed profiles, telescope and binocular configurations become candidates in
+the same ranked list.
+
+This allows:
+
+- binoculars to win for large wide-field targets
+- telescopes to win for high-magnification and detail-oriented targets
+- general objects to remain conservative
+
+## Messier Observation Metadata
+
+Messier catalogue entries include two machine-readable recommendation fields.
+
+### max_angular_size_deg
+
+`max_angular_size_deg` is the largest apparent angular dimension of the target,
+stored in degrees.
+
+It is preferred over parsing textual apparent-size strings. It allows the
+recommendation system to reason about observing scale directly.
+
+Examples:
+
+- very large objects push toward wide-field telescope configurations or
+  binoculars
+- very small objects push away from binoculars and toward higher-magnification
+  telescope setups
+
+### recommended_observation_type
+
+Allowed values:
+
+- `WideField`
+- `General`
+- `HighMagnification`
+
+This field describes the recommended observing scale. It influences both
+telescope target profiles and binocular scoring.
+
+Current behavior:
+
+- `WideField`: lower magnification, wider field, Barlow-unfriendly, binoculars
+  competitive
+- `General`: medium magnification, balanced exit pupil and field, binoculars
+  considered cautiously
+- `HighMagnification`: higher magnification, binocular penalty, Barlow may be
+  acceptable if seeing supports it
+
+### Fallback Behavior
+
+When metadata is missing or invalid, `TargetObservationTraits` falls back to:
+
+- planet/lunar IDs and object type
+- parsed apparent-size text
+- legacy object-type interpretation
+
+Legacy fallbacks keep older catalogue objects functional while allowing Messier
+objects to move toward a data-driven observing model.
+
+## UI Presentation
+
+### Backend Decision Ownership
+
+The backend owns:
+
+- recommended setup selection
+- setup option roles
+- explanation text
+- setup type
+- equipment type
+- binocular/telescope distinction
+
+QML should render those fields.
+
+### Home
+
+Home renders:
+
+- backend `Consigliato` option from `setupOptions`
+- backend `equipmentExplanation`
+- binocular setup formatting based on `equipmentType`
+
+Home no longer chooses `Alternativa` or `Campo largo` by reading object type
+strings.
+
+### Object Detail
+
+Object Detail uses `recommendedSetupType`, `setupOptions` and `equipmentType` to
+display telescope and binocular setups without empty eyepiece/Barlow
+placeholders.
+
+`AppController._setup_reason()` still builds detail-page explanatory text from
+the selected setup and object type. This is presentation logic, but it should
+not become a separate recommendation decision path.
+
+### Calendar
+
+Calendar now uses `_calendar_profile_setup()`, which calls the same
+profile-aware `EquipmentService.suggest_for_profile()` path used by Home and
+Object Detail. This prevents Calendar from bypassing binoculars or mixed-profile
+recommendations.
+
+Meteor showers and some lunar/eclipse event text remain event-specific because
+they are not ordinary equipment recommendations.
+
+### Planner
+
+Planner items receive the `recommended_setup` already attached to
+`CelestialObject` after `AppController._apply_equipment()` has run. Planner
+ranking itself is not yet fully configuration-aware.
+
+## Known Technical Debt
+
+### EquipmentService Still Centralizes Scoring
+
+Severity: Medium.
+
+`EquipmentService` still owns target-profile derivation, telescope scoring,
+binocular scoring, seeing handling, Barlow preference and candidate selection.
+The responsibilities are clearer than before, but the class remains the central
+recommendation decision point.
+
+Possible future cleanup: extract a dedicated `ConfigurationScorer` or separate
+telescope/binocular scorer classes while preserving the same
+`RecommendationCandidate` inputs.
+
+### Planner Ranking Is Not Fully Configuration-Aware
+
+Severity: Medium.
+
+Planner recommendation text comes from the profile-aware path, but Planner
+ranking still primarily reflects object/weather/moon visibility logic. It does
+not yet rank observing plans by best available `ObservationConfiguration`.
+
+### QML Must Remain Presentation-Only
+
+Severity: Low to Medium.
+
+Home has been cleaned up, but UI code should continue to be reviewed when new
+equipment types are introduced. QML may branch on `setupType` or
+`equipmentType` for display, but should not decide which setup is better.
+
+### AppController Contains Some Presentation Reason Text
+
+Severity: Low.
+
+`AppController._setup_reason()` still formats object-detail explanations using
+object type and selected setup metrics. This is acceptable as presentation
+logic, but it overlaps conceptually with `RecommendationPresenter` explanation
+formatting.
+
+Possible future cleanup: move all recommendation explanation formatting into
+`RecommendationPresenter`.
+
+### Legacy Capability Helpers Still Return Dictionaries
+
+Severity: Low.
+
+Profile capability display still uses dictionary-shaped helper output for
+available telescope configurations. This is separate from recommendation
+selection, but it is another place where telescope configuration data is
+represented outside `ObservationConfiguration`.
+
+## Future Extension Points
+
+### Smart Telescopes
+
+Smart telescopes can be added as a new `equipment_type`.
+
+Expected path:
+
+- add catalogue/profile model
+- extend `ObservationConfigurationBuilder` to emit smart-telescope
+  configurations
+- add scoring logic in `EquipmentService` or a future `ConfigurationScorer`
+- extend `RecommendationPresenter` formatting for the new setup type
+- keep QML rendering based on backend DTO fields
+
+### Spotting Scopes
+
+Spotting scopes can likely reuse much of the telescope path if they have focal
+length/aperture and compatible eyepieces. If they are fixed-zoom instruments,
+they may be better represented as one or more direct configurations.
+
+The builder should normalize them into `ObservationConfiguration` objects before
+scoring.
+
+### Focal Reducers
+
+Focal reducers should become configuration modifiers similar to Barlows but
+with inverse optical effects:
+
+- lower magnification
+- larger true field
+- larger exit pupil
+
+They should be included by the builder as part of configuration enumeration,
+not handled in QML.
+
+### Filters
+
+Filters should probably not be modeled as optical configurations until the app
+has target/filter compatibility data.
+
+Future filter support should compare target traits against filter capabilities,
+for example nebula emission type or lunar/planetary contrast use. The selected
+filter could then be attached to `RecommendationCandidate` or a successor model.
+
+### Additional Catalogues
+
+Additional object catalogues should expose the same kind of machine-readable
+observing metadata used by Messier:
+
+- angular scale
+- recommended observation type
+- magnitude
+- object class
+
+The recommendation engine should continue moving from category shortcuts toward
+matching target observing needs against available configuration capabilities.
+
+## Current Architectural Direction
+
+The current architecture is intentionally transitional:
+
+- configuration enumeration is normalized
+- recommendation candidates are typed
+- binoculars participate in scoring
+- Messier metadata influences telescope and binocular scoring
+- Home renders backend recommendation decisions
+
+The next long-term architectural improvement would be to extract scoring from
+`EquipmentService` into a dedicated scorer while keeping the same flow:
+
+```text
+TargetObservationTraits
++
+ObservationConfiguration
+    |
+    v
+RecommendationCandidate
+    |
+    v
+ConfigurationScorer
+    |
+    v
+RecommendationPresenter
+```
