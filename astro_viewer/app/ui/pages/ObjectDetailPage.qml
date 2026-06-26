@@ -89,7 +89,7 @@ Item {
             { "label": "Sorge", "value": objectData.riseTime, "accent": theme.teal },
             { "label": "Transita", "value": objectData.culminationTime, "accent": theme.green },
             { "label": "Tramonta", "value": objectData.setTime, "accent": theme.amber },
-            { "label": "Osservabile", "value": objectData.catalogueObservableLabel, "accent": objectData.catalogueObservable === true ? theme.green : theme.textMuted },
+            { "label": "Utile (≥15°)", "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
             { "label": "Visibile nel mese", "value": objectData.catalogueVisibleThisMonthLabel, "accent": objectData.catalogueVisibleThisMonth === true ? theme.green : theme.textMuted }
         ]
         var result = []

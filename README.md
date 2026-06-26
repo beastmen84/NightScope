@@ -10,7 +10,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Piano osservativo consigliato, altri pianeti visibili e oggetti di cielo profondo filtrati per profilo attivo.
 - Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
-- Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri e apertura del dettaglio oggetto.
+- Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
+  colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
 - Catalogo Messier offline e descrizioni osservative locali, esposto tramite un modello catalogo generico.
 - Meteo Open-Meteo con cache SQLite, timeout breve e fallback controllato.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.

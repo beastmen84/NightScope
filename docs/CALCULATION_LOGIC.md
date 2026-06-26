@@ -68,6 +68,24 @@ Deep-sky visibility uses:
 
 The engine returns the top visible deep-sky objects by score.
 
+### Catalogue Observability
+
+The `Oggetti celesti` catalogue keeps two location-dependent concepts separate
+for fixed-coordinate catalogue objects:
+
+- geometric observability: the object rises above the horizon from the active
+  location at least once (`maximum altitude > 0°`);
+- useful deep-sky observability: the object reaches the useful deep-sky altitude
+  threshold (`maximum altitude >= 15°`).
+
+The catalogue UI currently displays only useful deep-sky observability in the
+`Utile (≥15°)` column. Geometric observability is kept internally so that
+low southern Messier objects can still be distinguished from objects that never
+rise at all. Solar-System objects do not use this location-only fixed-coordinate
+column because their coordinates are time-dependent; the catalogue shows `—`
+for them in `Utile (≥15°)` and uses the monthly visibility calculation
+instead.
+
 ### Object Score
 
 The raw object score is based on:

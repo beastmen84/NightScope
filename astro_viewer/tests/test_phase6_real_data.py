@@ -774,7 +774,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'TableHeader { text: "Magnitudine"',
             'TableHeader { text: "Dimensione"',
             'TableHeader { text: "Osservazione"',
-            'TableHeader { text: "Osservabile"',
+            'TableHeader { text: "Utile (≥15°)"; Layout.preferredWidth: 104 }',
             'TableHeader { text: "Visibile nel mese"',
         ):
             self.assertIn(table_header, object_catalogue_qml)
@@ -783,7 +783,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn('TableHeader { text: "Dim."', object_catalogue_qml)
         self.assertNotIn('TableHeader { text: "Osserv."', object_catalogue_qml)
         self.assertIn("root.textOrDash(itemData.constellation)", object_catalogue_qml)
-        self.assertIn("observable_label", object_catalogue_qml)
+        self.assertIn("is_usefully_observable_label", object_catalogue_qml)
+        self.assertIn("root.usefulObservableText(itemData)", object_catalogue_qml)
         self.assertIn("visible_this_month_label", object_catalogue_qml)
         self.assertNotIn('controller.catalogueFilteredCount + " / " + controller.catalogueTotalCount', object_catalogue_qml)
         self.assertIn("backLabel", object_detail_qml)
@@ -835,12 +836,12 @@ class Phase6RealDataTests(unittest.TestCase):
             '"label": "Osservazione"',
             '"label": "A.R."',
             '"label": "Dec"',
-            '"label": "Osservabile"',
+            '"label": "Utile (≥15°)"',
             '"label": "Visibile nel mese"',
         ):
             self.assertIn(label, object_detail_qml)
-        self.assertIn("objectData.catalogueObservableLabel", object_detail_qml)
-        self.assertIn("objectData.catalogueObservable", object_detail_qml)
+        self.assertIn("objectData.catalogueUsefullyObservableLabel", object_detail_qml)
+        self.assertIn("objectData.catalogueUsefullyObservable", object_detail_qml)
         self.assertIn("objectData.catalogueVisibleThisMonthLabel", object_detail_qml)
         self.assertIn("objectData.catalogueVisibleThisMonth", object_detail_qml)
 
@@ -1085,7 +1086,7 @@ class Phase6RealDataTests(unittest.TestCase):
             _ = controller.catalogueObjects
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 3)
 
-    def test_catalogue_observable_depends_on_location_not_month(self) -> None:
+    def test_catalogue_useful_observability_depends_on_location_not_month(self) -> None:
         with _controller() as controller:
             astronomy = Mock()
             astronomy.catalogue_month_visibility.return_value = {}
@@ -1095,22 +1096,47 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.searchCatalogue("M4")
 
             rome_object = controller.catalogueObjects[0]
-            self.assertTrue(rome_object["observable"])
-            self.assertEqual(rome_object["observable_label"], "Sì")
-            self.assertEqual(len(controller._catalogue_observable_cache), 1)
+            self.assertTrue(rome_object["is_geometrically_observable"])
+            self.assertTrue(rome_object["is_usefully_observable"])
+            self.assertEqual(rome_object["is_usefully_observable_label"], "Sì")
+            self.assertEqual(len(controller._catalogue_observability_cache), 1)
 
             next_month = 1 if controller.catalogueSelectedMonth == 12 else controller.catalogueSelectedMonth + 1
             controller.setCatalogueMonth(next_month)
             same_location_object = controller.catalogueObjects[0]
-            self.assertTrue(same_location_object["observable"])
-            self.assertEqual(same_location_object["observable_label"], "Sì")
-            self.assertEqual(len(controller._catalogue_observable_cache), 1)
+            self.assertTrue(same_location_object["is_geometrically_observable"])
+            self.assertTrue(same_location_object["is_usefully_observable"])
+            self.assertEqual(same_location_object["is_usefully_observable_label"], "Sì")
+            self.assertEqual(len(controller._catalogue_observability_cache), 1)
 
             controller._location = ObserverLocation("Tromso", "Norway", 69.65, 18.96, "Europe/Oslo")
             controller._invalidate_catalogue_visibility_cache()
             tromso_object = controller.catalogueObjects[0]
-            self.assertFalse(tromso_object["observable"])
-            self.assertEqual(tromso_object["observable_label"], "No")
+            self.assertFalse(tromso_object["is_geometrically_observable"])
+            self.assertFalse(tromso_object["is_usefully_observable"])
+            self.assertEqual(tromso_object["is_usefully_observable_label"], "No")
+
+    def test_catalogue_geometric_and_useful_observability_are_separate(self) -> None:
+        with _controller() as controller:
+            controller._location = ObserverLocation("Bologna", "Italia", 44.4938, 11.3387, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
+
+            bologna_objects = {item["catalogue_id"]: item for item in controller.catalogueObjects}
+            for messier_id in ("M6", "M7", "M55", "M69", "M70"):
+                self.assertTrue(bologna_objects[messier_id]["is_geometrically_observable"])
+                self.assertFalse(bologna_objects[messier_id]["is_usefully_observable"])
+                self.assertEqual(bologna_objects[messier_id]["is_usefully_observable_label"], "No")
+                self.assertEqual(bologna_objects[messier_id]["observable_label"], "No")
+
+            controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+            controller._invalidate_catalogue_visibility_cache()
+            addis_messier = [item for item in controller.catalogueObjects if item["catalogue"] == "Messier"]
+            self.assertEqual(len(addis_messier), 110)
+            self.assertTrue(all(item["is_usefully_observable"] for item in addis_messier))
+
+            solar_system = [item for item in controller.catalogueObjects if item["catalogue"] == "Sistema Solare"]
+            self.assertEqual(len(solar_system), 9)
+            self.assertTrue(all(item["is_usefully_observable_label"] == "—" for item in solar_system))
 
     def test_catalogue_visible_this_month_changes_with_month(self) -> None:
         with _controller() as controller:
@@ -1235,6 +1261,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(selected["setTime"], "04:20")
             self.assertTrue(selected["catalogueVisibleThisMonth"])
             self.assertEqual(selected["catalogueVisibleThisMonthLabel"], "Sì")
+            self.assertEqual(selected["catalogueUsefullyObservableLabel"], "—")
             self.assertEqual(selected["catalogueObservableLabel"], "—")
             self.assertNotEqual(selected["catalogue"], "Messier")
             self.assertNotIn("Messier", selected["observingStatus"])
@@ -1291,6 +1318,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["rightAscension"])
             self.assertTrue(selected["declination"])
             self.assertTrue(selected["maxAngularSizeLabel"])
+            self.assertEqual(selected["catalogueUsefullyObservableLabel"], "Sì")
             self.assertEqual(selected["catalogueObservableLabel"], "Sì")
             self.assertTrue(selected["catalogueVisibleThisMonth"])
             self.assertEqual(selected["catalogueVisibleThisMonthLabel"], "Sì")

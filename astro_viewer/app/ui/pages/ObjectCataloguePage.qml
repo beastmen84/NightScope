@@ -49,10 +49,12 @@ Item {
         return item.visible_this_month === true ? "Sì" : "—"
     }
 
-    function observableText(item) {
+    function usefulObservableText(item) {
+        if (item.is_usefully_observable_label !== undefined && item.is_usefully_observable_label !== "")
+            return item.is_usefully_observable_label
         if (item.observable_label !== undefined && item.observable_label !== "")
             return item.observable_label
-        return item.observable === true ? "Sì" : "—"
+        return item.is_usefully_observable === true || item.observable === true ? "Sì" : "—"
     }
 
     function clearFilters() {
@@ -275,7 +277,7 @@ Item {
                         TableHeader { text: "Magnitudine"; Layout.preferredWidth: 92 }
                         TableHeader { text: "Dimensione"; Layout.preferredWidth: 94 }
                         TableHeader { text: "Osservazione"; Layout.preferredWidth: 116 }
-                        TableHeader { text: "Osservabile"; Layout.preferredWidth: 92 }
+                        TableHeader { text: "Utile (≥15°)"; Layout.preferredWidth: 104 }
                         TableHeader { text: "Visibile nel mese"; Layout.preferredWidth: 124 }
                     }
                 }
@@ -313,11 +315,11 @@ Item {
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 94 }
                                 TableCell { text: root.textOrDash(itemData.recommended_observation_type); Layout.preferredWidth: 116 }
                                 TableCell {
-                                    text: root.observableText(itemData)
-                                    color: itemData.observable === true ? theme.green : theme.textMuted
+                                    text: root.usefulObservableText(itemData)
+                                    color: itemData.is_usefully_observable === true ? theme.green : theme.textMuted
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
-                                    Layout.preferredWidth: 92
+                                    Layout.preferredWidth: 104
                                 }
                                 TableCell {
                                     text: root.visibleText(itemData)
