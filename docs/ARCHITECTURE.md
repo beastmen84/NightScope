@@ -208,6 +208,10 @@ Calendar event detail flow:
 
 The controller refresh chain is the main consistency mechanism.
 
+For a focused review of Home refresh timing, section dependencies and the
+proposed future `ObservationSnapshot` read model for Home, Sky Compass and
+Planner consumers, see `docs/HOME_REFRESH_LIFECYCLE_REVIEW.md`.
+
 The following changes are expected to trigger dependent recomputation:
 
 - active profile switch,
