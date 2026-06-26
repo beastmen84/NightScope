@@ -9,9 +9,43 @@ Item {
     property var controller
     property var objectData: controller.selectedObject
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
+    property bool isCatalogueDetail: root.hasObject && objectData.catalogueObject === true
     property int detailMetricHeight: 88
     property string backLabel: "Torna alla Home"
     signal backToHome()
+
+    function safeValue(value) {
+        if (value === undefined || value === null || value === "")
+            return "n/d"
+        return String(value)
+    }
+
+    function hasCatalogueDistance() {
+        return root.hasObject && String(objectData.distance || "").indexOf("Catalogo ") === 0
+    }
+
+    function originMetricLabel() {
+        return root.hasCatalogueDistance() ? "Catalogo" : "Distanza"
+    }
+
+    function originMetricValue() {
+        if (!root.hasObject)
+            return "n/d"
+        var distance = String(objectData.distance || "")
+        if (distance.indexOf("Catalogo ") === 0)
+            return distance.replace("Catalogo ", "")
+        return root.safeValue(objectData.distance)
+    }
+
+    function maxAngularSizeText() {
+        if (!root.hasObject)
+            return "n/d"
+        if (objectData.maxAngularSizeLabel !== undefined && objectData.maxAngularSizeLabel !== "")
+            return objectData.maxAngularSizeLabel
+        if (objectData.maxAngularSizeDeg === undefined || objectData.maxAngularSizeDeg === null)
+            return "n/d"
+        return String(objectData.maxAngularSizeDeg) + " deg"
+    }
 
     function distinctSetupOptions(options) {
         var result = []
@@ -179,7 +213,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.hasObject ? "Dettaglio osservativo" : "Nessun oggetto selezionato"
+                    text: root.hasObject ? (root.isCatalogueDetail ? "Scheda catalogo" : "Dettaglio osservativo") : "Nessun oggetto selezionato"
                     color: theme.textSecondary
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -218,6 +252,7 @@ Item {
                     }
 
                     GlassCard {
+                        visible: !root.isCatalogueDetail
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.minimumHeight: 118
@@ -259,7 +294,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         text: objectData.observingStatusDetail
-                        color: theme.amber
+                        color: root.isCatalogueDetail ? theme.textSecondary : theme.amber
                         font.pixelSize: 18
                         font.weight: Font.DemiBold
                         wrapMode: Text.WordWrap
@@ -274,13 +309,14 @@ Item {
                     }
 
                     GridLayout {
+                        visible: !root.isCatalogueDetail
                         Layout.fillWidth: true
                         columns: root.width > 1000 ? 3 : 2
                         columnSpacing: 12
                         rowSpacing: 12
 
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Magnitudine"; value: objectData.magnitude; accentColor: theme.cyan }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Distanza"; value: objectData.distance; accentColor: theme.violet }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue(); accentColor: theme.violet }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Finestra migliore"; value: objectData.homeWindowLabel; accentColor: theme.green }
@@ -288,6 +324,25 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza attuale"; value: objectData.currentAltitude; accentColor: theme.cyan }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
+                    }
+
+                    GridLayout {
+                        visible: root.isCatalogueDetail
+                        Layout.fillWidth: true
+                        columns: root.width > 1000 ? 3 : 2
+                        columnSpacing: 12
+                        rowSpacing: 12
+
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Catalogo"; value: root.safeValue(objectData.catalogue); accentColor: theme.violet }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "ID catalogo"; value: root.safeValue(objectData.catalogueId); accentColor: theme.cyan }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tipo"; value: root.safeValue(objectData.type); accentColor: theme.teal }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Costellazione"; value: root.safeValue(objectData.constellation); accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Magnitudine"; value: root.safeValue(objectData.magnitude); accentColor: theme.cyan }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dimensione"; value: root.safeValue(objectData.apparentSize); accentColor: theme.green }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dim. max"; value: root.maxAngularSizeText(); accentColor: theme.teal }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "A.R."; value: root.safeValue(objectData.rightAscension); accentColor: theme.violet }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dec"; value: root.safeValue(objectData.declination); accentColor: theme.coral }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Osservazione"; value: root.safeValue(objectData.recommendedObservationType); accentColor: theme.amber }
                     }
                 }
             }
@@ -313,7 +368,7 @@ Item {
             }
 
             GlassCard {
-                visible: root.hasObject
+                visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -506,7 +561,7 @@ Item {
             }
 
             GlassCard {
-                visible: root.hasObject
+                visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28

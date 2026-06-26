@@ -2069,7 +2069,7 @@ class AppController(QObject):
                 object_type=item["type"],
                 image="resources/images/m13.svg",
                 magnitude=self._format_catalogue_number(item["magnitude"]),
-                distance=catalogue_label,
+                distance="n/d",
                 max_altitude="n/d",
                 direction="n/d",
                 best_time="n/d",
@@ -2134,9 +2134,14 @@ class AppController(QObject):
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
         if self._is_catalogue_detail_object(item):
+            metadata = self._catalogue_detail_metadata(item)
             data["catalogueObject"] = True
-            data["catalogue"] = item.visibility_class.replace("Catalogo ", "", 1)
-            data["catalogueId"] = item.id.split("-", 1)[1] if "-" in item.id else item.id
+            data["catalogue"] = metadata.get("catalogue") or item.visibility_class.replace("Catalogo ", "", 1)
+            data["catalogueId"] = metadata.get("catalogueId") or (item.id.split("-", 1)[1] if "-" in item.id else item.id)
+            data["constellation"] = metadata.get("constellation", "")
+            data["rightAscension"] = metadata.get("rightAscension", "")
+            data["declination"] = metadata.get("declination", "")
+            data["maxAngularSizeLabel"] = metadata.get("maxAngularSizeLabel") or self._format_catalogue_angle(item.max_angular_size_deg)
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
         status, detail = self._observing_status(item)
@@ -2153,6 +2158,36 @@ class AppController(QObject):
             data["moonCycleFraction"] = self._moon_cycle_fraction(self._moon.phase_angle)
             data["moonCycleDay"] = self._moon_cycle_day_label(self._moon.phase_angle)
         return data
+
+    def _catalogue_detail_metadata(self, item: CelestialObject) -> dict:
+        metadata = {}
+        catalogue_item = self._catalogue_item_for_object_id(item.id)
+        if catalogue_item:
+            metadata.update(
+                {
+                    "catalogue": str(catalogue_item.get("catalogue") or ""),
+                    "catalogueId": str(catalogue_item.get("catalogue_id") or ""),
+                    "constellation": str(catalogue_item.get("constellation") or ""),
+                    "maxAngularSizeLabel": str(catalogue_item.get("max_angular_size_label") or ""),
+                }
+            )
+        if not item.id.startswith("messier-"):
+            return metadata
+        catalogue_id = metadata.get("catalogueId") or item.id.split("-", 1)[1]
+        row = self._messier_repository.get_by_messier_id(catalogue_id)
+        if not row:
+            return metadata
+        metadata.update(
+            {
+                "catalogue": "Messier",
+                "catalogueId": row["messier_id"],
+                "constellation": row["constellation"] or "",
+                "rightAscension": row["ra"] or "",
+                "declination": row["dec"] or "",
+                "maxAngularSizeLabel": self._format_catalogue_angle(row["max_angular_size_deg"]),
+            }
+        )
+        return metadata
 
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
         data = event.to_qml()

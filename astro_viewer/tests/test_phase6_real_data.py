@@ -745,7 +745,21 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("appController.selectCatalogueObject", main_qml)
         self.assertIn('text: "Esplora gli oggetti astronomici disponibili nel catalogo."', object_catalogue_qml)
         self.assertIn('placeholderText: "Cerca ID o nome..."', object_catalogue_qml)
+        for filter_label in (
+            'text: "Ricerca"',
+            'text: "Catalogo"',
+            'text: "Tipo"',
+            'text: "Costellazione"',
+            'text: "Osservazione"',
+        ):
+            self.assertIn(filter_label, object_catalogue_qml)
+        self.assertNotIn('controller.catalogueFilteredCount + " / " + controller.catalogueTotalCount', object_catalogue_qml)
         self.assertIn("backLabel", object_detail_qml)
+        self.assertIn("property bool isCatalogueDetail", object_detail_qml)
+        self.assertIn('root.isCatalogueDetail ? "Scheda catalogo"', object_detail_qml)
+        self.assertIn("root.hasObject && !root.isCatalogueDetail", object_detail_qml)
+        self.assertIn("label: root.originMetricLabel()", object_detail_qml)
+        self.assertIn('label: "Costellazione"', object_detail_qml)
         self.assertIn('text: "Catalogo binocoli"', binoculars_qml)
         self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
         self.assertIn('placeholderText: "Diametro obiettivo (mm)"', binoculars_qml)
@@ -863,6 +877,11 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(selected["catalogue"], "Messier")
             self.assertEqual(selected["catalogueId"], "M110")
             self.assertTrue(selected["catalogueObject"])
+            self.assertEqual(selected["distance"], "n/d")
+            self.assertTrue(selected["constellation"])
+            self.assertTrue(selected["rightAscension"])
+            self.assertTrue(selected["declination"])
+            self.assertTrue(selected["maxAngularSizeLabel"])
             self.assertIn("M110", selected["name"])
             self.assertEqual(selected["observingStatus"], "Oggetto di catalogo")
 

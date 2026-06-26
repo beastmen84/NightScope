@@ -86,11 +86,6 @@ Item {
                     }
                 }
 
-                StatusPill {
-                    text: controller.catalogueFilteredCount + " / " + controller.catalogueTotalCount
-                    accentColor: theme.cyan
-                    Layout.alignment: Qt.AlignTop
-                }
             }
 
             GlassCard {
@@ -107,40 +102,75 @@ Item {
                     columnSpacing: 10
                     rowSpacing: 10
 
-                    DarkTextField {
-                        id: searchField
+                    ColumnLayout {
                         Layout.fillWidth: true
                         Layout.columnSpan: root.width > 1060 ? 1 : 2
-                        placeholderText: "Cerca ID o nome..."
-                        onTextChanged: controller.searchCatalogue(text)
+                        spacing: 6
+
+                        FilterLabel { text: "Ricerca" }
+
+                        DarkTextField {
+                            id: searchField
+                            Layout.fillWidth: true
+                            placeholderText: "Cerca ID o nome..."
+                            onTextChanged: controller.searchCatalogue(text)
+                        }
                     }
 
-                    DarkComboBox {
-                        id: catalogueFilter
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        model: root.optionModel("catalogues")
-                        onActivated: controller.setCatalogueFilter("catalogue", currentText)
+                        spacing: 6
+
+                        FilterLabel { text: "Catalogo" }
+
+                        DarkComboBox {
+                            id: catalogueFilter
+                            Layout.fillWidth: true
+                            model: root.optionModel("catalogues")
+                            onActivated: controller.setCatalogueFilter("catalogue", currentText)
+                        }
                     }
 
-                    DarkComboBox {
-                        id: typeFilter
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        model: root.optionModel("types")
-                        onActivated: controller.setCatalogueFilter("type", currentText)
+                        spacing: 6
+
+                        FilterLabel { text: "Tipo" }
+
+                        DarkComboBox {
+                            id: typeFilter
+                            Layout.fillWidth: true
+                            model: root.optionModel("types")
+                            onActivated: controller.setCatalogueFilter("type", currentText)
+                        }
                     }
 
-                    DarkComboBox {
-                        id: constellationFilter
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        model: root.optionModel("constellations")
-                        onActivated: controller.setCatalogueFilter("constellation", currentText)
+                        spacing: 6
+
+                        FilterLabel { text: "Costellazione" }
+
+                        DarkComboBox {
+                            id: constellationFilter
+                            Layout.fillWidth: true
+                            model: root.optionModel("constellations")
+                            onActivated: controller.setCatalogueFilter("constellation", currentText)
+                        }
                     }
 
-                    DarkComboBox {
-                        id: observationTypeFilter
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        model: root.optionModel("observationTypes")
-                        onActivated: controller.setCatalogueFilter("observation_type", currentText)
+                        spacing: 6
+
+                        FilterLabel { text: "Osservazione" }
+
+                        DarkComboBox {
+                            id: observationTypeFilter
+                            Layout.fillWidth: true
+                            model: root.optionModel("observationTypes")
+                            onActivated: controller.setCatalogueFilter("observation_type", currentText)
+                        }
                     }
                 }
 
@@ -270,6 +300,15 @@ Item {
         color: theme.textSecondary
         font.pixelSize: 12
         verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+        maximumLineCount: 1
+    }
+
+    component FilterLabel: Text {
+        Layout.fillWidth: true
+        color: theme.textMuted
+        font.pixelSize: 11
+        font.weight: Font.DemiBold
         elide: Text.ElideRight
         maximumLineCount: 1
     }
