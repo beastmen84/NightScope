@@ -271,7 +271,7 @@ Item {
 
                         TableHeader { text: "ID"; Layout.preferredWidth: 64 }
                         TableHeader { text: "Nome"; Layout.fillWidth: true; Layout.minimumWidth: 120 }
-                        TableHeader { text: "Tipo"; Layout.preferredWidth: 110 }
+                        TableHeader { text: "Tipo"; Layout.preferredWidth: 164 }
                         TableHeader { text: "Costellazione"; Layout.preferredWidth: 112 }
                         TableHeader { text: "Magnitudine"; Layout.preferredWidth: 92 }
                         TableHeader { text: "Dimensione"; Layout.preferredWidth: 94 }
@@ -308,7 +308,7 @@ Item {
 
                                 TableCell { text: itemData.catalogue_id; color: theme.cyan; font.weight: Font.DemiBold; Layout.preferredWidth: 64 }
                                 TableCell { text: itemData.name; color: theme.textPrimary; Layout.fillWidth: true; Layout.minimumWidth: 120 }
-                                TableCell { text: itemData.type; Layout.preferredWidth: 110 }
+                                TableCell { text: itemData.type; Layout.preferredWidth: 164 }
                                 TableCell { text: root.textOrDash(itemData.constellation); Layout.preferredWidth: 112 }
                                 TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 92 }
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 94 }

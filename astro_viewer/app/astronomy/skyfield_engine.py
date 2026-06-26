@@ -143,7 +143,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> dict[str, bool]:
         observer = self._observer(location)
         zone = self._zone(location)
-        samples = self._month_night_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
+        samples = self._month_dark_samples(location, year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         daylight_samples = self._month_day_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         visibility: dict[str, bool] = {}
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
@@ -410,21 +410,28 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         altitudes, _, _ = observer.at(times).observe(body).apparent().altaz()
         return list(zip(samples, [float(value) for value in altitudes.degrees]))
 
-    @staticmethod
-    def _month_night_samples(
+    def _month_dark_samples(
+        self,
+        location: ObserverLocation,
         year: int,
         month: int,
         zone: ZoneInfo,
         step_minutes: int,
     ) -> list[datetime]:
-        samples: list[datetime] = []
+        candidates: list[datetime] = []
         for day in range(1, monthrange(year, month)[1] + 1):
-            current = datetime(year, month, day, 18, 0, tzinfo=zone)
-            end = current + timedelta(hours=13)
-            while current <= end:
-                samples.append(current)
+            current = datetime(year, month, day, 0, 0, tzinfo=zone)
+            end = current + timedelta(hours=24)
+            while current < end:
+                candidates.append(current)
                 current += timedelta(minutes=step_minutes)
-        return samples
+        if not candidates:
+            return []
+        topos = wgs84.latlon(latitude_degrees=location.latitude, longitude_degrees=location.longitude)
+        twilight_at = almanac.dark_twilight_day(self._ephemeris, topos)
+        times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in candidates])
+        states = twilight_at(times)
+        return [sample for sample, state in zip(candidates, states) if int(state) == 0]
 
     @staticmethod
     def _month_day_samples(

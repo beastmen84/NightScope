@@ -765,6 +765,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
         self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
         self.assertIn('text: "Visibili nel mese"', object_catalogue_qml)
+        self.assertIn('TableHeader { text: "Tipo"; Layout.preferredWidth: 164 }', object_catalogue_qml)
+        self.assertIn("TableCell { text: itemData.type; Layout.preferredWidth: 164 }", object_catalogue_qml)
         for table_header in (
             'TableHeader { text: "Costellazione"',
             'TableHeader { text: "Magnitudine"',
@@ -994,7 +996,7 @@ class Phase6RealDataTests(unittest.TestCase):
             engine = SkyfieldAstronomyEngine(base_dir / "data", repository)
             try:
                 rows = []
-                for messier_id in ("M13", "M7"):
+                for messier_id in ("M13", "M1"):
                     row = repository.get_by_messier_id(messier_id)
                     self.assertIsNotNone(row)
                     rows.append(
@@ -1006,7 +1008,7 @@ class Phase6RealDataTests(unittest.TestCase):
                     )
                 visibility = engine.catalogue_month_visibility(
                     rows,
-                    ObserverLocation("Tromso", "Norway", 69.65, 18.96, "Europe/Oslo"),
+                    ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"),
                     2026,
                     6,
                     15.0,
@@ -1015,17 +1017,19 @@ class Phase6RealDataTests(unittest.TestCase):
                     [
                         {"object_id": "sun", "solar_system_body_id": "sun"},
                         {"object_id": "moon", "solar_system_body_id": "moon"},
+                        {"object_id": "mercury", "solar_system_body_id": "mercury"},
                     ],
-                    ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome"),
+                    ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"),
                     2026,
                     6,
                     15.0,
                 )
 
                 self.assertTrue(visibility["messier-M13"])
-                self.assertFalse(visibility["messier-M7"])
+                self.assertFalse(visibility["messier-M1"])
                 self.assertTrue(solar_visibility["sun"])
                 self.assertTrue(solar_visibility["moon"])
+                self.assertFalse(solar_visibility["mercury"])
             finally:
                 engine.close()
 
