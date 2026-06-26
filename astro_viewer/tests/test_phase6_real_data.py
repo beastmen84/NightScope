@@ -848,16 +848,18 @@ class Phase6RealDataTests(unittest.TestCase):
     def test_catalogue_objects_expose_all_messier_rows_sorted(self) -> None:
         with _controller() as controller:
             objects = controller.catalogueObjects
+            messier_objects = [item for item in objects if item["catalogue"] == "Messier"]
 
-            self.assertEqual(len(objects), 110)
-            self.assertEqual([item["catalogue_id"] for item in objects[:5]], ["M1", "M2", "M3", "M4", "M5"])
-            self.assertEqual(objects[-1]["catalogue_id"], "M110")
-            self.assertEqual(objects[0]["catalogue"], "Messier")
-            self.assertEqual(objects[0]["object_id"], "messier-M1")
-            self.assertEqual(objects[0]["name"], "Crab Nebula")
-            self.assertEqual(objects[0]["type"], "Supernova remnant")
-            self.assertEqual(objects[0]["constellation"], "Taurus")
-            self.assertEqual(objects[0]["recommended_observation_type"], "General")
+            self.assertEqual(len(objects), 119)
+            self.assertEqual(len(messier_objects), 110)
+            self.assertEqual([item["catalogue_id"] for item in messier_objects[:5]], ["M1", "M2", "M3", "M4", "M5"])
+            self.assertEqual(messier_objects[-1]["catalogue_id"], "M110")
+            self.assertEqual(messier_objects[0]["catalogue"], "Messier")
+            self.assertEqual(messier_objects[0]["object_id"], "messier-M1")
+            self.assertEqual(messier_objects[0]["name"], "Crab Nebula")
+            self.assertEqual(messier_objects[0]["type"], "Supernova remnant")
+            self.assertEqual(messier_objects[0]["constellation"], "Taurus")
+            self.assertEqual(messier_objects[0]["recommended_observation_type"], "General")
 
             required_fields = {
                 "catalogue",
@@ -872,7 +874,24 @@ class Phase6RealDataTests(unittest.TestCase):
                 "recommended_observation_type",
                 "description",
             }
-            self.assertTrue(required_fields.issubset(objects[0]))
+            self.assertTrue(required_fields.issubset(messier_objects[0]))
+
+    def test_catalogue_includes_solar_system_objects(self) -> None:
+        with _controller() as controller:
+            objects = controller.catalogueObjects
+            solar_objects = [item for item in objects if item["catalogue"] == "Sistema Solare"]
+
+            self.assertEqual(len(solar_objects), 9)
+            self.assertEqual(
+                [item["name"] for item in solar_objects],
+                ["Sole", "Luna", "Mercurio", "Venere", "Marte", "Giove", "Saturno", "Urano", "Nettuno"],
+            )
+            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier", "Sistema Solare"])
+            self.assertTrue(all(item["constellation"] == "Variabile" for item in solar_objects))
+            self.assertEqual(
+                {item["type"] for item in solar_objects},
+                {"Stella", "Satellite naturale", "Pianeta"},
+            )
 
     def test_catalogue_search_by_catalogue_id_and_name(self) -> None:
         with _controller() as controller:
@@ -884,12 +903,34 @@ class Phase6RealDataTests(unittest.TestCase):
             by_name = controller.catalogueObjects
             self.assertEqual([item["catalogue_id"] for item in by_name], ["M1"])
 
+            controller.searchCatalogue("Mars")
+            mars_by_english_name = controller.catalogueObjects
+            self.assertEqual([item["name"] for item in mars_by_english_name], ["Marte"])
+
+            controller.searchCatalogue("Giove")
+            jupiter_by_italian_name = controller.catalogueObjects
+            self.assertEqual([item["name"] for item in jupiter_by_italian_name], ["Giove"])
+
+            controller.searchCatalogue("Jupiter")
+            jupiter_by_english_name = controller.catalogueObjects
+            self.assertEqual([item["name"] for item in jupiter_by_english_name], ["Giove"])
+
     def test_catalogue_filters_by_catalogue_type_constellation_and_observation_type(self) -> None:
         with _controller() as controller:
-            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier"])
+            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier", "Sistema Solare"])
 
             controller.setCatalogueFilter("catalogue", "Messier")
             self.assertEqual(len(controller.catalogueObjects), 110)
+
+            controller.clearCatalogueFilters()
+            controller.setCatalogueFilter("catalogue", "Sistema Solare")
+            solar_objects = controller.catalogueObjects
+            self.assertEqual(len(solar_objects), 9)
+            self.assertTrue(all(item["catalogue"] == "Sistema Solare" for item in solar_objects))
+
+            controller.setCatalogueFilter("type", "Pianeta")
+            planets = controller.catalogueObjects
+            self.assertEqual([item["name"] for item in planets], ["Mercurio", "Venere", "Marte", "Giove", "Saturno", "Urano", "Nettuno"])
 
             controller.clearCatalogueFilters()
             controller.setCatalogueFilter("type", "Supernova remnant")
@@ -919,7 +960,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(controller.catalogueSelectedMonth, now.month)
             self.assertTrue(all(label.endswith(str(now.year)) for label in controller.catalogueMonthLabels))
 
-    def test_skyfield_catalogue_month_visibility_uses_coordinates_and_location(self) -> None:
+    def test_skyfield_catalogue_month_visibility_uses_coordinates_location_and_solar_ephemeris(self) -> None:
         with _temp_database() as database_path:
             base_dir = Path(__file__).resolve().parents[1]
             repository = MessierRepository(database_path)
@@ -936,7 +977,6 @@ class Phase6RealDataTests(unittest.TestCase):
                             "declination": row["dec"],
                         }
                     )
-
                 visibility = engine.catalogue_month_visibility(
                     rows,
                     ObserverLocation("Tromso", "Norway", 69.65, 18.96, "Europe/Oslo"),
@@ -944,9 +984,21 @@ class Phase6RealDataTests(unittest.TestCase):
                     6,
                     15.0,
                 )
+                solar_visibility = engine.catalogue_month_visibility(
+                    [
+                        {"object_id": "sun", "solar_system_body_id": "sun"},
+                        {"object_id": "moon", "solar_system_body_id": "moon"},
+                    ],
+                    ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome"),
+                    2026,
+                    6,
+                    15.0,
+                )
 
                 self.assertTrue(visibility["messier-M13"])
                 self.assertFalse(visibility["messier-M7"])
+                self.assertFalse(solar_visibility["sun"])
+                self.assertTrue(solar_visibility["moon"])
             finally:
                 engine.close()
 
@@ -962,7 +1014,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._invalidate_catalogue_visibility_cache()
 
             objects = controller.catalogueObjects
-            self.assertEqual(len(objects), 110)
+            self.assertEqual(len(objects), 119)
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
             self.assertEqual(
                 [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
@@ -1012,7 +1064,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
 
-            self.assertEqual(len(controller.catalogueObjects), 110)
+            self.assertEqual(len(controller.catalogueObjects), 119)
             controller.searchCatalogue("M31")
             self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M31"])
             controller.setCatalogueFilter("catalogue", "Messier")
@@ -1022,6 +1074,77 @@ class Phase6RealDataTests(unittest.TestCase):
             astronomy.recommended_deep_sky.assert_not_called()
             score_service.best_object.assert_not_called()
             equipment_service.suggest_for_profile.assert_not_called()
+
+    def test_solar_system_catalogue_rows_do_not_show_messier_only_data(self) -> None:
+        with _controller() as controller:
+            controller.setCatalogueFilter("catalogue", "Sistema Solare")
+            solar_objects = controller.catalogueObjects
+            sun = next(item for item in solar_objects if item["object_id"] == "sun")
+            mars = next(item for item in solar_objects if item["object_id"] == "mars")
+
+            self.assertEqual(sun["catalogue_id"], "solar-sun")
+            self.assertEqual(sun["name"], "Sole")
+            self.assertEqual(sun["type"], "Stella")
+            self.assertEqual(sun["recommended_observation_type"], "")
+            self.assertIsNone(sun["magnitude"])
+            self.assertEqual(sun["apparent_size"], "")
+            self.assertIsNone(sun["max_angular_size_deg"])
+            self.assertEqual(sun["max_angular_size_label"], "")
+            self.assertEqual(mars["recommended_observation_type"], "HighMagnification")
+
+    def test_select_solar_system_catalogue_object_opens_catalogue_detail(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {"mars": True}
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._solar_system_objects = [
+                CelestialObject(
+                    id="mars",
+                    name="Marte",
+                    object_type="Pianeta",
+                    image="resources/images/mars.svg",
+                    magnitude="-1.2",
+                    distance="0.80 UA",
+                    max_altitude="42 gradi",
+                    direction="Sud-est",
+                    best_time="23:10",
+                    observing_window="21:00 - 03:00",
+                    notes="Dettaglio Skyfield esistente.",
+                    recommended_setup="10 mm",
+                    visibility_class="Occhio nudo",
+                    azimuth="140 gradi",
+                    time_above_horizon="6 h",
+                    visible=True,
+                    rise_time="20:10",
+                    set_time="04:20",
+                    culmination_time="00:15",
+                    current_altitude="31.2 gradi",
+                    current_azimuth="134.0 gradi",
+                    score=80,
+                )
+            ]
+            controller._invalidate_catalogue_visibility_cache()
+
+            controller.selectCatalogueObject("mars")
+            selected = controller.selectedObject
+
+            self.assertEqual(selected["id"], "mars")
+            self.assertEqual(selected["name"], "Marte")
+            self.assertTrue(selected["catalogueObject"])
+            self.assertEqual(selected["catalogue"], "Sistema Solare")
+            self.assertEqual(selected["catalogueId"], "solar-mars")
+            self.assertEqual(selected["type"], "Pianeta")
+            self.assertEqual(selected["constellation"], "Variabile")
+            self.assertEqual(selected["observingStatus"], "Catalogo Sistema Solare")
+            self.assertEqual(selected["currentAltitude"], "31.2 gradi")
+            self.assertEqual(selected["currentAzimuth"], "134.0 gradi")
+            self.assertEqual(selected["riseTime"], "20:10")
+            self.assertEqual(selected["culminationTime"], "00:15")
+            self.assertEqual(selected["setTime"], "04:20")
+            self.assertTrue(selected["catalogueVisibleThisMonth"])
+            self.assertNotEqual(selected["catalogue"], "Messier")
+            self.assertNotIn("Messier", selected["observingStatus"])
 
     def test_catalogue_visibility_never_calls_recommendation_planner_or_weather_services(self) -> None:
         with _controller() as controller:

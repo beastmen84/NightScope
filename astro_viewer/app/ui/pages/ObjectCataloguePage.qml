@@ -23,7 +23,9 @@ Item {
         if (item.magnitude_label !== undefined && item.magnitude_label !== "")
             return item.magnitude_label
         if (item.magnitude === null || item.magnitude === undefined)
-            return "n/d"
+            return "—"
+        if (String(item.magnitude) === "")
+            return "—"
         return String(item.magnitude)
     }
 
@@ -31,8 +33,14 @@ Item {
         if (item.max_angular_size_label !== undefined && item.max_angular_size_label !== "")
             return item.max_angular_size_label
         if (item.max_angular_size_deg === null || item.max_angular_size_deg === undefined)
-            return "n/d"
+            return "—"
         return String(item.max_angular_size_deg) + " deg"
+    }
+
+    function textOrDash(value) {
+        if (value === null || value === undefined || String(value) === "")
+            return "—"
+        return String(value)
     }
 
     function visibleText(item) {
@@ -295,7 +303,7 @@ Item {
                                 TableCell { text: itemData.constellation; Layout.preferredWidth: 90 }
                                 TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 58 }
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 88 }
-                                TableCell { text: itemData.recommended_observation_type; Layout.preferredWidth: 105 }
+                                TableCell { text: root.textOrDash(itemData.recommended_observation_type); Layout.preferredWidth: 105 }
                                 TableCell {
                                     text: root.visibleText(itemData)
                                     color: itemData.visible_this_month === true ? theme.green : theme.textMuted

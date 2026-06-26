@@ -84,6 +84,11 @@ Item {
             { "label": "Osservazione", "value": objectData.recommendedObservationType, "accent": theme.amber },
             { "label": "A.R.", "value": objectData.rightAscension, "accent": theme.violet },
             { "label": "Dec", "value": objectData.declination, "accent": theme.coral },
+            { "label": "Alt. attuale", "value": objectData.currentAltitude, "accent": theme.cyan },
+            { "label": "Azimut", "value": objectData.currentAzimuth, "accent": theme.coral },
+            { "label": "Sorge", "value": objectData.riseTime, "accent": theme.teal },
+            { "label": "Transita", "value": objectData.culminationTime, "accent": theme.green },
+            { "label": "Tramonta", "value": objectData.setTime, "accent": theme.amber },
             { "label": "Visibilità", "value": objectData.catalogueVisibilityLabel, "accent": objectData.catalogueVisibleThisMonth === true ? theme.green : theme.coral }
         ]
         var result = []
@@ -558,7 +563,7 @@ Item {
             }
 
             GlassCard {
-                visible: root.hasObject && objectData.id === "moon"
+                visible: root.hasObject && !root.isCatalogueDetail && objectData.id === "moon"
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28

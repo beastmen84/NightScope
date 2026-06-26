@@ -57,6 +57,7 @@ logger = logging.getLogger(__name__)
 CATALOGUE_ALL_FILTER = "Tutti"
 CATALOGUE_SOURCE = "catalogue"
 OBSERVING_SOURCE = "observing"
+SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
 CATALOGUE_MONTH_NAMES = [
     "Gennaio",
     "Febbraio",
@@ -2031,6 +2032,7 @@ class AppController(QObject):
 
     def _load_catalogue_objects(self) -> list[dict]:
         objects = [self._catalogue_item_from_messier(row) for row in self._messier_repository.list_objects()]
+        objects.extend(self._solar_system_catalogue_objects())
         return sorted(objects, key=self._catalogue_sort_key)
 
     @staticmethod
@@ -2054,13 +2056,71 @@ class AppController(QObject):
             "max_angular_size_label": AppController._format_catalogue_angle(row["max_angular_size_deg"]),
             "recommended_observation_type": row["recommended_observation_type"] or "",
             "description": row["description"] or "",
+            "search_terms": catalogue_id,
         }
+
+    def _solar_system_catalogue_objects(self) -> list[dict]:
+        return [
+            self._catalogue_item_from_solar_system(config, sort_index)
+            for sort_index, config in enumerate(SkyfieldAstronomyEngine.BODY_CONFIGS, start=1)
+        ]
+
+    def _catalogue_item_from_solar_system(self, config, sort_index: int) -> dict:
+        observation_type = ""
+        if config.object_id == "moon":
+            observation_type = "General"
+        elif config.object_type == "Pianeta":
+            observation_type = "HighMagnification"
+        description = self._object_descriptions.get(config.object_id, {})
+        return {
+            "catalogue": SOLAR_SYSTEM_CATALOGUE,
+            "object_id": config.object_id,
+            "id": config.object_id,
+            "catalogue_id": f"solar-{config.object_id}",
+            "name": config.name,
+            "type": config.object_type,
+            "constellation": "Variabile",
+            "magnitude": None,
+            "magnitude_label": "",
+            "right_ascension": "",
+            "declination": "",
+            "apparent_size": "",
+            "max_angular_size_deg": None,
+            "max_angular_size_label": "",
+            "recommended_observation_type": observation_type,
+            "description": description.get("short_description", "").strip(),
+            "image": config.image,
+            "solar_system_body_id": config.object_id,
+            "search_terms": self._solar_system_search_terms(config.object_id, config.name),
+            "catalogue_sort_index": sort_index,
+        }
+
+    @staticmethod
+    def _solar_system_search_terms(object_id: str, name: str) -> str:
+        english_names = {
+            "sun": "Sun",
+            "moon": "Moon",
+            "mercury": "Mercury",
+            "venus": "Venus",
+            "mars": "Mars",
+            "jupiter": "Jupiter",
+            "saturn": "Saturn",
+            "uranus": "Uranus",
+            "neptune": "Neptune",
+        }
+        return " ".join((object_id, name, english_names.get(object_id, ""))).strip()
 
     @staticmethod
     def _catalogue_sort_key(item: dict) -> tuple[str, int, str]:
         catalogue_id = str(item.get("catalogue_id", ""))
         match = re.search(r"\d+", catalogue_id)
-        numeric_id = int(match.group(0)) if match else 999_999
+        explicit_sort_index = item.get("catalogue_sort_index")
+        if explicit_sort_index:
+            numeric_id = int(explicit_sort_index)
+        elif match:
+            numeric_id = int(match.group(0))
+        else:
+            numeric_id = 999_999
         return (str(item.get("catalogue", "")).casefold(), numeric_id, catalogue_id.casefold())
 
     def _filtered_catalogue_objects(self) -> list[dict]:
@@ -2070,7 +2130,9 @@ class AppController(QObject):
             objects = [
                 item
                 for item in objects
-                if query in item["catalogue_id"].casefold() or query in item["name"].casefold()
+                if query in item["catalogue_id"].casefold()
+                or query in item["name"].casefold()
+                or query in str(item.get("search_terms", "")).casefold()
             ]
 
         for filter_name, field_name in (
@@ -2193,6 +2255,8 @@ class AppController(QObject):
         return self._catalogue_item_from_messier(row) if row else None
 
     def _catalogue_item_to_detail_object(self, item: dict) -> CelestialObject:
+        if self._is_solar_system_catalogue_item(item):
+            return self._solar_system_catalogue_detail_object(item)
         display_name = self._catalogue_display_name(item)
         catalogue_label = f"Catalogo {item['catalogue']}"
         return self._apply_object_content(
@@ -2223,7 +2287,60 @@ class AppController(QObject):
         )
 
     @staticmethod
+    def _is_solar_system_catalogue_item(item: dict) -> bool:
+        return str(item.get("catalogue", "")) == SOLAR_SYSTEM_CATALOGUE
+
+    def _solar_system_catalogue_detail_object(self, item: dict) -> CelestialObject:
+        catalogue_label = f"Catalogo {item['catalogue']}"
+        existing = self._solar_system_detail_source(str(item["object_id"]))
+        if existing:
+            return replace(
+                existing,
+                visibility_class=catalogue_label,
+                recommended_setup="",
+                score=0,
+                score_label="n/d",
+                difficulty="n/d",
+                setup_options=[],
+                equipment_explanation="",
+            )
+        return self._apply_object_content(
+            CelestialObject(
+                id=item["object_id"],
+                name=str(item["name"]),
+                object_type=item["type"],
+                image=str(item.get("image") or "resources/images/m13.svg"),
+                magnitude="",
+                distance="n/d",
+                max_altitude="n/d",
+                direction="n/d",
+                best_time="n/d",
+                observing_window="n/d",
+                notes=item["description"],
+                recommended_setup="",
+                visibility_class=catalogue_label,
+                azimuth="n/d",
+                time_above_horizon="n/d",
+                visible=True,
+                score=0,
+                score_label="n/d",
+                difficulty="n/d",
+                apparent_size="",
+                max_angular_size_deg=None,
+                recommended_observation_type=item["recommended_observation_type"],
+            )
+        )
+
+    def _solar_system_detail_source(self, object_id: str) -> CelestialObject | None:
+        for candidate in self._solar_system_objects or self._base_solar_system_objects:
+            if candidate.id == object_id:
+                return candidate
+        return None
+
+    @staticmethod
     def _catalogue_display_name(item: dict) -> str:
+        if AppController._is_solar_system_catalogue_item(item):
+            return str(item["name"]).strip()
         catalogue_id = str(item["catalogue_id"]).strip()
         name = str(item["name"]).strip()
         if not name or name.casefold() == catalogue_id.casefold():

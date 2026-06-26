@@ -145,12 +145,28 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         zone = self._zone(location)
         samples = self._month_night_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         visibility: dict[str, bool] = {}
+        body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
 
         for item in catalogue_objects:
             object_key = self._catalogue_visibility_key(item)
             if not object_key:
                 continue
             visibility[object_key] = False
+            solar_system_body_id = str(item.get("solar_system_body_id") or "").strip()
+            if solar_system_body_id:
+                if solar_system_body_id == "sun":
+                    continue
+                config = body_configs.get(solar_system_body_id)
+                if not config:
+                    continue
+                body = self._ephemeris[config.body_key]
+                visibility[object_key] = self._reaches_altitude_threshold(
+                    observer,
+                    body,
+                    samples,
+                    threshold=altitude_threshold,
+                )
+                continue
             try:
                 ra_hours = parse_ra_hours(str(item.get("ra") or item.get("right_ascension") or ""))
                 dec_degrees = parse_dec_degrees(str(item.get("dec") or item.get("declination") or ""))
