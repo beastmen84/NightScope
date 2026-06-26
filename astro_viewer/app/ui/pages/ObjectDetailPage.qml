@@ -10,6 +10,7 @@ Item {
     property var objectData: controller.selectedObject
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property int detailMetricHeight: 88
+    property string backLabel: "Torna alla Home"
     signal backToHome()
 
     function distinctSetupOptions(options) {
@@ -171,7 +172,7 @@ Item {
                 spacing: 14
 
                 DarkButton {
-                    text: "Torna alla Home"
+                    text: root.backLabel
                     accentColor: theme.cyan
                     onClicked: root.backToHome()
                 }
@@ -491,13 +492,13 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Seleziona un oggetto dalla Home"
-                subtitle: "Il dettaglio si apre dagli oggetti consigliati"
+                title: "Seleziona un oggetto"
+                subtitle: "Il dettaglio si apre dalle pagine dell'app"
                 accentColor: theme.cyan
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Torna alla Home e scegli un pianeta, un oggetto di cielo profondo o una voce del piano osservativo."
+                    text: "Scegli un oggetto dalla Home, dal calendario o dal catalogo."
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

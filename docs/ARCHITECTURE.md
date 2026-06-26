@@ -75,6 +75,9 @@ Important pages:
 
 - `HomePage.qml`: home dashboard, observing quality, best target, observing
   plan, planets, deep-sky objects and weather warning presentation.
+- `ObjectCataloguePage.qml`: informational catalogue browser with search,
+  filters and object-detail click-through. It renders catalogue data and does
+  not present recommendation ranking.
 - `ObjectDetailPage.qml`: selected object detail and setup alternatives.
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`: profile and equipment management.
@@ -95,6 +98,7 @@ Important pages:
 - active profile equipment snapshot,
 - sky quality, seeing/transparency and advanced scores,
 - night plan, sky map and notifications,
+- generic catalogue object dictionaries and catalogue filter state,
 - selected object and detail dictionaries,
 - calendar event setup text and object-detail target mapping,
 - QML signals for every major dependent property.
@@ -167,6 +171,20 @@ Home recommendation flow:
 7. QML presents the plan, a global "Sessione da monitorare" warning with a
    potential observing window, or a full "Sessione sconsigliata" warning when
    no useful window is expected.
+
+Catalogue browsing flow:
+
+1. `AppController` loads catalogue rows from repository-backed local data.
+2. The current implementation maps Messier rows into a generic catalogue item
+   shape with `catalogue`, `object_id`, `catalogue_id`, type, constellation,
+   magnitude, size, observation-type metadata and description.
+3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
+   catalogue, object type, constellation and observation type.
+4. `selectCatalogueObject` resolves the catalogue object and creates a
+   detail-compatible object without invoking weather, equipment suggestions,
+   best-object scoring, planner ranking or `recommended_deep_sky()`.
+5. Object Detail is reused for click-through, with back navigation returning
+   to the catalogue page when that was the source.
 
 Object detail flow:
 

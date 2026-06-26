@@ -27,6 +27,7 @@ ApplicationWindow {
     palette.highlightedText: theme.background
 
     property string currentPage: "home"
+    property string detailBackTarget: "home"
 
     AppTheme {
         id: theme
@@ -122,7 +123,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: "Home"
                         iconSource: appController.assetBaseUrl + "/resources/icons/home.svg"
-                        selected: window.currentPage === "home" || window.currentPage === "detail"
+                        selected: window.currentPage === "home" || (window.currentPage === "detail" && window.detailBackTarget === "home")
                         onClicked: window.currentPage = "home"
                     }
 
@@ -130,7 +131,7 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         text: "Calendario"
                         iconSource: appController.assetBaseUrl + "/resources/icons/calendar.svg"
-                        selected: window.currentPage === "calendar"
+                        selected: window.currentPage === "calendar" || (window.currentPage === "detail" && window.detailBackTarget === "calendar")
                         onClicked: window.currentPage = "calendar"
                     }
 
@@ -176,6 +177,14 @@ ApplicationWindow {
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
+                        text: "Oggetti celesti"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
+                        selected: window.currentPage === "objectCatalogue" || (window.currentPage === "detail" && window.detailBackTarget === "objectCatalogue")
+                        onClicked: window.currentPage = "objectCatalogue"
                     }
 
                     NavButton {
@@ -267,6 +276,7 @@ ApplicationWindow {
                 if (window.currentPage === "weather") return weatherPage
                 if (window.currentPage === "location") return locationPage
                 if (window.currentPage === "equipmentProfiles") return equipmentProfilesPage
+                if (window.currentPage === "objectCatalogue") return objectCataloguePage
                 if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
                 if (window.currentPage === "equipmentOptics") return equipmentOpticsPage
                 if (window.currentPage === "equipmentBinoculars") return equipmentBinocularsPage
@@ -281,6 +291,7 @@ ApplicationWindow {
             controller: appController
             onOpenObject: function(objectId) {
                 appController.selectObject(objectId)
+                window.detailBackTarget = "home"
                 window.currentPage = "detail"
             }
         }
@@ -290,7 +301,22 @@ ApplicationWindow {
         id: detailPage
         ObjectDetailPage {
             controller: appController
-            onBackToHome: window.currentPage = "home"
+            backLabel: window.detailBackTarget === "objectCatalogue" ? "Torna al catalogo"
+                : window.detailBackTarget === "calendar" ? "Torna al calendario"
+                : "Torna alla Home"
+            onBackToHome: window.currentPage = window.detailBackTarget
+        }
+    }
+
+    Component {
+        id: objectCataloguePage
+        ObjectCataloguePage {
+            controller: appController
+            onOpenObject: function(objectId) {
+                appController.selectCatalogueObject(objectId)
+                window.detailBackTarget = "objectCatalogue"
+                window.currentPage = "detail"
+            }
         }
     }
 
@@ -300,6 +326,7 @@ ApplicationWindow {
             controller: appController
             onOpenObject: function(objectId) {
                 appController.selectObject(objectId)
+                window.detailBackTarget = "calendar"
                 window.currentPage = "detail"
             }
         }

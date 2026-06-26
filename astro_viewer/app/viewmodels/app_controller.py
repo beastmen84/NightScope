@@ -49,10 +49,15 @@ from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAG
 
 logger = logging.getLogger(__name__)
 
+CATALOGUE_ALL_FILTER = "Tutti"
+CATALOGUE_SOURCE = "catalogue"
+OBSERVING_SOURCE = "observing"
+
 
 class AppController(QObject):
     dataChanged = Signal()
     selectedObjectChanged = Signal()
+    catalogueChanged = Signal()
     locationChanged = Signal()
     weatherChanged = Signal()
     equipmentChanged = Signal()
@@ -149,6 +154,7 @@ class AppController(QObject):
         self._sky_map = []
         self._notifications = []
         self._selected_object: CelestialObject | None = None
+        self._selected_object_source = ""
         self._best_object: CelestialObject | None = None
         self._observation_history = self._observation_repository.recent(limit=10)
 
@@ -162,6 +168,14 @@ class AppController(QObject):
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
         self._object_descriptions = self._object_image_repository.descriptions()
+        self._catalogue_objects = self._load_catalogue_objects()
+        self._catalogue_search_query = ""
+        self._catalogue_filters = {
+            "catalogue": CATALOGUE_ALL_FILTER,
+            "type": CATALOGUE_ALL_FILTER,
+            "constellation": CATALOGUE_ALL_FILTER,
+            "observation_type": CATALOGUE_ALL_FILTER,
+        }
         self._telescopes: list[Telescope] = self._initial_telescopes()
         self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
@@ -308,6 +322,34 @@ class AppController(QObject):
     def recommendedDeepSky(self) -> list[dict]:
         return [self._object_to_qml(deep_sky) for deep_sky in self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))]
 
+    @Property("QVariant", notify=catalogueChanged)
+    def catalogueObjects(self) -> list[dict]:
+        return self._filtered_catalogue_objects()
+
+    @Property("QVariant", notify=catalogueChanged)
+    def catalogueFilterOptions(self) -> dict:
+        return {
+            "catalogues": self._catalogue_option_values("catalogue"),
+            "types": self._catalogue_option_values("type"),
+            "constellations": self._catalogue_option_values("constellation"),
+            "observationTypes": self._catalogue_option_values("recommended_observation_type"),
+        }
+
+    @Property("QVariant", notify=catalogueChanged)
+    def catalogueFilterState(self) -> dict:
+        return {
+            "search": self._catalogue_search_query,
+            **self._catalogue_filters,
+        }
+
+    @Property(int, notify=catalogueChanged)
+    def catalogueTotalCount(self) -> int:
+        return len(self._catalogue_objects)
+
+    @Property(int, notify=catalogueChanged)
+    def catalogueFilteredCount(self) -> int:
+        return len(self._filtered_catalogue_objects())
+
     @Property("QVariant", notify=dataChanged)
     def moonSummary(self) -> dict:
         return self._moon.to_qml() if self._moon else {}
@@ -434,6 +476,8 @@ class AppController(QObject):
     def selectedObject(self) -> dict:
         if not self._selected_object:
             return {}
+        if self._selected_object_source == CATALOGUE_SOURCE:
+            return self._object_to_qml(self._selected_object)
         return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
 
     @Property("QVariant", notify=dataChanged)
@@ -582,8 +626,45 @@ class AppController(QObject):
         for item in self._solar_system_objects + self._deep_sky:
             if item.id == object_id:
                 self._selected_object = item
+                self._selected_object_source = OBSERVING_SOURCE
                 self.selectedObjectChanged.emit()
                 return
+
+    @Slot(str)
+    def selectCatalogueObject(self, object_id: str) -> None:
+        item = self._catalogue_item_for_object_id(object_id)
+        if not item:
+            return
+        self._selected_object = self._catalogue_item_to_detail_object(item)
+        self._selected_object_source = CATALOGUE_SOURCE
+        self.selectedObjectChanged.emit()
+
+    @Slot(str)
+    def searchCatalogue(self, query: str) -> None:
+        self._catalogue_search_query = query.strip()
+        self.catalogueChanged.emit()
+
+    @Slot(str, str)
+    def setCatalogueFilter(self, filter_name: str, value: str) -> None:
+        normalized_name = self._normalize_catalogue_filter_name(filter_name)
+        if not normalized_name:
+            return
+        clean_value = value.strip() or CATALOGUE_ALL_FILTER
+        if self._catalogue_filters.get(normalized_name) == clean_value:
+            return
+        self._catalogue_filters[normalized_name] = clean_value
+        self.catalogueChanged.emit()
+
+    @Slot()
+    def clearCatalogueFilters(self) -> None:
+        self._catalogue_search_query = ""
+        self._catalogue_filters = {
+            "catalogue": CATALOGUE_ALL_FILTER,
+            "type": CATALOGUE_ALL_FILTER,
+            "constellation": CATALOGUE_ALL_FILTER,
+            "observation_type": CATALOGUE_ALL_FILTER,
+        }
+        self.catalogueChanged.emit()
 
     @Slot(str)
     def searchCities(self, query: str) -> None:
@@ -1251,12 +1332,16 @@ class AppController(QObject):
         finally:
             self._set_loading(False)
 
-        if self._selected_object:
+        if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
+            pass
+        elif self._selected_object:
             self.selectObject(self._selected_object.id)
         elif self._best_object:
             self._selected_object = self._best_object
+            self._selected_object_source = OBSERVING_SOURCE
         elif self._deep_sky:
             self._selected_object = self._deep_sky[0]
+            self._selected_object_source = OBSERVING_SOURCE
         self.dataChanged.emit()
         self.weatherChanged.emit()
         self.selectedObjectChanged.emit()
@@ -1879,6 +1964,162 @@ class AppController(QObject):
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
         return [item for item in objects if AppController._first_useful_time(item.best_time) or AppController._first_useful_time(item.observing_window)]
 
+    def _load_catalogue_objects(self) -> list[dict]:
+        objects = [self._catalogue_item_from_messier(row) for row in self._messier_repository.list_objects()]
+        return sorted(objects, key=self._catalogue_sort_key)
+
+    @staticmethod
+    def _catalogue_item_from_messier(row: dict) -> dict:
+        catalogue_id = row["messier_id"]
+        object_id = f"messier-{catalogue_id}"
+        return {
+            "catalogue": "Messier",
+            "object_id": object_id,
+            "id": object_id,
+            "catalogue_id": catalogue_id,
+            "name": row["name"] or "",
+            "type": row["object_type"] or "",
+            "constellation": row["constellation"] or "",
+            "magnitude": row["magnitude"],
+            "magnitude_label": AppController._format_catalogue_number(row["magnitude"]),
+            "apparent_size": row["apparent_size"] or "",
+            "max_angular_size_deg": row["max_angular_size_deg"],
+            "max_angular_size_label": AppController._format_catalogue_angle(row["max_angular_size_deg"]),
+            "recommended_observation_type": row["recommended_observation_type"] or "",
+            "description": row["description"] or "",
+        }
+
+    @staticmethod
+    def _catalogue_sort_key(item: dict) -> tuple[str, int, str]:
+        catalogue_id = str(item.get("catalogue_id", ""))
+        match = re.search(r"\d+", catalogue_id)
+        numeric_id = int(match.group(0)) if match else 999_999
+        return (str(item.get("catalogue", "")).casefold(), numeric_id, catalogue_id.casefold())
+
+    def _filtered_catalogue_objects(self) -> list[dict]:
+        query = self._catalogue_search_query.casefold()
+        objects = self._catalogue_objects
+        if query:
+            objects = [
+                item
+                for item in objects
+                if query in item["catalogue_id"].casefold() or query in item["name"].casefold()
+            ]
+
+        for filter_name, field_name in (
+            ("catalogue", "catalogue"),
+            ("type", "type"),
+            ("constellation", "constellation"),
+            ("observation_type", "recommended_observation_type"),
+        ):
+            value = self._catalogue_filters.get(filter_name, CATALOGUE_ALL_FILTER)
+            if value != CATALOGUE_ALL_FILTER:
+                objects = [item for item in objects if item[field_name] == value]
+        return list(objects)
+
+    def _catalogue_option_values(self, field_name: str) -> list[str]:
+        values = {str(item.get(field_name, "")).strip() for item in self._catalogue_objects}
+        return sorted((value for value in values if value), key=str.casefold)
+
+    @staticmethod
+    def _normalize_catalogue_filter_name(filter_name: str) -> str:
+        normalized = filter_name.strip().casefold()
+        aliases = {
+            "catalogue": "catalogue",
+            "catalog": "catalogue",
+            "type": "type",
+            "object_type": "type",
+            "constellation": "constellation",
+            "observation_type": "observation_type",
+            "recommended_observation_type": "observation_type",
+        }
+        return aliases.get(normalized, "")
+
+    def _catalogue_item_for_object_id(self, object_id: str) -> dict | None:
+        normalized = object_id.strip()
+        if not normalized:
+            return None
+
+        normalized_lower = normalized.casefold()
+        for item in self._catalogue_objects:
+            if normalized_lower in {
+                item["object_id"].casefold(),
+                item["catalogue_id"].casefold(),
+            }:
+                return item
+
+        if normalized_lower.startswith("messier-"):
+            catalogue_id = normalized.split("-", 1)[1]
+        elif normalized.upper().startswith("M"):
+            catalogue_id = normalized
+        else:
+            return None
+
+        row = self._messier_repository.get_by_messier_id(catalogue_id)
+        return self._catalogue_item_from_messier(row) if row else None
+
+    def _catalogue_item_to_detail_object(self, item: dict) -> CelestialObject:
+        display_name = self._catalogue_display_name(item)
+        catalogue_label = f"Catalogo {item['catalogue']}"
+        return self._apply_object_content(
+            CelestialObject(
+                id=item["object_id"],
+                name=display_name,
+                object_type=item["type"],
+                image="resources/images/m13.svg",
+                magnitude=self._format_catalogue_number(item["magnitude"]),
+                distance=catalogue_label,
+                max_altitude="n/d",
+                direction="n/d",
+                best_time="n/d",
+                observing_window="n/d",
+                notes=item["description"],
+                recommended_setup="",
+                visibility_class=catalogue_label,
+                azimuth="n/d",
+                time_above_horizon="n/d",
+                visible=True,
+                score=0,
+                score_label="n/d",
+                difficulty="n/d",
+                apparent_size=item["apparent_size"],
+                max_angular_size_deg=item["max_angular_size_deg"],
+                recommended_observation_type=item["recommended_observation_type"],
+            )
+        )
+
+    @staticmethod
+    def _catalogue_display_name(item: dict) -> str:
+        catalogue_id = str(item["catalogue_id"]).strip()
+        name = str(item["name"]).strip()
+        if not name or name.casefold() == catalogue_id.casefold():
+            return catalogue_id
+        return f"{catalogue_id} {name}"
+
+    @staticmethod
+    def _format_catalogue_number(value: object) -> str:
+        if value is None:
+            return "n/d"
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return str(value)
+        return f"{number:g}"
+
+    @staticmethod
+    def _format_catalogue_angle(value: object) -> str:
+        if value is None:
+            return "n/d"
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return str(value)
+        return f"{number:g} deg"
+
+    @staticmethod
+    def _is_catalogue_detail_object(item: CelestialObject) -> bool:
+        return item.visibility_class.startswith("Catalogo ")
+
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         return sorted((self._moon_adjusted_object(item) for item in objects), key=lambda item: item.score, reverse=True)
 
@@ -1891,6 +2132,10 @@ class AppController(QObject):
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
+        if self._is_catalogue_detail_object(item):
+            data["catalogueObject"] = True
+            data["catalogue"] = item.visibility_class.replace("Catalogo ", "", 1)
+            data["catalogueId"] = item.id.split("-", 1)[1] if "-" in item.id else item.id
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
         status, detail = self._observing_status(item)
@@ -2061,6 +2306,8 @@ class AppController(QObject):
         return clean
 
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
+        if self._is_catalogue_detail_object(item):
+            return "Oggetto di catalogo", "Dati informativi caricati dal catalogo locale."
         current_altitude = self._parse_degrees(item.current_altitude)
         useful_time = self._first_useful_time(item.best_time) or self._first_useful_time(item.observing_window)
         window = self._home_window_label(item)
@@ -2082,6 +2329,8 @@ class AppController(QObject):
         return "Non osservabile", "Nessuna finestra notturna utile per questa posizione."
 
     def _observing_reasons(self, item: CelestialObject) -> list[str]:
+        if self._is_catalogue_detail_object(item):
+            return []
         reasons = []
         max_altitude = self._parse_degrees(item.max_altitude)
         if max_altitude is not None and max_altitude > 0:

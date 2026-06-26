@@ -712,6 +712,7 @@ class Phase6RealDataTests(unittest.TestCase):
         binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
         profiles_qml = (ui_dir / "pages" / "EquipmentProfilesPage.qml").read_text(encoding="utf-8")
         home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+        object_catalogue_qml = (ui_dir / "pages" / "ObjectCataloguePage.qml").read_text(encoding="utf-8")
         object_detail_qml = (ui_dir / "pages" / "ObjectDetailPage.qml").read_text(encoding="utf-8")
 
         expected_labels = [
@@ -722,6 +723,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'text: "Località"',
             'text: "Profili"',
             'text: "Cataloghi"',
+            'text: "Oggetti celesti"',
             'text: "Telescopi"',
             'text: "Oculari e Barlow"',
             'text: "Binocoli"',
@@ -730,13 +732,20 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         self.assertNotIn('text: "Strumenti"', main_qml)
         self.assertIn("equipmentProfiles", main_qml)
+        self.assertIn("objectCatalogue", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
         self.assertIn("equipmentOptics", main_qml)
         self.assertIn("equipmentBinoculars", main_qml)
         self.assertIn("EquipmentProfilesPage", main_qml)
+        self.assertIn("ObjectCataloguePage", main_qml)
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
         self.assertIn("EquipmentBinocularsPage", main_qml)
+        self.assertIn("controller.catalogueObjects", object_catalogue_qml)
+        self.assertIn("appController.selectCatalogueObject", main_qml)
+        self.assertIn('text: "Esplora gli oggetti astronomici disponibili nel catalogo."', object_catalogue_qml)
+        self.assertIn('placeholderText: "Cerca ID o nome..."', object_catalogue_qml)
+        self.assertIn("backLabel", object_detail_qml)
         self.assertIn('text: "Catalogo binocoli"', binoculars_qml)
         self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
         self.assertIn('placeholderText: "Diametro obiettivo (mm)"', binoculars_qml)
@@ -752,6 +761,110 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('equipmentType === "Binocular"', object_detail_qml)
         self.assertIn("setupDetailText()", object_detail_qml)
         self.assertIn("Pupilla d'uscita", object_detail_qml)
+
+    def test_catalogue_objects_expose_all_messier_rows_sorted(self) -> None:
+        with _controller() as controller:
+            objects = controller.catalogueObjects
+
+            self.assertEqual(len(objects), 110)
+            self.assertEqual([item["catalogue_id"] for item in objects[:5]], ["M1", "M2", "M3", "M4", "M5"])
+            self.assertEqual(objects[-1]["catalogue_id"], "M110")
+            self.assertEqual(objects[0]["catalogue"], "Messier")
+            self.assertEqual(objects[0]["object_id"], "messier-M1")
+            self.assertEqual(objects[0]["name"], "Crab Nebula")
+            self.assertEqual(objects[0]["type"], "Supernova remnant")
+            self.assertEqual(objects[0]["constellation"], "Taurus")
+            self.assertEqual(objects[0]["recommended_observation_type"], "General")
+
+            required_fields = {
+                "catalogue",
+                "object_id",
+                "catalogue_id",
+                "name",
+                "type",
+                "constellation",
+                "magnitude",
+                "apparent_size",
+                "max_angular_size_deg",
+                "recommended_observation_type",
+                "description",
+            }
+            self.assertTrue(required_fields.issubset(objects[0]))
+
+    def test_catalogue_search_by_catalogue_id_and_name(self) -> None:
+        with _controller() as controller:
+            controller.searchCatalogue("M31")
+            by_id = controller.catalogueObjects
+            self.assertEqual([item["catalogue_id"] for item in by_id], ["M31"])
+
+            controller.searchCatalogue("Crab")
+            by_name = controller.catalogueObjects
+            self.assertEqual([item["catalogue_id"] for item in by_name], ["M1"])
+
+    def test_catalogue_filters_by_catalogue_type_constellation_and_observation_type(self) -> None:
+        with _controller() as controller:
+            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier"])
+
+            controller.setCatalogueFilter("catalogue", "Messier")
+            self.assertEqual(len(controller.catalogueObjects), 110)
+
+            controller.clearCatalogueFilters()
+            controller.setCatalogueFilter("type", "Supernova remnant")
+            self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M1"])
+
+            controller.clearCatalogueFilters()
+            controller.setCatalogueFilter("constellation", "Taurus")
+            taurus_ids = {item["catalogue_id"] for item in controller.catalogueObjects}
+            self.assertIn("M1", taurus_ids)
+            self.assertTrue(all(item["constellation"] == "Taurus" for item in controller.catalogueObjects))
+
+            controller.clearCatalogueFilters()
+            controller.setCatalogueFilter("observation_type", "HighMagnification")
+            self.assertGreater(len(controller.catalogueObjects), 0)
+            self.assertTrue(
+                all(
+                    item["recommended_observation_type"] == "HighMagnification"
+                    for item in controller.catalogueObjects
+                )
+            )
+
+    def test_catalogue_browsing_does_not_call_recommendation_code(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.recommended_deep_sky.side_effect = AssertionError("catalogue must not refresh recommendations")
+            score_service = Mock()
+            equipment_service = Mock()
+            controller._astronomy_engine = astronomy
+            controller._score_service = score_service
+            controller._equipment_service = equipment_service
+
+            self.assertEqual(len(controller.catalogueObjects), 110)
+            controller.searchCatalogue("M31")
+            self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M31"])
+            controller.setCatalogueFilter("catalogue", "Messier")
+            _ = controller.catalogueObjects
+            controller.clearCatalogueFilters()
+
+            astronomy.recommended_deep_sky.assert_not_called()
+            score_service.best_object.assert_not_called()
+            equipment_service.suggest_for_profile.assert_not_called()
+
+    def test_select_catalogue_object_works_outside_home_recommendations(self) -> None:
+        with _controller() as controller:
+            controller._solar_system_objects = []
+            controller._deep_sky = []
+            controller._selected_object = None
+            controller._selected_object_source = ""
+
+            controller.selectCatalogueObject("messier-M110")
+            selected = controller.selectedObject
+
+            self.assertEqual(selected["id"], "messier-M110")
+            self.assertEqual(selected["catalogue"], "Messier")
+            self.assertEqual(selected["catalogueId"], "M110")
+            self.assertTrue(selected["catalogueObject"])
+            self.assertIn("M110", selected["name"])
+            self.assertEqual(selected["observingStatus"], "Oggetto di catalogo")
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

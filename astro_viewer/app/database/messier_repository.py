@@ -33,6 +33,21 @@ class MessierRepository:
             ).fetchall()
         return [self._row_to_object(row) for row in rows]
 
+    def get_by_messier_id(self, messier_id: str) -> dict | None:
+        normalized = messier_id.strip().upper()
+        if not normalized:
+            return None
+        with closing(self._connect()) as connection:
+            row = connection.execute(
+                f"""
+                SELECT {self._SELECT_COLUMNS}
+                FROM MessierObject
+                WHERE UPPER(messier_id) = ?
+                """,
+                (normalized,),
+            ).fetchone()
+        return self._row_to_object(row) if row else None
+
     def search(self, query: str, limit: int = 30) -> list[dict]:
         normalized = f"%{query.strip()}%"
         with closing(self._connect()) as connection:
