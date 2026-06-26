@@ -83,7 +83,8 @@ Item {
             { "label": "Dim. max", "value": root.maxAngularSizeText(), "accent": theme.teal },
             { "label": "Osservazione", "value": objectData.recommendedObservationType, "accent": theme.amber },
             { "label": "A.R.", "value": objectData.rightAscension, "accent": theme.violet },
-            { "label": "Dec", "value": objectData.declination, "accent": theme.coral }
+            { "label": "Dec", "value": objectData.declination, "accent": theme.coral },
+            { "label": "Visibilità", "value": objectData.catalogueVisibilityLabel, "accent": objectData.catalogueVisibleThisMonth === true ? theme.green : theme.coral }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {

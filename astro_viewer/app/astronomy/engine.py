@@ -28,6 +28,16 @@ class AstronomyEngine(Protocol):
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
         ...
 
+    def catalogue_month_visibility(
+        self,
+        catalogue_objects: list[dict],
+        location: ObserverLocation,
+        year: int,
+        month: int,
+        altitude_threshold: float,
+    ) -> dict[str, bool]:
+        ...
+
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         ...
 
@@ -46,6 +56,16 @@ class MockAstronomyEngine:
 
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
         return mock_deep_sky()
+
+    def catalogue_month_visibility(
+        self,
+        catalogue_objects: list[dict],
+        location: ObserverLocation,
+        year: int,
+        month: int,
+        altitude_threshold: float,
+    ) -> dict[str, bool]:
+        return {}
 
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         return mock_moon()

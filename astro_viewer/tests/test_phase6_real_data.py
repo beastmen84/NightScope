@@ -6,6 +6,7 @@ import re
 import tempfile
 import unittest
 from contextlib import closing
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -13,10 +14,12 @@ import h5py
 import numpy as np
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
+from astro_viewer.app.database.messier_repository import MessierRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
@@ -25,6 +28,7 @@ from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, NasaViirsBlackMarbleProvider
+from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
@@ -748,12 +752,20 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('placeholderText: "Cerca ID o nome..."', object_catalogue_qml)
         for filter_label in (
             'text: "Ricerca"',
+            'text: "Mese"',
             'text: "Catalogo"',
             'text: "Tipo"',
             'text: "Costellazione"',
             'text: "Osservazione"',
+            'text: "Visibilità"',
         ):
             self.assertIn(filter_label, object_catalogue_qml)
+        self.assertIn("controller.catalogueMonthLabels", object_catalogue_qml)
+        self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
+        self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
+        self.assertIn('text: "Visibili questo mese"', object_catalogue_qml)
+        self.assertIn('TableHeader { text: "Visibile"', object_catalogue_qml)
+        self.assertIn("visible_this_month_label", object_catalogue_qml)
         self.assertNotIn('controller.catalogueFilteredCount + " / " + controller.catalogueTotalCount', object_catalogue_qml)
         self.assertIn("backLabel", object_detail_qml)
         self.assertIn("property bool isCatalogueDetail", object_detail_qml)
@@ -804,8 +816,11 @@ class Phase6RealDataTests(unittest.TestCase):
             '"label": "Osservazione"',
             '"label": "A.R."',
             '"label": "Dec"',
+            '"label": "Visibilità"',
         ):
             self.assertIn(label, object_detail_qml)
+        self.assertIn("objectData.catalogueVisibilityLabel", object_detail_qml)
+        self.assertIn("objectData.catalogueVisibleThisMonth", object_detail_qml)
 
         for observing_section in (
             'title: "Finestra osservativa"',
@@ -896,15 +911,106 @@ class Phase6RealDataTests(unittest.TestCase):
                 )
             )
 
+    def test_catalogue_month_selector_uses_current_year(self) -> None:
+        with _controller() as controller:
+            now = datetime.now(controller._zone())
+
+            self.assertEqual(len(controller.catalogueMonthLabels), 12)
+            self.assertEqual(controller.catalogueSelectedMonth, now.month)
+            self.assertTrue(all(label.endswith(str(now.year)) for label in controller.catalogueMonthLabels))
+
+    def test_skyfield_catalogue_month_visibility_uses_coordinates_and_location(self) -> None:
+        with _temp_database() as database_path:
+            base_dir = Path(__file__).resolve().parents[1]
+            repository = MessierRepository(database_path)
+            engine = SkyfieldAstronomyEngine(base_dir / "data", repository)
+            try:
+                rows = []
+                for messier_id in ("M13", "M7"):
+                    row = repository.get_by_messier_id(messier_id)
+                    self.assertIsNotNone(row)
+                    rows.append(
+                        {
+                            "object_id": f"messier-{row['messier_id']}",
+                            "right_ascension": row["ra"],
+                            "declination": row["dec"],
+                        }
+                    )
+
+                visibility = engine.catalogue_month_visibility(
+                    rows,
+                    ObserverLocation("Tromso", "Norway", 69.65, 18.96, "Europe/Oslo"),
+                    2026,
+                    6,
+                    15.0,
+                )
+
+                self.assertTrue(visibility["messier-M13"])
+                self.assertFalse(visibility["messier-M7"])
+            finally:
+                engine.close()
+
+    def test_catalogue_visible_this_month_filter_keeps_catalogue_complete_until_enabled(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {
+                "messier-M13": True,
+                "messier-M31": True,
+            }
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
+
+            objects = controller.catalogueObjects
+            self.assertEqual(len(objects), 110)
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
+            self.assertEqual(
+                [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
+                ["✓", "✓"],
+            )
+
+            controller.setCatalogueVisibleThisMonthFilter(True)
+            visible_objects = controller.catalogueObjects
+            self.assertEqual([item["catalogue_id"] for item in visible_objects], ["M13", "M31"])
+            self.assertTrue(all(item["visible_this_month"] for item in visible_objects))
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
+
+    def test_catalogue_visibility_cache_invalidates_on_month_and_location_change(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {}
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
+
+            _ = controller.catalogueObjects
+            _ = controller.catalogueObjects
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
+
+            next_month = 1 if controller.catalogueSelectedMonth == 12 else controller.catalogueSelectedMonth + 1
+            controller.setCatalogueMonth(next_month)
+            _ = controller.catalogueObjects
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 2)
+
+            controller._apply_location_result(
+                _location_result(ObserverLocation("Milano", "Italia", 45.46, 9.19, "Europe/Rome")),
+                persist=False,
+            )
+            _ = controller.catalogueObjects
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 3)
+
     def test_catalogue_browsing_does_not_call_recommendation_code(self) -> None:
         with _controller() as controller:
             astronomy = Mock()
             astronomy.recommended_deep_sky.side_effect = AssertionError("catalogue must not refresh recommendations")
+            astronomy.catalogue_month_visibility.return_value = {"messier-M31": True}
             score_service = Mock()
             equipment_service = Mock()
             controller._astronomy_engine = astronomy
             controller._score_service = score_service
             controller._equipment_service = equipment_service
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
 
             self.assertEqual(len(controller.catalogueObjects), 110)
             controller.searchCatalogue("M31")
@@ -917,8 +1023,40 @@ class Phase6RealDataTests(unittest.TestCase):
             score_service.best_object.assert_not_called()
             equipment_service.suggest_for_profile.assert_not_called()
 
+    def test_catalogue_visibility_never_calls_recommendation_planner_or_weather_services(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {"messier-M31": True}
+            astronomy.recommended_deep_sky.side_effect = AssertionError("catalogue visibility must not recommend")
+            planner = Mock()
+            weather = Mock()
+            score_service = Mock()
+            controller._astronomy_engine = astronomy
+            controller._night_planner_service = planner
+            controller._weather_service = weather
+            controller._score_service = score_service
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
+
+            controller.setCatalogueVisibleThisMonthFilter(True)
+            _ = controller.catalogueObjects
+            controller.selectCatalogueObject("messier-M31")
+            selected = controller.selectedObject
+
+            self.assertTrue(selected["catalogueVisibleThisMonth"])
+            astronomy.catalogue_month_visibility.assert_called_once()
+            astronomy.recommended_deep_sky.assert_not_called()
+            planner.plan.assert_not_called()
+            weather.hourly_forecast.assert_not_called()
+            score_service.best_object.assert_not_called()
+
     def test_select_catalogue_object_works_outside_home_recommendations(self) -> None:
         with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {"messier-M110": True}
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+            controller._invalidate_catalogue_visibility_cache()
             controller._solar_system_objects = []
             controller._deep_sky = []
             controller._selected_object = None
@@ -936,6 +1074,8 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["rightAscension"])
             self.assertTrue(selected["declination"])
             self.assertTrue(selected["maxAngularSizeLabel"])
+            self.assertTrue(selected["catalogueVisibleThisMonth"])
+            self.assertEqual(selected["catalogueVisibilityLabel"], "Visibile questo mese")
             self.assertIn("M110", selected["name"])
             self.assertEqual(selected["observingStatus"], "Catalogo Messier")
 
@@ -1212,6 +1352,16 @@ def _calendar_home_detail_setups(controller: AppController, target: CelestialObj
     home_object = controller._apply_equipment([target])[0]
     object_detail = controller._object_to_qml(home_object)
     return calendar_setup, home_object.recommended_setup, object_detail["recommended_setup"]
+
+
+def _location_result(location: ObserverLocation) -> LocationDetectionResult:
+    return LocationDetectionResult(
+        location=location,
+        provider="manual",
+        source="test",
+        accuracy="test",
+        message="Test location",
+    )
 
 
 def _geonames_row(

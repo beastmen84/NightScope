@@ -35,6 +35,12 @@ Item {
         return String(item.max_angular_size_deg) + " deg"
     }
 
+    function visibleText(item) {
+        if (item.visible_this_month_label !== undefined && item.visible_this_month_label !== "")
+            return item.visible_this_month_label
+        return item.visible_this_month === true ? "✓" : "—"
+    }
+
     function clearFilters() {
         searchField.text = ""
         catalogueFilter.currentIndex = 0
@@ -98,13 +104,13 @@ Item {
 
                 GridLayout {
                     Layout.fillWidth: true
-                    columns: root.width > 1060 ? 5 : 2
+                    columns: root.width > 1280 ? 7 : root.width > 880 ? 3 : 2
                     columnSpacing: 10
                     rowSpacing: 10
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        Layout.columnSpan: root.width > 1060 ? 1 : 2
+                        Layout.columnSpan: root.width > 880 ? 1 : 2
                         spacing: 6
 
                         FilterLabel { text: "Ricerca" }
@@ -114,6 +120,21 @@ Item {
                             Layout.fillWidth: true
                             placeholderText: "Cerca ID o nome..."
                             onTextChanged: controller.searchCatalogue(text)
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+
+                        FilterLabel { text: "Mese" }
+
+                        DarkComboBox {
+                            id: monthFilter
+                            Layout.fillWidth: true
+                            model: controller.catalogueMonthLabels
+                            currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)
+                            onActivated: controller.setCatalogueMonth(currentIndex + 1)
                         }
                     }
 
@@ -172,6 +193,21 @@ Item {
                             onActivated: controller.setCatalogueFilter("observation_type", currentText)
                         }
                     }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+
+                        FilterLabel { text: "Visibilità" }
+
+                        CheckBox {
+                            id: visibleThisMonthFilter
+                            Layout.fillWidth: true
+                            text: "Visibili questo mese"
+                            checked: controller.catalogueVisibleThisMonthFilter
+                            onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
+                        }
+                    }
                 }
 
                 RowLayout {
@@ -224,6 +260,7 @@ Item {
                         TableHeader { text: "Mag."; Layout.preferredWidth: 58 }
                         TableHeader { text: "Dim."; Layout.preferredWidth: 88 }
                         TableHeader { text: "Osserv."; Layout.preferredWidth: 105 }
+                        TableHeader { text: "Visibile"; Layout.preferredWidth: 65 }
                     }
                 }
 
@@ -259,6 +296,13 @@ Item {
                                 TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 58 }
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 88 }
                                 TableCell { text: itemData.recommended_observation_type; Layout.preferredWidth: 105 }
+                                TableCell {
+                                    text: root.visibleText(itemData)
+                                    color: itemData.visible_this_month === true ? theme.green : theme.textMuted
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    Layout.preferredWidth: 65
+                                }
                             }
 
                             MouseArea {

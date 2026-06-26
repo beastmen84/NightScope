@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import logging
+from calendar import monthrange
 from dataclasses import dataclass
 from datetime import UTC, datetime, time, timedelta
 from pathlib import Path
@@ -17,6 +18,9 @@ from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 
 
 logger = logging.getLogger(__name__)
+
+DEEP_SKY_USEFUL_ALTITUDE_DEG = 15.0
+CATALOGUE_MONTH_SAMPLE_MINUTES = 60
 
 
 class EphemerisUnavailableError(RuntimeError):
@@ -128,6 +132,41 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 continue
         visible = [item for item in objects if item.visible]
         return sorted(visible, key=lambda item: item.score, reverse=True)[:10]
+
+    def catalogue_month_visibility(
+        self,
+        catalogue_objects: list[dict],
+        location: ObserverLocation,
+        year: int,
+        month: int,
+        altitude_threshold: float = DEEP_SKY_USEFUL_ALTITUDE_DEG,
+    ) -> dict[str, bool]:
+        observer = self._observer(location)
+        zone = self._zone(location)
+        samples = self._month_night_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
+        visibility: dict[str, bool] = {}
+
+        for item in catalogue_objects:
+            object_key = self._catalogue_visibility_key(item)
+            if not object_key:
+                continue
+            visibility[object_key] = False
+            try:
+                ra_hours = parse_ra_hours(str(item.get("ra") or item.get("right_ascension") or ""))
+                dec_degrees = parse_dec_degrees(str(item.get("dec") or item.get("declination") or ""))
+            except ValueError:
+                continue
+            theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
+            if theoretical_max_altitude < altitude_threshold:
+                continue
+            star = Star(ra_hours=ra_hours, dec_degrees=dec_degrees)
+            visibility[object_key] = self._reaches_altitude_threshold(
+                observer,
+                star,
+                samples,
+                threshold=altitude_threshold,
+            )
+        return visibility
 
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         now = self._now(location)
@@ -266,10 +305,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         current_time = self._to_skyfield_time(now)
         apparent = observer.at(current_time).observe(star).apparent()
         altitude, azimuth, _ = apparent.altaz()
-        sample = self._sample_altitudes(observer, star, *self._night_window(now), step_minutes=30)
-        max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=15.0)
+        sample = self._sample_altitudes(
+            observer,
+            star,
+            *self._night_window(now),
+            step_minutes=30,
+        )
+        max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
         magnitude = row["magnitude"]
-        visible = max_altitude >= 15.0
+        visible = max_altitude >= DEEP_SKY_USEFUL_ALTITUDE_DEG
         score = self._object_score(max_altitude, magnitude, row["object_type"], visible)
         setup = self._deep_sky_setup(row["object_type"], magnitude)
 
@@ -341,9 +385,47 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         while current <= end:
             samples.append(current)
             current += timedelta(minutes=step_minutes)
+        return self._altitudes_for_samples(observer, body, samples)
+
+    def _altitudes_for_samples(self, observer, body, samples: list[datetime]) -> list[tuple[datetime, float]]:
+        if not samples:
+            return []
         times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
         altitudes, _, _ = observer.at(times).observe(body).apparent().altaz()
         return list(zip(samples, [float(value) for value in altitudes.degrees]))
+
+    @staticmethod
+    def _month_night_samples(
+        year: int,
+        month: int,
+        zone: ZoneInfo,
+        step_minutes: int,
+    ) -> list[datetime]:
+        samples: list[datetime] = []
+        for day in range(1, monthrange(year, month)[1] + 1):
+            current = datetime(year, month, day, 18, 0, tzinfo=zone)
+            end = current + timedelta(hours=13)
+            while current <= end:
+                samples.append(current)
+                current += timedelta(minutes=step_minutes)
+        return samples
+
+    def _reaches_altitude_threshold(
+        self,
+        observer,
+        body,
+        samples: list[datetime],
+        threshold: float,
+    ) -> bool:
+        return any(altitude >= threshold for _, altitude in self._altitudes_for_samples(observer, body, samples))
+
+    @staticmethod
+    def _catalogue_visibility_key(item: dict) -> str:
+        for key in ("object_id", "id", "catalogue_id", "messier_id"):
+            value = item.get(key)
+            if value is not None and str(value).strip():
+                return str(value)
+        return ""
 
     def _sample_summary(self, samples: list[tuple[datetime, float]], threshold: float) -> tuple[float, datetime | None, str]:
         if not samples:
