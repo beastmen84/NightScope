@@ -717,6 +717,8 @@ class AppController(QObject):
             return
         self._catalogue_visible_this_month_only = enabled
         self.catalogueChanged.emit()
+        if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
+            self.selectedObjectChanged.emit()
 
     @Slot()
     def clearCatalogueFilters(self) -> None:
@@ -729,6 +731,8 @@ class AppController(QObject):
         }
         self._catalogue_visible_this_month_only = False
         self.catalogueChanged.emit()
+        if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
+            self.selectedObjectChanged.emit()
 
     @Slot(str)
     def searchCities(self, query: str) -> None:
@@ -2148,7 +2152,7 @@ class AppController(QObject):
             if value != CATALOGUE_ALL_FILTER:
                 objects = [item for item in objects if item[field_name] == value]
 
-        visibility = self._catalogue_visibility_map()
+        visibility = self._catalogue_visibility_map() if self._catalogue_visible_this_month_only else {}
         observable = self._catalogue_observable_map()
         visible_objects = [self._catalogue_item_with_visibility(item, visibility, observable) for item in objects]
         if self._catalogue_visible_this_month_only:
@@ -2163,7 +2167,11 @@ class AppController(QObject):
     ) -> dict:
         object_id = str(item.get("object_id", ""))
         has_location = self._has_valid_location()
-        visible_value: bool | None = bool(visibility[object_id]) if has_location and object_id in visibility else None
+        visible_value: bool | None = (
+            bool(visibility[object_id])
+            if self._catalogue_visible_this_month_only and has_location and object_id in visibility
+            else None
+        )
         observable_value: bool | None = observable.get(object_id) if has_location else None
         data = dict(item)
         data["observable"] = observable_value is True
@@ -2492,7 +2500,7 @@ class AppController(QObject):
 
     def _catalogue_object_visible_this_month(self, object_id: str) -> bool | None:
         item = self._catalogue_item_for_object_id(object_id)
-        if not item or not self._has_valid_location():
+        if not item or not self._has_valid_location() or not self._catalogue_visible_this_month_only:
             return None
         visibility = self._catalogue_visibility_map()
         catalogue_object_id = str(item.get("object_id", ""))

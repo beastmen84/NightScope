@@ -752,7 +752,6 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('placeholderText: "Cerca ID o nome..."', object_catalogue_qml)
         for filter_label in (
             'text: "Ricerca"',
-            'text: "Mese"',
             'text: "Catalogo"',
             'text: "Tipo"',
             'text: "Costellazione"',
@@ -765,6 +764,9 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
         self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
         self.assertIn('text: "Visibili nel mese"', object_catalogue_qml)
+        self.assertNotIn('FilterLabel { text: "Mese" }', object_catalogue_qml)
+        self.assertLess(object_catalogue_qml.index("id: visibleThisMonthFilter"), object_catalogue_qml.index("id: monthFilter"))
+        self.assertIn("Layout.preferredWidth: 170", object_catalogue_qml)
         self.assertIn('TableHeader { text: "Tipo"; Layout.preferredWidth: 164 }', object_catalogue_qml)
         self.assertIn("TableCell { text: itemData.type; Layout.preferredWidth: 164 }", object_catalogue_qml)
         for table_header in (
@@ -1046,10 +1048,10 @@ class Phase6RealDataTests(unittest.TestCase):
 
             objects = controller.catalogueObjects
             self.assertEqual(len(objects), 119)
-            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 1)
+            self.assertEqual(astronomy.catalogue_month_visibility.call_count, 0)
             self.assertEqual(
                 [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
-                ["Sì", "Sì"],
+                ["—", "—"],
             )
 
             controller.setCatalogueVisibleThisMonthFilter(True)
@@ -1065,6 +1067,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._astronomy_engine = astronomy
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
+            controller.setCatalogueVisibleThisMonthFilter(True)
 
             _ = controller.catalogueObjects
             _ = controller.catalogueObjects
@@ -1119,15 +1122,15 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._astronomy_engine = astronomy
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
+            controller.setCatalogueVisibleThisMonthFilter(True)
             controller.searchCatalogue("M31")
 
-            first_month_object = controller.catalogueObjects[0]
-            self.assertFalse(first_month_object["visible_this_month"])
-            self.assertEqual(first_month_object["visible_this_month_label"], "No")
+            self.assertEqual(controller.catalogueObjects, [])
 
             next_month = 1 if controller.catalogueSelectedMonth == 12 else controller.catalogueSelectedMonth + 1
             controller.setCatalogueMonth(next_month)
             next_month_object = controller.catalogueObjects[0]
+            self.assertEqual(next_month_object["catalogue_id"], "M31")
             self.assertTrue(next_month_object["visible_this_month"])
             self.assertEqual(next_month_object["visible_this_month_label"], "Sì")
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 2)
@@ -1153,6 +1156,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.clearCatalogueFilters()
 
             astronomy.recommended_deep_sky.assert_not_called()
+            astronomy.catalogue_month_visibility.assert_not_called()
             score_service.best_object.assert_not_called()
             equipment_service.suggest_for_profile.assert_not_called()
 
@@ -1211,6 +1215,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 )
             ]
             controller._invalidate_catalogue_visibility_cache()
+            controller.setCatalogueVisibleThisMonthFilter(True)
 
             controller.selectCatalogueObject("mars")
             selected = controller.selectedObject
@@ -1268,6 +1273,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._astronomy_engine = astronomy
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
+            controller.setCatalogueVisibleThisMonthFilter(True)
             controller._solar_system_objects = []
             controller._deep_sky = []
             controller._selected_object = None

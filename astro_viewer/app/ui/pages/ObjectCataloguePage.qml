@@ -118,7 +118,7 @@ Item {
 
                 GridLayout {
                     Layout.fillWidth: true
-                    columns: root.width > 1280 ? 7 : root.width > 880 ? 3 : 2
+                    columns: root.width > 1280 ? 6 : root.width > 880 ? 3 : 2
                     columnSpacing: 10
                     rowSpacing: 10
 
@@ -134,23 +134,6 @@ Item {
                             Layout.fillWidth: true
                             placeholderText: "Cerca ID o nome..."
                             onTextChanged: controller.searchCatalogue(text)
-                        }
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-
-                        FilterLabel { text: "Mese" }
-
-                        DarkComboBox {
-                            id: monthFilter
-                            Layout.fillWidth: true
-                            enabled: controller.catalogueVisibleThisMonthFilter
-                            opacity: enabled ? 1.0 : 0.55
-                            model: controller.catalogueMonthLabels
-                            currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)
-                            onActivated: controller.setCatalogueMonth(currentIndex + 1)
                         }
                     }
 
@@ -212,16 +195,32 @@ Item {
 
                     ColumnLayout {
                         Layout.fillWidth: true
+                        Layout.columnSpan: root.width > 880 ? 1 : 2
                         spacing: 6
 
                         FilterLabel { text: "Visibilità" }
 
-                        CheckBox {
-                            id: visibleThisMonthFilter
+                        RowLayout {
                             Layout.fillWidth: true
-                            text: "Visibili nel mese"
-                            checked: controller.catalogueVisibleThisMonthFilter
-                            onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
+                            spacing: 8
+
+                            CheckBox {
+                                id: visibleThisMonthFilter
+                                Layout.fillWidth: true
+                                text: "Visibili nel mese"
+                                checked: controller.catalogueVisibleThisMonthFilter
+                                onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
+                            }
+
+                            DarkComboBox {
+                                id: monthFilter
+                                Layout.preferredWidth: 170
+                                enabled: controller.catalogueVisibleThisMonthFilter
+                                opacity: enabled ? 1.0 : 0.55
+                                model: controller.catalogueMonthLabels
+                                currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)
+                                onActivated: controller.setCatalogueMonth(currentIndex + 1)
+                            }
                         }
                     }
                 }
