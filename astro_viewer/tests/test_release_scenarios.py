@@ -31,6 +31,9 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.location["city"], "Addis Ababa")
             self.assertGreater(len(controller.solarSystemObjects), 0)
             self.assertGreater(len(controller.weatherHourly), 0)
+            self.assertNotIn("NightScope could not update all data", controller.serviceStatus)
+            self.assertGreater(controller.advancedScores["planetaryScore"], 0)
+            self.assertGreater(controller.advancedScores["deepSkyScore"], 0)
 
     def test_offline_weather_keeps_app_usable(self) -> None:
         with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING"):

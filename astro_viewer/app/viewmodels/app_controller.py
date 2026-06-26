@@ -23,6 +23,7 @@ from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepos
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.earthdata_credentials import (
@@ -1931,7 +1932,7 @@ class AppController(QObject):
                 magnitude = 10.0
             if magnitude >= 8.5:
                 penalty += 12
-            surface_brightness = self._equipment_service._surface_brightness_proxy(item)
+            surface_brightness = TargetObservationTraits.from_object(item).surface_brightness_proxy
             if surface_brightness and surface_brightness >= 13.5:
                 penalty += 8
             score = max(0, round(item.score - penalty))
