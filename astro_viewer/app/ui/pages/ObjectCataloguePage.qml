@@ -46,7 +46,13 @@ Item {
     function visibleText(item) {
         if (item.visible_this_month_label !== undefined && item.visible_this_month_label !== "")
             return item.visible_this_month_label
-        return item.visible_this_month === true ? "✓" : "—"
+        return item.visible_this_month === true ? "Sì" : "—"
+    }
+
+    function observableText(item) {
+        if (item.observable_label !== undefined && item.observable_label !== "")
+            return item.observable_label
+        return item.observable === true ? "Sì" : "—"
     }
 
     function clearFilters() {
@@ -140,6 +146,8 @@ Item {
                         DarkComboBox {
                             id: monthFilter
                             Layout.fillWidth: true
+                            enabled: controller.catalogueVisibleThisMonthFilter
+                            opacity: enabled ? 1.0 : 0.55
                             model: controller.catalogueMonthLabels
                             currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)
                             onActivated: controller.setCatalogueMonth(currentIndex + 1)
@@ -211,7 +219,7 @@ Item {
                         CheckBox {
                             id: visibleThisMonthFilter
                             Layout.fillWidth: true
-                            text: "Visibili questo mese"
+                            text: "Visibili nel mese"
                             checked: controller.catalogueVisibleThisMonthFilter
                             onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
                         }
@@ -264,11 +272,12 @@ Item {
                         TableHeader { text: "ID"; Layout.preferredWidth: 64 }
                         TableHeader { text: "Nome"; Layout.fillWidth: true; Layout.minimumWidth: 120 }
                         TableHeader { text: "Tipo"; Layout.preferredWidth: 110 }
-                        TableHeader { text: "Cost."; Layout.preferredWidth: 90 }
-                        TableHeader { text: "Mag."; Layout.preferredWidth: 58 }
-                        TableHeader { text: "Dim."; Layout.preferredWidth: 88 }
-                        TableHeader { text: "Osserv."; Layout.preferredWidth: 105 }
-                        TableHeader { text: "Visibile"; Layout.preferredWidth: 65 }
+                        TableHeader { text: "Costellazione"; Layout.preferredWidth: 112 }
+                        TableHeader { text: "Magnitudine"; Layout.preferredWidth: 92 }
+                        TableHeader { text: "Dimensione"; Layout.preferredWidth: 94 }
+                        TableHeader { text: "Osservazione"; Layout.preferredWidth: 116 }
+                        TableHeader { text: "Osservabile"; Layout.preferredWidth: 92 }
+                        TableHeader { text: "Visibile nel mese"; Layout.preferredWidth: 124 }
                     }
                 }
 
@@ -300,16 +309,23 @@ Item {
                                 TableCell { text: itemData.catalogue_id; color: theme.cyan; font.weight: Font.DemiBold; Layout.preferredWidth: 64 }
                                 TableCell { text: itemData.name; color: theme.textPrimary; Layout.fillWidth: true; Layout.minimumWidth: 120 }
                                 TableCell { text: itemData.type; Layout.preferredWidth: 110 }
-                                TableCell { text: itemData.constellation; Layout.preferredWidth: 90 }
-                                TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 58 }
-                                TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 88 }
-                                TableCell { text: root.textOrDash(itemData.recommended_observation_type); Layout.preferredWidth: 105 }
+                                TableCell { text: root.textOrDash(itemData.constellation); Layout.preferredWidth: 112 }
+                                TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 92 }
+                                TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 94 }
+                                TableCell { text: root.textOrDash(itemData.recommended_observation_type); Layout.preferredWidth: 116 }
+                                TableCell {
+                                    text: root.observableText(itemData)
+                                    color: itemData.observable === true ? theme.green : theme.textMuted
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    Layout.preferredWidth: 92
+                                }
                                 TableCell {
                                     text: root.visibleText(itemData)
                                     color: itemData.visible_this_month === true ? theme.green : theme.textMuted
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
-                                    Layout.preferredWidth: 65
+                                    Layout.preferredWidth: 124
                                 }
                             }
 

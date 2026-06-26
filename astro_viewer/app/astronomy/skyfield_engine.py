@@ -144,6 +144,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         observer = self._observer(location)
         zone = self._zone(location)
         samples = self._month_night_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
+        daylight_samples = self._month_day_samples(year, month, zone, step_minutes=CATALOGUE_MONTH_SAMPLE_MINUTES)
         visibility: dict[str, bool] = {}
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
 
@@ -154,16 +155,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             visibility[object_key] = False
             solar_system_body_id = str(item.get("solar_system_body_id") or "").strip()
             if solar_system_body_id:
-                if solar_system_body_id == "sun":
-                    continue
                 config = body_configs.get(solar_system_body_id)
                 if not config:
                     continue
                 body = self._ephemeris[config.body_key]
+                body_samples = daylight_samples if solar_system_body_id == "sun" else samples
                 visibility[object_key] = self._reaches_altitude_threshold(
                     observer,
                     body,
-                    samples,
+                    body_samples,
                     threshold=altitude_threshold,
                 )
                 continue
@@ -421,6 +421,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         for day in range(1, monthrange(year, month)[1] + 1):
             current = datetime(year, month, day, 18, 0, tzinfo=zone)
             end = current + timedelta(hours=13)
+            while current <= end:
+                samples.append(current)
+                current += timedelta(minutes=step_minutes)
+        return samples
+
+    @staticmethod
+    def _month_day_samples(
+        year: int,
+        month: int,
+        zone: ZoneInfo,
+        step_minutes: int,
+    ) -> list[datetime]:
+        samples: list[datetime] = []
+        for day in range(1, monthrange(year, month)[1] + 1):
+            current = datetime(year, month, day, 6, 0, tzinfo=zone)
+            end = current + timedelta(hours=12)
             while current <= end:
                 samples.append(current)
                 current += timedelta(minutes=step_minutes)

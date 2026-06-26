@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
 
+from astro_viewer.app.astronomy.coordinates import parse_dec_degrees
 from astro_viewer.app.astronomy.engine import MockAstronomyEngine, ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import (
     DEEP_SKY_USEFUL_ALTITUDE_DEG,
@@ -201,6 +202,7 @@ class AppController(QObject):
         self._catalogue_selected_month = self._catalogue_current_month()
         self._catalogue_visible_this_month_only = False
         self._catalogue_visibility_cache: dict[tuple[float, float, str, int, int, float], dict[str, bool]] = {}
+        self._catalogue_observable_cache: dict[tuple[float, float, str, float], dict[str, bool | None]] = {}
         self._telescopes: list[Telescope] = self._initial_telescopes()
         self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
@@ -704,7 +706,7 @@ class AppController(QObject):
         if self._catalogue_selected_month == month:
             return
         self._catalogue_selected_month = month
-        self._invalidate_catalogue_visibility_cache()
+        self._invalidate_catalogue_month_visibility_cache()
         self.catalogueChanged.emit()
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
             self.selectedObjectChanged.emit()
@@ -2072,14 +2074,15 @@ class AppController(QObject):
         elif config.object_type == "Pianeta":
             observation_type = "HighMagnification"
         description = self._object_descriptions.get(config.object_id, {})
+        display_id = f"S{sort_index}"
         return {
             "catalogue": SOLAR_SYSTEM_CATALOGUE,
             "object_id": config.object_id,
             "id": config.object_id,
-            "catalogue_id": f"solar-{config.object_id}",
+            "catalogue_id": display_id,
             "name": config.name,
             "type": config.object_type,
-            "constellation": "Variabile",
+            "constellation": "",
             "magnitude": None,
             "magnitude_label": "",
             "right_ascension": "",
@@ -2091,12 +2094,12 @@ class AppController(QObject):
             "description": description.get("short_description", "").strip(),
             "image": config.image,
             "solar_system_body_id": config.object_id,
-            "search_terms": self._solar_system_search_terms(config.object_id, config.name),
+            "search_terms": self._solar_system_search_terms(config.object_id, config.name, display_id),
             "catalogue_sort_index": sort_index,
         }
 
     @staticmethod
-    def _solar_system_search_terms(object_id: str, name: str) -> str:
+    def _solar_system_search_terms(object_id: str, name: str, display_id: str) -> str:
         english_names = {
             "sun": "Sun",
             "moon": "Moon",
@@ -2108,7 +2111,7 @@ class AppController(QObject):
             "uranus": "Uranus",
             "neptune": "Neptune",
         }
-        return " ".join((object_id, name, english_names.get(object_id, ""))).strip()
+        return " ".join((display_id, f"solar-{object_id}", object_id, name, english_names.get(object_id, ""))).strip()
 
     @staticmethod
     def _catalogue_sort_key(item: dict) -> tuple[str, int, str]:
@@ -2146,16 +2149,28 @@ class AppController(QObject):
                 objects = [item for item in objects if item[field_name] == value]
 
         visibility = self._catalogue_visibility_map()
-        visible_objects = [self._catalogue_item_with_visibility(item, visibility) for item in objects]
+        observable = self._catalogue_observable_map()
+        visible_objects = [self._catalogue_item_with_visibility(item, visibility, observable) for item in objects]
         if self._catalogue_visible_this_month_only:
             visible_objects = [item for item in visible_objects if item["visible_this_month"]]
         return visible_objects
 
-    def _catalogue_item_with_visibility(self, item: dict, visibility: dict[str, bool]) -> dict:
-        visible = bool(visibility.get(str(item.get("object_id", "")), False))
+    def _catalogue_item_with_visibility(
+        self,
+        item: dict,
+        visibility: dict[str, bool],
+        observable: dict[str, bool | None],
+    ) -> dict:
+        object_id = str(item.get("object_id", ""))
+        has_location = self._has_valid_location()
+        visible_value: bool | None = bool(visibility[object_id]) if has_location and object_id in visibility else None
+        observable_value: bool | None = observable.get(object_id) if has_location else None
         data = dict(item)
-        data["visible_this_month"] = visible
-        data["visible_this_month_label"] = "✓" if visible else "—"
+        data["observable"] = observable_value is True
+        data["observable_known"] = observable_value is not None
+        data["observable_label"] = self._catalogue_boolean_label(observable_value)
+        data["visible_this_month"] = visible_value is True
+        data["visible_this_month_label"] = self._catalogue_boolean_label(visible_value)
         data["visibility_month_label"] = self._catalogue_month_label(self._catalogue_selected_month)
         return data
 
@@ -2199,8 +2214,65 @@ class AppController(QObject):
             CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
         )
 
+    def _catalogue_observable_map(self) -> dict[str, bool | None]:
+        if not self._has_valid_location():
+            return {}
+        cache_key = self._catalogue_observable_cache_key()
+        cached = self._catalogue_observable_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        location = self._location
+        observable: dict[str, bool | None] = {}
+        for item in self._catalogue_objects:
+            object_id = str(item.get("object_id", ""))
+            if not object_id:
+                continue
+            observable[object_id] = self._catalogue_item_observable(item, location)
+        self._catalogue_observable_cache[cache_key] = observable
+        return observable
+
+    def _catalogue_observable_cache_key(self) -> tuple[float, float, str, float]:
+        location = self._location
+        if not isinstance(location, ObserverLocation):
+            return (0.0, 0.0, "", CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG)
+        return (
+            round(location.latitude, 5),
+            round(location.longitude, 5),
+            location.timezone,
+            CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
+        )
+
+    @staticmethod
+    def _catalogue_item_observable(item: dict, location: ObserverLocation | None) -> bool | None:
+        if not isinstance(location, ObserverLocation):
+            return None
+        if item.get("solar_system_body_id"):
+            return None
+        try:
+            dec_degrees = parse_dec_degrees(str(item.get("dec") or item.get("declination") or ""))
+        except ValueError:
+            return None
+        theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
+        return theoretical_max_altitude >= CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG
+
+    @staticmethod
+    def _catalogue_boolean_label(value: bool | None) -> str:
+        if value is True:
+            return "Sì"
+        if value is False:
+            return "No"
+        return "—"
+
     def _invalidate_catalogue_visibility_cache(self) -> None:
+        self._invalidate_catalogue_month_visibility_cache()
+        self._invalidate_catalogue_observable_cache()
+
+    def _invalidate_catalogue_month_visibility_cache(self) -> None:
         self._catalogue_visibility_cache.clear()
+
+    def _invalidate_catalogue_observable_cache(self) -> None:
+        self._catalogue_observable_cache.clear()
 
     def _catalogue_option_values(self, field_name: str) -> list[str]:
         values = {str(item.get(field_name, "")).strip() for item in self._catalogue_objects}
@@ -2393,8 +2465,13 @@ class AppController(QObject):
             data["declination"] = metadata.get("declination", "")
             data["maxAngularSizeLabel"] = metadata.get("maxAngularSizeLabel") or self._format_catalogue_angle(item.max_angular_size_deg)
             visible_this_month = self._catalogue_object_visible_this_month(item.id)
-            data["catalogueVisibleThisMonth"] = visible_this_month
-            data["catalogueVisibilityLabel"] = self._catalogue_visibility_detail_label(visible_this_month)
+            observable = self._catalogue_object_observable(item.id)
+            data["catalogueObservable"] = observable is True
+            data["catalogueObservableKnown"] = observable is not None
+            data["catalogueObservableLabel"] = self._catalogue_boolean_label(observable)
+            data["catalogueVisibleThisMonth"] = visible_this_month is True
+            data["catalogueVisibleThisMonthLabel"] = self._catalogue_boolean_label(visible_this_month)
+            data["catalogueVisibilityLabel"] = data["catalogueVisibleThisMonthLabel"]
             data["catalogueVisibilityMonth"] = self._catalogue_month_label(self._catalogue_selected_month)
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
@@ -2413,26 +2490,34 @@ class AppController(QObject):
             data["moonCycleDay"] = self._moon_cycle_day_label(self._moon.phase_angle)
         return data
 
-    def _catalogue_object_visible_this_month(self, object_id: str) -> bool:
+    def _catalogue_object_visible_this_month(self, object_id: str) -> bool | None:
         item = self._catalogue_item_for_object_id(object_id)
-        if not item:
-            return False
-        return bool(self._catalogue_visibility_map().get(str(item.get("object_id", "")), False))
+        if not item or not self._has_valid_location():
+            return None
+        visibility = self._catalogue_visibility_map()
+        catalogue_object_id = str(item.get("object_id", ""))
+        if catalogue_object_id not in visibility:
+            return None
+        return bool(visibility[catalogue_object_id])
 
-    def _catalogue_visibility_detail_label(self, visible_this_month: bool) -> str:
-        if not self._has_valid_location():
-            return "Posizione non configurata"
-        return "Visibile questo mese" if visible_this_month else "Non visibile questo mese"
+    def _catalogue_object_observable(self, object_id: str) -> bool | None:
+        item = self._catalogue_item_for_object_id(object_id)
+        if not item or not self._has_valid_location():
+            return None
+        return self._catalogue_observable_map().get(str(item.get("object_id", "")))
 
     def _catalogue_detail_metadata(self, item: CelestialObject) -> dict:
         metadata = {}
         catalogue_item = self._catalogue_item_for_object_id(item.id)
         if catalogue_item:
+            constellation = str(catalogue_item.get("constellation") or "")
+            if self._is_solar_system_catalogue_item(catalogue_item) and not constellation:
+                constellation = "—"
             metadata.update(
                 {
                     "catalogue": str(catalogue_item.get("catalogue") or ""),
                     "catalogueId": str(catalogue_item.get("catalogue_id") or ""),
-                    "constellation": str(catalogue_item.get("constellation") or ""),
+                    "constellation": constellation,
                     "maxAngularSizeLabel": str(catalogue_item.get("max_angular_size_label") or ""),
                 }
             )
