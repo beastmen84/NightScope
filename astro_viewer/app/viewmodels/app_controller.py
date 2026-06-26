@@ -2343,7 +2343,8 @@ class AppController(QObject):
 
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
         if self._is_catalogue_detail_object(item):
-            return "Oggetto di catalogo", "Dati informativi caricati dal catalogo locale."
+            catalogue = item.visibility_class.replace("Catalogo ", "", 1).strip() or "locale"
+            return f"Catalogo {catalogue}", "Scheda informativa caricata dal catalogo locale."
         current_altitude = self._parse_degrees(item.current_altitude)
         useful_time = self._first_useful_time(item.best_time) or self._first_useful_time(item.observing_window)
         window = self._home_window_label(item)

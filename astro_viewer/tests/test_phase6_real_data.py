@@ -741,6 +741,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
         self.assertIn("EquipmentBinocularsPage", main_qml)
+        self.assertIn('window.detailBackTarget === "objectCatalogue" ? "Torna al catalogo"', main_qml)
         self.assertIn("controller.catalogueObjects", object_catalogue_qml)
         self.assertIn("appController.selectCatalogueObject", main_qml)
         self.assertIn('text: "Esplora gli oggetti astronomici disponibili nel catalogo."', object_catalogue_qml)
@@ -759,7 +760,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('root.isCatalogueDetail ? "Scheda catalogo"', object_detail_qml)
         self.assertIn("root.hasObject && !root.isCatalogueDetail", object_detail_qml)
         self.assertIn("label: root.originMetricLabel()", object_detail_qml)
-        self.assertIn('label: "Costellazione"', object_detail_qml)
+        self.assertIn('"label": "Costellazione"', object_detail_qml)
         self.assertIn('text: "Catalogo binocoli"', binoculars_qml)
         self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
         self.assertIn('placeholderText: "Diametro obiettivo (mm)"', binoculars_qml)
@@ -775,6 +776,59 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('equipmentType === "Binocular"', object_detail_qml)
         self.assertIn("setupDetailText()", object_detail_qml)
         self.assertIn("Pupilla d'uscita", object_detail_qml)
+
+    def test_object_detail_catalogue_mode_uses_catalogue_layout(self) -> None:
+        object_detail_qml = (
+            Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "ObjectDetailPage.qml"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("function catalogueMetadataItems()", object_detail_qml)
+        self.assertIn("function includeCatalogueMetric(value)", object_detail_qml)
+        self.assertIn('return text !== "n/d"', object_detail_qml)
+        self.assertIn("visible: root.isCatalogueDetail", object_detail_qml)
+        self.assertIn('title: "Dati di catalogo"', object_detail_qml)
+        self.assertIn("columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1", object_detail_qml)
+        self.assertIn("model: root.catalogueMetadataItems()", object_detail_qml)
+        self.assertIn("text: root.catalogueBadgeText()", object_detail_qml)
+        self.assertIn('title: "Descrizione"', object_detail_qml)
+        self.assertNotIn("Oggetto di catalogo", object_detail_qml)
+
+        for label in (
+            '"label": "Catalogo"',
+            '"label": "ID catalogo"',
+            '"label": "Tipo"',
+            '"label": "Costellazione"',
+            '"label": "Magnitudine"',
+            '"label": "Dimensione"',
+            '"label": "Dim. max"',
+            '"label": "Osservazione"',
+            '"label": "A.R."',
+            '"label": "Dec"',
+        ):
+            self.assertIn(label, object_detail_qml)
+
+        for observing_section in (
+            'title: "Finestra osservativa"',
+            'title: "Configurazione consigliata"',
+            'title: "Perché vale la pena osservarlo"',
+            'title: "Storico osservazioni"',
+        ):
+            self.assertIn(observing_section, object_detail_qml)
+        self.assertRegex(
+            object_detail_qml,
+            r"RowLayout \{\s+visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]+"
+            r'title: "Finestra osservativa"',
+        )
+        for hidden_section in (
+            "Configurazione consigliata",
+            "Perché vale la pena osservarlo",
+            "Storico osservazioni",
+        ):
+            self.assertRegex(
+                object_detail_qml,
+                rf"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]{{0,180}}"
+                rf'title: "{re.escape(hidden_section)}"',
+            )
 
     def test_catalogue_objects_expose_all_messier_rows_sorted(self) -> None:
         with _controller() as controller:
@@ -883,7 +937,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["declination"])
             self.assertTrue(selected["maxAngularSizeLabel"])
             self.assertIn("M110", selected["name"])
-            self.assertEqual(selected["observingStatus"], "Oggetto di catalogo")
+            self.assertEqual(selected["observingStatus"], "Catalogo Messier")
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

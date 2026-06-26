@@ -47,6 +47,52 @@ Item {
         return String(objectData.maxAngularSizeDeg) + " deg"
     }
 
+    function includeCatalogueMetric(value) {
+        var text = root.safeValue(value)
+        return text !== "n/d" && text !== "undefined" && text !== "null"
+    }
+
+    function catalogueBadgeText() {
+        if (!root.hasObject)
+            return ""
+        var catalogue = root.safeValue(objectData.catalogue)
+        return catalogue === "n/d" ? "Catalogo" : "Catalogo " + catalogue
+    }
+
+    function catalogueSummaryText() {
+        if (!root.hasObject)
+            return ""
+        var parts = []
+        if (root.includeCatalogueMetric(objectData.catalogueId))
+            parts.push(root.safeValue(objectData.catalogueId))
+        if (root.includeCatalogueMetric(objectData.type))
+            parts.push(root.safeValue(objectData.type))
+        if (root.includeCatalogueMetric(objectData.constellation))
+            parts.push("Costellazione " + root.safeValue(objectData.constellation))
+        return parts.join("  -  ")
+    }
+
+    function catalogueMetadataItems() {
+        var source = [
+            { "label": "Catalogo", "value": objectData.catalogue, "accent": theme.violet },
+            { "label": "ID catalogo", "value": objectData.catalogueId, "accent": theme.cyan },
+            { "label": "Tipo", "value": objectData.type, "accent": theme.teal },
+            { "label": "Costellazione", "value": objectData.constellation, "accent": theme.amber },
+            { "label": "Magnitudine", "value": objectData.magnitude, "accent": theme.cyan },
+            { "label": "Dimensione", "value": objectData.apparentSize, "accent": theme.green },
+            { "label": "Dim. max", "value": root.maxAngularSizeText(), "accent": theme.teal },
+            { "label": "Osservazione", "value": objectData.recommendedObservationType, "accent": theme.amber },
+            { "label": "A.R.", "value": objectData.rightAscension, "accent": theme.violet },
+            { "label": "Dec", "value": objectData.declination, "accent": theme.coral }
+        ]
+        var result = []
+        for (var i = 0; i < source.length; i++) {
+            if (root.includeCatalogueMetric(source[i].value))
+                result.push(source[i])
+        }
+        return result
+    }
+
     function distinctSetupOptions(options) {
         var result = []
         var seen = {}
@@ -221,7 +267,7 @@ Item {
             }
 
             RowLayout {
-                visible: root.hasObject
+                visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -309,7 +355,6 @@ Item {
                     }
 
                     GridLayout {
-                        visible: !root.isCatalogueDetail
                         Layout.fillWidth: true
                         columns: root.width > 1000 ? 3 : 2
                         columnSpacing: 12
@@ -325,24 +370,100 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
                     }
+                }
+            }
 
-                    GridLayout {
-                        visible: root.isCatalogueDetail
+            RowLayout {
+                visible: root.isCatalogueDetail
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                spacing: 18
+
+                Rectangle {
+                    Layout.preferredWidth: Math.min(420, Math.max(260, root.width * 0.34))
+                    Layout.preferredHeight: 300
+                    Layout.alignment: Qt.AlignTop
+                    radius: 8
+                    color: "#111319"
+                    border.color: "#303641"
+                    border.width: 1
+
+                    Image {
+                        anchors.fill: parent
+                        anchors.margins: 30
+                        source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
+                        fillMode: Image.PreserveAspectFit
+                        sourceSize.width: 520
+                        sourceSize.height: 520
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 14
+
+                    StatusPill {
+                        text: root.catalogueBadgeText()
+                        accentColor: theme.cyan
+                    }
+
+                    Text {
                         Layout.fillWidth: true
-                        columns: root.width > 1000 ? 3 : 2
-                        columnSpacing: 12
-                        rowSpacing: 12
+                        text: objectData.name
+                        color: theme.textPrimary
+                        font.pixelSize: 40
+                        font.weight: Font.DemiBold
+                        wrapMode: Text.WordWrap
+                    }
 
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Catalogo"; value: root.safeValue(objectData.catalogue); accentColor: theme.violet }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "ID catalogo"; value: root.safeValue(objectData.catalogueId); accentColor: theme.cyan }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tipo"; value: root.safeValue(objectData.type); accentColor: theme.teal }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Costellazione"; value: root.safeValue(objectData.constellation); accentColor: theme.amber }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Magnitudine"; value: root.safeValue(objectData.magnitude); accentColor: theme.cyan }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dimensione"; value: root.safeValue(objectData.apparentSize); accentColor: theme.green }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dim. max"; value: root.maxAngularSizeText(); accentColor: theme.teal }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "A.R."; value: root.safeValue(objectData.rightAscension); accentColor: theme.violet }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Dec"; value: root.safeValue(objectData.declination); accentColor: theme.coral }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Osservazione"; value: root.safeValue(objectData.recommendedObservationType); accentColor: theme.amber }
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.catalogueSummaryText()
+                        color: theme.textSecondary
+                        font.pixelSize: 18
+                        font.weight: Font.DemiBold
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: objectData.notes
+                        color: theme.textSecondary
+                        font.pixelSize: 15
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 7
+                        elide: Text.ElideRight
+                    }
+                }
+            }
+
+            GlassCard {
+                visible: root.isCatalogueDetail
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Dati di catalogo"
+                subtitle: root.catalogueSummaryText()
+                accentColor: theme.cyan
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    Repeater {
+                        model: root.catalogueMetadataItems()
+
+                        delegate: MetricTile {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 82
+                            label: modelData.label
+                            value: modelData.value
+                            accentColor: modelData.accent
+                        }
                     }
                 }
             }
@@ -597,7 +718,7 @@ Item {
             }
 
             GlassCard {
-                visible: root.hasObject
+                visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
