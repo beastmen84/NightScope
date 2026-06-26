@@ -45,6 +45,33 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertIn(estimate.seeing, {"Good", "Excellent"})
         self.assertIn(estimate.transparency, {"Good", "Excellent"})
 
+    def test_seeing_transparency_tolerates_missing_optional_weather_fields(self) -> None:
+        hours = [
+            WeatherHour(
+                "2026-06-21T22:00",
+                "22:00",
+                12,
+                0,
+                7,
+                54,
+                18.0,
+                visibility_m=None,
+                cloud_cover_low=None,
+                cloud_cover_mid=None,
+                cloud_cover_high=None,
+                wind_gusts_kmh=None,
+                dew_point_c=None,
+            )
+        ]
+        sky_quality = type("SkyQualityStub", (), {"bortle_class": 3, "viirs_radiance": None})()
+
+        estimate = SeeingTransparencyService().estimate(hours, sky_quality)
+
+        self.assertEqual(estimate.source, "BasicForecastSeeingProvider")
+        self.assertEqual(estimate.confidence, "low")
+        self.assertGreaterEqual(estimate.seeing_score, 0)
+        self.assertGreaterEqual(estimate.transparency_score, 0)
+
     def test_night_planner_returns_ranked_items(self) -> None:
         target = CelestialObject(
             id="saturn",

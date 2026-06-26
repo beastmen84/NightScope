@@ -47,16 +47,21 @@ class BasicForecastSeeingProvider:
                 confidence="low",
             )
 
-        avg_wind = sum(hour.wind_kmh for hour in night_hours) / len(night_hours)
-        avg_gust = sum(hour.wind_gusts_kmh or hour.wind_kmh for hour in night_hours) / len(night_hours)
-        avg_cloud = sum(hour.cloud_cover for hour in night_hours) / len(night_hours)
-        avg_low_cloud = sum(hour.cloud_cover_low for hour in night_hours) / len(night_hours)
-        avg_mid_cloud = sum(hour.cloud_cover_mid for hour in night_hours) / len(night_hours)
-        avg_high_cloud = sum(hour.cloud_cover_high for hour in night_hours) / len(night_hours)
-        avg_humidity = sum(hour.humidity for hour in night_hours) / len(night_hours)
+        avg_wind = self._average_weather_value(night_hours, "wind_kmh")
+        avg_gust = sum(self._gust_value(hour) for hour in night_hours) / len(night_hours)
+        avg_cloud = self._average_weather_value(night_hours, "cloud_cover")
+        avg_low_cloud = self._average_weather_value(night_hours, "cloud_cover_low")
+        avg_mid_cloud = self._average_weather_value(night_hours, "cloud_cover_mid")
+        avg_high_cloud = self._average_weather_value(night_hours, "cloud_cover_high")
+        avg_humidity = self._average_weather_value(night_hours, "humidity")
         avg_dew_gap = self._average_dew_gap(night_hours)
-        avg_visibility = sum(hour.visibility_m for hour in night_hours if hour.visibility_m > 0)
-        visibility_count = len([hour for hour in night_hours if hour.visibility_m > 0])
+        visibility_values = [
+            visibility
+            for hour in night_hours
+            if (visibility := self._optional_weather_value(hour, "visibility_m")) is not None and visibility > 0
+        ]
+        visibility_count = len(visibility_values)
+        avg_visibility = sum(visibility_values)
         avg_visibility = avg_visibility / visibility_count if visibility_count else 12_000
 
         seeing_score = 100
@@ -116,22 +121,51 @@ class BasicForecastSeeingProvider:
         for hour in hours:
             try:
                 hour_value = int(hour.time[:2])
-            except ValueError:
+            except (TypeError, ValueError):
                 continue
             if hour_value >= 19 or hour_value <= 5:
                 selected.append(hour)
         return selected or hours[:8]
 
-    @staticmethod
-    def _average_dew_gap(hours: list[WeatherHour]) -> float | None:
-        gaps = [
-            hour.temperature_c - hour.dew_point_c
-            for hour in hours
-            if hour.dew_point_c is not None
-        ]
+    @classmethod
+    def _average_dew_gap(cls, hours: list[WeatherHour]) -> float | None:
+        gaps = []
+        for hour in hours:
+            temperature = cls._optional_weather_value(hour, "temperature_c")
+            dew_point = cls._optional_weather_value(hour, "dew_point_c")
+            if temperature is not None and dew_point is not None:
+                gaps.append(temperature - dew_point)
         if not gaps:
             return None
         return sum(gaps) / len(gaps)
+
+    @classmethod
+    def _average_weather_value(cls, hours: list[WeatherHour], field_name: str) -> float:
+        if not hours:
+            return 0.0
+        return sum(cls._weather_value(hour, field_name) for hour in hours) / len(hours)
+
+    @classmethod
+    def _gust_value(cls, hour: WeatherHour) -> float:
+        gust = cls._optional_weather_value(hour, "wind_gusts_kmh")
+        if gust is not None and gust > 0:
+            return gust
+        return cls._weather_value(hour, "wind_kmh")
+
+    @classmethod
+    def _weather_value(cls, hour: WeatherHour, field_name: str) -> float:
+        value = cls._optional_weather_value(hour, field_name)
+        return value if value is not None else 0.0
+
+    @staticmethod
+    def _optional_weather_value(hour: WeatherHour, field_name: str) -> float | None:
+        value = getattr(hour, field_name, None)
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
 
 
 class MeteoblueSeeingProviderPlaceholder:
