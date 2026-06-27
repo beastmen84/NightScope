@@ -189,8 +189,10 @@ Use separate refresh lanes instead of one global timer:
   state dirty.
 - Calendar/events refresh: daily, on location change, and on app startup. Events
   are date-scale data and should not participate in the fast tick.
-- Catalogue monthly visibility: keep independent from Home/Sky Compass and
-  refresh only on catalogue filter/month/location changes.
+- Catalogue monthly visibility: keep the calculation independent from scoring,
+  weather and Planner logic. Home may read the cached catalogue monthly
+  visibility as the Solar-System eligibility gate, while catalogue filter/month
+  and location changes still invalidate the monthly cache.
 
 For the first Sky Compass implementation, the fast tick can update only a small
 compass target subset derived from the latest snapshot: Moon, visible planets,

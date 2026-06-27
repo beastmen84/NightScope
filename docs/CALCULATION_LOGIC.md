@@ -86,6 +86,13 @@ column because their coordinates are time-dependent; the catalogue shows `—`
 for them in `Utile (≥15°)` and uses the monthly visibility calculation
 instead.
 
+For Solar-System Home eligibility, the catalogue monthly visibility criterion is
+the source of truth. A planet can be above the horizon at a specific instant and
+still be excluded from Home recommendations if, in the active catalogue month
+and location, it does not reach at least 15 degrees during astronomical
+darkness. This keeps "above horizon now" separate from "usefully visible this
+month".
+
 ### Object Score
 
 The raw object score is based on:

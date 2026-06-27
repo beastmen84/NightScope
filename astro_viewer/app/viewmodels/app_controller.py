@@ -710,6 +710,9 @@ class AppController(QObject):
             return
         self._catalogue_selected_month = month
         self._invalidate_catalogue_month_visibility_cache()
+        self._refresh_equipment_recommendations_for_current_objects()
+        self._recalculate_observing_outputs()
+        self.dataChanged.emit()
         self.catalogueChanged.emit()
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
             self.selectedObjectChanged.emit()
@@ -1737,7 +1740,11 @@ class AppController(QObject):
         deep_sky_source = self._base_deep_sky or self._deep_sky
         self._solar_system_objects = self._apply_equipment(solar_system_source)
         self._visible_planets = [
-            item for item in self._solar_system_objects if item.object_type == "Pianeta" and item.visible
+            item
+            for item in self._solar_system_objects
+            if item.object_type == "Pianeta"
+            and item.visible
+            and self._solar_system_monthly_visible_for_home(item)
         ]
         self._deep_sky = self._apply_equipment(deep_sky_source)
 
@@ -2038,6 +2045,20 @@ class AppController(QObject):
     @staticmethod
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
         return [item for item in objects if AppController._first_useful_time(item.best_time) or AppController._first_useful_time(item.observing_window)]
+
+    def _solar_system_monthly_visible_for_home(self, item: CelestialObject) -> bool:
+        visibility = self._catalogue_month_visible_for_object(item.id)
+        return visibility is not False
+
+    def _catalogue_month_visible_for_object(self, object_id: str) -> bool | None:
+        item = self._catalogue_item_for_object_id(object_id)
+        if not item or not self._has_valid_location():
+            return None
+        visibility = self._catalogue_visibility_map()
+        catalogue_object_id = str(item.get("object_id", ""))
+        if catalogue_object_id not in visibility:
+            return None
+        return bool(visibility[catalogue_object_id])
 
     def _load_catalogue_objects(self) -> list[dict]:
         objects = [self._catalogue_item_from_messier(row) for row in self._messier_repository.list_objects()]
@@ -2524,14 +2545,9 @@ class AppController(QObject):
         return data
 
     def _catalogue_object_visible_this_month(self, object_id: str) -> bool | None:
-        item = self._catalogue_item_for_object_id(object_id)
-        if not item or not self._has_valid_location() or not self._catalogue_visible_this_month_only:
+        if not self._catalogue_visible_this_month_only:
             return None
-        visibility = self._catalogue_visibility_map()
-        catalogue_object_id = str(item.get("object_id", ""))
-        if catalogue_object_id not in visibility:
-            return None
-        return bool(visibility[catalogue_object_id])
+        return self._catalogue_month_visible_for_object(object_id)
 
     def _catalogue_object_observability(self, object_id: str) -> dict[str, bool | None]:
         item = self._catalogue_item_for_object_id(object_id)
@@ -2736,6 +2752,12 @@ class AppController(QObject):
         window = self._home_window_label(item)
         now = datetime.now(self._zone())
         is_observing_time = self._is_home_observing_time(now.hour, now.minute)
+        if self._is_solar_system_monthly_visibility_blocked(item):
+            if current_altitude is not None and current_altitude > 0:
+                return "Sopra l'orizzonte", "Sopra l'orizzonte, ma non utile per l'osservazione questo mese."
+            if useful_time:
+                return "Finestra marginale", "Finestra marginale: il target non raggiunge la visibilità utile mensile."
+            return "Non utile questo mese", "Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile."
         if current_altitude is not None and current_altitude >= 10:
             if is_observing_time:
                 return "Osservabile ora", f"Attualmente a {current_altitude:.0f} gradi. Finestra migliore: {window}."
@@ -2750,6 +2772,11 @@ class AppController(QObject):
         if item.visible:
             return "Finestra utile", f"Finestra osservativa: {item.observing_window}."
         return "Non osservabile", "Nessuna finestra notturna utile per questa posizione."
+
+    def _is_solar_system_monthly_visibility_blocked(self, item: CelestialObject) -> bool:
+        if item.object_type != "Pianeta":
+            return False
+        return self._catalogue_month_visible_for_object(item.id) is False
 
     def _observing_reasons(self, item: CelestialObject) -> list[str]:
         if self._is_catalogue_detail_object(item):

@@ -115,7 +115,7 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 visible: root.setupText().length > 0
-                text: "Consigliato: " + root.setupText()
+                text: "Osservazione consigliata: " + root.setupText()
                 color: theme.textSecondary
                 font.pixelSize: 12
                 elide: Text.ElideRight

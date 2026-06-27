@@ -24,7 +24,7 @@ from astro_viewer.app.database.sky_quality_repository import SkyQualityRepositor
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
-from astro_viewer.app.models.weather import WeatherHour
+from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, NasaViirsBlackMarbleProvider
@@ -1021,6 +1021,12 @@ class Phase6RealDataTests(unittest.TestCase):
                         {"object_id": "sun", "solar_system_body_id": "sun"},
                         {"object_id": "moon", "solar_system_body_id": "moon"},
                         {"object_id": "mercury", "solar_system_body_id": "mercury"},
+                        {"object_id": "venus", "solar_system_body_id": "venus"},
+                        {"object_id": "mars", "solar_system_body_id": "mars"},
+                        {"object_id": "jupiter", "solar_system_body_id": "jupiter"},
+                        {"object_id": "saturn", "solar_system_body_id": "saturn"},
+                        {"object_id": "uranus", "solar_system_body_id": "uranus"},
+                        {"object_id": "neptune", "solar_system_body_id": "neptune"},
                     ],
                     ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"),
                     2026,
@@ -1033,8 +1039,86 @@ class Phase6RealDataTests(unittest.TestCase):
                 self.assertTrue(solar_visibility["sun"])
                 self.assertTrue(solar_visibility["moon"])
                 self.assertFalse(solar_visibility["mercury"])
+                self.assertTrue(solar_visibility["venus"])
+                self.assertFalse(solar_visibility["mars"])
+                self.assertTrue(solar_visibility["jupiter"])
+                self.assertTrue(solar_visibility["saturn"])
+                self.assertFalse(solar_visibility["uranus"])
+                self.assertTrue(solar_visibility["neptune"])
             finally:
                 engine.close()
+
+    def test_home_solar_system_candidates_respect_catalogue_month_visibility(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {
+                "venus": True,
+                "mars": False,
+                "jupiter": True,
+                "saturn": True,
+                "uranus": False,
+                "neptune": True,
+            }
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+            controller._catalogue_year = 2026
+            controller._catalogue_selected_month = 6
+            controller._invalidate_catalogue_visibility_cache()
+            controller._base_solar_system_objects = [
+                _planet("venus", "Venere"),
+                _planet("mars", "Marte"),
+                _planet("jupiter", "Giove"),
+                _planet("saturn", "Saturno"),
+                _planet("uranus", "Urano"),
+                _planet("neptune", "Nettuno"),
+            ]
+            controller._deep_sky = []
+            controller._base_deep_sky = []
+
+            planner = Mock()
+            planner.plan.return_value = []
+            controller._night_planner_service = planner
+            controller._notification_service = Mock()
+            controller._notification_service.notifications.return_value = []
+            controller._weather_summary = WeatherSummary("Buono", 80, "", 10, 0, 5, 55, 18.0, "")
+            controller._sky_quality = SkyQuality(4, 6.1, 20.8, "test", "Rural Sky")
+
+            with patch.object(controller, "_apply_equipment", side_effect=lambda objects: objects):
+                controller._refresh_equipment_recommendations_for_current_objects()
+                controller._recalculate_observing_outputs()
+
+            home_ids = [item["id"] for item in controller.visiblePlanets]
+            self.assertEqual(home_ids, ["venus", "jupiter", "saturn", "neptune"])
+            self.assertNotIn("mars", home_ids)
+            self.assertNotIn("uranus", home_ids)
+
+            planner_ids = [item.id for item in planner.plan.call_args.args[0]]
+            self.assertEqual(planner_ids, ["venus", "jupiter", "saturn", "neptune"])
+            astronomy.catalogue_month_visibility.assert_called_once()
+
+    def test_solar_system_detail_can_be_above_horizon_without_monthly_useful_status(self) -> None:
+        with _controller() as controller:
+            astronomy = Mock()
+            astronomy.catalogue_month_visibility.return_value = {"mars": False}
+            controller._astronomy_engine = astronomy
+            controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+            controller._catalogue_year = 2026
+            controller._catalogue_selected_month = 6
+            controller._invalidate_catalogue_visibility_cache()
+
+            selected = controller._object_to_qml(
+                _planet(
+                    "mars",
+                    "Marte",
+                    current_altitude="62.0 gradi",
+                    best_time="04:15",
+                    observing_window="04:15 - 07:00",
+                )
+            )
+
+            self.assertEqual(selected["observingStatus"], "Sopra l'orizzonte")
+            self.assertIn("non utile per l'osservazione questo mese", selected["observingStatusDetail"])
+            self.assertNotIn("Finestra migliore", selected["observingStatusDetail"])
 
     def test_catalogue_visible_this_month_filter_keeps_catalogue_complete_until_enabled(self) -> None:
         with _controller() as controller:
@@ -1548,6 +1632,36 @@ def _object(object_id: str, name: str, object_type: str, magnitude: str) -> Cele
         visibility_class="",
         azimuth="",
         time_above_horizon="",
+        score=80,
+    )
+
+
+def _planet(
+    object_id: str,
+    name: str,
+    current_altitude: str = "42.0 gradi",
+    best_time: str = "22:00",
+    observing_window: str = "21:00 - 23:00",
+) -> CelestialObject:
+    return CelestialObject(
+        id=object_id,
+        name=name,
+        object_type="Pianeta",
+        image=f"resources/images/{object_id}.svg",
+        magnitude="1.0",
+        distance="n/d",
+        max_altitude="45 gradi",
+        direction="Sud",
+        best_time=best_time,
+        observing_window=observing_window,
+        notes="",
+        recommended_setup="",
+        visibility_class="Occhio nudo",
+        azimuth="180 gradi",
+        time_above_horizon="3 h",
+        visible=True,
+        current_altitude=current_altitude,
+        current_azimuth="180.0 gradi",
         score=80,
     )
 

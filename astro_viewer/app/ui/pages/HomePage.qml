@@ -141,9 +141,9 @@ Item {
     function visibilityLabel(item) {
         var value = (item.visibility_class || "").toLowerCase()
         if (value.indexOf("occhio") >= 0)
-            return "Visibile a occhio nudo"
+            return "Visibilità: occhio nudo"
         if (value.indexOf("binocolo") >= 0)
-            return "Visibile con binocolo"
+            return "Visibilità: binocolo"
         if (value.length > 0)
             return "Visibilità: " + item.visibility_class
         return item.observingStatus || "Finestra utile"
