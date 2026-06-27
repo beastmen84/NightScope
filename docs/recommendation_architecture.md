@@ -161,6 +161,14 @@ shape consumed by QML:
 It formats telescope, binocular, naked-eye and fallback recommendations without
 changing scoring.
 
+Each item in `setupOptions` keeps the physical setup identity (`detailLabel`,
+`telescopeName`, `barlow`, metrics) and also exposes `displayLabel` for UI
+rendering. `displayLabel` matches `detailLabel` in normal cases, but includes
+the telescope name when two visible options would otherwise share the same
+eyepiece/focal label, for example two different telescopes both using `32 mm`.
+This disambiguation is presentation-only and does not affect scoring,
+candidate selection or duplicate suppression.
+
 ### AppController
 
 `AppController` is the application-facing coordinator.

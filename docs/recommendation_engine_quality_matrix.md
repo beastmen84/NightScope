@@ -50,7 +50,7 @@ This matrix exercises the current Recommendation Engine behaviour only. It does 
 | Checks per scenario | 25 - 25 |
 | Equipment selected | Telescope: 268, Binocular: 82, NakedEye: 25 |
 | Duplicate setup options | 0 |
-| Ambiguous option labels across different instruments | 3 |
+| Ambiguous option labels across different instruments | 0 |
 | Zoom primary positions used | 12 mm, 16 mm, 20 mm, 24 mm, 8 mm |
 | Matrix invariant violations | 0 |
 
@@ -88,7 +88,6 @@ All matrix invariants passed.
 ### Non-blocking Findings
 
 - Medium globular clusters fall below 55x in 8 limited-profile cases. These are equipment-limit cases, not scoring failures.
-- Ambiguous option labels occur in 3 cases where different telescopes share labels such as `32 mm`; UI contexts should include telescope name when presenting setup options.
 
 ## Review Notes
 

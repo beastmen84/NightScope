@@ -17,7 +17,7 @@ class RecommendationPresenter:
         prefix_telescope: bool = False,
     ) -> dict:
         options = self._option_set(candidates, recommended)
-        setup_options = [self._candidate_to_option(role, candidate) for role, candidate in options]
+        setup_options = self._setup_options(options)
         alternative = next((option for option in setup_options if option["role"] == "Alternativa"), None)
         setup_text = recommended.detail_label
         telescope = recommended.telescope
@@ -41,9 +41,9 @@ class RecommendationPresenter:
             "suggestedPosition": recommended.focal_position,
             "barlow": recommended.barlow_label,
             "difficulty": difficulty,
-            "alternative": alternative["detailLabel"] if alternative else "n/d",
-            "highMagnification": next((option["detailLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
-            "wideField": next((option["detailLabel"] for option in setup_options if option["role"] == "Campo largo"), ""),
+            "alternative": alternative["displayLabel"] if alternative else "n/d",
+            "highMagnification": next((option["displayLabel"] for option in setup_options if option["role"] == "Alto ingrandimento"), ""),
+            "wideField": next((option["displayLabel"] for option in setup_options if option["role"] == "Campo largo"), ""),
             "setupText": setup_text,
             "setupOptions": setup_options,
             "explanation": explanation,
@@ -160,13 +160,48 @@ class RecommendationPresenter:
         )
 
     @staticmethod
-    def _candidate_to_option(role: str, candidate: RecommendationCandidate) -> dict:
+    def _setup_options(options: list[tuple[str, RecommendationCandidate]]) -> list[dict]:
+        ambiguous_labels = RecommendationPresenter._ambiguous_telescope_labels(
+            [candidate for _, candidate in options]
+        )
+        return [
+            RecommendationPresenter._candidate_to_option(
+                role,
+                candidate,
+                include_telescope=candidate.detail_label in ambiguous_labels,
+            )
+            for role, candidate in options
+        ]
+
+    @staticmethod
+    def _ambiguous_telescope_labels(candidates: list[RecommendationCandidate]) -> set[str]:
+        telescopes_by_label: dict[str, set[str]] = {}
+        for candidate in candidates:
+            if candidate.equipment_type != "Telescope" or not candidate.telescope_name:
+                continue
+            telescopes_by_label.setdefault(candidate.detail_label, set()).add(candidate.telescope_name)
+        return {
+            label
+            for label, telescope_names in telescopes_by_label.items()
+            if len(telescope_names) > 1
+        }
+
+    @staticmethod
+    def _candidate_to_option(
+        role: str,
+        candidate: RecommendationCandidate,
+        include_telescope: bool = False,
+    ) -> dict:
         true_field = candidate.true_field
         exit_pupil = candidate.exit_pupil
+        display_label = candidate.detail_label
+        if include_telescope and candidate.equipment_type == "Telescope" and candidate.telescope_name:
+            display_label = f"{candidate.telescope_name} + {candidate.detail_label}"
         return {
             "role": role,
             "label": candidate.label,
             "detailLabel": candidate.detail_label,
+            "displayLabel": display_label,
             "suggestedPosition": candidate.focal_position,
             "magnification": f"{candidate.magnification:.0f}x",
             "trueField": f"{true_field:.2f} gradi" if true_field is not None else "n/d",

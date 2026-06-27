@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from astro_viewer.app.models.equipment import Binocular, Eyepiece, Telescope
+from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
 
@@ -96,6 +97,51 @@ def test_presenter_serializes_missing_eyepiece_fallback() -> None:
     assert dto["setupText"] == "Aggiungi oculari per suggerimenti completi"
     assert dto["difficulty"] == "Limitata"
     assert dto["setupOptions"] == []
+
+
+def test_presenter_disambiguates_same_eyepiece_label_across_telescopes() -> None:
+    service = EquipmentService()
+    target = _object(
+        "messier-M17",
+        "M17",
+        "H II region nebula with cluster",
+        "6.0",
+        "11 arcmin",
+        0.183,
+        "General",
+    )
+
+    dto = service.suggest_for_profile(
+        target,
+        [
+            Telescope("mak127", "Mak 127", 127, 1500, "Maksutov", "manuale"),
+            Telescope("newton130", "Newton 130/650", 130, 650, "Newton", "manuale"),
+        ],
+        [
+            Eyepiece("hyperion-zoom", "Baader Hyperion Zoom 8-24 mm", 24, 60, "1.25/2", "Zoom", 8, 24, (24, 20, 16, 12, 8)),
+            Eyepiece("e32", "32 mm", 32, 68),
+            Eyepiece("e10", "10 mm", 10, 60),
+            Eyepiece("e6", "6 mm", 6, 58),
+        ],
+        [Barlow("b2", "Barlow 2x", 2.0)],
+        seeing=SeeingTransparency("Average", "Average", 55, 50, ""),
+        sky_quality=SkyQuality(7, 4.7, 18.5, "SyntheticVIIRS", "Urban synthetic sky.", viirs_radiance=75.0),
+        binoculars=[Binocular("b10x50", "Nikon Aculon A211", 10, 50)],
+    )
+
+    matching_options = [
+        option
+        for option in dto["setupOptions"]
+        if option["detailLabel"] == "32 mm"
+    ]
+    display_labels = [option["displayLabel"] for option in dto["setupOptions"]]
+
+    assert len(matching_options) == 2
+    assert {option["displayLabel"] for option in matching_options} == {
+        "Mak 127 + 32 mm",
+        "Newton 130/650 + 32 mm",
+    }
+    assert len(display_labels) == len(set(display_labels))
 
 
 def _object(

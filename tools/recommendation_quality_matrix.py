@@ -70,10 +70,10 @@ def _evaluate(scenario: Scenario, target: Target) -> dict[str, str]:
     )
     options = suggestion.get("setupOptions", [])
     primary = options[0] if options else {}
-    detail_labels = [option.get("detailLabel", "") for option in options]
+    display_labels = [_display_label(option) for option in options]
     option_keys = [_option_key(option) for option in options]
     duplicate_options = len(option_keys) - len(set(option_keys))
-    ambiguous_labels = len(detail_labels) - len(set(detail_labels))
+    ambiguous_labels = len(display_labels) - len(set(display_labels))
     magnification = primary.get("magnification", "n/d")
     row = {
         "scenario_id": scenario.scenario_id,
@@ -93,6 +93,7 @@ def _evaluate(scenario: Scenario, target: Target) -> dict[str, str]:
         "equipment_type": suggestion.get("equipmentType", ""),
         "setup_type": suggestion.get("setupType", ""),
         "setup_text": suggestion.get("setupText", ""),
+        "display_label": _display_label(primary),
         "suggested_position": primary.get("suggestedPosition", suggestion.get("suggestedPosition", "")),
         "magnification": magnification,
         "magnification_value": f"{_magnification_value(magnification):.0f}" if _magnification_value(magnification) is not None else "",
@@ -232,10 +233,11 @@ def _write_report(scenarios: list[Scenario], targets: list[Target], rows: list[d
                 "### Non-blocking Findings",
                 "",
                 f"- Medium globular clusters fall below 55x in {len(limited_globulars)} limited-profile cases. These are equipment-limit cases, not scoring failures.",
-                f"- Ambiguous option labels occur in {ambiguous_label_count} cases where different telescopes share labels such as `32 mm`; UI contexts should include telescope name when presenting setup options.",
-                "",
             ]
         )
+        if ambiguous_label_count > 0:
+            report.append(f"- Ambiguous display labels occur in {ambiguous_label_count} cases. Setup option UI should include telescope context when needed.")
+        report.append("")
     report.extend(
         [
             "## Review Notes",
@@ -313,10 +315,14 @@ def _option_key(option: dict[str, str]) -> tuple[str, str, str, str, str]:
     return (
         option.get("equipmentType", ""),
         option.get("telescopeName", ""),
-        option.get("detailLabel", "") or option.get("label", ""),
+        _display_label(option),
         option.get("barlow", ""),
         option.get("magnification", ""),
     )
+
+
+def _display_label(option: dict[str, str]) -> str:
+    return option.get("displayLabel", "") or option.get("detailLabel", "") or option.get("label", "")
 
 
 def _case_label(row: dict[str, str], message: str) -> str:

@@ -105,7 +105,7 @@ Item {
         var seen = {}
         options = options || []
         for (var i = 0; i < options.length; i++) {
-            var key = options[i].detailLabel || options[i].label || ""
+            var key = options[i].displayLabel || options[i].detailLabel || options[i].label || ""
             if (key.length === 0 || seen[key])
                 continue
             seen[key] = true
@@ -538,7 +538,7 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            text: modelData.detailLabel || modelData.label
+                            text: modelData.displayLabel || modelData.detailLabel || modelData.label
                             color: theme.textPrimary
                             font.pixelSize: 13
                             font.weight: Font.DemiBold

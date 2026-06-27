@@ -63,11 +63,13 @@ Item {
             return ""
         var option = root.displaySetupOption(item)
         var fullSetup = item.recommended_setup || item.setup || ""
-        var setup = option ? option.detailLabel : fullSetup
+        var setup = option ? (option.displayLabel || option.detailLabel) : fullSetup
         if (!root.hasOpticalProfile())
             return setup
         if (option && option.equipmentType === "Binocular")
             return setup
+        if (option && option.displayLabel && option.displayLabel !== option.detailLabel)
+            return option.displayLabel
         var lower = setup.toLowerCase()
         if (lower.indexOf("occhio nudo") >= 0 || lower.indexOf("binocolo") >= 0 || lower.indexOf("serve almeno") >= 0)
             return setup
