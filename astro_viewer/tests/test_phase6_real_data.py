@@ -725,6 +725,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'text: "Meteo"',
             'text: "Configurazione"',
             'text: "Località"',
+            'text: "Provider dati"',
             'text: "Profili"',
             'text: "Cataloghi"',
             'text: "Oggetti celesti"',
@@ -735,11 +736,13 @@ class Phase6RealDataTests(unittest.TestCase):
         positions = [main_qml.index(label) for label in expected_labels]
         self.assertEqual(positions, sorted(positions))
         self.assertNotIn('text: "Strumenti"', main_qml)
+        self.assertIn("dataProviders", main_qml)
         self.assertIn("equipmentProfiles", main_qml)
         self.assertIn("objectCatalogue", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
         self.assertIn("equipmentOptics", main_qml)
         self.assertIn("equipmentBinoculars", main_qml)
+        self.assertIn("DataProvidersPage", main_qml)
         self.assertIn("EquipmentProfilesPage", main_qml)
         self.assertIn("ObjectCataloguePage", main_qml)
         self.assertIn("EquipmentTelescopesPage", main_qml)

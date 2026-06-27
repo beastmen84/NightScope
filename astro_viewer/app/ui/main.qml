@@ -163,6 +163,14 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
+                        text: "Provider dati"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/cloud.svg"
+                        selected: window.currentPage === "dataProviders"
+                        onClicked: window.currentPage = "dataProviders"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
                         text: "Profili"
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentProfiles"
@@ -275,6 +283,7 @@ ApplicationWindow {
                 if (window.currentPage === "calendar") return calendarPage
                 if (window.currentPage === "weather") return weatherPage
                 if (window.currentPage === "location") return locationPage
+                if (window.currentPage === "dataProviders") return dataProvidersPage
                 if (window.currentPage === "equipmentProfiles") return equipmentProfilesPage
                 if (window.currentPage === "objectCatalogue") return objectCataloguePage
                 if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
@@ -342,6 +351,13 @@ ApplicationWindow {
     Component {
         id: locationPage
         LocationPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: dataProvidersPage
+        DataProvidersPage {
             controller: appController
         }
     }

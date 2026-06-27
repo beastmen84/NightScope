@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.1.1 - 2026-06-27
+
+- Aggiunta la pagina `Provider dati` sotto `Configurazione`.
+- Spostata la configurazione Earthdata NASA fuori da `Località`, mantenendo invariati credenziali, stato, test connessione, autorizzazione app e rimozione.
+- Aggiornati README e manuale per indicare la nuova collocazione della configurazione Earthdata.
+
 ## NightScope 1.1 - 2026-06-27
 
 - Aggiunta la pagina `Oggetti celesti` come catalogo informativo separato da Home, Planner e Recommendation Engine.

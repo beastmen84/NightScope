@@ -17,6 +17,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
+- Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, a partire da Earthdata NASA.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari e Barlow.
 - Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
 - Database SQLite embedded inizializzato da seed CSV locali.
@@ -24,7 +25,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione stabile di riferimento: `1.1`.
+Versione stabile di riferimento: `1.1.1`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

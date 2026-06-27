@@ -213,6 +213,7 @@
         <span class="pill">Home osservativa</span>
         <span class="pill">Profili strumenti</span>
         <span class="pill">Oggetti celesti</span>
+        <span class="pill">Provider dati</span>
         <span class="pill">Meteo</span>
         <span class="pill">Cielo profondo</span>
         <span class="pill">VIIRS opzionale</span>
@@ -267,6 +268,17 @@
       </article>
 
       <article class="card">
+        <h2>Provider dati</h2>
+        <p>La pagina <strong>Provider dati</strong> raccoglie gli accessi opzionali ai servizi esterni senza mescolarli alla gestione della località.</p>
+        <ul>
+          <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble.</li>
+          <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
+          <li>I comandi disponibili sono <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Autorizza app</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
+        </ul>
+        <p>La configurazione resta compatibile con le credenziali già salvate nelle versioni precedenti.</p>
+      </article>
+
+      <article class="card">
         <h2>Oggetti celesti</h2>
         <p>La pagina <strong>Oggetti celesti</strong> è un catalogo informativo, separato dalle raccomandazioni della Home e dal Planner.</p>
         <ul>
@@ -309,7 +321,7 @@
         <h2>Earthdata NASA e VIIRS</h2>
         <p>L'accesso Earthdata è opzionale. Senza credenziali, NightScope usa il fallback locale per la qualità cielo.</p>
         <ul>
-          <li>Inserisci utente e password Earthdata in <strong>Località</strong>.</li>
+          <li>Inserisci utente e password Earthdata in <strong>Provider dati</strong>.</li>
           <li>Usa <strong>Test connessione</strong> per verificare LAADS OPeNDAP.</li>
           <li>Se richiesto, usa <strong>Autorizza app</strong>, completa il consenso sul sito NASA e ripeti il test.</li>
         </ul>
@@ -342,7 +354,7 @@
     </section>
 
     <footer>
-      NightScope 1.1 - manuale utente offline.
+      NightScope 1.1.1 - manuale utente offline.
     </footer>
   </main>
 </body>

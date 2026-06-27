@@ -413,11 +413,16 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("onOpenObject: function(objectId)", main_qml)
         self.assertIn('window.currentPage = "detail"', main_qml)
 
-    def test_location_page_exposes_earthdata_registration_link(self) -> None:
-        qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
-        self.assertIn('title: "Posizioni recenti"', qml)
-        self.assertIn('text: "Nessuna posizione recente."', qml)
-        self.assertNotIn("visible: controller.recentLocations.length > 0", qml)
+    def test_data_providers_page_exposes_earthdata_configuration(self) -> None:
+        ui_pages = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages"
+        location_qml = (ui_pages / "LocationPage.qml").read_text(encoding="utf-8")
+        qml = (ui_pages / "DataProvidersPage.qml").read_text(encoding="utf-8")
+        self.assertIn('title: "Posizioni recenti"', location_qml)
+        self.assertIn('text: "Nessuna posizione recente."', location_qml)
+        self.assertNotIn("visible: controller.recentLocations.length > 0", location_qml)
+        self.assertNotIn('title: "Earthdata NASA"', location_qml)
+        self.assertIn('text: "Provider dati"', qml)
+        self.assertIn('title: "Earthdata NASA"', qml)
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
         self.assertIn('headerActionText: "Create account"', qml)
         self.assertIn("headerActionWidth: 148", qml)
