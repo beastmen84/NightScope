@@ -12,24 +12,27 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
-- Catalogo Messier offline e descrizioni osservative locali, esposto tramite un modello catalogo generico.
+- Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
 - Meteo Open-Meteo con cache SQLite, timeout breve e fallback controllato.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari e Barlow.
+- Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
 - Database SQLite embedded inizializzato da seed CSV locali.
 - Build Windows tramite PyInstaller.
 
 ## Stato
 
-Versione di riferimento: `1.0`.
+Versione stabile di riferimento: `1.1`.
 
-La UI e il flusso principale sono considerati stabili. Le aree più sperimentali restano:
+La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
 - dati VIIRS NASA, perché dipendono da connessione, credenziali Earthdata e disponibilità LAADS;
 - qualità dei cataloghi strumenti, da verificare sempre per varianti regionali e modelli commerciali specifici;
 - descrizioni e note osservative, che possono essere arricchite nel tempo.
+
+Il numero versione applicativo è tracciato nel file root `VERSION`.
 
 ## Requisiti
 
@@ -59,7 +62,7 @@ Smoke test rapido:
 Suite test:
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s astro_viewer\tests
+.\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m compileall astro_viewer
 ```
 
@@ -91,7 +94,8 @@ La build usa `packaging/NightScope.spec` e include:
 - seed CSV per Messier, immagini, descrizioni, telescopi, oculari, Barlow e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
 - ephemeris `data/skyfield/de421.bsp`;
-- `manuale.html`.
+- `manuale.html`;
+- `VERSION`.
 
 Output previsto:
 
@@ -116,6 +120,7 @@ astro_viewer/
   tests/
   tools/
 packaging/
+VERSION
 manuale.html
 README.md
 ```

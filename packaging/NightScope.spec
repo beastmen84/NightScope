@@ -7,6 +7,7 @@ ROOT = Path(SPECPATH).parent
 APP_DIR = ROOT / "astro_viewer"
 
 datas = [
+    (str(ROOT / "VERSION"), "."),
     (str(ROOT / "manuale.html"), "."),
     (str(APP_DIR / "app" / "ui"), "astro_viewer/app/ui"),
     (str(APP_DIR / "resources"), "astro_viewer/resources"),

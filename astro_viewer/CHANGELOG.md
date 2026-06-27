@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.1 - 2026-06-27
+
+- Aggiunta la pagina `Oggetti celesti` come catalogo informativo separato da Home, Planner e Recommendation Engine.
+- Esteso il catalogo a oggetti Messier e Sistema Solare, con ricerca, filtri, click-through al dettaglio oggetto e layout dettaglio in modalità catalogo.
+- Aggiunte le colonne `Utile (≥15°)` e `Visibile nel mese`, distinguendo osservabilità utile da visibilità astronomica mensile.
+- Allineata la visibilità mensile del Sistema Solare tra Catalogo, Home e dettaglio oggetto, evitando raccomandazioni contraddittorie.
+- Rifinita la presentazione delle raccomandazioni separando `Visibile con...` da `Osservazione consigliata`.
+- Reso più conservativo il comportamento planetario quando il seeing non è disponibile.
+- Aggiunto supporto alle posizioni reali degli oculari zoom, inclusi i click del Baader Hyperion Zoom 8-24 mm.
+- Migliorata la scelta pratica per ammassi globulari medi senza alterare i pesi globali del Recommendation Engine v2.
+- Disambiguate le opzioni setup quando telescopi diversi condividono lo stesso label oculare.
+- Aggiunta una matrice qualità ripetibile da 375 casi per controllare pianeti, categorie Messier, profili strumenti, seeing e cielo/VIIRS sintetici.
+- Aggiornata la documentazione tecnica su refresh Home, architettura raccomandazioni e logica di calcolo.
+
 ## NightScope 1.0 - 2026-06-23
 
 - Stabilizzata la Home osservativa con suggerimenti basati su profilo, meteo, Luna e qualità cielo.
