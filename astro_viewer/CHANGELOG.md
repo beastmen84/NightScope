@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.1.2 - 2026-06-27
+
+- Riorganizzata la pagina `Località` mettendo la ricerca città come flusso principale sotto la posizione attuale.
+- Spostate le card Windows e geolocalizzazione IP nella colonna destra, mantenendo invariati provider e azioni.
+- Rinominata la card online in `Località IP (ipapi/ipwho)` per rendere esplicito il tipo di provider usato.
+
 ## NightScope 1.1.1 - 2026-06-27
 
 - Aggiunta la pagina `Provider dati` sotto `Configurazione`.

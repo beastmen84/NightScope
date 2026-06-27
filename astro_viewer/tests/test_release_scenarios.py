@@ -434,6 +434,16 @@ class ReleaseScenarioTests(unittest.TestCase):
         )
         self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
 
+    def test_location_page_prioritizes_city_search_layout(self) -> None:
+        qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
+        self.assertLess(qml.index('title: "Posizione attuale"'), qml.index('title: "Ricerca città"'))
+        self.assertLess(qml.index('title: "Ricerca città"'), qml.index('title: "Posizioni recenti"'))
+        self.assertLess(qml.index("title: \"Rilevamento posizione all'avvio\""), qml.index('title: "Posizione Windows"'))
+        self.assertLess(qml.index('title: "Posizione Windows"'), qml.index('title: "Località IP (ipapi/ipwho)"'))
+        self.assertLess(qml.index('title: "Località IP (ipapi/ipwho)"'), qml.index('title: "Coordinate manuali"'))
+        self.assertIn("Layout.rowSpan: root.width > 1040 ? 2 : 1", qml)
+        self.assertIn('subtitle: "Geolocalizzazione IP"', qml)
+
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)
 
