@@ -124,20 +124,40 @@ class RecommendationPresenter:
         alternative = self._first_distinct(candidates, options)
         if alternative:
             options.append(("Alternativa", alternative))
-        options.append(("Alto ingrandimento", max(candidates, key=lambda item: item.magnification)))
-        options.append(("Campo largo", max(candidates, key=lambda item: item.true_field or 0.0)))
+        self._append_distinct_option(options, "Alto ingrandimento", max(candidates, key=lambda item: item.magnification))
+        self._append_distinct_option(options, "Campo largo", max(candidates, key=lambda item: item.true_field or 0.0))
         return options
+
+    @classmethod
+    def _append_distinct_option(
+        cls,
+        options: list[tuple[str, RecommendationCandidate]],
+        role: str,
+        candidate: RecommendationCandidate,
+    ) -> None:
+        selected_keys = {cls._candidate_key(selected) for _, selected in options}
+        if cls._candidate_key(candidate) not in selected_keys:
+            options.append((role, candidate))
 
     @staticmethod
     def _first_distinct(
         candidates: list[RecommendationCandidate],
         selected: list[tuple[str, RecommendationCandidate]],
     ) -> RecommendationCandidate | None:
-        selected_labels = {candidate.detail_label for _, candidate in selected}
+        selected_keys = {RecommendationPresenter._candidate_key(candidate) for _, candidate in selected}
         for candidate in candidates:
-            if candidate.detail_label not in selected_labels:
+            if RecommendationPresenter._candidate_key(candidate) not in selected_keys:
                 return candidate
         return None
+
+    @staticmethod
+    def _candidate_key(candidate: RecommendationCandidate) -> tuple[str, str, str, str]:
+        return (
+            candidate.equipment_type,
+            candidate.telescope_name,
+            candidate.detail_label,
+            candidate.barlow_label,
+        )
 
     @staticmethod
     def _candidate_to_option(role: str, candidate: RecommendationCandidate) -> dict:

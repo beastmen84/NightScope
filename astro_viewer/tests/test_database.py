@@ -89,6 +89,12 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertGreaterEqual(len(repository.models()), 12)
             self.assertGreaterEqual(len(repository.eyepieces()), 6)
             self.assertGreaterEqual(len(repository.barlows()), 4)
+            hyperion_zoom = next(
+                item
+                for item in repository.eyepieces()
+                if item["brand"] == "Baader" and item["model"] == "Hyperion Zoom 8-24 mm"
+            )
+            self.assertEqual(hyperion_zoom["zoom_click_positions_mm"], "24;20;16;12;8")
             self.assertEqual(len(binoculars), binocular_seed_count)
             self.assertGreaterEqual(len(binoculars), 60)
             self.assertTrue(any(item["image_stabilized"] for item in binoculars))

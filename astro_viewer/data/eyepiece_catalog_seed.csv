@@ -1,4 +1,4 @@
-brand,model,eyepiece_type,focal_length_mm,min_focal_length_mm,max_focal_length_mm,apparent_field_deg,afov_min,afov_max,barrel_size,notes
+brand,model,eyepiece_type,focal_length_mm,min_focal_length_mm,max_focal_length_mm,apparent_field_deg,afov_min,afov_max,barrel_size,notes,zoom_click_positions_mm
 Baader,Classic Ortho,Fixed,6,,,50,,,1.25,Manufacturer catalog series.
 Baader,Classic Ortho,Fixed,10,,,50,,,1.25,Manufacturer catalog series.
 Baader,Classic Ortho,Fixed,18,,,50,,,1.25,Manufacturer catalog series.
@@ -10,7 +10,7 @@ Baader,Hyperion,Fixed,13,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,17,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,21,,,68,,,1.25/2,Manufacturer catalog series.
 Baader,Hyperion,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
-Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,48,68,1.25/2,"Zoom eyepiece; AFOV varies 48-68 deg by focal position, midpoint estimate used."
+Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,48,68,1.25/2,"Zoom eyepiece; AFOV varies 48-68 deg by focal position; click positions 24/20/16/12/8 mm.",24;20;16;12;8
 Baader,Morpheus,Fixed,4.5,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,6.5,,,76,,,1.25/2,Manufacturer catalog series.
 Baader,Morpheus,Fixed,9,,,76,,,1.25/2,Manufacturer catalog series.

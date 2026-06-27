@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS EyepieceCatalog (
     afov_min REAL,
     afov_max REAL,
     barrel_size TEXT,
+    zoom_click_positions_mm TEXT,
     notes TEXT,
     UNIQUE (brand, model, focal_length_mm)
 );

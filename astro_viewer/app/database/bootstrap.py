@@ -13,7 +13,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -244,6 +244,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "afov_min": "REAL",
             "afov_max": "REAL",
             "barrel_size": "TEXT",
+            "zoom_click_positions_mm": "TEXT",
             "notes": "TEXT",
         },
     )
@@ -661,13 +662,15 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
         """
         INSERT INTO EyepieceCatalog (
             brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
-            max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size, notes
+            max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size,
+            zoom_click_positions_mm, notes
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(brand, model, focal_length_mm) DO NOTHING
         """,
         _eyepiece_catalog_rows(eyepiece_path),
     )
+    _backfill_zoom_click_positions(connection)
 
     connection.executemany(
         """
@@ -695,10 +698,23 @@ def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
                 _optional_float(row.get("afov_min", "")),
                 _optional_float(row.get("afov_max", "")),
                 row.get("barrel_size", ""),
+                row.get("zoom_click_positions_mm", ""),
                 row.get("notes", ""),
             )
             for row in csv.DictReader(file)
         ]
+
+
+def _backfill_zoom_click_positions(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        UPDATE EyepieceCatalog
+        SET zoom_click_positions_mm = ?
+        WHERE brand = ? AND model = ? AND eyepiece_type = 'Zoom'
+          AND (zoom_click_positions_mm IS NULL OR trim(zoom_click_positions_mm) = '')
+        """,
+        ("24;20;16;12;8", "Baader", "Hyperion Zoom 8-24 mm"),
+    )
 
 
 def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:

@@ -30,6 +30,7 @@ class Eyepiece:
     eyepiece_type: str = "Fixed"
     min_focal_length_mm: float | None = None
     max_focal_length_mm: float | None = None
+    zoom_click_positions_mm: tuple[float, ...] = ()
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -39,6 +40,7 @@ class Eyepiece:
         data["type"] = self.eyepiece_type
         data["minFocalLengthMm"] = self.min_focal_length_mm or self.focal_length_mm
         data["maxFocalLengthMm"] = self.max_focal_length_mm or self.focal_length_mm
+        data["zoomClickPositionsMm"] = list(self.zoom_click_positions_mm)
         if self.eyepiece_type == "Zoom":
             data["focalRangeLabel"] = f"{data['minFocalLengthMm']:g}-{data['maxFocalLengthMm']:g} mm"
         else:

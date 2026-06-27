@@ -69,6 +69,25 @@ def test_zoom_eyepiece_generates_sampled_focal_positions() -> None:
     assert {round(configuration.magnification) for configuration in configurations} == {62, 94, 188}
 
 
+def test_zoom_eyepiece_with_click_positions_generates_only_selectable_positions() -> None:
+    telescope = Telescope("scope-150", "SCT 150", 150, 1500, "SCT", "Altazimutale")
+    zoom = Eyepiece(
+        "hyperion-8-24",
+        "Baader Hyperion Zoom 8-24 mm",
+        24.0,
+        60.0,
+        eyepiece_type="Zoom",
+        min_focal_length_mm=8.0,
+        max_focal_length_mm=24.0,
+        zoom_click_positions_mm=(24.0, 20.0, 16.0, 12.0, 8.0),
+    )
+
+    configurations = ObservationConfigurationBuilder().build([telescope], [zoom])
+
+    assert {configuration.focal_position_label for configuration in configurations} == {"24 mm", "20 mm", "16 mm", "12 mm", "8 mm"}
+    assert {round(configuration.magnification) for configuration in configurations} == {62, 75, 94, 125, 188}
+
+
 def test_telescope_configuration_builder_accepts_external_focal_position_policy() -> None:
     telescope = Telescope("scope-150", "SCT 150", 150, 1500, "SCT", "Altazimutale")
     zoom = Eyepiece(

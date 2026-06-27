@@ -310,6 +310,10 @@ Planetary recommendations depend on:
 Equipment recommendations for planets prefer higher magnification, but the
 target magnification is reduced under low altitude or poor seeing. Barlows are
 allowed for planetary targets when they improve the setup enough.
+When seeing is unavailable, NightScope treats it as unknown rather than
+excellent and uses a conservative magnification cap. With a Mak 127 and Baader
+Hyperion Zoom, unknown seeing should prefer a safer medium-high click position
+such as 16 mm instead of defaulting to 8 mm.
 
 ## Deep-Sky Recommendations
 
@@ -329,6 +333,11 @@ Galaxies are penalized more than globular clusters under strong moonlight.
 Current Moon sensitivity in planning is higher for galaxies than for globular
 clusters. Light-pollution presentation filtering also uses a stronger galaxy
 multiplier than globular clusters.
+
+Medium globular clusters such as M5, M92 and M15 keep the `General` observation
+mode but receive a target-profile bias toward medium magnification. This avoids
+treating them like genuinely wide-field objects while leaving wide-field targets
+such as M24, M31, M44 and M45 low-power friendly.
 
 ## Night Planner Ranking
 
@@ -404,8 +413,10 @@ Assigned equipment only:
 Zoom eyepieces:
 
 - A zoom eyepiece remains one equipment record.
-- The recommendation engine internally samples focal positions such as high,
-  low, midpoint and ideal clamped positions.
+- Zoom eyepieces can define actual selectable click positions in the catalogue.
+  The recommendation engine evaluates those physical positions instead of
+  synthetic ideal focal lengths.
+- The Baader Hyperion Zoom 8-24 mm is evaluated at 24, 20, 16, 12 and 8 mm.
 - Display text may show the selected focal position, but the catalog record is
   not duplicated.
 

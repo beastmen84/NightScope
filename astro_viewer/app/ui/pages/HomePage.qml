@@ -141,11 +141,13 @@ Item {
     function visibilityLabel(item) {
         var value = (item.visibility_class || "").toLowerCase()
         if (value.indexOf("occhio") >= 0)
-            return "Visibilità: occhio nudo"
+            return "Visibile a occhio nudo"
         if (value.indexOf("binocolo") >= 0)
-            return "Visibilità: binocolo"
+            return "Visibile con binocolo"
+        if (value.indexOf("telescopio") >= 0 || value.indexOf("pianeta") >= 0)
+            return "Visibile con telescopio"
         if (value.length > 0)
-            return "Visibilità: " + item.visibility_class
+            return "Visibile con " + item.visibility_class
         return item.observingStatus || "Finestra utile"
     }
 

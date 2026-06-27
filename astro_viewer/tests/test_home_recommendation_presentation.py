@@ -35,6 +35,15 @@ def test_home_reason_uses_backend_equipment_explanation() -> None:
     assert "Pianeta" not in body
 
 
+def test_home_visibility_label_uses_observable_wording() -> None:
+    body = _qml_function_body("visibilityLabel")
+
+    assert "Visibile a occhio nudo" in body
+    assert "Visibile con binocolo" in body
+    assert "Visibile con telescopio" in body
+    assert "Visibilità: telescopio" not in body
+
+
 def test_home_backend_data_for_telescope_recommendation() -> None:
     suggestion = EquipmentService().suggest_for_profile(
         _object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification"),

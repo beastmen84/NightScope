@@ -222,17 +222,23 @@ Zoom eyepieces remain a single catalogue/profile equipment record.
 
 Target-aware zoom sampling is preserved by passing a focal-position provider
 from `EquipmentService` into `ObservationConfigurationBuilder`. The provider
-derives an ideal focal length from the target profile and samples:
+derives an ideal focal length from the target profile, but zoom eyepieces with
+configured click positions generate only those physically selectable positions.
+For example, the Baader Hyperion Zoom 8-24 mm is evaluated at:
 
-- clamped ideal zoom focal position
-- low end
-- high end
-- midpoint
+- 24 mm
+- 20 mm
+- 16 mm
+- 12 mm
+- 8 mm
 
-Duplicate sampled positions are removed.
+Zoom eyepieces without explicit click-position data fall back to a conservative
+range sample using high, midpoint and low positions. Duplicate sampled positions
+and duplicate presentation options are removed.
 
 This keeps the builder target-agnostic while preserving the existing
-target-aware zoom recommendation behavior.
+target-aware zoom recommendation behavior and avoids recommendations such as
+23.8 mm or 15.7 mm for click-stop zooms.
 
 ### Telescope Target Profiles
 
@@ -294,6 +300,8 @@ Representative behavior:
 - M57 and M76 remain high-magnification telescope targets.
 - M27, M97 and M107 behave as `General` targets and usually prefer
   medium-magnification telescope configurations when available.
+- Medium globular clusters such as M5, M92 and M15 remain `General` targets but
+  bias toward medium magnification instead of low-power wide-field behavior.
 - Planets and the Moon remain special physical cases because seeing, altitude
   and useful magnification dominate their visual observing setup.
 - `object_type` remains a fallback/modifier when metadata is missing.
@@ -308,6 +316,9 @@ seeing score and telescope aperture.
 The target profile stores `maxUsefulMag`; weighted scoring penalizes any
 candidate exceeding that limit. This keeps planetary and high-magnification
 recommendations from selecting unrealistic setups under poor seeing.
+Missing seeing is treated as unknown, not excellent: the engine applies a
+conservative cap so planetary recommendations do not default to very high power
+unless seeing data genuinely supports it.
 
 ### Barlow Selection Rule
 

@@ -186,7 +186,8 @@ class EquipmentCatalogRepository:
                 """
                 SELECT id, brand, model, eyepiece_type, focal_length_mm,
                        min_focal_length_mm, max_focal_length_mm,
-                       apparent_field_deg, afov_min, afov_max, barrel_size, notes
+                       apparent_field_deg, afov_min, afov_max, barrel_size,
+                       zoom_click_positions_mm, notes
                 FROM EyepieceCatalog
                 ORDER BY brand, model, focal_length_mm
                 """
@@ -205,6 +206,7 @@ class EquipmentCatalogRepository:
         max_focal_length_mm: float | None = None,
         afov_min: float | None = None,
         afov_max: float | None = None,
+        zoom_click_positions_mm: str = "",
         notes: str = "",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
@@ -225,9 +227,10 @@ class EquipmentCatalogRepository:
                 """
                 INSERT INTO EyepieceCatalog (
                     brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
-                    max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size, notes
+                    max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size,
+                    zoom_click_positions_mm, notes
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     clean_brand,
@@ -240,6 +243,7 @@ class EquipmentCatalogRepository:
                     afov_min,
                     afov_max,
                     barrel_size,
+                    zoom_click_positions_mm,
                     notes,
                 ),
             )
@@ -259,6 +263,7 @@ class EquipmentCatalogRepository:
         max_focal_length_mm: float | None = None,
         afov_min: float | None = None,
         afov_max: float | None = None,
+        zoom_click_positions_mm: str = "",
         notes: str = "",
     ) -> tuple[bool, str]:
         clean_brand = brand.strip()
@@ -281,7 +286,7 @@ class EquipmentCatalogRepository:
                 SET brand = ?, model = ?, eyepiece_type = ?, focal_length_mm = ?,
                     min_focal_length_mm = ?, max_focal_length_mm = ?,
                     apparent_field_deg = ?, afov_min = ?, afov_max = ?,
-                    barrel_size = ?, notes = ?
+                    barrel_size = ?, zoom_click_positions_mm = ?, notes = ?
                 WHERE id = ?
                 """,
                 (
@@ -295,6 +300,7 @@ class EquipmentCatalogRepository:
                     afov_min,
                     afov_max,
                     barrel_size,
+                    zoom_click_positions_mm,
                     notes,
                     eyepiece_id,
                 ),
@@ -686,6 +692,7 @@ class EquipmentCatalogRepository:
             "afov_min": row["afov_min"],
             "afov_max": row["afov_max"],
             "barrel_size": row["barrel_size"] or "",
+            "zoom_click_positions_mm": row["zoom_click_positions_mm"] or "",
             "notes": row["notes"] or "",
             "focalRangeLabel": focal_range,
         }

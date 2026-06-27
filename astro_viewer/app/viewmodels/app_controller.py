@@ -3316,7 +3316,27 @@ class AppController(QObject):
             eyepiece_type=str(row.get("eyepiece_type") or row.get("type") or "Fixed"),
             min_focal_length_mm=float(row["min_focal_length_mm"]) if row.get("min_focal_length_mm") else None,
             max_focal_length_mm=float(row["max_focal_length_mm"]) if row.get("max_focal_length_mm") else None,
+            zoom_click_positions_mm=AppController._parse_zoom_click_positions(row.get("zoom_click_positions_mm", "")),
         )
+
+    @staticmethod
+    def _parse_zoom_click_positions(value: str) -> tuple[float, ...]:
+        positions = []
+        seen = set()
+        for part in str(value or "").replace(",", ".").replace("/", ";").split(";"):
+            token = part.strip()
+            if not token:
+                continue
+            try:
+                position = float(token)
+            except ValueError:
+                continue
+            key = round(position, 3)
+            if position <= 0 or key in seen:
+                continue
+            seen.add(key)
+            positions.append(position)
+        return tuple(positions)
 
     @staticmethod
     def _barlow_from_catalog_row(row: dict) -> Barlow:

@@ -400,8 +400,8 @@ class EquipmentService:
         maximum = eyepiece.max_focal_length_mm or max(eyepiece.focal_length_mm, minimum)
         low = min(minimum, maximum)
         high = max(minimum, maximum)
-        clamped = max(low, min(high, ideal_focal_mm))
-        candidates = [clamped, low, high, (low + high) / 2]
+        click_positions = [position for position in eyepiece.zoom_click_positions_mm if low <= position <= high]
+        candidates = click_positions or [high, (low + high) / 2, low]
         positions = []
         seen = set()
         for value in candidates:
@@ -443,14 +443,17 @@ class EquipmentService:
         practical_max = max(30.0, max_useful_magnification)
         altitude_factor = 1.0 if max_altitude >= 35 else 0.75 if max_altitude >= 20 else 0.55
         if "pianeta" in lower_type or celestial_object.id in {"mars", "jupiter", "saturn", "mercury", "venus"}:
-            ideal_magnification = min(practical_max * 0.82, 190.0) * altitude_factor
+            planetary_max = max_useful_magnification
+            if not seeing:
+                planetary_max = self._unknown_seeing_planetary_cap(telescope)
+            ideal_magnification = min(max(30.0, planetary_max) * 0.82, 190.0) * altitude_factor
             return {
                 "mode": "high",
                 "idealMag": max(55.0, ideal_magnification),
                 "idealExit": 1.0,
                 "idealField": 0.18,
                 "barlowFriendly": True,
-                "maxUsefulMag": max_useful_magnification,
+                "maxUsefulMag": planetary_max,
             }
         if celestial_object.id == "moon" or "luna" in lower_type:
             return {"mode": "balanced", "idealMag": min(practical_max * 0.55, 120.0), "idealExit": 1.8, "idealField": 0.75, "barlowFriendly": False, "maxUsefulMag": max_useful_magnification}
@@ -513,8 +516,12 @@ class EquipmentService:
                     ideal_magnification = min(ideal_magnification, 65.0)
                     ideal_exit = max(ideal_exit, 2.8)
                 if "globular" in lower_type or "ammasso globulare" in lower_type:
-                    ideal_magnification = min(ideal_magnification + 8.0, 85.0)
-                    ideal_exit = min(ideal_exit, 2.2)
+                    if angular_size and 0.18 <= angular_size <= 0.45:
+                        ideal_magnification = max(ideal_magnification, 84.0)
+                        ideal_exit = min(ideal_exit, 1.8)
+                    else:
+                        ideal_magnification = min(ideal_magnification + 8.0, 85.0)
+                        ideal_exit = min(ideal_exit, 2.2)
                 return {
                     "mode": "balanced",
                     "idealMag": min(practical_max * 0.95, ideal_magnification) * altitude_factor,
@@ -783,6 +790,11 @@ class EquipmentService:
         if score >= 42:
             return min(theoretical, 125.0, telescope.aperture_mm * 0.95)
         return min(theoretical, 85.0, telescope.aperture_mm * 0.6)
+
+    @staticmethod
+    def _unknown_seeing_planetary_cap(telescope: Telescope) -> float:
+        theoretical = max(30.0, telescope.aperture_mm * 2.0)
+        return min(theoretical, 125.0)
 
     @staticmethod
     def _binocular_setup_label(binocular: Binocular) -> str:
