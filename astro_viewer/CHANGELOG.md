@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.2.1 - 2026-06-28
+
+- Il `Piano osservativo consigliato` continua a selezionare i target migliori per punteggio, ma ora li visualizza in ordine cronologico della notte osservativa.
+- La numerazione del piano segue l'ordine temporale mostrato, rendendo la sezione una timeline operativa.
+
 ## NightScope 1.2.0 - 2026-06-28
 
 - Aperto il ciclo NightScope 1.2.

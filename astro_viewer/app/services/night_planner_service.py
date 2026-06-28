@@ -33,12 +33,18 @@ class NightPlannerService:
             reverse=True,
         )
         start = self._start_time(ranked)
-        items = []
+        selected = []
         used_names = set()
-        for index, item in enumerate(ranked):
+        for item in ranked:
             if item.name in used_names:
                 continue
             used_names.add(item.name)
+            selected.append(item)
+            if len(selected) >= 6:
+                break
+
+        items = []
+        for item in selected:
             score = round(self._planner_score(item, weather, scores, sky_quality, telescope, moon))
             time_label = self._time_for_item(item, start + timedelta(minutes=45 * len(items)))
             items.append(
@@ -53,9 +59,7 @@ class NightPlannerService:
                     image=item.image,
                 )
             )
-            if len(items) >= 6:
-                break
-        return items
+        return self._sort_plan_items(items)
 
     @staticmethod
     def _planner_score(
@@ -253,3 +257,31 @@ class NightPlannerService:
         elif 3 <= value.hour <= 5:
             label = "prima dell'alba"
         return f"{value.strftime('%H:%M')} {label}"
+
+    @staticmethod
+    def _sort_plan_items(items: list[NightPlanItem]) -> list[NightPlanItem]:
+        indexed = list(enumerate(items))
+        indexed.sort(key=lambda item: (NightPlannerService._time_label_order(item[1].time_label), item[0]))
+        return [item for _, item in indexed]
+
+    @staticmethod
+    def _time_label_order(value: str) -> int:
+        for token in value.replace("–", " ").replace("-", " ").split():
+            parsed = NightPlannerService._parse_clock_token(token)
+            if parsed is None:
+                continue
+            hour, minute = parsed
+            if hour >= 12:
+                return (hour - 12) * 60 + minute
+            return (hour + 12) * 60 + minute
+        return 99_999
+
+    @staticmethod
+    def _parse_clock_token(value: str) -> tuple[int, int] | None:
+        try:
+            hour, minute = [int(part) for part in value.split(":")[:2]]
+        except (ValueError, IndexError):
+            return None
+        if not (0 <= hour <= 23 and 0 <= minute <= 59):
+            return None
+        return hour, minute

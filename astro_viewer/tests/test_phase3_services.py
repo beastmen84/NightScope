@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import tempfile
 import unittest
 from pathlib import Path
@@ -103,6 +104,42 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertEqual(len(plan), 1)
         self.assertEqual(plan[0].name, "Saturno")
         self.assertGreaterEqual(plan[0].score, 70)
+
+    def test_night_planner_selects_by_score_then_displays_chronologically(self) -> None:
+        objects = [
+            _planned_target("saturn", "Saturno", "Pianeta", "01:30", 95),
+            _planned_target("venus", "Venere", "Pianeta", "20:45", 92),
+            _planned_target("messier-M24", "M24", "Star cloud", "00:30", 84),
+            _planned_target("messier-M13", "M13", "Globular cluster", "22:15", 78),
+            _planned_target("messier-M11", "M11", "Open cluster", "23:05", 76),
+            _planned_target("messier-M31", "M31", "Spiral galaxy", "21:40", 74),
+            _planned_target("mercury", "Mercurio", "Pianeta", "20:00", 12),
+        ]
+        weather = WeatherSummary("Ottima", 88, "Poche nuvole.", 10, 0, 8, 55, 18.0, "")
+        scores = AdvancedObservingScores(90, 90, "Ottima", "Ottima", "")
+        sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
+        telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
+
+        plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope)
+
+        names = [item.name for item in plan]
+        self.assertNotIn("Mercurio", names)
+        self.assertCountEqual(names, ["Venere", "M31", "M13", "M11", "M24", "Saturno"])
+        self.assertEqual(names, ["Venere", "M31", "M13", "M11", "M24", "Saturno"])
+        self.assertEqual([item.time_label for item in plan], ["20:45 sera", "21:40 sera", "22:15 sera", "23:05 sera", "00:30 notte", "01:30 notte"])
+
+    def test_home_plan_numbering_follows_display_order(self) -> None:
+        qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+
+        self.assertIn("model: controller.nightPlan.slice(0, 4)", qml)
+        self.assertIn('scoreText: "#" + (index + 1)', qml)
+
+    def test_night_planner_display_order_uses_observing_night_boundary(self) -> None:
+        labels = ["00:30 notte", "18:45 sera", "05:30 prima dell'alba", "20:45 sera"]
+
+        ordered = sorted(labels, key=NightPlannerService._time_label_order)
+
+        self.assertEqual(ordered, ["18:45 sera", "20:45 sera", "00:30 notte", "05:30 prima dell'alba"])
 
     def test_advanced_scores_are_capped_by_blocking_weather(self) -> None:
         weather = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 99, 8, 78, 16.0, "")
@@ -215,6 +252,15 @@ def _deep_sky_target(object_id: str, name: str, object_type: str) -> CelestialOb
         visible=True,
         score=80,
         difficulty="Facile",
+    )
+
+
+def _planned_target(object_id: str, name: str, object_type: str, best_time: str, score: int) -> CelestialObject:
+    return replace(
+        _deep_sky_target(object_id, name, object_type),
+        best_time=best_time,
+        observing_window=f"{best_time} - {best_time}",
+        score=score,
     )
 
 
