@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.2.0 - 2026-06-28
+
+- Aperto il ciclo NightScope 1.2.
+- Chiusa la serie NightScope 1.1 con `1.1.15` come ultimo stato stabile.
+
 ## NightScope 1.1.15 - 2026-06-28
 
 - Allineati i badge data di `Prossimi eventi` in Home alla stessa categorizzazione colori usata dal Calendario.
