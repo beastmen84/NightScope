@@ -128,8 +128,10 @@ Services hold business logic:
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
   NASA VIIRS and offline fallback.
 - `NasaAodProvider`: backend-only NASA MAIAC aerosol lookup using VIIRS primary
-  and MODIS fallback. It returns compact processed AOD results and is not wired
-  to Weather UI, seeing/transparency, Planner or recommendation scores yet.
+  and MODIS fallback. `AppController` starts it in the background when a valid
+  location exists and Earthdata credentials have a successful connection test.
+  It returns compact processed AOD results and is not wired to Weather UI,
+  seeing/transparency, Planner or recommendation scores yet.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
@@ -237,6 +239,7 @@ Important methods:
 - `_refresh_weather_and_conditions`
 - `_finish_weather_refresh`
 - `_finish_viirs_sky_quality_refresh`
+- `_finish_nasa_aod_refresh`
 - `_refresh_active_profile_dependencies`
 - `_refresh_equipment_recommendations_for_current_objects`
 - `_recalculate_observing_outputs`
@@ -252,6 +255,11 @@ The refresh chain currently recomputes:
 - observing scores,
 - recommended setups,
 - selected-object setup/detail data.
+
+NASA AOD refresh completion is intentionally diagnostic-only for now. It stores
+the compact processed result internally and logs product/date/value/status, but
+does not recompute Home, Planner, Sky Compass, seeing/transparency, weather
+score, observing scores or recommendation outputs.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart.
@@ -273,6 +281,14 @@ Sky-quality cache:
 - Local cache is reused unless it is recognized as a legacy/stale source.
 - NASA Black Marble VIIRS cache entries are treated as fresh if present.
 - There is no general age-based TTL for sky-quality estimates.
+
+NASA AOD cache:
+
+- Owner: `NasaAodProvider`.
+- Key: rounded latitude/longitude plus product and granule id.
+- Lifetime: 18 hours.
+- Only compact processed AOD results are cached in memory.
+- Downloaded VIIRS/MODIS granules are temporary and deleted after extraction.
 
 In-memory controller caches:
 

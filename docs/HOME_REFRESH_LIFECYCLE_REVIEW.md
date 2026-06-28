@@ -40,6 +40,8 @@ Additional refresh branches update subsets of the same state:
   timed weather refreshes.
 - `_finish_viirs_sky_quality_refresh()` updates sky quality and recomputes
   deep-sky context when remote VIIRS data arrives.
+- `_finish_nasa_aod_refresh()` stores a diagnostic backend-only aerosol result
+  and logs status/details without recomputing Home presentation state.
 - `_refresh_active_profile_dependencies()` recomputes equipment-dependent
   recommendations after profile/equipment changes.
 - `selectCity()`, `selectRecentLocation()`, `setManualLocation()`,
@@ -74,6 +76,8 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
   cache.
 - VIIRS completion: updates sky quality, reloads/re-contextualizes deep-sky
   objects and recomputes observing outputs.
+- NASA AOD completion: updates only the internal diagnostic AOD result and logs
+  status; it does not recompute Home sections.
 - Profile/equipment changes: reload profile equipment when needed, recompute
   equipment recommendations and observing outputs, then emit profile-dependent
   signals.
@@ -88,6 +92,9 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 - Sky quality cache: `LightPollutionService` with `SkyQualityRepository`, keyed
   by rounded latitude, longitude and city. NASA VIIRS cache entries are treated
   as fresh when present; there is no broad age-based TTL.
+- NASA AOD cache: `NasaAodProvider`, keyed by rounded latitude/longitude plus
+  product and granule id. TTL is 18 hours and only compact processed results are
+  retained; downloaded granules are temporary.
 - Controller memory state: base solar-system objects, base deep-sky objects,
   enriched objects, weather hours, Moon, events, sky quality,
   seeing/transparency, advanced scores, night plan, sky map, notifications and
@@ -219,6 +226,9 @@ Use separate refresh lanes instead of one global timer:
 - VIIRS refresh: keep event-driven asynchronous refresh after location or
   credential changes. It should update sky quality and mark recommendation
   state dirty.
+- NASA AOD refresh: keep event-driven asynchronous refresh after location or
+  verified Earthdata credential changes. Until AOD becomes user-visible or
+  score-relevant, completion should remain diagnostic-only.
 - Calendar/events refresh: daily, on location change, and on app startup. Events
   are date-scale data and should not participate in the fast tick.
 - Catalogue monthly visibility: keep the calculation independent from scoring,
@@ -236,7 +246,7 @@ not include this tick.
 Current full refreshes are acceptable for startup/location/weather changes but
 too expensive for a frequent compass tick because they can call Skyfield for
 planets, Messier samples, Moon, events, equipment scoring, planner ranking,
-weather scoring and optional VIIRS handling.
+weather scoring and optional VIIRS/AOD handling.
 
 With a snapshot architecture:
 
@@ -269,7 +279,7 @@ With a snapshot architecture:
   timer should be owned by the controller or a snapshot service so all consumers
   receive the same time bucket.
 - Do not call recommendation services from the fast compass tick.
-- Do not call weather or VIIRS services from the fast compass tick.
+- Do not call weather, VIIRS or AOD services from the fast compass tick.
 - Reuse existing Skyfield observer/body helpers for alt/az rather than
   duplicating coordinate math in QML.
 - Keep planner and recommendation refreshes event-driven or slow-timer-driven.

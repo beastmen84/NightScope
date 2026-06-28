@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import warnings
+from unittest.mock import patch
 
 import h5py
 import netCDF4
@@ -19,7 +20,9 @@ from astro_viewer.app.services.nasa_aod_provider import MaiacAodExtractor
 from astro_viewer.app.services.nasa_aod_provider import NasaAodExtraction
 from astro_viewer.app.services.nasa_aod_provider import NasaAodGranule
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider
+from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.nasa_aod_provider import VIIRS_MAIAC_AOD
+from astro_viewer.app.viewmodels.app_controller import AppController
 
 
 _STRUCT_METADATA = """
@@ -238,6 +241,85 @@ class NasaAodProviderTests(unittest.TestCase):
         self.assertEqual(result.status, "download_error")
 
 
+class NasaAodControllerRefreshTests(unittest.TestCase):
+    def test_refresh_is_skipped_without_location(self) -> None:
+        controller = _aod_controller(location=None, verified=True)
+
+        with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+            controller._schedule_nasa_aod_refresh()
+
+        self.assertEqual(controller._nasa_aod_result.status, "no_location")
+        self.assertFalse(controller._nasa_aod_refresh_running)
+        self.assertIn("no valid observing location", "\n".join(logs.output))
+
+    def test_refresh_is_skipped_without_verified_earthdata(self) -> None:
+        provider = _FakeControllerAodProvider()
+        controller = _aod_controller(provider=provider, verified=False)
+
+        with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+            controller._schedule_nasa_aod_refresh()
+
+        self.assertEqual(controller._nasa_aod_result.status, "no_credentials")
+        self.assertEqual(provider.calls, 0)
+        self.assertIn("credentials are not verified", "\n".join(logs.output))
+
+    def test_refresh_starts_background_lookup_when_location_and_credentials_are_ready(self) -> None:
+        controller = _aod_controller(verified=True)
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+                controller._schedule_nasa_aod_refresh()
+
+        thread_cls.assert_called_once()
+        thread_cls.return_value.start.assert_called_once()
+        self.assertTrue(controller._nasa_aod_refresh_running)
+        self.assertIn("NASA AOD refresh started", "\n".join(logs.output))
+
+    def test_finished_refresh_stores_and_logs_result(self) -> None:
+        controller = _aod_controller(verified=True)
+        result = NasaAodResult.ok(
+            product=VIIRS_MAIAC_AOD.product_id,
+            extraction=NasaAodExtraction(0.18, 0.01, 4, "direct_pixel"),
+            granule=_granule(VIIRS_MAIAC_AOD, "granule-valid", date(2026, 6, 27)),
+            retrieved_at=_clock(),
+        )
+        controller._nasa_aod_refresh_running = True
+
+        with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+            controller._finish_nasa_aod_refresh("9.030:38.740:test", result)
+
+        self.assertFalse(controller._nasa_aod_refresh_running)
+        self.assertIs(controller._nasa_aod_result, result)
+        self.assertIn("NASA AOD refresh ok", "\n".join(logs.output))
+        self.assertIn("granule-valid", "\n".join(logs.output))
+
+    def test_finished_refresh_discards_stale_location_result(self) -> None:
+        controller = _aod_controller(verified=True)
+        previous = NasaAodResult.no_location()
+        controller._nasa_aod_result = previous
+        controller._nasa_aod_refresh_running = True
+
+        with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+            controller._finish_nasa_aod_refresh("44.495:11.343:bologna", NasaAodResult.failure("no_valid_pixel", "No data"))
+
+        self.assertFalse(controller._nasa_aod_refresh_running)
+        self.assertIs(controller._nasa_aod_result, previous)
+        self.assertIn("stale location", "\n".join(logs.output))
+
+    def test_finished_refresh_discards_result_after_credentials_are_unverified(self) -> None:
+        controller = _aod_controller(verified=False)
+        previous = NasaAodResult.no_credentials()
+        controller._nasa_aod_result = previous
+        controller._nasa_aod_refresh_running = True
+
+        with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
+            controller._finish_nasa_aod_refresh("9.030:38.740:test", NasaAodResult.failure("no_valid_pixel", "No data"))
+
+        self.assertFalse(controller._nasa_aod_refresh_running)
+        self.assertIs(controller._nasa_aod_result, previous)
+        self.assertIn("credentials are no longer verified", "\n".join(logs.output))
+
+
 class EarthaccessNasaAodClientTests(unittest.TestCase):
     def test_login_retries_before_success(self) -> None:
         fake_earthaccess = _FlakyEarthaccess(failures=2)
@@ -340,6 +422,39 @@ class _FakeEarthaccessClient(EarthaccessNasaAodClient):
 
     def _import_earthaccess(self):
         return self._fake_earthaccess
+
+
+class _FakeControllerAodProvider:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.cache_cleared = False
+
+    def aod(self, _location) -> NasaAodResult:
+        self.calls += 1
+        return NasaAodResult.failure("no_valid_pixel", "No data")
+
+    def clear_cache(self) -> None:
+        self.cache_cleared = True
+
+
+def _aod_controller(
+    *,
+    location: ObserverLocation | None = _location(9.03, 38.74),
+    verified: bool,
+    provider: _FakeControllerAodProvider | None = None,
+):
+    controller = AppController.__new__(AppController)
+    controller._location = location
+    controller._earthdata_credentials_state = EarthdataCredentialState(
+        username="earth-user",
+        configured=True,
+        secure_store_available=True,
+        connection_verified=verified,
+    )
+    controller._nasa_aod_refresh_running = False
+    controller._nasa_aod_result = NasaAodResult.no_location()
+    controller._nasa_aod_provider = provider or _FakeControllerAodProvider()
+    return controller
 
 
 def _write_hdf5_fixture(

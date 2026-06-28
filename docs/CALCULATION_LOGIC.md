@@ -502,6 +502,9 @@ Access flow:
 - CMR/LP DAAC Cloud discovery and download are handled through `earthaccess`.
 - Earthdata username/password are read from the existing verified Earthdata
   credential store.
+- `AppController` schedules the provider in the background when both a valid
+  active observing location and a successful Earthdata connection test are
+  available.
 - `earthaccess.login(..., persist=False)` is retried with backoff because URS
   token creation can time out.
 - Long-lived manually generated Earthdata tokens are not required by the default
@@ -531,6 +534,10 @@ Current limitations:
 
 - QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
   these values are used operationally for scoring.
+- The provider result is currently diagnostic-only. Successful and failed
+  lookups are logged with status, product, acquisition date, AOD value, method
+  and cache-hit information, but no Weather UI, Planner, Sky Compass or
+  recommendation output consumes the value yet.
 - MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed
   on the current Windows development environment, but distribution size and
   native dependency behavior should remain monitored.
@@ -566,6 +573,7 @@ Location changes trigger:
 - astronomy data reload,
 - weather refresh,
 - sky-quality refresh,
+- diagnostic NASA AOD backend refresh when Earthdata credentials are verified,
 - profile-dependent recommendation refresh.
 
 VIIRS completion triggers:

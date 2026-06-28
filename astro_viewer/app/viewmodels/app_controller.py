@@ -45,6 +45,7 @@ from astro_viewer.app.services.location_service import (
     LocationUnavailableError,
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
+from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
@@ -96,6 +97,7 @@ class AppController(QObject):
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
     _weatherRefreshFinished = Signal(int, str, object, str)
     _localAtmosphereRefreshFinished = Signal(str, object)
+    _nasaAodRefreshFinished = Signal(str, object)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -105,6 +107,7 @@ class AppController(QObject):
         self._startupLocationDetectionFinished.connect(self._finish_startup_location_detection)
         self._weatherRefreshFinished.connect(self._finish_weather_refresh)
         self._localAtmosphereRefreshFinished.connect(self._finish_local_atmosphere_refresh)
+        self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -131,6 +134,7 @@ class AppController(QObject):
         self._openaq_credentials_state = self._openaq_credential_store.state()
         self._openaq_connection_test_running = False
         self._local_atmosphere_refresh_running = False
+        self._nasa_aod_refresh_running = False
         self._viirs_sky_quality_running = False
         self._light_pollution_status = ""
         self._startup_location_detection_running = False
@@ -162,6 +166,7 @@ class AppController(QObject):
             dataset_path=base_dir / "data" / "light_pollution_seed.csv",
             earthdata_credentials=self._earthdata_credential_store,
         )
+        self._nasa_aod_provider = NasaAodProvider(self._earthdata_credential_store)
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
         self._night_planner_service = NightPlannerService()
@@ -188,6 +193,7 @@ class AppController(QObject):
         self._weather_summary = None
         self._sky_quality = None
         self._local_atmosphere = LocalAtmosphere.not_configured()
+        self._nasa_aod_result = NasaAodResult.no_location()
         self._seeing_transparency = None
         self._advanced_scores = None
         self._night_plan = []
@@ -901,11 +907,17 @@ class AppController(QObject):
         except (RuntimeError, ValueError) as exc:
             self._earthdata_credentials_state = self._earthdata_credential_store.state()
             self._earthdata_credentials_state = replace(self._earthdata_credentials_state, message=str(exc))
+        self._nasa_aod_refresh_running = False
+        self._nasa_aod_result = NasaAodResult.no_credentials()
+        self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
 
     @Slot()
     def removeEarthdataCredentials(self) -> None:
         self._earthdata_credentials_state = self._earthdata_credential_store.remove()
+        self._nasa_aod_refresh_running = False
+        self._nasa_aod_result = NasaAodResult.no_credentials()
+        self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
 
     @Slot()
@@ -952,6 +964,7 @@ class AppController(QObject):
         self.earthdataCredentialsChanged.emit()
         if ok:
             self._schedule_viirs_sky_quality_refresh()
+            self._schedule_nasa_aod_refresh()
 
     @Slot(str)
     def saveOpenAQApiKey(self, api_key: str) -> None:
@@ -1557,6 +1570,8 @@ class AppController(QObject):
         self._weather_status = "Configura una posizione per visualizzare il meteo."
         self._light_pollution_status = ""
         self._viirs_sky_quality_running = False
+        self._nasa_aod_refresh_running = False
+        self._nasa_aod_result = NasaAodResult.no_location()
         self._refresh_local_atmosphere()
         self._weather_summary = WeatherSummary(
             "n/d",
@@ -1624,6 +1639,7 @@ class AppController(QObject):
         self._recalculate_observing_outputs()
         self._refresh_local_atmosphere()
         self._schedule_viirs_sky_quality_refresh()
+        self._schedule_nasa_aod_refresh()
         self._schedule_next_weather_refresh()
 
     def _start_weather_refresh(self, force_refresh: bool = True) -> None:
@@ -1866,6 +1882,88 @@ class AppController(QObject):
 
         self._light_pollution_status = message
         self.weatherChanged.emit()
+
+    def _schedule_nasa_aod_refresh(self) -> None:
+        if not self._has_valid_location():
+            self._nasa_aod_result = NasaAodResult.no_location()
+            logger.info("NASA AOD refresh skipped: no valid observing location.")
+            return
+        if self._nasa_aod_refresh_running:
+            logger.info("NASA AOD refresh skipped: refresh already running.")
+            return
+        if not self._earthdata_credentials_state.connection_verified:
+            self._nasa_aod_result = NasaAodResult.no_credentials()
+            logger.info("NASA AOD refresh skipped: Earthdata credentials are not verified.")
+            return
+
+        location = self._location
+        if location is None:
+            self._nasa_aod_result = NasaAodResult.no_location()
+            logger.info("NASA AOD refresh skipped: no valid observing location.")
+            return
+
+        location_key = LightPollutionService._location_key(location)
+        self._nasa_aod_refresh_running = True
+        logger.info(
+            "NASA AOD refresh started for %s (lat=%.3f, lon=%.3f).",
+            location_key,
+            location.latitude,
+            location.longitude,
+        )
+
+        def run_lookup() -> None:
+            try:
+                result = self._nasa_aod_provider.aod(location)
+                self._nasaAodRefreshFinished.emit(location_key, result)
+            except Exception:
+                logger.warning("Unexpected NASA AOD refresh failure.", exc_info=True)
+                self._nasaAodRefreshFinished.emit(
+                    location_key,
+                    NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento."),
+                )
+
+        Thread(target=run_lookup, daemon=True).start()
+
+    @Slot(str, object)
+    def _finish_nasa_aod_refresh(self, location_key: str, result: object) -> None:
+        self._nasa_aod_refresh_running = False
+        if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
+            logger.info("NASA AOD refresh result discarded for stale location %s.", location_key)
+            return
+        if not self._earthdata_credentials_state.connection_verified:
+            logger.info("NASA AOD refresh result discarded because Earthdata credentials are no longer verified.")
+            return
+
+        if isinstance(result, NasaAodResult):
+            self._nasa_aod_result = result
+        else:
+            self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
+        self._log_nasa_aod_result(self._nasa_aod_result)
+
+    @staticmethod
+    def _log_nasa_aod_result(result: NasaAodResult) -> None:
+        if result.available:
+            logger.info(
+                "NASA AOD refresh ok: product=%s acquisition_date=%s aod_550=%s uncertainty=%s "
+                "qa_raw=%s granule=%s method=%s local_valid_pixel_count=%s cache_hit=%s.",
+                result.product,
+                result.acquisition_date,
+                result.aod_550,
+                result.uncertainty,
+                result.qa_raw,
+                result.granule_id,
+                result.method,
+                result.local_valid_pixel_count,
+                result.cache_hit,
+            )
+            return
+
+        logger.info(
+            "NASA AOD refresh finished without usable data: status=%s message=%s cache_hit=%s.",
+            result.status,
+            result.message,
+            result.cache_hit,
+        )
 
     def _set_loading(self, value: bool) -> None:
         if self._is_loading == value:
