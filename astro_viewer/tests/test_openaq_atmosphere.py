@@ -64,6 +64,18 @@ def _locations_response(name: str = "Addis Ababa Central") -> FakeOpenAQResponse
     )
 
 
+def _latest_response(*items: dict) -> FakeOpenAQResponse:
+    return FakeOpenAQResponse(200, {"results": list(items)})
+
+
+def _latest_item(sensor_id: int, value: float, timestamp: str) -> dict:
+    return {
+        "sensorsId": sensor_id,
+        "value": value,
+        "datetime": {"utc": timestamp},
+    }
+
+
 def _service(
     response: FakeOpenAQResponse | list[FakeOpenAQResponse],
     clock=None,
@@ -77,6 +89,9 @@ def _service(
 
 
 class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.now = datetime(2026, 6, 28, 12, 0, tzinfo=UTC)
+
     def test_no_credentials_hides_section(self) -> None:
         service, session = _service(FakeOpenAQResponse(200, {"results": []}))
 
@@ -100,25 +115,15 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         service, session = _service(
             [
                 _locations_response(),
-                FakeOpenAQResponse(
-                    200,
+                _latest_response(
                     {
-                        "results": [
-                            {
-                                "sensorsId": 2002,
-                                "value": 8.4,
-                                "datetime": {"utc": "2026-06-28T08:10:00Z"},
-                                "coordinates": {"latitude": 9.04, "longitude": 38.75},
-                            },
-                            {
-                                "sensorsId": 2001,
-                                "value": 33,
-                                "datetime": {"utc": "2026-06-28T08:00:00Z"},
-                            },
-                        ]
+                        **_latest_item(2002, 8.4, "2026-06-28T08:10:00Z"),
+                        "coordinates": {"latitude": 9.04, "longitude": 38.75},
                     },
+                    _latest_item(2001, 33, "2026-06-28T08:00:00Z"),
                 ),
-            ]
+            ],
+            clock=lambda: self.now,
         )
 
         result = service.atmosphere("openaq-secret", _location())
@@ -129,29 +134,21 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         self.assertEqual(result.pm10, "33 µg/m³")
         self.assertEqual(result.clarity, "Discreta")
         self.assertEqual(result.source, "Addis Ababa Central")
-        self.assertIn("Aggiornato 2026-06-28 08:10 UTC", result.source_detail)
+        self.assertEqual(result.freshness_category, "current")
+        self.assertEqual(result.freshness, "Aggiornato oggi")
+        self.assertIn("Aggiornato oggi", result.source_detail)
         self.assertEqual(session.calls[0]["params"]["coordinates"], "9.0300,38.7400")
         self.assertIn("/v3/locations", session.calls[0]["url"])
         self.assertIn("/v3/locations/101/latest", session.calls[1]["url"])
         self.assertNotIn("/v3/measurements", session.calls[0]["url"])
 
-    def test_partial_data_keeps_missing_pollutant_unavailable(self) -> None:
+    def test_pm10_only_keeps_missing_pm25_unavailable(self) -> None:
         service, _session = _service(
             [
                 _locations_response(name="Dust Station"),
-                FakeOpenAQResponse(
-                    200,
-                    {
-                        "results": [
-                            {
-                                "sensorsId": 2001,
-                                "value": 118,
-                                "datetime": {"utc": "2026-06-28T08:00:00Z"},
-                            }
-                        ]
-                    },
-                ),
-            ]
+                _latest_response(_latest_item(2001, 118, "2026-06-28T08:00:00Z")),
+            ],
+            clock=lambda: self.now,
         )
 
         result = service.atmosphere("openaq-secret", _location())
@@ -159,7 +156,23 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         self.assertTrue(result.has_data)
         self.assertEqual(result.pm25, "—")
         self.assertEqual(result.pm10, "118 µg/m³")
-        self.assertEqual(result.clarity, "Molto polverosa")
+        self.assertEqual(result.clarity, "Polverosa")
+
+    def test_pm25_only_keeps_missing_pm10_unavailable(self) -> None:
+        service, _session = _service(
+            [
+                _locations_response(),
+                _latest_response(_latest_item(2002, 27, "2026-06-28T08:00:00Z")),
+            ],
+            clock=lambda: self.now,
+        )
+
+        result = service.atmosphere("openaq-secret", _location())
+
+        self.assertTrue(result.has_data)
+        self.assertEqual(result.pm25, "27 µg/m³")
+        self.assertEqual(result.pm10, "—")
+        self.assertEqual(result.clarity, "Velata")
 
     def test_no_nearby_data_returns_no_data_message(self) -> None:
         service, _session = _service(FakeOpenAQResponse(200, {"results": []}))
@@ -179,37 +192,66 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         self.assertFalse(result.has_data)
         self.assertIn("HTTP 500", result.message)
 
+    def test_recent_measurements_show_warning_freshness(self) -> None:
+        service, _session = _service(
+            [
+                _locations_response(),
+                _latest_response(_latest_item(2002, 12, "2026-06-26T11:00:00Z")),
+            ],
+            clock=lambda: self.now,
+        )
+
+        result = service.atmosphere("openaq-secret", _location())
+
+        self.assertTrue(result.has_data)
+        self.assertEqual(result.freshness_category, "recent")
+        self.assertEqual(result.freshness, "Aggiornato 2 giorni fa")
+        self.assertTrue(result.freshness_warning)
+
+    def test_stale_measurements_remain_visible_with_warning(self) -> None:
+        service, _session = _service(
+            [
+                _locations_response(),
+                _latest_response(_latest_item(2002, 12, "2026-06-23T12:00:00Z")),
+            ],
+            clock=lambda: self.now,
+        )
+
+        result = service.atmosphere("openaq-secret", _location())
+
+        self.assertTrue(result.has_data)
+        self.assertEqual(result.freshness_category, "stale")
+        self.assertEqual(result.freshness, "Aggiornato 5 giorni fa")
+        self.assertTrue(result.freshness_warning)
+
+    def test_historical_measurements_do_not_show_current_clarity(self) -> None:
+        service, _session = _service(
+            [
+                _locations_response(),
+                _latest_response(_latest_item(2002, 90, "2026-05-21T18:00:00Z")),
+            ],
+            clock=lambda: self.now,
+        )
+
+        result = service.atmosphere("openaq-secret", _location())
+
+        self.assertTrue(result.visible)
+        self.assertFalse(result.has_data)
+        self.assertEqual(result.clarity, "—")
+        self.assertEqual(result.freshness_category, "historical")
+        self.assertEqual(result.freshness, "Ultima misura 37 giorni fa")
+        self.assertIn("Ultima misura: 2026-05-21", result.message)
+        self.assertIn("Misura storica", result.message)
+
     def test_cache_reuses_recent_location_lookup(self) -> None:
         now = datetime(2026, 6, 28, 8, 0, tzinfo=UTC)
         clock_value = {"now": now}
         service, session = _service(
             [
                 _locations_response(),
-                FakeOpenAQResponse(
-                    200,
-                    {
-                        "results": [
-                            {
-                                "sensorsId": 2002,
-                                "value": 6,
-                                "datetime": {"utc": "2026-06-28T08:00:00Z"},
-                            }
-                        ]
-                    },
-                ),
+                _latest_response(_latest_item(2002, 6, "2026-06-28T08:00:00Z")),
                 _locations_response(),
-                FakeOpenAQResponse(
-                    200,
-                    {
-                        "results": [
-                            {
-                                "sensorsId": 2002,
-                                "value": 6,
-                                "datetime": {"utc": "2026-06-28T08:00:00Z"},
-                            }
-                        ]
-                    },
-                ),
+                _latest_response(_latest_item(2002, 6, "2026-06-28T08:00:00Z")),
             ],
             clock=lambda: clock_value["now"],
         )

@@ -177,7 +177,7 @@ Item {
                 visible: controller.localAtmosphere.visible
                 title: "Atmosfera locale"
                 subtitle: "OpenAQ"
-                accentColor: theme.teal
+                accentColor: controller.localAtmosphere.freshnessWarning ? theme.amber : theme.teal
 
                 GridLayout {
                     Layout.fillWidth: true
@@ -194,9 +194,9 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    visible: controller.localAtmosphere.hasData && controller.localAtmosphere.sourceDetail.length > 0
+                    visible: controller.localAtmosphere.sourceDetail.length > 0
                     text: controller.localAtmosphere.sourceDetail
-                    color: theme.textMuted
+                    color: controller.localAtmosphere.freshnessWarning ? theme.amber : theme.textMuted
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
                 }

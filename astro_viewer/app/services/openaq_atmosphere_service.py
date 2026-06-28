@@ -22,7 +22,10 @@ OPENAQ_CACHE_TTL = timedelta(minutes=45)
 
 PM25_THRESHOLDS = (10.0, 25.0, 50.0)
 PM10_THRESHOLDS = (20.0, 50.0, 100.0)
-CLARITY_LABELS = ("Aria limpida", "Discreta", "Polverosa", "Molto polverosa")
+CLARITY_LABELS = ("Aria limpida", "Discreta", "Velata", "Polverosa", "Molto polverosa")
+CURRENT_MAX_AGE = timedelta(hours=24)
+RECENT_MAX_AGE = timedelta(hours=72)
+STALE_MAX_AGE = timedelta(days=7)
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,9 @@ class LocalAtmosphere:
     clarity: str = "—"
     source: str = "—"
     source_detail: str = ""
+    freshness: str = "—"
+    freshness_category: str = "unavailable"
+    freshness_warning: bool = False
 
     @classmethod
     def not_configured(cls) -> LocalAtmosphere:
@@ -58,6 +64,20 @@ class LocalAtmosphere:
     @classmethod
     def no_data(cls) -> LocalAtmosphere:
         return cls(True, False, "Nessun dato OpenAQ disponibile per questa località.")
+
+    @classmethod
+    def historical(cls, source: str, source_detail: str, freshness: str, measured_at: str) -> LocalAtmosphere:
+        message = f"Nessuna misura OpenAQ recente disponibile. Ultima misura: {measured_at}. Misura storica."
+        return cls(
+            True,
+            False,
+            message,
+            source=source or "OpenAQ",
+            source_detail=source_detail,
+            freshness=freshness,
+            freshness_category="historical",
+            freshness_warning=True,
+        )
 
     @classmethod
     def failure(cls, message: str = "Dati OpenAQ non disponibili al momento.") -> LocalAtmosphere:
@@ -73,6 +93,9 @@ class LocalAtmosphere:
             "clarity": self.clarity,
             "source": self.source,
             "sourceDetail": self.source_detail,
+            "freshness": self.freshness,
+            "freshnessCategory": self.freshness_category,
+            "freshnessWarning": self.freshness_warning,
         }
 
 
@@ -82,7 +105,8 @@ class OpenAQLocalAtmosphereService:
     Limpidezza uses simple particulate thresholds only:
     PM2.5 <= 10 and PM10 <= 20: Aria limpida
     PM2.5 <= 25 and PM10 <= 50: Discreta
-    PM2.5 <= 50 and PM10 <= 100: Polverosa
+    PM2.5 <= 50 and PM10 <= 100: Velata
+    PM2.5 <= 75 and PM10 <= 150: Polverosa
     Higher values: Molto polverosa
 
     The result is not used for seeing, transparency, planner or recommendation scores.
@@ -122,7 +146,11 @@ class OpenAQLocalAtmosphereService:
             return cached[1]
 
         result = self._fetch(api_key, location)
-        if result.has_data or result.message == LocalAtmosphere.no_data().message:
+        if (
+            result.has_data
+            or result.message == LocalAtmosphere.no_data().message
+            or result.freshness_category == "historical"
+        ):
             self._cache[cache_key] = (now, result)
         return result
 
@@ -208,20 +236,38 @@ class OpenAQLocalAtmosphereService:
             return LocalAtmosphere.no_data()
         return self._from_readings(readings)
 
-    @staticmethod
-    def _from_readings(readings: dict[str, OpenAQReading]) -> LocalAtmosphere:
-        pm25 = readings.get("pm25")
-        pm10 = readings.get("pm10")
-        source_reading = OpenAQLocalAtmosphereService._source_reading(pm25, pm10)
+    def _from_readings(self, readings: dict[str, OpenAQReading]) -> LocalAtmosphere:
+        now = self._clock()
+        source_reading = self._source_reading(readings.get("pm25"), readings.get("pm10"))
+        if source_reading is None:
+            return LocalAtmosphere.no_data()
+
+        freshness_category = self._freshness_category(source_reading, now)
+        freshness_label = self._freshness_label(source_reading, now)
+        source = self._source_label(source_reading)
+        source_detail = self._source_detail(source_reading, freshness_label)
+        if freshness_category == "historical":
+            return LocalAtmosphere.historical(
+                source,
+                self._source_detail(source_reading, freshness_label, include_timestamp=True),
+                freshness_label,
+                self._date_label(source_reading),
+            )
+
+        pm25 = self._usable_reading(readings.get("pm25"), now)
+        pm10 = self._usable_reading(readings.get("pm10"), now)
         return LocalAtmosphere(
             visible=True,
             has_data=True,
             message="",
-            pm25=OpenAQLocalAtmosphereService._format_reading(pm25),
-            pm10=OpenAQLocalAtmosphereService._format_reading(pm10),
-            clarity=OpenAQLocalAtmosphereService._clarity_label(pm25, pm10),
-            source=OpenAQLocalAtmosphereService._source_label(source_reading),
-            source_detail=OpenAQLocalAtmosphereService._source_detail(source_reading),
+            pm25=self._format_reading(pm25),
+            pm10=self._format_reading(pm10),
+            clarity=self._clarity_label(pm25, pm10),
+            source=source,
+            source_detail=source_detail,
+            freshness=freshness_label,
+            freshness_category=freshness_category,
+            freshness_warning=freshness_category in ("recent", "stale"),
         )
 
     @staticmethod
@@ -353,7 +399,9 @@ class OpenAQLocalAtmosphereService:
             return 1
         if value <= thresholds[2]:
             return 2
-        return 3
+        if value <= thresholds[2] * 1.5:
+            return 3
+        return 4
 
     @staticmethod
     def _source_reading(pm25: OpenAQReading | None, pm10: OpenAQReading | None) -> OpenAQReading | None:
@@ -376,7 +424,12 @@ class OpenAQLocalAtmosphereService:
         return reading.source_name or reading.provider_name or "OpenAQ"
 
     @staticmethod
-    def _source_detail(reading: OpenAQReading | None) -> str:
+    def _source_detail(
+        reading: OpenAQReading | None,
+        freshness_label: str = "",
+        *,
+        include_timestamp: bool = False,
+    ) -> str:
         if reading is None:
             return ""
         parts = []
@@ -384,9 +437,57 @@ class OpenAQLocalAtmosphereService:
             parts.append(reading.provider_name)
         if reading.distance_km is not None:
             parts.append(f"{reading.distance_km:.1f} km")
-        if reading.timestamp is not None:
-            parts.append(f"Aggiornato {reading.timestamp.strftime('%Y-%m-%d %H:%M UTC')}")
+        if freshness_label:
+            parts.append(freshness_label)
+        if include_timestamp and reading.timestamp is not None:
+            parts.append(reading.timestamp.strftime("%Y-%m-%d %H:%M UTC"))
         return " · ".join(parts)
+
+    @staticmethod
+    def _date_label(reading: OpenAQReading) -> str:
+        if reading.timestamp is None:
+            return "data non disponibile"
+        return reading.timestamp.strftime("%Y-%m-%d")
+
+    @staticmethod
+    def _usable_reading(reading: OpenAQReading | None, now: datetime) -> OpenAQReading | None:
+        if reading is None:
+            return None
+        if OpenAQLocalAtmosphereService._age(reading, now) > STALE_MAX_AGE:
+            return None
+        return reading
+
+    @staticmethod
+    def _freshness_category(reading: OpenAQReading, now: datetime) -> str:
+        age = OpenAQLocalAtmosphereService._age(reading, now)
+        if age < CURRENT_MAX_AGE:
+            return "current"
+        if age < RECENT_MAX_AGE:
+            return "recent"
+        if age <= STALE_MAX_AGE:
+            return "stale"
+        return "historical"
+
+    @staticmethod
+    def _freshness_label(reading: OpenAQReading, now: datetime) -> str:
+        if reading.timestamp is None:
+            return "Aggiornamento non disponibile"
+        age = OpenAQLocalAtmosphereService._age(reading, now)
+        if age < CURRENT_MAX_AGE:
+            return "Aggiornato oggi"
+        days = max(1, int(age.total_seconds() // 86_400))
+        if days == 1:
+            return "Aggiornato ieri"
+        if age <= STALE_MAX_AGE:
+            return f"Aggiornato {days} giorni fa"
+        return f"Ultima misura {days} giorni fa"
+
+    @staticmethod
+    def _age(reading: OpenAQReading, now: datetime) -> timedelta:
+        if reading.timestamp is None:
+            return timedelta.max
+        reference = now.astimezone(UTC) if now.tzinfo else now.replace(tzinfo=UTC)
+        return max(timedelta(0), reference - reading.timestamp.astimezone(UTC))
 
     @staticmethod
     def _pollutant_name(item: dict[str, Any]) -> str:

@@ -277,7 +277,7 @@
           <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
           <li>Earthdata include anche <strong>Autorizza app</strong>; OpenAQ usa solo API key, <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
         </ul>
-        <p>OpenAQ alimenta solo la sezione informativa <strong>Atmosfera locale</strong> nella pagina Meteo dopo un test connessione riuscito. Non modifica raccomandazioni, Planner, Sky Compass o punteggi osservativi.</p>
+        <p>OpenAQ alimenta solo la sezione informativa <strong>Atmosfera locale</strong> nella pagina Meteo dopo un test connessione riuscito. Non modifica raccomandazioni, Planner, Sky Compass, seeing, trasparenza o punteggi osservativi.</p>
       </article>
 
       <article class="card">
@@ -297,7 +297,7 @@
         <p>La pagina Meteo usa Open-Meteo quando internet è disponibile e mantiene una cache locale per evitare schermate vuote se un refresh fallisce.</p>
           <ul>
             <li>Le schede principali mostrano nuvolosità, pioggia, vento, umidità, temperatura, seeing, trasparenza e Bortle.</li>
-            <li><strong>Atmosfera locale</strong>: se OpenAQ è configurato, mostra PM2.5, PM10, limpidezza descrittiva e fonte/stazione più recente disponibile.</li>
+            <li><strong>Atmosfera locale</strong>: se OpenAQ è configurato e verificato, mostra PM2.5, PM10, limpidezza descrittiva, fonte/stazione e freschezza della misura.</li>
             <li>Il dettaglio orario permette di selezionare una fascia e leggere i valori previsti.</li>
             <li>Se non esistono dati iniziali e internet non è disponibile, la pagina indica che il meteo non è disponibile e permette un refresh manuale.</li>
           </ul>
@@ -334,7 +334,8 @@
       <article class="card">
         <h2>OpenAQ</h2>
         <p>OpenAQ usa una API key personale. Registrati su <strong>explore.openaq.org/register</strong>, salva la chiave in <strong>Provider dati</strong> e usa <strong>Test connessione</strong> per verificare accesso e raggiungibilità del servizio.</p>
-        <p>La label <strong>Limpidezza</strong> è descrittiva e deriva solo da PM2.5/PM10: aria limpida fino a 10/20 µg/m³, discreta fino a 25/50, polverosa fino a 50/100, molto polverosa oltre. Non è seeing e non è trasparenza astronomica.</p>
+        <p>La label <strong>Limpidezza</strong> è descrittiva e deriva solo dal peggiore valore disponibile tra PM2.5 e PM10: aria limpida fino a 10/20 µg/m³, discreta fino a 25/50, velata fino a 50/100, polverosa fino a 75/150, molto polverosa oltre. Non è seeing e non è trasparenza astronomica.</p>
+        <p>NightScope classifica la freschezza delle misure OpenAQ: correnti sotto 24 ore, recenti tra 24 e 72 ore, vecchie tra 3 e 7 giorni, storiche oltre 7 giorni. Le misure storiche non vengono presentate come condizioni atmosferiche attuali.</p>
         <p>NightScope non usa OpenAQ per raccomandazioni, planner, Sky Compass, seeing, trasparenza o punteggi osservativi.</p>
       </article>
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## NightScope 1.2.4 - 2026-06-28
+
+- Aggiunta classificazione di freschezza per `Atmosfera locale`: corrente, recente, vecchia e storica.
+- Le misure OpenAQ oltre 7 giorni non mostrano più una limpidezza come condizione attuale; la UI indica l'ultima misura disponibile come dato storico.
+- Aggiornata la scala descrittiva della limpidezza con il livello intermedio `Velata`, usando il peggiore valore disponibile tra PM2.5 e PM10.
+- Mantenuto OpenAQ come dato informativo display-only: nessun uso in Recommendation Engine, Planner, Sky Compass, seeing, trasparenza o punteggi.
+
 ## NightScope 1.2.3 - 2026-06-28
 
 - Corretto `Atmosfera locale`: la card Meteo resta nascosta finché OpenAQ non ha API key configurata e test connessione positivo.
