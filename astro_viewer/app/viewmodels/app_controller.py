@@ -48,6 +48,7 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_map_service import SkyMapService
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
@@ -86,7 +87,9 @@ class AppController(QObject):
     observationChanged = Signal()
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
+    openaqCredentialsChanged = Signal()
     _earthdataConnectionTestFinished = Signal(bool, str, bool)
+    _openaqConnectionTestFinished = Signal(bool, str)
     _viirsSkyQualityFinished = Signal(str, object, str)
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
     _weatherRefreshFinished = Signal(int, str, object, str)
@@ -94,6 +97,7 @@ class AppController(QObject):
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
+        self._openaqConnectionTestFinished.connect(self._finish_openaq_connection_test)
         self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
         self._startupLocationDetectionFinished.connect(self._finish_startup_location_detection)
         self._weatherRefreshFinished.connect(self._finish_weather_refresh)
@@ -115,6 +119,12 @@ class AppController(QObject):
         self._earthdata_connection_tester = EarthdataConnectionTester()
         self._earthdata_credentials_state = self._earthdata_credential_store.state()
         self._earthdata_connection_test_running = False
+        self._openaq_credential_store = OpenAQCredentialStore(
+            preferences_path=database_path.parent / "user_preferences.json",
+        )
+        self._openaq_connection_tester = OpenAQConnectionTester()
+        self._openaq_credentials_state = self._openaq_credential_store.state()
+        self._openaq_connection_test_running = False
         self._viirs_sky_quality_running = False
         self._light_pollution_status = ""
         self._startup_location_detection_running = False
@@ -297,6 +307,26 @@ class AppController(QObject):
     @Property(str, constant=True)
     def earthdataAuthorizationUrl(self) -> str:
         return EARTHDATA_LAADS_AUTHORIZATION_URL
+
+    @Property(bool, notify=openaqCredentialsChanged)
+    def openaqCredentialsConfigured(self) -> bool:
+        return self._openaq_credentials_state.configured
+
+    @Property(bool, notify=openaqCredentialsChanged)
+    def openaqSecureStorageAvailable(self) -> bool:
+        return self._openaq_credentials_state.secure_store_available
+
+    @Property(str, notify=openaqCredentialsChanged)
+    def openaqCredentialMessage(self) -> str:
+        return self._openaq_credentials_state.message
+
+    @Property(bool, notify=openaqCredentialsChanged)
+    def openaqConnectionTestRunning(self) -> bool:
+        return self._openaq_connection_test_running
+
+    @Property(bool, notify=openaqCredentialsChanged)
+    def openaqConnectionVerified(self) -> bool:
+        return self._openaq_credentials_state.connection_verified
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:
@@ -905,6 +935,56 @@ class AppController(QObject):
         self.earthdataCredentialsChanged.emit()
         if ok:
             self._schedule_viirs_sky_quality_refresh()
+
+    @Slot(str)
+    def saveOpenAQApiKey(self, api_key: str) -> None:
+        try:
+            self._openaq_credentials_state = self._openaq_credential_store.save(api_key)
+        except (RuntimeError, ValueError) as exc:
+            self._openaq_credentials_state = self._openaq_credential_store.state()
+            self._openaq_credentials_state = replace(self._openaq_credentials_state, message=str(exc))
+        self.openaqCredentialsChanged.emit()
+
+    @Slot()
+    def removeOpenAQCredentials(self) -> None:
+        self._openaq_credentials_state = self._openaq_credential_store.remove()
+        self.openaqCredentialsChanged.emit()
+
+    @Slot()
+    def testOpenAQConnection(self) -> None:
+        if self._openaq_connection_test_running:
+            return
+        api_key = self._openaq_credential_store.api_key()
+        if not api_key:
+            self._openaq_credentials_state = replace(
+                self._openaq_credential_store.state(),
+                message="Salva la API key OpenAQ prima del test.",
+            )
+            self.openaqCredentialsChanged.emit()
+            return
+        self._openaq_connection_test_running = True
+        self._openaq_credentials_state = replace(
+            self._openaq_credentials_state,
+            connection_verified=False,
+            message="Verifica connessione OpenAQ in corso...",
+        )
+        self.openaqCredentialsChanged.emit()
+
+        def run_test() -> None:
+            try:
+                result = self._openaq_connection_tester.test(api_key)
+                self._openaqConnectionTestFinished.emit(result.ok, result.message)
+            except Exception:
+                logger.warning("Unexpected OpenAQ connection test failure.", exc_info=True)
+                self._openaqConnectionTestFinished.emit(False, "Connessione OpenAQ non riuscita.")
+
+        Thread(target=run_test, daemon=True).start()
+
+    @Slot(bool, str)
+    def _finish_openaq_connection_test(self, ok: bool, message: str) -> None:
+        self._openaq_connection_test_running = False
+        self._openaq_credentials_state = self._openaq_credential_store.with_connection_result(ok, message)
+        self.openaqCredentialsChanged.emit()
 
     @Slot()
     def runWindowsLocationDiagnostics(self) -> None:

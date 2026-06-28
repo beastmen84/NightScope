@@ -433,6 +433,14 @@ class ReleaseScenarioTests(unittest.TestCase):
             qml,
         )
         self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
+        self.assertIn('openAQRegistrationUrl: "https://explore.openaq.org/register"', qml)
+        self.assertIn('title: "OpenAQ"', qml)
+        self.assertIn('placeholderText: controller.openaqCredentialsConfigured ? "Nuova API key OpenAQ" : "API key OpenAQ"', qml)
+        self.assertIn("controller.saveOpenAQApiKey(openaqApiKey.text)", qml)
+        self.assertIn("controller.testOpenAQConnection()", qml)
+        self.assertIn("controller.removeOpenAQCredentials()", qml)
+        openaq_card = qml[qml.index('title: "OpenAQ"') :]
+        self.assertNotIn("Autorizza app", openaq_card)
 
     def test_location_page_prioritizes_city_search_layout(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")

@@ -272,10 +272,11 @@
         <p>La pagina <strong>Provider dati</strong> raccoglie gli accessi opzionali ai servizi esterni senza mescolarli alla gestione della località.</p>
         <ul>
           <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble.</li>
+          <li><strong>OpenAQ</strong>: salva e verifica una API key per future integrazioni qualità aria.</li>
           <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
-          <li>I comandi disponibili sono <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Autorizza app</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
+          <li>Earthdata include anche <strong>Autorizza app</strong>; OpenAQ usa solo API key, <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
         </ul>
-        <p>La configurazione resta compatibile con le credenziali già salvate nelle versioni precedenti.</p>
+        <p>OpenAQ è disponibile solo per configurazione e test connessione: l'uso nel Meteo verrà aggiunto in una fase successiva.</p>
       </article>
 
       <article class="card">
@@ -329,6 +330,12 @@
       </article>
 
       <article class="card">
+        <h2>OpenAQ</h2>
+        <p>OpenAQ usa una API key personale. Registrati su <strong>explore.openaq.org/register</strong>, salva la chiave in <strong>Provider dati</strong> e usa <strong>Test connessione</strong> per verificare accesso e raggiungibilità del servizio.</p>
+        <p>In questa versione NightScope non usa ancora OpenAQ per meteo, raccomandazioni, planner o Sky Compass.</p>
+      </article>
+
+      <article class="card">
         <h2>Interpretare i punteggi</h2>
         <p>I punteggi sono indicatori pratici, non misure scientifiche assolute.</p>
         <ul>
@@ -354,7 +361,7 @@
     </section>
 
     <footer>
-      NightScope 1.1.3 - manuale utente offline.
+      NightScope 1.1.4 - manuale utente offline.
     </footer>
   </main>
 </body>
