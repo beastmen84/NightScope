@@ -173,6 +173,18 @@ Item {
         return new Date(year, month, day).getTime()
     }
 
+    function eventAccent(type) {
+        if (type === "Luna")
+            return theme.amber
+        if (type === "Sciame meteorico")
+            return theme.teal
+        if (type === "Eclissi")
+            return theme.coral
+        if (type === "Congiunzione")
+            return theme.violet
+        return theme.cyan
+    }
+
     function chronologicalEvents(limit) {
         var events = (controller.events || []).slice(0)
         events.sort(function(left, right) {
@@ -1593,7 +1605,7 @@ Item {
 
                                 StatusPill {
                                     text: modelData.date_label
-                                    accentColor: theme.amber
+                                    accentColor: root.eventAccent(modelData.type)
                                     Layout.alignment: Qt.AlignVCenter
                                 }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## NightScope 1.1.15 - 2026-06-28
+
+- Allineati i badge data di `Prossimi eventi` in Home alla stessa categorizzazione colori usata dal Calendario.
+
 ## NightScope 1.1.14 - 2026-06-28
 
 - Spostate le alternative di `Sky Compass` nella testata della card, in alto a destra, riducendo l'altezza del corpo.

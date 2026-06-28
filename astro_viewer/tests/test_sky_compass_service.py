@@ -133,6 +133,9 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'text: "Alternative"' in sky_compass_block
     assert sky_compass_block.index('text: "Alternative"') < sky_compass_block.index("GridLayout {")
     assert "Nessuna alternativa utile" not in sky_compass_block
+    assert 'function eventAccent(type)' in source
+    assert 'if (type === "Sciame meteorico")' in source
+    assert "accentColor: root.eventAccent(modelData.type)" in events_block
     assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
     assert "Layout.preferredHeight: 74" in events_block
     assert "Layout.alignment: Qt.AlignVCenter" in events_block
