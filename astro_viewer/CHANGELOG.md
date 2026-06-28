@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.1.11 - 2026-06-28
+
+- Rifiniti i breakpoint della card `Sky Compass` in layout 50/50: alternative di nuovo nella testata in alto a destra e sezioni inferiori su due colonne.
+- Ripristinato l'accento teal sui badge delle direzioni alternative.
+
 ## NightScope 1.1.10 - 2026-06-28
 
 - Ripristinato il layout 50/50 tra `Sky Compass` e `Prossimi eventi` nella sezione `Dettagli osservativi`.

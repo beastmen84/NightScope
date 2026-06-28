@@ -1136,8 +1136,8 @@ Item {
                     id: skyCompassCard
 
                     property var compassData: controller.skyCompass || {}
-                    property bool topWide: width > 980
-                    property bool topMedium: width > 620
+                    property bool topWide: width > 640
+                    property bool topMedium: width > 520
 
                     Layout.fillWidth: true
                     Layout.row: 0
@@ -1367,7 +1367,7 @@ Item {
                             ColumnLayout {
                                 Layout.row: skyCompassCard.topWide ? 0 : skyCompassCard.topMedium ? 1 : 2
                                 Layout.column: skyCompassCard.topWide ? 2 : skyCompassCard.topMedium ? 1 : 0
-                                Layout.preferredWidth: skyCompassCard.topWide ? 240 : 0
+                                Layout.preferredWidth: skyCompassCard.topWide ? 136 : 0
                                 Layout.fillWidth: !skyCompassCard.topWide
                                 Layout.alignment: Qt.AlignTop | Qt.AlignRight
                                 spacing: 7
@@ -1375,7 +1375,7 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     text: "Alternative"
-                                    color: theme.textMuted
+                                    color: theme.textSecondary
                                     font.pixelSize: 12
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: skyCompassCard.topMedium ? Text.AlignRight : Text.AlignLeft
@@ -1392,8 +1392,8 @@ Item {
 
                                         delegate: StatusPill {
                                             text: modelData.direction
-                                            accentColor: theme.textMuted
-                                            opacity: 0.72
+                                            accentColor: theme.teal
+                                            opacity: 0.92
                                         }
                                     }
 
@@ -1418,7 +1418,7 @@ Item {
 
                         GridLayout {
                             Layout.fillWidth: true
-                            columns: skyCompassCard.width > 760 ? 2 : 1
+                            columns: skyCompassCard.width > 640 ? 2 : 1
                             columnSpacing: 22
                             rowSpacing: 16
 

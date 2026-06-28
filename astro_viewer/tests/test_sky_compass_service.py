@@ -120,8 +120,12 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
     assert 'title: "Mappa cielo"' not in source
     assert "controller.skyMap" not in source
-    assert "property bool topWide: width > 980" in sky_compass_block
+    assert "property bool topWide: width > 640" in sky_compass_block
     assert "Layout.columnSpan: 1" in sky_compass_block
+    assert "columns: skyCompassCard.topWide ? 3" in sky_compass_block
+    assert "Layout.column: skyCompassCard.topWide ? 2" in sky_compass_block
+    assert "accentColor: theme.teal" in sky_compass_block
+    assert "columns: skyCompassCard.width > 640 ? 2 : 1" in sky_compass_block
     assert "Layout.row: lowerGrid.columns > 1 ? 0 : 1" in events_block
     assert "Layout.column: lowerGrid.columns > 1 ? 1 : 0" in events_block
     assert "Layout.columnSpan: 1" in events_block
