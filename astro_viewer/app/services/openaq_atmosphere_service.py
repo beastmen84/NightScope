@@ -15,8 +15,9 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 
 logger = logging.getLogger(__name__)
 
-OPENAQ_MEASUREMENTS_URL = "https://api.openaq.org/v3/measurements"
-OPENAQ_DEFAULT_RADIUS_M = 50_000
+OPENAQ_LOCATIONS_URL = "https://api.openaq.org/v3/locations"
+OPENAQ_LOCATION_LATEST_URL = "https://api.openaq.org/v3/locations/{locations_id}/latest"
+OPENAQ_DEFAULT_RADIUS_M = 25_000
 OPENAQ_CACHE_TTL = timedelta(minutes=45)
 
 PM25_THRESHOLDS = (10.0, 25.0, 50.0)
@@ -90,13 +91,15 @@ class OpenAQLocalAtmosphereService:
     def __init__(
         self,
         *,
-        measurements_url: str = OPENAQ_MEASUREMENTS_URL,
+        locations_url: str = OPENAQ_LOCATIONS_URL,
+        location_latest_url: str = OPENAQ_LOCATION_LATEST_URL,
         radius_m: int = OPENAQ_DEFAULT_RADIUS_M,
         cache_ttl: timedelta = OPENAQ_CACHE_TTL,
         session_factory: Callable[[str], requests.Session] | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
-        self._measurements_url = measurements_url
+        self._locations_url = locations_url
+        self._location_latest_url = location_latest_url
         self._radius_m = radius_m
         self._cache_ttl = cache_ttl
         self._session_factory = session_factory or self._session
@@ -125,42 +128,70 @@ class OpenAQLocalAtmosphereService:
 
     def _fetch(self, api_key: str, location: ObserverLocation) -> LocalAtmosphere:
         session = self._session_factory(api_key)
-        params_base = {
-            "coordinates": f"{location.latitude},{location.longitude}",
-            "radius": str(self._radius_m),
-            "limit": "100",
-            "sort": "desc",
-        }
-        parameter_attempts = (
-            {"parameters_id": "1,2"},
-            {"parameter": "pm25,pm10"},
+        locations_response = self._get(
+            session,
+            self._locations_url,
+            params={
+                "coordinates": f"{location.latitude:.4f},{location.longitude:.4f}",
+                "radius": str(min(self._radius_m, OPENAQ_DEFAULT_RADIUS_M)),
+                "parameters_id": "1,2",
+                "limit": "20",
+                "page": "1",
+            },
         )
+        if isinstance(locations_response, LocalAtmosphere):
+            return locations_response
 
-        last_status = 0
-        for parameter_params in parameter_attempts:
-            try:
-                response = session.get(
-                    self._measurements_url,
-                    params={**params_base, **parameter_params},
-                    timeout=(10, 20),
-                )
-            except requests.RequestException as exc:
-                logger.warning("OpenAQ local atmosphere lookup failed: %s", exc.__class__.__name__)
-                return LocalAtmosphere.failure(f"Connessione OpenAQ non riuscita: {exc.__class__.__name__}.")
+        locations = self._payload_results(locations_response)
+        if locations is None:
+            return LocalAtmosphere.failure("Risposta OpenAQ non riconosciuta.")
+        if not locations:
+            return LocalAtmosphere.no_data()
 
-            last_status = response.status_code
-            if response.status_code == 200:
-                return self._from_payload(response, location)
-            if response.status_code not in (400, 422):
-                break
+        latest_items = []
+        latest_failure: LocalAtmosphere | None = None
+        for location_item in self._nearest_locations(locations)[:8]:
+            location_id = location_item.get("id") if isinstance(location_item, dict) else None
+            if location_id is None:
+                continue
+            latest_response = self._get(
+                session,
+                self._location_latest_url.format(locations_id=location_id),
+                params={"limit": "100", "page": "1"},
+            )
+            if isinstance(latest_response, LocalAtmosphere):
+                latest_failure = latest_response
+                continue
+            latest_results = self._payload_results(latest_response)
+            if latest_results is None:
+                latest_failure = LocalAtmosphere.failure("Risposta OpenAQ non riconosciuta.")
+                continue
+            sensor_context = self._sensor_context_by_id(location_item)
+            for item in latest_results:
+                if isinstance(item, dict):
+                    latest_items.append(self._enrich_latest_item(item, location_item, sensor_context))
 
-        if last_status in (401, 403):
+        readings = self._readings_from_results(latest_items, location)
+        if readings:
+            return self._from_readings(readings)
+        if latest_failure is not None and latest_failure.message.startswith("API key"):
+            return latest_failure
+        return LocalAtmosphere.no_data()
+
+    def _get(self, session: requests.Session, url: str, *, params: dict[str, str]) -> requests.Response | LocalAtmosphere:
+        try:
+            response = session.get(url, params=params, timeout=(10, 20))
+        except requests.RequestException as exc:
+            logger.warning("OpenAQ local atmosphere lookup failed: %s", exc.__class__.__name__)
+            return LocalAtmosphere.failure(f"Connessione OpenAQ non riuscita: {exc.__class__.__name__}.")
+
+        if response.status_code == 200:
+            return response
+        if response.status_code in (401, 403):
             return LocalAtmosphere.failure("API key OpenAQ non valida o non autorizzata.")
-        if last_status == 429:
+        if response.status_code == 429:
             return LocalAtmosphere.failure("OpenAQ ha applicato un limite di traffico. Riprova più tardi.")
-        if last_status:
-            return LocalAtmosphere.failure(f"OpenAQ ha risposto con HTTP {last_status}.")
-        return LocalAtmosphere.failure()
+        return LocalAtmosphere.failure(f"OpenAQ ha risposto con HTTP {response.status_code}.")
 
     def _from_payload(self, response: requests.Response, location: ObserverLocation) -> LocalAtmosphere:
         try:
@@ -175,20 +206,84 @@ class OpenAQLocalAtmosphereService:
         readings = self._readings_from_results(results, location)
         if not readings:
             return LocalAtmosphere.no_data()
+        return self._from_readings(readings)
 
+    @staticmethod
+    def _from_readings(readings: dict[str, OpenAQReading]) -> LocalAtmosphere:
         pm25 = readings.get("pm25")
         pm10 = readings.get("pm10")
-        source_reading = self._source_reading(pm25, pm10)
+        source_reading = OpenAQLocalAtmosphereService._source_reading(pm25, pm10)
         return LocalAtmosphere(
             visible=True,
             has_data=True,
             message="",
-            pm25=self._format_reading(pm25),
-            pm10=self._format_reading(pm10),
-            clarity=self._clarity_label(pm25, pm10),
-            source=self._source_label(source_reading),
-            source_detail=self._source_detail(source_reading),
+            pm25=OpenAQLocalAtmosphereService._format_reading(pm25),
+            pm10=OpenAQLocalAtmosphereService._format_reading(pm10),
+            clarity=OpenAQLocalAtmosphereService._clarity_label(pm25, pm10),
+            source=OpenAQLocalAtmosphereService._source_label(source_reading),
+            source_detail=OpenAQLocalAtmosphereService._source_detail(source_reading),
         )
+
+    @staticmethod
+    def _payload_results(response: requests.Response) -> list | None:
+        try:
+            payload = response.json()
+        except ValueError:
+            return None
+        results = payload.get("results") if isinstance(payload, dict) else None
+        return results if isinstance(results, list) else None
+
+    @staticmethod
+    def _nearest_locations(locations: list) -> list[dict[str, Any]]:
+        usable = [item for item in locations if isinstance(item, dict)]
+        return sorted(
+            usable,
+            key=lambda item: OpenAQLocalAtmosphereService._float_value(item.get("distance")) or math.inf,
+        )
+
+    @staticmethod
+    def _sensor_context_by_id(location_item: dict[str, Any]) -> dict[int, dict[str, Any]]:
+        context: dict[int, dict[str, Any]] = {}
+        sensors = location_item.get("sensors")
+        if not isinstance(sensors, list):
+            return context
+        for sensor in sensors:
+            if not isinstance(sensor, dict):
+                continue
+            sensor_id = OpenAQLocalAtmosphereService._int_value(sensor.get("id"))
+            if sensor_id is None:
+                continue
+            context[sensor_id] = {
+                "parameter": sensor.get("parameter"),
+                "unit": sensor.get("units") or sensor.get("unit"),
+            }
+        return context
+
+    @staticmethod
+    def _enrich_latest_item(
+        item: dict[str, Any],
+        location_item: dict[str, Any],
+        sensor_context: dict[int, dict[str, Any]],
+    ) -> dict[str, Any]:
+        enriched = dict(item)
+        sensor_id = OpenAQLocalAtmosphereService._int_value(
+            item.get("sensorsId") or item.get("sensor_id") or item.get("sensorId")
+        )
+        if sensor_id is not None and sensor_id in sensor_context:
+            for key, value in sensor_context[sensor_id].items():
+                if value is not None:
+                    enriched.setdefault(key, value)
+        enriched.setdefault(
+            "location",
+            {
+                "name": location_item.get("name") or location_item.get("locality"),
+                "coordinates": location_item.get("coordinates"),
+            },
+        )
+        for key in ("provider", "owner", "distance"):
+            if key in location_item:
+                enriched.setdefault(key, location_item[key])
+        return enriched
 
     def _readings_from_results(
         self,
@@ -320,6 +415,9 @@ class OpenAQLocalAtmosphereService:
     @staticmethod
     def _unit_label(item: dict[str, Any]) -> str:
         unit = item.get("unit") or item.get("units")
+        parameter = item.get("parameter")
+        if not unit and isinstance(parameter, dict):
+            unit = parameter.get("units") or parameter.get("unit")
         if isinstance(unit, dict):
             unit = unit.get("label") or unit.get("name") or unit.get("symbol")
         if not unit:
@@ -419,6 +517,13 @@ class OpenAQLocalAtmosphereService:
         if math.isnan(parsed) or math.isinf(parsed):
             return None
         return parsed
+
+    @staticmethod
+    def _int_value(value: Any) -> int | None:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
 
     @staticmethod
     def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

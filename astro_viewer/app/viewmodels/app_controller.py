@@ -1007,7 +1007,10 @@ class AppController(QObject):
         self._openaq_connection_test_running = False
         self._openaq_credentials_state = self._openaq_credential_store.with_connection_result(ok, message)
         if ok:
+            self._local_atmosphere_service.clear_cache()
             self._refresh_local_atmosphere()
+        else:
+            self._local_atmosphere = LocalAtmosphere.not_configured()
         self.openaqCredentialsChanged.emit()
         self.weatherChanged.emit()
 
@@ -1766,7 +1769,7 @@ class AppController(QObject):
 
     def _refresh_local_atmosphere(self) -> None:
         api_key = self._openaq_credential_store.api_key()
-        if not api_key:
+        if not api_key or not self._openaq_credentials_state.connection_verified:
             self._local_atmosphere = LocalAtmosphere.not_configured()
             return
         if not self._has_valid_location():

@@ -27,7 +27,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.2.2`.
+Versione corrente: `1.2.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 
@@ -181,7 +181,7 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 - `dist/`, `build/`, `logs/`, cache Python e report generati non sono parte del repository.
 - `nasa_login.txt` non deve essere committato.
 - Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
-- La API key OpenAQ viene salvata tramite vault di sistema quando disponibile; la pagina Meteo la usa solo per la sezione informativa `Atmosfera locale`, mai per Recommendation Engine, Planner o punteggi.
+- La API key OpenAQ viene salvata tramite vault di sistema quando disponibile; dopo un test connessione riuscito, la pagina Meteo la usa solo per la sezione informativa `Atmosfera locale`, mai per Recommendation Engine, Planner o punteggi.
 - PyInstaller è il percorso di build supportato.
 
 ## Manuale utente
