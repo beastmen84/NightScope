@@ -225,6 +225,7 @@ Item {
                     Layout.rowSpan: root.width > 1040 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 428 : 248
+                    clip: true
                     title: "Ricerca città"
                     subtitle: "Catalogo GeoNames offline"
                     accentColor: theme.amber
@@ -238,7 +239,7 @@ Item {
 
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: root.width > 1040 ? 328 : 168
+                        Layout.preferredHeight: root.width > 1040 ? 252 : 168
                         radius: 8
                         color: "#15181e"
                         border.color: "#303641"

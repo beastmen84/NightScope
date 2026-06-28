@@ -1,5 +1,9 @@
 # Changelog
 
+## NightScope 1.1.3 - 2026-06-28
+
+- Corretto il layout della card `Ricerca città` in `Località`: il pannello risultati resta ora dentro il bordo della card anche nel layout desktop a due colonne.
+
 ## NightScope 1.1.2 - 2026-06-27
 
 - Riorganizzata la pagina `Località` mettendo la ricerca città come flusso principale sotto la posizione attuale.
