@@ -190,6 +190,31 @@ Item {
         return result
     }
 
+    function skyCompassRotation(direction) {
+        if (direction === "Nord-Est")
+            return 45
+        if (direction === "Est")
+            return 90
+        if (direction === "Sud-Est")
+            return 135
+        if (direction === "Sud")
+            return 180
+        if (direction === "Sud-Ovest")
+            return 225
+        if (direction === "Ovest")
+            return 270
+        if (direction === "Nord-Ovest")
+            return 315
+        return 0
+    }
+
+    function skyCompassAlternativesText(compass) {
+        var alternatives = compass.alternatives || []
+        if (alternatives.length === 0)
+            return "Nessuna alternativa utile"
+        return alternatives.map(function(item) { return item.direction }).join(" · ")
+    }
+
     function observingLimitFactor() {
         var rain = Number(controller.weatherDigest.rainProbability || 0)
         var cloud = Number(controller.weatherDigest.cloudAverage || 0)
@@ -1101,6 +1126,8 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
+                    Layout.row: 0
+                    Layout.column: 0
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 388 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Mappa cielo"
@@ -1179,7 +1206,180 @@ Item {
                 }
 
                 GlassCard {
+                    id: skyCompassCard
+
+                    property var compassData: controller.skyCompass || {}
+
                     Layout.fillWidth: true
+                    Layout.row: 1
+                    Layout.column: 0
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 248 : 0
+                    Layout.alignment: Qt.AlignTop
+                    title: "Sky Compass"
+                    subtitle: "Direzione pratica dei target già disponibili"
+                    accentColor: theme.teal
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: !skyCompassCard.compassData.available
+                        text: skyCompassCard.compassData.message || "Nessun target consigliato al momento."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        visible: skyCompassCard.compassData.available
+                        columns: root.width > 900 ? 2 : 1
+                        columnSpacing: 18
+                        rowSpacing: 12
+
+                        Rectangle {
+                            Layout.preferredWidth: 168
+                            Layout.preferredHeight: 168
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            radius: 84
+                            color: "#111820"
+                            border.color: "#26404a"
+                            border.width: 1
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.top: parent.top
+                                anchors.topMargin: 10
+                                text: "N"
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.right: parent.right
+                                anchors.rightMargin: 12
+                                text: "E"
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 10
+                                text: "S"
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 12
+                                text: "O"
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                font.weight: Font.DemiBold
+                            }
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: 104
+                                height: 104
+                                radius: 52
+                                color: "#0c1117"
+                                border.color: "#29313b"
+                                border.width: 1
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "▲"
+                                color: theme.teal
+                                font.pixelSize: 52
+                                font.weight: Font.Bold
+                                rotation: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
+                                transformOrigin: Item.Center
+                            }
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+                            spacing: 8
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Guarda verso"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: skyCompassCard.compassData.direction || "—"
+                                color: theme.textPrimary
+                                font.pixelSize: 30
+                                font.weight: Font.Bold
+                                elide: Text.ElideRight
+                            }
+
+                            StatusPill {
+                                text: skyCompassCard.compassData.targetCountLabel || ""
+                                accentColor: theme.teal
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: skyCompassCard.compassData.targetNames || ""
+                                color: theme.textPrimary
+                                font.pixelSize: 14
+                                font.weight: Font.DemiBold
+                                maximumLineCount: 2
+                                wrapMode: Text.WordWrap
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Alternative: " + root.skyCompassAlternativesText(skyCompassCard.compassData)
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                maximumLineCount: 1
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                visible: (skyCompassCard.compassData.cautionText || "").length > 0
+                                text: skyCompassCard.compassData.cautionText || ""
+                                color: theme.amber
+                                font.pixelSize: 12
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: skyCompassCard.compassData.updatedLabel || "Aggiornato ora"
+                                color: theme.textMuted
+                                font.pixelSize: 11
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.row: lowerGrid.columns > 1 ? 0 : 2
+                    Layout.column: lowerGrid.columns > 1 ? 1 : 0
+                    Layout.rowSpan: lowerGrid.columns > 1 ? 2 : 1
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 388 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Prossimi eventi"

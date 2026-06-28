@@ -1,8 +1,9 @@
 # Home Refresh Lifecycle Review
 
-This review documents the current Home refresh model before introducing Sky
-Compass. It is descriptive first, then proposes a future shared Observation
-Snapshot architecture. No application code has been changed for this review.
+This review documents the current Home refresh model and the first Sky Compass
+prototype. It is descriptive first, then proposes a future shared Observation
+Snapshot architecture. Sky Compass v1 intentionally stays inside the existing
+Home refresh lifecycle instead of introducing the future snapshot model.
 
 ## Current Architecture
 
@@ -10,8 +11,8 @@ Home is rendered by `HomePage.qml`, but Home data is owned by `AppController`.
 The QML page has no data-refresh timer of its own. It binds directly to
 controller properties and reacts to Qt notify signals:
 
-- `dataChanged` for astronomy objects, Moon, events, best object, plan, sky map
-  and notifications;
+- `dataChanged` for astronomy objects, Moon, events, best object, plan, sky map,
+  Sky Compass and notifications;
 - `weatherChanged` for weather, observing quality, seeing, sky quality,
   advanced scores and blocking-session state;
 - `locationChanged` for active location labels and location workflows;
@@ -28,7 +29,8 @@ The main refresh entry point is `_refresh_all()`:
    no-location context.
 2. If a valid location exists, `_refresh_astronomy()` runs first.
 3. `_refresh_weather_and_conditions()` then computes weather, sky quality,
-   seeing, equipment-aware objects, scores, plan, sky map and notifications.
+   seeing, equipment-aware objects, scores, plan, sky map, Sky Compass and
+   notifications.
 4. If no valid location exists, `_refresh_no_location_context()` clears
    location-dependent objects and exposes placeholder summaries.
 
@@ -109,6 +111,7 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 | Other visible planets | Yes | Yes | No direct dependency | Equipment setup can use seeing | Equipment recommendation service | Solar-system altitude/rise/set/window |
 | Other deep-sky objects | Yes | Yes | No direct dependency | Equipment setup can use seeing/transparency | Equipment recommendation and Moon-adjusted presentation | Messier altitude/window calculation |
 | Sky map | Yes | Yes | No | No | No | Current altitude/direction from visible objects |
+| Sky Compass v1 | Uses current Home target directions | Yes | No new weather call; may display existing caution text | No new seeing call | Consumes existing best object/plan scores; no new engine call | Current direction from already prepared Home targets |
 | Calendar/highlights | Current date | Yes | No | Profile setup may use seeing | Event setup enrichment only | Skyfield event generation |
 | Notifications | Indirect | Yes | Yes | Through advanced scores | Notification service | Events/Moon/current targets |
 
@@ -120,18 +123,42 @@ a central Home snapshot.
 
 ## Current Risks For Sky Compass
 
-- Time freshness is tied mostly to weather-hour refreshes and full location
+- Sky Compass v1 uses the existing Home refresh cadence. Time freshness is tied
+  mostly to weather-hour refreshes and full location
   refreshes. Current altitude, azimuth and cardinal direction can become stale
   between hourly weather refreshes.
 - Recomputing all astronomy objects just to keep a compass current would be too
   heavy and would also move recommendation cards unexpectedly.
 - Night-hour filtering exists in several places with slightly different ranges:
   observing score, seeing estimation and Home weather digest.
-- `AppController` owns orchestration and a large amount of presentation logic,
-  so adding Sky Compass directly as another set of controller fields would
-  increase coupling.
+- `AppController` owns orchestration and a large amount of presentation logic.
+  Sky Compass v1 adds a small controller DTO for prototype speed; it should be
+  migrated into the future snapshot model instead of growing further in place.
 - QML currently reads many independent properties; partial signal emissions can
   briefly render a mixed state during asynchronous weather or VIIRS updates.
+
+## Sky Compass V1 Prototype
+
+Sky Compass v1 is not a planetarium and does not replace `Mappa cielo`. It
+answers a narrower practical question: "where should I look now?" The backend
+builds a compact DTO from already available Home data:
+
+- Home-filtered visible planets, which already respect catalogue monthly
+  visibility for Solar-System eligibility;
+- Home-filtered and Moon-adjusted deep-sky objects;
+- current best object;
+- current observing plan membership.
+
+`SkyCompassService` groups targets into eight broad directions: Nord, Nord-Est,
+Est, Sud-Est, Sud, Sud-Ovest, Ovest and Nord-Ovest. It skips targets without a
+current direction, boosts objects already in the current plan and boosts the
+best object. It does not call weather, VIIRS, Planner, catalogue visibility or
+Recommendation Engine services; it only consumes the controller state already
+computed for Home.
+
+The QML card renders `controller.skyCompass` below `Mappa cielo`. There is no
+QML timer in v1, and no fast astronomical tick is introduced yet. The existing
+sky map remains unchanged.
 
 ## Proposed Observation Snapshot Architecture
 
@@ -194,9 +221,10 @@ Use separate refresh lanes instead of one global timer:
   visibility as the Solar-System eligibility gate, while catalogue filter/month
   and location changes still invalidate the monthly cache.
 
-For the first Sky Compass implementation, the fast tick can update only a small
-compass target subset derived from the latest snapshot: Moon, visible planets,
-best object, planned objects and a few high-score alternatives.
+A later Sky Compass implementation can add a fast tick for only a small compass
+target subset derived from the latest snapshot: Moon, visible planets, best
+object, planned objects and a few high-score alternatives. The v1 prototype does
+not include this tick.
 
 ## Expected Performance Impact
 
@@ -218,8 +246,9 @@ With a snapshot architecture:
 
 ## Expected User Experience Impact
 
-- Sky Compass can feel live because current directions and altitudes update
-  frequently.
+- A future tick can make Sky Compass feel live because current directions and
+  altitudes can update frequently. The v1 prototype favours stable Home
+  behaviour by using the existing refresh cadence.
 - Home recommendation cards remain stable enough to read and act on.
 - Manual weather refresh still has visible impact when the user explicitly asks
   for it.

@@ -97,7 +97,7 @@ Important pages:
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
 - sky quality, seeing/transparency and advanced scores,
-- night plan, sky map and notifications,
+- night plan, sky map, Sky Compass and notifications,
 - generic catalogue object dictionaries and catalogue filter state,
 - selected object and detail dictionaries,
 - calendar event setup text and object-detail target mapping,
@@ -110,7 +110,8 @@ It also coordinates:
 - weather refresh,
 - VIIRS refresh,
 - profile/equipment refresh,
-- recomputation of best object, plan, sky map, notifications and selected detail.
+- recomputation of best object, plan, sky map, Sky Compass, notifications and
+  selected detail.
 
 ### Services
 
@@ -128,6 +129,8 @@ Services hold business logic:
   NASA VIIRS and offline fallback.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
+- `SkyCompassService`: broad direction ranking from already prepared Home
+  targets; it does not call weather, VIIRS, Planner or recommendation services.
 - `NotificationService`: dashboard notifications from current conditions.
 - `LocationService`: Windows, IP and manual location providers.
 
