@@ -190,8 +190,8 @@ class SkyCompassService:
     @staticmethod
     def _available_count_label(count: int) -> str:
         if count == 1:
-            return "1 target disponibile"
-        return f"{count} target disponibili"
+            return "1 target osservabile"
+        return f"{count} target osservabili"
 
     @staticmethod
     def _target_count_label(count: int) -> str:
@@ -207,24 +207,26 @@ class SkyCompassService:
 
         first = targets[0]
         if first["isBest"]:
-            reasons.append(f"{first['name']} è il target principale")
+            reasons.append("Presenza del target principale della serata")
         elif first["inPlan"]:
-            reasons.append(f"{first['name']} è nel piano osservativo")
+            reasons.append(f"{first['name']} è già nel piano osservativo")
         else:
-            reasons.append(f"{first['name']} è il target più promettente in questa zona")
+            reasons.append(f"{first['name']} guida la scelta in questa zona")
 
         deep_sky_count = sum(1 for item in targets if item["type"] != "Pianeta")
         planet_targets = [item for item in targets if item["type"] == "Pianeta"]
-        if deep_sky_count >= 2:
-            reasons.append("Due ottimi oggetti deep sky nella stessa direzione")
+        if planet_targets and deep_sky_count > 0:
+            reasons.append("Pianeti e deep sky nella stessa zona")
+        elif deep_sky_count >= 2:
+            reasons.append("Più target deep sky senza spostare il telescopio")
         elif planet_targets and not first["isBest"]:
-            reasons.append(f"{planet_targets[0]['name']} è un buon riferimento planetario")
+            reasons.append(f"{planet_targets[0]['name']} è un riferimento planetario utile")
 
         max_count = max(group["targetCount"] for group in ranked_groups)
         if top_group["targetCount"] == max_count and max_count > 1:
-            reasons.append("Maggiore concentrazione di target osservabili")
+            reasons.append("Maggiore concentrazione di target utili")
         elif top_group["targetCount"] > 1:
-            reasons.append("Più target utili senza cambiare zona del cielo")
+            reasons.append("Più target osservabili senza spostare il telescopio")
 
         return reasons[:3]
 

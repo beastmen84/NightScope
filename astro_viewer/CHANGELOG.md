@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.1.7 - 2026-06-28
+
+- Rifinita la presentazione di `Sky Compass` con motivazioni più naturali basate sul mix reale dei target nella direzione selezionata.
+- Aggiornato il conteggio a `target osservabili` e ridotta l'importanza visiva delle direzioni alternative.
+- Aggiunte icone minime per tipo oggetto nella lista dei target principali.
+
 ## NightScope 1.1.6 - 2026-06-28
 
 - Rifinito `Sky Compass` trasformandolo da riepilogo direzionale in assistente osservativo orientato alla domanda "dove guardare per primo".

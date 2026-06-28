@@ -208,6 +208,19 @@ Item {
         return 0
     }
 
+    function skyCompassTypeIcon(typeText) {
+        var value = (typeText || "").toLowerCase()
+        if (value.indexOf("pianeta") >= 0)
+            return "●"
+        if (value.indexOf("galass") >= 0 || value.indexOf("galaxy") >= 0)
+            return "◎"
+        if (value.indexOf("nebul") >= 0)
+            return "✦"
+        if (value.indexOf("ammasso") >= 0 || value.indexOf("cluster") >= 0)
+            return "✷"
+        return "•"
+    }
+
     function observingLimitFactor() {
         var rain = Number(controller.weatherDigest.rainProbability || 0)
         var cloud = Number(controller.weatherDigest.cloudAverage || 0)
@@ -1385,13 +1398,23 @@ Item {
 
                                     delegate: RowLayout {
                                         Layout.fillWidth: true
-                                        spacing: 8
+                                        spacing: 10
 
-                                        Text {
-                                            Layout.preferredWidth: 10
-                                            text: "•"
-                                            color: theme.teal
-                                            font.pixelSize: 14
+                                        Rectangle {
+                                            Layout.preferredWidth: 22
+                                            Layout.preferredHeight: 22
+                                            radius: 11
+                                            color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.13)
+                                            border.color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.34)
+                                            border.width: 1
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: root.skyCompassTypeIcon(modelData.type)
+                                                color: theme.teal
+                                                font.pixelSize: 12
+                                                font.weight: Font.DemiBold
+                                            }
                                         }
 
                                         Text {
@@ -1459,13 +1482,14 @@ Item {
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            Layout.topMargin: 2
+                            spacing: 7
 
                             Text {
                                 Layout.fillWidth: true
                                 text: "Alternative"
-                                color: theme.textPrimary
-                                font.pixelSize: 14
+                                color: theme.textSecondary
+                                font.pixelSize: 12
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
@@ -1479,7 +1503,8 @@ Item {
 
                                     delegate: StatusPill {
                                         text: modelData.direction
-                                        accentColor: theme.cyan
+                                        accentColor: theme.textMuted
+                                        opacity: 0.82
                                     }
                                 }
 

@@ -26,7 +26,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione stabile di riferimento: `1.1.6`.
+Versione stabile di riferimento: `1.1.7`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

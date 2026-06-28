@@ -24,13 +24,14 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert result["direction"] == "Nord-Est"
     assert result["targetCount"] == 2
     assert result["zoneLabel"] == "Migliore zona osservativa"
-    assert result["targetCountLabel"] == "2 target disponibili"
+    assert result["targetCountLabel"] == "2 target osservabili"
     assert result["primaryTargets"][0]["id"] == "messier-M13"
     assert [item["name"] for item in result["primaryTargets"]] == ["M13", "M92"]
     assert "targetNames" not in result
     assert "updatedLabel" not in result
-    assert result["decisionReasons"][0] == "M13 è il target principale"
-    assert any("deep sky" in reason for reason in result["decisionReasons"])
+    assert result["decisionReasons"][0] == "Presenza del target principale della serata"
+    assert any("Più target deep sky" in reason for reason in result["decisionReasons"])
+    assert not any("Due ottimi oggetti deep sky" in reason for reason in result["decisionReasons"])
     assert result["alternatives"][0]["direction"] == "Est"
 
 
@@ -99,6 +100,7 @@ def test_sky_compass_presents_max_three_primary_targets_and_other_count() -> Non
     assert result["otherTargetCountLabel"] == "+1 altro target"
     assert len(result["decisionReasons"]) <= 3
     assert not any("score" in reason.lower() for reason in result["decisionReasons"])
+    assert "Pianeti e deep sky nella stessa zona" in result["decisionReasons"]
 
 
 def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -> None:
@@ -115,6 +117,7 @@ def test_home_renders_sky_compass_below_sky_map_without_timer() -> None:
     assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
     assert "Perché questa direzione?" in source
     assert "Target principali" in source
+    assert "skyCompassTypeIcon" in source
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source
     assert "Aggiornato ora" not in source
