@@ -8,7 +8,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
 - Piano osservativo consigliato, altri pianeti visibili e oggetti di cielo profondo filtrati per profilo attivo.
-- Sky Compass come assistente osservativo: indica dove guardare per primo, spiega perché quella zona è consigliata e mostra target principali e alternative; non è un planetario e non sostituisce la mappa cielo.
+- Sky Compass come assistente osservativo: indica dove guardare per primo, spiega perché quella zona è consigliata e mostra target principali e alternative; non è un planetario.
 - Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
@@ -26,7 +26,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione stabile di riferimento: `1.1.7`.
+Versione stabile di riferimento: `1.1.8`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

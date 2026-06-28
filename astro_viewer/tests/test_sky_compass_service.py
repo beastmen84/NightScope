@@ -110,14 +110,18 @@ def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -
     assert "_solar_system_objects" not in body
 
 
-def test_home_renders_sky_compass_below_sky_map_without_timer() -> None:
+def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
 
-    assert source.index('title: "Mappa cielo"') < source.index('title: "Sky Compass"')
     assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
+    assert 'title: "Mappa cielo"' not in source
+    assert "controller.skyMap" not in source
+    assert source.index('text: "Alternative"') < source.index('text: "Perché questa direzione?"')
     assert "Perché questa direzione?" in source
     assert "Target principali" in source
-    assert "skyCompassTypeIcon" in source
+    assert "skyCompassCanvas" in source
+    assert "skyCompassTypeIconKind" in source
+    assert "iconKind === \"planet\"" in source
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source
     assert "Aggiornato ora" not in source
