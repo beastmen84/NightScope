@@ -277,7 +277,9 @@ class ReleaseScenarioTests(unittest.TestCase):
             controller._schedule_viirs_sky_quality_refresh.assert_not_called()
 
     def test_manual_weather_refresh_clears_unavailable_status_after_initial_failure(self) -> None:
-        with self._controller_with_weather(side_effect=[requests.Timeout(), _valid_weather_response()]) as controller:
+        with self._controller_with_weather(
+            side_effect=[requests.Timeout(), requests.Timeout(), _valid_weather_response()]
+        ) as controller:
             controller.setManualLocation("41.9028", "12.4964", "Roma")
             self.assertEqual(controller.weatherHourly, [])
             self.assertEqual(controller.weatherStatus, "Dati meteo non disponibili al momento.")

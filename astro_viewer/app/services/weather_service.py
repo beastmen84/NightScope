@@ -49,7 +49,7 @@ class MockWeatherService:
 class OpenMeteoWeatherService:
     BASE_URL = "https://api.open-meteo.com/v1/forecast"
     CACHE_TTL = timedelta(minutes=45)
-    REQUEST_TIMEOUT_SECONDS = 3
+    REQUEST_TIMEOUT_SECONDS = (3, 8)
 
     def __init__(self, cache_repository: WeatherCacheRepository | None = None):
         self._cache_repository = cache_repository
@@ -84,7 +84,7 @@ class OpenMeteoWeatherService:
             "timezone": location.timezone,
         }
         try:
-            response = requests.get(self.BASE_URL, params=params, timeout=self.REQUEST_TIMEOUT_SECONDS)
+            response = self._get_with_timeout_retry(params)
             response.raise_for_status()
             payload = response.json()
         except requests.Timeout:
@@ -111,6 +111,25 @@ class OpenMeteoWeatherService:
 
     def observing_summary(self, location: ObserverLocation) -> WeatherSummary:
         return score_observability(self.hourly_forecast(location))
+
+    def _get_with_timeout_retry(self, params: dict) -> requests.Response:
+        last_timeout: requests.Timeout | None = None
+        for index, timeout_seconds in enumerate(self.REQUEST_TIMEOUT_SECONDS):
+            try:
+                return requests.get(self.BASE_URL, params=params, timeout=timeout_seconds)
+            except requests.Timeout as exc:
+                last_timeout = exc
+                if index + 1 >= len(self.REQUEST_TIMEOUT_SECONDS):
+                    break
+                next_timeout = self.REQUEST_TIMEOUT_SECONDS[index + 1]
+                logger.info(
+                    "Open-Meteo request timed out after %ss; retrying with %ss.",
+                    timeout_seconds,
+                    next_timeout,
+                )
+        if last_timeout is not None:
+            raise last_timeout
+        raise requests.Timeout("Open-Meteo request timed out.")
 
     def _fallback(self, cached: tuple[datetime, dict] | None, reason: str) -> list[WeatherHour]:
         self.last_error = WEATHER_UNAVAILABLE_MESSAGE

@@ -26,6 +26,34 @@ class WeatherHardeningTests(unittest.TestCase):
                 self.assertEqual(service.hourly_forecast(self.location), [])
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
 
+    def test_timeout_retries_once_before_falling_back(self) -> None:
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "hourly": {
+                "time": ["2026-06-21T22:00"],
+                "cloud_cover": [12],
+                "precipitation_probability": [0],
+                "temperature_2m": [18.0],
+                "relative_humidity_2m": [55],
+                "wind_speed_10m": [6],
+                "visibility": [18000],
+            }
+        }
+        service = OpenMeteoWeatherService()
+
+        with patch("astro_viewer.app.services.weather_service.requests.get", side_effect=[requests.Timeout(), response]) as weather_get:
+            with self.assertLogs("astro_viewer.app.services.weather_service", level="INFO") as logs:
+                forecast = service.hourly_forecast(self.location)
+
+        self.assertEqual(len(forecast), 1)
+        self.assertEqual(forecast[0].cloud_cover, 12)
+        self.assertEqual(service.last_error, "")
+        self.assertEqual(weather_get.call_count, 2)
+        self.assertEqual(weather_get.call_args_list[0].kwargs["timeout"], 3)
+        self.assertEqual(weather_get.call_args_list[1].kwargs["timeout"], 8)
+        self.assertIn("retrying", "\n".join(logs.output))
+
     def test_malformed_json_returns_empty_forecast_without_traceback(self) -> None:
         response = Mock()
         response.raise_for_status.return_value = None

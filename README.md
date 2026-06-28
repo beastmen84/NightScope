@@ -14,7 +14,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
 - Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
-- Meteo Open-Meteo con cache SQLite, timeout breve e fallback controllato.
+- Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
 - Sezione Meteo `Atmosfera locale` con dati OpenAQ opzionali e display-only per PM2.5, PM10, limpidezza, fonte e freschezza della misura.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
@@ -27,7 +27,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.2.6`.
+Versione corrente: `1.2.7`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 
