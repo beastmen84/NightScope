@@ -9,6 +9,7 @@ from astro_viewer.app.services.sky_compass_service import SkyCompassService
 
 APP_CONTROLLER = Path(__file__).resolve().parents[1] / "app" / "viewmodels" / "app_controller.py"
 HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
+GLASS_CARD = Path(__file__).resolve().parents[1] / "app" / "ui" / "components" / "GlassCard.qml"
 
 
 def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
@@ -112,6 +113,7 @@ def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -
 
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
+    glass_card_source = GLASS_CARD.read_text(encoding="utf-8")
     sky_compass_block = source[source.index("id: skyCompassCard") : source.index('text: "Piano della notte"')]
     events_title_index = source.index('title: "Prossimi eventi"')
     events_start_index = source.rindex("\n            GlassCard {", 0, events_title_index)
@@ -125,7 +127,12 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert "Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0" in sky_compass_block
     assert 'text: "Inizia da"' in sky_compass_block
     assert "accentColor: theme.teal" in sky_compass_block
+    assert "property alias headerContent: headerContentRow.data" in glass_card_source
+    assert "id: headerContentRow" in glass_card_source
+    assert "headerContent: [" in sky_compass_block
     assert 'text: "Alternative"' in sky_compass_block
+    assert sky_compass_block.index('text: "Alternative"') < sky_compass_block.index("GridLayout {")
+    assert "Nessuna alternativa utile" not in sky_compass_block
     assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
     assert "Layout.preferredHeight: 74" in events_block
     assert "Layout.alignment: Qt.AlignVCenter" in events_block

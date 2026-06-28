@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.1.14 - 2026-06-28
+
+- Spostate le alternative di `Sky Compass` nella testata della card, in alto a destra, riducendo l'altezza del corpo.
+- Aggiunto a `GlassCard` uno slot opzionale per contenuti custom nella testata senza cambiare le card esistenti.
+
 ## NightScope 1.1.13 - 2026-06-28
 
 - Ridotta l'altezza minima di `Sky Compass` quando non ci sono dati visualizzabili.

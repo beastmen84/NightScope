@@ -16,6 +16,7 @@ Rectangle {
     property color headerActionAccentColor: accentColor
     property string headerActionToolTip: ""
     property bool contentFillsHeight: false
+    property alias headerContent: headerContentRow.data
     default property alias content: contentColumn.data
 
     signal headerActionClicked()
@@ -65,6 +66,13 @@ Rectangle {
                     font.pixelSize: 12
                     elide: Text.ElideRight
                 }
+            }
+
+            RowLayout {
+                id: headerContentRow
+                visible: children.length > 0
+                Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                spacing: 8
             }
 
             StatusPill {

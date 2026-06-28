@@ -856,6 +856,31 @@ Item {
                 title: "Sky Compass"
                 subtitle: "Dove iniziare stasera"
                 accentColor: theme.teal
+                headerContent: [
+                    RowLayout {
+                        visible: skyCompassCard.compassData.available
+                                 && (skyCompassCard.compassData.alternatives || []).length > 0
+                        spacing: 8
+
+                        Text {
+                            text: "Alternative"
+                            color: theme.textSecondary
+                            font.pixelSize: 12
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
+
+                        Repeater {
+                            model: skyCompassCard.compassData.alternatives || []
+
+                            delegate: StatusPill {
+                                text: modelData.direction
+                                accentColor: theme.teal
+                                opacity: 0.9
+                            }
+                        }
+                    }
+                ]
 
                 Text {
                     Layout.fillWidth: true
@@ -1259,45 +1284,6 @@ Item {
                             color: theme.textSecondary
                             font.pixelSize: 12
                             elide: Text.ElideRight
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            Layout.topMargin: 4
-                            spacing: 6
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Alternative"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-
-                                Repeater {
-                                    model: skyCompassCard.compassData.alternatives || []
-
-                                    delegate: StatusPill {
-                                        text: modelData.direction
-                                        accentColor: theme.teal
-                                        opacity: 0.9
-                                    }
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    visible: (skyCompassCard.compassData.alternatives || []).length === 0
-                                    text: "Nessuna alternativa utile"
-                                    color: theme.textMuted
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
                         }
                     }
                 }
