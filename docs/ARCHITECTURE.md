@@ -129,8 +129,9 @@ Services hold business logic:
   NASA VIIRS and offline fallback.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
-- `SkyCompassService`: broad direction ranking from already prepared Home
-  targets; it does not call weather, VIIRS, Planner or recommendation services.
+- `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
+  from already prepared Home targets; it does not call weather, VIIRS, Planner
+  or recommendation services.
 - `NotificationService`: dashboard notifications from current conditions.
 - `LocationService`: Windows, IP and manual location providers.
 

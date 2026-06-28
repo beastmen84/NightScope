@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.1.6 - 2026-06-28
+
+- Rifinito `Sky Compass` trasformandolo da riepilogo direzionale in assistente osservativo orientato alla domanda "dove guardare per primo".
+- Aggiunte motivazioni pratiche della direzione scelta, target principali prioritizzati e alternative più leggibili.
+- Rimossa la dicitura `Aggiornato ora` dalla card Sky Compass per ridurre rumore visivo.
+
 ## NightScope 1.1.5 - 2026-06-28
 
 - Aggiunto il prototipo `Sky Compass` in Home sotto `Mappa cielo`, per indicare la direzione ampia migliore usando i target già disponibili.

@@ -39,12 +39,15 @@ class SkyCompassService:
             "reason": reason,
             "message": message,
             "direction": "",
+            "zoneLabel": "",
             "targetCount": 0,
             "targetCountLabel": "",
             "targets": [],
-            "targetNames": "",
+            "primaryTargets": [],
+            "otherTargetCount": 0,
+            "otherTargetCountLabel": "",
+            "decisionReasons": [],
             "alternatives": [],
-            "updatedLabel": "",
             "cautionText": "",
         }
 
@@ -82,18 +85,23 @@ class SkyCompassService:
             for group in ranked_groups[1:3]
             if group["targetCount"] > 0
         ]
+        primary_targets = top["targets"][:3]
+        other_target_count = max(0, top["targetCount"] - len(primary_targets))
 
         return {
             "available": True,
             "reason": "ready",
             "message": "",
             "direction": top["direction"],
+            "zoneLabel": "Migliore zona osservativa",
             "targetCount": top["targetCount"],
-            "targetCountLabel": self._target_count_label(top["targetCount"]),
-            "targets": top["targets"][:4],
-            "targetNames": " · ".join(item["name"] for item in top["targets"][:4]),
+            "targetCountLabel": self._available_count_label(top["targetCount"]),
+            "targets": top["targets"],
+            "primaryTargets": primary_targets,
+            "otherTargetCount": other_target_count,
+            "otherTargetCountLabel": self._other_target_count_label(other_target_count),
+            "decisionReasons": self._decision_reasons(top, ranked_groups),
             "alternatives": alternatives,
-            "updatedLabel": "Aggiornato ora",
             "cautionText": caution_text,
         }
 
@@ -180,7 +188,50 @@ class SkyCompassService:
         return ""
 
     @staticmethod
+    def _available_count_label(count: int) -> str:
+        if count == 1:
+            return "1 target disponibile"
+        return f"{count} target disponibili"
+
+    @staticmethod
     def _target_count_label(count: int) -> str:
         if count == 1:
             return "1 target consigliato"
         return f"{count} target consigliati"
+
+    def _decision_reasons(self, top_group: dict, ranked_groups: list[dict]) -> list[str]:
+        reasons = []
+        targets = top_group["targets"]
+        if not targets:
+            return reasons
+
+        first = targets[0]
+        if first["isBest"]:
+            reasons.append(f"{first['name']} è il target principale")
+        elif first["inPlan"]:
+            reasons.append(f"{first['name']} è nel piano osservativo")
+        else:
+            reasons.append(f"{first['name']} è il target più promettente in questa zona")
+
+        deep_sky_count = sum(1 for item in targets if item["type"] != "Pianeta")
+        planet_targets = [item for item in targets if item["type"] == "Pianeta"]
+        if deep_sky_count >= 2:
+            reasons.append("Due ottimi oggetti deep sky nella stessa direzione")
+        elif planet_targets and not first["isBest"]:
+            reasons.append(f"{planet_targets[0]['name']} è un buon riferimento planetario")
+
+        max_count = max(group["targetCount"] for group in ranked_groups)
+        if top_group["targetCount"] == max_count and max_count > 1:
+            reasons.append("Maggiore concentrazione di target osservabili")
+        elif top_group["targetCount"] > 1:
+            reasons.append("Più target utili senza cambiare zona del cielo")
+
+        return reasons[:3]
+
+    @staticmethod
+    def _other_target_count_label(count: int) -> str:
+        if count <= 0:
+            return ""
+        if count == 1:
+            return "+1 altro target"
+        return f"+{count} altri target"

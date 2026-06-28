@@ -23,8 +23,14 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert result["available"] is True
     assert result["direction"] == "Nord-Est"
     assert result["targetCount"] == 2
-    assert result["targets"][0]["id"] == "messier-M13"
-    assert result["targetNames"] == "M13 · M92"
+    assert result["zoneLabel"] == "Migliore zona osservativa"
+    assert result["targetCountLabel"] == "2 target disponibili"
+    assert result["primaryTargets"][0]["id"] == "messier-M13"
+    assert [item["name"] for item in result["primaryTargets"]] == ["M13", "M92"]
+    assert "targetNames" not in result
+    assert "updatedLabel" not in result
+    assert result["decisionReasons"][0] == "M13 è il target principale"
+    assert any("deep sky" in reason for reason in result["decisionReasons"])
     assert result["alternatives"][0]["direction"] == "Est"
 
 
@@ -43,7 +49,7 @@ def test_sky_compass_skips_targets_without_current_direction() -> None:
 
     assert result["available"] is True
     assert result["direction"] == "Ovest"
-    assert result["targetNames"] == "M92"
+    assert result["primaryTargets"][0]["name"] == "M92"
 
 
 def test_sky_compass_no_location_fallback() -> None:
@@ -69,6 +75,32 @@ def test_sky_compass_direction_buckets_are_eight_sector() -> None:
     assert service.normalize_direction("Ovest") == "Ovest"
 
 
+def test_sky_compass_presents_max_three_primary_targets_and_other_count() -> None:
+    service = SkyCompassService()
+
+    result = service.compass(
+        [
+            _object("saturn", "Saturno", "Pianeta", "Sud", 92),
+            _object("neptune", "Nettuno", "Pianeta", "Sud", 70),
+            _object("messier-M11", "M11 Wild Duck Cluster", "Ammasso aperto", "Sud", 64),
+            _object("messier-M15", "M15 Great Pegasus Cluster", "Ammasso globulare", "Sud", 62),
+        ],
+        [],
+        None,
+        has_location=True,
+    )
+
+    assert [item["name"] for item in result["primaryTargets"]] == [
+        "Saturno",
+        "Nettuno",
+        "M11 Wild Duck Cluster",
+    ]
+    assert result["otherTargetCount"] == 1
+    assert result["otherTargetCountLabel"] == "+1 altro target"
+    assert len(result["decisionReasons"]) <= 3
+    assert not any("score" in reason.lower() for reason in result["decisionReasons"])
+
+
 def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -> None:
     body = _python_function_body("_sky_compass_candidates")
 
@@ -81,6 +113,11 @@ def test_home_renders_sky_compass_below_sky_map_without_timer() -> None:
 
     assert source.index('title: "Mappa cielo"') < source.index('title: "Sky Compass"')
     assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
+    assert "Perché questa direzione?" in source
+    assert "Target principali" in source
+    assert "Migliore zona osservativa" not in source
+    assert "targetNames" not in source
+    assert "Aggiornato ora" not in source
     assert "Timer {" not in source
 
 

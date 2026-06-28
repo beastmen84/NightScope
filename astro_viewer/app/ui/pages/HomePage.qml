@@ -208,13 +208,6 @@ Item {
         return 0
     }
 
-    function skyCompassAlternativesText(compass) {
-        var alternatives = compass.alternatives || []
-        if (alternatives.length === 0)
-            return "Nessuna alternativa utile"
-        return alternatives.map(function(item) { return item.direction }).join(" · ")
-    }
-
     function observingLimitFactor() {
         var rain = Number(controller.weatherDigest.rainProbability || 0)
         var cloud = Number(controller.weatherDigest.cloudAverage || 0)
@@ -1213,10 +1206,10 @@ Item {
                     Layout.fillWidth: true
                     Layout.row: 1
                     Layout.column: 0
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 248 : 0
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 430 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Sky Compass"
-                    subtitle: "Direzione pratica dei target già disponibili"
+                    subtitle: "Dove guardare per primo"
                     accentColor: theme.teal
 
                     Text {
@@ -1228,148 +1221,276 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    GridLayout {
+                    ColumnLayout {
                         Layout.fillWidth: true
                         visible: skyCompassCard.compassData.available
-                        columns: root.width > 900 ? 2 : 1
-                        columnSpacing: 18
-                        rowSpacing: 12
+                        spacing: 16
 
-                        Rectangle {
-                            Layout.preferredWidth: 168
-                            Layout.preferredHeight: 168
-                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                            radius: 84
-                            color: "#111820"
-                            border.color: "#26404a"
-                            border.width: 1
-
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.top: parent.top
-                                anchors.topMargin: 10
-                                text: "N"
-                                color: theme.textSecondary
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                            }
-
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 12
-                                text: "E"
-                                color: theme.textSecondary
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                            }
-
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 10
-                                text: "S"
-                                color: theme.textSecondary
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                            }
-
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 12
-                                text: "O"
-                                color: theme.textSecondary
-                                font.pixelSize: 11
-                                font.weight: Font.DemiBold
-                            }
+                        GridLayout {
+                            Layout.fillWidth: true
+                            columns: root.width > 900 ? 2 : 1
+                            columnSpacing: 18
+                            rowSpacing: 12
 
                             Rectangle {
-                                anchors.centerIn: parent
-                                width: 104
-                                height: 104
-                                radius: 52
-                                color: "#0c1117"
-                                border.color: "#29313b"
+                                Layout.preferredWidth: 168
+                                Layout.preferredHeight: 168
+                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                radius: 84
+                                color: "#111820"
+                                border.color: "#26404a"
                                 border.width: 1
+
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    anchors.top: parent.top
+                                    anchors.topMargin: 10
+                                    text: "N"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 12
+                                    text: "E"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    anchors.bottom: parent.bottom
+                                    anchors.bottomMargin: 10
+                                    text: "S"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 12
+                                    text: "O"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 11
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 108
+                                    height: 108
+                                    radius: 54
+                                    color: "#0c1117"
+                                    border.color: "#2a5660"
+                                    border.width: 1
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "▲"
+                                    color: theme.teal
+                                    font.pixelSize: 58
+                                    font.weight: Font.Bold
+                                    rotation: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
+                                    transformOrigin: Item.Center
+                                }
                             }
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: "▲"
-                                color: theme.teal
-                                font.pixelSize: 52
-                                font.weight: Font.Bold
-                                rotation: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
-                                transformOrigin: Item.Center
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
+                                spacing: 8
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Guarda verso"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: skyCompassCard.compassData.direction || "—"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 38
+                                    font.weight: Font.Bold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: skyCompassCard.compassData.zoneLabel || "Zona consigliata"
+                                    color: theme.teal
+                                    font.pixelSize: 15
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: skyCompassCard.compassData.targetCountLabel || ""
+                                    color: theme.textSecondary
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: (skyCompassCard.compassData.cautionText || "").length > 0
+                                    text: skyCompassCard.compassData.cautionText || ""
+                                    color: theme.amber
+                                    font.pixelSize: 12
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 1
+                            color: "#29313b"
+                        }
+
+                        GridLayout {
+                            Layout.fillWidth: true
+                            columns: root.width > 900 ? 2 : 1
+                            columnSpacing: 22
+                            rowSpacing: 16
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Perché questa direzione?"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Repeater {
+                                    model: skyCompassCard.compassData.decisionReasons || []
+
+                                    delegate: RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 8
+
+                                        Text {
+                                            Layout.preferredWidth: 10
+                                            text: "•"
+                                            color: theme.teal
+                                            font.pixelSize: 14
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData
+                                            color: theme.textSecondary
+                                            font.pixelSize: 12
+                                            wrapMode: Text.WordWrap
+                                            maximumLineCount: 2
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Target principali"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 14
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Repeater {
+                                    model: skyCompassCard.compassData.primaryTargets || []
+
+                                    delegate: RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 8
+
+                                        Text {
+                                            Layout.preferredWidth: 10
+                                            text: "•"
+                                            color: theme.teal
+                                            font.pixelSize: 14
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: modelData.name
+                                            color: theme.textPrimary
+                                            font.pixelSize: 13
+                                            font.weight: Font.DemiBold
+                                            maximumLineCount: 1
+                                            elide: Text.ElideRight
+                                        }
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: (skyCompassCard.compassData.otherTargetCountLabel || "").length > 0
+                                    text: skyCompassCard.compassData.otherTargetCountLabel || ""
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
 
                         ColumnLayout {
                             Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
                             spacing: 8
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Guarda verso"
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                font.weight: Font.DemiBold
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: skyCompassCard.compassData.direction || "—"
-                                color: theme.textPrimary
-                                font.pixelSize: 30
-                                font.weight: Font.Bold
-                                elide: Text.ElideRight
-                            }
-
-                            StatusPill {
-                                text: skyCompassCard.compassData.targetCountLabel || ""
-                                accentColor: theme.teal
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: skyCompassCard.compassData.targetNames || ""
+                                text: "Alternative"
                                 color: theme.textPrimary
                                 font.pixelSize: 14
                                 font.weight: Font.DemiBold
-                                maximumLineCount: 2
-                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
                             }
 
-                            Text {
+                            RowLayout {
                                 Layout.fillWidth: true
-                                text: "Alternative: " + root.skyCompassAlternativesText(skyCompassCard.compassData)
-                                color: theme.textSecondary
-                                font.pixelSize: 12
-                                maximumLineCount: 1
-                                elide: Text.ElideRight
-                            }
+                                spacing: 8
 
-                            Text {
-                                Layout.fillWidth: true
-                                visible: (skyCompassCard.compassData.cautionText || "").length > 0
-                                text: skyCompassCard.compassData.cautionText || ""
-                                color: theme.amber
-                                font.pixelSize: 12
-                                wrapMode: Text.WordWrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
-                            }
+                                Repeater {
+                                    model: skyCompassCard.compassData.alternatives || []
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: skyCompassCard.compassData.updatedLabel || "Aggiornato ora"
-                                color: theme.textMuted
-                                font.pixelSize: 11
-                                elide: Text.ElideRight
+                                    delegate: StatusPill {
+                                        text: modelData.direction
+                                        accentColor: theme.cyan
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: (skyCompassCard.compassData.alternatives || []).length === 0
+                                    text: "Nessuna alternativa utile"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
                             }
                         }
                     }

@@ -1,8 +1,8 @@
 # Home Refresh Lifecycle Review
 
-This review documents the current Home refresh model and the first Sky Compass
+This review documents the current Home refresh model and the Sky Compass
 prototype. It is descriptive first, then proposes a future shared Observation
-Snapshot architecture. Sky Compass v1 intentionally stays inside the existing
+Snapshot architecture. Sky Compass v2 intentionally stays inside the existing
 Home refresh lifecycle instead of introducing the future snapshot model.
 
 ## Current Architecture
@@ -111,7 +111,7 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 | Other visible planets | Yes | Yes | No direct dependency | Equipment setup can use seeing | Equipment recommendation service | Solar-system altitude/rise/set/window |
 | Other deep-sky objects | Yes | Yes | No direct dependency | Equipment setup can use seeing/transparency | Equipment recommendation and Moon-adjusted presentation | Messier altitude/window calculation |
 | Sky map | Yes | Yes | No | No | No | Current altitude/direction from visible objects |
-| Sky Compass v1 | Uses current Home target directions | Yes | No new weather call; may display existing caution text | No new seeing call | Consumes existing best object/plan scores; no new engine call | Current direction from already prepared Home targets |
+| Sky Compass v2 | Uses current Home target directions | Yes | No new weather call; may display existing caution text | No new seeing call | Consumes existing best object/plan scores; no new engine call | Current direction from already prepared Home targets |
 | Calendar/highlights | Current date | Yes | No | Profile setup may use seeing | Event setup enrichment only | Skyfield event generation |
 | Notifications | Indirect | Yes | Yes | Through advanced scores | Notification service | Events/Moon/current targets |
 
@@ -123,7 +123,7 @@ a central Home snapshot.
 
 ## Current Risks For Sky Compass
 
-- Sky Compass v1 uses the existing Home refresh cadence. Time freshness is tied
+- Sky Compass v2 uses the existing Home refresh cadence. Time freshness is tied
   mostly to weather-hour refreshes and full location
   refreshes. Current altitude, azimuth and cardinal direction can become stale
   between hourly weather refreshes.
@@ -132,16 +132,16 @@ a central Home snapshot.
 - Night-hour filtering exists in several places with slightly different ranges:
   observing score, seeing estimation and Home weather digest.
 - `AppController` owns orchestration and a large amount of presentation logic.
-  Sky Compass v1 adds a small controller DTO for prototype speed; it should be
+  Sky Compass v2 uses a small controller DTO for prototype speed; it should be
   migrated into the future snapshot model instead of growing further in place.
 - QML currently reads many independent properties; partial signal emissions can
   briefly render a mixed state during asynchronous weather or VIIRS updates.
 
-## Sky Compass V1 Prototype
+## Sky Compass V2 Prototype
 
-Sky Compass v1 is not a planetarium and does not replace `Mappa cielo`. It
-answers a narrower practical question: "where should I look now?" The backend
-builds a compact DTO from already available Home data:
+Sky Compass v2 is not a planetarium and does not replace `Mappa cielo`. It
+answers a narrower practical question: "where should I look first?" The backend
+builds a guidance-oriented DTO from already available Home data:
 
 - Home-filtered visible planets, which already respect catalogue monthly
   visibility for Solar-System eligibility;
@@ -152,12 +152,17 @@ builds a compact DTO from already available Home data:
 `SkyCompassService` groups targets into eight broad directions: Nord, Nord-Est,
 Est, Sud-Est, Sud, Sud-Ovest, Ovest and Nord-Ovest. It skips targets without a
 current direction, boosts objects already in the current plan and boosts the
-best object. It does not call weather, VIIRS, Planner, catalogue visibility or
+best object. The DTO exposes the winning direction, a user-facing zone label,
+practical decision reasons, up to three primary targets, a secondary count for
+additional targets and up to two alternative directions. It does not expose
+internal scores.
+
+Sky Compass does not call weather, VIIRS, Planner, catalogue visibility or
 Recommendation Engine services; it only consumes the controller state already
 computed for Home.
 
 The QML card renders `controller.skyCompass` below `Mappa cielo`. There is no
-QML timer in v1, and no fast astronomical tick is introduced yet. The existing
+QML timer in v2, and no fast astronomical tick is introduced yet. The existing
 sky map remains unchanged.
 
 ## Proposed Observation Snapshot Architecture
@@ -177,8 +182,8 @@ Recommended shape:
   events and current alt/az fields.
 - `recommendations`: best object, recommended cards, night plan,
   recommendation reasons and setup suggestions.
-- `compass`: compact directional target list for Sky Compass with current
-  altitude, azimuth, visibility state and stable object ids.
+- `compass`: guidance DTO for Sky Compass with winning direction, practical
+  reasons, prioritized targets, alternatives and stable object ids.
 - `notifications`: Home notification DTOs.
 - `validity`: per-domain timestamps or dirty flags such as `weather_at`,
   `astronomy_at`, `equipment_at`, `sky_quality_at`.
@@ -223,7 +228,7 @@ Use separate refresh lanes instead of one global timer:
 
 A later Sky Compass implementation can add a fast tick for only a small compass
 target subset derived from the latest snapshot: Moon, visible planets, best
-object, planned objects and a few high-score alternatives. The v1 prototype does
+object, planned objects and a few high-score alternatives. The v2 prototype does
 not include this tick.
 
 ## Expected Performance Impact
