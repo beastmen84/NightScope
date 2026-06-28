@@ -1136,13 +1136,13 @@ Item {
                     id: skyCompassCard
 
                     property var compassData: controller.skyCompass || {}
-                    property bool topWide: root.width > 1320
-                    property bool topMedium: root.width > 900
+                    property bool topWide: width > 980
+                    property bool topMedium: width > 620
 
                     Layout.fillWidth: true
                     Layout.row: 0
                     Layout.column: 0
-                    Layout.columnSpan: lowerGrid.columns > 1 ? 2 : 1
+                    Layout.columnSpan: 1
                     Layout.minimumHeight: lowerGrid.columns > 1 ? 420 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Sky Compass"
@@ -1418,7 +1418,7 @@ Item {
 
                         GridLayout {
                             Layout.fillWidth: true
-                            columns: root.width > 900 ? 2 : 1
+                            columns: skyCompassCard.width > 760 ? 2 : 1
                             columnSpacing: 22
                             rowSpacing: 16
 
@@ -1565,8 +1565,8 @@ Item {
                                         }
 
                                         Text {
-                                            Layout.preferredWidth: root.width > 980 ? 150 : 0
-                                            visible: root.width > 980
+                                            Layout.preferredWidth: skyCompassCard.width > 760 ? 150 : 0
+                                            visible: skyCompassCard.width > 760
                                             text: modelData.type || ""
                                             color: theme.textMuted
                                             font.pixelSize: 12
@@ -1592,10 +1592,10 @@ Item {
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.row: 1
-                    Layout.column: 0
-                    Layout.columnSpan: lowerGrid.columns > 1 ? 2 : 1
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 260 : 0
+                    Layout.row: lowerGrid.columns > 1 ? 0 : 1
+                    Layout.column: lowerGrid.columns > 1 ? 1 : 0
+                    Layout.columnSpan: 1
+                    Layout.minimumHeight: lowerGrid.columns > 1 ? 420 : 0
                     Layout.alignment: Qt.AlignTop
                     title: "Prossimi eventi"
                     subtitle: "Ordinati per data"

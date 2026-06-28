@@ -112,10 +112,19 @@ def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -
 
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
+    sky_compass_block = source[source.index("id: skyCompassCard") : source.index('title: "Prossimi eventi"')]
+    events_title_index = source.index('title: "Prossimi eventi"')
+    events_start_index = source.rindex("\n                GlassCard {", 0, events_title_index)
+    events_block = source[events_start_index:]
 
     assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
     assert 'title: "Mappa cielo"' not in source
     assert "controller.skyMap" not in source
+    assert "property bool topWide: width > 980" in sky_compass_block
+    assert "Layout.columnSpan: 1" in sky_compass_block
+    assert "Layout.row: lowerGrid.columns > 1 ? 0 : 1" in events_block
+    assert "Layout.column: lowerGrid.columns > 1 ? 1 : 0" in events_block
+    assert "Layout.columnSpan: 1" in events_block
     assert source.index('text: "Alternative"') < source.index('text: "Perché questa direzione?"')
     assert "Perché questa direzione?" in source
     assert "Target principali" in source

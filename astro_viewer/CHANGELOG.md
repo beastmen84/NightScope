@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.1.10 - 2026-06-28
+
+- Ripristinato il layout 50/50 tra `Sky Compass` e `Prossimi eventi` nella sezione `Dettagli osservativi`.
+- Resi i breakpoint interni di `Sky Compass` dipendenti dalla larghezza della card, così il layout resta corretto anche in colonna dimezzata.
+
 ## NightScope 1.1.9 - 2026-06-28
 
 - Aggiunta a `GlassCard` la modalità opt-in `contentFillsHeight` per card con contenuto verticale elastico.
