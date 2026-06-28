@@ -485,6 +485,58 @@ Known limitations:
 - VIIRS radiance is converted through fixed thresholds, not calibrated against
   local horizon, terrain or transient lighting.
 
+## NASA AOD Provider Backend
+
+`NasaAodProvider` is a backend-only satellite aerosol data provider. It is not
+currently exposed in QML and is not used by Recommendation Engine, Planner, Sky
+Compass, seeing, transparency, weather score or observing scores.
+
+Product order:
+
+1. VIIRS MAIAC AOD `VNP19A2.002`, using `Optical_Depth_055`,
+   `AOD_Uncertainty` and `AOD_QA`.
+2. MODIS MAIAC AOD `MCD19A2.061`, using the same fields as fallback only.
+
+Access flow:
+
+- CMR/LP DAAC Cloud discovery and download are handled through `earthaccess`.
+- Earthdata username/password are read from the existing verified Earthdata
+  credential store.
+- `earthaccess.login(..., persist=False)` is retried with backoff because URS
+  token creation can time out.
+- Long-lived manually generated Earthdata tokens are not required by the default
+  provider path.
+
+Extraction policy:
+
+- Candidate granules are searched newest first over the recent lookup window.
+- Each granule is downloaded to a temporary directory, parsed, then deleted even
+  if extraction fails.
+- VIIRS HDF5 is read with `h5py`.
+- MODIS HDF4 fallback is read with `netCDF4`.
+- The provider maps the observer coordinate into the MAIAC sinusoidal grid,
+  tries the exact pixel first, then uses a 5x5 local median when the exact pixel
+  is invalid or no-data.
+- The result stores AOD 550 nm, uncertainty when available, raw QA value,
+  acquisition date, granule id, extraction method and local valid-pixel count.
+
+Cache policy:
+
+- Only compact processed results are cached in memory.
+- HDF/HDF5 granules are never cached.
+- Cache keys use rounded latitude/longitude plus product and granule id.
+- Default TTL is 18 hours.
+
+Current limitations:
+
+- QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
+  these values are used operationally for scoring.
+- MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed
+  on the current Windows development environment, but distribution size and
+  native dependency behavior should remain monitored.
+- AOD is a column aerosol/transparency proxy, not the same concept as OpenAQ
+  ground-level PM2.5/PM10 measurements.
+
 ## Refresh Chain
 
 Profile/equipment changes trigger:

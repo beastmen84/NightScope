@@ -14,7 +14,7 @@ NightScope is organized around a small desktop application package:
   object is `AppController`.
 - `astro_viewer/app/services`: business services for astronomy, weather,
   observing quality, planning, equipment recommendations, light pollution,
-  seeing/transparency, notifications and logging.
+  NASA/OpenAQ data providers, seeing/transparency, notifications and logging.
 - `astro_viewer/app/astronomy`: astronomy engine protocol, mock fallback,
   Skyfield-based engine and coordinate parsing helpers.
 - `astro_viewer/app/database`: SQLite bootstrap, migrations, repositories and
@@ -55,8 +55,8 @@ controller composes repositories and services and converts dataclasses into
 QML-friendly dictionaries.
 
 The astronomy layer depends on Skyfield/Astropy when available and provides a
-mock fallback through `MockAstronomyEngine`. Weather and VIIRS network clients
-are isolated behind service classes.
+mock fallback through `MockAstronomyEngine`. Weather, VIIRS and NASA AOD network
+clients are isolated behind service classes.
 
 No circular Python package dependency was found in the reviewed structure.
 
@@ -127,6 +127,9 @@ Services hold business logic:
   capabilities and setup recommendation.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
   NASA VIIRS and offline fallback.
+- `NasaAodProvider`: backend-only NASA MAIAC aerosol lookup using VIIRS primary
+  and MODIS fallback. It returns compact processed AOD results and is not wired
+  to Weather UI, seeing/transparency, Planner or recommendation scores yet.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
