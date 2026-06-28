@@ -29,8 +29,8 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert [item["name"] for item in result["primaryTargets"]] == ["M13", "M92"]
     assert "targetNames" not in result
     assert "updatedLabel" not in result
-    assert result["decisionReasons"][0] == "Presenza del target principale della serata"
-    assert any("Più target deep sky" in reason for reason in result["decisionReasons"])
+    assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
+    assert any("Più ammassi osservabili" in reason for reason in result["decisionReasons"])
     assert not any("Due ottimi oggetti deep sky" in reason for reason in result["decisionReasons"])
     assert result["alternatives"][0]["direction"] == "Est"
 
@@ -112,24 +112,22 @@ def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -
 
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
-    sky_compass_block = source[source.index("id: skyCompassCard") : source.index('title: "Prossimi eventi"')]
+    sky_compass_block = source[source.index("id: skyCompassCard") : source.index('text: "Piano della notte"')]
     events_title_index = source.index('title: "Prossimi eventi"')
-    events_start_index = source.rindex("\n                GlassCard {", 0, events_title_index)
+    events_start_index = source.rindex("\n            GlassCard {", 0, events_title_index)
     events_block = source[events_start_index:]
 
-    assert source.index('title: "Sky Compass"') < source.index('title: "Prossimi eventi"')
+    assert source.index('title: "Sky Compass"') < source.index('text: "Piano della notte"')
+    assert source.index('title: "Prossimi eventi"') > source.index('title: controller.isObservingSessionBlocked ? "Oggetti cielo profondo potenzialmente visibili"')
     assert 'title: "Mappa cielo"' not in source
     assert "controller.skyMap" not in source
-    assert "property bool topWide: width > 640" in sky_compass_block
-    assert "Layout.columnSpan: 1" in sky_compass_block
-    assert "columns: skyCompassCard.topWide ? 3" in sky_compass_block
-    assert "Layout.column: skyCompassCard.topWide ? 2" in sky_compass_block
+    assert "columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1" in sky_compass_block
+    assert 'text: "Inizia da"' in sky_compass_block
     assert "accentColor: theme.teal" in sky_compass_block
-    assert "columns: skyCompassCard.width > 640 ? 2 : 1" in sky_compass_block
-    assert "Layout.row: lowerGrid.columns > 1 ? 0 : 1" in events_block
-    assert "Layout.column: lowerGrid.columns > 1 ? 1 : 0" in events_block
-    assert "Layout.columnSpan: 1" in events_block
-    assert source.index('text: "Alternative"') < source.index('text: "Perché questa direzione?"')
+    assert 'text: "Alternative"' in sky_compass_block
+    assert "columns: root.width > 1500 ? 4 : root.width > 900 ? 2 : 1" in events_block
+    assert "Layout.preferredHeight: 74" in events_block
+    assert "root.chronologicalEvents(root.width > 900 ? 8 : 4)" in events_block
     assert "Perché questa direzione?" in source
     assert "Target principali" in source
     assert "skyCompassCanvas" in source

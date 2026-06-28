@@ -1,5 +1,12 @@
 # Changelog
 
+## NightScope 1.1.12 - 2026-06-28
+
+- Promosso `Sky Compass` sopra `Piano della notte` come prima card pratica dopo i riepiloghi meteo/qualità.
+- Riorganizzato `Sky Compass` full-width in tre colonne: bussola/direzione, motivazioni e target principali con alternative.
+- Spostati `Prossimi eventi` in fondo alla Home con layout a griglia compatta.
+- Rifinite le motivazioni generate da `Sky Compass` per piano osservativo, mix pianeti/deep-sky e ammassi nella stessa zona.
+
 ## NightScope 1.1.11 - 2026-06-28
 
 - Rifiniti i breakpoint della card `Sky Compass` in layout 50/50: alternative di nuovo nella testata in alto a destra e sezioni inferiori su due colonne.

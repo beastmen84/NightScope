@@ -206,17 +206,20 @@ class SkyCompassService:
             return reasons
 
         first = targets[0]
-        if first["isBest"]:
+        if first["inPlan"]:
+            reasons.append("Include un target già nel piano osservativo")
+        elif first["isBest"]:
             reasons.append("Presenza del target principale della serata")
-        elif first["inPlan"]:
-            reasons.append(f"{first['name']} è già nel piano osservativo")
         else:
             reasons.append(f"{first['name']} guida la scelta in questa zona")
 
         deep_sky_count = sum(1 for item in targets if item["type"] != "Pianeta")
         planet_targets = [item for item in targets if item["type"] == "Pianeta"]
+        cluster_count = sum(1 for item in targets if self._is_cluster_type(item["type"]))
         if planet_targets and deep_sky_count > 0:
             reasons.append("Pianeti e deep sky nella stessa zona")
+        elif cluster_count >= 2:
+            reasons.append("Più ammassi osservabili nella stessa zona")
         elif deep_sky_count >= 2:
             reasons.append("Più target deep sky senza spostare il telescopio")
         elif planet_targets and not first["isBest"]:
@@ -229,6 +232,11 @@ class SkyCompassService:
             reasons.append("Più target osservabili senza spostare il telescopio")
 
         return reasons[:3]
+
+    @staticmethod
+    def _is_cluster_type(object_type: str) -> bool:
+        value = object_type.lower()
+        return "ammasso" in value or "cluster" in value
 
     @staticmethod
     def _other_target_count_label(count: int) -> str:

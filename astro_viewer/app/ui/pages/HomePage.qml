@@ -842,6 +842,467 @@ Item {
                 }
             }
 
+            GlassCard {
+                id: skyCompassCard
+
+                property var compassData: controller.skyCompass || {}
+                property bool wide: root.width > 1180
+                property bool medium: root.width > 760
+
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                Layout.minimumHeight: wide ? 286 : 0
+                title: "Sky Compass"
+                subtitle: "Dove iniziare stasera"
+                accentColor: theme.teal
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: !skyCompassCard.compassData.available
+                    text: skyCompassCard.compassData.message || "Nessun target consigliato al momento."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    visible: skyCompassCard.compassData.available
+                    columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1
+                    columnSpacing: 26
+                    rowSpacing: 18
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: skyCompassCard.wide ? 380 : 0
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 12
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 18
+
+                            Rectangle {
+                                Layout.preferredWidth: 168
+                                Layout.preferredHeight: 168
+                                Layout.alignment: Qt.AlignVCenter
+                                radius: 84
+                                color: "#111820"
+                                border.color: "#26404a"
+                                border.width: 1
+
+                                Canvas {
+                                    id: skyCompassCanvas
+                                    anchors.fill: parent
+                                    anchors.margins: 12
+                                    antialiasing: true
+
+                                    property real selectedDegrees: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
+
+                                    onSelectedDegreesChanged: requestPaint()
+                                    onWidthChanged: requestPaint()
+                                    onHeightChanged: requestPaint()
+
+                                    onPaint: {
+                                        var ctx = getContext("2d")
+                                        var cx = width / 2
+                                        var cy = height / 2
+                                        var outerRadius = Math.min(width, height) / 2 - 5
+                                        var midRadius = outerRadius - 24
+                                        var innerRadius = 42
+                                        var centerAngle = (selectedDegrees - 90) * Math.PI / 180
+                                        var sectorWidth = Math.PI / 4
+                                        var startAngle = centerAngle - sectorWidth / 2
+                                        var endAngle = centerAngle + sectorWidth / 2
+
+                                        ctx.clearRect(0, 0, width, height)
+                                        ctx.lineWidth = 2
+                                        ctx.strokeStyle = "#243746"
+                                        ctx.beginPath()
+                                        ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2, false)
+                                        ctx.stroke()
+
+                                        ctx.strokeStyle = "#1f5861"
+                                        ctx.globalAlpha = 0.72
+                                        ctx.beginPath()
+                                        ctx.arc(cx, cy, midRadius, 0, Math.PI * 2, false)
+                                        ctx.stroke()
+                                        ctx.globalAlpha = 1
+
+                                        ctx.fillStyle = "rgba(67, 226, 181, 0.26)"
+                                        ctx.strokeStyle = "rgba(67, 226, 181, 0.82)"
+                                        ctx.lineWidth = 2
+                                        ctx.beginPath()
+                                        ctx.arc(cx, cy, outerRadius - 8, startAngle, endAngle, false)
+                                        ctx.lineTo(cx + Math.cos(endAngle) * innerRadius, cy + Math.sin(endAngle) * innerRadius)
+                                        ctx.arc(cx, cy, innerRadius, endAngle, startAngle, true)
+                                        ctx.closePath()
+                                        ctx.fill()
+                                        ctx.stroke()
+
+                                        ctx.strokeStyle = "#2b6570"
+                                        ctx.lineWidth = 2
+                                        for (var tick = 0; tick < 8; tick++) {
+                                            var angle = (tick * 45 - 90) * Math.PI / 180
+                                            var from = outerRadius - 18
+                                            var to = outerRadius - 9
+                                            ctx.beginPath()
+                                            ctx.moveTo(cx + Math.cos(angle) * from, cy + Math.sin(angle) * from)
+                                            ctx.lineTo(cx + Math.cos(angle) * to, cy + Math.sin(angle) * to)
+                                            ctx.stroke()
+                                        }
+
+                                        ctx.save()
+                                        ctx.translate(cx, cy)
+                                        ctx.rotate(centerAngle + Math.PI / 2)
+                                        ctx.fillStyle = "rgba(67, 226, 181, 0.9)"
+                                        ctx.beginPath()
+                                        ctx.moveTo(0, -31)
+                                        ctx.lineTo(17, 17)
+                                        ctx.lineTo(0, 7)
+                                        ctx.lineTo(-17, 17)
+                                        ctx.closePath()
+                                        ctx.fill()
+                                        ctx.restore()
+                                    }
+                                }
+
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    anchors.top: parent.top
+                                    anchors.topMargin: 10
+                                    text: "N"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 12
+                                    text: "E"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    anchors.bottom: parent.bottom
+                                    anchors.bottomMargin: 10
+                                    text: "S"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                }
+
+                                Text {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 12
+                                    text: "O"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
+                                spacing: 8
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: "Inizia da"
+                                    color: theme.textSecondary
+                                    font.pixelSize: 13
+                                    font.weight: Font.DemiBold
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: skyCompassCard.compassData.direction || "—"
+                                    color: theme.textPrimary
+                                    font.pixelSize: 42
+                                    font.weight: Font.Bold
+                                    elide: Text.ElideRight
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    Rectangle {
+                                        Layout.preferredWidth: 8
+                                        Layout.preferredHeight: 8
+                                        radius: 4
+                                        color: theme.teal
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: skyCompassCard.compassData.zoneLabel || "Zona consigliata"
+                                        color: theme.teal
+                                        font.pixelSize: 15
+                                        font.weight: Font.DemiBold
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: skyCompassCard.compassData.targetCountLabel || ""
+                                    color: theme.textSecondary
+                                    font.pixelSize: 13
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: (skyCompassCard.compassData.cautionText || "").length > 0
+                                    text: skyCompassCard.compassData.cautionText || ""
+                                    color: theme.amber
+                                    font.pixelSize: 12
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: skyCompassCard.wide ? 360 : 0
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 10
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Perché questa direzione?"
+                            color: theme.textPrimary
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+                        }
+
+                        Repeater {
+                            model: skyCompassCard.compassData.decisionReasons || []
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Rectangle {
+                                    Layout.preferredWidth: 26
+                                    Layout.preferredHeight: 26
+                                    Layout.alignment: Qt.AlignTop
+                                    radius: 13
+                                    color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.13)
+                                    border.color: Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.34)
+                                    border.width: 1
+
+                                    Rectangle {
+                                        anchors.centerIn: parent
+                                        width: 8
+                                        height: 8
+                                        radius: 4
+                                        color: theme.teal
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData
+                                    color: theme.textSecondary
+                                    font.pixelSize: 13
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: skyCompassCard.wide ? 330 : 0
+                        Layout.alignment: Qt.AlignTop
+                        spacing: 10
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Target principali"
+                                color: theme.textPrimary
+                                font.pixelSize: 15
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        Repeater {
+                            model: skyCompassCard.compassData.primaryTargets || []
+
+                            delegate: RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Canvas {
+                                    Layout.preferredWidth: 28
+                                    Layout.preferredHeight: 28
+                                    Layout.alignment: Qt.AlignVCenter
+                                    antialiasing: true
+
+                                    property string iconKind: root.skyCompassTypeIconKind(modelData.type)
+
+                                    onIconKindChanged: requestPaint()
+                                    onWidthChanged: requestPaint()
+                                    onHeightChanged: requestPaint()
+
+                                    onPaint: {
+                                        var ctx = getContext("2d")
+                                        var cx = width / 2
+                                        var cy = height / 2
+                                        ctx.clearRect(0, 0, width, height)
+                                        ctx.lineWidth = 2
+                                        ctx.strokeStyle = "rgba(67, 226, 181, 0.88)"
+                                        ctx.fillStyle = "rgba(67, 226, 181, 0.16)"
+
+                                        if (iconKind === "planet") {
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, 7, 0, Math.PI * 2, false)
+                                            ctx.fill()
+                                            ctx.stroke()
+                                            ctx.save()
+                                            ctx.translate(cx, cy)
+                                            ctx.rotate(-0.36)
+                                            ctx.beginPath()
+                                            ctx.moveTo(-13, 1)
+                                            ctx.quadraticCurveTo(0, -5, 13, 1)
+                                            ctx.moveTo(-13, -1)
+                                            ctx.quadraticCurveTo(0, 5, 13, -1)
+                                            ctx.stroke()
+                                            ctx.restore()
+                                        } else if (iconKind === "galaxy") {
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, 2.4, 0, Math.PI * 2, false)
+                                            ctx.fill()
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, 5, 0.3, Math.PI * 1.35, false)
+                                            ctx.stroke()
+                                            ctx.beginPath()
+                                            ctx.arc(cx, cy, 9, Math.PI * 1.15, Math.PI * 2.15, false)
+                                            ctx.stroke()
+                                        } else if (iconKind === "nebula") {
+                                            ctx.globalAlpha = 0.82
+                                            for (var nebulaIndex = 0; nebulaIndex < 4; nebulaIndex++) {
+                                                var cloudX = cx + [-5, 2, 6, -1][nebulaIndex]
+                                                var cloudY = cy + [1, -4, 3, 6][nebulaIndex]
+                                                ctx.beginPath()
+                                                ctx.arc(cloudX, cloudY, [6, 7, 5, 5][nebulaIndex], 0, Math.PI * 2, false)
+                                                ctx.fill()
+                                                ctx.stroke()
+                                            }
+                                            ctx.globalAlpha = 1
+                                        } else {
+                                            var compact = iconKind === "globular_cluster"
+                                            var points = compact ? [[0, 0], [-5, -2], [5, -1], [-3, 5], [4, 4], [0, -6]] : [[-8, -5], [0, -8], [8, -4], [-6, 5], [2, 4], [9, 7]]
+                                            for (var pointIndex = 0; pointIndex < points.length; pointIndex++) {
+                                                ctx.beginPath()
+                                                ctx.arc(cx + points[pointIndex][0], cy + points[pointIndex][1], compact ? 2.2 : 2, 0, Math.PI * 2, false)
+                                                ctx.fill()
+                                                ctx.stroke()
+                                            }
+                                        }
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.name
+                                        color: theme.textPrimary
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
+                                        maximumLineCount: 1
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        visible: (modelData.type || "").length > 0
+                                        text: modelData.type || ""
+                                        color: theme.textMuted
+                                        font.pixelSize: 11
+                                        maximumLineCount: 1
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            visible: (skyCompassCard.compassData.otherTargetCountLabel || "").length > 0
+                            text: skyCompassCard.compassData.otherTargetCountLabel || ""
+                            color: theme.textSecondary
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.topMargin: 4
+                            spacing: 6
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Alternative"
+                                color: theme.textSecondary
+                                font.pixelSize: 12
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
+                            }
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                Repeater {
+                                    model: skyCompassCard.compassData.alternatives || []
+
+                                    delegate: StatusPill {
+                                        text: modelData.direction
+                                        accentColor: theme.teal
+                                        opacity: 0.9
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: (skyCompassCard.compassData.alternatives || []).length === 0
+                                    text: "Nessuna alternativa utile"
+                                    color: theme.textMuted
+                                    font.pixelSize: 12
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             Text {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -1113,541 +1574,80 @@ Item {
                 }
             }
 
-            Text {
+            GlassCard {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                text: "Dettagli osservativi"
-                color: theme.textPrimary
-                font.pixelSize: 18
-                font.weight: Font.DemiBold
-            }
+                Layout.alignment: Qt.AlignTop
+                title: "Prossimi eventi"
+                subtitle: "Ordinati per data"
+                accentColor: theme.amber
 
-            GridLayout {
-                id: lowerGrid
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                columns: root.width > 1180 ? 2 : 1
-                columnSpacing: 14
-                rowSpacing: 14
-
-                GlassCard {
-                    id: skyCompassCard
-
-                    property var compassData: controller.skyCompass || {}
-                    property bool topWide: width > 640
-                    property bool topMedium: width > 520
-
+                GridLayout {
                     Layout.fillWidth: true
-                    Layout.row: 0
-                    Layout.column: 0
-                    Layout.columnSpan: 1
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 420 : 0
-                    Layout.alignment: Qt.AlignTop
-                    title: "Sky Compass"
-                    subtitle: "Dove guardare per primo"
-                    accentColor: theme.teal
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: !skyCompassCard.compassData.available
-                        text: skyCompassCard.compassData.message || "Nessun target consigliato al momento."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        visible: skyCompassCard.compassData.available
-                        spacing: 18
-
-                        GridLayout {
-                            Layout.fillWidth: true
-                            columns: skyCompassCard.topWide ? 3 : skyCompassCard.topMedium ? 2 : 1
-                            columnSpacing: skyCompassCard.topWide ? 28 : 18
-                            rowSpacing: 14
-
-                            Rectangle {
-                                Layout.row: 0
-                                Layout.column: 0
-                                Layout.rowSpan: skyCompassCard.topMedium && !skyCompassCard.topWide ? 2 : 1
-                                Layout.preferredWidth: 190
-                                Layout.preferredHeight: 190
-                                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                                radius: 95
-                                color: "#111820"
-                                border.color: "#26404a"
-                                border.width: 1
-
-                                Canvas {
-                                    id: skyCompassCanvas
-                                    anchors.fill: parent
-                                    anchors.margins: 12
-                                    antialiasing: true
-
-                                    property real selectedDegrees: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
-
-                                    onSelectedDegreesChanged: requestPaint()
-                                    onWidthChanged: requestPaint()
-                                    onHeightChanged: requestPaint()
-
-                                    onPaint: {
-                                        var ctx = getContext("2d")
-                                        var cx = width / 2
-                                        var cy = height / 2
-                                        var outerRadius = Math.min(width, height) / 2 - 5
-                                        var midRadius = outerRadius - 26
-                                        var innerRadius = 46
-                                        var centerAngle = (selectedDegrees - 90) * Math.PI / 180
-                                        var sectorWidth = Math.PI / 4
-                                        var startAngle = centerAngle - sectorWidth / 2
-                                        var endAngle = centerAngle + sectorWidth / 2
-
-                                        ctx.clearRect(0, 0, width, height)
-                                        ctx.lineWidth = 2
-                                        ctx.strokeStyle = "#243746"
-                                        ctx.beginPath()
-                                        ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2, false)
-                                        ctx.stroke()
-
-                                        ctx.strokeStyle = "#1f5861"
-                                        ctx.globalAlpha = 0.72
-                                        ctx.beginPath()
-                                        ctx.arc(cx, cy, midRadius, 0, Math.PI * 2, false)
-                                        ctx.stroke()
-                                        ctx.globalAlpha = 1
-
-                                        ctx.fillStyle = "rgba(67, 226, 181, 0.26)"
-                                        ctx.strokeStyle = "rgba(67, 226, 181, 0.82)"
-                                        ctx.lineWidth = 2
-                                        ctx.beginPath()
-                                        ctx.arc(cx, cy, outerRadius - 8, startAngle, endAngle, false)
-                                        ctx.lineTo(cx + Math.cos(endAngle) * innerRadius, cy + Math.sin(endAngle) * innerRadius)
-                                        ctx.arc(cx, cy, innerRadius, endAngle, startAngle, true)
-                                        ctx.closePath()
-                                        ctx.fill()
-                                        ctx.stroke()
-
-                                        ctx.strokeStyle = "#2b6570"
-                                        ctx.lineWidth = 2
-                                        for (var tick = 0; tick < 8; tick++) {
-                                            var angle = (tick * 45 - 90) * Math.PI / 180
-                                            var from = outerRadius - 19
-                                            var to = outerRadius - 10
-                                            ctx.beginPath()
-                                            ctx.moveTo(cx + Math.cos(angle) * from, cy + Math.sin(angle) * from)
-                                            ctx.lineTo(cx + Math.cos(angle) * to, cy + Math.sin(angle) * to)
-                                            ctx.stroke()
-                                        }
-
-                                        ctx.save()
-                                        ctx.translate(cx, cy)
-                                        ctx.rotate(centerAngle + Math.PI / 2)
-                                        ctx.fillStyle = "rgba(67, 226, 181, 0.9)"
-                                        ctx.beginPath()
-                                        ctx.moveTo(0, -34)
-                                        ctx.lineTo(18, 18)
-                                        ctx.lineTo(0, 8)
-                                        ctx.lineTo(-18, 18)
-                                        ctx.closePath()
-                                        ctx.fill()
-                                        ctx.restore()
-                                    }
-                                }
-
-                                Text {
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.top: parent.top
-                                    anchors.topMargin: 12
-                                    text: "N"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                }
-
-                                Text {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.right: parent.right
-                                    anchors.rightMargin: 13
-                                    text: "E"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                }
-
-                                Text {
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.bottom: parent.bottom
-                                    anchors.bottomMargin: 12
-                                    text: "S"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                }
-
-                                Text {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    anchors.left: parent.left
-                                    anchors.leftMargin: 13
-                                    text: "O"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                }
-                            }
-
-                            ColumnLayout {
-                                Layout.row: skyCompassCard.topMedium ? 0 : 1
-                                Layout.column: skyCompassCard.topMedium ? 1 : 0
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignVCenter
-                                spacing: 9
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Guarda verso"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: skyCompassCard.compassData.direction || "—"
-                                    color: theme.textPrimary
-                                    font.pixelSize: skyCompassCard.topWide ? 48 : 40
-                                    font.weight: Font.Bold
-                                    elide: Text.ElideRight
-                                }
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 8
-
-                                    Rectangle {
-                                        Layout.preferredWidth: 8
-                                        Layout.preferredHeight: 8
-                                        radius: 4
-                                        color: theme.teal
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: skyCompassCard.compassData.zoneLabel || "Zona consigliata"
-                                        color: theme.teal
-                                        font.pixelSize: 15
-                                        font.weight: Font.DemiBold
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: skyCompassCard.compassData.targetCountLabel || ""
-                                    color: theme.textSecondary
-                                    font.pixelSize: 13
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    visible: (skyCompassCard.compassData.cautionText || "").length > 0
-                                    text: skyCompassCard.compassData.cautionText || ""
-                                    color: theme.amber
-                                    font.pixelSize: 12
-                                    wrapMode: Text.WordWrap
-                                    maximumLineCount: 2
-                                    elide: Text.ElideRight
-                                }
-                            }
-
-                            ColumnLayout {
-                                Layout.row: skyCompassCard.topWide ? 0 : skyCompassCard.topMedium ? 1 : 2
-                                Layout.column: skyCompassCard.topWide ? 2 : skyCompassCard.topMedium ? 1 : 0
-                                Layout.preferredWidth: skyCompassCard.topWide ? 136 : 0
-                                Layout.fillWidth: !skyCompassCard.topWide
-                                Layout.alignment: Qt.AlignTop | Qt.AlignRight
-                                spacing: 7
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Alternative"
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    font.weight: Font.DemiBold
-                                    horizontalAlignment: skyCompassCard.topMedium ? Text.AlignRight : Text.AlignLeft
-                                    elide: Text.ElideRight
-                                }
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Layout.alignment: skyCompassCard.topMedium ? Qt.AlignRight : Qt.AlignLeft
-                                    spacing: 8
-
-                                    Repeater {
-                                        model: skyCompassCard.compassData.alternatives || []
-
-                                        delegate: StatusPill {
-                                            text: modelData.direction
-                                            accentColor: theme.teal
-                                            opacity: 0.92
-                                        }
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        visible: (skyCompassCard.compassData.alternatives || []).length === 0
-                                        text: "Nessuna alternativa utile"
-                                        color: theme.textMuted
-                                        font.pixelSize: 12
-                                        horizontalAlignment: skyCompassCard.topMedium ? Text.AlignRight : Text.AlignLeft
-                                        elide: Text.ElideRight
-                                    }
-                                }
-                            }
-                        }
-
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 1
-                            color: "#29313b"
-                        }
-
-                        GridLayout {
-                            Layout.fillWidth: true
-                            columns: skyCompassCard.width > 640 ? 2 : 1
-                            columnSpacing: 22
-                            rowSpacing: 16
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Perché questa direzione?"
-                                    color: theme.textPrimary
-                                    font.pixelSize: 14
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Repeater {
-                                    model: skyCompassCard.compassData.decisionReasons || []
-
-                                    delegate: RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 9
-
-                                        Rectangle {
-                                            Layout.preferredWidth: 7
-                                            Layout.preferredHeight: 7
-                                            Layout.alignment: Qt.AlignTop
-                                            Layout.topMargin: 6
-                                            radius: 4
-                                            color: theme.teal
-                                        }
-
-                                        Text {
-                                            Layout.fillWidth: true
-                                            text: modelData
-                                            color: theme.textSecondary
-                                            font.pixelSize: 12
-                                            wrapMode: Text.WordWrap
-                                            maximumLineCount: 2
-                                            elide: Text.ElideRight
-                                        }
-                                    }
-                                }
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: "Target principali"
-                                    color: theme.textPrimary
-                                    font.pixelSize: 14
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
-                                }
-
-                                Repeater {
-                                    model: skyCompassCard.compassData.primaryTargets || []
-
-                                    delegate: RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 10
-
-                                        Canvas {
-                                            Layout.preferredWidth: 28
-                                            Layout.preferredHeight: 28
-                                            Layout.alignment: Qt.AlignVCenter
-                                            antialiasing: true
-
-                                            property string iconKind: root.skyCompassTypeIconKind(modelData.type)
-
-                                            onIconKindChanged: requestPaint()
-                                            onWidthChanged: requestPaint()
-                                            onHeightChanged: requestPaint()
-
-                                            onPaint: {
-                                                var ctx = getContext("2d")
-                                                var cx = width / 2
-                                                var cy = height / 2
-                                                ctx.clearRect(0, 0, width, height)
-                                                ctx.lineWidth = 2
-                                                ctx.strokeStyle = "rgba(67, 226, 181, 0.88)"
-                                                ctx.fillStyle = "rgba(67, 226, 181, 0.16)"
-
-                                                if (iconKind === "planet") {
-                                                    ctx.beginPath()
-                                                    ctx.arc(cx, cy, 7, 0, Math.PI * 2, false)
-                                                    ctx.fill()
-                                                    ctx.stroke()
-                                                    ctx.save()
-                                                    ctx.translate(cx, cy)
-                                                    ctx.rotate(-0.36)
-                                                    ctx.beginPath()
-                                                    ctx.moveTo(-13, 1)
-                                                    ctx.quadraticCurveTo(0, -5, 13, 1)
-                                                    ctx.moveTo(-13, -1)
-                                                    ctx.quadraticCurveTo(0, 5, 13, -1)
-                                                    ctx.stroke()
-                                                    ctx.restore()
-                                                } else if (iconKind === "galaxy") {
-                                                    ctx.beginPath()
-                                                    ctx.arc(cx, cy, 2.4, 0, Math.PI * 2, false)
-                                                    ctx.fill()
-                                                    ctx.beginPath()
-                                                    ctx.arc(cx, cy, 5, 0.3, Math.PI * 1.35, false)
-                                                    ctx.stroke()
-                                                    ctx.beginPath()
-                                                    ctx.arc(cx, cy, 9, Math.PI * 1.15, Math.PI * 2.15, false)
-                                                    ctx.stroke()
-                                                } else if (iconKind === "nebula") {
-                                                    ctx.globalAlpha = 0.82
-                                                    for (var nebulaIndex = 0; nebulaIndex < 4; nebulaIndex++) {
-                                                        var cloudX = cx + [-5, 2, 6, -1][nebulaIndex]
-                                                        var cloudY = cy + [1, -4, 3, 6][nebulaIndex]
-                                                        ctx.beginPath()
-                                                        ctx.arc(cloudX, cloudY, [6, 7, 5, 5][nebulaIndex], 0, Math.PI * 2, false)
-                                                        ctx.fill()
-                                                        ctx.stroke()
-                                                    }
-                                                    ctx.globalAlpha = 1
-                                                } else {
-                                                    var compact = iconKind === "globular_cluster"
-                                                    var points = compact ? [[0, 0], [-5, -2], [5, -1], [-3, 5], [4, 4], [0, -6]] : [[-8, -5], [0, -8], [8, -4], [-6, 5], [2, 4], [9, 7]]
-                                                    for (var pointIndex = 0; pointIndex < points.length; pointIndex++) {
-                                                        ctx.beginPath()
-                                                        ctx.arc(cx + points[pointIndex][0], cy + points[pointIndex][1], compact ? 2.2 : 2, 0, Math.PI * 2, false)
-                                                        ctx.fill()
-                                                        ctx.stroke()
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Text {
-                                            Layout.fillWidth: true
-                                            text: modelData.name
-                                            color: theme.textPrimary
-                                            font.pixelSize: 13
-                                            font.weight: Font.DemiBold
-                                            maximumLineCount: 1
-                                            elide: Text.ElideRight
-                                        }
-
-                                        Text {
-                                            Layout.preferredWidth: skyCompassCard.width > 760 ? 150 : 0
-                                            visible: skyCompassCard.width > 760
-                                            text: modelData.type || ""
-                                            color: theme.textMuted
-                                            font.pixelSize: 12
-                                            horizontalAlignment: Text.AlignRight
-                                            maximumLineCount: 1
-                                            elide: Text.ElideRight
-                                        }
-                                    }
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    visible: (skyCompassCard.compassData.otherTargetCountLabel || "").length > 0
-                                    text: skyCompassCard.compassData.otherTargetCountLabel || ""
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.row: lowerGrid.columns > 1 ? 0 : 1
-                    Layout.column: lowerGrid.columns > 1 ? 1 : 0
-                    Layout.columnSpan: 1
-                    Layout.minimumHeight: lowerGrid.columns > 1 ? 420 : 0
-                    Layout.alignment: Qt.AlignTop
-                    title: "Prossimi eventi"
-                    subtitle: "Ordinati per data"
-                    accentColor: theme.amber
+                    columns: root.width > 1500 ? 4 : root.width > 900 ? 2 : 1
+                    columnSpacing: 10
+                    rowSpacing: 10
 
                     Repeater {
-                        model: root.chronologicalEvents(lowerGrid.columns > 1 ? 6 : 4)
+                        model: root.chronologicalEvents(root.width > 900 ? 8 : 4)
 
-                        delegate: RowLayout {
+                        delegate: Rectangle {
                             Layout.fillWidth: true
-                            spacing: 12
+                            Layout.preferredHeight: 74
+                            radius: 8
+                            color: "#151a20"
+                            border.color: "#29313b"
+                            border.width: 1
 
-                            StatusPill {
-                                text: modelData.date_label
-                                accentColor: theme.amber
-                            }
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 10
+                                spacing: 10
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 1
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.title
-                                    color: theme.textPrimary
-                                    font.pixelSize: 14
-                                    font.weight: Font.DemiBold
-                                    elide: Text.ElideRight
+                                StatusPill {
+                                    text: modelData.date_label
+                                    accentColor: theme.amber
+                                    Layout.alignment: Qt.AlignTop
                                 }
 
-                                Text {
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    text: modelData.type + "  -  " + modelData.best_time
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    elide: Text.ElideRight
+                                    spacing: 2
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.title
+                                        color: theme.textPrimary
+                                        font.pixelSize: 14
+                                        font.weight: Font.DemiBold
+                                        maximumLineCount: 1
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData.type + "  -  " + modelData.best_time
+                                        color: theme.textSecondary
+                                        font.pixelSize: 12
+                                        maximumLineCount: 1
+                                        elide: Text.ElideRight
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
-                    Text {
-                        Layout.fillWidth: true
-                        visible: root.chronologicalEvents(1).length === 0
-                        text: "Nessun evento in calendario."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
+                Text {
+                    Layout.fillWidth: true
+                    visible: root.chronologicalEvents(1).length === 0
+                    text: "Nessun evento in calendario."
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
-
             Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }
         }
     }
