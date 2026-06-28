@@ -15,6 +15,7 @@ Rectangle {
     property int headerActionWidth: 116
     property color headerActionAccentColor: accentColor
     property string headerActionToolTip: ""
+    property bool contentFillsHeight: false
     default property alias content: contentColumn.data
 
     signal headerActionClicked()
@@ -89,11 +90,13 @@ Rectangle {
         ColumnLayout {
             id: contentColumn
             Layout.fillWidth: true
+            Layout.fillHeight: root.contentFillsHeight
             spacing: 12
         }
 
         Item {
-            Layout.fillHeight: true
+            visible: !root.contentFillsHeight
+            Layout.fillHeight: !root.contentFillsHeight
         }
     }
 }

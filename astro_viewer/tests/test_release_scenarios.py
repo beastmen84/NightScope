@@ -451,7 +451,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertLess(qml.index('title: "Località IP (ipapi/ipwho)"'), qml.index('title: "Coordinate manuali"'))
         self.assertIn("Layout.rowSpan: root.width > 1040 ? 2 : 1", qml)
         self.assertIn("clip: true", qml)
-        self.assertIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", qml)
+        city_card = qml[qml.index('title: "Ricerca città"') : qml.index('title: "Posizione Windows"')]
+        self.assertIn("contentFillsHeight: true", city_card)
+        self.assertIn("Layout.fillHeight: true", city_card)
+        self.assertNotIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", city_card)
         self.assertIn('subtitle: "Geolocalizzazione IP"', qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):

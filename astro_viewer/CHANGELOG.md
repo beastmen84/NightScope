@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.1.9 - 2026-06-28
+
+- Aggiunta a `GlassCard` la modalità opt-in `contentFillsHeight` per card con contenuto verticale elastico.
+- Aggiornata `Ricerca città` in `Località` per far riempire alla lista risultati lo spazio interno disponibile senza magic number.
+
 ## NightScope 1.1.8 - 2026-06-28
 
 - Rimossa la vecchia card `Mappa cielo` dalla Home e promosso `Sky Compass` nella sua posizione come guida direzionale principale.

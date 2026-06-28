@@ -229,6 +229,7 @@ Item {
                     title: "Ricerca città"
                     subtitle: "Catalogo GeoNames offline"
                     accentColor: theme.amber
+                    contentFillsHeight: true
 
                     TextField {
                         id: citySearch
@@ -239,7 +240,7 @@ Item {
 
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: root.width > 1040 ? 252 : 168
+                        Layout.fillHeight: true
                         radius: 8
                         color: "#15181e"
                         border.color: "#303641"
