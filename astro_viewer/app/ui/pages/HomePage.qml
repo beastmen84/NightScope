@@ -852,7 +852,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                Layout.minimumHeight: wide ? 286 : 0
+                Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0
                 title: "Sky Compass"
                 subtitle: "Dove iniziare stasera"
                 accentColor: theme.teal
@@ -1585,7 +1585,7 @@ Item {
 
                 GridLayout {
                     Layout.fillWidth: true
-                    columns: root.width > 1500 ? 4 : root.width > 900 ? 2 : 1
+                    columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1
                     columnSpacing: 10
                     rowSpacing: 10
 
@@ -1608,7 +1608,7 @@ Item {
                                 StatusPill {
                                     text: modelData.date_label
                                     accentColor: theme.amber
-                                    Layout.alignment: Qt.AlignTop
+                                    Layout.alignment: Qt.AlignVCenter
                                 }
 
                                 ColumnLayout {

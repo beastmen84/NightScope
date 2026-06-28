@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.1.13 - 2026-06-28
+
+- Ridotta l'altezza minima di `Sky Compass` quando non ci sono dati visualizzabili.
+- Ripristinata la griglia desktop `Prossimi eventi` a quattro colonne per due righe sui layout ampi.
+- Allineato verticalmente il badge data nelle card compatte degli eventi.
+
 ## NightScope 1.1.12 - 2026-06-28
 
 - Promosso `Sky Compass` sopra `Piano della notte` come prima card pratica dopo i riepiloghi meteo/qualità.

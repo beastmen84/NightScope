@@ -122,11 +122,13 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'title: "Mappa cielo"' not in source
     assert "controller.skyMap" not in source
     assert "columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1" in sky_compass_block
+    assert "Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0" in sky_compass_block
     assert 'text: "Inizia da"' in sky_compass_block
     assert "accentColor: theme.teal" in sky_compass_block
     assert 'text: "Alternative"' in sky_compass_block
-    assert "columns: root.width > 1500 ? 4 : root.width > 900 ? 2 : 1" in events_block
+    assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
     assert "Layout.preferredHeight: 74" in events_block
+    assert "Layout.alignment: Qt.AlignVCenter" in events_block
     assert "root.chronologicalEvents(root.width > 900 ? 8 : 4)" in events_block
     assert "Perché questa direzione?" in source
     assert "Target principali" in source
