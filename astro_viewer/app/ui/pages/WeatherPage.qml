@@ -174,6 +174,47 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
+                visible: controller.localAtmosphere.visible
+                title: "Atmosfera locale"
+                subtitle: "OpenAQ"
+                accentColor: theme.teal
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    visible: controller.localAtmosphere.hasData
+                    columns: root.width > 980 ? 4 : 2
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    MetricTile { label: "PM2.5"; value: controller.localAtmosphere.pm25; accentColor: theme.teal }
+                    MetricTile { label: "PM10"; value: controller.localAtmosphere.pm10; accentColor: theme.cyan }
+                    MetricTile { label: "Limpidezza"; value: controller.localAtmosphere.clarity; accentColor: theme.amber }
+                    MetricTile { label: "Fonte"; value: controller.localAtmosphere.source; accentColor: theme.violet }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.localAtmosphere.hasData && controller.localAtmosphere.sourceDetail.length > 0
+                    text: controller.localAtmosphere.sourceDetail
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: !controller.localAtmosphere.hasData
+                    text: controller.localAtmosphere.message
+                    color: theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
                 title: "Copertura nuvolosa oraria"
                 subtitle: "Percentuale prevista durante la finestra notturna"
                 accentColor: theme.scoreColor(controller.weatherSummary.score)

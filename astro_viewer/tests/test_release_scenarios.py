@@ -363,6 +363,13 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Radianza VIIRS", qml)
         self.assertIn("Osservazioni VIIRS", qml)
         self.assertIn("SQM stimato", qml)
+        self.assertIn('title: "Atmosfera locale"', qml)
+        self.assertIn("visible: controller.localAtmosphere.visible", qml)
+        self.assertIn('MetricTile { label: "PM2.5"', qml)
+        self.assertIn('MetricTile { label: "PM10"', qml)
+        self.assertIn('MetricTile { label: "Limpidezza"', qml)
+        self.assertIn('MetricTile { label: "Fonte"', qml)
+        self.assertIn("controller.localAtmosphere.sourceDetail", qml)
         self.assertNotIn("weatherLocationLayout", qml)
 
     def test_home_page_displays_active_location_context(self) -> None:

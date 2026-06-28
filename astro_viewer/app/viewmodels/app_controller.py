@@ -48,6 +48,7 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
@@ -94,6 +95,7 @@ class AppController(QObject):
     _viirsSkyQualityFinished = Signal(str, object, str)
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
     _weatherRefreshFinished = Signal(int, str, object, str)
+    _localAtmosphereRefreshFinished = Signal(str, object)
 
     def __init__(self, base_dir: Path, database_path: Path):
         super().__init__()
@@ -102,6 +104,7 @@ class AppController(QObject):
         self._viirsSkyQualityFinished.connect(self._finish_viirs_sky_quality_refresh)
         self._startupLocationDetectionFinished.connect(self._finish_startup_location_detection)
         self._weatherRefreshFinished.connect(self._finish_weather_refresh)
+        self._localAtmosphereRefreshFinished.connect(self._finish_local_atmosphere_refresh)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -124,8 +127,10 @@ class AppController(QObject):
             preferences_path=database_path.parent / "user_preferences.json",
         )
         self._openaq_connection_tester = OpenAQConnectionTester()
+        self._local_atmosphere_service = OpenAQLocalAtmosphereService()
         self._openaq_credentials_state = self._openaq_credential_store.state()
         self._openaq_connection_test_running = False
+        self._local_atmosphere_refresh_running = False
         self._viirs_sky_quality_running = False
         self._light_pollution_status = ""
         self._startup_location_detection_running = False
@@ -182,6 +187,7 @@ class AppController(QObject):
         self._weather_hours = []
         self._weather_summary = None
         self._sky_quality = None
+        self._local_atmosphere = LocalAtmosphere.not_configured()
         self._seeing_transparency = None
         self._advanced_scores = None
         self._night_plan = []
@@ -465,6 +471,10 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def skyQuality(self) -> dict:
         return self._sky_quality.to_qml() if self._sky_quality else {}
+
+    @Property("QVariant", notify=weatherChanged)
+    def localAtmosphere(self) -> dict:
+        return self._local_atmosphere.to_qml()
 
     @Property(bool, notify=weatherChanged)
     def viirsSkyQualityRunning(self) -> bool:
@@ -950,12 +960,17 @@ class AppController(QObject):
         except (RuntimeError, ValueError) as exc:
             self._openaq_credentials_state = self._openaq_credential_store.state()
             self._openaq_credentials_state = replace(self._openaq_credentials_state, message=str(exc))
+        self._refresh_local_atmosphere()
         self.openaqCredentialsChanged.emit()
+        self.weatherChanged.emit()
 
     @Slot()
     def removeOpenAQCredentials(self) -> None:
         self._openaq_credentials_state = self._openaq_credential_store.remove()
+        self._local_atmosphere_service.clear_cache()
+        self._local_atmosphere = LocalAtmosphere.not_configured()
         self.openaqCredentialsChanged.emit()
+        self.weatherChanged.emit()
 
     @Slot()
     def testOpenAQConnection(self) -> None:
@@ -991,7 +1006,10 @@ class AppController(QObject):
     def _finish_openaq_connection_test(self, ok: bool, message: str) -> None:
         self._openaq_connection_test_running = False
         self._openaq_credentials_state = self._openaq_credential_store.with_connection_result(ok, message)
+        if ok:
+            self._refresh_local_atmosphere()
         self.openaqCredentialsChanged.emit()
+        self.weatherChanged.emit()
 
     @Slot()
     def runWindowsLocationDiagnostics(self) -> None:
@@ -1536,6 +1554,7 @@ class AppController(QObject):
         self._weather_status = "Configura una posizione per visualizzare il meteo."
         self._light_pollution_status = ""
         self._viirs_sky_quality_running = False
+        self._refresh_local_atmosphere()
         self._weather_summary = WeatherSummary(
             "n/d",
             0,
@@ -1584,6 +1603,7 @@ class AppController(QObject):
             self._weather_hours = []
             self._weather_status = "Configura una posizione per visualizzare il meteo."
             self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
+            self._refresh_local_atmosphere()
             self._schedule_next_weather_refresh()
             return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
@@ -1599,6 +1619,7 @@ class AppController(QObject):
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
         self._recalculate_observing_outputs()
+        self._refresh_local_atmosphere()
         self._schedule_viirs_sky_quality_refresh()
         self._schedule_next_weather_refresh()
 
@@ -1611,6 +1632,7 @@ class AppController(QObject):
             self._weather_status = "Dati meteo non disponibili al momento."
             self._weather_refresh_running = False
             self._weather_refresh_timer.stop()
+            self._refresh_local_atmosphere()
             self.weatherChanged.emit()
             return
         if self._weather_refresh_running:
@@ -1661,6 +1683,7 @@ class AppController(QObject):
             self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
             self._refresh_equipment_recommendations_for_current_objects()
         self._recalculate_observing_outputs()
+        self._refresh_local_atmosphere()
         self.weatherChanged.emit()
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
@@ -1740,6 +1763,46 @@ class AppController(QObject):
         if not self._weather_summary or self._observing_session_decision().state == "recommended":
             return ""
         return "Condizioni non ideali: usa la direzione come orientamento, non come invito a osservare."
+
+    def _refresh_local_atmosphere(self) -> None:
+        api_key = self._openaq_credential_store.api_key()
+        if not api_key:
+            self._local_atmosphere = LocalAtmosphere.not_configured()
+            return
+        if not self._has_valid_location():
+            self._local_atmosphere = LocalAtmosphere.location_required()
+            return
+        if self._local_atmosphere_refresh_running:
+            return
+
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        self._local_atmosphere_refresh_running = True
+
+        def run_lookup() -> None:
+            try:
+                atmosphere = self._local_atmosphere_service.atmosphere(api_key, location)
+                self._localAtmosphereRefreshFinished.emit(location_key, atmosphere)
+            except Exception:
+                logger.warning("Unexpected OpenAQ local atmosphere refresh failure.", exc_info=True)
+                self._localAtmosphereRefreshFinished.emit(
+                    location_key,
+                    LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento."),
+                )
+
+        Thread(target=run_lookup, daemon=True).start()
+
+    @Slot(str, object)
+    def _finish_local_atmosphere_refresh(self, location_key: str, atmosphere: object) -> None:
+        self._local_atmosphere_refresh_running = False
+        if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
+            self.weatherChanged.emit()
+            return
+        if isinstance(atmosphere, LocalAtmosphere):
+            self._local_atmosphere = atmosphere
+        else:
+            self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
+        self.weatherChanged.emit()
 
     def _schedule_viirs_sky_quality_refresh(self) -> None:
         if not self._has_valid_location():

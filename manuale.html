@@ -273,11 +273,11 @@
         <p>La pagina <strong>Provider dati</strong> raccoglie gli accessi opzionali ai servizi esterni senza mescolarli alla gestione della località.</p>
         <ul>
           <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble.</li>
-          <li><strong>OpenAQ</strong>: salva e verifica una API key per future integrazioni qualità aria.</li>
+          <li><strong>OpenAQ</strong>: salva e verifica una API key per mostrare l'atmosfera locale nella pagina Meteo.</li>
           <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
           <li>Earthdata include anche <strong>Autorizza app</strong>; OpenAQ usa solo API key, <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
         </ul>
-        <p>OpenAQ è disponibile solo per configurazione e test connessione: l'uso nel Meteo verrà aggiunto in una fase successiva.</p>
+        <p>OpenAQ alimenta solo la sezione informativa <strong>Atmosfera locale</strong> nella pagina Meteo. Non modifica raccomandazioni, Planner, Sky Compass o punteggi osservativi.</p>
       </article>
 
       <article class="card">
@@ -295,11 +295,12 @@
       <article class="card">
         <h2>Meteo</h2>
         <p>La pagina Meteo usa Open-Meteo quando internet è disponibile e mantiene una cache locale per evitare schermate vuote se un refresh fallisce.</p>
-        <ul>
-          <li>Le schede principali mostrano nuvolosità, pioggia, vento, umidità, temperatura, seeing, trasparenza e Bortle.</li>
-          <li>Il dettaglio orario permette di selezionare una fascia e leggere i valori previsti.</li>
-          <li>Se non esistono dati iniziali e internet non è disponibile, la pagina indica che il meteo non è disponibile e permette un refresh manuale.</li>
-        </ul>
+          <ul>
+            <li>Le schede principali mostrano nuvolosità, pioggia, vento, umidità, temperatura, seeing, trasparenza e Bortle.</li>
+            <li><strong>Atmosfera locale</strong>: se OpenAQ è configurato, mostra PM2.5, PM10, limpidezza descrittiva e fonte/stazione più recente disponibile.</li>
+            <li>Il dettaglio orario permette di selezionare una fascia e leggere i valori previsti.</li>
+            <li>Se non esistono dati iniziali e internet non è disponibile, la pagina indica che il meteo non è disponibile e permette un refresh manuale.</li>
+          </ul>
       </article>
 
       <article class="card">
@@ -333,7 +334,8 @@
       <article class="card">
         <h2>OpenAQ</h2>
         <p>OpenAQ usa una API key personale. Registrati su <strong>explore.openaq.org/register</strong>, salva la chiave in <strong>Provider dati</strong> e usa <strong>Test connessione</strong> per verificare accesso e raggiungibilità del servizio.</p>
-        <p>In questa versione NightScope non usa ancora OpenAQ per meteo, raccomandazioni, planner o Sky Compass.</p>
+        <p>La label <strong>Limpidezza</strong> è descrittiva e deriva solo da PM2.5/PM10: aria limpida fino a 10/20 µg/m³, discreta fino a 25/50, polverosa fino a 50/100, molto polverosa oltre. Non è seeing e non è trasparenza astronomica.</p>
+        <p>NightScope non usa OpenAQ per raccomandazioni, planner, Sky Compass, seeing, trasparenza o punteggi osservativi.</p>
       </article>
 
       <article class="card">
