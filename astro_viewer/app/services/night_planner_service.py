@@ -17,6 +17,9 @@ from astro_viewer.app.services.planner_scoring_service import (
 class NightPlannerService:
     """Builds a compact, optimized observing sequence."""
 
+    def __init__(self, scoring_service: PlannerScoringService | None = None) -> None:
+        self._scoring_service = scoring_service or PlannerScoringService()
+
     def plan(
         self,
         objects: list[CelestialObject],
@@ -32,25 +35,24 @@ class NightPlannerService:
         visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
         if not visible:
             visible = [item for item in objects if item.visible and item.score > 0]
-        ranked = sorted(
-            visible,
-            key=lambda item: self._planner_score(item, weather, scores, sky_quality, telescope, moon),
-            reverse=True,
-        )
-        start = self._start_time(ranked)
+        scored_visible = [
+            (item, self._scoring_service.score(item, weather, scores, sky_quality, telescope, moon)) for item in visible
+        ]
+        ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
+        start = self._start_time([item for item, _score in ranked])
         selected = []
         used_names = set()
-        for item in ranked:
+        for item, score in ranked:
             if item.name in used_names:
                 continue
             used_names.add(item.name)
-            selected.append(item)
+            selected.append((item, score))
             if len(selected) >= 6:
                 break
 
         items = []
-        for item in selected:
-            score = round(self._planner_score(item, weather, scores, sky_quality, telescope, moon))
+        for item, raw_score in selected:
+            score = round(raw_score)
             time_label = self._time_for_item(item, start + timedelta(minutes=45 * len(items)))
             items.append(
                 NightPlanItem(

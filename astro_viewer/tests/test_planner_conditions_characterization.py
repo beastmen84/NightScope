@@ -446,6 +446,42 @@ def test_planner_scoring_service_matches_night_planner_wrapper():
     )
 
 
+def test_night_planner_reuses_injected_scoring_service_and_scores_visible_targets_once():
+    class RecordingScoringService:
+        def __init__(self):
+            self.calls = []
+            self.values = {
+                "galaxy": 90.4,
+                "cluster": 81.2,
+                "planet": 96.8,
+                "nebula": 72.6,
+            }
+
+        def score(self, item, weather, scores, sky_quality, telescope, moon=None):
+            del weather, scores, sky_quality, telescope, moon
+            self.calls.append(item.id)
+            return self.values[item.id]
+
+    scoring_service = RecordingScoringService()
+
+    plan = NightPlannerService(scoring_service).plan(
+        _planner_fixture_objects(),
+        _weather(85),
+        _scores(),
+        _sky_quality(3),
+        _telescope(),
+        _moon(10),
+    )
+
+    assert scoring_service.calls == ["galaxy", "cluster", "planet", "nebula"]
+    assert _plan_summary(plan) == [
+        ("galaxy", 90, "21:00 sera"),
+        ("cluster", 81, "22:00 sera"),
+        ("planet", 97, "23:00 sera"),
+        ("nebula", 73, "00:30 notte"),
+    ]
+
+
 def test_planner_score_breakdown_keeps_weather_factor_after_raw_score():
     target = _target("galaxy", "Galaxy", 80, "Difficile", "21:00", "8.5")
     weather = _weather(35)
