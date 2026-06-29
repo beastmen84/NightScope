@@ -222,6 +222,42 @@ For a focused review of Home refresh timing, section dependencies and the
 proposed future `ObservationSnapshot` read model for Home, Sky Compass and
 Planner consumers, see `docs/HOME_REFRESH_LIFECYCLE_REVIEW.md`.
 
+NightScope 1.2.x introduces `RefreshManager` as a lightweight lifecycle helper.
+It does not own refresh work and does not decide whether QML is updated.
+`AppController` remains the QML-facing orchestrator, while `RefreshManager`
+classifies refresh reasons and domains, tracks dirty domains and documents
+which dependencies are affected by each refresh family.
+
+Current refresh domains are:
+
+- `LOCATION`
+- `ASTRONOMY`
+- `WEATHER`
+- `SKY_QUALITY`
+- `AIR_QUALITY`
+- `AOD`
+- `EQUIPMENT`
+- `PLANNER`
+- `COMPASS`
+- `CATALOG`
+
+Current refresh reasons are:
+
+- `STARTUP`
+- `MANUAL`
+- `LOCATION_CHANGED`
+- `PROVIDER_CHANGED`
+- `API_KEY_CHANGED`
+- `EQUIPMENT_CHANGED`
+- `BORTLE_CHANGED`
+- `TTL_EXPIRED`
+- `ASYNC_COMPLETED`
+- `LIVE_TICK`
+
+`LIVE_TICK` is reserved for the future Sky Compass live refresh lane. The 1.2.x
+foundation records that dependency but does not start a new timer and does not
+change existing refresh cadence.
+
 The following changes are expected to trigger dependent recomputation:
 
 - active profile switch,

@@ -23,6 +23,12 @@ There is a central controller refresh path, but it is not a single immutable
 Home model. Instead, `AppController` maintains several mutable fields and emits
 coarse signals after each refresh branch.
 
+As of the 1.2.x Refresh & Data Lifecycle foundation, `AppController` also owns
+a lightweight `RefreshManager`. The manager classifies refresh reasons, maps
+them to affected domains and tracks dirty domains while preserving the existing
+controller-owned refresh methods. It is a lifecycle aid, not a replacement for
+the current refresh pipeline.
+
 The main refresh entry point is `_refresh_all()`:
 
 1. If startup location detection is still running, Home enters a pending

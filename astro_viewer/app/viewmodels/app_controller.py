@@ -51,6 +51,7 @@ from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
+from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.services.sky_map_service import SkyMapService
@@ -176,6 +177,7 @@ class AppController(QObject):
         self._sky_map_service = SkyMapService()
         self._sky_compass_service = SkyCompassService()
         self._notification_service = NotificationService()
+        self._refresh_manager = RefreshManager()
 
         self._city_results = []
         self._city_search_has_query = False
@@ -243,6 +245,7 @@ class AppController(QObject):
         self._barlow = 1.0
         self._equipment_message = self._equipment_status_message()
 
+        self._refresh_manager.mark_dirty(RefreshReason.STARTUP)
         self._initialize_startup_location()
         self._refresh_all()
 
@@ -899,6 +902,16 @@ class AppController(QObject):
 
     @Slot()
     def refreshWeatherNow(self) -> None:
+        self._mark_refresh_dirty(
+            RefreshReason.MANUAL,
+            (
+                RefreshDomain.WEATHER,
+                RefreshDomain.AIR_QUALITY,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            ),
+        )
         self._start_weather_refresh(force_refresh=True)
 
     @Slot(bool)
@@ -920,6 +933,10 @@ class AppController(QObject):
 
     @Slot(str, str)
     def saveEarthdataCredentials(self, username: str, password: str) -> None:
+        self._mark_refresh_dirty(
+            RefreshReason.API_KEY_CHANGED,
+            (RefreshDomain.SKY_QUALITY, RefreshDomain.AOD),
+        )
         try:
             self._earthdata_credentials_state = self._earthdata_credential_store.save(username, password)
         except (RuntimeError, ValueError) as exc:
@@ -933,6 +950,10 @@ class AppController(QObject):
 
     @Slot()
     def removeEarthdataCredentials(self) -> None:
+        self._mark_refresh_dirty(
+            RefreshReason.API_KEY_CHANGED,
+            (RefreshDomain.SKY_QUALITY, RefreshDomain.AOD),
+        )
         self._earthdata_credentials_state = self._earthdata_credential_store.remove()
         self._nasa_aod_refresh_running = False
         self._nasa_aod_result = NasaAodResult.no_credentials()
@@ -976,6 +997,16 @@ class AppController(QObject):
     def _finish_earthdata_connection_test(self, ok: bool, message: str, authorization_required: bool) -> None:
         self._earthdata_connection_test_running = False
         if ok:
+            self._mark_refresh_dirty(
+                RefreshReason.API_KEY_CHANGED,
+                (
+                    RefreshDomain.SKY_QUALITY,
+                    RefreshDomain.AOD,
+                    RefreshDomain.EQUIPMENT,
+                    RefreshDomain.PLANNER,
+                    RefreshDomain.COMPASS,
+                ),
+            )
             self._earthdata_credentials_state = self._earthdata_credential_store.mark_connection_verified(message)
         elif authorization_required:
             self._earthdata_credentials_state = self._earthdata_credential_store.mark_authorization_required(message)
@@ -986,12 +1017,14 @@ class AppController(QObject):
             self._schedule_viirs_sky_quality_refresh()
             self._schedule_nasa_aod_refresh()
         else:
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY, RefreshDomain.AOD)
             self._nasa_aod_refresh_running = False
             self._nasa_aod_result = NasaAodResult.no_credentials()
             self.weatherChanged.emit()
 
     @Slot(str)
     def saveOpenAQApiKey(self, api_key: str) -> None:
+        self._mark_refresh_dirty(RefreshReason.API_KEY_CHANGED, (RefreshDomain.AIR_QUALITY,))
         try:
             self._openaq_credentials_state = self._openaq_credential_store.save(api_key)
         except (RuntimeError, ValueError) as exc:
@@ -1003,6 +1036,7 @@ class AppController(QObject):
 
     @Slot()
     def removeOpenAQCredentials(self) -> None:
+        self._mark_refresh_dirty(RefreshReason.API_KEY_CHANGED, (RefreshDomain.AIR_QUALITY,))
         self._openaq_credentials_state = self._openaq_credential_store.remove()
         self._local_atmosphere_service.clear_cache()
         self._local_atmosphere = LocalAtmosphere.not_configured()
@@ -1044,10 +1078,12 @@ class AppController(QObject):
         self._openaq_connection_test_running = False
         self._openaq_credentials_state = self._openaq_credential_store.with_connection_result(ok, message)
         if ok:
+            self._mark_refresh_dirty(RefreshReason.API_KEY_CHANGED, (RefreshDomain.AIR_QUALITY,))
             self._local_atmosphere_service.clear_cache()
             self._refresh_local_atmosphere()
         else:
             self._local_atmosphere = LocalAtmosphere.not_configured()
+            self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
         self.openaqCredentialsChanged.emit()
         self.weatherChanged.emit()
 
@@ -1618,9 +1654,14 @@ class AppController(QObject):
         self._notifications = []
         self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
         self._invalidate_catalogue_visibility_cache()
+        self._refresh_lifecycle().clear_all()
         self.catalogueChanged.emit()
 
     def _refresh_astronomy(self) -> None:
+        self._mark_refresh_dirty(
+            RefreshReason.LOCATION_CHANGED,
+            (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
+        )
         try:
             self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
             self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
@@ -1636,8 +1677,22 @@ class AppController(QObject):
             self._deep_sky = []
             self._events = []
             self._append_service_status("Dati astronomici temporaneamente non disponibili.")
+        finally:
+            self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
 
     def _refresh_weather_and_conditions(self) -> None:
+        self._mark_refresh_dirty(
+            RefreshReason.LOCATION_CHANGED,
+            (
+                RefreshDomain.WEATHER,
+                RefreshDomain.SKY_QUALITY,
+                RefreshDomain.AIR_QUALITY,
+                RefreshDomain.AOD,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            ),
+        )
         self._weather_refresh_request_id += 1
         self._weather_refresh_running = False
         if not self._has_valid_location():
@@ -1647,6 +1702,13 @@ class AppController(QObject):
             self._weather_summary = self._score_service.weather_score(self._weather_hours, self._moon)
             self._refresh_local_atmosphere()
             self._schedule_next_weather_refresh()
+            self._clear_refresh_domains(
+                RefreshDomain.WEATHER,
+                RefreshDomain.SKY_QUALITY,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            )
             return
         self._weather_hours = self._weather_service.hourly_forecast(self._location)
         self._weather_status = self._weather_status_from_error(
@@ -1665,6 +1727,13 @@ class AppController(QObject):
         self._schedule_viirs_sky_quality_refresh()
         self._schedule_nasa_aod_refresh()
         self._schedule_next_weather_refresh()
+        self._clear_refresh_domains(
+            RefreshDomain.WEATHER,
+            RefreshDomain.SKY_QUALITY,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
 
     def _start_weather_refresh(self, force_refresh: bool = True) -> None:
         if self._startup_location_detection_running:
@@ -1677,10 +1746,21 @@ class AppController(QObject):
             self._weather_refresh_timer.stop()
             self._refresh_local_atmosphere()
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.WEATHER)
             return
         if self._weather_refresh_running:
             return
 
+        self._mark_refresh_dirty(
+            RefreshReason.MANUAL if force_refresh else RefreshReason.TTL_EXPIRED,
+            (
+                RefreshDomain.WEATHER,
+                RefreshDomain.AIR_QUALITY,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            ),
+        )
         location = self._location
         location_key = LightPollutionService._location_key(location)
         self._weather_refresh_request_id += 1
@@ -1710,8 +1790,18 @@ class AppController(QObject):
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
             self._schedule_next_weather_refresh()
+            self._clear_refresh_domains(RefreshDomain.WEATHER)
             return
 
+        self._mark_refresh_dirty(
+            RefreshReason.ASYNC_COMPLETED,
+            (
+                RefreshDomain.WEATHER,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            ),
+        )
         refreshed_hours = hours if isinstance(hours, list) else []
         if refreshed_hours:
             self._weather_hours = refreshed_hours
@@ -1731,6 +1821,12 @@ class AppController(QObject):
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
         self._schedule_next_weather_refresh()
+        self._clear_refresh_domains(
+            RefreshDomain.WEATHER,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
 
     def _schedule_next_weather_refresh(self) -> None:
         if not QCoreApplication.instance() or not self._has_valid_location() or self._startup_location_detection_running:
@@ -1811,13 +1907,16 @@ class AppController(QObject):
         api_key = self._openaq_credential_store.api_key()
         if not api_key or not self._openaq_credentials_state.connection_verified:
             self._local_atmosphere = LocalAtmosphere.not_configured()
+            self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
             return
         if not self._has_valid_location():
             self._local_atmosphere = LocalAtmosphere.location_required()
+            self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
             return
         if self._local_atmosphere_refresh_running:
             return
 
+        self._mark_refresh_dirty(RefreshReason.TTL_EXPIRED, (RefreshDomain.AIR_QUALITY,))
         location = self._location
         location_key = LightPollutionService._location_key(location)
         self._local_atmosphere_refresh_running = True
@@ -1840,25 +1939,32 @@ class AppController(QObject):
         self._local_atmosphere_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
             return
+        self._mark_refresh_dirty(RefreshReason.ASYNC_COMPLETED, (RefreshDomain.AIR_QUALITY,))
         if isinstance(atmosphere, LocalAtmosphere):
             self._local_atmosphere = atmosphere
         else:
             self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
         self.weatherChanged.emit()
+        self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
 
     def _schedule_viirs_sky_quality_refresh(self) -> None:
         if not self._has_valid_location():
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
         if self._viirs_sky_quality_running:
             return
         if not self._earthdata_credentials_state.connection_verified:
             self._light_pollution_status = ""
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
         if self._sky_quality and "NASA Black Marble VNP46A3" in self._sky_quality.source:
             self._light_pollution_status = ""
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
 
+        self._mark_refresh_dirty(RefreshReason.TTL_EXPIRED, (RefreshDomain.SKY_QUALITY,))
         location = self._location
         location_key = LightPollutionService._location_key(location)
         self._viirs_sky_quality_running = True
@@ -1887,9 +1993,19 @@ class AppController(QObject):
             self._light_pollution_status = ""
             self.weatherChanged.emit()
             self._schedule_viirs_sky_quality_refresh()
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
 
         if isinstance(quality, SkyQuality):
+            self._mark_refresh_dirty(
+                RefreshReason.ASYNC_COMPLETED,
+                (
+                    RefreshDomain.SKY_QUALITY,
+                    RefreshDomain.EQUIPMENT,
+                    RefreshDomain.PLANNER,
+                    RefreshDomain.COMPASS,
+                ),
+            )
             self._sky_quality = quality
             try:
                 self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
@@ -1902,16 +2018,24 @@ class AppController(QObject):
             self.dataChanged.emit()
             self.weatherChanged.emit()
             self.selectedObjectChanged.emit()
+            self._clear_refresh_domains(
+                RefreshDomain.SKY_QUALITY,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            )
             return
 
         self._light_pollution_status = message
         self.weatherChanged.emit()
+        self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
 
     def _schedule_nasa_aod_refresh(self) -> None:
         if not self._has_valid_location():
             self._nasa_aod_result = NasaAodResult.no_location()
             logger.info("NASA AOD refresh skipped: no valid observing location.")
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
             return
         if self._nasa_aod_refresh_running:
             logger.info("NASA AOD refresh skipped: refresh already running.")
@@ -1920,6 +2044,7 @@ class AppController(QObject):
             self._nasa_aod_result = NasaAodResult.no_credentials()
             logger.info("NASA AOD refresh skipped: Earthdata credentials are not verified.")
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
             return
 
         location = self._location
@@ -1927,8 +2052,10 @@ class AppController(QObject):
             self._nasa_aod_result = NasaAodResult.no_location()
             logger.info("NASA AOD refresh skipped: no valid observing location.")
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
             return
 
+        self._mark_refresh_dirty(RefreshReason.TTL_EXPIRED, (RefreshDomain.AOD,))
         location_key = LightPollutionService._location_key(location)
         self._nasa_aod_refresh_running = True
         self.weatherChanged.emit()
@@ -1958,18 +2085,22 @@ class AppController(QObject):
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             logger.info("NASA AOD refresh result discarded for stale location %s.", location_key)
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
             return
         if not self._earthdata_credentials_state.connection_verified:
             logger.info("NASA AOD refresh result discarded because Earthdata credentials are no longer verified.")
             self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
             return
 
+        self._mark_refresh_dirty(RefreshReason.ASYNC_COMPLETED, (RefreshDomain.AOD,))
         if isinstance(result, NasaAodResult):
             self._nasa_aod_result = result
         else:
             self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
         self._log_nasa_aod_result(self._nasa_aod_result)
         self.weatherChanged.emit()
+        self._clear_refresh_domains(RefreshDomain.AOD)
 
     @staticmethod
     def _log_nasa_aod_result(result: NasaAodResult) -> None:
@@ -2012,10 +2143,28 @@ class AppController(QObject):
             self._service_status = message
         self.statusChanged.emit()
 
+    def _mark_refresh_dirty(
+        self,
+        reason: RefreshReason,
+        domains: tuple[RefreshDomain, ...] | None = None,
+    ) -> None:
+        self._refresh_lifecycle().mark_dirty(reason, domains)
+
+    def _clear_refresh_domains(self, *domains: RefreshDomain) -> None:
+        self._refresh_lifecycle().clear_domains(domains)
+
+    def _refresh_lifecycle(self) -> RefreshManager:
+        manager = getattr(self, "_refresh_manager", None)
+        if manager is None:
+            manager = RefreshManager()
+            self._refresh_manager = manager
+        return manager
+
     def _apply_equipment_to_current_objects(self) -> None:
         self._refresh_active_profile_dependencies()
 
     def _refresh_active_profile_dependencies(self, reload_profile_equipment: bool = False) -> None:
+        self._mark_refresh_dirty(RefreshReason.EQUIPMENT_CHANGED)
         selected_id = self._selected_object.id if self._selected_object else None
         if reload_profile_equipment:
             self._profile_equipment = self._initial_profile_equipment()
@@ -2043,6 +2192,11 @@ class AppController(QObject):
                 if item.id == selected_id:
                     self._selected_object = item
                     break
+        self._clear_refresh_domains(
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
 
     def _emit_profile_dependent_changes(self) -> None:
         self.equipmentChanged.emit()
@@ -2064,6 +2218,7 @@ class AppController(QObject):
         self._deep_sky = self._apply_equipment(deep_sky_source)
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
+        self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._location_detection_result = result
         self._location = result.location
         self._location_message = result.message
@@ -2072,6 +2227,7 @@ class AppController(QObject):
         if persist:
             self._location_preferences.save_location(result)
         self.catalogueChanged.emit()
+        self._clear_refresh_domains(RefreshDomain.LOCATION)
 
     def _has_valid_location(self) -> bool:
         location = self._location
@@ -2628,6 +2784,7 @@ class AppController(QObject):
     def _invalidate_catalogue_visibility_cache(self) -> None:
         self._invalidate_catalogue_month_visibility_cache()
         self._invalidate_catalogue_observability_cache()
+        self._clear_refresh_domains(RefreshDomain.CATALOG)
 
     def _invalidate_catalogue_month_visibility_cache(self) -> None:
         self._catalogue_visibility_cache.clear()
