@@ -321,7 +321,8 @@ def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
     assert "PlannerConditionBreakdown" in condition_source
     assert "weather_factor" in scoring_source
     assert "difficulty_factor" in scoring_source
-    assert "planner_pollution_penalty" in pollution_source
+    assert "math.log10" in pollution_source
+    assert "planner_pollution_penalty" not in observation_conditions_source
     assert "planner_condition_breakdown" not in observation_conditions_source
     assert "PlannerConditionBreakdown" not in observation_conditions_source
     assert "apply_pollution" not in score_source + planner_breakdown_source + scoring_source
@@ -339,7 +340,7 @@ def test_current_pollution_penalty_boundaries_are_characterized():
     assert round(NightPlannerService._pollution_penalty(galaxy, _sky_quality(4, radiance=1000)), 3) == 44.556
 
 
-def test_planner_pollution_penalty_matches_observation_conditions_service():
+def test_planner_pollution_penalty_matches_planner_scoring_service():
     targets = [
         _target("planet", "Pianeta", 79, "Facile", "23:00", "-1.0"),
         _target("galaxy", "Galaxy", 80, "Media", "21:00", "8.5"),
@@ -353,7 +354,7 @@ def test_planner_pollution_penalty_matches_observation_conditions_service():
         assert NightPlannerService._pollution_penalty(
             target,
             sky_quality,
-        ) == ObservationConditionsService.planner_pollution_penalty(target, sky_quality)
+        ) == PlannerScoringService().pollution_penalty(target, sky_quality)
 
 
 def test_planner_condition_breakdown_matches_moon_and_pollution_wrappers():
