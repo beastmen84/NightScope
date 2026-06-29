@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import math
 from dataclasses import replace
+from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
@@ -16,6 +18,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ParticulateConditionInput,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -217,6 +220,83 @@ def test_diagnostic_only_inputs_prepare_runtime_aod_and_openaq_boundary() -> Non
     assert "particulate:current" in conditioned.breakdown.diagnostic_notes
 
 
+def test_runtime_aod_and_particulate_diagnostics_include_status_source_and_values() -> None:
+    service = ObservationConditionsService()
+    target = _target("m13", "M13", "Globular Cluster", 78)
+    inputs = ObservationConditionInputs.diagnostic_only(
+        aod=AodConditionInput(
+            available=True,
+            freshness_category="current",
+            aod_550=0.142,
+            source="NASA Earthdata",
+            product="VNP19A2.002",
+            status="ok",
+            age_days=1.0,
+        ),
+        particulate=ParticulateConditionInput(
+            available=True,
+            freshness_category="recent",
+            pm25=12.5,
+            pm10=31.0,
+            source="OpenAQ Addis",
+            status="ok",
+            age_days=2.0,
+        ),
+    )
+
+    conditioned = service.condition_target(target, inputs)
+    notes = conditioned.breakdown.diagnostic_notes
+
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.aod_modifier == 0.0
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert "aod:status=ok" in notes
+    assert "aod:source=NASA Earthdata" in notes
+    assert "aod:product=VNP19A2.002" in notes
+    assert "aod:value=0.142" in notes
+    assert "particulate:status=ok" in notes
+    assert "particulate:source=OpenAQ Addis" in notes
+    assert "particulate:pm25=12.5" in notes
+    assert "particulate:pm10=31" in notes
+
+
+def test_atmospheric_diagnostic_inputs_do_not_change_adjusted_score() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    baseline = service.condition_target(target)
+    with_atmosphere = service.condition_target(
+        target,
+        ObservationConditionInputs.diagnostic_only(
+            aod=AodConditionInput(
+                available=True,
+                freshness_category="stale",
+                aod_550=0.31,
+                source="NASA Earthdata",
+                product="MCD19A2.061",
+                status="cache_hit",
+                age_days=5.0,
+            ),
+            particulate=ParticulateConditionInput(
+                available=True,
+                freshness_category="stale",
+                pm25=34.0,
+                pm10=72.0,
+                source="OpenAQ",
+                status="ok",
+                age_days=5.0,
+            ),
+        ),
+    )
+
+    assert with_atmosphere.target == baseline.target
+    assert with_atmosphere.breakdown.adjusted_score == baseline.breakdown.adjusted_score
+    assert with_atmosphere.breakdown.applied_components == ()
+    assert with_atmosphere.breakdown.aod_modifier == 0.0
+    assert with_atmosphere.breakdown.pm25_modifier == 0.0
+
+
 def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_components() -> None:
     target = _target("m31", "M31", "Galaxy", 82)
     moon = _moon("86%")
@@ -245,6 +325,129 @@ def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_compon
     assert breakdown.pm25_modifier == 0.0
     assert "aod:score_neutral" in breakdown.diagnostic_notes
     assert "particulate:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = _moon("42%")
+    controller._sky_quality = _sky_quality(bortle=5, radiance=4.0)
+    controller._nasa_aod_result = NasaAodResult(
+        available=True,
+        status="cache_hit",
+        message="Dati NASA AOD disponibili.",
+        provider="NASA Earthdata",
+        product="VNP19A2.002",
+        aod_550=0.173,
+        acquisition_date=(datetime.now().date() - timedelta(days=5)).isoformat(),
+    )
+    controller._local_atmosphere = LocalAtmosphere(
+        visible=True,
+        has_data=True,
+        message="",
+        pm25="12.5 µg/m³",
+        pm10="31 µg/m³",
+        clarity="Discreta",
+        source="Addis Ababa Central",
+        freshness="Aggiornato 2 giorni fa",
+        freshness_category="recent",
+    )
+
+    inputs = controller._build_observation_condition_inputs()
+
+    assert inputs.moon == controller._moon
+    assert inputs.sky_quality == controller._sky_quality
+    assert inputs.aod == AodConditionInput(
+        available=True,
+        freshness_category="stale",
+        aod_550=0.173,
+        source="NASA Earthdata",
+        product="VNP19A2.002",
+        status="cache_hit",
+        age_days=5.0,
+    )
+    assert inputs.particulate == ParticulateConditionInput(
+        available=True,
+        freshness_category="recent",
+        pm25=12.5,
+        pm10=31.0,
+        source="Addis Ababa Central",
+        status="ok",
+        age_days=2.0,
+    )
+
+
+def test_app_controller_skips_failed_unavailable_or_historical_diagnostic_inputs() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = None
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult.failure("auth_error", "Autenticazione non riuscita.")
+    controller._local_atmosphere = LocalAtmosphere.historical(
+        "OpenAQ",
+        "OpenAQ · Ultima misura 38 giorni fa",
+        "Ultima misura 38 giorni fa",
+        "2026-05-21",
+    )
+
+    inputs = controller._build_observation_condition_inputs()
+
+    assert inputs.aod is None
+    assert inputs.particulate is None
+
+
+def test_app_controller_skips_historical_aod_runtime_input() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = None
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult(
+        available=True,
+        status="ok",
+        message="Dati NASA AOD disponibili.",
+        product="VNP19A2.002",
+        aod_550=0.24,
+        acquisition_date=(datetime.now().date() - timedelta(days=9)).isoformat(),
+    )
+    controller._local_atmosphere = LocalAtmosphere.not_configured()
+
+    inputs = controller._build_observation_condition_inputs()
+
+    assert inputs.aod is None
+    assert inputs.particulate is None
+
+
+def test_app_controller_home_detail_output_unchanged_with_runtime_diagnostics() -> None:
+    controller = AppController.__new__(AppController)
+    controller._conditions_service = ObservationConditionsService()
+    controller._moon = _moon("86%")
+    controller._sky_quality = _sky_quality(bortle=5, radiance=4.0)
+    controller._nasa_aod_result = NasaAodResult(
+        available=True,
+        status="ok",
+        message="Dati NASA AOD disponibili.",
+        product="VNP19A2.002",
+        aod_550=0.12,
+        acquisition_date=datetime.now().date().isoformat(),
+    )
+    controller._local_atmosphere = LocalAtmosphere(
+        visible=True,
+        has_data=True,
+        message="",
+        pm25="7 µg/m³",
+        pm10="18 µg/m³",
+        clarity="Aria limpida",
+        source="OpenAQ",
+        freshness="Aggiornato oggi",
+        freshness_category="current",
+    )
+    target = _target("m31", "M31", "Galassia", 82)
+
+    conditioned = controller._moon_adjusted_object(target)
+    expected_score = NightPlannerService.moon_adjusted_score(target, controller._moon)
+
+    assert conditioned == replace(
+        target,
+        score=expected_score,
+        score_label=ObservingScoreService.score_label(expected_score),
+    )
 
 
 def test_condition_target_moon_breakdown_matches_previous_implementation() -> None:

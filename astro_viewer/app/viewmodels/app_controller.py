@@ -47,8 +47,10 @@ from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAod
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.observation_conditions_service import (
+    AodConditionInput,
     ObservationConditionInputs,
     ObservationConditionsService,
+    ParticulateConditionInput,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
@@ -2526,7 +2528,11 @@ class AppController(QObject):
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        return self._conditions_service.apply_deep_sky_pollution_context(objects, self._sky_quality)
+        return self._conditions_service.apply_deep_sky_pollution_context(
+            objects,
+            self._sky_quality,
+            self._build_observation_condition_inputs(include_moon=False),
+        )
 
     def _deep_sky_pollution_base_penalty(self) -> float:
         return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
@@ -2994,13 +3000,106 @@ class AppController(QObject):
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         conditioned = self._conditions_service.condition_targets(
             objects,
-            ObservationConditionInputs(moon=self._moon),
+            self._build_observation_condition_inputs(include_sky_quality=False),
             apply_moon=True,
         )
         return sorted((item.target for item in conditioned), key=lambda item: item.score, reverse=True)
 
     def _moon_adjusted_object(self, item: CelestialObject) -> CelestialObject:
-        return self._conditions_service.apply_moon_adjustment(item, self._moon).target
+        return self._conditions_service.condition_target(
+            item,
+            self._build_observation_condition_inputs(include_sky_quality=False),
+            apply_moon=True,
+        ).target
+
+    def _build_observation_condition_inputs(
+        self,
+        *,
+        include_moon: bool = True,
+        include_sky_quality: bool = True,
+    ) -> ObservationConditionInputs:
+        return ObservationConditionInputs(
+            moon=self._moon if include_moon else None,
+            sky_quality=self._sky_quality if include_sky_quality else None,
+            aod=self._aod_condition_input(),
+            particulate=self._particulate_condition_input(),
+        )
+
+    def _aod_condition_input(self) -> AodConditionInput | None:
+        result = getattr(self, "_nasa_aod_result", None)
+        if not isinstance(result, NasaAodResult) or not result.available or result.aod_550 is None:
+            return None
+        age_days = self._aod_age_days(result)
+        freshness_category = self._aod_freshness_category(age_days)
+        if freshness_category == "historical":
+            return None
+        return AodConditionInput(
+            available=True,
+            freshness_category=freshness_category,
+            aod_550=result.aod_550,
+            source=result.provider,
+            product=result.product,
+            status=result.status,
+            age_days=age_days,
+        )
+
+    def _particulate_condition_input(self) -> ParticulateConditionInput | None:
+        atmosphere = getattr(self, "_local_atmosphere", None)
+        if not isinstance(atmosphere, LocalAtmosphere) or not atmosphere.has_data:
+            return None
+        return ParticulateConditionInput(
+            available=True,
+            freshness_category=atmosphere.freshness_category,
+            pm25=self._condition_numeric_value(atmosphere.pm25),
+            pm10=self._condition_numeric_value(atmosphere.pm10),
+            source=atmosphere.source if atmosphere.source != "—" else "",
+            status="ok",
+            age_days=self._freshness_age_days(atmosphere.freshness),
+        )
+
+    @staticmethod
+    def _aod_age_days(result: NasaAodResult) -> float | None:
+        if not result.acquisition_date:
+            return None
+        try:
+            acquisition_date = datetime.fromisoformat(result.acquisition_date).date()
+        except ValueError:
+            return None
+        return float(max(0, (datetime.now().date() - acquisition_date).days))
+
+    @staticmethod
+    def _aod_freshness_category(age_days: float | None) -> str:
+        if age_days is None:
+            return "unavailable"
+        if age_days < 3:
+            return "current"
+        if age_days <= 7:
+            return "stale"
+        return "historical"
+
+    @staticmethod
+    def _condition_numeric_value(value: str) -> float | None:
+        match = re.search(r"-?\d+(?:[.,]\d+)?", value or "")
+        if not match:
+            return None
+        try:
+            return float(match.group(0).replace(",", "."))
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _freshness_age_days(label: str) -> float | None:
+        normalized = (label or "").strip().lower()
+        if not normalized:
+            return None
+        if "oggi" in normalized:
+            return 0.0
+        if "ieri" in normalized:
+            return 1.0
+        match = re.search(r"(\d+)\s+giorni", normalized)
+        if match:
+            return float(match.group(1))
+        return None
 
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()

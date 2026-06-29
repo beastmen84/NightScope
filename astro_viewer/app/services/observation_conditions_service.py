@@ -120,21 +120,27 @@ class ObservationConditionsService:
         self,
         targets: list[CelestialObject],
         sky_quality: SkyQuality | None,
+        inputs: ObservationConditionInputs | None = None,
     ) -> list[CelestialObject]:
-        if not self.is_pollution_context_active(sky_quality):
+        condition_inputs = self._pollution_inputs(sky_quality, inputs)
+        if not self.is_pollution_context_active(condition_inputs.sky_quality):
             return targets
 
-        updated = [self.apply_deep_sky_pollution_to_target(item, sky_quality).target for item in targets]
+        updated = [
+            self.condition_target(item, condition_inputs, apply_pollution=True).target
+            for item in targets
+        ]
         return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
 
     def apply_deep_sky_pollution_to_target(
         self,
         target: CelestialObject,
         sky_quality: SkyQuality | None,
+        inputs: ObservationConditionInputs | None = None,
     ) -> ConditionedTarget:
         return self.condition_target(
             target,
-            ObservationConditionInputs(sky_quality=sky_quality),
+            self._pollution_inputs(sky_quality, inputs),
             apply_pollution=True,
         )
 
@@ -333,6 +339,17 @@ class ObservationConditionsService:
             already_adjusted_flags=already_adjusted_flags,
         )
 
+    @staticmethod
+    def _pollution_inputs(
+        sky_quality: SkyQuality | None,
+        inputs: ObservationConditionInputs | None,
+    ) -> ObservationConditionInputs:
+        if inputs is None:
+            return ObservationConditionInputs(sky_quality=sky_quality)
+        if inputs.sky_quality is None and sky_quality is not None:
+            return replace(inputs, sky_quality=sky_quality)
+        return inputs
+
     @classmethod
     def _neutral_condition_diagnostics(cls, inputs: ObservationConditionInputs) -> tuple[str, ...]:
         return (
@@ -351,12 +368,15 @@ class ObservationConditionsService:
         category = ObservationConditionsService._freshness_category(aod.freshness_category)
         notes = [f"aod:{category}"]
         notes.append("aod:available" if aod.available else f"aod:unavailable:{aod.status}")
+        if aod.status:
+            notes.append(f"aod:status={aod.status}")
         if aod.product:
             notes.append(f"aod:product={aod.product}")
         if aod.source:
             notes.append(f"aod:source={aod.source}")
         if aod.aod_550 is not None:
             notes.append(f"aod:550={aod.aod_550:g}")
+            notes.append(f"aod:value={aod.aod_550:g}")
         if aod.age_days is not None:
             notes.append(f"aod:age_days={aod.age_days:g}")
         notes.append("aod:score_neutral")
@@ -369,12 +389,16 @@ class ObservationConditionsService:
         category = ObservationConditionsService._freshness_category(particulate.freshness_category)
         notes = [f"particulate:{category}"]
         notes.append("particulate:available" if particulate.available else f"particulate:unavailable:{particulate.status}")
+        if particulate.status:
+            notes.append(f"particulate:status={particulate.status}")
         if particulate.source:
             notes.append(f"particulate:source={particulate.source}")
         if particulate.pm25 is not None:
             notes.append(f"pm25={particulate.pm25:g}")
+            notes.append(f"particulate:pm25={particulate.pm25:g}")
         if particulate.pm10 is not None:
             notes.append(f"pm10={particulate.pm10:g}")
+            notes.append(f"particulate:pm10={particulate.pm10:g}")
         if particulate.age_days is not None:
             notes.append(f"particulate:age_days={particulate.age_days:g}")
         notes.append("particulate:score_neutral")
