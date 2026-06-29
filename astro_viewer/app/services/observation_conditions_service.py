@@ -39,6 +39,15 @@ class ObservationConditionInputs:
     aod: AodConditionInput | None = None
     particulate: ParticulateConditionInput | None = None
 
+    @classmethod
+    def diagnostic_only(
+        cls,
+        *,
+        aod: AodConditionInput | None = None,
+        particulate: ParticulateConditionInput | None = None,
+    ) -> ObservationConditionInputs:
+        return cls(aod=aod, particulate=particulate)
+
 
 @dataclass(frozen=True)
 class TargetConditionBreakdown:
@@ -69,6 +78,7 @@ class ObservationConditionsService:
     """Applies existing observing-condition adjustments without changing formulas."""
 
     POLLUTION_CONTEXT_NOTE = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
+    POLLUTION_CONTEXT_FLAG = "light_pollution"
 
     def apply_moon_adjustment(
         self,
@@ -91,13 +101,19 @@ class ObservationConditionsService:
         penalty = self.moon_penalty(target, moon)
         adjusted_score = max(0, min(100, round(base_score - penalty)))
         components = ("moon",) if penalty > 0 else ()
+        diagnostic_notes = list(self._neutral_condition_diagnostics(ObservationConditionInputs(moon=moon)))
+        if penalty > 0:
+            diagnostic_notes.append(f"moon:illumination={self._moon_illumination(moon):g}")
+        else:
+            diagnostic_notes.append("moon:neutral")
+        diagnostic_notes.append("light_pollution:not_requested")
         return self._breakdown(
             object_id=target.id,
             base_score=base_score,
             moon_penalty=penalty,
             adjusted_score=adjusted_score,
             applied_components=components,
-            diagnostic_notes=self._neutral_condition_diagnostics(ObservationConditionInputs()),
+            diagnostic_notes=tuple(diagnostic_notes),
         )
 
     def apply_deep_sky_pollution_context(
@@ -134,6 +150,7 @@ class ObservationConditionsService:
         score = target.score
         visible = target.visible
         notes = target.notes
+        condition_flags = target.condition_flags
         moon_penalty = 0.0
         pollution_penalty = 0.0
         applied_components: list[str] = []
@@ -156,19 +173,23 @@ class ObservationConditionsService:
                 diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
                 diagnostic_notes.append("light_pollution:inactive")
             elif self.has_deep_sky_pollution_context(target):
-                already_adjusted_flags.append("light_pollution")
+                already_adjusted_flags.append(self.POLLUTION_CONTEXT_FLAG)
                 diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
                 diagnostic_notes.append("light_pollution:already_applied")
+                if self.POLLUTION_CONTEXT_FLAG not in condition_flags:
+                    condition_flags = (*condition_flags, self.POLLUTION_CONTEXT_FLAG)
             else:
                 pollution_penalty = self.deep_sky_pollution_penalty(target, inputs.sky_quality)
                 if pollution_penalty > 0:
-                    applied_components.append("light_pollution")
+                    applied_components.append(self.POLLUTION_CONTEXT_FLAG)
                 diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
                 score = max(0, round(score - pollution_penalty))
                 urban_note = self.POLLUTION_CONTEXT_NOTE
                 if urban_note not in notes:
                     notes = f"{urban_note} {target.notes}"
                 visible = visible and score > 10
+                if pollution_penalty > 0 and self.POLLUTION_CONTEXT_FLAG not in condition_flags:
+                    condition_flags = (*condition_flags, self.POLLUTION_CONTEXT_FLAG)
         else:
             diagnostic_notes.append("light_pollution:not_requested")
 
@@ -183,7 +204,12 @@ class ObservationConditionsService:
             already_adjusted_flags=tuple(already_adjusted_flags),
         )
 
-        if score == target.score and visible == target.visible and notes == target.notes:
+        if (
+            score == target.score
+            and visible == target.visible
+            and notes == target.notes
+            and condition_flags == target.condition_flags
+        ):
             return ConditionedTarget(target, breakdown, original_target=target)
         return ConditionedTarget(
             replace(
@@ -192,6 +218,7 @@ class ObservationConditionsService:
                 score_label=ObservingScoreService.score_label(score),
                 visible=visible,
                 notes=notes,
+                condition_flags=condition_flags,
             ),
             breakdown,
             original_target=target,
@@ -266,7 +293,7 @@ class ObservationConditionsService:
 
     @classmethod
     def has_deep_sky_pollution_context(cls, target: CelestialObject) -> bool:
-        return cls.POLLUTION_CONTEXT_NOTE in target.notes
+        return cls.POLLUTION_CONTEXT_FLAG in target.condition_flags or cls.POLLUTION_CONTEXT_NOTE in target.notes
 
     @classmethod
     def moon_penalty(cls, target: CelestialObject, moon: MoonSummary | None) -> float:

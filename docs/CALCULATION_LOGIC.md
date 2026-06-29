@@ -345,6 +345,11 @@ fields currently stay neutral: AOD and PM modifiers remain zero and do not feed
 Planner ranking, Home scores, Recommendation Engine, Sky Compass, seeing or
 transparency scores.
 
+The Home/Detail deep-sky pollution context keeps a user-facing note for
+backward compatibility and also sets an internal target condition flag. The flag
+is not exported to QML and is used only to prevent applying the same context
+penalty twice during repeated refresh passes.
+
 Medium globular clusters such as M5, M92 and M15 keep the `General` observation
 mode but receive a target-profile bias toward medium magnification. This avoids
 treating them like genuinely wide-field objects while leaving wide-field targets

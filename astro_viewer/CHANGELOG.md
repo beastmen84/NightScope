@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.3.5 - 2026-06-29
+
+- Rafforzata la diagnostica di `ObservationConditionsService`: `moon_adjusted_score()` ora registra l'illuminazione lunare quando applica la penalità Luna.
+- Aggiunto un flag interno non esposto a QML per riconoscere target già condizionati dal contesto deep-sky light pollution, mantenendo il fallback legacy basato sulla nota esistente.
+- Preparato il boundary diagnostico per AOD NASA e particolato OpenAQ tramite input provider-neutral, ancora neutri e senza effetto sui punteggi.
+
 ## NightScope 1.3.4 - 2026-06-29
 
 - Esteso `ObservationConditionsService` con input diagnostici provider-neutral per NASA AOD e particolato OpenAQ.

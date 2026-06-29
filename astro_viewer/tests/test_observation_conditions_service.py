@@ -75,6 +75,38 @@ def test_condition_target_neutral_breakdown_uses_identity_placeholders() -> None
     assert breakdown.already_adjusted_flags == ()
 
 
+def test_moon_adjusted_score_diagnostics_include_illumination_when_applied() -> None:
+    service = ObservationConditionsService()
+    moon = _moon("86%")
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    breakdown = service.moon_adjusted_score(target, moon)
+
+    assert breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, moon)
+    assert breakdown.applied_components == ("moon",)
+    assert "moon:illumination=86" in breakdown.diagnostic_notes
+    assert "light_pollution:not_requested" in breakdown.diagnostic_notes
+
+
+def test_moon_adjusted_score_and_condition_target_have_consistent_moon_diagnostics() -> None:
+    service = ObservationConditionsService()
+    moon = _moon("86%")
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    score_breakdown = service.moon_adjusted_score(target, moon)
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(moon=moon),
+        apply_moon=True,
+    )
+
+    assert score_breakdown.adjusted_score == conditioned.breakdown.adjusted_score
+    assert score_breakdown.moon_penalty == conditioned.breakdown.moon_penalty
+    assert score_breakdown.applied_components == conditioned.breakdown.applied_components
+    assert "moon:illumination=86" in score_breakdown.diagnostic_notes
+    assert "moon:illumination=86" in conditioned.breakdown.diagnostic_notes
+
+
 def test_aod_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
     service = ObservationConditionsService()
     target = _target("m13", "M13", "Globular Cluster", 78)
@@ -164,6 +196,25 @@ def test_unavailable_atmospheric_diagnostics_remain_score_neutral() -> None:
     assert "particulate:unavailable:no_measurements" in breakdown.diagnostic_notes
     assert "aod:score_neutral" in breakdown.diagnostic_notes
     assert "particulate:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_diagnostic_only_inputs_prepare_runtime_aod_and_openaq_boundary() -> None:
+    service = ObservationConditionsService()
+    target = _target("m13", "M13", "Globular Cluster", 78)
+    inputs = ObservationConditionInputs.diagnostic_only(
+        aod=AodConditionInput(available=True, freshness_category="recent", aod_550=0.16),
+        particulate=ParticulateConditionInput(available=True, freshness_category="current", pm25=7.0),
+    )
+
+    conditioned = service.condition_target(target, inputs)
+
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.applied_components == ()
+    assert conditioned.breakdown.aod_modifier == 0.0
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert "aod:recent" in conditioned.breakdown.diagnostic_notes
+    assert "particulate:current" in conditioned.breakdown.diagnostic_notes
 
 
 def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_components() -> None:
@@ -393,6 +444,51 @@ def test_deep_sky_pollution_context_is_not_applied_twice_to_same_target() -> Non
     assert second.breakdown.applied_components == ()
     assert second.breakdown.already_adjusted_flags == ("light_pollution",)
     assert "light_pollution:already_applied" in second.breakdown.diagnostic_notes
+
+
+def test_deep_sky_pollution_context_sets_internal_flag_hidden_from_qml() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    polluted = service.apply_deep_sky_pollution_to_target(target, sky_quality)
+
+    assert "light_pollution" in polluted.target.condition_flags
+    assert "condition_flags" not in polluted.target.to_qml()
+
+
+def test_deep_sky_pollution_context_flag_prevents_reapply_without_text_note() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    polluted = service.apply_deep_sky_pollution_to_target(target, sky_quality)
+    translated_note_target = replace(polluted.target, notes="Localized observing note.")
+    second = service.apply_deep_sky_pollution_to_target(translated_note_target, sky_quality)
+
+    assert second.target == translated_note_target
+    assert second.breakdown.adjusted_score == translated_note_target.score
+    assert second.breakdown.applied_components == ()
+    assert second.breakdown.already_adjusted_flags == ("light_pollution",)
+    assert "light_pollution:already_applied" in second.breakdown.diagnostic_notes
+
+
+def test_legacy_pollution_note_guard_still_prevents_reapply_and_adds_internal_flag() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    target = _target("m31", "M31", "Galaxy", 62)
+    legacy_target = replace(
+        target,
+        notes=f"{ObservationConditionsService.POLLUTION_CONTEXT_NOTE} Local note.",
+    )
+
+    conditioned = service.apply_deep_sky_pollution_to_target(legacy_target, sky_quality)
+
+    assert conditioned.target.score == legacy_target.score
+    assert "light_pollution" in conditioned.target.condition_flags
+    assert conditioned.breakdown.applied_components == ()
+    assert conditioned.breakdown.already_adjusted_flags == ("light_pollution",)
+    assert "light_pollution:already_applied" in conditioned.breakdown.diagnostic_notes
 
 
 def test_condition_target_applies_moon_but_not_pollution_when_pollution_already_applied() -> None:

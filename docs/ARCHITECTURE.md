@@ -145,6 +145,9 @@ Services hold business logic:
   placeholders for future weather/seeing/transparency/equipment inputs.
   It accepts provider-neutral NASA AOD and particulate inputs as diagnostic-only
   data with freshness notes, while keeping their score modifiers neutral.
+  Deep-sky light-pollution conditioning marks targets with an internal condition
+  flag so repeated passes do not reapply the same presentation penalty; the flag
+  is intentionally removed from the QML payload.
   It does not own Planner score aggregation, equipment recommendations,
   best-object selection, OpenAQ or NASA AOD behavior.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.

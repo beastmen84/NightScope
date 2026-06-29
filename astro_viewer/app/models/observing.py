@@ -38,9 +38,11 @@ class CelestialObject:
     recommended_setup_type: str = ""
     setup_options: list[dict] = field(default_factory=list)
     equipment_explanation: str = ""
+    condition_flags: tuple[str, ...] = field(default_factory=tuple, compare=False, repr=False)
 
     def to_qml(self) -> dict:
         data = asdict(self)
+        data.pop("condition_flags", None)
         data["type"] = self.object_type
         data["riseTime"] = self.rise_time
         data["setTime"] = self.set_time
