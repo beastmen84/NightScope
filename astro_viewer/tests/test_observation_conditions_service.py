@@ -165,6 +165,36 @@ def test_condition_target_combined_breakdown_records_existing_components_without
     assert breakdown.pm25_modifier == 0.0
 
 
+def test_condition_targets_batch_matches_individual_conditioning() -> None:
+    targets = [
+        _target("m31", "M31", "Galaxy", 82),
+        _target("m13", "M13", "Globular Cluster", 78),
+        _target("mars", "Marte", "Pianeta", 83),
+    ]
+    inputs = ObservationConditionInputs(moon=_moon("86%"), sky_quality=_sky_quality(bortle=8, radiance=120.0))
+    service = ObservationConditionsService()
+
+    batch = service.condition_targets(
+        targets,
+        inputs,
+        apply_moon=True,
+        apply_pollution=True,
+    )
+    individual = [
+        service.condition_target(
+            target,
+            inputs,
+            apply_moon=True,
+            apply_pollution=True,
+        )
+        for target in targets
+    ]
+
+    assert batch == individual
+    assert [item.original_target for item in batch] == targets
+    assert [item.breakdown.object_id for item in batch] == ["m31", "m13", "mars"]
+
+
 def test_pollution_context_preserves_good_low_radiance_sky() -> None:
     targets = _deep_sky_targets()
     sky_quality = _sky_quality(bortle=4, radiance=8.0)

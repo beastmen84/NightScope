@@ -46,7 +46,10 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
-from astro_viewer.app.services.observation_conditions_service import ObservationConditionsService
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionInputs,
+    ObservationConditionsService,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
@@ -2970,7 +2973,12 @@ class AppController(QObject):
         return item.visibility_class.startswith("Catalogo ")
 
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        return sorted((self._moon_adjusted_object(item) for item in objects), key=lambda item: item.score, reverse=True)
+        conditioned = self._conditions_service.condition_targets(
+            objects,
+            ObservationConditionInputs(moon=self._moon),
+            apply_moon=True,
+        )
+        return sorted((item.target for item in conditioned), key=lambda item: item.score, reverse=True)
 
     def _moon_adjusted_object(self, item: CelestialObject) -> CelestialObject:
         return self._conditions_service.apply_moon_adjustment(item, self._moon).target

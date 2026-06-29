@@ -183,6 +183,24 @@ class ObservationConditionsService:
             original_target=target,
         )
 
+    def condition_targets(
+        self,
+        targets: list[CelestialObject],
+        inputs: ObservationConditionInputs | None = None,
+        *,
+        apply_moon: bool = False,
+        apply_pollution: bool = False,
+    ) -> list[ConditionedTarget]:
+        return [
+            self.condition_target(
+                target,
+                inputs,
+                apply_moon=apply_moon,
+                apply_pollution=apply_pollution,
+            )
+            for target in targets
+        ]
+
     @classmethod
     def deep_sky_pollution_penalty(
         cls,
