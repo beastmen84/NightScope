@@ -208,6 +208,7 @@ class AppController(QObject):
         self._night_plan = []
         self._sky_map = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
+        self._sky_compass_candidate_snapshot: list[CelestialObject] = []
         self._notifications = []
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
@@ -1639,6 +1640,7 @@ class AppController(QObject):
         self._best_object = None
         self._night_plan = []
         self._sky_map = []
+        self._sky_compass_candidate_snapshot = []
         self._set_sky_compass(SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass."))
         self._notifications = []
         self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
@@ -1869,9 +1871,11 @@ class AppController(QObject):
         )
 
     def _refresh_sky_compass(self) -> None:
+        candidates = self._sky_compass_candidates()
+        self._sky_compass_candidate_snapshot = list(candidates)
         self._set_sky_compass(
             self._sky_compass_service.compass(
-                self._sky_compass_candidates(),
+                candidates,
                 self._night_plan,
                 self._best_object,
                 has_location=self._has_valid_location(),
@@ -1884,13 +1888,14 @@ class AppController(QObject):
         try:
             if not self._has_valid_location() or not self._sky_compass.get("available", False):
                 return
-            candidates = self._sky_compass_candidates()
+            candidates = list(getattr(self, "_sky_compass_candidate_snapshot", []))
             if not candidates:
                 return
             position_method = getattr(self._astronomy_engine, "refresh_current_positions", None)
             if not callable(position_method):
                 return
             updated_candidates = position_method(candidates, self._location)
+            self._sky_compass_candidate_snapshot = list(updated_candidates)
             self._set_sky_compass(
                 self._sky_compass_service.compass(
                     updated_candidates,
@@ -1915,7 +1920,11 @@ class AppController(QObject):
         timer = getattr(self, "_sky_compass_live_timer", None)
         if timer is None:
             return
-        should_run = self._has_valid_location() and bool(self._sky_compass.get("available", False))
+        should_run = (
+            self._has_valid_location()
+            and bool(self._sky_compass.get("available", False))
+            and bool(getattr(self, "_sky_compass_candidate_snapshot", []))
+        )
         if should_run:
             if not timer.isActive():
                 timer.start()

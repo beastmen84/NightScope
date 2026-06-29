@@ -71,13 +71,13 @@ timer is `AppController._weather_refresh_timer`, a single-shot `QTimer`.
 
 Sky Compass also has a backend-owned `AppController._sky_compass_live_timer`.
 
-- It runs every 60 seconds only when there is a valid location and an available
-  compass DTO.
+- It runs every 60 seconds only when there is a valid location, an available
+  compass DTO and a stored Sky Compass candidate snapshot.
 - It calls `_refresh_sky_compass_live()`, which marks `LIVE_TICK`, updates only
-  current target altitude/azimuth/direction through the astronomy engine and
-  clears `COMPASS_LIVE` after completion.
+  current target altitude/azimuth/direction from the stored snapshot through the
+  astronomy engine and clears `COMPASS_LIVE` after completion.
 - It does not call the full refresh, weather, VIIRS, NASA AOD, OpenAQ, Planner,
-  equipment or Recommendation Engine paths.
+  equipment, `_sky_compass_candidates()` or Recommendation Engine paths.
 
 No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 `WeatherPage.qml` and calls `refreshWeatherNow()`, which uses
@@ -97,8 +97,8 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
   objects and recomputes observing outputs.
 - NASA AOD completion: updates only the Weather-page display DTO and logs
   status; it does not recompute Home sections.
-- Sky Compass live tick: updates only the Sky Compass DTO from already prepared
-  targets and emits `skyCompassChanged`.
+- Sky Compass live tick: updates only the Sky Compass DTO from the stored
+  candidate snapshot and emits `skyCompassChanged`.
 - Profile/equipment changes: reload profile equipment when needed, recompute
   equipment recommendations and observing outputs, then emit profile-dependent
   signals.
@@ -184,10 +184,11 @@ internal scores.
 
 Sky Compass does not call weather, VIIRS, NASA AOD, OpenAQ, Planner, catalogue
 visibility or Recommendation Engine services; it only consumes the controller
-state already computed for Home. Its live lane is backend-owned: every 60
-seconds, `_refresh_sky_compass_live()` updates only current positional fields
-for the small existing target set, rebuilds the Sky Compass DTO and emits
-`skyCompassChanged`.
+state already computed for Home. Normal Home/Planner refreshes store the
+candidate set in `AppController._sky_compass_candidate_snapshot`. Its live lane
+is backend-owned: every 60 seconds, `_refresh_sky_compass_live()` updates only
+current positional fields for that stored snapshot, rebuilds the Sky Compass DTO
+and emits `skyCompassChanged`.
 
 The QML card renders `controller.skyCompass`. There is no QML timer in v2.
 
@@ -254,10 +255,12 @@ Use separate refresh lanes instead of one global timer:
   visibility as the Solar-System eligibility gate, while catalogue filter/month
   and location changes still invalidate the monthly cache.
 
-The current Sky Compass live lane already applies the fast tick to the small
-target subset returned by `_sky_compass_candidates()`: Home-filtered visible
+The current Sky Compass live lane applies the fast tick to the small candidate
+snapshot produced by the last normal Sky Compass refresh. That normal refresh is
+where `_sky_compass_candidates()` is called to combine Home-filtered visible
 planets, Home-filtered and Moon-adjusted deep-sky objects, the best object and
-current plan objects. It does not rebuild the full catalogue.
+current plan objects. The live tick itself does not call
+`_sky_compass_candidates()` and does not rebuild the full catalogue.
 
 ## Expected Performance Impact
 

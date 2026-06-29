@@ -316,11 +316,13 @@ Sky Compass, seeing/transparency, weather score, observing scores or
 recommendation outputs.
 
 Sky Compass live refresh is controller-owned and runs on a 60-second `QTimer`
-only when a valid location and an available compass DTO exist. The tick uses
+only when a valid location, an available compass DTO and a stored candidate
+snapshot exist. Normal Home/Planner refreshes compute `_sky_compass_candidates()`
+and store the result in `AppController._sky_compass_candidate_snapshot`. The
+live tick never calls `_sky_compass_candidates()`: it uses
 `SkyfieldAstronomyEngine.refresh_current_positions()` to update current
-altitude, azimuth and direction for the small target set returned by
-`_sky_compass_candidates()`. It emits only `skyCompassChanged` and clears
-`COMPASS_LIVE` after the update.
+altitude, azimuth and direction for the stored snapshot, emits only
+`skyCompassChanged` and clears `COMPASS_LIVE` after the update.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart.

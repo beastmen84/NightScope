@@ -1,5 +1,11 @@
 # Changelog
 
+## NightScope 1.2.12 - 2026-06-29
+
+- Aggiunta una snapshot stabile dei candidati di Sky Compass nel controller: il refresh normale continua a costruire il set completo, mentre il tick live riusa solo quella lista.
+- Il live refresh ogni 60 secondi non richiama più `_sky_compass_candidates()` e non riapplica filtri Home, scoring deep-sky corretto per Luna, Planner, meteo, VIIRS, OpenAQ, NASA AOD o equipaggiamento.
+- La corsia live aggiorna solo campi posizionali correnti e si ferma se non esiste una snapshot valida.
+
 ## NightScope 1.2.11 - 2026-06-29
 
 - Attivata la corsia backend live di Sky Compass: un `QTimer` controller-owned ogni 60 secondi aggiorna solo altitudine, azimut e direzione correnti dei target già preparati.

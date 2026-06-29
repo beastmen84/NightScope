@@ -22,6 +22,7 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         controller._refresh_sky_compass_live()
 
         self.assertEqual(engine.calls, 1)
+        controller._sky_compass_candidates.assert_not_called()
         self.assertEqual(controller._refresh_manager.snapshot(), frozenset())
         self.assertIsNone(controller._refresh_manager.reason_for_domain(RefreshDomain.COMPASS_LIVE))
         for domain in (
@@ -56,8 +57,33 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         controller._refresh_sky_compass_live()
 
         self.assertEqual(engine.calls, 1)
+        controller._sky_compass_candidates.assert_not_called()
         for method_name in heavy_methods:
             getattr(controller, method_name).assert_not_called()
+
+    def test_live_refresh_uses_stored_candidate_snapshot(self) -> None:
+        live_target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        stale_current_target = _object("saturn", "Saturno", "Pianeta", "Ovest", 90)
+        controller, engine, _timer = _controller([live_target])
+        controller._sky_compass_candidates = Mock(return_value=[stale_current_target])
+
+        controller._refresh_sky_compass_live()
+
+        controller._sky_compass_candidates.assert_not_called()
+        self.assertEqual([item.id for item in engine.last_objects], ["mars"])
+        self.assertEqual(controller._sky_compass["primaryTargets"][0]["id"], "mars")
+
+    def test_normal_refresh_updates_candidate_snapshot(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, _engine, timer = _controller([])
+        controller._sky_compass_candidates = Mock(return_value=[target])
+
+        controller._refresh_sky_compass()
+
+        controller._sky_compass_candidates.assert_called_once()
+        self.assertEqual(controller._sky_compass_candidate_snapshot, [target])
+        self.assertEqual(controller._sky_compass["primaryTargets"][0]["id"], "mars")
+        self.assertTrue(timer.isActive())
 
     def test_live_refresh_emits_only_sky_compass_signal(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
@@ -83,6 +109,25 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
 
         self.assertEqual(signal_counts, {"sky": 1, "data": 0, "weather": 0, "equipment": 0, "observation": 0})
 
+    def test_live_refresh_updates_positional_fields_only_in_snapshot(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, _engine, _timer = _controller([target])
+
+        controller._refresh_sky_compass_live()
+
+        updated = controller._sky_compass_candidate_snapshot[0]
+        self.assertEqual(updated.id, target.id)
+        self.assertEqual(updated.name, target.name)
+        self.assertEqual(updated.object_type, target.object_type)
+        self.assertEqual(updated.score, target.score)
+        self.assertEqual(updated.recommended_setup, target.recommended_setup)
+        self.assertEqual(updated.best_time, target.best_time)
+        self.assertEqual(updated.observing_window, target.observing_window)
+        self.assertEqual(updated.direction, "Est")
+        self.assertEqual(updated.azimuth, "90 gradi")
+        self.assertEqual(updated.current_altitude, "12.3 gradi")
+        self.assertEqual(updated.current_azimuth, "90.0 gradi")
+
     def test_live_refresh_updates_direction_from_position_engine(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
         controller, _engine, _timer = _controller([target])
@@ -100,8 +145,24 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         controller._refresh_sky_compass_live()
 
         self.assertEqual(engine.calls, 0)
+        controller._sky_compass_candidates.assert_not_called()
         self.assertEqual(controller._refresh_manager.snapshot(), frozenset())
         self.assertEqual(signal_events, [])
+
+    def test_live_refresh_is_safe_without_snapshot(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, engine, timer = _controller([target])
+        controller._sky_compass_candidate_snapshot = []
+        signal_events = []
+        controller.skyCompassChanged.connect(lambda: signal_events.append("sky"))
+
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(engine.calls, 0)
+        controller._sky_compass_candidates.assert_not_called()
+        self.assertEqual(controller._refresh_manager.snapshot(), frozenset())
+        self.assertEqual(signal_events, [])
+        self.assertFalse(timer.isActive())
 
     def test_timer_setup_does_not_create_duplicate_timers(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
@@ -130,6 +191,7 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
 class _PositionEngine:
     def __init__(self) -> None:
         self.calls = 0
+        self.last_objects: list[CelestialObject] = []
 
     def refresh_current_positions(
         self,
@@ -137,6 +199,7 @@ class _PositionEngine:
         _location: ObserverLocation,
     ) -> list[CelestialObject]:
         self.calls += 1
+        self.last_objects = list(objects)
         return [
             replace(
                 item,
@@ -184,6 +247,7 @@ def _controller(candidates: list[CelestialObject]) -> tuple[AppController, _Posi
     controller._deep_sky = []
     controller._sky_compass_candidates = Mock(return_value=candidates)
     controller._sky_compass_caution_text = Mock(return_value="")
+    controller._sky_compass_candidate_snapshot = list(candidates)
     controller._sky_compass = (
         SkyCompassService().compass(candidates, [], controller._best_object, has_location=True)
         if candidates
