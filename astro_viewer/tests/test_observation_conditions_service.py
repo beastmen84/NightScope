@@ -9,7 +9,10 @@ from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTranspare
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
-from astro_viewer.app.services.observation_conditions_service import ObservationConditionsService
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionInputs,
+    ObservationConditionsService,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -38,6 +41,58 @@ def test_moon_adjustment_matches_existing_planner_formula_for_target_types() -> 
             assert breakdown.moon_penalty > 0.0
 
 
+def test_condition_target_neutral_breakdown_uses_identity_placeholders() -> None:
+    service = ObservationConditionsService()
+    target = _target("m13", "M13", "Globular Cluster", 78)
+
+    conditioned = service.condition_target(target)
+    breakdown = conditioned.breakdown
+
+    assert conditioned.target == target
+    assert conditioned.original_target == target
+    assert breakdown.object_id == target.id
+    assert breakdown.base_score == target.score
+    assert breakdown.adjusted_score == target.score
+    assert breakdown.moon_penalty == 0.0
+    assert breakdown.pollution_penalty == 0.0
+    assert breakdown.weather_factor == 1.0
+    assert breakdown.seeing_factor == 1.0
+    assert breakdown.transparency_factor == 1.0
+    assert breakdown.equipment_modifier == 0.0
+    assert breakdown.aod_modifier == 0.0
+    assert breakdown.pm25_modifier == 0.0
+    assert breakdown.applied_components == ()
+    assert "weather:identity_placeholder" in breakdown.diagnostic_notes
+    assert "seeing:identity_placeholder" in breakdown.diagnostic_notes
+    assert "transparency:identity_placeholder" in breakdown.diagnostic_notes
+    assert "equipment:identity_placeholder" in breakdown.diagnostic_notes
+    assert "aod:identity_placeholder" in breakdown.diagnostic_notes
+    assert "pm25:identity_placeholder" in breakdown.diagnostic_notes
+    assert "moon:not_requested" in breakdown.diagnostic_notes
+    assert "light_pollution:not_requested" in breakdown.diagnostic_notes
+    assert breakdown.already_adjusted_flags == ()
+
+
+def test_condition_target_moon_breakdown_matches_previous_implementation() -> None:
+    service = ObservationConditionsService()
+    moon = _moon("86%")
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(moon=moon),
+        apply_moon=True,
+    )
+    breakdown = conditioned.breakdown
+
+    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(target, moon)
+    assert breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, moon)
+    assert conditioned.target == service.apply_moon_adjustment(target, moon).target
+    assert breakdown.applied_components == ("moon",)
+    assert "moon:illumination=86" in breakdown.diagnostic_notes
+    assert "light_pollution:not_requested" in breakdown.diagnostic_notes
+
+
 def test_pollution_context_matches_legacy_high_bortle_behaviour() -> None:
     targets = _deep_sky_targets()
     sky_quality = _sky_quality(bortle=8)
@@ -58,6 +113,56 @@ def test_pollution_context_matches_legacy_high_viirs_behaviour() -> None:
         targets,
         sky_quality,
     )
+
+
+def test_condition_target_pollution_breakdown_matches_previous_implementation() -> None:
+    target = _target("m101", "M101", "Galaxy", 72, magnitude="9.0")
+    sky_quality = _sky_quality(bortle=5, radiance=180.0)
+    service = ObservationConditionsService()
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(sky_quality=sky_quality),
+        apply_pollution=True,
+    )
+    breakdown = conditioned.breakdown
+
+    assert breakdown.pollution_penalty == service.deep_sky_pollution_penalty(target, sky_quality)
+    assert conditioned.target == _legacy_pollution_context([target], sky_quality)[0]
+    assert breakdown.adjusted_score == conditioned.target.score
+    assert breakdown.applied_components == ("light_pollution",)
+    assert "sky_quality:bortle=5" in breakdown.diagnostic_notes
+    assert "sky_quality:viirs=180" in breakdown.diagnostic_notes
+    assert "moon:not_requested" in breakdown.diagnostic_notes
+
+
+def test_condition_target_combined_breakdown_records_existing_components_without_new_penalties() -> None:
+    target = _target("m31", "M31", "Galaxy", 82)
+    moon = _moon("86%")
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    service = ObservationConditionsService()
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(moon=moon, sky_quality=sky_quality),
+        apply_moon=True,
+        apply_pollution=True,
+    )
+    breakdown = conditioned.breakdown
+    moon_adjusted = NightPlannerService.moon_adjusted_score(target, moon)
+    expected_score = max(0, round(moon_adjusted - service.deep_sky_pollution_penalty(target, sky_quality)))
+
+    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(target, moon)
+    assert breakdown.pollution_penalty == service.deep_sky_pollution_penalty(target, sky_quality)
+    assert breakdown.adjusted_score == expected_score
+    assert conditioned.target.score == expected_score
+    assert breakdown.applied_components == ("moon", "light_pollution")
+    assert breakdown.weather_factor == 1.0
+    assert breakdown.seeing_factor == 1.0
+    assert breakdown.transparency_factor == 1.0
+    assert breakdown.equipment_modifier == 0.0
+    assert breakdown.aod_modifier == 0.0
+    assert breakdown.pm25_modifier == 0.0
 
 
 def test_pollution_context_preserves_good_low_radiance_sky() -> None:
@@ -132,7 +237,9 @@ def test_deep_sky_pollution_context_is_not_applied_twice_to_same_target() -> Non
     assert first.target.score < target.score
     assert second.target == first.target
     assert second.breakdown.adjusted_score == first.target.score
-    assert second.breakdown.applied_components == ("light_pollution_already_applied",)
+    assert second.breakdown.applied_components == ()
+    assert second.breakdown.already_adjusted_flags == ("light_pollution",)
+    assert "light_pollution:already_applied" in second.breakdown.diagnostic_notes
 
 
 def test_deep_sky_object_ordering_matches_legacy_pollution_context() -> None:

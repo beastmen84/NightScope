@@ -22,14 +22,23 @@ class TargetConditionBreakdown:
     base_score: int
     moon_penalty: float = 0.0
     pollution_penalty: float = 0.0
+    weather_factor: float = 1.0
+    seeing_factor: float = 1.0
+    transparency_factor: float = 1.0
+    equipment_modifier: float = 0.0
+    aod_modifier: float = 0.0
+    pm25_modifier: float = 0.0
     adjusted_score: int = 0
     applied_components: tuple[str, ...] = ()
+    diagnostic_notes: tuple[str, ...] = ()
+    already_adjusted_flags: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
 class ConditionedTarget:
     target: CelestialObject
     breakdown: TargetConditionBreakdown
+    original_target: CelestialObject | None = None
 
 
 class ObservationConditionsService:
@@ -42,16 +51,10 @@ class ObservationConditionsService:
         target: CelestialObject,
         moon: MoonSummary | None,
     ) -> ConditionedTarget:
-        breakdown = self.moon_adjusted_score(target, moon)
-        if breakdown.adjusted_score == target.score:
-            return ConditionedTarget(target, breakdown)
-        return ConditionedTarget(
-            replace(
-                target,
-                score=breakdown.adjusted_score,
-                score_label=ObservingScoreService.score_label(breakdown.adjusted_score),
-            ),
-            breakdown,
+        return self.condition_target(
+            target,
+            ObservationConditionInputs(moon=moon),
+            apply_moon=True,
         )
 
     def moon_adjusted_score(
@@ -64,12 +67,13 @@ class ObservationConditionsService:
         penalty = self.moon_penalty(target, moon)
         adjusted_score = max(0, min(100, round(base_score - penalty)))
         components = ("moon",) if penalty > 0 else ()
-        return TargetConditionBreakdown(
+        return self._breakdown(
             object_id=target.id,
             base_score=base_score,
             moon_penalty=penalty,
             adjusted_score=adjusted_score,
             applied_components=components,
+            diagnostic_notes=self._placeholder_diagnostics(),
         )
 
     def apply_deep_sky_pollution_context(
@@ -88,48 +92,85 @@ class ObservationConditionsService:
         target: CelestialObject,
         sky_quality: SkyQuality | None,
     ) -> ConditionedTarget:
-        if not self.is_pollution_context_active(sky_quality):
-            return ConditionedTarget(
-                target,
-                TargetConditionBreakdown(
-                    object_id=target.id,
-                    base_score=target.score,
-                    adjusted_score=target.score,
-                ),
-            )
-        if self.has_deep_sky_pollution_context(target):
-            return ConditionedTarget(
-                target,
-                TargetConditionBreakdown(
-                    object_id=target.id,
-                    base_score=target.score,
-                    adjusted_score=target.score,
-                    applied_components=("light_pollution_already_applied",),
-                ),
-            )
+        return self.condition_target(
+            target,
+            ObservationConditionInputs(sky_quality=sky_quality),
+            apply_pollution=True,
+        )
 
-        penalty = self.deep_sky_pollution_penalty(target, sky_quality)
-        score = max(0, round(target.score - penalty))
-        note = target.notes
-        urban_note = self.POLLUTION_CONTEXT_NOTE
-        if urban_note not in note:
-            note = f"{urban_note} {target.notes}"
-        breakdown = TargetConditionBreakdown(
+    def condition_target(
+        self,
+        target: CelestialObject,
+        inputs: ObservationConditionInputs | None = None,
+        *,
+        apply_moon: bool = False,
+        apply_pollution: bool = False,
+    ) -> ConditionedTarget:
+        inputs = inputs or ObservationConditionInputs()
+        score = target.score
+        visible = target.visible
+        notes = target.notes
+        moon_penalty = 0.0
+        pollution_penalty = 0.0
+        applied_components: list[str] = []
+        diagnostic_notes = list(self._placeholder_diagnostics())
+        already_adjusted_flags: list[str] = []
+
+        if apply_moon:
+            moon_penalty = self.moon_penalty(target, inputs.moon)
+            if moon_penalty > 0:
+                applied_components.append("moon")
+                diagnostic_notes.append(f"moon:illumination={self._moon_illumination(inputs.moon):g}")
+            else:
+                diagnostic_notes.append("moon:neutral")
+            score = max(0, min(100, round(score - moon_penalty)))
+        else:
+            diagnostic_notes.append("moon:not_requested")
+
+        if apply_pollution:
+            if not self.is_pollution_context_active(inputs.sky_quality):
+                diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
+                diagnostic_notes.append("light_pollution:inactive")
+            elif self.has_deep_sky_pollution_context(target):
+                already_adjusted_flags.append("light_pollution")
+                diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
+                diagnostic_notes.append("light_pollution:already_applied")
+            else:
+                pollution_penalty = self.deep_sky_pollution_penalty(target, inputs.sky_quality)
+                if pollution_penalty > 0:
+                    applied_components.append("light_pollution")
+                diagnostic_notes.extend(self._sky_quality_diagnostics(inputs.sky_quality))
+                score = max(0, round(score - pollution_penalty))
+                urban_note = self.POLLUTION_CONTEXT_NOTE
+                if urban_note not in notes:
+                    notes = f"{urban_note} {target.notes}"
+                visible = visible and score > 10
+        else:
+            diagnostic_notes.append("light_pollution:not_requested")
+
+        breakdown = self._breakdown(
             object_id=target.id,
             base_score=target.score,
-            pollution_penalty=penalty,
+            moon_penalty=moon_penalty,
+            pollution_penalty=pollution_penalty,
             adjusted_score=score,
-            applied_components=("light_pollution",) if penalty > 0 else (),
+            applied_components=tuple(applied_components),
+            diagnostic_notes=tuple(diagnostic_notes),
+            already_adjusted_flags=tuple(already_adjusted_flags),
         )
+
+        if score == target.score and visible == target.visible and notes == target.notes:
+            return ConditionedTarget(target, breakdown, original_target=target)
         return ConditionedTarget(
             replace(
                 target,
                 score=score,
                 score_label=ObservingScoreService.score_label(score),
-                visible=target.visible and score > 10,
-                notes=note,
+                visible=visible,
+                notes=notes,
             ),
             breakdown,
+            original_target=target,
         )
 
     @classmethod
@@ -193,6 +234,54 @@ class ObservationConditionsService:
         illumination = cls._moon_illumination(moon)
         illumination_factor = max(0.0, min(1.0, (illumination - 25.0) / 75.0))
         return sensitivity * illumination_factor
+
+    @staticmethod
+    def _breakdown(
+        *,
+        object_id: str,
+        base_score: int,
+        moon_penalty: float = 0.0,
+        pollution_penalty: float = 0.0,
+        adjusted_score: int,
+        applied_components: tuple[str, ...] = (),
+        diagnostic_notes: tuple[str, ...] = (),
+        already_adjusted_flags: tuple[str, ...] = (),
+    ) -> TargetConditionBreakdown:
+        return TargetConditionBreakdown(
+            object_id=object_id,
+            base_score=base_score,
+            moon_penalty=moon_penalty,
+            pollution_penalty=pollution_penalty,
+            weather_factor=1.0,
+            seeing_factor=1.0,
+            transparency_factor=1.0,
+            equipment_modifier=0.0,
+            aod_modifier=0.0,
+            pm25_modifier=0.0,
+            adjusted_score=adjusted_score,
+            applied_components=applied_components,
+            diagnostic_notes=diagnostic_notes,
+            already_adjusted_flags=already_adjusted_flags,
+        )
+
+    @staticmethod
+    def _placeholder_diagnostics() -> tuple[str, ...]:
+        return (
+            "weather:identity_placeholder",
+            "seeing:identity_placeholder",
+            "transparency:identity_placeholder",
+            "equipment:identity_placeholder",
+            "aod:identity_placeholder",
+            "pm25:identity_placeholder",
+        )
+
+    @staticmethod
+    def _sky_quality_diagnostics(sky_quality: SkyQuality | None) -> tuple[str, ...]:
+        if not sky_quality:
+            return ("sky_quality:missing",)
+        radiance = sky_quality.viirs_radiance
+        viirs = "missing" if radiance is None else f"{radiance:g}"
+        return (f"sky_quality:bortle={sky_quality.bortle_class}", f"sky_quality:viirs={viirs}")
 
     @staticmethod
     def _moon_illumination(moon: MoonSummary | None) -> float:
