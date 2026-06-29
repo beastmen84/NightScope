@@ -203,6 +203,31 @@ class ObservationConditionsService:
         return penalty
 
     @staticmethod
+    def planner_pollution_penalty(
+        target: CelestialObject,
+        sky_quality: SkyQuality,
+    ) -> float:
+        lower_type = target.object_type.lower()
+        if target.object_type == "Pianeta":
+            return 0.0
+
+        radiance = getattr(sky_quality, "viirs_radiance", None)
+        if radiance is not None:
+            base = min(30.0, math.log10(max(0.0, radiance) + 1.0) * 9.0)
+        else:
+            base = max(0, sky_quality.bortle_class - 4) * 4.0
+
+        if "galaxy" in lower_type or "galassia" in lower_type:
+            base *= 1.65
+        elif "nebula" in lower_type or "nebul" in lower_type:
+            base *= 1.35
+        elif "globular" in lower_type:
+            base *= 1.05
+        elif "open" in lower_type or "cluster" in lower_type:
+            base *= 0.7
+        return base
+
+    @staticmethod
     def deep_sky_pollution_base_penalty(sky_quality: SkyQuality | None) -> float:
         if not sky_quality:
             return 0.0

@@ -306,12 +306,14 @@ def test_planner_moon_score_matches_observation_conditions_service():
     assert planner_breakdown.applied_components == ("moon",)
 
 
-def test_planner_condition_refactor_keeps_pollution_weather_and_difficulty_local():
+def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
     source = inspect.getsource(NightPlannerService._planner_score)
+    pollution_source = inspect.getsource(NightPlannerService._pollution_penalty)
 
     assert "_pollution_penalty" in source
     assert "_weather_factor" in source
     assert "difficulty_factor" in source
+    assert "planner_pollution_penalty" in pollution_source
     assert "apply_pollution" not in source
     assert "deep_sky_pollution" not in source
 
@@ -325,6 +327,23 @@ def test_current_pollution_penalty_boundaries_are_characterized():
     assert NightPlannerService._pollution_penalty(galaxy, _sky_quality(4, radiance=0)) == 0.0
     assert round(NightPlannerService._pollution_penalty(galaxy, _sky_quality(4, radiance=20)), 3) == 19.635
     assert round(NightPlannerService._pollution_penalty(galaxy, _sky_quality(4, radiance=1000)), 3) == 44.556
+
+
+def test_planner_pollution_penalty_matches_observation_conditions_service():
+    targets = [
+        _target("planet", "Pianeta", 79, "Facile", "23:00", "-1.0"),
+        _target("galaxy", "Galaxy", 80, "Media", "21:00", "8.5"),
+        _target("nebula", "Nebula", 78, "Media", "00:30", "7.0"),
+        _target("globular", "Globular Cluster", 76, "Media", "22:00", "5.8"),
+        _target("cluster", "Open Cluster", 76, "Facile", "22:00", "5.0"),
+    ]
+    sky_quality = _sky_quality(8, radiance=20)
+
+    for target in targets:
+        assert NightPlannerService._pollution_penalty(
+            target,
+            sky_quality,
+        ) == ObservationConditionsService.planner_pollution_penalty(target, sky_quality)
 
 
 @pytest.mark.parametrize(

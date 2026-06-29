@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Telescope
@@ -139,25 +138,7 @@ class NightPlannerService:
 
     @staticmethod
     def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
-        lower_type = item.object_type.lower()
-        if item.object_type == "Pianeta":
-            return 0.0
-
-        radiance = getattr(sky_quality, "viirs_radiance", None)
-        if radiance is not None:
-            base = min(30.0, math.log10(max(0.0, radiance) + 1.0) * 9.0)
-        else:
-            base = max(0, sky_quality.bortle_class - 4) * 4.0
-
-        if "galaxy" in lower_type or "galassia" in lower_type:
-            base *= 1.65
-        elif "nebula" in lower_type or "nebul" in lower_type:
-            base *= 1.35
-        elif "globular" in lower_type:
-            base *= 1.05
-        elif "open" in lower_type or "cluster" in lower_type:
-            base *= 0.7
-        return base
+        return ObservationConditionsService.planner_pollution_penalty(item, sky_quality)
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:
