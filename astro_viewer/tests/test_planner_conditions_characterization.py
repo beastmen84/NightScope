@@ -521,6 +521,48 @@ def test_app_controller_home_moon_adjusted_output_remains_characterized():
     ]
 
 
+def test_app_controller_conditioned_cache_matches_existing_moon_adjusted_deep_sky():
+    controller = AppController.__new__(AppController)
+    controller._conditions_service = ObservationConditionsService()
+    controller._moon = _moon(95)
+    controller._visible_planets = [_target("planet", "Pianeta", 79, "Facile", "23:00", "-1.0")]
+    controller._deep_sky = [
+        _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5"),
+        _target("cluster", "Open Cluster", 76, "Facile", "22:00", "5.0"),
+    ]
+
+    expected_deep_sky = controller._moon_adjusted_objects(AppController._home_visible_objects(controller._deep_sky))
+
+    controller._refresh_conditioned_observing_candidates()
+
+    assert controller._conditioned_deep_sky == expected_deep_sky
+    assert controller._conditioned_home_objects == AppController._home_visible_objects(
+        controller._visible_planets
+    ) + expected_deep_sky
+
+
+def test_sky_compass_candidates_use_conditioned_cache_without_reapplying_moon(monkeypatch):
+    controller = AppController.__new__(AppController)
+    controller._conditions_service = ObservationConditionsService()
+    controller._moon = _moon(95)
+    raw_deep_sky = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    conditioned_deep_sky = controller._moon_adjusted_object(raw_deep_sky)
+    controller._visible_planets = []
+    controller._deep_sky = [raw_deep_sky]
+    controller._conditioned_deep_sky = [conditioned_deep_sky]
+    controller._night_plan = []
+    controller._best_object = None
+    monkeypatch.setattr(
+        controller,
+        "_moon_adjusted_objects",
+        lambda _objects: pytest.fail("Sky Compass should use the conditioned candidate cache."),
+    )
+
+    candidates = controller._sky_compass_candidates()
+
+    assert candidates == [conditioned_deep_sky]
+
+
 def test_sky_compass_live_refresh_source_still_avoids_planner_and_scoring_paths():
     source = inspect.getsource(AppController._refresh_sky_compass_live)
 

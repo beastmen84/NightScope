@@ -197,6 +197,8 @@ class AppController(QObject):
         self._visible_planets: list[CelestialObject] = []
         self._solar_system_objects: list[CelestialObject] = []
         self._deep_sky: list[CelestialObject] = []
+        self._conditioned_deep_sky: list[CelestialObject] = []
+        self._conditioned_home_objects: list[CelestialObject] = []
         self._base_solar_system_objects: list[CelestialObject] = []
         self._base_deep_sky: list[CelestialObject] = []
         self._moon = None
@@ -410,7 +412,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def recommendedDeepSky(self) -> list[dict]:
-        return [self._object_to_qml(deep_sky) for deep_sky in self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))]
+        return [self._object_to_qml(deep_sky) for deep_sky in self._conditioned_deep_sky_candidates()]
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueObjects(self) -> list[dict]:
@@ -612,7 +614,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
-        objects = self._home_visible_objects(self._visible_planets)[:2] + self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))[:2]
+        objects = self._home_visible_objects(self._visible_planets)[:2] + self._conditioned_deep_sky_candidates()[:2]
         return [
             {
                 "name": item.name,
@@ -1717,6 +1719,7 @@ class AppController(QObject):
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        self._refresh_conditioned_observing_candidates()
         self._recalculate_observing_outputs()
         self._refresh_local_atmosphere()
         self._schedule_viirs_sky_quality_refresh()
@@ -1852,6 +1855,7 @@ class AppController(QObject):
             self._sky_quality,
             self._moon,
         )
+        self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
         self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
@@ -1937,7 +1941,7 @@ class AppController(QObject):
 
     def _sky_compass_candidates(self) -> list[CelestialObject]:
         candidates = self._home_visible_objects(self._visible_planets)
-        candidates.extend(self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky)))
+        candidates.extend(self._conditioned_deep_sky_candidates())
 
         by_id = {item.id: item for item in self._visible_planets + self._deep_sky}
         seen_ids = {item.id for item in candidates}
@@ -2072,6 +2076,7 @@ class AppController(QObject):
                 self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
                 self._refresh_equipment_recommendations_for_current_objects()
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+                self._refresh_conditioned_observing_candidates()
             except Exception:
                 logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
             self._light_pollution_status = message
@@ -2232,6 +2237,7 @@ class AppController(QObject):
         self._selected_telescope_index = self._initial_telescope_index()
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+        self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
         if self._weather_summary and self._sky_quality:
@@ -2277,6 +2283,7 @@ class AppController(QObject):
             and self._solar_system_monthly_visible_for_home(item)
         ]
         self._deep_sky = self._apply_equipment(deep_sky_source)
+        self._refresh_conditioned_observing_candidates()
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
@@ -2971,6 +2978,18 @@ class AppController(QObject):
     @staticmethod
     def _is_catalogue_detail_object(item: CelestialObject) -> bool:
         return item.visibility_class.startswith("Catalogo ")
+
+    def _refresh_conditioned_observing_candidates(self) -> None:
+        conditioned_deep_sky = self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))
+        self._conditioned_deep_sky = conditioned_deep_sky
+        self._conditioned_home_objects = self._home_visible_objects(self._visible_planets) + conditioned_deep_sky
+
+    def _conditioned_deep_sky_candidates(self) -> list[CelestialObject]:
+        if not hasattr(self, "_conditioned_deep_sky"):
+            self._refresh_conditioned_observing_candidates()
+        if not self._conditioned_deep_sky and self._home_visible_objects(self._deep_sky):
+            self._refresh_conditioned_observing_candidates()
+        return list(self._conditioned_deep_sky)
 
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         conditioned = self._conditions_service.condition_targets(
