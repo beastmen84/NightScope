@@ -133,6 +133,11 @@ Services hold business logic:
   compact processed AOD results for the Weather page `Trasparenza atmosferica`
   section, but remains disconnected from seeing/transparency, Planner,
   Recommendation Engine, Sky Compass and observing scores.
+- `ObservationConditionsService`: equivalence layer for existing observing
+  condition adjustments. In 1.3.0 it owns only Home/Detail Moon-adjusted scores
+  and the existing deep-sky light-pollution context formerly implemented inside
+  `AppController`; Planner, best-object selection, equipment recommendations,
+  OpenAQ and NASA AOD remain unchanged.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant

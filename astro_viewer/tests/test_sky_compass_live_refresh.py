@@ -61,6 +61,17 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         for method_name in heavy_methods:
             getattr(controller, method_name).assert_not_called()
 
+    def test_live_refresh_does_not_use_observation_conditions_service(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, engine, _timer = _controller([target])
+        controller._conditions_service = Mock()
+
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(engine.calls, 1)
+        controller._conditions_service.assert_not_called()
+        self.assertEqual(controller._conditions_service.method_calls, [])
+
     def test_live_refresh_uses_stored_candidate_snapshot(self) -> None:
         live_target = _object("mars", "Marte", "Pianeta", "Sud", 80)
         stale_current_target = _object("saturn", "Saturno", "Pianeta", "Ovest", 90)

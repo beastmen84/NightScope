@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import math
 import re
 from dataclasses import replace
 from datetime import datetime, timedelta
@@ -28,7 +27,6 @@ from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepos
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
-from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.earthdata_credentials import (
@@ -48,6 +46,7 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
+from astro_viewer.app.services.observation_conditions_service import ObservationConditionsService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
@@ -177,6 +176,7 @@ class AppController(QObject):
         )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
+        self._conditions_service = ObservationConditionsService()
         self._night_planner_service = NightPlannerService()
         self._sky_map_service = SkyMapService()
         self._sky_compass_service = SkyCompassService()
@@ -2516,60 +2516,10 @@ class AppController(QObject):
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        if not self._sky_quality:
-            return objects
-        radiance = self._sky_quality.viirs_radiance
-        if radiance is None and self._sky_quality.bortle_class < 7:
-            return objects
-        if radiance is not None and radiance < 20 and self._sky_quality.bortle_class < 7:
-            return objects
-
-        updated = []
-        for item in objects:
-            lower_type = item.object_type.lower()
-            penalty = self._deep_sky_pollution_base_penalty()
-            if "galaxy" in lower_type or "galassia" in lower_type:
-                penalty *= 2.0
-            elif "nebula" in lower_type and "cluster" not in lower_type:
-                penalty *= 1.6
-            elif "globular" in lower_type:
-                penalty *= 1.15
-            elif "open" in lower_type or "cluster" in lower_type:
-                penalty *= 0.55
-            try:
-                magnitude = float(item.magnitude)
-            except ValueError:
-                magnitude = 10.0
-            if magnitude >= 8.5:
-                penalty += 12
-            surface_brightness = TargetObservationTraits.from_object(item).surface_brightness_proxy
-            if surface_brightness and surface_brightness >= 13.5:
-                penalty += 8
-            score = max(0, round(item.score - penalty))
-            note = item.notes
-            urban_note = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
-            if urban_note not in note:
-                note = f"{urban_note} {note}"
-            updated.append(
-                replace(
-                    item,
-                    score=score,
-                    score_label=self._score_service.score_label(score),
-                    visible=item.visible and score > 10,
-                    notes=note,
-                )
-            )
-        return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
+        return self._conditions_service.apply_deep_sky_pollution_context(objects, self._sky_quality)
 
     def _deep_sky_pollution_base_penalty(self) -> float:
-        if not self._sky_quality:
-            return 0.0
-        radiance = self._sky_quality.viirs_radiance
-        bortle_penalty = max(0.0, (self._sky_quality.bortle_class - 6) * 8.0)
-        if radiance is None:
-            return max(6.0, bortle_penalty)
-        radiance_penalty = min(24.0, math.log10(max(0.0, radiance) + 1.0) * 6.0)
-        return max(6.0, bortle_penalty, radiance_penalty)
+        return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
 
     @staticmethod
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
@@ -3023,10 +2973,7 @@ class AppController(QObject):
         return sorted((self._moon_adjusted_object(item) for item in objects), key=lambda item: item.score, reverse=True)
 
     def _moon_adjusted_object(self, item: CelestialObject) -> CelestialObject:
-        score = NightPlannerService.moon_adjusted_score(item, self._moon)
-        if score == item.score:
-            return item
-        return replace(item, score=score, score_label=self._score_service.score_label(score))
+        return self._conditions_service.apply_moon_adjustment(item, self._moon).target
 
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
