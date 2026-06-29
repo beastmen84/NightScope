@@ -272,12 +272,12 @@
         <h2>Provider dati</h2>
         <p>La pagina <strong>Provider dati</strong> raccoglie gli accessi opzionali ai servizi esterni senza mescolarli alla gestione della località.</p>
         <ul>
-          <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble.</li>
+          <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble e NASA MAIAC AOD.</li>
           <li><strong>OpenAQ</strong>: salva e verifica una API key per mostrare l'atmosfera locale nella pagina Meteo.</li>
           <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
           <li>Earthdata include anche <strong>Autorizza app</strong>; OpenAQ usa solo API key, <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
         </ul>
-        <p>OpenAQ alimenta solo la sezione informativa <strong>Atmosfera locale</strong> nella pagina Meteo dopo un test connessione riuscito. Non modifica raccomandazioni, Planner, Sky Compass, seeing, trasparenza o punteggi osservativi.</p>
+        <p>Earthdata alimenta <strong>Qualità cielo locale</strong> con VIIRS Black Marble e, quando disponibile, <strong>Trasparenza atmosferica</strong> con NASA MAIAC AOD. OpenAQ alimenta solo la sezione informativa <strong>Atmosfera locale</strong>. Questi dati non modificano raccomandazioni, Planner, Sky Compass, seeing, trasparenza meteo o punteggi osservativi.</p>
       </article>
 
       <article class="card">
@@ -297,6 +297,7 @@
         <p>La pagina Meteo usa Open-Meteo quando internet è disponibile e mantiene una cache locale per evitare schermate vuote se un refresh fallisce.</p>
           <ul>
             <li>Le schede principali mostrano nuvolosità, pioggia, vento, umidità, temperatura, seeing, trasparenza e Bortle.</li>
+            <li><strong>Trasparenza atmosferica</strong>: se Earthdata è configurato e verificato, mostra AOD NASA MAIAC a 550 nm, prodotto sorgente, data misura, metodo, incertezza e QA raw.</li>
             <li><strong>Atmosfera locale</strong>: se OpenAQ è configurato e verificato, mostra PM2.5, PM10, limpidezza descrittiva, fonte/stazione e freschezza della misura.</li>
             <li>Il dettaglio orario permette di selezionare una fascia e leggere i valori previsti.</li>
             <li>Se non esistono dati iniziali e internet non è disponibile, la pagina indica che il meteo non è disponibile e permette un refresh manuale.</li>
@@ -321,13 +322,14 @@
       </article>
 
       <article class="card">
-        <h2>Earthdata NASA e VIIRS</h2>
-        <p>L'accesso Earthdata è opzionale. Senza credenziali, NightScope usa il fallback locale per la qualità cielo.</p>
+        <h2>Earthdata NASA, VIIRS e AOD</h2>
+        <p>L'accesso Earthdata è opzionale. Senza credenziali, NightScope usa il fallback locale per la qualità cielo e nasconde la sezione AOD.</p>
         <ul>
           <li>Inserisci utente e password Earthdata in <strong>Provider dati</strong>.</li>
           <li>Usa <strong>Test connessione</strong> per verificare LAADS OPeNDAP.</li>
           <li>Se richiesto, usa <strong>Autorizza app</strong>, completa il consenso sul sito NASA e ripeti il test.</li>
         </ul>
+        <p>Con test riuscito, NightScope può recuperare VIIRS Black Marble per la qualità del cielo locale e NASA MAIAC AOD per la sezione <strong>Trasparenza atmosferica</strong>. AOD è un proxy della colonna aerosol, diverso dai PM2.5/PM10 OpenAQ al suolo, e resta informativo.</p>
         <p>Le credenziali vengono salvate nel vault di sistema quando disponibile. La password non viene salvata nel database SQLite.</p>
       </article>
 

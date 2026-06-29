@@ -127,11 +127,12 @@ Services hold business logic:
   capabilities and setup recommendation.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
   NASA VIIRS and offline fallback.
-- `NasaAodProvider`: backend-only NASA MAIAC aerosol lookup using VIIRS primary
-  and MODIS fallback. `AppController` starts it in the background when a valid
-  location exists and Earthdata credentials have a successful connection test.
-  It returns compact processed AOD results and is not wired to Weather UI,
-  seeing/transparency, Planner or recommendation scores yet.
+- `NasaAodProvider`: NASA MAIAC aerosol lookup using VIIRS primary and MODIS
+  fallback. `AppController` starts it in the background when a valid location
+  exists and Earthdata credentials have a successful connection test. It returns
+  compact processed AOD results for the Weather page `Trasparenza atmosferica`
+  section, but remains disconnected from seeing/transparency, Planner,
+  Recommendation Engine, Sky Compass and observing scores.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
@@ -256,10 +257,10 @@ The refresh chain currently recomputes:
 - recommended setups,
 - selected-object setup/detail data.
 
-NASA AOD refresh completion is intentionally diagnostic-only for now. It stores
-the compact processed result internally and logs product/date/value/status, but
-does not recompute Home, Planner, Sky Compass, seeing/transparency, weather
-score, observing scores or recommendation outputs.
+NASA AOD refresh completion updates only the display DTO consumed by the Weather
+page and logs product/date/value/status. It does not recompute Home, Planner,
+Sky Compass, seeing/transparency, weather score, observing scores or
+recommendation outputs.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart.

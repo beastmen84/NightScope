@@ -121,6 +121,31 @@ class NasaAodResult:
     def as_cache_hit(self) -> NasaAodResult:
         return replace(self, status="cache_hit", cache_hit=True)
 
+    def to_qml(self) -> dict[str, object]:
+        has_data = self.available and self.aod_550 is not None
+        return {
+            "visible": self.status != "no_credentials",
+            "hasData": has_data,
+            "status": self.status,
+            "message": self.message,
+            "provider": self.provider,
+            "product": self.product,
+            "productLabel": _product_label(self.product),
+            "aod550": f"{self.aod_550:.3f}" if self.aod_550 is not None else "—",
+            "uncertainty": f"{self.uncertainty:.4f}" if self.uncertainty is not None else "—",
+            "qaRaw": str(self.qa_raw) if self.qa_raw is not None else "—",
+            "acquisitionDate": self.acquisition_date or "—",
+            "granuleId": self.granule_id,
+            "method": self.method,
+            "methodLabel": _method_label(self.method),
+            "localValidPixelCount": self.local_valid_pixel_count or 0,
+            "retrievedAt": self.retrieved_at,
+            "cacheHit": self.cache_hit,
+            "transparency": _interpretation_label(self.interpretation) if has_data else "—",
+            "sourceDetail": _source_detail(self) if has_data else "",
+            "running": False,
+        }
+
 
 class NasaAodClient(Protocol):
     def authenticate(self, username: str, password: str) -> None: ...
@@ -692,6 +717,47 @@ def _interpret_aod(value: float) -> str:
     if value < 0.7:
         return "elevated"
     return "high"
+
+
+def _interpretation_label(value: str) -> str:
+    return {
+        "low": "Molto buona",
+        "moderate": "Buona",
+        "elevated": "Velata",
+        "high": "Aerosol elevati",
+    }.get(value, "—")
+
+
+def _product_label(product: str) -> str:
+    if product == VIIRS_PRODUCT:
+        return "VIIRS MAIAC"
+    if product == MODIS_PRODUCT:
+        return "MODIS MAIAC"
+    return product or "NASA MAIAC"
+
+
+def _method_label(method: str) -> str:
+    if method == "direct_pixel":
+        return "Pixel diretto"
+    if method == "local_neighborhood":
+        return "Area locale 5x5"
+    return method or "—"
+
+
+def _source_detail(result: NasaAodResult) -> str:
+    parts = [_product_label(result.product), result.acquisition_date]
+    if result.method:
+        method = _method_label(result.method)
+        if result.method == "local_neighborhood" and result.local_valid_pixel_count is not None:
+            method = f"{method}, {result.local_valid_pixel_count} pixel validi"
+        parts.append(method)
+    if result.uncertainty is not None:
+        parts.append(f"Incertezza {result.uncertainty:.4f}")
+    if result.qa_raw is not None:
+        parts.append(f"QA {result.qa_raw}")
+    if result.cache_hit:
+        parts.append("Da cache")
+    return " · ".join(part for part in parts if part)
 
 
 def _delete_file(path: Path) -> None:

@@ -482,6 +482,21 @@ class AppController(QObject):
     def localAtmosphere(self) -> dict:
         return self._local_atmosphere.to_qml()
 
+    @Property("QVariant", notify=weatherChanged)
+    def atmosphericTransparency(self) -> dict:
+        if not self._earthdata_credentials_state.connection_verified:
+            result = NasaAodResult.no_credentials().to_qml()
+        else:
+            result = self._nasa_aod_result.to_qml()
+        result["running"] = self._nasa_aod_refresh_running
+        if self._nasa_aod_refresh_running:
+            result["visible"] = True
+        return result
+
+    @Property(bool, notify=weatherChanged)
+    def nasaAodRefreshRunning(self) -> bool:
+        return self._nasa_aod_refresh_running
+
     @Property(bool, notify=weatherChanged)
     def viirsSkyQualityRunning(self) -> bool:
         return self._viirs_sky_quality_running
@@ -911,6 +926,7 @@ class AppController(QObject):
         self._nasa_aod_result = NasaAodResult.no_credentials()
         self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
+        self.weatherChanged.emit()
 
     @Slot()
     def removeEarthdataCredentials(self) -> None:
@@ -919,6 +935,7 @@ class AppController(QObject):
         self._nasa_aod_result = NasaAodResult.no_credentials()
         self._nasa_aod_provider.clear_cache()
         self.earthdataCredentialsChanged.emit()
+        self.weatherChanged.emit()
 
     @Slot()
     def testEarthdataConnection(self) -> None:
@@ -965,6 +982,10 @@ class AppController(QObject):
         if ok:
             self._schedule_viirs_sky_quality_refresh()
             self._schedule_nasa_aod_refresh()
+        else:
+            self._nasa_aod_refresh_running = False
+            self._nasa_aod_result = NasaAodResult.no_credentials()
+            self.weatherChanged.emit()
 
     @Slot(str)
     def saveOpenAQApiKey(self, api_key: str) -> None:
@@ -1887,6 +1908,7 @@ class AppController(QObject):
         if not self._has_valid_location():
             self._nasa_aod_result = NasaAodResult.no_location()
             logger.info("NASA AOD refresh skipped: no valid observing location.")
+            self.weatherChanged.emit()
             return
         if self._nasa_aod_refresh_running:
             logger.info("NASA AOD refresh skipped: refresh already running.")
@@ -1894,16 +1916,19 @@ class AppController(QObject):
         if not self._earthdata_credentials_state.connection_verified:
             self._nasa_aod_result = NasaAodResult.no_credentials()
             logger.info("NASA AOD refresh skipped: Earthdata credentials are not verified.")
+            self.weatherChanged.emit()
             return
 
         location = self._location
         if location is None:
             self._nasa_aod_result = NasaAodResult.no_location()
             logger.info("NASA AOD refresh skipped: no valid observing location.")
+            self.weatherChanged.emit()
             return
 
         location_key = LightPollutionService._location_key(location)
         self._nasa_aod_refresh_running = True
+        self.weatherChanged.emit()
         logger.info(
             "NASA AOD refresh started for %s (lat=%.3f, lon=%.3f).",
             location_key,
@@ -1929,9 +1954,11 @@ class AppController(QObject):
         self._nasa_aod_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             logger.info("NASA AOD refresh result discarded for stale location %s.", location_key)
+            self.weatherChanged.emit()
             return
         if not self._earthdata_credentials_state.connection_verified:
             logger.info("NASA AOD refresh result discarded because Earthdata credentials are no longer verified.")
+            self.weatherChanged.emit()
             return
 
         if isinstance(result, NasaAodResult):
@@ -1939,6 +1966,7 @@ class AppController(QObject):
         else:
             self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
         self._log_nasa_aod_result(self._nasa_aod_result)
+        self.weatherChanged.emit()
 
     @staticmethod
     def _log_nasa_aod_result(result: NasaAodResult) -> None:

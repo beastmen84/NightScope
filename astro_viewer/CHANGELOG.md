@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.2.8 - 2026-06-29
+
+- Aggiunta nella pagina Meteo la sezione display-only `Trasparenza atmosferica`, basata sui risultati NASA MAIAC AOD già recuperati tramite Earthdata.
+- La sezione resta nascosta senza test Earthdata riuscito, mostra un fallback compatto senza località e indica `Recupero dati NASA AOD...` durante il download.
+- Mostrati AOD 550 nm, label descrittiva della trasparenza, data misura, prodotto NASA, metodo di estrazione, incertezza e QA raw senza alimentare punteggi, Planner, Sky Compass o Recommendation Engine.
+
+## NightScope 1.2.7 - 2026-06-29
+
+- Aggiunto retry controllato ai timeout transitori Open-Meteo, mantenendo invariati cache e logica meteo.
+
+## NightScope 1.2.6 - 2026-06-29
+
+- Attivato il refresh backend NASA AOD quando esistono località attiva e credenziali Earthdata verificate, con logging diagnostico del risultato.
+- Il dato AOD restava interno e non veniva ancora mostrato in UI o usato nei punteggi.
+
 ## NightScope 1.2.5 - 2026-06-28
 
 - Aggiunto backend NASA AOD display-only: VIIRS MAIAC `VNP19A2.002` come sorgente primaria e MODIS MAIAC `MCD19A2.061` come fallback.

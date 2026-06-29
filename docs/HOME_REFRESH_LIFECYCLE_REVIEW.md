@@ -40,8 +40,9 @@ Additional refresh branches update subsets of the same state:
   timed weather refreshes.
 - `_finish_viirs_sky_quality_refresh()` updates sky quality and recomputes
   deep-sky context when remote VIIRS data arrives.
-- `_finish_nasa_aod_refresh()` stores a diagnostic backend-only aerosol result
-  and logs status/details without recomputing Home presentation state.
+- `_finish_nasa_aod_refresh()` stores the display-only aerosol result for the
+  Weather page and logs status/details without recomputing Home presentation
+  state.
 - `_refresh_active_profile_dependencies()` recomputes equipment-dependent
   recommendations after profile/equipment changes.
 - `selectCity()`, `selectRecentLocation()`, `setManualLocation()`,
@@ -76,7 +77,7 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
   cache.
 - VIIRS completion: updates sky quality, reloads/re-contextualizes deep-sky
   objects and recomputes observing outputs.
-- NASA AOD completion: updates only the internal diagnostic AOD result and logs
+- NASA AOD completion: updates only the Weather-page display DTO and logs
   status; it does not recompute Home sections.
 - Profile/equipment changes: reload profile equipment when needed, recompute
   equipment recommendations and observing outputs, then emit profile-dependent
@@ -227,8 +228,8 @@ Use separate refresh lanes instead of one global timer:
   credential changes. It should update sky quality and mark recommendation
   state dirty.
 - NASA AOD refresh: keep event-driven asynchronous refresh after location or
-  verified Earthdata credential changes. Until AOD becomes user-visible or
-  score-relevant, completion should remain diagnostic-only.
+  verified Earthdata credential changes. The visible Weather card should remain
+  display-only; score integration would require a separate design pass.
 - Calendar/events refresh: daily, on location change, and on app startup. Events
   are date-scale data and should not participate in the fast tick.
 - Catalogue monthly visibility: keep the calculation independent from scoring,

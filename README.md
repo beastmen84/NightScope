@@ -15,6 +15,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
 - Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
+- Sezione Meteo `Trasparenza atmosferica` con AOD NASA MAIAC opzionale da Earthdata, display-only e separata da OpenAQ.
 - Sezione Meteo `Atmosfera locale` con dati OpenAQ opzionali e display-only per PM2.5, PM10, limpidezza, fonte e freschezza della misura.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
@@ -27,15 +28,14 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.2.7`.
+Versione corrente: `1.2.8`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
 - dati VIIRS NASA, perché dipendono da connessione, credenziali Earthdata e disponibilità LAADS;
-- backend NASA AOD sperimentale, attivato in background quando posizione ed Earthdata verificato sono disponibili,
-  ma non ancora esposto in UI o usato nei punteggi;
+- dati NASA AOD sperimentali nella sezione Meteo `Trasparenza atmosferica`: sono informativi, dipendono da disponibilità MAIAC/cloud mask e non alimentano ancora punteggi o raccomandazioni;
 - OpenAQ, opzionale e usato solo per mostrare dati locali PM2.5/PM10 nella pagina Meteo; la freschezza della misura decide se il dato può essere presentato come attuale;
 - qualità dei cataloghi strumenti, da verificare sempre per varianti regionali e modelli commerciali specifici;
 - descrizioni e note osservative, che possono essere arricchite nel tempo.
@@ -183,6 +183,7 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 - `dist/`, `build/`, `logs/`, cache Python e report generati non sono parte del repository.
 - `nasa_login.txt` non deve essere committato.
 - Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
+- Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Trasparenza atmosferica` da NASA MAIAC AOD. Il dato resta display-only e non modifica Recommendation Engine, Planner, Sky Compass, seeing, trasparenza meteo o punteggi.
 - La API key OpenAQ viene salvata tramite vault di sistema quando disponibile; dopo un test connessione riuscito, la pagina Meteo la usa solo per la sezione informativa `Atmosfera locale`, mai per Recommendation Engine, Planner, Sky Compass, seeing, trasparenza o punteggi. Misure OpenAQ storiche non vengono presentate come condizioni atmosferiche attuali.
 - PyInstaller è il percorso di build supportato.
 

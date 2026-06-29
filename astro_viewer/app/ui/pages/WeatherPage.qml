@@ -174,6 +174,47 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
+                visible: controller.atmosphericTransparency.visible
+                title: "Trasparenza atmosferica"
+                subtitle: "NASA MAIAC AOD"
+                accentColor: controller.atmosphericTransparency.running ? theme.cyan : controller.atmosphericTransparency.hasData ? theme.green : theme.amber
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    visible: controller.atmosphericTransparency.hasData
+                    columns: root.width > 980 ? 4 : 2
+                    columnSpacing: 12
+                    rowSpacing: 12
+
+                    MetricTile { label: "AOD 550 nm"; value: controller.atmosphericTransparency.aod550; accentColor: theme.cyan }
+                    MetricTile { label: "Trasparenza"; value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
+                    MetricTile { label: "Misura"; value: controller.atmosphericTransparency.acquisitionDate; accentColor: theme.amber }
+                    MetricTile { label: "Fonte"; value: controller.atmosphericTransparency.productLabel; accentColor: theme.violet }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.atmosphericTransparency.sourceDetail.length > 0
+                    text: controller.atmosphericTransparency.sourceDetail
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    visible: controller.atmosphericTransparency.running || !controller.atmosphericTransparency.hasData
+                    text: controller.atmosphericTransparency.running ? "Recupero dati NASA AOD..." : controller.atmosphericTransparency.message
+                    color: controller.atmosphericTransparency.running ? theme.cyan : theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
                 visible: controller.localAtmosphere.visible
                 title: "Atmosfera locale"
                 subtitle: "OpenAQ"

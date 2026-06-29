@@ -11,6 +11,7 @@ from unittest.mock import patch
 import h5py
 import netCDF4
 import numpy as np
+from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
@@ -114,6 +115,32 @@ class FakeExtractor:
 
 
 class NasaAodProviderTests(unittest.TestCase):
+    def test_success_result_exposes_display_ready_qml_fields(self) -> None:
+        result = NasaAodResult.ok(
+            product=VIIRS_MAIAC_AOD.product_id,
+            extraction=NasaAodExtraction(0.658, 0.0185, 1089, "local_neighborhood", 3),
+            granule=_granule(VIIRS_MAIAC_AOD, "granule-valid", date(2026, 6, 22)),
+            retrieved_at=_clock(),
+        )
+
+        qml = result.to_qml()
+
+        self.assertTrue(qml["visible"])
+        self.assertTrue(qml["hasData"])
+        self.assertEqual(qml["aod550"], "0.658")
+        self.assertEqual(qml["transparency"], "Velata")
+        self.assertEqual(qml["productLabel"], "VIIRS MAIAC")
+        self.assertEqual(qml["methodLabel"], "Area locale 5x5")
+        self.assertIn("3 pixel validi", qml["sourceDetail"])
+        self.assertFalse(qml["running"])
+
+    def test_no_credentials_qml_hides_atmospheric_transparency_section(self) -> None:
+        qml = NasaAodResult.no_credentials().to_qml()
+
+        self.assertFalse(qml["visible"])
+        self.assertFalse(qml["hasData"])
+        self.assertEqual(qml["message"], "Credenziali Earthdata non configurate o non verificate.")
+
     def test_no_location_returns_no_location_without_network(self) -> None:
         client = FakeNasaClient()
         provider = NasaAodProvider(FakeCredentials(), client=client, extractor=FakeExtractor({}), clock=_clock)
@@ -242,6 +269,23 @@ class NasaAodProviderTests(unittest.TestCase):
 
 
 class NasaAodControllerRefreshTests(unittest.TestCase):
+    def test_atmospheric_transparency_is_hidden_without_verified_earthdata(self) -> None:
+        controller = _aod_controller(verified=False)
+
+        qml = controller.atmosphericTransparency
+
+        self.assertFalse(qml["visible"])
+        self.assertFalse(qml["running"])
+
+    def test_atmospheric_transparency_requires_location_after_earthdata_verification(self) -> None:
+        controller = _aod_controller(location=None, verified=True)
+
+        qml = controller.atmosphericTransparency
+
+        self.assertTrue(qml["visible"])
+        self.assertFalse(qml["hasData"])
+        self.assertEqual(qml["status"], "no_location")
+
     def test_refresh_is_skipped_without_location(self) -> None:
         controller = _aod_controller(location=None, verified=True)
 
@@ -265,6 +309,8 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
 
     def test_refresh_starts_background_lookup_when_location_and_credentials_are_ready(self) -> None:
         controller = _aod_controller(verified=True)
+        emissions: list[bool] = []
+        controller.weatherChanged.connect(lambda: emissions.append(True))
 
         with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
             with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
@@ -273,10 +319,14 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         thread_cls.assert_called_once()
         thread_cls.return_value.start.assert_called_once()
         self.assertTrue(controller._nasa_aod_refresh_running)
+        self.assertTrue(controller.atmosphericTransparency["running"])
+        self.assertEqual(len(emissions), 1)
         self.assertIn("NASA AOD refresh started", "\n".join(logs.output))
 
     def test_finished_refresh_stores_and_logs_result(self) -> None:
         controller = _aod_controller(verified=True)
+        emissions: list[bool] = []
+        controller.weatherChanged.connect(lambda: emissions.append(True))
         result = NasaAodResult.ok(
             product=VIIRS_MAIAC_AOD.product_id,
             extraction=NasaAodExtraction(0.18, 0.01, 4, "direct_pixel"),
@@ -290,6 +340,8 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
 
         self.assertFalse(controller._nasa_aod_refresh_running)
         self.assertIs(controller._nasa_aod_result, result)
+        self.assertEqual(len(emissions), 1)
+        self.assertEqual(controller.atmosphericTransparency["aod550"], "0.180")
         self.assertIn("NASA AOD refresh ok", "\n".join(logs.output))
         self.assertIn("granule-valid", "\n".join(logs.output))
 
@@ -444,6 +496,7 @@ def _aod_controller(
     provider: _FakeControllerAodProvider | None = None,
 ):
     controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
     controller._location = location
     controller._earthdata_credentials_state = EarthdataCredentialState(
         username="earth-user",

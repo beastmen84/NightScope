@@ -487,9 +487,10 @@ Known limitations:
 
 ## NASA AOD Provider Backend
 
-`NasaAodProvider` is a backend-only satellite aerosol data provider. It is not
-currently exposed in QML and is not used by Recommendation Engine, Planner, Sky
-Compass, seeing, transparency, weather score or observing scores.
+`NasaAodProvider` is a satellite aerosol data provider for the Weather page
+`Trasparenza atmosferica` section. It is display-only and is not used by
+Recommendation Engine, Planner, Sky Compass, seeing, transparency, weather score
+or observing scores.
 
 Product order:
 
@@ -534,10 +535,10 @@ Current limitations:
 
 - QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
   these values are used operationally for scoring.
-- The provider result is currently diagnostic-only. Successful and failed
+- The provider result is exposed only in the Weather page. Successful and failed
   lookups are logged with status, product, acquisition date, AOD value, method
-  and cache-hit information, but no Weather UI, Planner, Sky Compass or
-  recommendation output consumes the value yet.
+  and cache-hit information, but Planner, Sky Compass and recommendation outputs
+  do not consume the value.
 - MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed
   on the current Windows development environment, but distribution size and
   native dependency behavior should remain monitored.
