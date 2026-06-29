@@ -518,6 +518,13 @@ Planner items receive the `recommended_setup` already attached to
 `CelestialObject` after `AppController._apply_equipment()` has run. Planner
 ranking itself is not yet fully configuration-aware.
 
+Planner ranking math is isolated in `PlannerScoringService`. It owns the
+Planner-specific score aggregation, weather factor, difficulty factor and
+Planner light-pollution penalty, while reusing shared Moon-condition primitives
+from `ObservationConditionsService`. `NightPlannerService` remains responsible
+for weather blocking, candidate selection, duplicate-name suppression and
+chronological plan presentation.
+
 ## Profile Capabilities
 
 The profile telescope capability section now derives its available telescope
@@ -560,8 +567,9 @@ telescope/binocular scorer classes while preserving the same
 Severity: Medium.
 
 Planner recommendation text comes from the profile-aware path, but Planner
-ranking still primarily reflects object/weather/moon visibility logic. It does
-not yet rank observing plans by best available `ObservationConfiguration`.
+ranking still primarily reflects object/weather/moon/sky-quality logic. The
+math is now isolated in `PlannerScoringService`, but it does not yet rank
+observing plans by best available `ObservationConfiguration`.
 
 ### QML Must Remain Presentation-Only
 

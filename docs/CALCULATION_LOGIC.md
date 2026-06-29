@@ -139,10 +139,14 @@ The Moon implementation includes:
 - advanced-score contribution,
 - object-dependent deep-sky penalty in planning and presentation.
 
-Object-dependent Moon sensitivity is implemented in `NightPlannerService`.
-Planets, the Moon and the Sun have no Moon penalty. Diffuse objects and
-galaxies are penalized more strongly. Globular clusters are penalized less.
-Open clusters are penalized lightly.
+Object-dependent Moon sensitivity is implemented in
+`ObservationConditionsService`. Planets, the Moon and the Sun have no Moon
+penalty. Diffuse objects and galaxies are penalized more strongly. Globular
+clusters are penalized less. Open clusters are penalized lightly.
+
+`PlannerScoringService` reuses the same Moon-condition primitive, but owns how
+that penalty is combined with Planner-specific weather, difficulty, aperture
+and light-pollution factors.
 
 Known limitations:
 
@@ -330,9 +334,10 @@ Deep-sky recommendations depend on:
 - field-of-view and exit-pupil suitability.
 
 Galaxies are penalized more than globular clusters under strong moonlight.
-Current Moon sensitivity in planning is higher for galaxies than for globular
-clusters. Light-pollution presentation filtering also uses a stronger galaxy
-multiplier than globular clusters.
+Current Moon sensitivity is shared through `ObservationConditionsService`.
+Light-pollution presentation filtering also uses a stronger galaxy multiplier
+than globular clusters, while Planner-specific light-pollution ranking remains
+owned by `PlannerScoringService`.
 
 Medium globular clusters such as M5, M92 and M15 keep the `General` observation
 mode but receive a target-profile bias toward medium magnification. This avoids
@@ -344,6 +349,9 @@ such as M24, M31, M44 and M45 low-power friendly.
 `NightPlannerService.plan` first blocks the plan if weather is unusable. If not
 blocked, it selects visible objects with useful observing windows, falling back
 to visible scored objects when no useful-window candidates exist.
+
+Planner ranking math is owned by `PlannerScoringService`; `NightPlannerService`
+orchestrates selection and chronological display of the final plan.
 
 Planner score:
 

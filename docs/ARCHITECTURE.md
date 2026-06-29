@@ -121,8 +121,13 @@ Services hold business logic:
 - `AdvancedObservingService`: separate planetary and deep-sky quality scores.
 - `SeeingTransparencyService`: seeing/transparency estimation from forecast
   fields and sky quality.
-- `NightPlannerService`: ordered observing plan, weather blocking, Moon and
-  light-pollution penalties.
+- `NightPlannerService`: ordered observing plan, weather blocking and
+  chronological plan presentation. It delegates Planner ranking math to
+  `PlannerScoringService`.
+- `PlannerScoringService`: Planner-specific score aggregation, diagnostic
+  breakdown, weather factor, difficulty factor and Planner-specific
+  light-pollution penalty. It reuses shared Moon-condition primitives from
+  `ObservationConditionsService`.
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
@@ -133,11 +138,13 @@ Services hold business logic:
   compact processed AOD results for the Weather page `Trasparenza atmosferica`
   section, but remains disconnected from seeing/transparency, Planner,
   Recommendation Engine, Sky Compass and observing scores.
-- `ObservationConditionsService`: equivalence layer for existing observing
-  condition adjustments. In 1.3.0 it owns only Home/Detail Moon-adjusted scores
-  and the existing deep-sky light-pollution context formerly implemented inside
-  `AppController`; Planner, best-object selection, equipment recommendations,
-  OpenAQ and NASA AOD remain unchanged.
+- `ObservationConditionsService`: shared equivalence layer for observing
+  condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
+  deep-sky light-pollution context formerly implemented inside `AppController`,
+  batch conditioning for Home/Sky Compass candidates and neutral diagnostic
+  placeholders for future weather/seeing/transparency/equipment/AOD/PM inputs.
+  It does not own Planner score aggregation, equipment recommendations,
+  best-object selection, OpenAQ or NASA AOD behavior.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
@@ -179,9 +186,11 @@ Home recommendation flow:
 
 1. Astronomy engine produces base objects.
 2. `AppController` applies active-profile equipment recommendations.
-3. Deep-sky objects may be adjusted by light-pollution and Moon context.
+3. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
+   Moon context through `ObservationConditionsService`.
 4. `ObservingScoreService` selects the best object.
-5. `NightPlannerService` produces the observing plan unless weather is blocking.
+5. `NightPlannerService` produces the observing plan unless weather is
+   blocking, using `PlannerScoringService` for Planner-specific ranking.
 6. `AppController` exposes the centralized blocking state to QML.
 7. QML presents the plan, a global "Sessione da monitorare" warning with a
    potential observing window, or a full "Sessione sconsigliata" warning when
@@ -391,8 +400,14 @@ The following duplication or concentration of responsibility should be tracked:
 - Night-hour selection is repeated in observing score, seeing estimation and
   home weather digest logic with slightly different ranges.
 - Moon parsing from string percentages is repeated in multiple services.
-- Light-pollution/Moon penalties for deep-sky ranking appear in both
-  `NightPlannerService` and `AppController` presentation filtering.
+- Light-pollution handling intentionally has two current contexts:
+  Home/Detail deep-sky presentation context in `ObservationConditionsService`
+  and Planner-specific ranking penalty in `PlannerScoringService`. These
+  formulas are behavior-preserving and should not be merged without dedicated
+  equivalence tests.
+- Moon sensitivity is centralized in `ObservationConditionsService`, while
+  `PlannerScoringService` owns how that penalty is combined with Planner
+  weather, difficulty and aperture factors.
 - `AppController` is oversized and mixes controller, presenter and orchestration
   responsibilities.
 - `HomePage.qml` is also large and contains non-trivial presentation decisions.
@@ -416,7 +431,8 @@ For future changes:
 - When changing weather blocking thresholds, update
   `NightPlannerService.weather_blocking_status` and keep QML as a renderer of
   controller state.
-- When changing Moon or light-pollution logic, verify galaxy, nebula, globular
-  cluster and open-cluster ranking separately.
+- When changing Moon or light-pollution logic, verify Home/Detail conditioned
+  objects and Planner ranking separately for galaxies, nebulae, globular
+  clusters and open clusters.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.
