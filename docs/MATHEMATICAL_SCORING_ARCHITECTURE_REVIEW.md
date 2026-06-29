@@ -54,7 +54,7 @@ The Observer
     -> Observer Capability
     -> Practical Target Value
 
-Session Viability
+Observation Opportunity
     -> Planner
     -> Presentation
 
@@ -73,9 +73,13 @@ Recommended terminology:
   guidance surfaces after intrinsic target quality meets the observation
   environment. It is objective for the same target under the same sky.
 - `Observer Capability`: how much of the observable target this specific
-  observer can exploit.
+  observer can exploit, represented as a structured capability profile rather
+  than a single scalar.
 - `Practical Target Value`: the value a specific observer can realistically use
   after objective observability meets observer capability.
+- `Observation Opportunity`: a concrete candidate for planning that combines
+  practical target value, observing window, chronology, session viability,
+  practical constraints and confidence annotations.
 
 This is intentionally stronger than "conditioned score". The goal is to model
 the physical observation, not to modify an arbitrary score.
@@ -134,9 +138,9 @@ Examples:
 - future experience level;
 - future personal preferences.
 
-This produces `ObserverCapability` and `PracticalTargetValue`. Two observers
-under the same sky can legitimately receive the same `ObservableTargetValue`
-and different `PracticalTargetValue`.
+This produces a structured `ObserverCapability` profile and
+`PracticalTargetValue`. Two observers under the same sky can legitimately
+receive the same `ObservableTargetValue` and different `PracticalTargetValue`.
 
 ## 1. Current Scoring Pipeline
 
@@ -204,7 +208,7 @@ The recommended model is a layered physical model with explicit ownership.
 4. Observable target value
 5. Observer capability
 6. Practical target value
-7. Session viability
+7. Observation opportunity
 8. Planner sequencing and practical ranking
 9. Presentation
 
@@ -245,8 +249,10 @@ Intrinsic Target + Observation Environment
 Observable Target Value + Observer Capability
     -> Practical Target Value
 
-Practical Target Value
-    -> Session Viability
+Practical Target Value + window + session + constraints
+    -> Observation Opportunity
+
+Observation Opportunity
     -> Planner
     -> Presentation
 
@@ -420,7 +426,18 @@ Inputs:
 Output:
 
 ```text
-ObserverCapability Q in [0, 1]
+ObserverCapabilityProfile
+    light_grasp
+    resolution
+    field_of_view
+    magnification_range
+    tracking_or_goto
+    automation_or_eaa
+    filters
+    experience_level
+    observing_style
+    practical_comfort
+
 ObserverCapabilityBreakdown
 EquipmentRecommendation
 ```
@@ -428,6 +445,10 @@ EquipmentRecommendation
 Equipment is only the first implemented part of observer capability. This layer
 is fundamentally different from the sky. Two observers under the same sky can
 obtain very different results from the same `ObservableTargetValue`.
+
+`ObserverCapability` is conceptually multidimensional. It may eventually expose
+a scalar summary for Planner, but that scalar is a projection of the capability
+profile, not the capability itself.
 
 Examples:
 
@@ -453,13 +474,18 @@ Purpose: combine objective observable value with this observer's capability.
 Recommended future shape:
 
 ```text
-PracticalTargetValue P = O * Q
+ObserverCapabilitySummary Q_target =
+    project(ObserverCapabilityProfile, target_requirements)
+
+PracticalTargetValue P = O * Q_target
 ```
 
 Where:
 
 - `O` is objective observable target value under the current sky;
-- `Q` is observer capability for this target;
+- `ObserverCapabilityProfile` is multidimensional;
+- `Q_target` is a target-specific summary of that profile when a scalar is
+  needed;
 - `P` is the practical value for this observer;
 - `P` does not include session viability or confidence.
 
@@ -475,7 +501,37 @@ It does not answer:
 How observable is this target under the sky?
 ```
 
-### 3.7 Seeing Position in the Model
+### 3.7 Observation Opportunity
+
+Owner: `PlannerScoringService` should build and rank this concept; upstream
+services provide its ingredients.
+
+Purpose: represent one concrete thing the Planner can choose.
+
+Planner should not rank abstract targets directly. It should rank observing
+opportunities:
+
+```text
+ObservationOpportunity
+    target
+    PracticalTargetValue
+    observing_window_quality
+    chronology
+    SessionViability
+    practical_constraints
+    RecommendationConfidence annotations
+```
+
+This is the first layer that can legitimately combine target, observer, time
+and session. It answers:
+
+```text
+Is this a good opportunity for this observer during this session?
+```
+
+It does not recompute the Universe, the Sky or the Observer.
+
+### 3.8 Seeing Position in the Model
 
 Seeing should not be treated as a general effective-observability modifier.
 
@@ -498,7 +554,7 @@ Recommended ownership:
 This keeps seeing physically meaningful and avoids reducing large targets for a
 phenomenon that mainly affects resolution.
 
-### 3.8 Session Viability
+### 3.9 Session Viability
 
 Owner: `ObservingScoreService`, with future cleanup.
 
@@ -535,7 +591,7 @@ Session viability: poor due to rain
 Confidence: high/low depending on data freshness
 ```
 
-### 3.9 Recommendation Confidence
+### 3.10 Recommendation Confidence
 
 Owner: each subsystem owns its own confidence contribution; a later aggregator
 combines them into overall recommendation confidence.
@@ -595,13 +651,13 @@ Confidence: 41%
 The score is independent. Confidence should primarily affect presentation,
 caution text and user trust, not the physical target value.
 
-### 3.10 Planner Ranking
+### 3.11 Planner Ranking
 
 Owner: `PlannerScoringService`.
 
-Purpose: answer "what should I observe, and in what order?".
+Purpose: select and order observation opportunities.
 
-Planner should combine:
+Planner consumes `ObservationOpportunity` items that already combine:
 
 - practical target value;
 - useful observing window quality;
@@ -611,19 +667,20 @@ Planner should combine:
 - practical difficulty;
 - observing-window practicality.
 
-Planner should not reapply Moon, light pollution, AOD or PM if those have
-already been applied by `ObservationConditionsService`.
+Planner should not rank raw targets directly, and it should not reapply Moon,
+light pollution, AOD or PM if those have already been represented upstream.
 
 Recommended future shape:
 
 ```text
-TargetPlanValue =
-    P * target_weight
-    + WindowQuality * window_weight
-    + Practicality * practicality_weight
+ObservationOpportunityValue =
+    PracticalTargetValue * target_weight
+    + observing_window_quality * window_weight
+    + chronology_fit * chronology_weight
+    + practical_constraints * practicality_weight
 
 PlannerOutput =
-    select/order targets by TargetPlanValue
+    select/order ObservationOpportunity items
     annotate with SessionViability S
     annotate with RecommendationConfidence K
 ```
@@ -631,11 +688,12 @@ PlannerOutput =
 If session viability is very poor, Planner may block or downgrade the session
 state, but the target's observable value remains interpretable.
 
-Chronological display should remain a presentation step after target selection.
+Chronological display should remain a presentation step after opportunity
+selection.
 
-Planner should consume `PracticalTargetValue`; it should not reconstruct Moon,
-sky brightness, AOD, PM, transparency or observer capability itself. Planner
-answers:
+Planner should consume `ObservationOpportunity`; it should not reconstruct Moon,
+sky brightness, AOD, PM, transparency, observer capability or practical target
+value itself. Planner answers:
 
 ```text
 What should I observe first?
@@ -653,7 +711,7 @@ Observer capability belongs to `EquipmentService` today and to a future
 observer-capability layer if NightScope adds experience level, smart telescope
 automation, preferences or other personalization.
 
-### 3.11 Presentation
+### 3.12 Presentation
 
 Owners: `RecommendationPresenter`, QML.
 
@@ -682,7 +740,8 @@ strings.
 | Experience level | observer-related | future observer capability service | future observer capability component |
 | Observing style/preferences | observer-related | future observer capability service | future personalization component |
 | Difficulty | observer/planner-related | planner scoring / presenter | practicality, not raw object score |
-| Planner chronology | planner-related | planner service | display order after selection |
+| Observing window | opportunity-related | planner service | `ObservationOpportunity` component |
+| Planner chronology | opportunity/planner-related | planner service | opportunity selection and display order |
 | Sky Compass direction | presentation/guidance | sky compass service | direction grouping, not new target scoring |
 | Provider freshness | confidence | source owner plus conditions/session DTOs | confidence, not score |
 
@@ -979,8 +1038,9 @@ Atmospheric transparency component = 0.95
 EffectiveObservability E = 1.00 * 0.78 * 0.86 * 0.95 = 0.64
 ObservableTargetValue O = 82 * 0.64 = 52.5
 
-ObserverCapability Q = 0.82 for the active profile
+ObserverCapability profile summary Q_target = 0.82 for the active profile
 PracticalTargetValue P = 52.5 * 0.82 = 43.1
+ObservationOpportunity value = P plus window/session/practical context
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -1006,8 +1066,9 @@ Seeing-sensitive detail component = 0.90
 EffectiveObservability E = 1.00 * 1.00 * 1.00 * 0.99 * 0.90 = 0.89
 ObservableTargetValue O = 88 * 0.89 = 78.3
 
-ObserverCapability Q = 0.90 for a telescope profile with useful magnification
+ObserverCapability profile summary Q_target = 0.90 for a telescope profile with useful magnification
 PracticalTargetValue P = 78.3 * 0.90 = 70.5
+ObservationOpportunity value = P plus window/session/practical context
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -1030,8 +1091,9 @@ Atmospheric transparency component = 0.98
 EffectiveObservability E = 1.00 * 0.91 * 0.93 * 0.98 = 0.83
 ObservableTargetValue O = 78 * 0.83 = 64.7
 
-ObserverCapability Q = 0.88
+ObserverCapability profile summary Q_target = 0.88
 PracticalTargetValue P = 64.7 * 0.88 = 56.9
+ObservationOpportunity value = P plus window/session/practical context
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -1053,8 +1115,9 @@ Atmospheric transparency component = 0.93
 EffectiveObservability E = 1.00 * 0.76 * 0.82 * 0.93 = 0.58
 ObservableTargetValue O = 84 * 0.58 = 48.7
 
-ObserverCapability Q = 0.75 without a suitable filter / EAA aid
+ObserverCapability profile summary Q_target = 0.75 without a suitable filter / EAA aid
 PracticalTargetValue P = 48.7 * 0.75 = 36.5
+ObservationOpportunity value = P plus window/session/practical context
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -1076,8 +1139,9 @@ Atmospheric transparency component = 1.00
 EffectiveObservability E = 1.00
 ObservableTargetValue O = 95
 
-ObserverCapability Q = 0.95
+ObserverCapability profile summary Q_target = 0.95
 PracticalTargetValue P = 90.3
+ObservationOpportunity value = P plus window/session/practical context
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -1093,8 +1157,9 @@ Raw astronomical score A = 82
 EffectiveObservability E = 0.64
 ObservableTargetValue O = 52.5
 
-ObserverCapability Q = 0.82
+ObserverCapability profile summary Q_target = 0.82
 PracticalTargetValue P = 43.1
+ObservationOpportunity value = P plus poor session context
 
 Session viability S = 0.05
 Session state = discouraged
@@ -1152,6 +1217,7 @@ It should not own:
 
 `PlannerScoringService` should own:
 
+- construction and ranking of `ObservationOpportunity` items;
 - how practical target value is combined with observing-window quality;
 - chronology-aware plan selection;
 - difficulty/practicality factor;
@@ -1173,7 +1239,7 @@ A future `ObserverCapabilityService` should own:
 - observing style;
 - manual vs GoTo / smart telescope automation;
 - personal preferences and constraints;
-- practical target value before Planner ranking.
+- practical target value before `ObservationOpportunity` construction.
 
 ## 11. Recommended Migration Roadmap
 
@@ -1183,6 +1249,7 @@ A future `ObserverCapabilityService` should own:
   tests first.
 - Define `ObserverCapability` and `PracticalTargetValue` fixtures as separate
   from `ObservableTargetValue`.
+- Define `ObservationOpportunity` fixtures as separate from raw target fixtures.
 - Define `RecommendationConfidence` fixtures as score-neutral metadata.
 - Keep production scoring unchanged.
 - Add explicit "phenomenon ownership" tests where possible.
@@ -1199,8 +1266,9 @@ A future `ObserverCapabilityService` should own:
 
 - Add feature-flagged Planner path:
   - default off;
-  - consumes practical target value, session viability and confidence
-    separately;
+  - consumes `ObservationOpportunity` items;
+  - keeps practical target value, session viability and confidence explicit
+    inside the opportunity;
   - does not change Home, Detail, Best Object or Sky Compass.
 
 ### Step 4: AOD/PM experimental modifiers
@@ -1252,6 +1320,10 @@ A future `ObserverCapabilityService` should own:
 - Current equipment recommendations unchanged with flags off.
 - Observable target value remains identical for two observers under the same sky.
 - Practical target value can differ for two observers under the same sky.
+- `ObserverCapability` can expose multiple dimensions without requiring a
+  single scalar in diagnostics.
+- `ObservationOpportunity` combines practical target value, observing window,
+  chronology, session viability, constraints and confidence annotations.
 - Sky Compass live refresh still does not call scoring or heavy refresh paths.
 
 ### Atmospheric tests
@@ -1292,6 +1364,9 @@ A future `ObserverCapabilityService` should own:
   observability.
 - Planner cannot reconstruct observer capability after consuming practical
   target value.
+- Planner ranks `ObservationOpportunity` items, not raw targets.
+- Observation opportunity construction cannot mutate intrinsic target quality,
+  effective observability or observer capability.
 
 ### Confidence tests
 
@@ -1317,8 +1392,9 @@ The safe next step is:
 
 1. keep feature flags default off;
 2. formalize `EffectiveObservability`, `ObservableTargetValue`,
-   `ObserverCapability`, `PracticalTargetValue`, `SessionViability` and
-   `RecommendationConfidence` as separate mathematical concepts;
+   multidimensional `ObserverCapability`, `PracticalTargetValue`,
+   `ObservationOpportunity`, `SessionViability` and `RecommendationConfidence`
+   as separate mathematical concepts;
 3. add formal mathematical constants and regression fixtures;
 4. implement Planner-only experimental scoring behind a flag;
 5. compare output against current Planner for many scenarios;
@@ -1329,6 +1405,7 @@ This preserves NightScope's current stable behavior while moving toward a
 single explainable mathematical system where each physical phenomenon has one
 owner and one role. The Universe defines the intrinsic target. The Sky defines
 effective observability and objective observable target value. The Observer
-defines practical target value. Session viability describes whether tonight is
-usable, and confidence describes how much trust NightScope has in the data
-behind the recommendation.
+defines multidimensional capability and practical target value. Observation
+opportunity combines the target, observer, time and session into what Planner
+can rank. Session viability describes whether tonight is usable, and confidence
+describes how much trust NightScope has in the data behind the recommendation.
