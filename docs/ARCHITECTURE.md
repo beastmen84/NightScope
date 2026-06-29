@@ -251,8 +251,21 @@ Current refresh reasons are:
 - `EQUIPMENT_CHANGED`
 - `BORTLE_CHANGED`
 - `TTL_EXPIRED`
+- `WEATHER_TTL_EXPIRED`
+- `AIR_QUALITY_TTL_EXPIRED`
+- `AOD_TTL_EXPIRED`
+- `SKY_QUALITY_TTL_EXPIRED`
 - `ASYNC_COMPLETED`
+- `WEATHER_COMPLETED`
+- `AIR_QUALITY_COMPLETED`
+- `AOD_COMPLETED`
+- `SKY_QUALITY_COMPLETED`
 - `LIVE_TICK`
+
+The generic `TTL_EXPIRED` and `ASYNC_COMPLETED` reasons are intentionally
+neutral. Operational refresh dispatch should use the domain-specific reasons so
+display-only OpenAQ/AOD updates cannot dirty Planner, equipment or Sky Compass
+state by accident.
 
 `LIVE_TICK` is reserved for the future Sky Compass live refresh lane. The 1.2.x
 foundation records that dependency but does not start a new timer and does not

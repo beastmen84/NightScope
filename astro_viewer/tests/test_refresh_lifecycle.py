@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
+from PySide6.QtCore import QObject
+
+from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.refresh_lifecycle import (
     RefreshDomain,
     RefreshManager,
     RefreshReason,
 )
+from astro_viewer.app.viewmodels.app_controller import AppController
 
 
 class RefreshManagerTest(unittest.TestCase):
@@ -52,6 +59,70 @@ class RefreshManagerTest(unittest.TestCase):
         self.assertTrue(manager.is_dirty(RefreshDomain.COMPASS))
         self.assertFalse(manager.is_dirty(RefreshDomain.PLANNER))
 
+    def test_generic_ttl_expired_does_not_dirty_unrelated_domains(self) -> None:
+        manager = RefreshManager()
+
+        affected = manager.mark_dirty(RefreshReason.TTL_EXPIRED)
+
+        self.assertEqual(affected, frozenset())
+        self.assertEqual(manager.snapshot(), frozenset())
+
+    def test_domain_specific_ttl_mappings_are_not_over_broad(self) -> None:
+        manager = RefreshManager()
+
+        weather = manager.domains_for_reason(RefreshReason.WEATHER_TTL_EXPIRED)
+        air_quality = manager.domains_for_reason(RefreshReason.AIR_QUALITY_TTL_EXPIRED)
+        aod = manager.domains_for_reason(RefreshReason.AOD_TTL_EXPIRED)
+
+        self.assertEqual(
+            weather,
+            frozenset(
+                {
+                    RefreshDomain.WEATHER,
+                    RefreshDomain.EQUIPMENT,
+                    RefreshDomain.PLANNER,
+                    RefreshDomain.COMPASS,
+                }
+            ),
+        )
+        self.assertEqual(air_quality, frozenset({RefreshDomain.AIR_QUALITY}))
+        self.assertEqual(aod, frozenset({RefreshDomain.AOD}))
+        self.assertNotIn(RefreshDomain.PLANNER, air_quality)
+        self.assertNotIn(RefreshDomain.COMPASS, aod)
+
+    def test_generic_async_completed_does_not_dirty_unrelated_domains(self) -> None:
+        manager = RefreshManager()
+
+        affected = manager.mark_dirty(RefreshReason.ASYNC_COMPLETED)
+
+        self.assertEqual(affected, frozenset())
+        self.assertEqual(manager.snapshot(), frozenset())
+
+    def test_domain_specific_completion_mappings_match_current_behaviour(self) -> None:
+        manager = RefreshManager()
+
+        weather = manager.domains_for_reason(RefreshReason.WEATHER_COMPLETED)
+        air_quality = manager.domains_for_reason(RefreshReason.AIR_QUALITY_COMPLETED)
+        aod = manager.domains_for_reason(RefreshReason.AOD_COMPLETED)
+        sky_quality = manager.domains_for_reason(RefreshReason.SKY_QUALITY_COMPLETED)
+
+        self.assertIn(RefreshDomain.EQUIPMENT, weather)
+        self.assertIn(RefreshDomain.PLANNER, weather)
+        self.assertIn(RefreshDomain.COMPASS, weather)
+        self.assertEqual(air_quality, frozenset({RefreshDomain.AIR_QUALITY}))
+        self.assertEqual(aod, frozenset({RefreshDomain.AOD}))
+        self.assertEqual(
+            sky_quality,
+            frozenset(
+                {
+                    RefreshDomain.SKY_QUALITY,
+                    RefreshDomain.EQUIPMENT,
+                    RefreshDomain.PLANNER,
+                    RefreshDomain.COMPASS,
+                }
+            ),
+        )
+
     def test_clear_domains_removes_only_selected_dirty_domains(self) -> None:
         manager = RefreshManager()
         manager.mark_dirty(RefreshReason.LOCATION_CHANGED)
@@ -92,9 +163,70 @@ class RefreshManagerTest(unittest.TestCase):
         self.assertIn(RefreshDomain.SKY_QUALITY, affected)
         self.assertIn(RefreshDomain.AIR_QUALITY, affected)
         self.assertIn(RefreshDomain.AOD, affected)
-        self.assertIn(RefreshDomain.PLANNER, affected)
+        self.assertNotIn(RefreshDomain.PLANNER, affected)
+        self.assertNotIn(RefreshDomain.COMPASS, affected)
         self.assertFalse(RefreshDomain.LOCATION in affected)
         self.assertFalse(RefreshDomain.ASTRONOMY in affected)
+
+    def test_last_reason_is_diagnostic_while_domain_reasons_are_operational(self) -> None:
+        manager = RefreshManager()
+
+        manager.mark_dirty(RefreshReason.WEATHER_TTL_EXPIRED)
+        manager.mark_dirty(RefreshReason.AOD_TTL_EXPIRED)
+
+        self.assertEqual(manager.last_reason, RefreshReason.AOD_TTL_EXPIRED)
+        self.assertEqual(
+            manager.reason_for_domain(RefreshDomain.WEATHER),
+            RefreshReason.WEATHER_TTL_EXPIRED,
+        )
+        self.assertEqual(
+            manager.reason_for_domain(RefreshDomain.AOD),
+            RefreshReason.AOD_TTL_EXPIRED,
+        )
+
+    def test_viirs_scheduling_leaves_sky_quality_dirty_until_completion(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+        controller._earthdata_credentials_state = EarthdataCredentialState(
+            username="earth-user",
+            configured=True,
+            secure_store_available=True,
+            connection_verified=True,
+        )
+        controller._viirs_sky_quality_running = False
+        controller._sky_quality = None
+        controller._light_pollution_status = ""
+        controller._refresh_manager = RefreshManager()
+        controller._astronomy_engine = _FakeAstronomyEngine()
+        controller._refresh_equipment_recommendations_for_current_objects = lambda: None
+        controller._apply_deep_sky_pollution_context = lambda objects: objects
+        controller._recalculate_observing_outputs = lambda: None
+        controller._deep_sky = []
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            controller._schedule_viirs_sky_quality_refresh()
+
+        thread_cls.assert_called_once()
+        thread_cls.return_value.start.assert_called_once()
+        self.assertTrue(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
+        self.assertEqual(
+            controller._refresh_manager.reason_for_domain(RefreshDomain.SKY_QUALITY),
+            RefreshReason.SKY_QUALITY_TTL_EXPIRED,
+        )
+
+        controller._finish_viirs_sky_quality_refresh(
+            "9.030:38.740:addis ababa",
+            SkyQuality(4, 21.0, 0.1, "NASA Black Marble VNP46A3", "VIIRS", "ok"),
+            "Dati VIIRS NASA aggiornati.",
+        )
+
+        self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
+
+
+class _FakeAstronomyEngine:
+    def recommended_deep_sky(self, _location) -> list:
+        return []
 
 
 if __name__ == "__main__":
