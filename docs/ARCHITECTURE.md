@@ -446,5 +446,8 @@ For future changes:
 - When changing Moon or light-pollution logic, verify Home/Detail conditioned
   objects and Planner ranking separately for galaxies, nebulae, globular
   clusters and open clusters.
+- Before enabling new AOD/OpenAQ, Moon-geometry or transparency scoring, use
+  `docs/MATHEMATICAL_SCORING_ARCHITECTURE_REVIEW.md` as the mathematical
+  ownership and double-counting reference.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.
