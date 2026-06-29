@@ -7,6 +7,10 @@ from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionsService,
+    TargetConditionBreakdown,
+)
 
 
 class NightPlannerService:
@@ -123,54 +127,15 @@ class NightPlannerService:
 
     @staticmethod
     def moon_adjusted_score(item: CelestialObject, moon: MoonSummary | None) -> int:
-        return max(0, min(100, round(item.score - NightPlannerService.moon_penalty(item, moon))))
+        return NightPlannerService._moon_condition_breakdown(item, moon).adjusted_score
 
     @staticmethod
     def moon_penalty(item: CelestialObject, moon: MoonSummary | None) -> float:
-        sensitivity = NightPlannerService._moon_sensitivity(item)
-        if sensitivity <= 0:
-            return 0.0
-        illumination = NightPlannerService._moon_illumination(moon)
-        illumination_factor = max(0.0, min(1.0, (illumination - 25.0) / 75.0))
-        return sensitivity * illumination_factor
+        return NightPlannerService._moon_condition_breakdown(item, moon).moon_penalty
 
     @staticmethod
-    def _moon_illumination(moon: MoonSummary | None) -> float:
-        if moon is None:
-            return 0.0
-        try:
-            return float(moon.illumination.strip().replace("%", "").replace(",", "."))
-        except ValueError:
-            return 0.0
-
-    @staticmethod
-    def _moon_sensitivity(item: CelestialObject) -> float:
-        lower_type = item.object_type.lower()
-        if item.object_type == "Pianeta" or item.id in {
-            "sun",
-            "moon",
-            "mercury",
-            "venus",
-            "mars",
-            "jupiter",
-            "saturn",
-            "uranus",
-            "neptune",
-        }:
-            return 0.0
-        if "diffuse" in lower_type:
-            return 42.0
-        if "galaxy" in lower_type or "galassia" in lower_type:
-            return 38.0
-        if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
-            return 18.0
-        if "h ii" in lower_type or "emission" in lower_type or "supernova" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
-            return 26.0
-        if "globular" in lower_type or "ammasso globulare" in lower_type:
-            return 18.0
-        if "open" in lower_type or "cluster" in lower_type or "star cloud" in lower_type or "asterism" in lower_type:
-            return 10.0
-        return 14.0
+    def _moon_condition_breakdown(item: CelestialObject, moon: MoonSummary | None) -> TargetConditionBreakdown:
+        return ObservationConditionsService().moon_adjusted_score(item, moon)
 
     @staticmethod
     def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:

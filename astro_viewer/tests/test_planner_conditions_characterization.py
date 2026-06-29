@@ -294,6 +294,28 @@ def test_current_moon_penalty_boundaries_are_characterized():
     assert NightPlannerService.moon_penalty(galaxy, _moon(100)) == 38.0
 
 
+def test_planner_moon_score_matches_observation_conditions_service():
+    galaxy = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    moon = _moon(95)
+    service_breakdown = ObservationConditionsService().moon_adjusted_score(galaxy, moon)
+    planner_breakdown = NightPlannerService._moon_condition_breakdown(galaxy, moon)
+
+    assert planner_breakdown == service_breakdown
+    assert NightPlannerService.moon_penalty(galaxy, moon) == service_breakdown.moon_penalty
+    assert NightPlannerService.moon_adjusted_score(galaxy, moon) == service_breakdown.adjusted_score
+    assert planner_breakdown.applied_components == ("moon",)
+
+
+def test_planner_condition_refactor_keeps_pollution_weather_and_difficulty_local():
+    source = inspect.getsource(NightPlannerService._planner_score)
+
+    assert "_pollution_penalty" in source
+    assert "_weather_factor" in source
+    assert "difficulty_factor" in source
+    assert "apply_pollution" not in source
+    assert "deep_sky_pollution" not in source
+
+
 def test_current_pollution_penalty_boundaries_are_characterized():
     galaxy = _target("galaxy", "Galaxy", 80, "Media", "21:00", "8.5")
 
