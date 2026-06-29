@@ -25,6 +25,7 @@ from astro_viewer.app.database.observation_repository import ObservationReposito
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
+from astro_viewer.app.models.nsom import NsomDiagnosticSnapshot, NsomTargetDiagnostic
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
@@ -46,6 +47,13 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
+from astro_viewer.app.services.nsom_diagnostic_adapters import (
+    build_observable_target_value,
+    build_observation_opportunity,
+    build_observer_capability_profile_from_recommendation,
+    build_practical_target_value,
+    build_recommendation_confidence,
+)
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     ObservationConditionInputs,
@@ -216,6 +224,10 @@ class AppController(QObject):
         self._sky_map = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
+        self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
+            generated_at="",
+            notes=("not_initialized", "diagnostic_only"),
+        )
         self._notifications = []
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
@@ -1878,6 +1890,145 @@ class AppController(QObject):
             self._advanced_scores,
             self._moon,
         )
+        self._refresh_nsom_diagnostics()
+
+    def _refresh_nsom_diagnostics(self) -> None:
+        notes = ["diagnostic_only", "score_neutral"]
+        try:
+            confidence = build_recommendation_confidence(
+                weather_summary=self._weather_summary,
+                aod_result=self._nasa_aod_result,
+                local_atmosphere=self._local_atmosphere,
+                viirs_available=True if self._sky_quality else None,
+                moon_geometry_available=False,
+                today=datetime.now(self._zone()).date(),
+                notes=("runtime_snapshot", "diagnostic_only"),
+            )
+            diagnostics = []
+            for source, target in self._nsom_diagnostic_candidate_targets():
+                try:
+                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence))
+                except Exception:
+                    target_id = self._nsom_runtime_target_text(target, "id", "object_id")
+                    notes.append(f"target_skipped={target_id or 'unknown'}")
+                    logger.debug("Skipping NSOM diagnostic target.", exc_info=True)
+
+            self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
+                generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
+                targets=tuple(diagnostics),
+                confidence=confidence,
+                notes=tuple(notes),
+            )
+        except Exception:
+            logger.debug("NSOM diagnostic snapshot refresh failed.", exc_info=True)
+            self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
+                generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
+                notes=("diagnostic_only", "refresh_failed"),
+            )
+
+    def _nsom_target_diagnostic(
+        self,
+        source: str,
+        target: object,
+        confidence,
+    ) -> NsomTargetDiagnostic:
+        observable = build_observable_target_value(target)
+        observer_capability = build_observer_capability_profile_from_recommendation(target)
+        practical = build_practical_target_value(observable, observer_capability)
+        opportunity = build_observation_opportunity(
+            practical,
+            observing_window_quality=self._nsom_observing_window_quality(target),
+            chronology_fit=1.0,
+            session_viability=self._nsom_session_viability(),
+            practical_constraints=1.0 if self._nsom_runtime_target_visible(target) else 0.0,
+            confidence=confidence,
+            context=(source, "runtime_snapshot", "diagnostic_only"),
+        )
+        return NsomTargetDiagnostic(
+            object_id=self._nsom_runtime_target_text(target, "id", "object_id"),
+            name=self._nsom_runtime_target_text(target, "name"),
+            source=source,
+            observable_target_value=observable,
+            observer_capability=observer_capability,
+            practical_target_value=practical,
+            observation_opportunity=opportunity,
+        )
+
+    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object]]:
+        candidates: list[tuple[str, object]] = []
+        seen: set[tuple[str, str]] = set()
+
+        def add(source: str, target: object | None) -> None:
+            if target is None:
+                return
+            object_id = self._nsom_runtime_target_text(target, "id", "object_id")
+            if not object_id:
+                return
+            key = (source, object_id)
+            if key in seen:
+                return
+            seen.add(key)
+            candidates.append((source, target))
+
+        for item in getattr(self, "_conditioned_home_objects", []):
+            add("home", item)
+
+        prepared_by_id = self._nsom_prepared_object_by_id()
+        for plan_item in getattr(self, "_night_plan", []):
+            plan_object_id = self._nsom_runtime_target_text(plan_item, "object_id", "id")
+            add("planner", prepared_by_id.get(plan_object_id, plan_item))
+
+        add("best_object", getattr(self, "_best_object", None))
+        return candidates
+
+    def _nsom_prepared_object_by_id(self) -> dict[str, CelestialObject]:
+        by_id = {}
+        for collection in (
+            getattr(self, "_conditioned_home_objects", []),
+            getattr(self, "_visible_planets", []),
+            getattr(self, "_conditioned_deep_sky", []),
+            getattr(self, "_deep_sky", []),
+            getattr(self, "_solar_system_objects", []),
+        ):
+            for item in collection:
+                by_id.setdefault(item.id, item)
+        best_object = getattr(self, "_best_object", None)
+        if best_object is not None:
+            by_id.setdefault(best_object.id, best_object)
+        return by_id
+
+    def _nsom_observing_window_quality(self, target: object) -> float:
+        for value in (
+            self._nsom_runtime_target_text(target, "best_time"),
+            self._nsom_runtime_target_text(target, "observing_window"),
+            self._nsom_runtime_target_text(target, "time_label"),
+        ):
+            if self._first_useful_time(value):
+                return 1.0
+        return 0.0 if not self._nsom_runtime_target_visible(target) else 0.5
+
+    def _nsom_session_viability(self) -> float:
+        summary = getattr(self, "_weather_summary", None)
+        score_value = getattr(summary, "score_value", None)
+        if score_value is None:
+            return 1.0
+        try:
+            return max(0.0, min(1.0, float(score_value) / 100.0))
+        except (TypeError, ValueError):
+            return 1.0
+
+    @staticmethod
+    def _nsom_runtime_target_text(target: object, *names: str) -> str:
+        for name in names:
+            value = getattr(target, name, None)
+            if value is not None:
+                return str(value)
+        return ""
+
+    @staticmethod
+    def _nsom_runtime_target_visible(target: object) -> bool:
+        value = getattr(target, "visible", True)
+        return bool(value)
 
     def _refresh_sky_compass(self) -> None:
         candidates = self._sky_compass_candidates()

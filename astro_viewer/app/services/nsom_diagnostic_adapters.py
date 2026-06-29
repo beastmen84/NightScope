@@ -80,7 +80,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
     """Translate an existing recommendation/presenter output into observer capability diagnostics."""
 
     setup_type = _text_field(recommendation, "setupType", "recommended_setup_type", "equipmentType")
-    setup_text = _text_field(recommendation, "setupText", "recommended_setup")
+    setup_text = _text_field(recommendation, "setupText", "recommended_setup", "setup")
     telescope_name = _text_field(recommendation, "telescopeName")
     setup_options = _value(recommendation, "setupOptions", "setup_options", default=()) or ()
     normalized = f"{setup_type} {setup_text} {telescope_name}".lower()
