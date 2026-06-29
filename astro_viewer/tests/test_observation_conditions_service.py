@@ -4,10 +4,14 @@ import math
 from dataclasses import replace
 from datetime import datetime, timedelta
 
+from PySide6.QtCore import QObject
+
+from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
@@ -19,6 +23,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
+from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -376,6 +381,68 @@ def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
     )
 
 
+def test_app_controller_maps_stale_openaq_has_data_diagnostically() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = None
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult.no_credentials()
+    controller._local_atmosphere = LocalAtmosphere(
+        visible=True,
+        has_data=True,
+        message="",
+        pm25="34 µg/m³",
+        pm10="72 µg/m³",
+        clarity="Velata",
+        source="OpenAQ",
+        freshness="Aggiornato 5 giorni fa",
+        freshness_category="stale",
+        freshness_warning=True,
+    )
+
+    inputs = controller._build_observation_condition_inputs()
+
+    assert inputs.aod is None
+    assert inputs.particulate == ParticulateConditionInput(
+        available=True,
+        freshness_category="stale",
+        pm25=34.0,
+        pm10=72.0,
+        source="OpenAQ",
+        status="ok",
+        age_days=5.0,
+    )
+
+
+def test_app_controller_stale_openaq_runtime_input_remains_score_neutral() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = None
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult.no_credentials()
+    controller._local_atmosphere = LocalAtmosphere(
+        visible=True,
+        has_data=True,
+        message="",
+        pm25="34 µg/m³",
+        pm10="72 µg/m³",
+        clarity="Velata",
+        source="OpenAQ",
+        freshness="Aggiornato 5 giorni fa",
+        freshness_category="stale",
+        freshness_warning=True,
+    )
+    service = ObservationConditionsService()
+    target = _target("m42", "M42", "Nebula", 82)
+
+    conditioned = service.condition_target(target, controller._build_observation_condition_inputs())
+
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert conditioned.breakdown.applied_components == ()
+    assert "particulate:stale" in conditioned.breakdown.diagnostic_notes
+    assert "particulate:score_neutral" in conditioned.breakdown.diagnostic_notes
+
+
 def test_app_controller_skips_failed_unavailable_or_historical_diagnostic_inputs() -> None:
     controller = AppController.__new__(AppController)
     controller._moon = None
@@ -392,6 +459,25 @@ def test_app_controller_skips_failed_unavailable_or_historical_diagnostic_inputs
 
     assert inputs.aod is None
     assert inputs.particulate is None
+
+
+def test_app_controller_skips_failed_and_unavailable_openaq_runtime_input() -> None:
+    controller = AppController.__new__(AppController)
+    controller._moon = None
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult.no_credentials()
+
+    for atmosphere in (
+        LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento."),
+        LocalAtmosphere.no_data(),
+        LocalAtmosphere.not_configured(),
+    ):
+        controller._local_atmosphere = atmosphere
+
+        inputs = controller._build_observation_condition_inputs()
+
+        assert inputs.aod is None
+        assert inputs.particulate is None
 
 
 def test_app_controller_skips_historical_aod_runtime_input() -> None:
@@ -412,6 +498,37 @@ def test_app_controller_skips_historical_aod_runtime_input() -> None:
 
     assert inputs.aod is None
     assert inputs.particulate is None
+
+
+def test_app_controller_air_quality_and_aod_completions_do_not_dirty_observing_domains() -> None:
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+    controller._refresh_manager = RefreshManager()
+    controller._local_atmosphere_refresh_running = True
+    controller._nasa_aod_refresh_running = True
+    controller._earthdata_credentials_state = EarthdataCredentialState(
+        username="earth-user",
+        configured=True,
+        secure_store_available=True,
+        connection_verified=True,
+    )
+    controller._local_atmosphere = LocalAtmosphere.not_configured()
+    controller._nasa_aod_result = NasaAodResult.no_location()
+
+    controller._finish_local_atmosphere_refresh(
+        "9.030:38.740:addis ababa",
+        LocalAtmosphere.no_data(),
+    )
+    controller._finish_nasa_aod_refresh(
+        "9.030:38.740:addis ababa",
+        NasaAodResult.failure("no_valid_pixel", "Nessun pixel AOD valido."),
+    )
+
+    for domain in (RefreshDomain.PLANNER, RefreshDomain.COMPASS, RefreshDomain.EQUIPMENT):
+        assert not controller._refresh_manager.is_dirty(domain)
+    assert not controller._refresh_manager.is_dirty(RefreshDomain.AIR_QUALITY)
+    assert not controller._refresh_manager.is_dirty(RefreshDomain.AOD)
 
 
 def test_app_controller_home_detail_output_unchanged_with_runtime_diagnostics() -> None:
@@ -448,6 +565,30 @@ def test_app_controller_home_detail_output_unchanged_with_runtime_diagnostics() 
         score=expected_score,
         score_label=ObservingScoreService.score_label(expected_score),
     )
+
+
+def test_condition_diagnostic_notes_are_not_exposed_in_object_qml_output() -> None:
+    controller = AppController.__new__(AppController)
+    controller._object_descriptions = {}
+    controller._moon = None
+    controller._seeing_transparency = None
+    controller._sky_quality = None
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    target = _target(
+        "m13",
+        "M13",
+        "Globular Cluster",
+        78,
+        best_time="22:00",
+    )
+
+    data = controller._object_to_qml(target)
+
+    assert "diagnostic_notes" not in data
+    assert "diagnosticNotes" not in data
+    assert "conditionBreakdown" not in data
+    assert "aod" not in data
+    assert "particulate" not in data
 
 
 def test_condition_target_moon_breakdown_matches_previous_implementation() -> None:

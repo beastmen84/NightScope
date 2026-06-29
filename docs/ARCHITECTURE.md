@@ -145,6 +145,13 @@ Services hold business logic:
   placeholders for future weather/seeing/transparency/equipment inputs.
   It accepts provider-neutral NASA AOD and particulate inputs as diagnostic-only
   data with freshness notes, while keeping their score modifiers neutral.
+  Runtime diagnostic freshness is explicit: NASA AOD older than seven days is
+  omitted from diagnostic inputs; fresh/recent NASA AOD is included
+  diagnostically only. OpenAQ data is included diagnostically when the
+  `LocalAtmosphere` result has usable data, including stale-but-present readings,
+  and omitted when historical, failed, unavailable or unconfigured. These inputs
+  are not exposed to QML and do not affect Planner, Home, equipment, weather,
+  seeing/transparency, advanced scores or Sky Compass.
   Deep-sky light-pollution conditioning marks targets with an internal condition
   flag so repeated passes do not reapply the same presentation penalty; the flag
   is intentionally removed from the QML payload.
