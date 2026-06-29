@@ -8,6 +8,7 @@ Scope:
 - identify double-counting risks;
 - define a coherent physical model for target observability;
 - separate intrinsic target properties from the observation environment;
+- separate the observer from both the target and the sky;
 - separate target desirability from session viability;
 - introduce recommendation confidence as a quality indicator, not as another
   score modifier;
@@ -31,23 +32,31 @@ Core rules:
    score.
 4. Different consumers may reuse the same computed result, but they must not
    recompute or independently reapply the same phenomenon.
-5. Intrinsic target properties and the observation environment are separate
-   inputs.
-6. Target desirability and session viability are separate concepts.
-7. Recommendation confidence is separate from recommendation score and runs in
+5. The Universe, the Sky and the Observer are separate worlds.
+6. Intrinsic target properties, observation environment and observer capability
+   are separate inputs.
+7. Target desirability and session viability are separate concepts.
+8. Recommendation confidence is separate from recommendation score and runs in
    parallel with the whole model.
 
 The preferred mental model is:
 
 ```text
-Intrinsic Target
-    + Observation Environment
-        -> Effective Observability
-        -> Observable Target Value
-        -> Equipment Suitability
-        -> Session Viability
-        -> Planner
-        -> Presentation
+The Universe
+    -> Intrinsic Target
+
+The Sky
+    -> Observation Environment
+    -> Effective Observability
+    -> Observable Target Value
+
+The Observer
+    -> Observer Capability
+    -> Practical Target Value
+
+Session Viability
+    -> Planner
+    -> Presentation
 
 Recommendation Confidence runs in parallel.
 ```
@@ -62,10 +71,72 @@ Recommended terminology:
   astronomical quality that is actually observable under the current sky.
 - `Observable Target Value`: the resulting value available to Planner, Home and
   guidance surfaces after intrinsic target quality meets the observation
-  environment.
+  environment. It is objective for the same target under the same sky.
+- `Observer Capability`: how much of the observable target this specific
+  observer can exploit.
+- `Practical Target Value`: the value a specific observer can realistically use
+  after objective observability meets observer capability.
 
 This is intentionally stronger than "conditioned score". The goal is to model
 the physical observation, not to modify an arbitrary score.
+
+## The Three Worlds
+
+NightScope's long-term mathematical model should keep three realities separate.
+
+### A. The Universe
+
+The Universe is everything that exists independently of the observer and the
+local sky.
+
+Examples:
+
+- right ascension and declination;
+- altitude and observing window from the active location;
+- magnitude;
+- angular size;
+- object class;
+- astronomical visibility.
+
+This produces the intrinsic astronomical value of the target.
+
+### B. The Sky
+
+The Sky is everything between the observer and the target that changes how much
+of the intrinsic target can be observed.
+
+Examples:
+
+- Moon sky background;
+- static sky brightness;
+- atmospheric transparency;
+- aerosols;
+- extinction;
+- local horizon and future obstruction models.
+
+This produces `EffectiveObservability` and objective `ObservableTargetValue`.
+The target itself has not changed. The sky through which it is observed has
+changed.
+
+### C. The Observer
+
+The Observer is everything that determines what this specific observer can
+exploit.
+
+Examples:
+
+- telescope;
+- binoculars;
+- smart telescope or EAA system;
+- filters;
+- eyepieces and Barlows;
+- seeing-limited magnification;
+- future experience level;
+- future personal preferences.
+
+This produces `ObserverCapability` and `PracticalTargetValue`. Two observers
+under the same sky can legitimately receive the same `ObservableTargetValue`
+and different `PracticalTargetValue`.
 
 ## 1. Current Scoring Pipeline
 
@@ -116,7 +187,7 @@ of the same physical effect inside the same mathematical decision.
 | Home/Detail Moon adjustment | `ObservationConditionsService` | object-specific Moon sensitivity | Home, Detail, Sky Compass candidates | Medium |
 | Home/Detail pollution context | `ObservationConditionsService` | presentation/context adjustment for bright skies | Home, Detail, Sky Compass candidates | Medium |
 | Planner score | `PlannerScoringService` | plan-specific aggregation | Night Planner | High: includes object, category, weather, Moon, pollution, difficulty |
-| Equipment score | `EquipmentService` | optical suitability | Home, Detail, Planner setup | Acceptable if not reused as target desirability |
+| Equipment score | `EquipmentService` | current observer capability / optical suitability | Home, Detail, Planner setup | Acceptable if it feeds observer capability instead of target physics |
 | Recommendation presentation | `RecommendationPresenter` | serialization and labels | QML | Low |
 | Sky Compass score | `SkyCompassService` | direction grouping from prepared targets | Home | Low if it only consumes prepared targets |
 | NASA AOD diagnostics | `ObservationConditionsService` | column aerosol proxy | diagnostics only | Low today, future risk |
@@ -131,10 +202,11 @@ The recommended model is a layered physical model with explicit ownership.
 2. Observation environment model
 3. Effective observability
 4. Observable target value
-5. Equipment suitability
-6. Session viability
-7. Planner sequencing and practical ranking
-8. Presentation
+5. Observer capability
+6. Practical target value
+7. Session viability
+8. Planner sequencing and practical ranking
+9. Presentation
 
 Recommendation confidence runs in parallel across these layers.
 ```
@@ -142,24 +214,38 @@ Recommendation confidence runs in parallel across these layers.
 Final conceptual diagram:
 
 ```text
-Intrinsic Target
+The Universe / Intrinsic Target
     altitude
+    right ascension / declination
     magnitude
     angular size
     object type
     astronomical visibility
 
-Observation Environment
+The Sky / Observation Environment
     Moon sky background
     static sky brightness
     atmospheric transparency
     future extinction
     future horizon effects
 
+The Observer / Observer Capability
+    telescope
+    binoculars
+    smart telescope
+    eyepieces / Barlows / filters
+    seeing-limited magnification
+    future experience level
+    future preferences
+
 Intrinsic Target + Observation Environment
     -> Effective Observability
     -> Observable Target Value
-    -> Equipment Suitability
+
+Observable Target Value + Observer Capability
+    -> Practical Target Value
+
+Practical Target Value
     -> Session Viability
     -> Planner
     -> Presentation
@@ -183,6 +269,10 @@ but tonight's session is not recommended.
 ```
 
 This is cleaner than hiding session failure inside the target score.
+
+The same separation applies to the observer. A small binocular profile does not
+change M31's objective observable target value under a given sky. It changes
+how much of that observable value this observer can exploit.
 
 ### 3.1 Intrinsic Target Model
 
@@ -307,34 +397,87 @@ physical component, not as the primary mental model. For example, the model may
 limit how much aerosol opacity can affect planets, while still treating aerosol
 as a transparency phenomenon.
 
-### 3.5 Equipment Suitability
+### 3.5 Observer Capability
 
-Owner: `EquipmentService`.
+Owner: current implementation is mainly `EquipmentService`; long-term ownership
+may become an `ObserverCapabilityService` that aggregates equipment, experience
+and preferences.
 
-Purpose: answer "how should I observe this target with my profile?".
+Purpose: answer "given this observer, how much of the observable target can
+actually be exploited?".
 
 Inputs:
 
 - target traits;
 - active telescopes/binoculars/eyepieces/Barlows;
+- filters;
+- smart telescope or EAA capabilities;
 - seeing as a magnification constraint;
-- sky brightness and target surface brightness as setup-suitability context.
+- sky brightness and target surface brightness as setup-suitability context;
+- future user experience level;
+- future preferred observing style and personal constraints.
 
 Output:
 
 ```text
+ObserverCapability Q in [0, 1]
+ObserverCapabilityBreakdown
 EquipmentRecommendation
-EquipmentSuitabilityDiagnostic
 ```
 
-Equipment suitability should not normally change the target's physical
-visibility. It changes the recommended observing method. A weak profile can
-make a target impractical for the user, but that is a Planner/practicality
-decision, not a change to the target itself.
+Equipment is only the first implemented part of observer capability. This layer
+is fundamentally different from the sky. Two observers under the same sky can
+obtain very different results from the same `ObservableTargetValue`.
 
-### 3.6 Seeing Position in the Model
+Examples:
 
-Seeing should not be treated as a general target-visibility modifier.
+- binocular-only profile;
+- Mak 127 with high-magnification eyepieces;
+- smart telescope / EAA workflow;
+- future manual vs GoTo distinction;
+- future observer experience level;
+- future object-type preferences;
+- future fatigue, time budget or minimum acceptable quality.
+
+None of these modify the Universe. None of these modify the Sky. They describe
+the Observer.
+
+### 3.6 Practical Target Value
+
+Owner: long-term `PlannerScoringService` should consume it; the capability
+component should come from `EquipmentService` or a future
+`ObserverCapabilityService`.
+
+Purpose: combine objective observable value with this observer's capability.
+
+Recommended future shape:
+
+```text
+PracticalTargetValue P = O * Q
+```
+
+Where:
+
+- `O` is objective observable target value under the current sky;
+- `Q` is observer capability for this target;
+- `P` is the practical value for this observer;
+- `P` does not include session viability or confidence.
+
+Planner should consume `PracticalTargetValue` because Planner answers:
+
+```text
+What should this observer observe first?
+```
+
+It does not answer:
+
+```text
+How observable is this target under the sky?
+```
+
+### 3.7 Seeing Position in the Model
+
+Seeing should not be treated as a general effective-observability modifier.
 
 Poor seeing does not make M31 or M44 intrinsically less observable in the same
 way that moonlight or bright sky background does. Seeing primarily affects:
@@ -348,14 +491,14 @@ way that moonlight or bright sky background does. Seeing primarily affects:
 Recommended ownership:
 
 - `EquipmentService` owns seeing-limited magnification and setup choice.
-- `ObservationConditionsService` may own a small target-visibility component
+- `ObservationConditionsService` may own a small effective-observability component
   only for seeing-sensitive classes.
 - broad deep-sky targets should usually receive no direct seeing modifier.
 
 This keeps seeing physically meaningful and avoids reducing large targets for a
 phenomenon that mainly affects resolution.
 
-### 3.7 Session Viability
+### 3.8 Session Viability
 
 Owner: `ObservingScoreService`, with future cleanup.
 
@@ -372,7 +515,7 @@ Inputs:
 Recommended future correction:
 
 - remove target-specific Moon meaning from session quality;
-- keep Moon in target visibility;
+- keep Moon in effective observability;
 - keep cloud/rain as session viability or hard session state;
 - avoid feeding the same weather score into Planner multiple times.
 
@@ -384,7 +527,7 @@ SessionState in {recommended, monitor, discouraged}
 ```
 
 `S` should be carried alongside target scores. It may block or annotate a plan,
-but it should not rewrite target visibility. This lets NightScope explain:
+but it should not rewrite effective observability. This lets NightScope explain:
 
 ```text
 Target recommendation: M31
@@ -392,7 +535,7 @@ Session viability: poor due to rain
 Confidence: high/low depending on data freshness
 ```
 
-### 3.8 Recommendation Confidence
+### 3.9 Recommendation Confidence
 
 Owner: each subsystem owns its own confidence contribution; a later aggregator
 combines them into overall recommendation confidence.
@@ -452,7 +595,7 @@ Confidence: 41%
 The score is independent. Confidence should primarily affect presentation,
 caution text and user trust, not the physical target value.
 
-### 3.9 Planner Ranking
+### 3.10 Planner Ranking
 
 Owner: `PlannerScoringService`.
 
@@ -460,13 +603,13 @@ Purpose: answer "what should I observe, and in what order?".
 
 Planner should combine:
 
-- observable target value;
+- practical target value;
 - useful observing window quality;
 - chronology;
 - session viability as block/cap/context, not as target physics;
 - confidence as presentation/caution, not as a hidden score penalty;
 - practical difficulty;
-- optional active-profile capability.
+- observing-window practicality.
 
 Planner should not reapply Moon, light pollution, AOD or PM if those have
 already been applied by `ObservationConditionsService`.
@@ -475,10 +618,9 @@ Recommended future shape:
 
 ```text
 TargetPlanValue =
-    O * target_weight
+    P * target_weight
     + WindowQuality * window_weight
     + Practicality * practicality_weight
-    + Capability * capability_weight
 
 PlannerOutput =
     select/order targets by TargetPlanValue
@@ -491,8 +633,9 @@ state, but the target's observable value remains interpretable.
 
 Chronological display should remain a presentation step after target selection.
 
-Planner should consume `ObservableTargetValue`; it should not reconstruct Moon,
-sky brightness, AOD, PM or transparency itself. Planner answers:
+Planner should consume `PracticalTargetValue`; it should not reconstruct Moon,
+sky brightness, AOD, PM, transparency or observer capability itself. Planner
+answers:
 
 ```text
 What should I observe first?
@@ -506,7 +649,11 @@ How observable is this object under the current sky?
 
 That belongs to `ObservationConditionsService`.
 
-### 3.10 Presentation
+Observer capability belongs to `EquipmentService` today and to a future
+observer-capability layer if NightScope adds experience level, smart telescope
+automation, preferences or other personalization.
+
+### 3.11 Presentation
 
 Owners: `RecommendationPresenter`, QML.
 
@@ -523,16 +670,18 @@ strings.
 | Cloud cover | session viability / sky access | observing/session service | session state, block or viability factor |
 | Precipitation | session viability | observing/session service | hard block or session viability |
 | Wind | session viability / seeing proxy | session and seeing services | session practicality; seeing input |
-| Humidity / dew gap | transparency proxy | target visibility context or session context, but not both | haze/dew confidence and transparency context |
-| Forecast visibility | transparency proxy | target visibility context | atmospheric transparency component |
-| Seeing | resolution stability | equipment service; target conditions only for seeing-sensitive classes | magnification constraint; limited target visibility component |
-| VIIRS/Bortle | static sky background | conditions service | target visibility component |
+| Humidity / dew gap | transparency proxy | effective-observability context or session context, but not both | haze/dew confidence and transparency context |
+| Forecast visibility | transparency proxy | effective-observability context | atmospheric transparency component |
+| Seeing | resolution stability | observer capability; target conditions only for seeing-sensitive classes | magnification constraint; limited effective-observability component |
+| VIIRS/Bortle | static sky background | conditions service | effective-observability component |
 | NASA AOD | atmospheric column aerosol | conditions service | target transparency component, feature-flagged |
 | OpenAQ PM2.5/PM10 | ground particulate proxy | conditions service | fallback/correction to transparency, feature-flagged |
-| Moon illumination | dynamic sky background | conditions service | target visibility component |
-| Moon altitude/separation | dynamic sky background geometry | conditions service | target visibility component |
-| Equipment capability | equipment-related | equipment service | setup selection; optional Planner practicality only |
-| Difficulty | observational/planner | planner scoring / presenter | practicality, not raw object score |
+| Moon illumination | dynamic sky background | conditions service | effective-observability component |
+| Moon altitude/separation | dynamic sky background geometry | conditions service | effective-observability component |
+| Equipment capability | observer-related | equipment service / future observer capability service | current observer capability component |
+| Experience level | observer-related | future observer capability service | future observer capability component |
+| Observing style/preferences | observer-related | future observer capability service | future personalization component |
+| Difficulty | observer/planner-related | planner scoring / presenter | practicality, not raw object score |
 | Planner chronology | planner-related | planner service | display order after selection |
 | Sky Compass direction | presentation/guidance | sky compass service | direction grouping, not new target scoring |
 | Provider freshness | confidence | source owner plus conditions/session DTOs | confidence, not score |
@@ -551,10 +700,10 @@ Current duplication:
 Recommended target state:
 
 - Moon belongs to `ObservationConditionsService`;
-- Moon contributes once to target visibility through sky-background geometry;
+- Moon contributes once to effective observability through sky-background geometry;
 - global weather/session viability should not include target-specific Moon
   damage;
-- Planner should consume the target-visibility result or the Moon breakdown, not
+- Planner should consume effective observability or the Moon breakdown, not
   independently recalculate Moon impact;
 - advanced scores should either become diagnostic labels or consume the same
   Moon component without adding a second target modification.
@@ -571,7 +720,7 @@ Current duplication:
 
 Recommended target state:
 
-- target visibility gets one static sky-background component from
+- effective observability gets one static sky-background component from
   `ObservationConditionsService`;
 - equipment may still use Bortle to choose a setup, because this is a different
   decision dimension;
@@ -595,7 +744,7 @@ Recommended target state:
 - humidity and forecast visibility may contribute to atmospheric transparency,
   but should not also be applied as independent session-score damage inside the
   same Planner target value;
-- Planner should consume one session viability result and one target visibility
+- Planner should consume one session viability result and one effective-observability
   result.
 
 ### 5.4 Seeing
@@ -607,11 +756,11 @@ Current use:
 
 This overlap is acceptable if kept dimensionally separate:
 
-- seeing may affect target visibility only for seeing-sensitive targets;
+- seeing may affect effective observability only for seeing-sensitive targets;
 - the same seeing measurement may constrain magnification recommendation;
 - it should not be added again inside Planner after target conditions.
 
-### 5.5 Equipment and Difficulty
+### 5.5 Observer Capability, Equipment and Difficulty
 
 Current duplication:
 
@@ -620,10 +769,14 @@ Current duplication:
 
 Recommended target state:
 
-- equipment selection remains independent;
-- difficulty belongs to Planner/practicality and presentation;
-- if active-profile capability is used in Planner, it should be a named Planner
-  term, not hidden inside weather or condition score.
+- observer capability remains independent from the Universe and the Sky;
+- equipment is the currently implemented part of observer capability;
+- future observer experience, preferred observing style, smart telescope
+  automation and personal constraints belong here, not in
+  `ObservationConditionsService`;
+- difficulty belongs to observer practicality and Planner presentation;
+- Planner should consume `PracticalTargetValue`, not mix observer capability
+  back into Moon, sky background or atmospheric transparency.
 
 ## 6. Atmospheric Transparency Model
 
@@ -776,7 +929,7 @@ Caps protect recommendations from one measured phenomenon dominating the whole
 model. They are not the core concept; they are guardrails around physical
 components.
 
-The table below expresses maximum influence on target visibility. If the
+The table below expresses maximum influence on effective observability. If the
 implementation stores these as score deltas for compatibility, the diagnostic
 language should still describe them as visibility components.
 
@@ -796,7 +949,7 @@ Global caps:
 - combined aerosol/PM influence should not exceed the target-class cap;
 - combined sky-background influence from Moon plus VIIRS/Bortle should be
   bounded;
-- total target-visibility influence is target-class dependent, never above 60%;
+- total effective-observability influence is target-class dependent, never above 60%;
 - planets should be protected from excessive transparency influence and instead
   be primarily affected by seeing and altitude.
 
@@ -826,14 +979,18 @@ Atmospheric transparency component = 0.95
 EffectiveObservability E = 1.00 * 0.78 * 0.86 * 0.95 = 0.64
 ObservableTargetValue O = 82 * 0.64 = 52.5
 
+ObserverCapability Q = 0.82 for the active profile
+PracticalTargetValue P = 52.5 * 0.82 = 43.1
+
 Session viability S = 0.85
 Recommendation confidence K = 0.92
 ```
 
 Interpretation: M31 remains intrinsically attractive, but the target is less
 observable under bright sky background and moderate aerosol transparency.
+`O` is objective for the same sky. `P` depends on this observer's profile.
 Session viability is separate and should be shown as session context, not mixed
-into the target physics.
+into the target physics or observer capability.
 
 ### 9.2 Saturn, planet
 
@@ -848,6 +1005,9 @@ Seeing-sensitive detail component = 0.90
 
 EffectiveObservability E = 1.00 * 1.00 * 1.00 * 0.99 * 0.90 = 0.89
 ObservableTargetValue O = 88 * 0.89 = 78.3
+
+ObserverCapability Q = 0.90 for a telescope profile with useful magnification
+PracticalTargetValue P = 78.3 * 0.90 = 70.5
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -870,6 +1030,9 @@ Atmospheric transparency component = 0.98
 EffectiveObservability E = 1.00 * 0.91 * 0.93 * 0.98 = 0.83
 ObservableTargetValue O = 78 * 0.83 = 64.7
 
+ObserverCapability Q = 0.88
+PracticalTargetValue P = 64.7 * 0.88 = 56.9
+
 Session viability S = 0.85
 Recommendation confidence K = 0.92
 ```
@@ -889,6 +1052,9 @@ Atmospheric transparency component = 0.93
 
 EffectiveObservability E = 1.00 * 0.76 * 0.82 * 0.93 = 0.58
 ObservableTargetValue O = 84 * 0.58 = 48.7
+
+ObserverCapability Q = 0.75 without a suitable filter / EAA aid
+PracticalTargetValue P = 48.7 * 0.75 = 36.5
 
 Session viability S = 0.85
 Recommendation confidence K = 0.92
@@ -910,6 +1076,9 @@ Atmospheric transparency component = 1.00
 EffectiveObservability E = 1.00
 ObservableTargetValue O = 95
 
+ObserverCapability Q = 0.95
+PracticalTargetValue P = 90.3
+
 Session viability S = 0.85
 Recommendation confidence K = 0.92
 ```
@@ -924,14 +1093,18 @@ Raw astronomical score A = 82
 EffectiveObservability E = 0.64
 ObservableTargetValue O = 52.5
 
+ObserverCapability Q = 0.82
+PracticalTargetValue P = 43.1
+
 Session viability S = 0.05
 Session state = discouraged
 Recommendation confidence K = 0.95
 ```
 
-Interpretation: M31 did not become physically worse. The session became
-unusable. Planner should be able to explain: "M31 remains the strongest target,
-but tonight is not a good observing session."
+Interpretation: M31 did not become physically worse, and this observer's
+capability did not change. The session became unusable. Planner should be able
+to explain: "M31 remains the strongest practical target, but tonight is not a
+good observing session."
 
 ## 10. ObservationConditionsService Boundaries
 
@@ -965,6 +1138,8 @@ Future horizon effects
 It should not own:
 
 - raw astronomical score generation;
+- observer capability;
+- practical target value;
 - weather data download;
 - global weather blocking;
 - full session viability;
@@ -977,10 +1152,9 @@ It should not own:
 
 `PlannerScoringService` should own:
 
-- how observable target value is combined with observing-window quality;
+- how practical target value is combined with observing-window quality;
 - chronology-aware plan selection;
 - difficulty/practicality factor;
-- optional active-profile capability term;
 - session viability application as block/context, not target mutation;
 - confidence pass-through or Planner-level confidence aggregation;
 - final Planner diagnostics.
@@ -989,7 +1163,17 @@ It should not own:
 
 - magnification, exit pupil, field of view and limiting magnitude suitability;
 - seeing-limited magnification;
-- active-profile setup choice.
+- active-profile setup choice;
+- the current equipment-based part of observer capability.
+
+A future `ObserverCapabilityService` should own:
+
+- aggregation of equipment capability;
+- experience level;
+- observing style;
+- manual vs GoTo / smart telescope automation;
+- personal preferences and constraints;
+- practical target value before Planner ranking.
 
 ## 11. Recommended Migration Roadmap
 
@@ -997,6 +1181,8 @@ It should not own:
 
 - Define target classes, sensitivity profiles, visibility components and caps in
   tests first.
+- Define `ObserverCapability` and `PracticalTargetValue` fixtures as separate
+  from `ObservableTargetValue`.
 - Define `RecommendationConfidence` fixtures as score-neutral metadata.
 - Keep production scoring unchanged.
 - Add explicit "phenomenon ownership" tests where possible.
@@ -1013,7 +1199,8 @@ It should not own:
 
 - Add feature-flagged Planner path:
   - default off;
-  - consumes observable target value and session viability separately;
+  - consumes practical target value, session viability and confidence
+    separately;
   - does not change Home, Detail, Best Object or Sky Compass.
 
 ### Step 4: AOD/PM experimental modifiers
@@ -1044,9 +1231,16 @@ It should not own:
 ### Step 8: Home and Best Object integration
 
 - Only after Planner equivalence is proven, move Home/Best Object to the same
-  observable target value.
+  observable/practical target value split.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
+
+### Step 9: Observer capability expansion
+
+- Keep equipment as the first observer-capability implementation.
+- Add experience level, observing style, smart telescope/EAA support and
+  preferences only after the physics model is stable.
+- Verify no observer-specific factor enters `ObservationConditionsService`.
 
 ## 12. Tests Required Before Enablement
 
@@ -1056,6 +1250,8 @@ It should not own:
 - Current Home/Detail output unchanged with flags off.
 - Current Best Object unchanged with flags off.
 - Current equipment recommendations unchanged with flags off.
+- Observable target value remains identical for two observers under the same sky.
+- Practical target value can differ for two observers under the same sky.
 - Sky Compass live refresh still does not call scoring or heavy refresh paths.
 
 ### Atmospheric tests
@@ -1092,6 +1288,10 @@ It should not own:
 - Equipment score cannot silently become target desirability.
 - Session viability cannot mutate observable target value.
 - Low confidence cannot silently reduce target score.
+- Observer capability cannot mutate intrinsic target quality or effective
+  observability.
+- Planner cannot reconstruct observer capability after consuming practical
+  target value.
 
 ### Confidence tests
 
@@ -1117,8 +1317,8 @@ The safe next step is:
 
 1. keep feature flags default off;
 2. formalize `EffectiveObservability`, `ObservableTargetValue`,
-   `SessionViability` and `RecommendationConfidence` as separate mathematical
-   concepts;
+   `ObserverCapability`, `PracticalTargetValue`, `SessionViability` and
+   `RecommendationConfidence` as separate mathematical concepts;
 3. add formal mathematical constants and regression fixtures;
 4. implement Planner-only experimental scoring behind a flag;
 5. compare output against current Planner for many scenarios;
@@ -1127,6 +1327,8 @@ The safe next step is:
 
 This preserves NightScope's current stable behavior while moving toward a
 single explainable mathematical system where each physical phenomenon has one
-owner and one role. Effective observability describes the object under the sky,
-session viability describes whether tonight is usable, and confidence describes
-how much trust NightScope has in the data behind the recommendation.
+owner and one role. The Universe defines the intrinsic target. The Sky defines
+effective observability and objective observable target value. The Observer
+defines practical target value. Session viability describes whether tonight is
+usable, and confidence describes how much trust NightScope has in the data
+behind the recommendation.
