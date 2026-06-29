@@ -10,8 +10,10 @@ from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import (
+    AodConditionInput,
     ObservationConditionInputs,
     ObservationConditionsService,
+    ParticulateConditionInput,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -71,6 +73,127 @@ def test_condition_target_neutral_breakdown_uses_identity_placeholders() -> None
     assert "moon:not_requested" in breakdown.diagnostic_notes
     assert "light_pollution:not_requested" in breakdown.diagnostic_notes
     assert breakdown.already_adjusted_flags == ()
+
+
+def test_aod_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
+    service = ObservationConditionsService()
+    target = _target("m13", "M13", "Globular Cluster", 78)
+
+    for category in ("current", "recent", "stale", "historical"):
+        conditioned = service.condition_target(
+            target,
+            ObservationConditionInputs(
+                aod=AodConditionInput(
+                    available=True,
+                    freshness_category=category,
+                    aod_550=0.18,
+                    source="NASA MAIAC",
+                    product="VNP19A2.002",
+                    status="ok",
+                    age_days=2.0,
+                )
+            ),
+        )
+        breakdown = conditioned.breakdown
+
+        assert conditioned.target == target
+        assert breakdown.adjusted_score == target.score
+        assert breakdown.aod_modifier == 0.0
+        assert breakdown.applied_components == ()
+        assert f"aod:{category}" in breakdown.diagnostic_notes
+        assert "aod:available" in breakdown.diagnostic_notes
+        assert "aod:550=0.18" in breakdown.diagnostic_notes
+        assert "aod:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_particulate_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
+    service = ObservationConditionsService()
+    target = _target("m42", "M42", "Nebula", 82)
+
+    for category in ("current", "recent", "stale", "historical"):
+        conditioned = service.condition_target(
+            target,
+            ObservationConditionInputs(
+                particulate=ParticulateConditionInput(
+                    available=True,
+                    freshness_category=category,
+                    pm25=9.5,
+                    pm10=22.0,
+                    source="OpenAQ",
+                    status="ok",
+                    age_days=1.0,
+                )
+            ),
+        )
+        breakdown = conditioned.breakdown
+
+        assert conditioned.target == target
+        assert breakdown.adjusted_score == target.score
+        assert breakdown.pm25_modifier == 0.0
+        assert breakdown.applied_components == ()
+        assert f"particulate:{category}" in breakdown.diagnostic_notes
+        assert "particulate:available" in breakdown.diagnostic_notes
+        assert "pm25=9.5" in breakdown.diagnostic_notes
+        assert "pm10=22" in breakdown.diagnostic_notes
+        assert "particulate:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_unavailable_atmospheric_diagnostics_remain_score_neutral() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            aod=AodConditionInput(available=False, freshness_category="unavailable", status="no_credentials"),
+            particulate=ParticulateConditionInput(
+                available=False,
+                freshness_category="unavailable",
+                status="no_measurements",
+            ),
+        ),
+    )
+    breakdown = conditioned.breakdown
+
+    assert conditioned.target == target
+    assert breakdown.adjusted_score == target.score
+    assert breakdown.aod_modifier == 0.0
+    assert breakdown.pm25_modifier == 0.0
+    assert breakdown.applied_components == ()
+    assert "aod:unavailable:no_credentials" in breakdown.diagnostic_notes
+    assert "particulate:unavailable:no_measurements" in breakdown.diagnostic_notes
+    assert "aod:score_neutral" in breakdown.diagnostic_notes
+    assert "particulate:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_components() -> None:
+    target = _target("m31", "M31", "Galaxy", 82)
+    moon = _moon("86%")
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    service = ObservationConditionsService()
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            moon=moon,
+            sky_quality=sky_quality,
+            aod=AodConditionInput(available=True, freshness_category="current", aod_550=0.12),
+            particulate=ParticulateConditionInput(available=True, freshness_category="current", pm25=8.0),
+        ),
+        apply_moon=True,
+        apply_pollution=True,
+    )
+    breakdown = conditioned.breakdown
+    moon_adjusted = NightPlannerService.moon_adjusted_score(target, moon)
+    expected_score = max(0, round(moon_adjusted - service.deep_sky_pollution_penalty(target, sky_quality)))
+
+    assert breakdown.adjusted_score == expected_score
+    assert conditioned.target.score == expected_score
+    assert breakdown.applied_components == ("moon", "light_pollution")
+    assert breakdown.aod_modifier == 0.0
+    assert breakdown.pm25_modifier == 0.0
+    assert "aod:score_neutral" in breakdown.diagnostic_notes
+    assert "particulate:score_neutral" in breakdown.diagnostic_notes
 
 
 def test_condition_target_moon_breakdown_matches_previous_implementation() -> None:

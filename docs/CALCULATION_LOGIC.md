@@ -339,6 +339,12 @@ Light-pollution presentation filtering also uses a stronger galaxy multiplier
 than globular clusters, while Planner-specific light-pollution ranking remains
 owned by `PlannerScoringService`.
 
+`ObservationConditionsService` can also carry provider-neutral diagnostics for
+NASA AOD and OpenAQ particulate data, including freshness categories. These
+fields currently stay neutral: AOD and PM modifiers remain zero and do not feed
+Planner ranking, Home scores, Recommendation Engine, Sky Compass, seeing or
+transparency scores.
+
 Medium globular clusters such as M5, M92 and M15 keep the `General` observation
 mode but receive a target-profile bias toward medium magnification. This avoids
 treating them like genuinely wide-field objects while leaving wide-field targets

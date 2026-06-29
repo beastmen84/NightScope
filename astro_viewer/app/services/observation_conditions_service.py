@@ -11,9 +11,33 @@ from astro_viewer.app.services.observing_score_service import ObservingScoreServ
 
 
 @dataclass(frozen=True)
+class AodConditionInput:
+    available: bool = False
+    freshness_category: str = "unavailable"
+    aod_550: float | None = None
+    source: str = ""
+    product: str = ""
+    status: str = "unavailable"
+    age_days: float | None = None
+
+
+@dataclass(frozen=True)
+class ParticulateConditionInput:
+    available: bool = False
+    freshness_category: str = "unavailable"
+    pm25: float | None = None
+    pm10: float | None = None
+    source: str = ""
+    status: str = "unavailable"
+    age_days: float | None = None
+
+
+@dataclass(frozen=True)
 class ObservationConditionInputs:
     moon: MoonSummary | None = None
     sky_quality: SkyQuality | None = None
+    aod: AodConditionInput | None = None
+    particulate: ParticulateConditionInput | None = None
 
 
 @dataclass(frozen=True)
@@ -73,7 +97,7 @@ class ObservationConditionsService:
             moon_penalty=penalty,
             adjusted_score=adjusted_score,
             applied_components=components,
-            diagnostic_notes=self._placeholder_diagnostics(),
+            diagnostic_notes=self._neutral_condition_diagnostics(ObservationConditionInputs()),
         )
 
     def apply_deep_sky_pollution_context(
@@ -113,7 +137,7 @@ class ObservationConditionsService:
         moon_penalty = 0.0
         pollution_penalty = 0.0
         applied_components: list[str] = []
-        diagnostic_notes = list(self._placeholder_diagnostics())
+        diagnostic_notes = list(self._neutral_condition_diagnostics(inputs))
         already_adjusted_flags: list[str] = []
 
         if apply_moon:
@@ -282,16 +306,57 @@ class ObservationConditionsService:
             already_adjusted_flags=already_adjusted_flags,
         )
 
-    @staticmethod
-    def _placeholder_diagnostics() -> tuple[str, ...]:
+    @classmethod
+    def _neutral_condition_diagnostics(cls, inputs: ObservationConditionInputs) -> tuple[str, ...]:
         return (
             "weather:identity_placeholder",
             "seeing:identity_placeholder",
             "transparency:identity_placeholder",
             "equipment:identity_placeholder",
-            "aod:identity_placeholder",
-            "pm25:identity_placeholder",
+            *cls._aod_diagnostics(inputs.aod),
+            *cls._particulate_diagnostics(inputs.particulate),
         )
+
+    @staticmethod
+    def _aod_diagnostics(aod: AodConditionInput | None) -> tuple[str, ...]:
+        if aod is None:
+            return ("aod:identity_placeholder",)
+        category = ObservationConditionsService._freshness_category(aod.freshness_category)
+        notes = [f"aod:{category}"]
+        notes.append("aod:available" if aod.available else f"aod:unavailable:{aod.status}")
+        if aod.product:
+            notes.append(f"aod:product={aod.product}")
+        if aod.source:
+            notes.append(f"aod:source={aod.source}")
+        if aod.aod_550 is not None:
+            notes.append(f"aod:550={aod.aod_550:g}")
+        if aod.age_days is not None:
+            notes.append(f"aod:age_days={aod.age_days:g}")
+        notes.append("aod:score_neutral")
+        return tuple(notes)
+
+    @staticmethod
+    def _particulate_diagnostics(particulate: ParticulateConditionInput | None) -> tuple[str, ...]:
+        if particulate is None:
+            return ("pm25:identity_placeholder",)
+        category = ObservationConditionsService._freshness_category(particulate.freshness_category)
+        notes = [f"particulate:{category}"]
+        notes.append("particulate:available" if particulate.available else f"particulate:unavailable:{particulate.status}")
+        if particulate.source:
+            notes.append(f"particulate:source={particulate.source}")
+        if particulate.pm25 is not None:
+            notes.append(f"pm25={particulate.pm25:g}")
+        if particulate.pm10 is not None:
+            notes.append(f"pm10={particulate.pm10:g}")
+        if particulate.age_days is not None:
+            notes.append(f"particulate:age_days={particulate.age_days:g}")
+        notes.append("particulate:score_neutral")
+        return tuple(notes)
+
+    @staticmethod
+    def _freshness_category(category: str) -> str:
+        normalized = category.strip().lower().replace(" ", "_")
+        return normalized or "unavailable"
 
     @classmethod
     def sky_quality_diagnostics(cls, sky_quality: SkyQuality | None) -> tuple[str, ...]:

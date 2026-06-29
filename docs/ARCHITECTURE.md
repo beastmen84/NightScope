@@ -142,7 +142,9 @@ Services hold business logic:
   condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
   deep-sky light-pollution context formerly implemented inside `AppController`,
   batch conditioning for Home/Sky Compass candidates and neutral diagnostic
-  placeholders for future weather/seeing/transparency/equipment/AOD/PM inputs.
+  placeholders for future weather/seeing/transparency/equipment inputs.
+  It accepts provider-neutral NASA AOD and particulate inputs as diagnostic-only
+  data with freshness notes, while keeping their score modifiers neutral.
   It does not own Planner score aggregation, equipment recommendations,
   best-object selection, OpenAQ or NASA AOD behavior.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
