@@ -310,7 +310,7 @@ def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
     source = inspect.getsource(NightPlannerService._planner_score)
     pollution_source = inspect.getsource(NightPlannerService._pollution_penalty)
 
-    assert "_pollution_penalty" in source
+    assert "_planner_condition_breakdown" in source
     assert "_weather_factor" in source
     assert "difficulty_factor" in source
     assert "planner_pollution_penalty" in pollution_source
@@ -344,6 +344,38 @@ def test_planner_pollution_penalty_matches_observation_conditions_service():
             target,
             sky_quality,
         ) == ObservationConditionsService.planner_pollution_penalty(target, sky_quality)
+
+
+def test_planner_condition_breakdown_matches_moon_and_pollution_wrappers():
+    galaxy = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    sky_quality = _sky_quality(8, radiance=20)
+    moon = _moon(95)
+
+    breakdown = NightPlannerService._planner_condition_breakdown(galaxy, sky_quality, moon)
+
+    assert breakdown.object_id == "galaxy"
+    assert breakdown.base_score == galaxy.score
+    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(galaxy, moon)
+    assert breakdown.pollution_penalty == NightPlannerService._pollution_penalty(galaxy, sky_quality)
+    assert breakdown.applied_components == ("moon", "planner_light_pollution")
+    assert "moon:illumination=95" in breakdown.diagnostic_notes
+    assert "planner_light_pollution:active" in breakdown.diagnostic_notes
+    assert "weather:planner_owned" in breakdown.diagnostic_notes
+    assert "difficulty:planner_owned" in breakdown.diagnostic_notes
+
+
+def test_planner_condition_breakdown_is_neutral_for_planets_under_low_moon_and_good_sky():
+    planet = _target("planet", "Pianeta", 79, "Facile", "23:00", "-1.0")
+    sky_quality = _sky_quality(3)
+    moon = _moon(10)
+
+    breakdown = NightPlannerService._planner_condition_breakdown(planet, sky_quality, moon)
+
+    assert breakdown.moon_penalty == 0.0
+    assert breakdown.pollution_penalty == 0.0
+    assert breakdown.applied_components == ()
+    assert "moon:neutral" in breakdown.diagnostic_notes
+    assert "planner_light_pollution:neutral" in breakdown.diagnostic_notes
 
 
 @pytest.mark.parametrize(

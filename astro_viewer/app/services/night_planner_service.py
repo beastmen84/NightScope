@@ -8,6 +8,7 @@ from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, 
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionsService,
+    PlannerConditionBreakdown,
     TargetConditionBreakdown,
 )
 
@@ -75,16 +76,15 @@ class NightPlannerService:
     ) -> float:
         category_score = scores.planetary_score if item.object_type == "Pianeta" else scores.deep_sky_score
         aperture_bonus = min(14, telescope.aperture_mm / 18)
-        pollution_penalty = NightPlannerService._pollution_penalty(item, sky_quality)
-        moon_penalty = NightPlannerService.moon_penalty(item, moon)
+        conditions = NightPlannerService._planner_condition_breakdown(item, sky_quality, moon)
         difficulty_factor = {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
         raw_score = (
             item.score * 0.48
             + category_score * 0.34
             + weather.score_value * 0.18
             + aperture_bonus
-            - pollution_penalty
-            - moon_penalty
+            - conditions.pollution_penalty
+            - conditions.moon_penalty
         ) * difficulty_factor
         return raw_score * NightPlannerService._weather_factor(weather)
 
@@ -139,6 +139,14 @@ class NightPlannerService:
     @staticmethod
     def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
         return ObservationConditionsService.planner_pollution_penalty(item, sky_quality)
+
+    @staticmethod
+    def _planner_condition_breakdown(
+        item: CelestialObject,
+        sky_quality: SkyQuality,
+        moon: MoonSummary | None,
+    ) -> PlannerConditionBreakdown:
+        return ObservationConditionsService().planner_condition_breakdown(item, sky_quality, moon)
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:
