@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import logging
 from calendar import monthrange
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -132,6 +132,59 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 continue
         visible = [item for item in objects if item.visible]
         return sorted(visible, key=lambda item: item.score, reverse=True)[:10]
+
+    def refresh_current_positions(
+        self,
+        objects: list[CelestialObject],
+        location: ObserverLocation,
+    ) -> list[CelestialObject]:
+        if not objects:
+            return objects
+        now = self._now(location)
+        observer = self._observer(location)
+        current_time = self._to_skyfield_time(now)
+        body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
+        updated = []
+        for item in objects:
+            try:
+                position = self._current_position(item, observer, current_time, body_configs)
+            except Exception:
+                logger.debug("Sky Compass live position update skipped for %s.", item.id, exc_info=True)
+                position = None
+            if position is None:
+                updated.append(item)
+                continue
+            altitude_degrees, azimuth_degrees = position
+            updated.append(
+                replace(
+                    item,
+                    direction=self._azimuth_direction(azimuth_degrees),
+                    azimuth=f"{azimuth_degrees:.0f} gradi",
+                    current_altitude=f"{altitude_degrees:.1f} gradi",
+                    current_azimuth=f"{azimuth_degrees:.1f} gradi",
+                )
+            )
+        return updated
+
+    def _current_position(self, item: CelestialObject, observer, current_time, body_configs: dict):
+        config = body_configs.get(item.id)
+        if config is not None:
+            body = self._ephemeris[config.body_key]
+        else:
+            body = self._star_for_current_position(item)
+        if body is None:
+            return None
+        altitude, azimuth, _ = observer.at(current_time).observe(body).apparent().altaz()
+        return float(altitude.degrees), float(azimuth.degrees)
+
+    def _star_for_current_position(self, item: CelestialObject):
+        if not item.id.startswith("messier-"):
+            return None
+        messier_id = item.id.removeprefix("messier-").upper()
+        row = self._messier_repository.get_by_messier_id(messier_id)
+        if not row:
+            return None
+        return Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
 
     def catalogue_month_visibility(
         self,

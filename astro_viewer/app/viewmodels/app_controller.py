@@ -89,6 +89,7 @@ class AppController(QObject):
     weatherChanged = Signal()
     equipmentChanged = Signal()
     observationChanged = Signal()
+    skyCompassChanged = Signal()
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
     openaqCredentialsChanged = Signal()
@@ -153,6 +154,9 @@ class AppController(QObject):
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
+        self._sky_compass_live_timer = QTimer(self)
+        self._sky_compass_live_timer.setInterval(60_000)
+        self._sky_compass_live_timer.timeout.connect(self._refresh_sky_compass_live)
         try:
             self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
         except EphemerisUnavailableError:
@@ -248,6 +252,7 @@ class AppController(QObject):
         self._refresh_manager.mark_dirty(RefreshReason.STARTUP)
         self._initialize_startup_location()
         self._refresh_all()
+        self._update_sky_compass_live_timer()
 
     @Property(str, constant=True)
     def assetBaseUrl(self) -> str:
@@ -585,7 +590,7 @@ class AppController(QObject):
     def skyMap(self) -> list[dict]:
         return self._sky_map
 
-    @Property("QVariant", notify=dataChanged)
+    @Property("QVariant", notify=skyCompassChanged)
     def skyCompass(self) -> dict:
         return self._sky_compass
 
@@ -1634,7 +1639,7 @@ class AppController(QObject):
         self._best_object = None
         self._night_plan = []
         self._sky_map = []
-        self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
+        self._set_sky_compass(SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass."))
         self._notifications = []
         self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
         self._invalidate_catalogue_visibility_cache()
@@ -1864,13 +1869,59 @@ class AppController(QObject):
         )
 
     def _refresh_sky_compass(self) -> None:
-        self._sky_compass = self._sky_compass_service.compass(
-            self._sky_compass_candidates(),
-            self._night_plan,
-            self._best_object,
-            has_location=self._has_valid_location(),
-            caution_text=self._sky_compass_caution_text(),
+        self._set_sky_compass(
+            self._sky_compass_service.compass(
+                self._sky_compass_candidates(),
+                self._night_plan,
+                self._best_object,
+                has_location=self._has_valid_location(),
+                caution_text=self._sky_compass_caution_text(),
+            )
         )
+
+    def _refresh_sky_compass_live(self) -> None:
+        self._mark_refresh_dirty(RefreshReason.LIVE_TICK)
+        try:
+            if not self._has_valid_location() or not self._sky_compass.get("available", False):
+                return
+            candidates = self._sky_compass_candidates()
+            if not candidates:
+                return
+            position_method = getattr(self._astronomy_engine, "refresh_current_positions", None)
+            if not callable(position_method):
+                return
+            updated_candidates = position_method(candidates, self._location)
+            self._set_sky_compass(
+                self._sky_compass_service.compass(
+                    updated_candidates,
+                    self._night_plan,
+                    self._best_object,
+                    has_location=True,
+                    caution_text=self._sky_compass_caution_text(),
+                )
+            )
+        except Exception:
+            logger.warning("Sky Compass live refresh failed.", exc_info=True)
+        finally:
+            self._clear_refresh_domains(RefreshDomain.COMPASS_LIVE)
+            self._update_sky_compass_live_timer()
+
+    def _set_sky_compass(self, value: dict) -> None:
+        self._sky_compass = value
+        self.skyCompassChanged.emit()
+        self._update_sky_compass_live_timer()
+
+    def _update_sky_compass_live_timer(self) -> None:
+        timer = getattr(self, "_sky_compass_live_timer", None)
+        if timer is None:
+            return
+        should_run = self._has_valid_location() and bool(self._sky_compass.get("available", False))
+        if should_run:
+            if not timer.isActive():
+                timer.start()
+            return
+        if timer.isActive():
+            timer.stop()
 
     def _sky_compass_candidates(self) -> list[CelestialObject]:
         candidates = self._home_visible_objects(self._visible_planets)

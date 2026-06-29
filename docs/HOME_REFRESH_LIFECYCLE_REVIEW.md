@@ -11,8 +11,10 @@ Home is rendered by `HomePage.qml`, but Home data is owned by `AppController`.
 The QML page has no data-refresh timer of its own. It binds directly to
 controller properties and reacts to Qt notify signals:
 
-- `dataChanged` for astronomy objects, Moon, events, best object, plan, sky map,
-  Sky Compass and notifications;
+- `dataChanged` for astronomy objects, Moon, events, best object, plan, sky map
+  and notifications;
+- `skyCompassChanged` for the Sky Compass DTO, including its 60-second live
+  positional refresh;
 - `weatherChanged` for weather, observing quality, seeing, sky quality,
   advanced scores and blocking-session state;
 - `locationChanged` for active location labels and location workflows;
@@ -59,13 +61,23 @@ Additional refresh branches update subsets of the same state:
 
 ### Timers
 
-The only refresh timer found in the Home data path is
-`AppController._weather_refresh_timer`, a single-shot `QTimer`.
+The Home data path currently has two backend-owned timers. The external-data
+timer is `AppController._weather_refresh_timer`, a single-shot `QTimer`.
 
 - It is scheduled by `_schedule_next_weather_refresh()`.
 - It fires at the next local hour boundary, with a minimum delay of 60 seconds.
 - It calls `_refresh_weather_from_timer()`, which starts a cache-friendly
   weather refresh with `force_refresh=False`.
+
+Sky Compass also has a backend-owned `AppController._sky_compass_live_timer`.
+
+- It runs every 60 seconds only when there is a valid location and an available
+  compass DTO.
+- It calls `_refresh_sky_compass_live()`, which marks `LIVE_TICK`, updates only
+  current target altitude/azimuth/direction through the astronomy engine and
+  clears `COMPASS_LIVE` after completion.
+- It does not call the full refresh, weather, VIIRS, NASA AOD, OpenAQ, Planner,
+  equipment or Recommendation Engine paths.
 
 No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 `WeatherPage.qml` and calls `refreshWeatherNow()`, which uses
@@ -85,6 +97,8 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
   objects and recomputes observing outputs.
 - NASA AOD completion: updates only the Weather-page display DTO and logs
   status; it does not recompute Home sections.
+- Sky Compass live tick: updates only the Sky Compass DTO from already prepared
+  targets and emits `skyCompassChanged`.
 - Profile/equipment changes: reload profile equipment when needed, recompute
   equipment recommendations and observing outputs, then emit profile-dependent
   signals.
@@ -126,7 +140,7 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 | Other visible planets | Yes | Yes | No direct dependency | Equipment setup can use seeing | Equipment recommendation service | Solar-system altitude/rise/set/window |
 | Other deep-sky objects | Yes | Yes | No direct dependency | Equipment setup can use seeing/transparency | Equipment recommendation and Moon-adjusted presentation | Messier altitude/window calculation |
 | Sky map | Yes | Yes | No | No | No | Current altitude/direction from visible objects |
-| Sky Compass v2 | Uses current Home target directions | Yes | No new weather call; may display existing caution text | No new seeing call | Consumes existing best object/plan scores; no new engine call | Current direction from already prepared Home targets |
+| Sky Compass v2 | 60-second positional update for current Home target directions | Yes | No new weather call; may display existing caution text | No new seeing call | Consumes existing best object/plan scores; no new engine call | Current alt/az/direction for already prepared Home targets |
 | Calendar/highlights | Current date | Yes | No | Profile setup may use seeing | Event setup enrichment only | Skyfield event generation |
 | Notifications | Indirect | Yes | Yes | Through advanced scores | Notification service | Events/Moon/current targets |
 
@@ -138,10 +152,6 @@ a central Home snapshot.
 
 ## Current Risks For Sky Compass
 
-- Sky Compass v2 uses the existing Home refresh cadence. Time freshness is tied
-  mostly to weather-hour refreshes and full location
-  refreshes. Current altitude, azimuth and cardinal direction can become stale
-  between hourly weather refreshes.
 - Recomputing all astronomy objects just to keep a compass current would be too
   heavy and would also move recommendation cards unexpectedly.
 - Night-hour filtering exists in several places with slightly different ranges:
@@ -172,13 +182,14 @@ practical decision reasons, up to three primary targets, a secondary count for
 additional targets and up to two alternative directions. It does not expose
 internal scores.
 
-Sky Compass does not call weather, VIIRS, Planner, catalogue visibility or
-Recommendation Engine services; it only consumes the controller state already
-computed for Home.
+Sky Compass does not call weather, VIIRS, NASA AOD, OpenAQ, Planner, catalogue
+visibility or Recommendation Engine services; it only consumes the controller
+state already computed for Home. Its live lane is backend-owned: every 60
+seconds, `_refresh_sky_compass_live()` updates only current positional fields
+for the small existing target set, rebuilds the Sky Compass DTO and emits
+`skyCompassChanged`.
 
-The QML card renders `controller.skyCompass` below `Mappa cielo`. There is no
-QML timer in v2, and no fast astronomical tick is introduced yet. The existing
-sky map remains unchanged.
+The QML card renders `controller.skyCompass`. There is no QML timer in v2.
 
 ## Proposed Observation Snapshot Architecture
 
@@ -223,9 +234,8 @@ thin compatibility properties can read from it while Home is migrated.
 
 Use separate refresh lanes instead of one global timer:
 
-- Fast astronomical tick: every 60 seconds for Sky Compass current alt/az,
-  current direction, "above horizon now" and clock-sensitive labels. This
-  should not recompute recommendation ranking by default.
+- Fast astronomical tick: every 60 seconds for Sky Compass current alt/az and
+  current direction. This does not recompute recommendation ranking.
 - Recommendation refresh: every 10 to 15 minutes, plus immediate refresh on
   location, profile/equipment, sky-quality or weather-summary changes. This is
   enough for Home cards and avoids ranking churn.
@@ -244,10 +254,10 @@ Use separate refresh lanes instead of one global timer:
   visibility as the Solar-System eligibility gate, while catalogue filter/month
   and location changes still invalidate the monthly cache.
 
-A later Sky Compass implementation can add a fast tick for only a small compass
-target subset derived from the latest snapshot: Moon, visible planets, best
-object, planned objects and a few high-score alternatives. The v2 prototype does
-not include this tick.
+The current Sky Compass live lane already applies the fast tick to the small
+target subset returned by `_sky_compass_candidates()`: Home-filtered visible
+planets, Home-filtered and Moon-adjusted deep-sky objects, the best object and
+current plan objects. It does not rebuild the full catalogue.
 
 ## Expected Performance Impact
 
@@ -269,9 +279,8 @@ With a snapshot architecture:
 
 ## Expected User Experience Impact
 
-- A future tick can make Sky Compass feel live because current directions and
-  altitudes can update frequently. The v1 prototype favours stable Home
-  behaviour by using the existing refresh cadence.
+- Sky Compass feels live because current directions and altitudes can update
+  every minute while Home recommendation cards remain stable.
 - Home recommendation cards remain stable enough to read and act on.
 - Manual weather refresh still has visible impact when the user explicitly asks
   for it.
@@ -284,8 +293,7 @@ With a snapshot architecture:
 ## Implementation Guidance For Sky Compass
 
 - Do not add a QML timer that directly calls many controller properties. The
-  timer should be owned by the controller or a snapshot service so all consumers
-  receive the same time bucket.
+  current live timer is owned by `AppController` and limited to Sky Compass.
 - Do not call recommendation services from the fast compass tick.
 - Do not call weather, VIIRS or AOD services from the fast compass tick.
 - Reuse existing Skyfield observer/body helpers for alt/az rather than

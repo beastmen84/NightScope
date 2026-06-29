@@ -15,6 +15,7 @@ class RefreshDomain(StrEnum):
     EQUIPMENT = "equipment"
     PLANNER = "planner"
     COMPASS = "compass"
+    COMPASS_LIVE = "compass_live"
     CATALOG = "catalog"
 
 
@@ -131,7 +132,7 @@ REFRESH_DEPENDENCIES: dict[RefreshReason, frozenset[RefreshDomain]] = {
             RefreshDomain.COMPASS,
         }
     ),
-    RefreshReason.LIVE_TICK: frozenset({RefreshDomain.COMPASS}),
+    RefreshReason.LIVE_TICK: frozenset({RefreshDomain.COMPASS_LIVE}),
 }
 
 

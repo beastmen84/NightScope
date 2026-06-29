@@ -38,6 +38,13 @@ class AstronomyEngine(Protocol):
     ) -> dict[str, bool]:
         ...
 
+    def refresh_current_positions(
+        self,
+        objects: list[CelestialObject],
+        location: ObserverLocation,
+    ) -> list[CelestialObject]:
+        ...
+
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         ...
 
@@ -66,6 +73,13 @@ class MockAstronomyEngine:
         altitude_threshold: float,
     ) -> dict[str, bool]:
         return {}
+
+    def refresh_current_positions(
+        self,
+        objects: list[CelestialObject],
+        location: ObserverLocation,
+    ) -> list[CelestialObject]:
+        return objects
 
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         return mock_moon()

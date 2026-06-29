@@ -239,6 +239,7 @@ Current refresh domains are:
 - `EQUIPMENT`
 - `PLANNER`
 - `COMPASS`
+- `COMPASS_LIVE`
 - `CATALOG`
 
 Current refresh reasons are:
@@ -267,9 +268,12 @@ neutral. Operational refresh dispatch should use the domain-specific reasons so
 display-only OpenAQ/AOD updates cannot dirty Planner, equipment or Sky Compass
 state by accident.
 
-`LIVE_TICK` is reserved for the future Sky Compass live refresh lane. The 1.2.x
-foundation records that dependency but does not start a new timer and does not
-change existing refresh cadence.
+`LIVE_TICK` is the Sky Compass live refresh lane. It maps only to
+`COMPASS_LIVE`, which is separate from the broader `COMPASS` domain used by
+normal Home/Planner/weather-driven recomputation. The live lane updates only
+current positional fields for already prepared Sky Compass targets and must not
+call weather, OpenAQ, NASA AOD, VIIRS, Planner, equipment or Recommendation
+Engine refresh paths.
 
 The following changes are expected to trigger dependent recomputation:
 
@@ -310,6 +314,13 @@ NASA AOD refresh completion updates only the display DTO consumed by the Weather
 page and logs product/date/value/status. It does not recompute Home, Planner,
 Sky Compass, seeing/transparency, weather score, observing scores or
 recommendation outputs.
+
+Sky Compass live refresh is controller-owned and runs on a 60-second `QTimer`
+only when a valid location and an available compass DTO exist. The tick uses
+`SkyfieldAstronomyEngine.refresh_current_positions()` to update current
+altitude, azimuth and direction for the small target set returned by
+`_sky_compass_candidates()`. It emits only `skyCompassChanged` and clears
+`COMPASS_LIVE` after the update.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart.

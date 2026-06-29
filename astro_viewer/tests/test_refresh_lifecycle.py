@@ -55,8 +55,9 @@ class RefreshManagerTest(unittest.TestCase):
 
         affected = manager.mark_dirty(RefreshReason.LIVE_TICK)
 
-        self.assertEqual(affected, frozenset({RefreshDomain.COMPASS}))
-        self.assertTrue(manager.is_dirty(RefreshDomain.COMPASS))
+        self.assertEqual(affected, frozenset({RefreshDomain.COMPASS_LIVE}))
+        self.assertTrue(manager.is_dirty(RefreshDomain.COMPASS_LIVE))
+        self.assertFalse(manager.is_dirty(RefreshDomain.COMPASS))
         self.assertFalse(manager.is_dirty(RefreshDomain.PLANNER))
 
     def test_generic_ttl_expired_does_not_dirty_unrelated_domains(self) -> None:
