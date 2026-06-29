@@ -8,9 +8,18 @@ from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionsService,
-    PlannerConditionBreakdown,
     TargetConditionBreakdown,
 )
+
+
+@dataclass(frozen=True)
+class PlannerConditionBreakdown:
+    object_id: str
+    base_score: int
+    moon_penalty: float = 0.0
+    pollution_penalty: float = 0.0
+    applied_components: tuple[str, ...] = ()
+    diagnostic_notes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -118,7 +127,40 @@ class PlannerScoringService:
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
     ) -> PlannerConditionBreakdown:
-        return self._conditions_service.planner_condition_breakdown(item, sky_quality, moon)
+        moon_penalty = self.moon_penalty(item, moon)
+        pollution_penalty = self.pollution_penalty(item, sky_quality)
+        applied_components = []
+        diagnostic_notes = []
+
+        if moon_penalty > 0:
+            applied_components.append("moon")
+            diagnostic_notes.append(f"moon:illumination={self._conditions_service.moon_illumination(moon):g}")
+        else:
+            diagnostic_notes.append("moon:neutral")
+
+        diagnostic_notes.extend(self._conditions_service.sky_quality_diagnostics(sky_quality))
+        if pollution_penalty > 0:
+            applied_components.append("planner_light_pollution")
+            diagnostic_notes.append("planner_light_pollution:active")
+        else:
+            diagnostic_notes.append("planner_light_pollution:neutral")
+
+        diagnostic_notes.extend(
+            (
+                "weather:planner_owned",
+                "difficulty:planner_owned",
+                "seeing:advanced_scores_input",
+                "transparency:advanced_scores_input",
+            )
+        )
+        return PlannerConditionBreakdown(
+            object_id=item.id,
+            base_score=item.score,
+            moon_penalty=moon_penalty,
+            pollution_penalty=pollution_penalty,
+            applied_components=tuple(applied_components),
+            diagnostic_notes=tuple(diagnostic_notes),
+        )
 
     @staticmethod
     def weather_factor(weather: WeatherSummary) -> float:

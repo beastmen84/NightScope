@@ -41,16 +41,6 @@ class ConditionedTarget:
     original_target: CelestialObject | None = None
 
 
-@dataclass(frozen=True)
-class PlannerConditionBreakdown:
-    object_id: str
-    base_score: int
-    moon_penalty: float = 0.0
-    pollution_penalty: float = 0.0
-    applied_components: tuple[str, ...] = ()
-    diagnostic_notes: tuple[str, ...] = ()
-
-
 class ObservationConditionsService:
     """Applies existing observing-condition adjustments without changing formulas."""
 
@@ -255,47 +245,6 @@ class ObservationConditionsService:
             base *= 0.7
         return base
 
-    def planner_condition_breakdown(
-        self,
-        target: CelestialObject,
-        sky_quality: SkyQuality,
-        moon: MoonSummary | None,
-    ) -> PlannerConditionBreakdown:
-        moon_penalty = self.moon_penalty(target, moon)
-        pollution_penalty = self.planner_pollution_penalty(target, sky_quality)
-        applied_components = []
-        diagnostic_notes = []
-
-        if moon_penalty > 0:
-            applied_components.append("moon")
-            diagnostic_notes.append(f"moon:illumination={self._moon_illumination(moon):g}")
-        else:
-            diagnostic_notes.append("moon:neutral")
-
-        diagnostic_notes.extend(self._sky_quality_diagnostics(sky_quality))
-        if pollution_penalty > 0:
-            applied_components.append("planner_light_pollution")
-            diagnostic_notes.append("planner_light_pollution:active")
-        else:
-            diagnostic_notes.append("planner_light_pollution:neutral")
-
-        diagnostic_notes.extend(
-            (
-                "weather:planner_owned",
-                "difficulty:planner_owned",
-                "seeing:advanced_scores_input",
-                "transparency:advanced_scores_input",
-            )
-        )
-        return PlannerConditionBreakdown(
-            object_id=target.id,
-            base_score=target.score,
-            moon_penalty=moon_penalty,
-            pollution_penalty=pollution_penalty,
-            applied_components=tuple(applied_components),
-            diagnostic_notes=tuple(diagnostic_notes),
-        )
-
     @staticmethod
     def deep_sky_pollution_base_penalty(sky_quality: SkyQuality | None) -> float:
         if not sky_quality:
@@ -369,6 +318,10 @@ class ObservationConditionsService:
             "pm25:identity_placeholder",
         )
 
+    @classmethod
+    def sky_quality_diagnostics(cls, sky_quality: SkyQuality | None) -> tuple[str, ...]:
+        return cls._sky_quality_diagnostics(sky_quality)
+
     @staticmethod
     def _sky_quality_diagnostics(sky_quality: SkyQuality | None) -> tuple[str, ...]:
         if not sky_quality:
@@ -376,6 +329,10 @@ class ObservationConditionsService:
         radiance = getattr(sky_quality, "viirs_radiance", None)
         viirs = "missing" if radiance is None else f"{radiance:g}"
         return (f"sky_quality:bortle={sky_quality.bortle_class}", f"sky_quality:viirs={viirs}")
+
+    @classmethod
+    def moon_illumination(cls, moon: MoonSummary | None) -> float:
+        return cls._moon_illumination(moon)
 
     @staticmethod
     def _moon_illumination(moon: MoonSummary | None) -> float:

@@ -312,13 +312,18 @@ def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
     planner_breakdown_source = inspect.getsource(NightPlannerService._planner_score_breakdown)
     scoring_source = inspect.getsource(PlannerScoringService.score_breakdown)
     pollution_source = inspect.getsource(PlannerScoringService.pollution_penalty)
+    condition_source = inspect.getsource(PlannerScoringService.condition_breakdown)
+    observation_conditions_source = inspect.getsource(ObservationConditionsService)
 
     assert "_planner_score_breakdown" in score_source
     assert "PlannerScoringService" in planner_breakdown_source
     assert "condition_breakdown" in scoring_source
+    assert "PlannerConditionBreakdown" in condition_source
     assert "weather_factor" in scoring_source
     assert "difficulty_factor" in scoring_source
     assert "planner_pollution_penalty" in pollution_source
+    assert "planner_condition_breakdown" not in observation_conditions_source
+    assert "PlannerConditionBreakdown" not in observation_conditions_source
     assert "apply_pollution" not in score_source + planner_breakdown_source + scoring_source
     assert "deep_sky_pollution" not in score_source + planner_breakdown_source + scoring_source
 
