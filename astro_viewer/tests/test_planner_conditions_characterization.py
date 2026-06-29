@@ -307,15 +307,17 @@ def test_planner_moon_score_matches_observation_conditions_service():
 
 
 def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
-    source = inspect.getsource(NightPlannerService._planner_score)
+    score_source = inspect.getsource(NightPlannerService._planner_score)
+    breakdown_source = inspect.getsource(NightPlannerService._planner_score_breakdown)
     pollution_source = inspect.getsource(NightPlannerService._pollution_penalty)
 
-    assert "_planner_condition_breakdown" in source
-    assert "_weather_factor" in source
-    assert "difficulty_factor" in source
+    assert "_planner_score_breakdown" in score_source
+    assert "_planner_condition_breakdown" in breakdown_source
+    assert "_weather_factor" in breakdown_source
+    assert "difficulty_factor" in breakdown_source
     assert "planner_pollution_penalty" in pollution_source
-    assert "apply_pollution" not in source
-    assert "deep_sky_pollution" not in source
+    assert "apply_pollution" not in score_source + breakdown_source
+    assert "deep_sky_pollution" not in score_source + breakdown_source
 
 
 def test_current_pollution_penalty_boundaries_are_characterized():
@@ -376,6 +378,71 @@ def test_planner_condition_breakdown_is_neutral_for_planets_under_low_moon_and_g
     assert breakdown.applied_components == ()
     assert "moon:neutral" in breakdown.diagnostic_notes
     assert "planner_light_pollution:neutral" in breakdown.diagnostic_notes
+
+
+def test_planner_score_breakdown_matches_current_formula():
+    galaxy = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    weather = _weather(85)
+    scores = _scores()
+    sky_quality = _sky_quality(8, radiance=20)
+    moon = _moon(95)
+    telescope = _telescope()
+
+    breakdown = NightPlannerService._planner_score_breakdown(
+        galaxy,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+
+    assert breakdown.object_id == "galaxy"
+    assert breakdown.base_score == 82
+    assert breakdown.category_score == 88
+    assert breakdown.weather_score == 85
+    assert breakdown.object_score_contribution == pytest.approx(39.36)
+    assert breakdown.category_score_contribution == pytest.approx(29.92)
+    assert breakdown.weather_score_contribution == pytest.approx(15.3)
+    assert breakdown.aperture_bonus == pytest.approx(127 / 18)
+    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(galaxy, moon)
+    assert breakdown.pollution_penalty == NightPlannerService._pollution_penalty(galaxy, sky_quality)
+    assert breakdown.difficulty_factor == 0.95
+    assert breakdown.weather_factor == 1.0
+    assert breakdown.raw_score_before_weather == pytest.approx(
+        breakdown.raw_score_before_difficulty * breakdown.difficulty_factor
+    )
+    assert breakdown.final_score == pytest.approx(breakdown.raw_score_before_weather * breakdown.weather_factor)
+    assert breakdown.final_score == pytest.approx(
+        NightPlannerService._planner_score(galaxy, weather, scores, sky_quality, telescope, moon)
+    )
+    assert breakdown.conditions.applied_components == ("moon", "planner_light_pollution")
+
+
+def test_planner_score_breakdown_keeps_weather_factor_after_raw_score():
+    target = _target("galaxy", "Galaxy", 80, "Difficile", "21:00", "8.5")
+    weather = _weather(35)
+    scores = _scores()
+    sky_quality = _sky_quality(3)
+    moon = _moon(10)
+
+    breakdown = NightPlannerService._planner_score_breakdown(
+        target,
+        weather,
+        scores,
+        sky_quality,
+        _telescope(),
+        moon,
+    )
+
+    assert breakdown.difficulty_factor == 0.75
+    assert breakdown.weather_factor == 0.65
+    assert breakdown.raw_score_before_weather == pytest.approx(
+        breakdown.raw_score_before_difficulty * breakdown.difficulty_factor
+    )
+    assert breakdown.final_score == pytest.approx(
+        breakdown.raw_score_before_difficulty * breakdown.difficulty_factor * breakdown.weather_factor
+    )
 
 
 @pytest.mark.parametrize(
