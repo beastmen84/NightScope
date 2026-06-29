@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Telescope
@@ -8,30 +7,10 @@ from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionsService,
     PlannerConditionBreakdown,
     TargetConditionBreakdown,
 )
-
-
-@dataclass(frozen=True)
-class PlannerScoreBreakdown:
-    object_id: str
-    base_score: int
-    category_score: int
-    weather_score: int
-    object_score_contribution: float
-    category_score_contribution: float
-    weather_score_contribution: float
-    aperture_bonus: float
-    moon_penalty: float
-    pollution_penalty: float
-    difficulty_factor: float
-    weather_factor: float
-    raw_score_before_difficulty: float
-    raw_score_before_weather: float
-    final_score: float
-    conditions: PlannerConditionBreakdown
+from astro_viewer.app.services.planner_scoring_service import PlannerScoreBreakdown, PlannerScoringService
 
 
 class NightPlannerService:
@@ -113,42 +92,7 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
     ) -> PlannerScoreBreakdown:
-        category_score = scores.planetary_score if item.object_type == "Pianeta" else scores.deep_sky_score
-        aperture_bonus = min(14, telescope.aperture_mm / 18)
-        conditions = NightPlannerService._planner_condition_breakdown(item, sky_quality, moon)
-        difficulty_factor = {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
-        weather_factor = NightPlannerService._weather_factor(weather)
-        object_score_contribution = item.score * 0.48
-        category_score_contribution = category_score * 0.34
-        weather_score_contribution = weather.score_value * 0.18
-        raw_score_before_difficulty = (
-            object_score_contribution
-            + category_score_contribution
-            + weather_score_contribution
-            + aperture_bonus
-            - conditions.pollution_penalty
-            - conditions.moon_penalty
-        )
-        raw_score_before_weather = raw_score_before_difficulty * difficulty_factor
-        final_score = raw_score_before_weather * weather_factor
-        return PlannerScoreBreakdown(
-            object_id=item.id,
-            base_score=item.score,
-            category_score=category_score,
-            weather_score=weather.score_value,
-            object_score_contribution=object_score_contribution,
-            category_score_contribution=category_score_contribution,
-            weather_score_contribution=weather_score_contribution,
-            aperture_bonus=aperture_bonus,
-            moon_penalty=conditions.moon_penalty,
-            pollution_penalty=conditions.pollution_penalty,
-            difficulty_factor=difficulty_factor,
-            weather_factor=weather_factor,
-            raw_score_before_difficulty=raw_score_before_difficulty,
-            raw_score_before_weather=raw_score_before_weather,
-            final_score=final_score,
-            conditions=conditions,
-        )
+        return PlannerScoringService().score_breakdown(item, weather, scores, sky_quality, telescope, moon)
 
     @staticmethod
     def weather_blocking_status(weather: WeatherSummary) -> WeatherBlockingStatus:
@@ -178,29 +122,23 @@ class NightPlannerService:
 
     @staticmethod
     def _weather_factor(weather: WeatherSummary) -> float:
-        if weather.score_value >= 70:
-            return 1.0
-        if weather.score_value >= 50:
-            return 0.85
-        if weather.score_value >= 25:
-            return 0.65
-        return 0.35
+        return PlannerScoringService.weather_factor(weather)
 
     @staticmethod
     def moon_adjusted_score(item: CelestialObject, moon: MoonSummary | None) -> int:
-        return NightPlannerService._moon_condition_breakdown(item, moon).adjusted_score
+        return PlannerScoringService().moon_adjusted_score(item, moon)
 
     @staticmethod
     def moon_penalty(item: CelestialObject, moon: MoonSummary | None) -> float:
-        return NightPlannerService._moon_condition_breakdown(item, moon).moon_penalty
+        return PlannerScoringService().moon_penalty(item, moon)
 
     @staticmethod
     def _moon_condition_breakdown(item: CelestialObject, moon: MoonSummary | None) -> TargetConditionBreakdown:
-        return ObservationConditionsService().moon_adjusted_score(item, moon)
+        return PlannerScoringService().moon_condition_breakdown(item, moon)
 
     @staticmethod
     def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
-        return ObservationConditionsService.planner_pollution_penalty(item, sky_quality)
+        return PlannerScoringService().pollution_penalty(item, sky_quality)
 
     @staticmethod
     def _planner_condition_breakdown(
@@ -208,7 +146,7 @@ class NightPlannerService:
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
     ) -> PlannerConditionBreakdown:
-        return ObservationConditionsService().planner_condition_breakdown(item, sky_quality, moon)
+        return PlannerScoringService().condition_breakdown(item, sky_quality, moon)
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:

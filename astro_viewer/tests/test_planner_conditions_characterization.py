@@ -8,6 +8,7 @@ from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import ObservationConditionsService
+from astro_viewer.app.services.planner_scoring_service import PlannerScoringService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -308,16 +309,18 @@ def test_planner_moon_score_matches_observation_conditions_service():
 
 def test_planner_condition_refactor_keeps_weather_and_difficulty_local():
     score_source = inspect.getsource(NightPlannerService._planner_score)
-    breakdown_source = inspect.getsource(NightPlannerService._planner_score_breakdown)
-    pollution_source = inspect.getsource(NightPlannerService._pollution_penalty)
+    planner_breakdown_source = inspect.getsource(NightPlannerService._planner_score_breakdown)
+    scoring_source = inspect.getsource(PlannerScoringService.score_breakdown)
+    pollution_source = inspect.getsource(PlannerScoringService.pollution_penalty)
 
     assert "_planner_score_breakdown" in score_source
-    assert "_planner_condition_breakdown" in breakdown_source
-    assert "_weather_factor" in breakdown_source
-    assert "difficulty_factor" in breakdown_source
+    assert "PlannerScoringService" in planner_breakdown_source
+    assert "condition_breakdown" in scoring_source
+    assert "weather_factor" in scoring_source
+    assert "difficulty_factor" in scoring_source
     assert "planner_pollution_penalty" in pollution_source
-    assert "apply_pollution" not in score_source + breakdown_source
-    assert "deep_sky_pollution" not in score_source + breakdown_source
+    assert "apply_pollution" not in score_source + planner_breakdown_source + scoring_source
+    assert "deep_sky_pollution" not in score_source + planner_breakdown_source + scoring_source
 
 
 def test_current_pollution_penalty_boundaries_are_characterized():
@@ -417,6 +420,24 @@ def test_planner_score_breakdown_matches_current_formula():
         NightPlannerService._planner_score(galaxy, weather, scores, sky_quality, telescope, moon)
     )
     assert breakdown.conditions.applied_components == ("moon", "planner_light_pollution")
+
+
+def test_planner_scoring_service_matches_night_planner_wrapper():
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    weather = _weather(85)
+    scores = _scores()
+    sky_quality = _sky_quality(8, radiance=20)
+    moon = _moon(95)
+    telescope = _telescope()
+
+    service = PlannerScoringService()
+
+    assert service.score(target, weather, scores, sky_quality, telescope, moon) == pytest.approx(
+        NightPlannerService._planner_score(target, weather, scores, sky_quality, telescope, moon)
+    )
+    assert service.score_breakdown(target, weather, scores, sky_quality, telescope, moon) == (
+        NightPlannerService._planner_score_breakdown(target, weather, scores, sky_quality, telescope, moon)
+    )
 
 
 def test_planner_score_breakdown_keeps_weather_factor_after_raw_score():
