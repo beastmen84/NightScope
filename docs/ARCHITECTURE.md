@@ -44,6 +44,26 @@ grown beyond a narrow presentation adapter. `AppController` also orchestrates
 refresh flows, profile mutation, object formatting, weather digests, calendar
 presentation and recommendation enrichment.
 
+## NightScope Observation Model
+
+NightScope's long-term scoring and planning direction is defined by
+[NSOM 1.0 - NightScope Observation Model](NIGHTSCOPE_OBSERVATION_MODEL_1_0.md).
+
+NSOM separates:
+
+- Universe / Intrinsic Target
+- Sky / Observation Environment
+- Effective Observability
+- Observable Target Value
+- Observer Capability
+- Practical Target Value
+- Observation Opportunity
+- Planner
+- Recommendation Confidence
+
+Future scoring changes should be checked against this model before
+implementation.
+
 ## Dependency Flow
 
 The intended dependency flow is:
@@ -447,7 +467,7 @@ For future changes:
   objects and Planner ranking separately for galaxies, nebulae, globular
   clusters and open clusters.
 - Before enabling new AOD/OpenAQ, Moon-geometry or transparency scoring, use
-  `docs/MATHEMATICAL_SCORING_ARCHITECTURE_REVIEW.md` as the mathematical
-  ownership and double-counting reference.
+  `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md` as the mathematical ownership and
+  double-counting reference.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.

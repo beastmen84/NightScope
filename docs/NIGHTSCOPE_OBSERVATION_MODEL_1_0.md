@@ -1,6 +1,86 @@
-# NightScope Mathematical Scoring Architecture Review
+# NSOM 1.0 - NightScope Observation Model
 
-Status: design review, no production scoring changes.
+Status: FROZEN reference model - NSOM 1.0
+
+This document defines the long-term NightScope observation model.
+
+Future implementation should adapt to this model rather than changing the model
+to fit short-term implementation constraints.
+
+Changes to this document should be rare and should require explicit
+architectural review.
+
+Current production code does not fully implement NSOM 1.0 yet.
+
+## Core Diagram
+
+```text
+NightScope Observation Model (NSOM 1.0)
+
+The Universe
+    |
+    v
+Intrinsic Target
+    |
+    v
+The Sky / Observation Environment
+    |
+    v
+Effective Observability
+    |
+    v
+Observable Target Value
+    |
+    v
+The Observer
+    |
+    v
+Observer Capability
+    |
+    v
+Practical Target Value
+    |
+    v
+Observation Opportunity
+    |
+    v
+Planner
+    |
+    v
+Presentation
+
+
+Recommendation Confidence
+    +- Weather confidence
+    +- AOD confidence
+    +- OpenAQ confidence
+    +- VIIRS confidence
+    +- Moon geometry confidence
+    +- Provider / fallback confidence
+
+Confidence runs in parallel.
+It must not silently modify score.
+```
+
+## Implementation Principle
+
+The model is the source of truth.
+
+Code should move toward NSOM 1.0.
+
+NSOM 1.0 should not be rewritten to justify accidental implementation details.
+
+## Decision Rule
+
+Any future scoring or planning change should answer:
+
+1. Which NSOM layer does this belong to?
+2. Which physical phenomenon or observer capability does it model?
+3. Who owns it?
+4. Could it double-count an existing phenomenon?
+5. Does it affect score, confidence, or presentation?
+6. Does it preserve the separation between Universe, Sky, Observer,
+   Opportunity and Planner?
 
 Scope:
 

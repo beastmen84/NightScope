@@ -47,6 +47,12 @@ La UI e il flusso principale sono considerati stabili per l'uso osservativo visu
 
 Il numero versione applicativo è tracciato nel file root `VERSION`.
 
+La direzione matematica di lungo periodo per scoring, pianificazione e logica
+osservativa è fissata in
+[NSOM 1.0 - NightScope Observation Model](docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md).
+Le future modifiche a scoring e Planner dovrebbero essere verificate contro
+quel modello prima dell'implementazione.
+
 ## Requisiti
 
 - Windows 10/11.
