@@ -17,7 +17,9 @@ from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
+    MoonGeometryConditionInput,
     ObservationConditionInputs,
+    ObservationConditionFeatureFlags,
     ObservationConditionsService,
     ParticulateConditionInput,
 )
@@ -330,6 +332,206 @@ def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_compon
     assert breakdown.pm25_modifier == 0.0
     assert "aod:score_neutral" in breakdown.diagnostic_notes
     assert "particulate:score_neutral" in breakdown.diagnostic_notes
+
+
+def test_future_aod_freshness_weights_are_characterized() -> None:
+    service = ObservationConditionsService()
+
+    assert service.aod_freshness_weight(age_days=0.0) == 1.0
+    assert service.aod_freshness_weight(age_days=3.0) == 1.0
+    assert service.aod_freshness_weight(age_days=4.0) == 0.5
+    assert service.aod_freshness_weight(age_days=7.0) == 0.5
+    assert service.aod_freshness_weight(age_days=7.01) == 0.0
+    assert service.aod_freshness_weight(freshness_category="current") == 1.0
+    assert service.aod_freshness_weight(freshness_category="recent") == 1.0
+    assert service.aod_freshness_weight(freshness_category="stale") == 0.5
+    assert service.aod_freshness_weight(freshness_category="historical") == 0.0
+
+
+def test_future_openaq_particulate_freshness_weights_are_characterized() -> None:
+    service = ObservationConditionsService()
+
+    assert service.particulate_freshness_weight(age_days=0.0) == 1.0
+    assert service.particulate_freshness_weight(age_days=1.0) == 1.0
+    assert service.particulate_freshness_weight(age_days=2.0) == 0.7
+    assert service.particulate_freshness_weight(age_days=3.0) == 0.7
+    assert service.particulate_freshness_weight(age_days=4.0) == 0.3
+    assert service.particulate_freshness_weight(age_days=7.0) == 0.3
+    assert service.particulate_freshness_weight(age_days=7.01) == 0.0
+    assert service.particulate_freshness_weight(freshness_category="current") == 1.0
+    assert service.particulate_freshness_weight(freshness_category="recent") == 0.7
+    assert service.particulate_freshness_weight(freshness_category="stale") == 0.3
+    assert service.particulate_freshness_weight(freshness_category="historical") == 0.0
+
+
+def test_future_aerosol_target_sensitivity_order_and_caps_are_characterized() -> None:
+    service = ObservationConditionsService()
+    moon = service.atmospheric_sensitivity_profile(_target("moon", "Luna", "Satellite naturale", 90))
+    planet = service.atmospheric_sensitivity_profile(_target("mars", "Marte", "Pianeta", 90))
+    globular = service.atmospheric_sensitivity_profile(_target("m13", "M13", "Globular Cluster", 90))
+    open_cluster = service.atmospheric_sensitivity_profile(_target("m45", "M45", "Open Cluster", 90))
+    planetary = service.atmospheric_sensitivity_profile(_target("m57", "M57", "Planetary Nebula", 90))
+    diffuse = service.atmospheric_sensitivity_profile(_target("m42", "M42", "Diffuse Nebula", 90))
+    galaxy = service.atmospheric_sensitivity_profile(_target("m31", "M31", "Galaxy", 90))
+
+    assert moon.target_class == "moon"
+    assert planet.target_class == "planet"
+    assert globular.target_class == "globular_cluster"
+    assert open_cluster.target_class == "open_cluster"
+    assert planetary.target_class == "planetary_nebula"
+    assert diffuse.target_class == "diffuse_nebula"
+    assert galaxy.target_class == "galaxy"
+
+    assert galaxy.sensitivity > diffuse.sensitivity > open_cluster.sensitivity > planet.sensitivity > moon.sensitivity
+    assert planetary.sensitivity > planet.sensitivity
+    assert globular.sensitivity > planet.sensitivity
+    assert moon.penalty_cap == 1.0
+    assert planet.penalty_cap == 3.0
+    assert open_cluster.penalty_cap == 3.0
+    assert globular.penalty_cap == 4.0
+    assert planetary.penalty_cap == 5.0
+    assert diffuse.penalty_cap == 8.0
+    assert galaxy.penalty_cap == 12.0
+
+
+def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:
+    service = ObservationConditionsService()
+    aod = AodConditionInput(
+        available=True,
+        freshness_category="current",
+        aod_550=0.22,
+        age_days=1.0,
+    )
+    historical_aod = AodConditionInput(
+        available=True,
+        freshness_category="historical",
+        aod_550=0.22,
+        age_days=9.0,
+    )
+    particulate = ParticulateConditionInput(
+        available=True,
+        freshness_category="current",
+        pm25=28.0,
+        pm10=64.0,
+        age_days=0.2,
+    )
+
+    assert service.aerosol_primary_source(aod, particulate) == "aod"
+    assert service.aerosol_primary_source(historical_aod, particulate) == "particulate"
+    assert service.aerosol_primary_source(None, particulate) == "particulate"
+    assert service.aerosol_primary_source(historical_aod, None) == "none"
+
+
+def test_future_aerosol_modifier_is_neutral_with_feature_flag_off() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+    flags = ObservationConditionFeatureFlags()
+    aod = AodConditionInput(available=True, freshness_category="current", aod_550=0.44, age_days=1.0)
+    particulate = ParticulateConditionInput(
+        available=True,
+        freshness_category="current",
+        pm25=40.0,
+        pm10=90.0,
+        age_days=0.5,
+    )
+
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs.diagnostic_only(aod=aod, particulate=particulate),
+    )
+
+    assert flags.experimental_aerosol_scoring is False
+    assert service.intended_aerosol_modifier(target, aod, particulate, flags) == 0.0
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.aod_modifier == 0.0
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert conditioned.breakdown.applied_components == ()
+
+
+def test_future_moon_geometry_fields_are_represented_diagnostically() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+    geometry = MoonGeometryConditionInput(
+        moon_altitude_deg=45.0,
+        moon_target_separation_deg=12.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+        moon_set_before_target_window=False,
+    )
+
+    conditioned = service.condition_target(target, ObservationConditionInputs(moon_geometry=geometry))
+    notes = conditioned.breakdown.diagnostic_notes
+
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.moon_geometry_factor == 1.35
+    assert "moon_geometry:available" in notes
+    assert "moon_geometry:altitude=45" in notes
+    assert "moon_geometry:separation=12" in notes
+    assert "moon_geometry:above_horizon=true" in notes
+    assert "moon_geometry:visible_during_window=true" in notes
+    assert "moon_geometry:set_before_window=false" in notes
+    assert "moon_geometry:future_factor=1.35" in notes
+    assert "moon_geometry:score_neutral" in notes
+
+
+def test_future_moon_geometry_altitude_and_timing_factors_are_characterized() -> None:
+    service = ObservationConditionsService()
+    below_horizon = MoonGeometryConditionInput(
+        moon_altitude_deg=-4.0,
+        moon_above_horizon=False,
+        moon_visible_during_target_window=False,
+    )
+    low_altitude = MoonGeometryConditionInput(
+        moon_altitude_deg=8.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+    )
+    high_altitude = MoonGeometryConditionInput(
+        moon_altitude_deg=45.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+    )
+    set_before_window = MoonGeometryConditionInput(
+        moon_altitude_deg=45.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=False,
+        moon_set_before_target_window=True,
+    )
+
+    assert service.moon_altitude_future_factor(below_horizon) == 0.0
+    assert service.moon_altitude_future_factor(low_altitude) == 0.25
+    assert service.moon_altitude_future_factor(high_altitude) == 1.0
+    assert service.intended_moon_geometry_factor(below_horizon) < service.intended_moon_geometry_factor(high_altitude)
+    assert service.intended_moon_geometry_factor(set_before_window) == 0.0
+
+
+def test_future_moon_geometry_separation_factors_are_characterized() -> None:
+    service = ObservationConditionsService()
+    close = MoonGeometryConditionInput(moon_target_separation_deg=12.0)
+    mid = MoonGeometryConditionInput(moon_target_separation_deg=55.0)
+    far = MoonGeometryConditionInput(moon_target_separation_deg=125.0)
+
+    assert service.moon_separation_future_factor(close) == 1.35
+    assert service.moon_separation_future_factor(mid) == 0.65
+    assert service.moon_separation_future_factor(far) == 0.35
+    assert service.moon_separation_future_factor(close) > service.moon_separation_future_factor(far)
+
+
+def test_future_moon_geometry_modifier_is_neutral_with_feature_flag_off() -> None:
+    service = ObservationConditionsService()
+    flags = ObservationConditionFeatureFlags()
+    geometry = MoonGeometryConditionInput(
+        moon_altitude_deg=50.0,
+        moon_target_separation_deg=10.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+    )
+
+    assert flags.experimental_moon_geometry_scoring is False
+    assert service.intended_moon_geometry_factor(geometry) > 1.0
+    assert service.intended_moon_geometry_modifier(geometry, flags) == 0.0
 
 
 def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:

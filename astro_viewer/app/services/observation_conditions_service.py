@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from dataclasses import field
 from dataclasses import replace
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -33,11 +34,41 @@ class ParticulateConditionInput:
 
 
 @dataclass(frozen=True)
+class ObservationConditionFeatureFlags:
+    """Experimental condition modifiers, intentionally disabled by default."""
+
+    experimental_aerosol_scoring: bool = False
+    experimental_moon_geometry_scoring: bool = False
+
+
+@dataclass(frozen=True)
+class MoonGeometryConditionInput:
+    """Future Moon geometry diagnostics for score-neutral characterization."""
+
+    moon_altitude_deg: float | None = None
+    moon_target_separation_deg: float | None = None
+    moon_above_horizon: bool | None = None
+    moon_visible_during_target_window: bool | None = None
+    moon_set_before_target_window: bool | None = None
+
+
+@dataclass(frozen=True)
+class AtmosphericSensitivityProfile:
+    """Intended future aerosol/particulate sensitivity for a target class."""
+
+    target_class: str
+    sensitivity: float
+    penalty_cap: float
+
+
+@dataclass(frozen=True)
 class ObservationConditionInputs:
     moon: MoonSummary | None = None
     sky_quality: SkyQuality | None = None
     aod: AodConditionInput | None = None
     particulate: ParticulateConditionInput | None = None
+    moon_geometry: MoonGeometryConditionInput | None = None
+    feature_flags: ObservationConditionFeatureFlags = field(default_factory=ObservationConditionFeatureFlags)
 
     @classmethod
     def diagnostic_only(
@@ -54,6 +85,7 @@ class TargetConditionBreakdown:
     object_id: str
     base_score: int
     moon_penalty: float = 0.0
+    moon_geometry_factor: float = 1.0
     pollution_penalty: float = 0.0
     weather_factor: float = 1.0
     seeing_factor: float = 1.0
@@ -79,6 +111,19 @@ class ObservationConditionsService:
 
     POLLUTION_CONTEXT_NOTE = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
     POLLUTION_CONTEXT_FLAG = "light_pollution"
+    SOLAR_SYSTEM_IDS = frozenset(
+        {
+            "sun",
+            "moon",
+            "mercury",
+            "venus",
+            "mars",
+            "jupiter",
+            "saturn",
+            "uranus",
+            "neptune",
+        }
+    )
 
     def apply_moon_adjustment(
         self,
@@ -203,6 +248,7 @@ class ObservationConditionsService:
             object_id=target.id,
             base_score=target.score,
             moon_penalty=moon_penalty,
+            moon_geometry_factor=self.intended_moon_geometry_factor(inputs.moon_geometry),
             pollution_penalty=pollution_penalty,
             adjusted_score=score,
             applied_components=tuple(applied_components),
@@ -311,11 +357,173 @@ class ObservationConditionsService:
         return sensitivity * illumination_factor
 
     @staticmethod
+    def aod_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
+        """Intended future NASA AOD confidence weight; score-neutral in 1.3.7a."""
+
+        if age_days is not None:
+            age = max(0.0, age_days)
+            if age <= 3.0:
+                return 1.0
+            if age <= 7.0:
+                return 0.5
+            return 0.0
+        category = ObservationConditionsService._freshness_category(freshness_category or "")
+        return {
+            "current": 1.0,
+            "recent": 1.0,
+            "stale": 0.5,
+            "historical": 0.0,
+        }.get(category, 0.0)
+
+    @staticmethod
+    def particulate_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
+        """Intended future OpenAQ/PM confidence weight; score-neutral in 1.3.7a."""
+
+        if age_days is not None:
+            age = max(0.0, age_days)
+            if age <= 1.0:
+                return 1.0
+            if age <= 3.0:
+                return 0.7
+            if age <= 7.0:
+                return 0.3
+            return 0.0
+        category = ObservationConditionsService._freshness_category(freshness_category or "")
+        return {
+            "current": 1.0,
+            "recent": 0.7,
+            "stale": 0.3,
+            "historical": 0.0,
+        }.get(category, 0.0)
+
+    @classmethod
+    def atmospheric_sensitivity_profile(cls, target: CelestialObject) -> AtmosphericSensitivityProfile:
+        """Return the intended future aerosol sensitivity without applying it."""
+
+        lower_type = target.object_type.lower()
+        if target.id == "moon" or "luna" in lower_type:
+            return AtmosphericSensitivityProfile("moon", 0.05, 1.0)
+        if target.object_type == "Pianeta" or target.id in cls.SOLAR_SYSTEM_IDS:
+            return AtmosphericSensitivityProfile("planet", 0.15, 3.0)
+        if "galaxy" in lower_type or "galassia" in lower_type:
+            return AtmosphericSensitivityProfile("galaxy", 1.0, 12.0)
+        if "diffuse" in lower_type:
+            return AtmosphericSensitivityProfile("diffuse_nebula", 0.85, 8.0)
+        if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
+            return AtmosphericSensitivityProfile("planetary_nebula", 0.55, 5.0)
+        if "nebula" in lower_type or "nebul" in lower_type:
+            return AtmosphericSensitivityProfile("diffuse_nebula", 0.75, 8.0)
+        if "globular" in lower_type or "ammasso globulare" in lower_type:
+            return AtmosphericSensitivityProfile("globular_cluster", 0.45, 4.0)
+        if "open" in lower_type or "cluster" in lower_type or "star cloud" in lower_type:
+            return AtmosphericSensitivityProfile("open_cluster", 0.5, 3.0)
+        return AtmosphericSensitivityProfile("general", 0.35, 4.0)
+
+    @classmethod
+    def aerosol_primary_source(
+        cls,
+        aod: AodConditionInput | None,
+        particulate: ParticulateConditionInput | None,
+    ) -> str:
+        """AOD dominates PM; PM is fallback when AOD has no useful value."""
+
+        aod_available = (
+            aod is not None
+            and aod.available
+            and aod.aod_550 is not None
+            and cls.aod_freshness_weight(aod.age_days, aod.freshness_category) > 0.0
+        )
+        particulate_available = (
+            particulate is not None
+            and particulate.available
+            and (particulate.pm25 is not None or particulate.pm10 is not None)
+            and cls.particulate_freshness_weight(particulate.age_days, particulate.freshness_category) > 0.0
+        )
+        if aod_available:
+            return "aod"
+        if particulate_available:
+            return "particulate"
+        return "none"
+
+    @staticmethod
+    def intended_aerosol_modifier(
+        target: CelestialObject,
+        aod: AodConditionInput | None,
+        particulate: ParticulateConditionInput | None,
+        feature_flags: ObservationConditionFeatureFlags | None = None,
+    ) -> float:
+        """Future scoring hook; intentionally neutral until an experimental flag is wired."""
+
+        del target, aod, particulate
+        flags = feature_flags or ObservationConditionFeatureFlags()
+        if not flags.experimental_aerosol_scoring:
+            return 0.0
+        return 0.0
+
+    @classmethod
+    def intended_moon_geometry_factor(cls, geometry: MoonGeometryConditionInput | None) -> float:
+        """Future Moon geometry factor used for diagnostics only in this milestone."""
+
+        if geometry is None:
+            return 1.0
+        if geometry.moon_set_before_target_window is True:
+            return 0.0
+        altitude_factor = cls.moon_altitude_future_factor(geometry)
+        separation_factor = cls.moon_separation_future_factor(geometry)
+        return altitude_factor * separation_factor
+
+    @staticmethod
+    def moon_altitude_future_factor(geometry: MoonGeometryConditionInput | None) -> float:
+        if geometry is None:
+            return 1.0
+        if geometry.moon_set_before_target_window is True:
+            return 0.0
+        if geometry.moon_visible_during_target_window is False or geometry.moon_above_horizon is False:
+            return 0.0
+        altitude = geometry.moon_altitude_deg
+        if altitude is None:
+            return 1.0
+        if altitude <= 0.0:
+            return 0.0
+        if altitude < 10.0:
+            return 0.25
+        if altitude < 30.0:
+            return 0.6
+        return 1.0
+
+    @staticmethod
+    def moon_separation_future_factor(geometry: MoonGeometryConditionInput | None) -> float:
+        if geometry is None or geometry.moon_target_separation_deg is None:
+            return 1.0
+        separation = max(0.0, geometry.moon_target_separation_deg)
+        if separation < 20.0:
+            return 1.35
+        if separation < 45.0:
+            return 1.0
+        if separation < 90.0:
+            return 0.65
+        return 0.35
+
+    @staticmethod
+    def intended_moon_geometry_modifier(
+        geometry: MoonGeometryConditionInput | None,
+        feature_flags: ObservationConditionFeatureFlags | None = None,
+    ) -> float:
+        """Future scoring hook; intentionally neutral until an experimental flag is wired."""
+
+        del geometry
+        flags = feature_flags or ObservationConditionFeatureFlags()
+        if not flags.experimental_moon_geometry_scoring:
+            return 0.0
+        return 0.0
+
+    @staticmethod
     def _breakdown(
         *,
         object_id: str,
         base_score: int,
         moon_penalty: float = 0.0,
+        moon_geometry_factor: float = 1.0,
         pollution_penalty: float = 0.0,
         adjusted_score: int,
         applied_components: tuple[str, ...] = (),
@@ -326,6 +534,7 @@ class ObservationConditionsService:
             object_id=object_id,
             base_score=base_score,
             moon_penalty=moon_penalty,
+            moon_geometry_factor=moon_geometry_factor,
             pollution_penalty=pollution_penalty,
             weather_factor=1.0,
             seeing_factor=1.0,
@@ -359,7 +568,30 @@ class ObservationConditionsService:
             "equipment:identity_placeholder",
             *cls._aod_diagnostics(inputs.aod),
             *cls._particulate_diagnostics(inputs.particulate),
+            *cls._moon_geometry_diagnostics(inputs.moon_geometry),
         )
+
+    @classmethod
+    def _moon_geometry_diagnostics(cls, geometry: MoonGeometryConditionInput | None) -> tuple[str, ...]:
+        if geometry is None:
+            return ("moon_geometry:identity_placeholder",)
+        notes = ["moon_geometry:available"]
+        if geometry.moon_altitude_deg is not None:
+            notes.append(f"moon_geometry:altitude={geometry.moon_altitude_deg:g}")
+        if geometry.moon_target_separation_deg is not None:
+            notes.append(f"moon_geometry:separation={geometry.moon_target_separation_deg:g}")
+        if geometry.moon_above_horizon is not None:
+            notes.append(f"moon_geometry:above_horizon={str(geometry.moon_above_horizon).lower()}")
+        if geometry.moon_visible_during_target_window is not None:
+            notes.append(
+                "moon_geometry:visible_during_window="
+                f"{str(geometry.moon_visible_during_target_window).lower()}"
+            )
+        if geometry.moon_set_before_target_window is not None:
+            notes.append(f"moon_geometry:set_before_window={str(geometry.moon_set_before_target_window).lower()}")
+        notes.append(f"moon_geometry:future_factor={cls.intended_moon_geometry_factor(geometry):g}")
+        notes.append("moon_geometry:score_neutral")
+        return tuple(notes)
 
     @staticmethod
     def _aod_diagnostics(aod: AodConditionInput | None) -> tuple[str, ...]:
@@ -437,17 +669,7 @@ class ObservationConditionsService:
     @staticmethod
     def _moon_sensitivity(target: CelestialObject) -> float:
         lower_type = target.object_type.lower()
-        if target.object_type == "Pianeta" or target.id in {
-            "sun",
-            "moon",
-            "mercury",
-            "venus",
-            "mars",
-            "jupiter",
-            "saturn",
-            "uranus",
-            "neptune",
-        }:
+        if target.object_type == "Pianeta" or target.id in ObservationConditionsService.SOLAR_SYSTEM_IDS:
             return 0.0
         if "diffuse" in lower_type:
             return 42.0
