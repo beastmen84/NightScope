@@ -526,9 +526,12 @@ Extraction policy:
 
 Cache policy:
 
-- Only compact processed results are cached in memory.
+- Only compact processed results are cached. A memory copy avoids repeated work
+  inside the running process, while a small JSON cache allows app restarts to
+  reuse recent processed AOD results within the TTL.
 - HDF/HDF5 granules are never cached.
-- Cache keys use rounded latitude/longitude plus product and granule id.
+- Cache keys use rounded latitude/longitude; the stored result preserves product,
+  acquisition date and granule id.
 - Default TTL is 18 hours.
 
 Current limitations:

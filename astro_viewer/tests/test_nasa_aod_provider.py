@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 import os
 from pathlib import Path
 import tempfile
@@ -218,6 +218,93 @@ class NasaAodProviderTests(unittest.TestCase):
         self.assertEqual(second.status, "cache_hit")
         self.assertTrue(second.cache_hit)
         self.assertEqual(client.download_calls, ["valid"])
+
+    def test_processed_cache_survives_provider_restart_without_download(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            client = FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]})
+            extractor = FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")})
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=client,
+                extractor=extractor,
+                clock=_clock,
+                cache_path=cache_path,
+            )
+
+            first = provider.aod(_location())
+
+            reloaded_client = FakeNasaClient()
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            second = reloaded.aod(_location())
+
+            self.assertTrue(first.available)
+            self.assertTrue(second.available)
+            self.assertEqual(second.status, "cache_hit")
+            self.assertTrue(second.cache_hit)
+            self.assertEqual(second.aod_550, 0.2)
+            self.assertEqual(reloaded_client.authenticate_calls, 0)
+            self.assertEqual(reloaded_client.download_calls, [])
+
+    def test_stale_processed_disk_cache_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            client = FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]})
+            extractor = FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")})
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=client,
+                extractor=extractor,
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(_location())
+
+            reloaded_client = FakeNasaClient()
+
+            def stale_clock() -> datetime:
+                return _clock() + timedelta(hours=19)
+
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=stale_clock,
+                cache_path=cache_path,
+            )
+
+            result = reloaded.aod(_location())
+
+            self.assertFalse(result.available)
+            self.assertEqual(result.status, "no_granules")
+            self.assertEqual(reloaded_client.authenticate_calls, 1)
+
+    def test_clear_cache_removes_processed_disk_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            client = FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]})
+            extractor = FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")})
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=client,
+                extractor=extractor,
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(_location())
+
+            provider.clear_cache()
+
+            self.assertFalse(cache_path.exists())
 
     def test_downloaded_granule_is_deleted_after_success(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -166,7 +166,10 @@ class AppController(QObject):
             dataset_path=base_dir / "data" / "light_pollution_seed.csv",
             earthdata_credentials=self._earthdata_credential_store,
         )
-        self._nasa_aod_provider = NasaAodProvider(self._earthdata_credential_store)
+        self._nasa_aod_provider = NasaAodProvider(
+            self._earthdata_credential_store,
+            cache_path=database_path.parent / "nasa_aod_cache.json",
+        )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
         self._night_planner_service = NightPlannerService()

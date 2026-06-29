@@ -67,7 +67,7 @@ class OpenAQCredentialStoreTests(unittest.TestCase):
             self.assertFalse(removed.configured)
             self.assertNotIn((OPENAQ_SERVICE_NAME, OPENAQ_API_KEY_ACCOUNT), backend.passwords)
 
-    def test_connection_result_is_not_persisted(self) -> None:
+    def test_connection_result_is_persisted_for_same_api_key(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             preferences_path = Path(temp_dir) / "user_preferences.json"
             backend = FakeCredentialBackend()
@@ -77,7 +77,21 @@ class OpenAQCredentialStoreTests(unittest.TestCase):
             verified = store.with_connection_result(True, "Connessione OpenAQ verificata.")
 
             self.assertTrue(verified.connection_verified)
-            self.assertFalse(OpenAQCredentialStore(preferences_path, backend=backend).state().connection_verified)
+            reloaded = OpenAQCredentialStore(preferences_path, backend=backend)
+            self.assertTrue(reloaded.state().connection_verified)
+
+    def test_saving_new_api_key_clears_verified_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            preferences_path = Path(temp_dir) / "user_preferences.json"
+            backend = FakeCredentialBackend()
+            store = OpenAQCredentialStore(preferences_path, backend=backend)
+            store.save("openaq-secret")
+            store.with_connection_result(True, "Connessione OpenAQ verificata.")
+
+            store.save("openaq-new-secret")
+
+            reloaded = OpenAQCredentialStore(preferences_path, backend=backend)
+            self.assertFalse(reloaded.state().connection_verified)
 
     def test_rejects_empty_api_key(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

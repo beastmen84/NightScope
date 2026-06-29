@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from dataclasses import dataclass, replace
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 OPENAQ_SERVICE_NAME = "NightScope OpenAQ"
 OPENAQ_API_KEY_ACCOUNT = "openaq_api_key"
 OPENAQ_CONFIGURED_KEY = "openaq_api_key_configured"
+OPENAQ_VERIFIED_API_KEY_HASH_KEY = "openaq_verified_api_key_hash"
 OPENAQ_CONNECTION_TEST_URL = "https://api.openaq.org/v3/parameters?limit=1"
 
 
@@ -62,15 +64,20 @@ class OpenAQCredentialStore:
                 secure_store_available=False,
                 message="Archivio credenziali di sistema non disponibile.",
             )
-        configured = self.configured()
-        if configured:
+        payload = self._read_json(self._preferences_path)
+        api_key = self.api_key()
+        configured = bool(payload.get(OPENAQ_CONFIGURED_KEY) and api_key)
+        connection_verified = configured and payload.get(OPENAQ_VERIFIED_API_KEY_HASH_KEY) == _api_key_hash(api_key or "")
+        if connection_verified:
+            message = "Connessione OpenAQ verificata."
+        elif configured:
             message = "API key OpenAQ salvata. Esegui il test connessione."
         else:
             message = "API key OpenAQ non configurata."
         return OpenAQCredentialState(
             configured=configured,
             secure_store_available=True,
-            connection_verified=False,
+            connection_verified=connection_verified,
             message=message,
         )
 
@@ -106,6 +113,7 @@ class OpenAQCredentialStore:
 
         payload = self._read_json(self._preferences_path)
         payload[OPENAQ_CONFIGURED_KEY] = True
+        payload.pop(OPENAQ_VERIFIED_API_KEY_HASH_KEY, None)
         self._write_json(self._preferences_path, payload)
         return OpenAQCredentialState(
             configured=True,
@@ -121,6 +129,7 @@ class OpenAQCredentialStore:
                 logger.info("OpenAQ API key was not present in secure store.")
         payload = self._read_json(self._preferences_path)
         payload.pop(OPENAQ_CONFIGURED_KEY, None)
+        payload.pop(OPENAQ_VERIFIED_API_KEY_HASH_KEY, None)
         self._write_json(self._preferences_path, payload)
         return OpenAQCredentialState(
             configured=False,
@@ -129,7 +138,17 @@ class OpenAQCredentialStore:
         )
 
     def with_connection_result(self, ok: bool, message: str) -> OpenAQCredentialState:
-        return replace(self.state(), connection_verified=ok, message=message)
+        payload = self._read_json(self._preferences_path)
+        if ok:
+            api_key = self.api_key()
+            if api_key:
+                payload[OPENAQ_VERIFIED_API_KEY_HASH_KEY] = _api_key_hash(api_key)
+            else:
+                payload.pop(OPENAQ_VERIFIED_API_KEY_HASH_KEY, None)
+        else:
+            payload.pop(OPENAQ_VERIFIED_API_KEY_HASH_KEY, None)
+        self._write_json(self._preferences_path, payload)
+        return replace(self.state(), message=message)
 
     @staticmethod
     def _load_keyring_backend() -> CredentialBackend | None:
@@ -158,6 +177,10 @@ class OpenAQCredentialStore:
             path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
         except OSError:
             logger.warning("Preference file could not be written: %s", path, exc_info=True)
+
+
+def _api_key_hash(api_key: str) -> str:
+    return hashlib.sha256(api_key.encode("utf-8")).hexdigest()
 
 
 class OpenAQConnectionTester:

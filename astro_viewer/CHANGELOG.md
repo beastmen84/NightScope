@@ -1,5 +1,10 @@
 # Changelog
 
+## NightScope 1.2.9 - 2026-06-29
+
+- Persistito lo stato di test connessione OpenAQ usando un'impronta sicura della API key verificata, senza salvare la key in chiaro nelle preferenze.
+- Aggiunta cache persistente compatta per i risultati processati NASA AOD, così le riaperture dell'app riusano dati recenti entro TTL senza riscaricare granuli.
+
 ## NightScope 1.2.8 - 2026-06-29
 
 - Aggiunta nella pagina Meteo la sezione display-only `Trasparenza atmosferica`, basata sui risultati NASA MAIAC AOD già recuperati tramite Earthdata.

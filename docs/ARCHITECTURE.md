@@ -286,9 +286,12 @@ Sky-quality cache:
 NASA AOD cache:
 
 - Owner: `NasaAodProvider`.
-- Key: rounded latitude/longitude plus product and granule id.
+- Key: rounded latitude/longitude, with result metadata preserving product and
+  granule id.
 - Lifetime: 18 hours.
-- Only compact processed AOD results are cached in memory.
+- Only compact processed AOD results are cached. The provider keeps an in-memory
+  copy for the current process and a small JSON cache so app restarts can reuse
+  recent processed results.
 - Downloaded VIIRS/MODIS granules are temporary and deleted after extraction.
 
 In-memory controller caches:

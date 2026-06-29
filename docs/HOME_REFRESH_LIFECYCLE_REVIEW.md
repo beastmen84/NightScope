@@ -93,9 +93,10 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
 - Sky quality cache: `LightPollutionService` with `SkyQualityRepository`, keyed
   by rounded latitude, longitude and city. NASA VIIRS cache entries are treated
   as fresh when present; there is no broad age-based TTL.
-- NASA AOD cache: `NasaAodProvider`, keyed by rounded latitude/longitude plus
-  product and granule id. TTL is 18 hours and only compact processed results are
-  retained; downloaded granules are temporary.
+- NASA AOD cache: `NasaAodProvider`, keyed by rounded latitude/longitude with
+  product and granule id retained in the stored result. TTL is 18 hours; only
+  compact processed results are retained in memory and JSON cache, while
+  downloaded granules are temporary.
 - Controller memory state: base solar-system objects, base deep-sky objects,
   enriched objects, weather hours, Moon, events, sky quality,
   seeing/transparency, advanced scores, night plan, sky map, notifications and

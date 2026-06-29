@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import json
 import logging
 import math
 import os
 import tempfile
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, Iterable, Protocol
@@ -189,6 +190,7 @@ class NasaAodProvider:
         cache_ttl: timedelta = NASA_AOD_CACHE_TTL,
         search_days: int = NASA_AOD_SEARCH_DAYS,
         granule_limit: int = NASA_AOD_GRANULE_LIMIT,
+        cache_path: Path | None = None,
     ) -> None:
         self._credentials = credentials
         self._client = client or EarthaccessNasaAodClient()
@@ -197,24 +199,26 @@ class NasaAodProvider:
         self._cache_ttl = cache_ttl
         self._search_days = search_days
         self._granule_limit = granule_limit
+        self._cache_path = cache_path
         self._cache: dict[tuple[float, float, str, str], tuple[datetime, NasaAodResult]] = {}
         self._location_cache_keys: dict[tuple[float, float], tuple[float, float, str, str]] = {}
 
     def clear_cache(self) -> None:
         self._cache.clear()
         self._location_cache_keys.clear()
+        self._clear_disk_cache()
 
     def aod(self, location: ObserverLocation | None) -> NasaAodResult:
         if location is None:
             return NasaAodResult.no_location()
 
-        cached = self._cached_result(location)
-        if cached is not None:
-            return cached
-
         credentials = self._verified_credentials()
         if credentials is None:
             return NasaAodResult.no_credentials()
+
+        cached = self._cached_result(location)
+        if cached is not None:
+            return cached
 
         username, password = credentials
         try:
@@ -309,27 +313,109 @@ class NasaAodProvider:
     def _cached_result(self, location: ObserverLocation) -> NasaAodResult | None:
         location_key = self._location_key(location)
         cache_key = self._location_cache_keys.get(location_key)
-        if cache_key is None:
+        if cache_key is not None:
+            cached = self._cache.get(cache_key)
+            if cached is None:
+                self._location_cache_keys.pop(location_key, None)
+            else:
+                cached_at, result = cached
+                if self._cache_is_fresh(cached_at):
+                    return result.as_cache_hit()
+                self._cache.pop(cache_key, None)
+                self._location_cache_keys.pop(location_key, None)
+
+        disk_cached = self._cached_disk_result(location_key)
+        if disk_cached is None:
             return None
-        cached = self._cache.get(cache_key)
-        if cached is None:
-            self._location_cache_keys.pop(location_key, None)
-            return None
-        cached_at, result = cached
-        now = self._clock().astimezone(UTC)
-        if now - cached_at > self._cache_ttl:
-            self._cache.pop(cache_key, None)
-            self._location_cache_keys.pop(location_key, None)
-            return None
+        cached_at, result = disk_cached
+        cache_key = (*location_key, result.product, result.granule_id)
+        self._cache[cache_key] = (cached_at, result)
+        self._location_cache_keys[location_key] = cache_key
         return result.as_cache_hit()
+
+    def _cache_is_fresh(self, cached_at: datetime) -> bool:
+        now = self._clock().astimezone(UTC)
+        return now - cached_at <= self._cache_ttl
+
+    def _cached_disk_result(self, location_key: tuple[float, float]) -> tuple[datetime, NasaAodResult] | None:
+        if self._cache_path is None:
+            return None
+        payload = self._read_disk_cache()
+        entries = payload.get("entries")
+        if not isinstance(entries, dict):
+            return None
+        entry_key = self._disk_location_key(location_key)
+        entry = entries.get(entry_key)
+        if not isinstance(entry, dict):
+            return None
+        cached_at = _parse_datetime(entry.get("cached_at"))
+        result = _result_from_cache_payload(entry.get("result"))
+        if cached_at is None or result is None:
+            entries.pop(entry_key, None)
+            self._write_disk_cache(payload)
+            return None
+        if not self._cache_is_fresh(cached_at):
+            entries.pop(entry_key, None)
+            self._write_disk_cache(payload)
+            return None
+        return cached_at, result
+
+    def _read_disk_cache(self) -> dict[str, object]:
+        if self._cache_path is None or not self._cache_path.exists():
+            return {"version": 1, "entries": {}}
+        try:
+            payload = json.loads(self._cache_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            logger.info("NASA AOD processed cache could not be read: %s", self._cache_path)
+            return {"version": 1, "entries": {}}
+        return payload if isinstance(payload, dict) else {"version": 1, "entries": {}}
+
+    def _write_disk_cache(self, payload: dict[str, object]) -> None:
+        if self._cache_path is None:
+            return
+        try:
+            self._cache_path.parent.mkdir(parents=True, exist_ok=True)
+            self._cache_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        except OSError:
+            logger.info("NASA AOD processed cache could not be written: %s", self._cache_path)
+
+    def _clear_disk_cache(self) -> None:
+        if self._cache_path is None:
+            return
+        try:
+            if self._cache_path.exists():
+                self._cache_path.unlink()
+        except OSError:
+            logger.info("NASA AOD processed cache could not be deleted: %s", self._cache_path)
 
     def _store_cache(self, location: ObserverLocation, result: NasaAodResult) -> None:
         if not result.available or not result.product or not result.granule_id:
             return
+        cached_at = self._clock().astimezone(UTC)
         location_key = self._location_key(location)
         cache_key = (*location_key, result.product, result.granule_id)
-        self._cache[cache_key] = (self._clock().astimezone(UTC), result)
+        self._cache[cache_key] = (cached_at, result)
         self._location_cache_keys[location_key] = cache_key
+        self._store_disk_cache(location_key, cached_at, result)
+
+    def _store_disk_cache(self, location_key: tuple[float, float], cached_at: datetime, result: NasaAodResult) -> None:
+        if self._cache_path is None:
+            return
+        payload = self._read_disk_cache()
+        entries = payload.get("entries")
+        if not isinstance(entries, dict):
+            entries = {}
+            payload["entries"] = entries
+        payload["version"] = 1
+        entries[self._disk_location_key(location_key)] = {
+            "cached_at": cached_at.astimezone(UTC).isoformat(),
+            "result": asdict(result),
+        }
+        self._write_disk_cache(payload)
+
+    @staticmethod
+    def _disk_location_key(location_key: tuple[float, float]) -> str:
+        return f"{location_key[0]:.3f}:{location_key[1]:.3f}"
 
     @staticmethod
     def _location_key(location: ObserverLocation) -> tuple[float, float]:
@@ -467,6 +553,61 @@ def _parse_date(value: Any) -> date | None:
             return date.fromisoformat(str(value)[:10])
         except ValueError:
             return None
+
+
+def _parse_datetime(value: Any) -> datetime | None:
+    if not value:
+        return None
+    text = str(value).replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def _result_from_cache_payload(value: Any) -> NasaAodResult | None:
+    if not isinstance(value, dict):
+        return None
+    if not value.get("available") or not value.get("product") or not value.get("granule_id"):
+        return None
+    return NasaAodResult(
+        available=bool(value.get("available")),
+        status=str(value.get("status") or "ok"),
+        message=str(value.get("message") or "Dati NASA AOD disponibili."),
+        provider=str(value.get("provider") or NASA_AOD_PROVIDER),
+        product=str(value.get("product") or ""),
+        aod_550=_optional_float(value.get("aod_550")),
+        uncertainty=_optional_float(value.get("uncertainty")),
+        qa_raw=_optional_int(value.get("qa_raw")),
+        acquisition_date=str(value.get("acquisition_date") or ""),
+        granule_id=str(value.get("granule_id") or ""),
+        method=str(value.get("method") or ""),
+        local_valid_pixel_count=_optional_int(value.get("local_valid_pixel_count")),
+        retrieved_at=str(value.get("retrieved_at") or ""),
+        cache_hit=False,
+        interpretation=str(value.get("interpretation") or "—"),
+    )
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _extract_hdf5_aod(path: Path, location: ObserverLocation) -> NasaAodExtraction | None:
