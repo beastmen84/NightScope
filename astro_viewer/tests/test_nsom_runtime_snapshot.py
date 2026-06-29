@@ -9,7 +9,7 @@ from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.observing import CelestialObject
-from astro_viewer.app.models.sky import NightPlanItem
+from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
@@ -56,6 +56,57 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(target.object_id, "messier-M99")
         self.assertEqual(target.name, "M99")
         self.assertEqual(target.observable_target_value.intrinsic_target_quality, 67.0)
+        self.assertEqual(dict(target.runtime_fields)["setup"], "Mak 127 + 16 mm")
+        self.assertEqual(dict(target.runtime_fields)["time_label"], "22:00")
+
+    def test_export_nsom_diagnostics_uses_existing_snapshot_only(self) -> None:
+        home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)
+        plan_item = _plan_item("messier-M13", "M13", score=84)
+        controller = _controller([home_target], [plan_item], best_object=home_target)
+        controller._refresh_nsom_diagnostics()
+        controller._refresh_nsom_diagnostics = Mock(side_effect=AssertionError("no refresh"))
+
+        exported = controller._export_nsom_diagnostics()
+
+        self.assertEqual(exported["metadata"]["schema"], "nsom_diagnostic_snapshot")
+        self.assertTrue(exported["metadata"]["diagnostic_only"])
+        self.assertEqual(exported["location"]["city"], "Test")
+        self.assertIn("confidenceInputs", exported)
+        self.assertEqual(len(exported["targets"]), 3)
+        planner_targets = exported["planner"]["targets"]
+        self.assertEqual(len(planner_targets), 1)
+        self.assertEqual(planner_targets[0]["runtimeFields"]["setup"], "Mak 127 + 16 mm")
+        controller._refresh_nsom_diagnostics.assert_not_called()
+
+    def test_refresh_nsom_diagnostics_confidence_distinguishes_real_viirs_and_missing_moon_geometry(self) -> None:
+        controller = _controller([], [])
+        controller._sky_quality = SkyQuality(
+            bortle_class=4,
+            limiting_magnitude=6.1,
+            sky_brightness=21.0,
+            source="Local estimate",
+            description="",
+        )
+
+        controller._refresh_nsom_diagnostics()
+
+        self.assertIsNone(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence)
+        self.assertIsNone(controller._nsom_diagnostic_snapshot.confidence.moon_geometry_confidence)
+        self.assertNotIn("viirs_available", dict(controller._nsom_diagnostic_snapshot.confidence_inputs))
+
+        controller._sky_quality = SkyQuality(
+            bortle_class=4,
+            limiting_magnitude=6.1,
+            sky_brightness=21.0,
+            source="NASA Black Marble VNP46A3",
+            description="",
+            viirs_radiance=1.2,
+        )
+
+        controller._refresh_nsom_diagnostics()
+
+        self.assertEqual(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence, 1.0)
+        self.assertTrue(dict(controller._nsom_diagnostic_snapshot.confidence_inputs)["viirs_available"])
 
     def test_refresh_nsom_diagnostics_does_not_call_heavy_refresh_paths(self) -> None:
         target = _object("messier-M13", "M13", "Ammasso globulare", 82)
@@ -124,6 +175,15 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
             source.index("self._notification_service.notifications("),
             source.index("self._refresh_nsom_diagnostics()"),
         )
+
+    def test_provider_completion_refreshes_snapshot_without_observing_recompute(self) -> None:
+        local_source = inspect.getsource(AppController._finish_local_atmosphere_refresh)
+        aod_source = inspect.getsource(AppController._finish_nasa_aod_refresh)
+
+        self.assertIn("self._refresh_nsom_diagnostics()", local_source)
+        self.assertIn("self._refresh_nsom_diagnostics()", aod_source)
+        self.assertNotIn("self._recalculate_observing_outputs()", local_source)
+        self.assertNotIn("self._recalculate_observing_outputs()", aod_source)
 
 
 def _controller(

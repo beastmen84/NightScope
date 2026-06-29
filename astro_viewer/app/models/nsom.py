@@ -5,6 +5,9 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Mapping
 
+NsomDiagnosticScalar = str | int | float | bool | None
+NsomDiagnosticFields = tuple[tuple[str, NsomDiagnosticScalar], ...]
+
 
 class NsomTargetClass(Enum):
     """NSOM 1.0 target classes used for future observing-condition modeling."""
@@ -319,6 +322,7 @@ class NsomTargetDiagnostic:
     observer_capability: ObserverCapabilityProfile
     practical_target_value: PracticalTargetValue
     observation_opportunity: ObservationOpportunity
+    runtime_fields: NsomDiagnosticFields = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
@@ -328,4 +332,7 @@ class NsomDiagnosticSnapshot:
     generated_at: str
     targets: tuple[NsomTargetDiagnostic, ...] = field(default_factory=tuple)
     confidence: RecommendationConfidence | None = None
+    location: NsomDiagnosticFields = field(default_factory=tuple)
+    confidence_inputs: NsomDiagnosticFields = field(default_factory=tuple)
+    metadata: NsomDiagnosticFields = field(default_factory=tuple)
     notes: tuple[str, ...] = field(default_factory=tuple)

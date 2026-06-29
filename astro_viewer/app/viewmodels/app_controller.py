@@ -226,6 +226,7 @@ class AppController(QObject):
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
         self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
             generated_at="",
+            metadata=self._nsom_snapshot_metadata(),
             notes=("not_initialized", "diagnostic_only"),
         )
         self._notifications = []
@@ -1899,17 +1900,17 @@ class AppController(QObject):
                 weather_summary=self._weather_summary,
                 aod_result=self._nasa_aod_result,
                 local_atmosphere=self._local_atmosphere,
-                viirs_available=True if self._sky_quality else None,
-                moon_geometry_available=False,
+                viirs_available=self._nsom_viirs_available(),
+                moon_geometry_available=None,
                 today=datetime.now(self._zone()).date(),
                 notes=("runtime_snapshot", "diagnostic_only"),
             )
             diagnostics = []
-            for source, target in self._nsom_diagnostic_candidate_targets():
+            for source, target, runtime_source in self._nsom_diagnostic_candidate_targets():
                 try:
-                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence))
+                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence, runtime_source))
                 except Exception:
-                    target_id = self._nsom_runtime_target_text(target, "id", "object_id")
+                    target_id = self._nsom_runtime_target_text(runtime_source or target, "id", "object_id")
                     notes.append(f"target_skipped={target_id or 'unknown'}")
                     logger.debug("Skipping NSOM diagnostic target.", exc_info=True)
 
@@ -1917,12 +1918,17 @@ class AppController(QObject):
                 generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
                 targets=tuple(diagnostics),
                 confidence=confidence,
+                location=self._nsom_location_fields(),
+                confidence_inputs=self._nsom_confidence_input_fields(),
+                metadata=self._nsom_snapshot_metadata(),
                 notes=tuple(notes),
             )
         except Exception:
             logger.debug("NSOM diagnostic snapshot refresh failed.", exc_info=True)
             self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
                 generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
+                location=self._nsom_location_fields(),
+                metadata=self._nsom_snapshot_metadata(),
                 notes=("diagnostic_only", "refresh_failed"),
             )
 
@@ -1931,44 +1937,47 @@ class AppController(QObject):
         source: str,
         target: object,
         confidence,
+        runtime_source: object | None = None,
     ) -> NsomTargetDiagnostic:
+        runtime = runtime_source or target
         observable = build_observable_target_value(target)
-        observer_capability = build_observer_capability_profile_from_recommendation(target)
+        observer_capability = build_observer_capability_profile_from_recommendation(runtime)
         practical = build_practical_target_value(observable, observer_capability)
         opportunity = build_observation_opportunity(
             practical,
-            observing_window_quality=self._nsom_observing_window_quality(target),
+            observing_window_quality=self._nsom_observing_window_quality(runtime),
             chronology_fit=1.0,
             session_viability=self._nsom_session_viability(),
-            practical_constraints=1.0 if self._nsom_runtime_target_visible(target) else 0.0,
+            practical_constraints=1.0 if self._nsom_runtime_target_visible(runtime) else 0.0,
             confidence=confidence,
             context=(source, "runtime_snapshot", "diagnostic_only"),
         )
         return NsomTargetDiagnostic(
-            object_id=self._nsom_runtime_target_text(target, "id", "object_id"),
-            name=self._nsom_runtime_target_text(target, "name"),
+            object_id=self._nsom_runtime_target_text(runtime, "id", "object_id"),
+            name=self._nsom_runtime_target_text(runtime, "name"),
             source=source,
             observable_target_value=observable,
             observer_capability=observer_capability,
             practical_target_value=practical,
             observation_opportunity=opportunity,
+            runtime_fields=self._nsom_runtime_fields(source, runtime),
         )
 
-    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object]]:
-        candidates: list[tuple[str, object]] = []
+    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object, object | None]]:
+        candidates: list[tuple[str, object, object | None]] = []
         seen: set[tuple[str, str]] = set()
 
-        def add(source: str, target: object | None) -> None:
+        def add(source: str, target: object | None, runtime_source: object | None = None) -> None:
             if target is None:
                 return
-            object_id = self._nsom_runtime_target_text(target, "id", "object_id")
+            object_id = self._nsom_runtime_target_text(runtime_source or target, "id", "object_id")
             if not object_id:
                 return
             key = (source, object_id)
             if key in seen:
                 return
             seen.add(key)
-            candidates.append((source, target))
+            candidates.append((source, target, runtime_source))
 
         for item in getattr(self, "_conditioned_home_objects", []):
             add("home", item)
@@ -1976,7 +1985,7 @@ class AppController(QObject):
         prepared_by_id = self._nsom_prepared_object_by_id()
         for plan_item in getattr(self, "_night_plan", []):
             plan_object_id = self._nsom_runtime_target_text(plan_item, "object_id", "id")
-            add("planner", prepared_by_id.get(plan_object_id, plan_item))
+            add("planner", prepared_by_id.get(plan_object_id, plan_item), plan_item)
 
         add("best_object", getattr(self, "_best_object", None))
         return candidates
@@ -2029,6 +2038,181 @@ class AppController(QObject):
     def _nsom_runtime_target_visible(target: object) -> bool:
         value = getattr(target, "visible", True)
         return bool(value)
+
+    def _nsom_viirs_available(self) -> bool | None:
+        sky_quality = getattr(self, "_sky_quality", None)
+        if sky_quality is None:
+            return None
+        if getattr(sky_quality, "viirs_radiance", None) is not None:
+            return True
+        source = str(getattr(sky_quality, "source", ""))
+        if "NASA Black Marble" in source or "VIIRS" in source:
+            return True
+        return None
+
+    def _nsom_location_fields(self) -> tuple[tuple[str, str | int | float | bool | None], ...]:
+        location = getattr(self, "_location", None)
+        if location is None:
+            return ()
+        return tuple(
+            item
+            for item in (
+                ("city", location.city),
+                ("country", location.country),
+                ("latitude", location.latitude),
+                ("longitude", location.longitude),
+                ("timezone", location.timezone),
+            )
+            if item[1] is not None
+        )
+
+    def _nsom_confidence_input_fields(self) -> tuple[tuple[str, str | int | float | bool | None], ...]:
+        weather = getattr(self, "_weather_summary", None)
+        aod = getattr(self, "_nasa_aod_result", None)
+        atmosphere = getattr(self, "_local_atmosphere", None)
+        sky_quality = getattr(self, "_sky_quality", None)
+        fields = [
+            ("weather_score_value", getattr(weather, "score_value", None)),
+            ("aod_status", getattr(aod, "status", None)),
+            ("aod_available", getattr(aod, "available", None)),
+            ("aod_product", getattr(aod, "product", None)),
+            ("aod_acquisition_date", getattr(aod, "acquisition_date", None)),
+            ("aod_cache_hit", getattr(aod, "cache_hit", None)),
+            ("openaq_has_data", getattr(atmosphere, "has_data", None)),
+            ("openaq_freshness_category", getattr(atmosphere, "freshness_category", None)),
+            ("openaq_source", getattr(atmosphere, "source", None)),
+            ("viirs_available", self._nsom_viirs_available()),
+            ("sky_quality_source", getattr(sky_quality, "source", None)),
+            ("moon_geometry_available", None),
+        ]
+        return tuple((key, value) for key, value in fields if value not in (None, ""))
+
+    @staticmethod
+    def _nsom_snapshot_metadata() -> tuple[tuple[str, str | int | float | bool | None], ...]:
+        return (
+            ("schema", "nsom_diagnostic_snapshot"),
+            ("schema_version", "1.0"),
+            ("diagnostic_only", True),
+            ("score_neutral", True),
+            ("qml_exposed", False),
+        )
+
+    def _nsom_runtime_fields(self, source: str, target: object) -> tuple[tuple[str, str | int | float | bool | None], ...]:
+        field_names = (
+            "id",
+            "object_id",
+            "name",
+            "object_type",
+            "score",
+            "difficulty",
+            "recommended_setup",
+            "recommended_setup_type",
+            "setup",
+            "best_time",
+            "observing_window",
+            "time_label",
+            "direction",
+            "visible",
+        )
+        fields = [("source", source)]
+        for name in field_names:
+            value = getattr(target, name, None)
+            if value not in (None, ""):
+                fields.append((name, value))
+        return tuple(fields)
+
+    def _export_nsom_diagnostics(self) -> dict[str, object]:
+        snapshot = getattr(
+            self,
+            "_nsom_diagnostic_snapshot",
+            NsomDiagnosticSnapshot(
+                generated_at="",
+                metadata=self._nsom_snapshot_metadata(),
+                notes=("not_initialized", "diagnostic_only"),
+            ),
+        )
+        targets = [self._nsom_target_diagnostic_to_export(target) for target in snapshot.targets]
+        planner_targets = [target for target in targets if target.get("source") == "planner"]
+        return {
+            "metadata": self._nsom_fields_to_dict(snapshot.metadata),
+            "timestamp": snapshot.generated_at,
+            "location": self._nsom_fields_to_dict(snapshot.location),
+            "confidence": self._nsom_confidence_to_export(snapshot.confidence),
+            "confidenceInputs": self._nsom_fields_to_dict(snapshot.confidence_inputs),
+            "notes": list(snapshot.notes),
+            "targets": targets,
+            "planner": {"targets": planner_targets},
+        }
+
+    def _nsom_target_diagnostic_to_export(self, target: NsomTargetDiagnostic) -> dict[str, object]:
+        return {
+            "objectId": target.object_id,
+            "name": target.name,
+            "source": target.source,
+            "runtimeFields": self._nsom_fields_to_dict(target.runtime_fields),
+            "observableTargetValue": {
+                "intrinsicTargetQuality": target.observable_target_value.intrinsic_target_quality,
+                "effectiveObservability": {
+                    "value": target.observable_target_value.effective_observability.value,
+                    "geometricVisibility": target.observable_target_value.effective_observability.geometric_visibility,
+                    "lunarSkyBackground": target.observable_target_value.effective_observability.lunar_sky_background,
+                    "staticSkyBackground": target.observable_target_value.effective_observability.static_sky_background,
+                    "atmosphericTransparency": target.observable_target_value.effective_observability.atmospheric_transparency,
+                    "horizonContext": target.observable_target_value.effective_observability.horizon_context,
+                    "notes": list(target.observable_target_value.effective_observability.notes),
+                },
+                "value": target.observable_target_value.value,
+                "targetClass": target.observable_target_value.target_class.value
+                if target.observable_target_value.target_class
+                else None,
+            },
+            "observerCapability": {
+                "lightGrasp": target.observer_capability.light_grasp,
+                "resolution": target.observer_capability.resolution,
+                "fieldOfView": target.observer_capability.field_of_view,
+                "magnificationRange": target.observer_capability.magnification_range,
+                "trackingOrGoto": target.observer_capability.tracking_or_goto,
+                "automationOrEaa": target.observer_capability.automation_or_eaa,
+                "filters": list(target.observer_capability.filters),
+                "experienceLevel": target.observer_capability.experience_level,
+                "observingStyle": target.observer_capability.observing_style,
+                "practicalComfort": target.observer_capability.practical_comfort,
+                "summaryForPlanning": target.practical_target_value.observer_capability_summary,
+                "notes": list(target.observer_capability.notes),
+            },
+            "practicalTargetValue": {
+                "value": target.practical_target_value.value,
+                "observerCapabilitySummary": target.practical_target_value.observer_capability_summary,
+            },
+            "observationOpportunity": {
+                "value": target.observation_opportunity.value,
+                "observingWindowQuality": target.observation_opportunity.observing_window_quality,
+                "chronologyFit": target.observation_opportunity.chronology_fit,
+                "sessionViability": target.observation_opportunity.session_viability,
+                "practicalConstraints": target.observation_opportunity.practical_constraints,
+                "context": list(target.observation_opportunity.context),
+                "confidence": self._nsom_confidence_to_export(target.observation_opportunity.confidence),
+            },
+        }
+
+    @staticmethod
+    def _nsom_confidence_to_export(confidence) -> dict[str, object]:
+        if confidence is None:
+            return {}
+        return {
+            "value": confidence.value,
+            "weather": confidence.weather_confidence,
+            "aod": confidence.aod_confidence,
+            "openaq": confidence.openaq_confidence,
+            "viirs": confidence.viirs_confidence,
+            "moonGeometry": confidence.moon_geometry_confidence,
+            "providerFallback": confidence.provider_fallback_confidence,
+            "notes": list(confidence.notes),
+        }
+
+    @staticmethod
+    def _nsom_fields_to_dict(fields: tuple[tuple[str, str | int | float | bool | None], ...]) -> dict[str, object]:
+        return {key: value for key, value in fields}
 
     def _refresh_sky_compass(self) -> None:
         candidates = self._sky_compass_candidates()
@@ -2161,6 +2345,7 @@ class AppController(QObject):
             self._local_atmosphere = atmosphere
         else:
             self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
+        self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
 
@@ -2318,6 +2503,7 @@ class AppController(QObject):
         else:
             self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
         self._log_nasa_aod_result(self._nasa_aod_result)
+        self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AOD)
 
