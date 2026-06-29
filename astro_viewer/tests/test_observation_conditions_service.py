@@ -75,6 +75,66 @@ def test_pollution_context_preserves_missing_sky_quality_context() -> None:
     assert service.apply_deep_sky_pollution_context(targets, None) == targets
 
 
+def test_pollution_context_boundary_bortle_seven_is_active() -> None:
+    targets = _deep_sky_targets()
+    sky_quality = _sky_quality(bortle=7, radiance=None)
+    service = ObservationConditionsService()
+
+    updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
+
+    assert service.is_pollution_context_active(sky_quality) is True
+    assert updated == _legacy_pollution_context(targets, sky_quality)
+    assert updated[0].score < targets[0].score
+
+
+def test_pollution_context_boundary_viirs_twenty_is_active() -> None:
+    targets = _deep_sky_targets()
+    sky_quality = _sky_quality(bortle=4, radiance=20.0)
+    service = ObservationConditionsService()
+
+    updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
+
+    assert service.is_pollution_context_active(sky_quality) is True
+    assert updated == _legacy_pollution_context(targets, sky_quality)
+    assert updated[0].score < targets[0].score
+
+
+def test_pollution_context_boundary_viirs_below_twenty_is_inactive() -> None:
+    targets = _deep_sky_targets()
+    sky_quality = _sky_quality(bortle=4, radiance=19.99)
+    service = ObservationConditionsService()
+
+    assert service.is_pollution_context_active(sky_quality) is False
+    assert service.apply_deep_sky_pollution_context(targets, sky_quality) == targets
+
+
+def test_non_numeric_magnitude_is_safe_for_pollution_and_moon_adjustment() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    target = _target("m101", "M101", "Galaxy", 72, magnitude="n/d")
+
+    polluted = service.apply_deep_sky_pollution_to_target(target, sky_quality)
+    moon_adjusted = service.apply_moon_adjustment(target, _moon("91%"))
+
+    assert polluted.target.score < target.score
+    assert polluted.target.score_label == ObservingScoreService.score_label(polluted.target.score)
+    assert moon_adjusted.target.score == NightPlannerService.moon_adjusted_score(target, _moon("91%"))
+
+
+def test_deep_sky_pollution_context_is_not_applied_twice_to_same_target() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    first = service.apply_deep_sky_pollution_to_target(target, sky_quality)
+    second = service.apply_deep_sky_pollution_to_target(first.target, sky_quality)
+
+    assert first.target.score < target.score
+    assert second.target == first.target
+    assert second.breakdown.adjusted_score == first.target.score
+    assert second.breakdown.applied_components == ("light_pollution_already_applied",)
+
+
 def test_deep_sky_object_ordering_matches_legacy_pollution_context() -> None:
     targets = [_target(f"m{i}", f"M{i}", "Galaxy", 95 - i * 3, magnitude="8.8") for i in range(12)]
     sky_quality = _sky_quality(bortle=8, radiance=140.0)

@@ -35,6 +35,8 @@ class ConditionedTarget:
 class ObservationConditionsService:
     """Applies existing observing-condition adjustments without changing formulas."""
 
+    POLLUTION_CONTEXT_NOTE = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
+
     def apply_moon_adjustment(
         self,
         target: CelestialObject,
@@ -95,11 +97,21 @@ class ObservationConditionsService:
                     adjusted_score=target.score,
                 ),
             )
+        if self.has_deep_sky_pollution_context(target):
+            return ConditionedTarget(
+                target,
+                TargetConditionBreakdown(
+                    object_id=target.id,
+                    base_score=target.score,
+                    adjusted_score=target.score,
+                    applied_components=("light_pollution_already_applied",),
+                ),
+            )
 
         penalty = self.deep_sky_pollution_penalty(target, sky_quality)
         score = max(0, round(target.score - penalty))
         note = target.notes
-        urban_note = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
+        urban_note = self.POLLUTION_CONTEXT_NOTE
         if urban_note not in note:
             note = f"{urban_note} {target.notes}"
         breakdown = TargetConditionBreakdown(
@@ -168,6 +180,10 @@ class ObservationConditionsService:
         if radiance is None and sky_quality.bortle_class < 7:
             return False
         return not (radiance is not None and radiance < 20 and sky_quality.bortle_class < 7)
+
+    @classmethod
+    def has_deep_sky_pollution_context(cls, target: CelestialObject) -> bool:
+        return cls.POLLUTION_CONTEXT_NOTE in target.notes
 
     @classmethod
     def moon_penalty(cls, target: CelestialObject, moon: MoonSummary | None) -> float:

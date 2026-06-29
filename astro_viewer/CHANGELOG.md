@@ -1,5 +1,12 @@
 # Changelog
 
+## NightScope 1.3.1 - 2026-06-29
+
+- Rafforzato `ObservationConditionsService` con test sui confini di attivazione del contesto inquinamento luminoso: Bortle 7, VIIRS 20, VIIRS 19.99 e sky quality mancante.
+- Aggiunta copertura per magnitudine non numerica in pollution context e moon adjustment.
+- Aggiunta una guardia interna contro la doppia applicazione del contesto deep-sky pollution su target già condizionati dal servizio.
+- Confermati invariati AppController, Planner, best-object selection, equipaggiamento, Sky Compass live refresh, OpenAQ e NASA AOD.
+
 ## NightScope 1.3.0 - 2026-06-29
 
 - Introdotto `ObservationConditionsService` come foundation del futuro layer condizioni, senza cambiare formule o punteggi.
