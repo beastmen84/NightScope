@@ -242,6 +242,46 @@ def test_deep_sky_pollution_context_is_not_applied_twice_to_same_target() -> Non
     assert "light_pollution:already_applied" in second.breakdown.diagnostic_notes
 
 
+def test_condition_target_applies_moon_but_not_pollution_when_pollution_already_applied() -> None:
+    service = ObservationConditionsService()
+    sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    moon = _moon("86%")
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    polluted = service.condition_target(
+        target,
+        ObservationConditionInputs(sky_quality=sky_quality),
+        apply_pollution=True,
+    )
+    conditioned = service.condition_target(
+        polluted.target,
+        ObservationConditionInputs(moon=moon, sky_quality=sky_quality),
+        apply_moon=True,
+        apply_pollution=True,
+    )
+
+    assert conditioned.breakdown.moon_penalty == NightPlannerService.moon_penalty(polluted.target, moon)
+    assert conditioned.breakdown.pollution_penalty == 0.0
+    assert conditioned.breakdown.applied_components == ("moon",)
+    assert conditioned.breakdown.already_adjusted_flags == ("light_pollution",)
+    assert conditioned.target.score == NightPlannerService.moon_adjusted_score(polluted.target, moon)
+    assert "light_pollution:already_applied" in conditioned.breakdown.diagnostic_notes
+
+
+def test_condition_target_double_moon_application_is_currently_not_guarded() -> None:
+    service = ObservationConditionsService()
+    moon = _moon("86%")
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    first = service.condition_target(target, ObservationConditionInputs(moon=moon), apply_moon=True)
+    second = service.condition_target(first.target, ObservationConditionInputs(moon=moon), apply_moon=True)
+
+    assert second.breakdown.already_adjusted_flags == ()
+    assert second.breakdown.applied_components == ("moon",)
+    assert second.target.score == NightPlannerService.moon_adjusted_score(first.target, moon)
+    assert second.target.score < first.target.score
+
+
 def test_deep_sky_object_ordering_matches_legacy_pollution_context() -> None:
     targets = [_target(f"m{i}", f"M{i}", "Galaxy", 95 - i * 3, magnitude="8.8") for i in range(12)]
     sky_quality = _sky_quality(bortle=8, radiance=140.0)
