@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.2`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.4.3`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -86,6 +86,12 @@ builds telescope-aware `ObserverCapability` before deriving
 write files, does not log automatically, does not emit signals and does not
 recompute Planner, Home, Equipment or Sky Compass output. Confidence remains
 parallel metadata and does not change recommendation score.
+`astro_viewer/app/services/planner_nsom_comparison.py` adds an internal,
+developer-only comparison helper for `1.4.3`. It computes legacy Planner scores
+and experimental NSOM Planner opportunities from the same supplied runtime
+inputs, then returns JSON-compatible dictionaries with score/rank deltas and
+NSOM component projections. It is not connected to QML, performs no writes or
+automatic logging, and does not change the default-off Planner NSOM flag.
 
 ## Dependency Flow
 
