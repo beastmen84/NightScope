@@ -7,6 +7,7 @@ from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import TargetConditionBreakdown
+from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.planner_scoring_service import (
     PlannerConditionBreakdown,
     PlannerScoreBreakdown,
@@ -14,11 +15,23 @@ from astro_viewer.app.services.planner_scoring_service import (
 )
 
 
+NSOM_PLANNER_SCORING_ENABLED = False
+
+
 class NightPlannerService:
     """Builds a compact, optimized observing sequence."""
 
-    def __init__(self, scoring_service: PlannerScoringService | None = None) -> None:
+    def __init__(
+        self,
+        scoring_service: PlannerScoringService | None = None,
+        *,
+        use_nsom_planner_scoring: bool = NSOM_PLANNER_SCORING_ENABLED,
+        nsom_scoring_service: PlannerNsomScoringService | None = None,
+    ) -> None:
         self._scoring_service = scoring_service or PlannerScoringService()
+        self._use_nsom_planner_scoring = use_nsom_planner_scoring
+        nsom_planner_source = self._scoring_service if hasattr(self._scoring_service, "condition_breakdown") else None
+        self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService(nsom_planner_source)
 
     def plan(
         self,
@@ -29,15 +42,22 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
     ) -> list[NightPlanItem]:
-        if self.weather_blocking_status(weather).blocks_plan:
+        blocking_status = self.weather_blocking_status(weather)
+        if blocking_status.blocks_plan:
             return []
 
         visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
         if not visible:
             visible = [item for item in objects if item.visible and item.score > 0]
-        scored_visible = [
-            (item, self._scoring_service.score(item, weather, scores, sky_quality, telescope, moon)) for item in visible
-        ]
+        scored_visible = self._scored_visible(
+            visible,
+            weather=weather,
+            scores=scores,
+            sky_quality=sky_quality,
+            telescope=telescope,
+            moon=moon,
+            blocking_status=blocking_status,
+        )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
         start = self._start_time([item for item, _score in ranked])
         selected = []
@@ -67,6 +87,43 @@ class NightPlannerService:
                 )
             )
         return self._sort_plan_items(items)
+
+    def _scored_visible(
+        self,
+        visible: list[CelestialObject],
+        *,
+        weather: WeatherSummary,
+        scores: AdvancedObservingScores,
+        sky_quality: SkyQuality,
+        telescope: Telescope,
+        moon: MoonSummary | None,
+        blocking_status: WeatherBlockingStatus,
+    ) -> list[tuple[CelestialObject, float]]:
+        if not self._use_nsom_planner_scoring:
+            return [
+                (item, self._scoring_service.score(item, weather, scores, sky_quality, telescope, moon))
+                for item in visible
+            ]
+
+        opportunities = [
+            (
+                item,
+                self._nsom_scoring_service.opportunity(
+                    item,
+                    weather=weather,
+                    scores=scores,
+                    sky_quality=sky_quality,
+                    telescope=telescope,
+                    moon=moon,
+                    blocking_status=blocking_status,
+                    observing_window_quality=self._observing_window_quality(item),
+                    chronology_fit=self._chronology_fit(item),
+                    practical_constraints=self._practical_constraints(item),
+                ),
+            )
+            for item in visible
+        ]
+        return [(item, self._nsom_scoring_service.score(opportunity)) for item, opportunity in opportunities]
 
     @staticmethod
     def _planner_score(
@@ -150,6 +207,29 @@ class NightPlannerService:
         moon: MoonSummary | None,
     ) -> PlannerConditionBreakdown:
         return PlannerScoringService().condition_breakdown(item, sky_quality, moon)
+
+    @staticmethod
+    def _observing_window_quality(item: CelestialObject) -> float:
+        if NightPlannerService._observing_time(item) is not None:
+            return 1.0
+        return 0.5 if item.visible else 0.0
+
+    @staticmethod
+    def _chronology_fit(item: CelestialObject) -> float:
+        parsed = NightPlannerService._observing_time(item)
+        if parsed is None:
+            return 0.8
+        if 21 <= parsed.hour <= 23:
+            return 1.0
+        if parsed.hour == 20 or 0 <= parsed.hour <= 2:
+            return 0.95
+        if 3 <= parsed.hour <= 5:
+            return 0.85
+        return 0.75
+
+    @staticmethod
+    def _practical_constraints(item: CelestialObject) -> float:
+        return min(1.0, PlannerScoringService.difficulty_factor(item))
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:
