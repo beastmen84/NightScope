@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import inspect
+import json
 import unittest
 from copy import deepcopy
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QObject
 
@@ -11,6 +12,7 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -31,11 +33,11 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(snapshot.notes[:2], ("diagnostic_only", "score_neutral"))
         self.assertIsNotNone(snapshot.confidence)
         self.assertEqual(
-            [(target.source, target.object_id) for target in snapshot.targets],
+            [(target.source, target.object_id, target.observable_target_value.intrinsic_target_quality) for target in snapshot.targets],
             [
-                ("home", "messier-M13"),
-                ("planner", "messier-M13"),
-                ("best_object", "messier-M13"),
+                ("home", "messier-M13", 82.0),
+                ("planner", "messier-M13", 82.0),
+                ("best_object", "messier-M13", 82.0),
             ],
         )
         self.assertEqual(snapshot.targets[0].name, "M13")
@@ -75,6 +77,9 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(len(exported["targets"]), 3)
         planner_targets = exported["planner"]["targets"]
         self.assertEqual(len(planner_targets), 1)
+        self.assertEqual(planner_targets[0]["observableTargetValue"]["intrinsicTargetQuality"], 84.0)
+        self.assertEqual(planner_targets[0]["runtimeFields"]["score"], 84)
+        self.assertEqual(planner_targets[0]["runtimeFields"]["prepared_target_score"], 82)
         self.assertEqual(planner_targets[0]["runtimeFields"]["setup"], "Mak 127 + 16 mm")
         controller._refresh_nsom_diagnostics.assert_not_called()
 
@@ -90,9 +95,26 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
 
         controller._refresh_nsom_diagnostics()
 
-        self.assertIsNone(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence)
+        self.assertEqual(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence, 0.0)
         self.assertIsNone(controller._nsom_diagnostic_snapshot.confidence.moon_geometry_confidence)
-        self.assertNotIn("viirs_available", dict(controller._nsom_diagnostic_snapshot.confidence_inputs))
+        confidence_inputs = dict(controller._nsom_diagnostic_snapshot.confidence_inputs)
+        self.assertFalse(confidence_inputs["viirs_available"])
+        self.assertEqual(confidence_inputs["viirs_source_type"], "fallback")
+
+        controller._sky_quality = SkyQuality(
+            bortle_class=4,
+            limiting_magnitude=6.1,
+            sky_brightness=21.0,
+            source="World Atlas / VIIRS preprocessed local dataset",
+            description="",
+        )
+
+        controller._refresh_nsom_diagnostics()
+
+        self.assertEqual(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence, 0.0)
+        confidence_inputs = dict(controller._nsom_diagnostic_snapshot.confidence_inputs)
+        self.assertFalse(confidence_inputs["viirs_available"])
+        self.assertEqual(confidence_inputs["viirs_source_type"], "local_preprocessed")
 
         controller._sky_quality = SkyQuality(
             bortle_class=4,
@@ -106,7 +128,21 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         controller._refresh_nsom_diagnostics()
 
         self.assertEqual(controller._nsom_diagnostic_snapshot.confidence.viirs_confidence, 1.0)
-        self.assertTrue(dict(controller._nsom_diagnostic_snapshot.confidence_inputs)["viirs_available"])
+        confidence_inputs = dict(controller._nsom_diagnostic_snapshot.confidence_inputs)
+        self.assertTrue(confidence_inputs["viirs_available"])
+        self.assertEqual(confidence_inputs["viirs_source_type"], "provider")
+
+    def test_export_nsom_diagnostics_is_strict_json_compatible(self) -> None:
+        home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)
+        plan_item = _plan_item("messier-M13", "M13", score=float("nan"))
+        controller = _controller([home_target], [plan_item], best_object=home_target)
+        controller._refresh_nsom_diagnostics()
+
+        exported = controller._export_nsom_diagnostics()
+
+        json.dumps(exported, allow_nan=False)
+        planner_target = exported["planner"]["targets"][0]
+        self.assertIsNone(planner_target["runtimeFields"]["score"])
 
     def test_refresh_nsom_diagnostics_does_not_call_heavy_refresh_paths(self) -> None:
         target = _object("messier-M13", "M13", "Ammasso globulare", 82)
@@ -155,6 +191,45 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(controller._object_to_qml(target), before)
         self.assertNotIn("nsom", controller._object_to_qml(target))
 
+    def test_export_nsom_diagnostics_is_side_effect_free(self) -> None:
+        target = _object("messier-M13", "M13", "Ammasso globulare", 82)
+        controller = _controller([target], [_plan_item("messier-M13", "M13", score=82)], best_object=target)
+        controller._refresh_nsom_diagnostics()
+        controller._refresh_nsom_diagnostics = Mock(side_effect=AssertionError("no refresh"))
+        for method_name in (
+            "_recalculate_observing_outputs",
+            "_refresh_equipment_recommendations_for_current_objects",
+            "_refresh_sky_compass",
+            "_refresh_sky_compass_live",
+            "_start_weather_refresh",
+        ):
+            setattr(controller, method_name, Mock(side_effect=AssertionError(method_name)))
+        signal_slots = []
+        for signal in (
+            controller.dataChanged,
+            controller.weatherChanged,
+            controller.selectedObjectChanged,
+            controller.equipmentChanged,
+            controller.skyCompassChanged,
+            controller.statusChanged,
+        ):
+            slot = Mock()
+            signal.connect(slot)
+            signal_slots.append(slot)
+
+        with (
+            patch("astro_viewer.app.viewmodels.app_controller.logger.debug", side_effect=AssertionError("no logging")),
+            patch("astro_viewer.app.viewmodels.app_controller.logger.info", side_effect=AssertionError("no logging")),
+            patch("astro_viewer.app.viewmodels.app_controller.logger.warning", side_effect=AssertionError("no logging")),
+            patch("pathlib.Path.write_text", side_effect=AssertionError("no file writes")),
+        ):
+            exported = controller._export_nsom_diagnostics()
+
+        self.assertEqual(exported["metadata"]["schema"], "nsom_diagnostic_snapshot")
+        controller._refresh_nsom_diagnostics.assert_not_called()
+        for slot in signal_slots:
+            slot.assert_not_called()
+
     def test_refresh_nsom_diagnostics_is_safe_with_missing_runtime_data(self) -> None:
         controller = _controller([], [], weather_summary=None)
         controller._nasa_aod_result = NasaAodResult.no_location()
@@ -177,13 +252,33 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         )
 
     def test_provider_completion_refreshes_snapshot_without_observing_recompute(self) -> None:
-        local_source = inspect.getsource(AppController._finish_local_atmosphere_refresh)
-        aod_source = inspect.getsource(AppController._finish_nasa_aod_refresh)
+        controller = _controller([], [])
+        controller._refresh_nsom_diagnostics = Mock()
+        controller._mark_refresh_dirty = Mock()
+        controller._clear_refresh_domains = Mock()
+        controller._recalculate_observing_outputs = Mock(side_effect=AssertionError("no observing recompute"))
+        controller._refresh_equipment_recommendations_for_current_objects = Mock(
+            side_effect=AssertionError("no equipment recompute")
+        )
+        controller._refresh_sky_compass = Mock(side_effect=AssertionError("no compass recompute"))
+        controller._night_planner_service = Mock()
+        location_key = LightPollutionService._location_key(controller._location)
 
-        self.assertIn("self._refresh_nsom_diagnostics()", local_source)
-        self.assertIn("self._refresh_nsom_diagnostics()", aod_source)
-        self.assertNotIn("self._recalculate_observing_outputs()", local_source)
-        self.assertNotIn("self._recalculate_observing_outputs()", aod_source)
+        controller._finish_local_atmosphere_refresh(location_key, LocalAtmosphere.no_data())
+
+        controller._refresh_nsom_diagnostics.assert_called_once()
+        controller._recalculate_observing_outputs.assert_not_called()
+        controller._night_planner_service.plan.assert_not_called()
+
+        controller._refresh_nsom_diagnostics.reset_mock()
+        controller._earthdata_credentials_state = Mock(connection_verified=True)
+        controller._log_nasa_aod_result = Mock()
+
+        controller._finish_nasa_aod_refresh(location_key, NasaAodResult.no_location())
+
+        controller._refresh_nsom_diagnostics.assert_called_once()
+        controller._recalculate_observing_outputs.assert_not_called()
+        controller._night_planner_service.plan.assert_not_called()
 
 
 def _controller(
@@ -237,7 +332,7 @@ def _object(object_id: str, name: str, object_type: str, score: int) -> Celestia
     )
 
 
-def _plan_item(object_id: str, name: str, *, score: int) -> NightPlanItem:
+def _plan_item(object_id: str, name: str, *, score: int | float) -> NightPlanItem:
     return NightPlanItem(
         time_label="22:00",
         object_id=object_id,

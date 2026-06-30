@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
+from collections.abc import Mapping
 from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -1902,15 +1904,16 @@ class AppController(QObject):
                 local_atmosphere=self._local_atmosphere,
                 viirs_available=self._nsom_viirs_available(),
                 moon_geometry_available=None,
+                provider_fallback_used=self._nsom_provider_fallback_used(),
                 today=datetime.now(self._zone()).date(),
                 notes=("runtime_snapshot", "diagnostic_only"),
             )
             diagnostics = []
-            for source, target, runtime_source in self._nsom_diagnostic_candidate_targets():
+            for source, target in self._nsom_diagnostic_candidate_targets():
                 try:
-                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence, runtime_source))
+                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence))
                 except Exception:
-                    target_id = self._nsom_runtime_target_text(runtime_source or target, "id", "object_id")
+                    target_id = self._nsom_runtime_target_text(target, "id", "object_id")
                     notes.append(f"target_skipped={target_id or 'unknown'}")
                     logger.debug("Skipping NSOM diagnostic target.", exc_info=True)
 
@@ -1937,47 +1940,45 @@ class AppController(QObject):
         source: str,
         target: object,
         confidence,
-        runtime_source: object | None = None,
     ) -> NsomTargetDiagnostic:
-        runtime = runtime_source or target
         observable = build_observable_target_value(target)
-        observer_capability = build_observer_capability_profile_from_recommendation(runtime)
+        observer_capability = build_observer_capability_profile_from_recommendation(target)
         practical = build_practical_target_value(observable, observer_capability)
         opportunity = build_observation_opportunity(
             practical,
-            observing_window_quality=self._nsom_observing_window_quality(runtime),
+            observing_window_quality=self._nsom_observing_window_quality(target),
             chronology_fit=1.0,
             session_viability=self._nsom_session_viability(),
-            practical_constraints=1.0 if self._nsom_runtime_target_visible(runtime) else 0.0,
+            practical_constraints=1.0 if self._nsom_runtime_target_visible(target) else 0.0,
             confidence=confidence,
             context=(source, "runtime_snapshot", "diagnostic_only"),
         )
         return NsomTargetDiagnostic(
-            object_id=self._nsom_runtime_target_text(runtime, "id", "object_id"),
-            name=self._nsom_runtime_target_text(runtime, "name"),
+            object_id=self._nsom_runtime_target_text(target, "id", "object_id"),
+            name=self._nsom_runtime_target_text(target, "name"),
             source=source,
             observable_target_value=observable,
             observer_capability=observer_capability,
             practical_target_value=practical,
             observation_opportunity=opportunity,
-            runtime_fields=self._nsom_runtime_fields(source, runtime),
+            runtime_fields=self._nsom_runtime_fields(source, target),
         )
 
-    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object, object | None]]:
-        candidates: list[tuple[str, object, object | None]] = []
+    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object]]:
+        candidates: list[tuple[str, object]] = []
         seen: set[tuple[str, str]] = set()
 
-        def add(source: str, target: object | None, runtime_source: object | None = None) -> None:
+        def add(source: str, target: object | None) -> None:
             if target is None:
                 return
-            object_id = self._nsom_runtime_target_text(runtime_source or target, "id", "object_id")
+            object_id = self._nsom_runtime_target_text(target, "id", "object_id")
             if not object_id:
                 return
             key = (source, object_id)
             if key in seen:
                 return
             seen.add(key)
-            candidates.append((source, target, runtime_source))
+            candidates.append((source, target))
 
         for item in getattr(self, "_conditioned_home_objects", []):
             add("home", item)
@@ -1985,10 +1986,41 @@ class AppController(QObject):
         prepared_by_id = self._nsom_prepared_object_by_id()
         for plan_item in getattr(self, "_night_plan", []):
             plan_object_id = self._nsom_runtime_target_text(plan_item, "object_id", "id")
-            add("planner", prepared_by_id.get(plan_object_id, plan_item), plan_item)
+            add("planner", self._nsom_planner_diagnostic_target(plan_item, prepared_by_id.get(plan_object_id)))
 
         add("best_object", getattr(self, "_best_object", None))
         return candidates
+
+    def _nsom_planner_diagnostic_target(
+        self,
+        plan_item: object,
+        prepared_target: object | None,
+    ) -> dict[str, str | int | float | bool | None]:
+        target: dict[str, str | int | float | bool | None] = {
+            "runtime_object": "planner_item",
+            "planner_state": "planned",
+            "object_id": self._nsom_runtime_target_value(plan_item, "object_id", "id"),
+            "name": self._nsom_runtime_target_value(plan_item, "name"),
+            "score": self._nsom_runtime_target_value(plan_item, "score"),
+            "difficulty": self._nsom_runtime_target_value(plan_item, "difficulty"),
+            "setup": self._nsom_runtime_target_value(plan_item, "setup"),
+            "time_label": self._nsom_runtime_target_value(plan_item, "time_label"),
+            "direction": self._nsom_runtime_target_value(plan_item, "direction"),
+            "image": self._nsom_runtime_target_value(plan_item, "image"),
+            "visible": True,
+        }
+        if prepared_target is not None:
+            target.update(
+                {
+                    "object_type": self._nsom_runtime_target_value(prepared_target, "object_type"),
+                    "recommended_setup_type": self._nsom_runtime_target_value(prepared_target, "recommended_setup_type"),
+                    "best_time": self._nsom_runtime_target_value(prepared_target, "best_time"),
+                    "observing_window": self._nsom_runtime_target_value(prepared_target, "observing_window"),
+                    "prepared_target_id": self._nsom_runtime_target_value(prepared_target, "id", "object_id"),
+                    "prepared_target_score": self._nsom_runtime_target_value(prepared_target, "score"),
+                }
+            )
+        return {key: value for key, value in target.items() if value not in (None, "")}
 
     def _nsom_prepared_object_by_id(self) -> dict[str, CelestialObject]:
         by_id = {}
@@ -2028,25 +2060,51 @@ class AppController(QObject):
 
     @staticmethod
     def _nsom_runtime_target_text(target: object, *names: str) -> str:
+        value = AppController._nsom_runtime_target_value(target, *names)
+        return "" if value is None else str(value)
+
+    @staticmethod
+    def _nsom_runtime_target_value(target: object, *names: str) -> object:
         for name in names:
-            value = getattr(target, name, None)
+            if isinstance(target, Mapping):
+                value = target.get(name)
+            else:
+                value = getattr(target, name, None)
             if value is not None:
-                return str(value)
-        return ""
+                return value
+        return None
 
     @staticmethod
     def _nsom_runtime_target_visible(target: object) -> bool:
-        value = getattr(target, "visible", True)
+        value = AppController._nsom_runtime_target_value(target, "visible")
+        if value is None:
+            return True
         return bool(value)
 
     def _nsom_viirs_available(self) -> bool | None:
+        source_type = self._nsom_viirs_source_type()
+        if source_type == "provider":
+            return True
+        if source_type in {"local_preprocessed", "fallback"}:
+            return False
+        return None
+
+    def _nsom_viirs_source_type(self) -> str:
         sky_quality = getattr(self, "_sky_quality", None)
         if sky_quality is None:
-            return None
+            return "missing"
         if getattr(sky_quality, "viirs_radiance", None) is not None:
-            return True
+            return "provider"
         source = str(getattr(sky_quality, "source", ""))
-        if "NASA Black Marble" in source or "VIIRS" in source:
+        if "NASA Black Marble VNP46A3" in source:
+            return "provider"
+        if "VIIRS preprocessed" in source or "World Atlas / VIIRS" in source:
+            return "local_preprocessed"
+        return "fallback"
+
+    def _nsom_provider_fallback_used(self) -> bool | None:
+        source_type = self._nsom_viirs_source_type()
+        if source_type in {"local_preprocessed", "fallback"}:
             return True
         return None
 
@@ -2082,6 +2140,7 @@ class AppController(QObject):
             ("openaq_freshness_category", getattr(atmosphere, "freshness_category", None)),
             ("openaq_source", getattr(atmosphere, "source", None)),
             ("viirs_available", self._nsom_viirs_available()),
+            ("viirs_source_type", self._nsom_viirs_source_type()),
             ("sky_quality_source", getattr(sky_quality, "source", None)),
             ("moon_geometry_available", None),
         ]
@@ -2103,6 +2162,8 @@ class AppController(QObject):
             "object_id",
             "name",
             "object_type",
+            "runtime_object",
+            "planner_state",
             "score",
             "difficulty",
             "recommended_setup",
@@ -2112,11 +2173,14 @@ class AppController(QObject):
             "observing_window",
             "time_label",
             "direction",
+            "image",
             "visible",
+            "prepared_target_id",
+            "prepared_target_score",
         )
         fields = [("source", source)]
         for name in field_names:
-            value = getattr(target, name, None)
+            value = self._nsom_runtime_target_value(target, name)
             if value not in (None, ""):
                 fields.append((name, value))
         return tuple(fields)
@@ -2133,7 +2197,7 @@ class AppController(QObject):
         )
         targets = [self._nsom_target_diagnostic_to_export(target) for target in snapshot.targets]
         planner_targets = [target for target in targets if target.get("source") == "planner"]
-        return {
+        payload = {
             "metadata": self._nsom_fields_to_dict(snapshot.metadata),
             "timestamp": snapshot.generated_at,
             "location": self._nsom_fields_to_dict(snapshot.location),
@@ -2143,6 +2207,8 @@ class AppController(QObject):
             "targets": targets,
             "planner": {"targets": planner_targets},
         }
+        compatible = self._nsom_json_compatible(payload)
+        return compatible if isinstance(compatible, dict) else {}
 
     def _nsom_target_diagnostic_to_export(self, target: NsomTargetDiagnostic) -> dict[str, object]:
         return {
@@ -2213,6 +2279,20 @@ class AppController(QObject):
     @staticmethod
     def _nsom_fields_to_dict(fields: tuple[tuple[str, str | int | float | bool | None], ...]) -> dict[str, object]:
         return {key: value for key, value in fields}
+
+    @staticmethod
+    def _nsom_json_compatible(value: object) -> object:
+        if value is None or isinstance(value, str | bool):
+            return value
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return value if math.isfinite(value) else None
+        if isinstance(value, Mapping):
+            return {str(key): AppController._nsom_json_compatible(item) for key, item in value.items()}
+        if isinstance(value, list | tuple):
+            return [AppController._nsom_json_compatible(item) for item in value]
+        return str(value)
 
     def _refresh_sky_compass(self) -> None:
         candidates = self._sky_compass_candidates()

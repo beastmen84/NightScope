@@ -64,6 +64,13 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
+Current implementation status for `1.3.8e`: `AppController` maintains an
+internal NSOM diagnostic snapshot/export for regression tests and architectural
+inspection only. The diagnostic export is not exposed to QML, does not write
+files, does not log automatically, does not emit signals and does not recompute
+Planner, Home, Equipment or Sky Compass output. Confidence remains parallel
+metadata and does not change recommendation score.
+
 ## Dependency Flow
 
 The intended dependency flow is:

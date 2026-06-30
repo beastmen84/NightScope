@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.3.5`.
+Versione corrente: `1.3.8e`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -36,6 +36,12 @@ ranking specifico del Planner in `PlannerScoringService`, preservando i
 comportamenti osservativi esistenti. AOD NASA e particolato OpenAQ possono
 essere rappresentati come diagnostica neutra del layer condizioni, ma non
 alimentano ancora punteggi o raccomandazioni.
+Lo step `1.3.8e` completa l'hardening dell'export diagnostico NSOM interno:
+snapshot coerenti per i target Planner, semantica distinta per dati VIIRS reali,
+dataset locali derivati e fallback, serializzazione JSON stretta, refresh dello
+snapshot dopo completamento OpenAQ/AOD e nessuna esposizione QML, scrittura file,
+logging automatico, segnale o ricomputazione di Planner/Home/Equipment/Sky
+Compass.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
