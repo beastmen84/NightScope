@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.3`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.4.4`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -92,6 +92,12 @@ and experimental NSOM Planner opportunities from the same supplied runtime
 inputs, then returns JSON-compatible dictionaries with score/rank deltas and
 NSOM component projections. It is not connected to QML, performs no writes or
 automatic logging, and does not change the default-off Planner NSOM flag.
+`1.4.4` adds behavioural comparison fixtures that intentionally validate NSOM
+rules rather than legacy equivalence: planets and the Moon stay protected from
+sky-background penalties, galaxies and diffuse nebulae degrade more under bright
+sky, session viability changes opportunity value without mutating target value,
+equipment changes practical value without changing observable value, and
+confidence remains score-neutral.
 
 ## Dependency Flow
 

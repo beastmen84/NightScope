@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.3`.
+Versione corrente: `1.4.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -70,6 +70,11 @@ Planner legacy e ranking Planner NSOM sperimentale. Il confronto restituisce
 dizionari compatibili JSON con punteggi, delta di punteggio/rank e componenti
 NSOM principali, senza scrivere file, fare logging automatico, esporre QML o
 abilitare il path NSOM di default.
+Lo step `1.4.4` aggiunge fixture comportamentali in cui NSOM puo' divergere
+intenzionalmente dal ranking Planner legacy: protezione di pianeti/Luna dai
+penalty di fondo cielo, maggiore sensibilita' di galassie e nebulose diffuse,
+separazione tra valore target e sessione, influenza dell'equipaggiamento sul
+solo `PracticalTargetValue` e neutralita' del `RecommendationConfidence`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

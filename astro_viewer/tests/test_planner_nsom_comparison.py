@@ -63,6 +63,51 @@ def test_strong_moon_and_light_pollution_affect_galaxies_and_nebulae_more_than_p
     assert nebula_drop > planet_drop
 
 
+def test_intentional_rank_divergence_keeps_nsom_model_as_expected_answer() -> None:
+    targets = [
+        _target("weak-planet", "Pianeta", 50, magnitude="-0.4", best_time="04:30"),
+        _target("strong-galaxy", "Galaxy", 90, magnitude="8.2", best_time="21:00"),
+    ]
+
+    comparison = _compare(targets, sky_quality=_sky_quality(9, radiance=120), moon=_moon(95))
+
+    legacy_ranking = [item["object_id"] for item in comparison["rankings"]["legacy"]]
+    nsom_ranking = [item["object_id"] for item in comparison["rankings"]["nsom"]]
+
+    assert nsom_ranking[0] == "strong-galaxy"
+    assert legacy_ranking != nsom_ranking
+    assert _component(comparison, "weak-planet", "effective_observability")["lunar_sky_background"] == pytest.approx(1.0)
+    assert _component(comparison, "weak-planet", "effective_observability")["static_sky_background"] == pytest.approx(1.0)
+    assert _component(comparison, "strong-galaxy", "effective_observability")["value"] < _component(
+        comparison,
+        "weak-planet",
+        "effective_observability",
+    )["value"]
+    assert _component(comparison, "strong-galaxy", "practical_target_value")["value"] < _component(
+        comparison,
+        "weak-planet",
+        "practical_target_value",
+    )["value"]
+    assert _nsom_score(comparison, "strong-galaxy") > _nsom_score(comparison, "weak-planet")
+
+
+def test_diffuse_nebula_loses_to_planet_under_bright_sky_by_nsom_components() -> None:
+    targets = [
+        _target("planet", "Pianeta", 82, magnitude="-1.0"),
+        _target("diffuse-nebula", "Nebula", 82, magnitude="7.0"),
+    ]
+
+    comparison = _compare(targets, sky_quality=_sky_quality(9, radiance=120), moon=_moon(95))
+
+    assert _component(comparison, "planet", "effective_observability")["value"] == pytest.approx(0.85)
+    assert _component(comparison, "diffuse-nebula", "effective_observability")["value"] < _component(
+        comparison,
+        "planet",
+        "effective_observability",
+    )["value"]
+    assert _nsom_score(comparison, "planet") > _nsom_score(comparison, "diffuse-nebula")
+
+
 def test_clusters_are_present_and_less_sky_sensitive_than_galaxies() -> None:
     targets = [
         _target("galaxy", "Galaxy", 82),
