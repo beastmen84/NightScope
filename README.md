@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.6`.
+Versione corrente: `1.4.7`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -87,6 +87,12 @@ telescopi piccoli/grandi, condizioni favorevoli a pianeti o deep-sky e target
 Luna producono output JSON con ranking NSOM, riferimento legacy, componenti,
 fattori e aspettativa comportamentale. L'ispezione non abilita il Planner NSOM,
 non scrive file, non logga automaticamente e non espone nulla a QML.
+Lo step `1.4.7` aggiunge il report developer-facing
+`docs/NSOM_PLANNER_COMPARISON_REPORT.md` e il relativo tooling deterministico:
+108 scenari confrontano scoring Planner legacy e scoring Planner NSOM
+sperimentale con spiegazioni, rank delta, componenti disponibili e componenti
+legacy marcati come non disponibili quando non esposti. Il report non modifica
+i pesi NSOM, non abilita il flag Planner NSOM e non viene collegato al runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
