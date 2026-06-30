@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import math
 from datetime import date
 from types import SimpleNamespace
 
@@ -11,6 +13,7 @@ from astro_viewer.app.models.nsom import (
     NsomTargetDiagnostic,
     NsomTargetClass,
     ObservationOpportunity,
+    nsom_to_json_compatible,
 )
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SkyQuality
@@ -207,8 +210,45 @@ def test_opportunity_adapter_does_not_mutate_source_values() -> None:
     assert opportunity.confidence is confidence
     assert observable.value == pytest.approx(90.0)
     assert practical.value == pytest.approx(67.5)
+    assert opportunity.session.value == pytest.approx(0.5)
+    assert opportunity.session_viability == pytest.approx(0.5)
     assert opportunity.value == pytest.approx(17.01)
     assert opportunity.context == ("diagnostic",)
+
+
+def test_opportunity_adapter_rejects_conflicting_session_inputs() -> None:
+    observable = build_observable_target_value(_target(score=80), EffectiveObservability.from_components())
+    profile = build_observer_capability_profile_from_recommendation({"setupType": "telescope"})
+    practical = build_practical_target_value(observable, profile, capability_summary=0.8)
+
+    with pytest.raises(ValueError, match="session_viability conflicts"):
+        build_observation_opportunity(
+            practical,
+            session_viability=0.2,
+            session=build_session_viability(value=0.8),
+        )
+
+
+def test_adapter_sanitizes_non_finite_runtime_values() -> None:
+    target = SimpleNamespace(
+        id="malformed",
+        name="Malformed Galaxy",
+        object_type="Galaxy",
+        score=float("inf"),
+        magnitude=float("nan"),
+        max_altitude="45",
+        apparent_size="",
+        visible=True,
+    )
+
+    intrinsic = build_intrinsic_target_quality(target)
+    observable = build_observable_target_value(target)
+
+    json.dumps(nsom_to_json_compatible(intrinsic), allow_nan=False)
+    json.dumps(nsom_to_json_compatible(observable), allow_nan=False)
+    assert intrinsic.value == pytest.approx(0.0)
+    assert observable.value == pytest.approx(0.0)
+    assert all(not (isinstance(value, float) and not math.isfinite(value)) for _, value in intrinsic.source_fields)
 
 
 def test_diagnostic_snapshot_adapts_to_core_observation_opportunities() -> None:

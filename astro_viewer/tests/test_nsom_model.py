@@ -10,13 +10,14 @@ from astro_viewer.app.models.nsom import (
     IntrinsicTargetQuality,
     NSOM_TARGET_CLASS_PROFILES,
     EffectiveObservability,
+    NsomDiagnosticSnapshot,
+    NsomTargetDiagnostic,
     NsomTargetClass,
     NsomOwnershipBoundary,
     ObservableTargetValue,
     ObservationEnvironment,
     ObservationOpportunity,
     ObserverCapability,
-    ObserverCapabilityProfile,
     PracticalTargetValue,
     RecommendationConfidence,
     SessionViability,
@@ -128,7 +129,7 @@ def test_observable_target_value_is_independent_from_observer_capability() -> No
         target_class=NsomTargetClass.GALAXY,
     )
 
-    binocular_profile = ObserverCapabilityProfile(
+    binocular_profile = ObserverCapability(
         light_grasp=0.35,
         resolution=0.3,
         field_of_view=0.9,
@@ -137,7 +138,7 @@ def test_observable_target_value_is_independent_from_observer_capability() -> No
         experience_level=0.6,
         practical_comfort=0.8,
     )
-    telescope_profile = ObserverCapabilityProfile(
+    telescope_profile = ObserverCapability(
         light_grasp=0.95,
         resolution=0.9,
         field_of_view=0.55,
@@ -191,8 +192,8 @@ def test_observable_target_value_keeps_intrinsic_and_practical_layers_separate()
     assert observable.value == pytest.approx(53.55)
 
 
-def test_observer_capability_profile_is_structured_not_only_scalar() -> None:
-    profile = ObserverCapabilityProfile(
+def test_observer_capability_is_structured_not_only_scalar() -> None:
+    profile = ObserverCapability(
         light_grasp=0.7,
         resolution=0.6,
         field_of_view=0.8,
@@ -215,7 +216,7 @@ def test_observation_opportunity_combines_context_without_mutating_upstream_valu
         intrinsic_target_quality=90.0,
         effective_observability=effective,
     )
-    observer = ObserverCapabilityProfile(light_grasp=0.8, resolution=0.7)
+    observer = ObserverCapability(light_grasp=0.8, resolution=0.7)
     practical = PracticalTargetValue.from_observable(
         observable_target_value=observable,
         observer_capability=observer,
@@ -236,7 +237,6 @@ def test_observation_opportunity_combines_context_without_mutating_upstream_valu
         practical_target_value=practical,
         observing_window_quality=0.9,
         chronology_fit=0.75,
-        session_viability=session.value,
         session=session,
         practical_constraints=0.8,
         confidence=confidence,
@@ -252,6 +252,24 @@ def test_observation_opportunity_combines_context_without_mutating_upstream_valu
     assert opportunity.value == pytest.approx(14.58)
 
 
+def test_observation_opportunity_rejects_duplicate_session_viability_field() -> None:
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=70.0,
+        effective_observability=EffectiveObservability.from_components(),
+    )
+    practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=ObserverCapability(),
+    )
+
+    with pytest.raises(TypeError):
+        ObservationOpportunity(  # type: ignore[call-arg]
+            practical_target_value=practical,
+            session_viability=0.2,
+            session=SessionViability.from_components(value=0.8),
+        )
+
+
 def test_recommendation_confidence_does_not_change_opportunity_score() -> None:
     effective = EffectiveObservability.from_components()
     observable = ObservableTargetValue.from_intrinsic(
@@ -260,7 +278,7 @@ def test_recommendation_confidence_does_not_change_opportunity_score() -> None:
     )
     practical = PracticalTargetValue.from_observable(
         observable_target_value=observable,
-        observer_capability=ObserverCapabilityProfile(),
+        observer_capability=ObserverCapability(),
         capability_summary=0.8,
     )
 
@@ -306,7 +324,7 @@ def test_core_model_exports_to_strict_json_compatible_shape() -> None:
     )
     practical = PracticalTargetValue.from_observable(
         observable_target_value=observable,
-        observer_capability=ObserverCapabilityProfile(),
+        observer_capability=ObserverCapability(),
     )
     opportunity = ObservationOpportunity(
         practical_target_value=practical,
@@ -326,6 +344,61 @@ def test_core_model_exports_to_strict_json_compatible_shape() -> None:
     assert exported["intrinsic"]["value"] == 0.0
     assert exported["environment"]["static_sky_background"] == 0.0
     assert exported["opportunity"]["confidence"]["viirs_confidence"] == 1.0
+
+
+def test_full_nsom_diagnostic_snapshot_exports_to_strict_json() -> None:
+    intrinsic = IntrinsicTargetQuality.from_score(
+        81,
+        object_id="messier-M31",
+        name="M31",
+        target_class=NsomTargetClass.GALAXY,
+        source_fields=(("raw_score", float("inf")),),
+    )
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=intrinsic,
+        effective_observability=EffectiveObservability.from_components(),
+    )
+    observer = ObserverCapability(light_grasp=0.8, resolution=0.7)
+    practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=observer,
+        capability_summary=0.75,
+    )
+    confidence = RecommendationConfidence(
+        weather_confidence=0.9,
+        aod_confidence=float("nan"),
+        notes=("strict-json",),
+    )
+    opportunity = ObservationOpportunity(
+        practical_target_value=practical,
+        session=SessionViability.from_components(value=0.6),
+        confidence=confidence,
+    )
+    diagnostic = NsomTargetDiagnostic(
+        object_id="messier-M31",
+        name="M31",
+        source="planner",
+        observable_target_value=observable,
+        observer_capability=observer,
+        practical_target_value=practical,
+        observation_opportunity=opportunity,
+        runtime_fields=(("score", float("-inf")),),
+    )
+    snapshot = NsomDiagnosticSnapshot(
+        generated_at="2026-06-30T00:00:00+03:00",
+        targets=(diagnostic,),
+        confidence=confidence,
+        metadata=(("schema", "nsom_diagnostic_snapshot"), ("invalid", float("inf"))),
+        notes=("diagnostic_only",),
+    )
+
+    exported = nsom_to_json_compatible(snapshot)
+
+    json.dumps(exported, allow_nan=False)
+    assert exported["targets"][0]["runtime_fields"][0][1] is None
+    assert exported["targets"][0]["observable_target_value"]["intrinsic_target"]["source_fields"][0][1] is None
+    assert exported["confidence"]["aod_confidence"] is None
+    assert exported["metadata"][1][1] is None
 
 
 def test_nsom_core_is_not_exposed_to_qml_or_runtime_qml_payloads() -> None:

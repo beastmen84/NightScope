@@ -8,13 +8,13 @@ from typing import Any
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
     IntrinsicTargetQuality,
+    NsomDiagnosticScalar,
     NsomDiagnosticSnapshot,
     NsomTargetClass,
     ObservableTargetValue,
     ObservationEnvironment,
     ObservationOpportunity,
     ObserverCapability,
-    ObserverCapabilityProfile,
     PracticalTargetValue,
     RecommendationConfidence,
     SessionViability,
@@ -51,7 +51,7 @@ def build_intrinsic_target_quality(target: Any) -> IntrinsicTargetQuality:
     object_id = _text_field(target, "id", "object_id")
     name = _text_field(target, "name")
     source_fields = tuple(
-        (key, value)
+        (key, scalar)
         for key, value in (
             ("object_id", object_id),
             ("name", name),
@@ -62,7 +62,7 @@ def build_intrinsic_target_quality(target: Any) -> IntrinsicTargetQuality:
             ("apparent_size", _text_field(target, "apparent_size")),
             ("visible", _value(target, "visible")),
         )
-        if value not in (None, "")
+        if (scalar := _diagnostic_scalar(value)) not in (None, "")
     )
     return IntrinsicTargetQuality.from_score(
         _numeric_field(target, "score", default=0.0),
@@ -167,7 +167,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
     )
 
     if "occhio" in normalized or "naked" in normalized:
-        return ObserverCapabilityProfile(
+        return ObserverCapability(
             light_grasp=0.1,
             resolution=0.1,
             field_of_view=1.0,
@@ -177,7 +177,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
             notes=notes,
         )
     if "binoc" in normalized or "binocular" in normalized:
-        return ObserverCapabilityProfile(
+        return ObserverCapability(
             light_grasp=0.35,
             resolution=0.3,
             field_of_view=0.95,
@@ -187,7 +187,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
             notes=notes,
         )
     if "smart" in normalized or "eaa" in normalized:
-        return ObserverCapabilityProfile(
+        return ObserverCapability(
             light_grasp=0.75,
             resolution=0.7,
             field_of_view=0.55,
@@ -199,7 +199,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
             notes=notes,
         )
 
-    profile = ObserverCapabilityProfile(
+    profile = ObserverCapability(
         light_grasp=0.85 if ("telesc" in normalized or telescope_name) else 0.5,
         resolution=0.8 if ("telesc" in normalized or telescope_name) else 0.5,
         field_of_view=0.45 if ("telesc" in normalized or telescope_name) else 0.5,
@@ -213,7 +213,7 @@ def build_observer_capability_profile_from_recommendation(recommendation: Any) -
 
 def build_practical_target_value(
     observable_target_value: ObservableTargetValue,
-    observer_capability: ObserverCapabilityProfile,
+    observer_capability: ObserverCapability,
     *,
     capability_summary: float | None = None,
 ) -> PracticalTargetValue:
@@ -282,7 +282,7 @@ def build_observation_opportunity(
     *,
     observing_window_quality: float = 1.0,
     chronology_fit: float = 1.0,
-    session_viability: float = 1.0,
+    session_viability: float | None = None,
     session: SessionViability | None = None,
     practical_constraints: float = 1.0,
     confidence: RecommendationConfidence | None = None,
@@ -290,12 +290,11 @@ def build_observation_opportunity(
 ) -> ObservationOpportunity:
     """Build a diagnostic NSOM opportunity without changing upstream DTOs."""
 
-    session_context = session or SessionViability.from_components(value=session_viability)
+    session_context = _session_from_inputs(session_viability=session_viability, session=session)
     return ObservationOpportunity(
         practical_target_value=practical_target_value,
         observing_window_quality=observing_window_quality,
         chronology_fit=chronology_fit,
-        session_viability=session_context.value,
         session=session_context,
         practical_constraints=practical_constraints,
         confidence=confidence,
@@ -351,7 +350,7 @@ def _profile_with_option_context(
         field_of_view = max(field_of_view, 0.75)
     if "alto ingrandimento" in option_text or "high" in option_text:
         magnification_range = max(magnification_range, 0.75)
-    return ObserverCapabilityProfile(
+    return ObserverCapability(
         light_grasp=profile.light_grasp,
         resolution=profile.resolution,
         field_of_view=field_of_view,
@@ -364,6 +363,32 @@ def _profile_with_option_context(
         practical_comfort=profile.practical_comfort,
         notes=profile.notes,
     )
+
+
+def _session_from_inputs(
+    *,
+    session_viability: float | None,
+    session: SessionViability | None,
+) -> SessionViability:
+    if session is None:
+        return SessionViability.from_components(
+            value=1.0 if session_viability is None else session_viability,
+        )
+    if session_viability is None:
+        return session
+
+    requested_session = SessionViability.from_components(value=session_viability)
+    if not math.isclose(requested_session.value, session.value, rel_tol=0.0, abs_tol=1e-9):
+        raise ValueError("session_viability conflicts with session.value")
+    return session
+
+
+def _diagnostic_scalar(value: Any) -> NsomDiagnosticScalar:
+    if value is None or isinstance(value, str | bool | int):
+        return value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    return str(value)
 
 
 def _bool_or_none(value: Any) -> bool | None:

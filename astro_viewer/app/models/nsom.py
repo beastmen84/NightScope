@@ -477,20 +477,24 @@ class ObservationOpportunity:
     practical_target_value: PracticalTargetValue
     observing_window_quality: float = 1.0
     chronology_fit: float = 1.0
-    session_viability: float = 1.0
-    session: SessionViability | None = None
+    session: SessionViability = field(default_factory=SessionViability)
     practical_constraints: float = 1.0
     confidence: RecommendationConfidence | None = None
     context: tuple[str, ...] = field(default_factory=tuple)
 
     @property
+    def session_viability(self) -> float:
+        """Compatibility projection; the session DTO is the single source of truth."""
+
+        return _clamp_unit(self.session.value)
+
+    @property
     def value(self) -> float:
-        session_value = self.session.value if self.session is not None else self.session_viability
         return _clamp_score(
             self.practical_target_value.value
             * _clamp_unit(self.observing_window_quality)
             * _clamp_unit(self.chronology_fit)
-            * _clamp_unit(session_value)
+            * self.session_viability
             * _clamp_unit(self.practical_constraints)
         )
 

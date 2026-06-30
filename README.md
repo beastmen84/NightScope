@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.0`.
+Versione corrente: `1.4.0b`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -48,6 +48,10 @@ adattatori dai runtime object correnti e compatibilità JSON stretta. In `1.4.0`
 questo layer non sostituisce ancora ranking Planner, Home, Best Object, Sky
 Compass o Recommendation Engine: la sostituzione dei percorsi legacy parte dai
 commit successivi.
+Lo step `1.4.0b` indurisce il core senza avviare la sostituzione Planner:
+`ObservationOpportunity` usa `SessionViability` come unica sorgente di verita,
+gli adapter rifiutano input sessione conflittuali e la serializzazione JSON
+stretta resta garantita anche con valori runtime non finiti.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
