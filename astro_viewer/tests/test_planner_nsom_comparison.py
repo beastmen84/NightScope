@@ -47,6 +47,40 @@ def test_comparison_fixture_reports_legacy_and_nsom_rankings_as_strict_json() ->
         } <= set(components)
 
 
+def test_nsom_explanation_is_strict_json_compatible() -> None:
+    targets = [
+        _target("weak-planet", "Pianeta", 50, magnitude="-0.4", best_time="04:30"),
+        _target("strong-galaxy", "Galaxy", 90, magnitude="8.2", best_time="21:00"),
+    ]
+
+    comparison = _compare(targets, sky_quality=_sky_quality(9, radiance=120), moon=_moon(95))
+    explanation = _explanation(comparison, "strong-galaxy")
+
+    json.dumps(explanation, allow_nan=False)
+
+    assert explanation["target"]["object_id"] == "strong-galaxy"
+    assert explanation["final_nsom_opportunity_score"] == pytest.approx(_nsom_score(comparison, "strong-galaxy"))
+    assert {
+        "practical_target_value",
+        "observable_target_value",
+        "effective_observability",
+        "observer_capability_summary",
+        "session_viability",
+        "observing_window_quality",
+        "chronology_fit",
+        "practical_constraints",
+    } <= set(explanation["score_components"])
+    assert {
+        "practical_target_value",
+        "observable_target_value",
+        "effective_observability",
+        "observer_capability",
+        "observer_capability_summary",
+        "session_viability",
+        "recommendation_confidence",
+    } <= set(explanation["nsom_components"])
+
+
 def test_strong_moon_and_light_pollution_affect_galaxies_and_nebulae_more_than_planets() -> None:
     targets = [_target("planet", "Pianeta", 82), _target("galaxy", "Galaxy", 82), _target("diffuse-nebula", "Nebula", 82)]
     dark = _compare(targets, sky_quality=_sky_quality(3), moon=_moon(10))
@@ -61,6 +95,39 @@ def test_strong_moon_and_light_pollution_affect_galaxies_and_nebulae_more_than_p
     assert nebula_drop > 0.25
     assert galaxy_drop > planet_drop
     assert nebula_drop > planet_drop
+
+
+def test_bright_sky_explanation_targets_galaxy_and_nebula_degradation_not_planets_or_moon() -> None:
+    targets = [
+        _target("planet", "Pianeta", 82, magnitude="-1.0"),
+        _target("galaxy", "Galaxy", 82, magnitude="8.2"),
+        _target("diffuse-nebula", "Nebula", 82, magnitude="7.0"),
+        _target("moon", "Luna", 82, magnitude="-12.0"),
+    ]
+
+    comparison = _compare(targets, sky_quality=_sky_quality(9, radiance=120), moon=_moon(95))
+
+    for object_id in ("galaxy", "diffuse-nebula"):
+        explanation = _explanation(comparison, object_id)
+        assert _has_factor(explanation, "sky", "moon_background")
+        assert _has_factor(explanation, "sky", "sky_background")
+
+    for object_id in ("planet", "moon"):
+        explanation = _explanation(comparison, object_id)
+        assert not _has_factor(explanation, "sky", "moon_background")
+        assert not _has_factor(explanation, "sky", "sky_background")
+        assert _has_factor(
+            explanation,
+            "sky",
+            "moon_background_neutral",
+            section="main_positive_factors",
+        )
+        assert _has_factor(
+            explanation,
+            "sky",
+            "sky_background_neutral",
+            section="main_positive_factors",
+        )
 
 
 def test_intentional_rank_divergence_keeps_nsom_model_as_expected_answer() -> None:
@@ -150,6 +217,24 @@ def test_poor_session_viability_lowers_opportunity_without_mutating_target_value
     )
 
 
+def test_poor_session_explanation_accounts_for_session_reduction_without_target_mutation() -> None:
+    target = _target("galaxy", "Galaxy", 82)
+    good = _compare([target], weather=_weather(85), sky_quality=_sky_quality(3), moon=_moon(10))
+    poor = _compare([target], weather=_weather(20), sky_quality=_sky_quality(3), moon=_moon(10))
+    poor_explanation = _explanation(poor, "galaxy")
+
+    assert _has_factor(poor_explanation, "session", "session_viability")
+    assert _has_factor(poor_explanation, "session", "weather_suitability")
+    assert not _has_factor(poor_explanation, "confidence", "confidence")
+    assert _component(poor, "galaxy", "observable_target_value")["value"] == pytest.approx(
+        _component(good, "galaxy", "observable_target_value")["value"]
+    )
+    assert _component(poor, "galaxy", "practical_target_value")["value"] == pytest.approx(
+        _component(good, "galaxy", "practical_target_value")["value"]
+    )
+    assert _nsom_score(poor, "galaxy") < _nsom_score(good, "galaxy")
+
+
 def test_equipment_changes_practical_value_but_not_observable_value() -> None:
     target = _target("galaxy", "Galaxy", 82)
     small = _compare(
@@ -169,6 +254,33 @@ def test_equipment_changes_practical_value_but_not_observable_value() -> None:
         "galaxy",
         "practical_target_value",
     )["value"]
+
+
+def test_equipment_explanation_accounts_for_practical_target_value_change() -> None:
+    target = _target("galaxy", "Galaxy", 82)
+    small = _compare(
+        [target],
+        telescope=_telescope(name="Small Manual", aperture_mm=60, focal_length_mm=400, mount="manual"),
+    )
+    large = _compare(
+        [target],
+        telescope=_telescope(name="Large GoTo", aperture_mm=220, focal_length_mm=1800, mount="GoTo EQ"),
+    )
+    small_explanation = _explanation(small, "galaxy")
+    large_explanation = _explanation(large, "galaxy")
+
+    assert _component(small, "galaxy", "observable_target_value")["value"] == pytest.approx(
+        _component(large, "galaxy", "observable_target_value")["value"]
+    )
+    assert _component(large, "galaxy", "practical_target_value")["value"] > _component(
+        small,
+        "galaxy",
+        "practical_target_value",
+    )["value"]
+    assert small_explanation["score_components"]["observer_capability_summary"] < large_explanation[
+        "score_components"
+    ]["observer_capability_summary"]
+    assert _has_factor(small_explanation, "observer", "observer_capability_summary")
 
 
 def test_confidence_does_not_change_nsom_planner_score() -> None:
@@ -197,6 +309,73 @@ def test_confidence_does_not_change_nsom_planner_score() -> None:
     assert high_confidence.confidence is not None
     assert low_confidence.confidence.value < high_confidence.confidence.value
     assert service.score(low_confidence) == pytest.approx(service.score(high_confidence))
+
+
+def test_confidence_explanation_is_trust_metadata_not_score_reduction() -> None:
+    target = _target("galaxy", "Galaxy", 82)
+    service = PlannerNsomScoringService()
+    opportunity = service.opportunity(
+        target,
+        weather=_weather(85),
+        scores=_scores(),
+        sky_quality=_sky_quality(3),
+        telescope=_telescope(),
+        moon=_moon(10),
+        blocking_status=NightPlannerService.weather_blocking_status(_weather(85)),
+    )
+    low_confidence = replace(
+        opportunity,
+        confidence=RecommendationConfidence(weather_confidence=0.1, viirs_confidence=0.0),
+    )
+    high_confidence = replace(
+        opportunity,
+        confidence=RecommendationConfidence(weather_confidence=1.0, viirs_confidence=1.0),
+    )
+
+    low_explanation = service.explain_opportunity(target, low_confidence)
+    high_explanation = service.explain_opportunity(target, high_confidence)
+
+    assert low_explanation["final_nsom_opportunity_score"] == pytest.approx(
+        high_explanation["final_nsom_opportunity_score"]
+    )
+    assert low_explanation["confidence_explanation"]["role"] == "metadata_only"
+    assert low_explanation["confidence_explanation"]["score_effect"] == pytest.approx(0.0)
+    assert low_explanation["confidence_explanation"]["score_factor"] is False
+    assert low_explanation["confidence_explanation"]["value"] < high_explanation["confidence_explanation"]["value"]
+    assert not _has_owner(low_explanation, "confidence", section="main_limiting_factors")
+    assert not _has_owner(low_explanation, "confidence", section="main_positive_factors")
+
+
+def test_flag_off_runtime_planner_remains_unchanged_with_explanation_service_present() -> None:
+    class FailingNsomService:
+        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
+            raise AssertionError("NSOM planner path should stay disabled.")
+
+        def score(self, opportunity):  # noqa: ANN001
+            raise AssertionError("NSOM planner path should stay disabled.")
+
+        def explain_opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
+            raise AssertionError("NSOM explanations should stay off the runtime Planner path.")
+
+    objects = _representative_targets()
+    weather = _weather(85)
+    scores = _scores()
+    sky_quality = _sky_quality(3)
+    telescope = _telescope()
+    moon = _moon(10)
+
+    assert NSOM_PLANNER_SCORING_ENABLED is False
+    legacy_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, moon)
+    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+        objects,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+
+    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
 
 
 def test_comparison_helper_is_not_exposed_to_qml() -> None:
@@ -233,6 +412,29 @@ def _entry(comparison: dict[str, object], object_id: str) -> dict[str, object]:
 
 def _component(comparison: dict[str, object], object_id: str, component: str) -> dict[str, object]:
     return _entry(comparison, object_id)["nsom"]["components"][component]
+
+
+def _explanation(comparison: dict[str, object], object_id: str) -> dict[str, object]:
+    return _entry(comparison, object_id)["nsom"]["explanation"]
+
+
+def _has_factor(
+    explanation: dict[str, object],
+    owner: str,
+    factor: str,
+    *,
+    section: str = "main_limiting_factors",
+) -> bool:
+    return any(item["owner"] == owner and item["factor"] == factor for item in explanation[section])
+
+
+def _has_owner(
+    explanation: dict[str, object],
+    owner: str,
+    *,
+    section: str,
+) -> bool:
+    return any(item["owner"] == owner for item in explanation[section])
 
 
 def _effective_value(comparison: dict[str, object], object_id: str) -> float:
@@ -349,3 +551,7 @@ def _telescope(
         optical_type="Mak",
         mount=mount,
     )
+
+
+def _plan_summary(plan):
+    return [(item.object_id, item.score, item.time_label) for item in plan]

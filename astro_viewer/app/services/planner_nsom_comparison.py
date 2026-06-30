@@ -141,7 +141,7 @@ class PlannerNsomComparisonService:
             "name": item.name,
             "object_type": item.object_type,
             "legacy": _legacy_projection(legacy_breakdown),
-            "nsom": _nsom_projection(opportunity),
+            "nsom": _nsom_projection(item, opportunity, self._nsom_scoring_service),
         }
 
 
@@ -152,7 +152,11 @@ def _legacy_projection(breakdown: PlannerScoreBreakdown) -> dict[str, object]:
     }
 
 
-def _nsom_projection(opportunity: ObservationOpportunity) -> dict[str, object]:
+def _nsom_projection(
+    item: CelestialObject,
+    opportunity: ObservationOpportunity,
+    nsom_scoring_service: PlannerNsomScoringService,
+) -> dict[str, object]:
     practical = opportunity.practical_target_value
     observable = practical.observable_target_value
     effective = observable.effective_observability
@@ -171,6 +175,7 @@ def _nsom_projection(opportunity: ObservationOpportunity) -> dict[str, object]:
             },
             "recommendation_confidence": _confidence_projection(confidence),
         },
+        "explanation": nsom_scoring_service.explain_opportunity(item, opportunity),
     }
 
 

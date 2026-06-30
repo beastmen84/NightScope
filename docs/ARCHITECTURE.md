@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.4`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.4.5`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -98,6 +98,16 @@ sky-background penalties, galaxies and diffuse nebulae degrade more under bright
 sky, session viability changes opportunity value without mutating target value,
 equipment changes practical value without changing observable value, and
 confidence remains score-neutral.
+`1.4.5` adds developer-facing explanation projections to the experimental
+Planner NSOM path. `PlannerNsomScoringService.explain_opportunity()` describes
+target identity, final opportunity score, score components, main limiting
+factors and main positive factors from the already-built
+`ObservationOpportunity`. Sky-owned factors explain `EffectiveObservability`,
+observer/equipment factors explain `PracticalTargetValue`, session factors
+explain `SessionViability`, and `RecommendationConfidence` is projected only as
+trust metadata with no score effect. The explanations are returned through the
+internal comparison helper as JSON-compatible dictionaries and are not exposed
+to QML, written to disk or logged automatically.
 
 ## Dependency Flow
 

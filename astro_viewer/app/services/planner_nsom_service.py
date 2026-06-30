@@ -14,6 +14,7 @@ from astro_viewer.app.models.nsom import (
     ObserverCapability,
     PracticalTargetValue,
     RecommendationConfidence,
+    nsom_to_json_compatible,
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
@@ -197,6 +198,54 @@ class PlannerNsomScoringService:
         return opportunity.value
 
     @staticmethod
+    def explain_opportunity(
+        item: CelestialObject,
+        opportunity: ObservationOpportunity,
+    ) -> dict[str, object]:
+        """Return a developer-only JSON-compatible explanation for a NSOM score."""
+
+        practical = opportunity.practical_target_value
+        observable = practical.observable_target_value
+        effective = observable.effective_observability
+        observer = practical.observer_capability
+        target_class = observable.target_class.value if observable.target_class else None
+        explanation = {
+            "target": {
+                "object_id": item.id,
+                "name": item.name,
+                "object_type": item.object_type,
+                "target_class": target_class,
+            },
+            "final_nsom_opportunity_score": opportunity.value,
+            "score_components": {
+                "practical_target_value": practical.value,
+                "observable_target_value": observable.value,
+                "effective_observability": effective.value,
+                "observer_capability_summary": practical.observer_capability_summary,
+                "session_viability": opportunity.session.value,
+                "observing_window_quality": opportunity.observing_window_quality,
+                "chronology_fit": opportunity.chronology_fit,
+                "practical_constraints": opportunity.practical_constraints,
+            },
+            "nsom_components": {
+                "practical_target_value": practical,
+                "observable_target_value": observable,
+                "effective_observability": effective,
+                "observer_capability_summary": practical.observer_capability_summary,
+                "observer_capability": {
+                    **nsom_to_json_compatible(observer),
+                    "summary_for_planning": observer.summary_for_planning(),
+                },
+                "session_viability": opportunity.session,
+                "recommendation_confidence": _confidence_explanation(opportunity.confidence),
+            },
+            "main_limiting_factors": _main_limiting_factors(opportunity),
+            "main_positive_factors": _main_positive_factors(opportunity),
+            "confidence_explanation": _confidence_explanation(opportunity.confidence),
+        }
+        return nsom_to_json_compatible(explanation)
+
+    @staticmethod
     def recommendation_confidence(
         *,
         weather: WeatherSummary,
@@ -219,6 +268,226 @@ class PlannerNsomScoringService:
     @staticmethod
     def _planner_practical_constraints(item: CelestialObject) -> float:
         return min(1.0, _difficulty_factor(item))
+
+
+def _main_limiting_factors(opportunity: ObservationOpportunity) -> tuple[dict[str, object], ...]:
+    practical = opportunity.practical_target_value
+    effective = practical.observable_target_value.effective_observability
+    session = opportunity.session
+    factors: list[dict[str, object]] = []
+
+    _append_factor_if_below(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="geometric_visibility",
+        value=effective.geometric_visibility,
+        reason="Target geometry limits observable target value.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="moon_background",
+        value=effective.lunar_sky_background,
+        reason="Moon sky background reduces effective observability for this target class.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="sky_background",
+        value=effective.static_sky_background,
+        reason="Light-pollution sky background reduces effective observability for this target class.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="atmospheric_transparency",
+        value=effective.atmospheric_transparency,
+        reason="Planner observing conditions reduce effective observability.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="horizon_context",
+        value=effective.horizon_context,
+        reason="Low altitude or horizon context reduces effective observability.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="observer",
+        component="PracticalTargetValue",
+        factor="observer_capability_summary",
+        value=practical.observer_capability_summary,
+        reason="Equipment and observer capability reduce practical target value.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="session",
+        component="SessionViability",
+        factor="weather_suitability",
+        value=session.weather_suitability,
+        reason="Weather/session suitability reduces session viability.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="session",
+        component="SessionViability",
+        factor="blocking_factor",
+        value=session.blocking_factor,
+        reason="A session blocker reduces session viability.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="session",
+        component="SessionViability",
+        factor="session_viability",
+        value=session.value,
+        reason="Session viability reduces the opportunity score.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="opportunity",
+        component="ObservationOpportunity",
+        factor="observing_window_quality",
+        value=opportunity.observing_window_quality,
+        reason="The observing window reduces opportunity timing quality.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="opportunity",
+        component="ObservationOpportunity",
+        factor="chronology_fit",
+        value=opportunity.chronology_fit,
+        reason="Planner chronology reduces opportunity fit.",
+    )
+    _append_factor_if_below(
+        factors,
+        owner="opportunity",
+        component="ObservationOpportunity",
+        factor="practical_constraints",
+        value=opportunity.practical_constraints,
+        reason="Planner practical constraints reduce opportunity value.",
+    )
+
+    return tuple(sorted(factors, key=lambda factor: float(factor["value"])))
+
+
+def _main_positive_factors(opportunity: ObservationOpportunity) -> tuple[dict[str, object], ...]:
+    practical = opportunity.practical_target_value
+    effective = practical.observable_target_value.effective_observability
+    session = opportunity.session
+    factors: list[dict[str, object]] = []
+
+    _append_factor_if_at_least(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="moon_background_neutral",
+        value=effective.lunar_sky_background,
+        reason="Moon sky background is neutral for this target class or condition.",
+    )
+    _append_factor_if_at_least(
+        factors,
+        owner="sky",
+        component="EffectiveObservability",
+        factor="sky_background_neutral",
+        value=effective.static_sky_background,
+        reason="Light-pollution sky background is neutral for this target class or condition.",
+    )
+    _append_factor_if_at_least(
+        factors,
+        owner="observer",
+        component="PracticalTargetValue",
+        factor="observer_capability_summary",
+        value=practical.observer_capability_summary,
+        reason="Equipment and observer capability support practical target value.",
+        threshold=0.65,
+    )
+    _append_factor_if_at_least(
+        factors,
+        owner="session",
+        component="SessionViability",
+        factor="session_viability",
+        value=session.value,
+        reason="Session viability supports the opportunity score.",
+        threshold=0.95,
+    )
+    _append_factor_if_at_least(
+        factors,
+        owner="opportunity",
+        component="ObservationOpportunity",
+        factor="observing_window_quality",
+        value=opportunity.observing_window_quality,
+        reason="The target has a strong observing window.",
+        threshold=0.95,
+    )
+
+    return tuple(factors)
+
+
+def _append_factor_if_below(
+    factors: list[dict[str, object]],
+    *,
+    owner: str,
+    component: str,
+    factor: str,
+    value: object,
+    reason: str,
+    threshold: float = 0.995,
+) -> None:
+    factor_value = _clamp_unit(value)
+    if factor_value >= threshold:
+        return
+    factors.append(_explanation_factor(owner, component, factor, factor_value, reason))
+
+
+def _append_factor_if_at_least(
+    factors: list[dict[str, object]],
+    *,
+    owner: str,
+    component: str,
+    factor: str,
+    value: object,
+    reason: str,
+    threshold: float = 0.995,
+) -> None:
+    factor_value = _clamp_unit(value)
+    if factor_value < threshold:
+        return
+    factors.append(_explanation_factor(owner, component, factor, factor_value, reason))
+
+
+def _explanation_factor(
+    owner: str,
+    component: str,
+    factor: str,
+    value: float,
+    reason: str,
+) -> dict[str, object]:
+    return {
+        "owner": owner,
+        "component": component,
+        "factor": factor,
+        "value": value,
+        "reason": reason,
+    }
+
+
+def _confidence_explanation(confidence: RecommendationConfidence | None) -> object:
+    if confidence is None:
+        return None
+    return {
+        **nsom_to_json_compatible(confidence),
+        "value": confidence.value,
+        "role": "metadata_only",
+        "score_effect": 0.0,
+        "score_factor": False,
+        "explanation": "RecommendationConfidence describes data trust and is not a score multiplier.",
+    }
 
 
 def _unit_from_score(value: object) -> float:
