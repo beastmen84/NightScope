@@ -24,6 +24,7 @@ from astro_viewer.app.services.night_planner_service import (
     NightPlannerService,
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.planner_scoring_service import PlannerScoringService
 
 
 def test_nsom_planner_feature_flag_is_default_off_and_preserves_legacy_output() -> None:
@@ -134,6 +135,76 @@ def test_planner_nsom_service_builds_full_observation_opportunity_from_candidate
     assert opportunity.value == pytest.approx(service.score(opportunity))
 
 
+def test_nsom_planner_does_not_use_legacy_condition_breakdown(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_condition_breakdown(*args, **kwargs):  # noqa: ANN002, ANN003
+        del args, kwargs
+        raise AssertionError("NSOM Planner should own its environment adaptation")
+
+    monkeypatch.setattr(PlannerScoringService, "condition_breakdown", fail_condition_breakdown)
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+
+    opportunity = PlannerNsomScoringService().opportunity(
+        target,
+        weather=_weather(85),
+        scores=_scores(deep_sky=70),
+        sky_quality=_sky_quality(8, radiance=20),
+        telescope=_telescope(),
+        moon=_moon(95),
+        blocking_status=NightPlannerService.weather_blocking_status(_weather(85)),
+    )
+
+    assert opportunity.practical_target_value.observable_target_value.effective_observability.environment is not None
+
+
+def test_nsom_planner_score_matches_observation_opportunity_formula() -> None:
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=80.0,
+        effective_observability=EffectiveObservability.from_components(),
+    )
+    practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=ObserverCapability(),
+        capability_summary=0.7,
+    )
+    opportunity = ObservationOpportunity(
+        practical_target_value=practical,
+        observing_window_quality=0.8,
+        chronology_fit=0.75,
+        session=SessionViability.from_components(value=0.5),
+        practical_constraints=0.6,
+        confidence=RecommendationConfidence(weather_confidence=0.1, viirs_confidence=0.0),
+    )
+
+    expected = practical.value * 0.8 * 0.75 * 0.5 * 0.6
+
+    assert PlannerNsomScoringService.score(opportunity) == pytest.approx(expected)
+
+
+def test_observer_equipment_changes_practical_value_without_changing_observable() -> None:
+    service = PlannerNsomScoringService()
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=80.0,
+        effective_observability=EffectiveObservability.from_components(),
+    )
+
+    small_scope_practical = service.practical_target_value_from_observable(
+        observable,
+        target,
+        telescope=_telescope(name="Small Scope", aperture_mm=60, focal_length_mm=400, mount="manual"),
+    )
+    large_scope_practical = service.practical_target_value_from_observable(
+        observable,
+        target,
+        telescope=_telescope(name="Large GoTo Scope", aperture_mm=220, focal_length_mm=1800, mount="GoTo EQ"),
+    )
+
+    assert small_scope_practical.observable_target_value is observable
+    assert large_scope_practical.observable_target_value is observable
+    assert observable.value == pytest.approx(80.0)
+    assert large_scope_practical.value > small_scope_practical.value
+
+
 def test_confidence_does_not_affect_nsom_planner_score() -> None:
     service = PlannerNsomScoringService()
     target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
@@ -166,6 +237,31 @@ def test_confidence_does_not_affect_nsom_planner_score() -> None:
 
     assert low_confidence.value < high_confidence.value
     assert service.score(low_opportunity) == service.score(high_opportunity)
+
+
+def test_changing_confidence_alone_does_not_change_nsom_planner_formula_score() -> None:
+    practical = _practical_value(70.0)
+    low_confidence = ObservationOpportunity(
+        practical_target_value=practical,
+        observing_window_quality=0.9,
+        chronology_fit=0.8,
+        session=SessionViability.from_components(value=0.7),
+        practical_constraints=0.6,
+        confidence=RecommendationConfidence(weather_confidence=0.1, viirs_confidence=0.0),
+    )
+    high_confidence = ObservationOpportunity(
+        practical_target_value=practical,
+        observing_window_quality=0.9,
+        chronology_fit=0.8,
+        session=SessionViability.from_components(value=0.7),
+        practical_constraints=0.6,
+        confidence=RecommendationConfidence(weather_confidence=1.0, viirs_confidence=1.0),
+    )
+
+    assert low_confidence.confidence is not None
+    assert high_confidence.confidence is not None
+    assert low_confidence.confidence.value < high_confidence.confidence.value
+    assert PlannerNsomScoringService.score(low_confidence) == PlannerNsomScoringService.score(high_confidence)
 
 
 def test_session_viability_changes_opportunity_without_mutating_target_values() -> None:
@@ -278,6 +374,14 @@ class FixedNsomOpportunityService:
 
 
 def _opportunity(value: float) -> ObservationOpportunity:
+    practical = _practical_value(value)
+    return ObservationOpportunity(
+        practical_target_value=practical,
+        session=SessionViability.from_components(value=1.0),
+    )
+
+
+def _practical_value(value: float) -> PracticalTargetValue:
     observable = ObservableTargetValue.from_intrinsic(
         intrinsic_target_quality=value,
         effective_observability=EffectiveObservability.from_components(),
@@ -287,10 +391,7 @@ def _opportunity(value: float) -> ObservationOpportunity:
         observer_capability=ObserverCapability(),
         capability_summary=1.0,
     )
-    return ObservationOpportunity(
-        practical_target_value=practical,
-        session=SessionViability.from_components(value=1.0),
-    )
+    return practical
 
 
 def _target(
@@ -381,14 +482,20 @@ def _moon(illumination: int) -> MoonSummary:
     )
 
 
-def _telescope() -> Telescope:
+def _telescope(
+    *,
+    name: str = "Test Scope",
+    aperture_mm: int = 127,
+    focal_length_mm: int = 1500,
+    mount: str = "",
+) -> Telescope:
     return Telescope(
         id="test-scope",
-        name="Test Scope",
-        aperture_mm=127,
-        focal_length_mm=1500,
+        name=name,
+        aperture_mm=aperture_mm,
+        focal_length_mm=focal_length_mm,
         optical_type="Mak",
-        mount="",
+        mount=mount,
     )
 
 

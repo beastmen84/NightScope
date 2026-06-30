@@ -30,8 +30,7 @@ class NightPlannerService:
     ) -> None:
         self._scoring_service = scoring_service or PlannerScoringService()
         self._use_nsom_planner_scoring = use_nsom_planner_scoring
-        nsom_planner_source = self._scoring_service if hasattr(self._scoring_service, "condition_breakdown") else None
-        self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService(nsom_planner_source)
+        self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
     def plan(
         self,
@@ -229,7 +228,7 @@ class NightPlannerService:
 
     @staticmethod
     def _practical_constraints(item: CelestialObject) -> float:
-        return min(1.0, PlannerScoringService.difficulty_factor(item))
+        return min(1.0, {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85))
 
     @staticmethod
     def _start_time(objects: list[CelestialObject]) -> datetime:

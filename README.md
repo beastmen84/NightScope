@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.1`.
+Versione corrente: `1.4.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -58,6 +58,13 @@ Planner continua a usare `PlannerScoringService`; quando viene attivato, i
 candidati Planner vengono trasformati in `ObservationOpportunity` e ordinati sul
 valore NSOM, mantenendo `RecommendationConfidence` come metadato parallelo che
 non modifica il punteggio.
+Lo step `1.4.2` pulisce la ownership dell'adapter Planner NSOM: il path
+sperimentale non deriva piu' Luna, inquinamento luminoso o osservabilita' da
+`PlannerScoringService.condition_breakdown`, ma costruisce
+`ObservationEnvironment` da input runtime gia' disponibili al Planner. La
+capacita' osservatore usa anche i dati del telescopio corrente per produrre un
+`PracticalTargetValue` diverso senza modificare `ObservableTargetValue`; il flag
+Planner NSOM resta interno e disattivato di default.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
