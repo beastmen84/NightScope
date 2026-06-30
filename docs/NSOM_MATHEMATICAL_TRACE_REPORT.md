@@ -1,0 +1,14684 @@
+# NSOM Mathematical Trace Report
+
+## Executive Summary
+
+This developer-facing report traces every stage of the experimental NSOM Planner pipeline for 108 deterministic scenarios from `docs/NSOM_PLANNER_COMPARISON_REPORT.md`. It explains why NSOM recommended each target; it is not a raw-score parity report.
+The trace keeps `RecommendationConfidence` outside the mathematical pipeline. Confidence appears as diagnostic metadata with zero score effect and is never used as a multiplier.
+The dominant mathematical review item is observer capability: it is a common limiter in the current fixtures because the medium, small and binocular profiles intentionally have sub-perfect practical capability. Session viability correctly caps blocked or poor sessions without mutating target physics.
+
+## Methodology
+
+- Reuses the existing deterministic NSOM comparison scenario matrix; no random scenarios are generated.
+- Builds trace rows from already exported NSOM opportunities and explanations.
+- Shows unavailable legacy concepts as unavailable instead of reconstructing or inventing values.
+- Does not change Planner scoring, enable the NSOM Planner flag, write runtime files, log automatically, expose QML or perform network work.
+- The checked-in Markdown file is generated only by the explicit developer tool command.
+
+## NSOM Mathematical Pipeline
+
+The traced pipeline is:
+
+1. IntrinsicTargetQuality
+2. ObservationEnvironment
+3. EffectiveObservability
+4. ObservableTargetValue
+5. ObserverCapability
+6. PracticalTargetValue
+7. Observation Window
+8. Chronology
+9. SessionViability
+10. ObservationOpportunity
+11. Final Planner ranking
+
+`RecommendationConfidence` is reported beside the pipeline as trust metadata only.
+
+## One Complete Trace For Every Analysed Scenario
+
+### G01:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 42.2094; legacy rank 4 with score 87.0440.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.6460 = 49.3677
+- Outputs: value=49.3677
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3677; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3677 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 42.2094
+- Outputs: value=42.2094
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=42.2094
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.2094 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.2094
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 87.04 starts from object 88, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 42.0015; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.0015
+- Outputs: value=42.0015
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=42.0015
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.0015 sorts to rank 2 of 6
+- Outputs: rank=2; score=42.0015
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 41.4645; legacy rank 5 with score 86.9041.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.6460 = 48.4965
+- Outputs: value=48.4965
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.4965; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.4965 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 41.4645
+- Outputs: value=41.4645
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=41.4645
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 41.4645 sorts to rank 3 of 6
+- Outputs: rank=3; score=41.4645
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 86.90 starts from object 86, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 40.8154; legacy rank 3 with score 95.6732.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.8154
+- Outputs: value=40.8154
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=40.8154
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.8154 sorts to rank 4 of 6
+- Outputs: rank=4; score=40.8154
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.67 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 40.3239; legacy rank 2 with score 96.5510.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.6460 = 44.8043
+- Outputs: value=44.8043
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8043; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8043 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.3239
+- Outputs: value=40.3239
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=40.3239
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.3239 sorts to rank 5 of 6
+- Outputs: rank=5; score=40.3239
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 96.55 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 40.0268; legacy rank 6 with score 85.8523.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.6460 = 46.8150
+- Outputs: value=46.8150
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.8150; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.8150 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 40.0268
+- Outputs: value=40.0268
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G01; candidate_count=6; opportunity_score=40.0268
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.0268 sorts to rank 6 of 6
+- Outputs: rank=6; score=40.0268
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 85.85 starts from object 82, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:planet - Planet
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 42.0015; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.0015
+- Outputs: value=42.0015
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=42.0015
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.0015 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.0015
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:moon - Moon
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 37.1873; legacy rank 2 with score 80.5343.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8200 * 1.0000 = 0.8200
+- Outputs: value=0.8200
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8200; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8200 = 63.9600
+- Outputs: value=63.9600
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8200
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=63.9600; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 63.9600 * 0.6460 = 41.3193
+- Outputs: value=41.3193
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=41.3193; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 41.3193 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 37.1873
+- Outputs: value=37.1873
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=37.1873
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.1873 sorts to rank 2 of 6
+- Outputs: rank=2; score=37.1873
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 80.53 starts from object 78, category 82, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -14.01, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 63.9600 into PracticalTargetValue 41.3193; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 41.3193.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:open_cluster - Open Cluster
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 32.9108; legacy rank 3 with score 79.3125.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9437, sky_background=0.9377, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9437 * 0.9377 * 0.8200 * 1.0000 = 0.7257
+- Outputs: value=0.7257
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7257; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7257 = 56.6046
+- Outputs: value=56.6046
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7257
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=56.6046; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 56.6046 * 0.6460 = 36.5675
+- Outputs: value=36.5675
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=36.5675; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 36.5675 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 32.9108
+- Outputs: value=32.9108
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=32.9108
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 32.9108 sorts to rank 3 of 6
+- Outputs: rank=3; score=32.9108
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 79.31 starts from object 78, category 82, weather 90; applies aperture +7.06, Moon penalty -5.33, light-pollution penalty -9.80, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 56.6046 into PracticalTargetValue 36.5675; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 36.5675.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:globular_cluster - Globular Cluster
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 30.2624; legacy rank 4 with score 62.8791.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8988, sky_background=0.9066, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8988 * 0.9066 * 0.8200 * 1.0000 = 0.6682
+- Outputs: value=0.6682
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.6682; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.6682 = 54.7889
+- Outputs: value=54.7889
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6682
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=54.7889; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 54.7889 * 0.6460 = 35.3946
+- Outputs: value=35.3946
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=35.3946; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 35.3946 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 30.2624
+- Outputs: value=30.2624
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9066; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=30.2624
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 30.2624 sorts to rank 4 of 6
+- Outputs: rank=4; score=30.2624
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 62.88 starts from object 82, category 82, weather 90; applies aperture +7.06, Moon penalty -9.60, light-pollution penalty -14.71, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.7889 into PracticalTargetValue 35.3946; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 35.3946.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 26.4143; legacy rank 5 with score 56.6578.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8031, sky_background=0.8444, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8031 * 0.8444 * 0.8200 * 1.0000 = 0.5561
+- Outputs: value=0.5561
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.5561; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.5561 = 47.8220
+- Outputs: value=47.8220
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5561
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=47.8220; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 47.8220 * 0.6460 = 30.8939
+- Outputs: value=30.8939
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=30.8939; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 30.8939 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 26.4143
+- Outputs: value=26.4143
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=26.4143
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 26.4143 sorts to rank 5 of 6
+- Outputs: rank=5; score=26.4143
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 56.66 starts from object 86, category 82, weather 90; applies aperture +7.06, Moon penalty -13.87, light-pollution penalty -18.91, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.8220 into PracticalTargetValue 30.8939; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 30.8939.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:galaxy - Galaxy
+
+Axes: sky `bright_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 25.2808; legacy rank 6 with score 47.4979.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.7750, sky_background=0.8184, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.7750 * 0.8184 * 0.8200 * 1.0000 = 0.5201
+- Outputs: value=0.5201
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.5201; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.5201 = 45.7700
+- Outputs: value=45.7700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5201
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=45.7700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 45.7700 * 0.6460 = 29.5682
+- Outputs: value=29.5682
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=29.5682; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 29.5682 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 25.2808
+- Outputs: value=25.2808
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G02; candidate_count=6; opportunity_score=25.2808
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.2808 sorts to rank 6 of 6
+- Outputs: rank=6; score=25.2808
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 47.50 starts from object 88, category 82, weather 90; applies aperture +7.06, Moon penalty -20.27, light-pollution penalty -23.11, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 45.7700 into PracticalTargetValue 29.5682; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 29.5682.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:planet - Planet
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 42.9782; legacy rank 1 with score 100.9752.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8800
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8800 * 1.0000 = 0.8800
+- Outputs: value=0.8800
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8800
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8800; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8800 = 73.9200
+- Outputs: value=73.9200
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8800
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=73.9200; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 73.9200 * 0.6460 = 47.7536
+- Outputs: value=47.7536
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=47.7536; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 47.7536 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.9782
+- Outputs: value=42.9782
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8800; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=42.9782
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.9782 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.9782
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.98 starts from object 84, category 88, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 73.9200 into PracticalTargetValue 47.7536; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.9200 and PracticalTargetValue stays 47.7536.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:moon - Moon
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 38.0943; legacy rank 2 with score 91.7584.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8400 * 1.0000 = 0.8400
+- Outputs: value=0.8400
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8400; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8400 = 65.5200
+- Outputs: value=65.5200
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8400
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=65.5200; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 65.5200 * 0.6460 = 42.3271
+- Outputs: value=42.3271
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=42.3271; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 42.3271 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 38.0943
+- Outputs: value=38.0943
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=38.0943
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 38.0943 sorts to rank 2 of 6
+- Outputs: rank=2; score=38.0943
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.76 starts from object 78, category 84, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.29, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 4.2941.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 65.5200 into PracticalTargetValue 42.3271; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 65.5200 and PracticalTargetValue stays 42.3271.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:open_cluster - Open Cluster
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 33.8641; legacy rank 3 with score 83.0697.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9062; sky_background=0.9809; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9062, sky_background=0.9809, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9062; sky_background=0.9809; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.9062; sky:sky_background=0.9809
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9062; sky_background=0.9809; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9062 * 0.9809 * 0.8400 * 1.0000 = 0.7467
+- Outputs: value=0.7467
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.9062; sky:sky_background=0.9809
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7467; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7467 = 58.2443
+- Outputs: value=58.2443
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7467
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=58.2443; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 58.2443 * 0.6460 = 37.6268
+- Outputs: value=37.6268
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=37.6268; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 37.6268 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 33.8641
+- Outputs: value=33.8641
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:moon_background=0.9062; sky:sky_background=0.9809
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=33.8641
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 33.8641 sorts to rank 3 of 6
+- Outputs: rank=3; score=33.8641
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 83.07 starts from object 78, category 84, weather 90; applies aperture +7.06, Moon penalty -9.33, light-pollution penalty -3.01, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9062 inside ObservationEnvironment; legacy exposes moon_penalty 9.3333.
+- Sky background is 0.9809 inside ObservationEnvironment; legacy exposes pollution_penalty 3.0059.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 58.2443 into PracticalTargetValue 37.6268; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 58.2443 and PracticalTargetValue stays 37.6268.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:globular_cluster - Globular Cluster
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 30.7200; legacy rank 4 with score 66.3734.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8313; sky_background=0.9714; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8313, sky_background=0.9714, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8313; sky_background=0.9714; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8313; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9714
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8313; sky_background=0.9714; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8313 * 0.9714 * 0.8400 * 1.0000 = 0.6783
+- Outputs: value=0.6783
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8313; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9714
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.6783; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.6783 = 55.6174
+- Outputs: value=55.6174
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6783
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=55.6174; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 55.6174 * 0.6460 = 35.9298
+- Outputs: value=35.9298
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=35.9298; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 35.9298 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 30.7200
+- Outputs: value=30.7200
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:moon_background=0.8313; sky:atmospheric_transparency=0.8400; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9714
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=30.7200
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 30.7200 sorts to rank 4 of 6
+- Outputs: rank=4; score=30.7200
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 66.37 starts from object 82, category 84, weather 90; applies aperture +7.06, Moon penalty -16.80, light-pollution penalty -4.51, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8313 inside ObservationEnvironment; legacy exposes moon_penalty 16.8000.
+- Sky background is 0.9714 inside ObservationEnvironment; legacy exposes pollution_penalty 4.5088.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 55.6174 into PracticalTargetValue 35.9298; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 55.6174 and PracticalTargetValue stays 35.9298.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 25.5296; legacy rank 5 with score 59.8803.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.6719; sky_background=0.9523; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.6719, sky_background=0.9523, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.6719; sky_background=0.9523; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6719; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9523
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.6719; sky_background=0.9523; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.6719 * 0.9523 * 0.8400 * 1.0000 = 0.5374
+- Outputs: value=0.5374
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6719; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9523
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.5374; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.5374 = 46.2205
+- Outputs: value=46.2205
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5374
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=46.2205; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 46.2205 * 0.6460 = 29.8592
+- Outputs: value=29.8592
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=29.8592; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 29.8592 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 25.5296
+- Outputs: value=25.5296
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:moon_background=0.6719; sky:atmospheric_transparency=0.8400; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9523
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=25.5296
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.5296 sorts to rank 5 of 6
+- Outputs: rank=5; score=25.5296
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 59.88 starts from object 86, category 84, weather 90; applies aperture +7.06, Moon penalty -24.27, light-pollution penalty -5.80, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.6719 inside ObservationEnvironment; legacy exposes moon_penalty 24.2667.
+- Sky background is 0.9523 inside ObservationEnvironment; legacy exposes pollution_penalty 5.7970.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 46.2205 into PracticalTargetValue 29.8592; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 46.2205 and PracticalTargetValue stays 29.8592.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:galaxy - Galaxy
+
+Axes: sky `strong_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 24.0979; legacy rank 6 with score 48.9285.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.6250; sky_background=0.9443; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.6250, sky_background=0.9443, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.6250; sky_background=0.9443; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6250; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9443
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.6250; sky_background=0.9443; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.6250 * 0.9443 * 0.8400 * 1.0000 = 0.4958
+- Outputs: value=0.4958
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6250; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9443
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.4958; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.4958 = 43.6283
+- Outputs: value=43.6283
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.4958
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=43.6283; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 43.6283 * 0.6460 = 28.1846
+- Outputs: value=28.1846
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=28.1846; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 28.1846 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 24.0979
+- Outputs: value=24.0979
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6250; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9443; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G03; candidate_count=6; opportunity_score=24.0979
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 24.0979 sorts to rank 6 of 6
+- Outputs: rank=6; score=24.0979
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 48.93 starts from object 88, category 84, weather 90; applies aperture +7.06, Moon penalty -35.47, light-pollution penalty -7.09, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.6250 inside ObservationEnvironment; legacy exposes moon_penalty 35.4667.
+- Sky background is 0.9443 inside ObservationEnvironment; legacy exposes pollution_penalty 7.0853.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 43.6283 into PracticalTargetValue 28.1846; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 43.6283 and PracticalTargetValue stays 28.1846.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:planet - Planet
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 42.0015; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.0015
+- Outputs: value=42.0015
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=42.0015
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.0015 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.0015
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:galaxy - Galaxy
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 41.3106; legacy rank 5 with score 84.5598.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9443; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9443, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9443; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9443
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9443; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9443 * 0.9000 * 1.0000 = 0.8499
+- Outputs: value=0.8499
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9443
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8499; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8499 = 74.7914
+- Outputs: value=74.7914
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8499
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=74.7914; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 74.7914 * 0.6460 = 48.3165
+- Outputs: value=48.3165
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.3165; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.3165 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 41.3106
+- Outputs: value=41.3106
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9443; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=41.3106
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 41.3106 sorts to rank 2 of 6
+- Outputs: rank=2; score=41.3106
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 84.56 starts from object 88, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -7.09, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 5 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9443 inside ObservationEnvironment; legacy exposes pollution_penalty 7.0853.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 74.7914 into PracticalTargetValue 48.3165; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 74.7914 and PracticalTargetValue stays 48.3165.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:moon - Moon
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 40.8154; legacy rank 3 with score 93.9616.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.8154
+- Outputs: value=40.8154
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=40.8154
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.8154 sorts to rank 3 of 6
+- Outputs: rank=3; score=40.8154
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 93.96 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.29, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 4.2941.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 40.7117; legacy rank 4 with score 84.8716.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9523; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9523, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9523; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9523
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9523; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9523 * 0.9000 * 1.0000 = 0.8571
+- Outputs: value=0.8571
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9523
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8571; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8571 = 73.7071
+- Outputs: value=73.7071
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8571
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=73.7071; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 73.7071 * 0.6460 = 47.6161
+- Outputs: value=47.6161
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=47.6161; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 47.6161 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 40.7117
+- Outputs: value=40.7117
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9523
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=40.7117
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.7117 sorts to rank 4 of 6
+- Outputs: rank=4; score=40.7117
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 84.87 starts from object 86, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -5.80, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9523 inside ObservationEnvironment; legacy exposes pollution_penalty 5.7970.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 73.7071 into PracticalTargetValue 47.6161; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.7071 and PracticalTargetValue stays 47.6161.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:open_cluster - Open Cluster
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 40.0364; legacy rank 2 with score 95.3529.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9809; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9809, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9809; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9809
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9809; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9809 * 0.9000 * 1.0000 = 0.8828
+- Outputs: value=0.8828
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9809
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8828; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8828 = 68.8602
+- Outputs: value=68.8602
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8828
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=68.8602; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 68.8602 * 0.6460 = 44.4849
+- Outputs: value=44.4849
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.4849; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.4849 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.0364
+- Outputs: value=40.0364
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9809
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=40.0364
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.0364 sorts to rank 5 of 6
+- Outputs: rank=5; score=40.0364
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.35 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.01, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9809 inside ObservationEnvironment; legacy exposes pollution_penalty 3.0059.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 68.8602 into PracticalTargetValue 44.4849; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 68.8602 and PracticalTargetValue stays 44.4849.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:globular_cluster - Globular Cluster
+
+Axes: sky `low_moon`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 39.5961; legacy rank 6 with score 84.2714.
+Intended NSOM expectation: baseline NSOM component separation.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9714; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9714, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9714; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9714
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9714; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9714 * 0.9000 * 1.0000 = 0.8742
+- Outputs: value=0.8742
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9714
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8742; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8742 = 71.6873
+- Outputs: value=71.6873
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8742
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=71.6873; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 71.6873 * 0.6460 = 46.3112
+- Outputs: value=46.3112
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.3112; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.3112 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 39.5961
+- Outputs: value=39.5961
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9714
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G04; candidate_count=6; opportunity_score=39.5961
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 39.5961 sorts to rank 6 of 6
+- Outputs: rank=6; score=39.5961
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 84.27 starts from object 82, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.51, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9714 inside ObservationEnvironment; legacy exposes pollution_penalty 4.5088.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 71.6873 into PracticalTargetValue 46.3112; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 71.6873 and PracticalTargetValue stays 46.3112.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:planet - Planet
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 25.0706; legacy rank 1 with score 78.7970.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8400 * 1.0000 = 0.8400
+- Outputs: value=0.8400
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8400; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8400 = 70.5600
+- Outputs: value=70.5600
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8400
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.5600; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.5600 * 0.6460 = 45.5830
+- Outputs: value=45.5830
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.5830; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.5830 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 25.0706
+- Outputs: value=25.0706
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=25.0706
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.0706 sorts to rank 1 of 6
+- Outputs: rank=1; score=25.0706
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 78.80 starts from object 84, category 84, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.5600 into PracticalTargetValue 45.5830; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 70.5600 and PracticalTargetValue stays 45.5830.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:moon - Moon
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 23.2799; legacy rank 2 with score 70.3783.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8400 * 1.0000 = 0.8400
+- Outputs: value=0.8400
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8400; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8400 = 65.5200
+- Outputs: value=65.5200
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8400
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=65.5200; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 65.5200 * 0.6460 = 42.3271
+- Outputs: value=42.3271
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=42.3271; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 42.3271 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 23.2799
+- Outputs: value=23.2799
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=23.2799
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 23.2799 sorts to rank 2 of 6
+- Outputs: rank=2; score=23.2799
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 70.38 starts from object 78, category 84, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -6.29, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 6.2907.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 65.5200 into PracticalTargetValue 42.3271; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 65.5200 and PracticalTargetValue stays 42.3271.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:open_cluster - Open Cluster
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 20.9318; legacy rank 3 with score 65.3788.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9250; sky_background=0.9720; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9250, sky_background=0.9720, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9250; sky_background=0.9720; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.9250; sky:sky_background=0.9720
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9250; sky_background=0.9720; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9250 * 0.9720 * 0.8400 * 1.0000 = 0.7553
+- Outputs: value=0.7553
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.9250; sky:sky_background=0.9720
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7553; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7553 = 58.9115
+- Outputs: value=58.9115
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7553
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=58.9115; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 58.9115 * 0.6460 = 38.0579
+- Outputs: value=38.0579
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=38.0579; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 38.0579 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 20.9318
+- Outputs: value=20.9318
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400; sky:moon_background=0.9250; sky:sky_background=0.9720
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=20.9318
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 20.9318 sorts to rank 3 of 6
+- Outputs: rank=3; score=20.9318
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 65.38 starts from object 78, category 84, weather 55; applies aperture +7.06, Moon penalty -7.33, light-pollution penalty -4.40, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9250 inside ObservationEnvironment; legacy exposes moon_penalty 7.3333.
+- Sky background is 0.9720 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4035.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 58.9115 into PracticalTargetValue 38.0579; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 58.9115 and PracticalTargetValue stays 38.0579.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:globular_cluster - Globular Cluster
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 19.2678; legacy rank 4 with score 52.5443.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8650; sky_background=0.9581; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8650, sky_background=0.9581, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8650; sky_background=0.9581; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.8650; sky:sky_background=0.9581
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8650; sky_background=0.9581; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8650 * 0.9581 * 0.8400 * 1.0000 = 0.6961
+- Outputs: value=0.6961
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8400; sky:moon_background=0.8650; sky:sky_background=0.9581
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.6961; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.6961 = 57.0825
+- Outputs: value=57.0825
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6961
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=57.0825; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 57.0825 * 0.6460 = 36.8763
+- Outputs: value=36.8763
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=36.8763; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 36.8763 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 19.2678
+- Outputs: value=19.2678
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8400; sky:moon_background=0.8650; opportunity:practical_constraints=0.9500; sky:sky_background=0.9581
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=19.2678
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 19.2678 sorts to rank 4 of 6
+- Outputs: rank=4; score=19.2678
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 52.54 starts from object 82, category 84, weather 55; applies aperture +7.06, Moon penalty -13.20, light-pollution penalty -6.61, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8650 inside ObservationEnvironment; legacy exposes moon_penalty 13.2000.
+- Sky background is 0.9581 inside ObservationEnvironment; legacy exposes pollution_penalty 6.6053.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.0825 into PracticalTargetValue 36.8763; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 57.0825 and PracticalTargetValue stays 36.8763.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 16.7264; legacy rank 5 with score 47.8334.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.7375; sky_background=0.9301; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.7375, sky_background=0.9301, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.7375; sky_background=0.9301; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7375; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9301
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.7375; sky_background=0.9301; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.7375 * 0.9301 * 0.8400 * 1.0000 = 0.5762
+- Outputs: value=0.5762
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7375; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9301
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.5762; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.5762 = 49.5531
+- Outputs: value=49.5531
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5762
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=49.5531; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 49.5531 * 0.6460 = 32.0122
+- Outputs: value=32.0122
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=32.0122; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 32.0122 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 16.7264
+- Outputs: value=16.7264
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:moon_background=0.7375; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9301; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=16.7264
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 16.7264 sorts to rank 5 of 6
+- Outputs: rank=5; score=16.7264
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 47.83 starts from object 86, category 84, weather 55; applies aperture +7.06, Moon penalty -19.07, light-pollution penalty -8.49, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.7375 inside ObservationEnvironment; legacy exposes moon_penalty 19.0667.
+- Sky background is 0.9301 inside ObservationEnvironment; legacy exposes pollution_penalty 8.4925.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 49.5531 into PracticalTargetValue 32.0122; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 49.5531 and PracticalTargetValue stays 32.0122.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:galaxy - Galaxy
+
+Axes: sky `high_moon`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 16.0416; legacy rank 6 with score 39.9787.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.7000; sky_background=0.9185; atmospheric_transparency=0.8400; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.7000, sky_background=0.9185, atmospheric_transparency=0.8400, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.7000; sky_background=0.9185; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7000; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9185
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.7000; sky_background=0.9185; atmospheric_transparency=0.8400; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.7000 * 0.9185 * 0.8400 * 1.0000 = 0.5401
+- Outputs: value=0.5401
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7000; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9185
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.5401; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.5401 = 47.5245
+- Outputs: value=47.5245
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5401
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=47.5245; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 47.5245 * 0.6460 = 30.7016
+- Outputs: value=30.7016
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=30.7016; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 30.7016 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 16.0416
+- Outputs: value=16.0416
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:moon_background=0.7000; sky:atmospheric_transparency=0.8400; sky:sky_background=0.9185; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G05; candidate_count=6; opportunity_score=16.0416
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 16.0416 sorts to rank 6 of 6
+- Outputs: rank=6; score=16.0416
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 39.98 starts from object 88, category 84, weather 55; applies aperture +7.06, Moon penalty -27.87, light-pollution penalty -10.38, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7000 inside ObservationEnvironment; legacy exposes moon_penalty 27.8667.
+- Sky background is 0.9185 inside ObservationEnvironment; legacy exposes pollution_penalty 10.3797.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.5245 into PracticalTargetValue 30.7016; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 47.5245 and PracticalTargetValue stays 30.7016.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:planet - Planet
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 42.0015; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.0015
+- Outputs: value=42.0015
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=42.0015
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.0015 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.0015
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:moon - Moon
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 36.2803; legacy rank 3 with score 74.6825.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8000 * 1.0000 = 0.8000
+- Outputs: value=0.8000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8000 = 62.4000
+- Outputs: value=62.4000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=62.4000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 62.4000 * 0.6460 = 40.3115
+- Outputs: value=40.3115
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=40.3115; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 40.3115 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 36.2803
+- Outputs: value=36.2803
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=36.2803
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.2803 sorts to rank 2 of 6
+- Outputs: rank=2; score=36.2803
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 74.68 starts from object 78, category 80, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -18.75, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 3 by -1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 18.7451.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 62.4000 into PracticalTargetValue 40.3115; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 62.4000 and PracticalTargetValue stays 40.3115.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:open_cluster - Open Cluster
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 33.2578; legacy rank 2 with score 80.7559.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9167; atmospheric_transparency=0.8000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9167, atmospheric_transparency=0.8000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9167; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000; sky:sky_background=0.9167
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9167; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9167 * 0.8000 * 1.0000 = 0.7334
+- Outputs: value=0.7334
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000; sky:sky_background=0.9167
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7334; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7334 = 57.2014
+- Outputs: value=57.2014
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7334
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=57.2014; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 57.2014 * 0.6460 = 36.9531
+- Outputs: value=36.9531
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=36.9531; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 36.9531 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 33.2578
+- Outputs: value=33.2578
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9167
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=33.2578
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 33.2578 sorts to rank 3 of 6
+- Outputs: rank=3; score=33.2578
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 80.76 starts from object 78, category 80, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -13.12, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 2 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9167 inside ObservationEnvironment; legacy exposes pollution_penalty 13.1215.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.2014 into PracticalTargetValue 36.9531; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 57.2014 and PracticalTargetValue stays 36.9531.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:globular_cluster - Globular Cluster
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 31.7058; legacy rank 4 with score 66.6266.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.8750; atmospheric_transparency=0.8000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.8750, atmospheric_transparency=0.8000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.8750; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000; sky:sky_background=0.8750
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.8750; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.8750 * 0.8000 * 1.0000 = 0.7000
+- Outputs: value=0.7000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8000; sky:sky_background=0.8750
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.7000; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.7000 = 57.4022
+- Outputs: value=57.4022
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=57.4022; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 57.4022 * 0.6460 = 37.0828
+- Outputs: value=37.0828
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=37.0828; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 37.0828 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 31.7058
+- Outputs: value=31.7058
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8000; sky:sky_background=0.8750; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=31.7058
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 31.7058 sorts to rank 4 of 6
+- Outputs: rank=4; score=31.7058
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 66.63 starts from object 82, category 80, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -19.68, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.8750 inside ObservationEnvironment; legacy exposes pollution_penalty 19.6823.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.4022 into PracticalTargetValue 37.0828; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 57.4022 and PracticalTargetValue stays 37.0828.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 30.0865; legacy rank 5 with score 63.1082.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.7917; atmospheric_transparency=0.8000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.7917, atmospheric_transparency=0.8000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.7917; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:sky_background=0.7917; sky:atmospheric_transparency=0.8000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.7917; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.7917 * 0.8000 * 1.0000 = 0.6334
+- Outputs: value=0.6334
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:sky_background=0.7917; sky:atmospheric_transparency=0.8000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.6334; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.6334 = 54.4704
+- Outputs: value=54.4704
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6334
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=54.4704; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 54.4704 * 0.6460 = 35.1888
+- Outputs: value=35.1888
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=35.1888; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 35.1888 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 30.0865
+- Outputs: value=30.0865
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:sky_background=0.7917; sky:atmospheric_transparency=0.8000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=30.0865
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 30.0865 sorts to rank 5 of 6
+- Outputs: rank=5; score=30.0865
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 63.11 starts from object 86, category 80, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -25.31, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.7917 inside ObservationEnvironment; legacy exposes pollution_penalty 25.3058.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.4704 into PracticalTargetValue 35.1888; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.4704 and PracticalTargetValue stays 35.1888.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:galaxy - Galaxy
+
+Axes: sky `high_light_pollution`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 29.4363; legacy rank 6 with score 58.6779.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.7570; atmospheric_transparency=0.8000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.7570, atmospheric_transparency=0.8000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.7570; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:sky_background=0.7570; sky:atmospheric_transparency=0.8000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.7570; atmospheric_transparency=0.8000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.7570 * 0.8000 * 1.0000 = 0.6056
+- Outputs: value=0.6056
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:sky_background=0.7570; sky:atmospheric_transparency=0.8000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.6056; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.6056 = 53.2934
+- Outputs: value=53.2934
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6056
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=53.2934; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 53.2934 * 0.6460 = 34.4285
+- Outputs: value=34.4285
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=34.4285; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 34.4285 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 29.4363
+- Outputs: value=29.4363
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:sky_background=0.7570; sky:atmospheric_transparency=0.8000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G06; candidate_count=6; opportunity_score=29.4363
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 29.4363 sorts to rank 6 of 6
+- Outputs: rank=6; score=29.4363
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 58.68 starts from object 88, category 80, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -30.93, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.7570 inside ObservationEnvironment; legacy exposes pollution_penalty 30.9294.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 53.2934 into PracticalTargetValue 34.4285; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 53.2934 and PracticalTargetValue stays 34.4285.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 25.7946; legacy rank 4 with score 68.9001.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.6460 = 49.3677
+- Outputs: value=49.3677
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3677; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3677 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 25.7946
+- Outputs: value=25.7946
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=25.7946
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.7946 sorts to rank 1 of 6
+- Outputs: rank=1; score=25.7946
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 68.90 starts from object 88, category 90, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:planet - Planet
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 25.6676; legacy rank 1 with score 79.4213.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 25.6676
+- Outputs: value=25.6676
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=25.6676
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.6676 sorts to rank 2 of 6
+- Outputs: rank=2; score=25.6676
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 79.42 starts from object 84, category 86, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 25.3394; legacy rank 5 with score 68.7813.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.6460 = 48.4965
+- Outputs: value=48.4965
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.4965; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.4965 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 25.3394
+- Outputs: value=25.3394
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=25.3394
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.3394 sorts to rank 3 of 6
+- Outputs: rank=3; score=25.3394
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 68.78 starts from object 86, category 90, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:moon - Moon
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 24.9427; legacy rank 3 with score 75.5388.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 24.9427
+- Outputs: value=24.9427
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=24.9427
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 24.9427 sorts to rank 4 of 6
+- Outputs: rank=4; score=24.9427
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 75.54 starts from object 78, category 90, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 24.6424; legacy rank 2 with score 76.2849.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.6460 = 44.8043
+- Outputs: value=44.8043
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8043; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8043 * 1.0000 * 1.0000 * 0.5500 * 1.0000 = 24.6424
+- Outputs: value=24.6424
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=24.6424
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 24.6424 sorts to rank 5 of 6
+- Outputs: rank=5; score=24.6424
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 76.28 starts from object 78, category 90, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `mediocre`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 24.4608; legacy rank 6 with score 67.8872.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.6460 = 46.8150
+- Outputs: value=46.8150
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.5500; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.5500 * 1.0000 = 0.5500
+- Outputs: value=0.5500
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.5500
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.8150; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.5500; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.8150 * 1.0000 * 1.0000 * 0.5500 * 0.9500 = 24.4608
+- Outputs: value=24.4608
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.5500; session:session_viability=0.5500; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G07; candidate_count=6; opportunity_score=24.4608
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 24.4608 sorts to rank 6 of 6
+- Outputs: rank=6; score=24.4608
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 67.89 starts from object 82, category 90, weather 55; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 0.85.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 14.0698; legacy rank 4 with score 49.9096.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.6460 = 49.3677
+- Outputs: value=49.3677
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3677; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3677 * 1.0000 * 1.0000 * 0.3000 * 0.9500 = 14.0698
+- Outputs: value=14.0698
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=14.0698
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 14.0698 sorts to rank 1 of 6
+- Outputs: rank=1; score=14.0698
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 49.91 starts from object 88, category 90, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:planet - Planet
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 14.0005; legacy rank 1 with score 57.5749.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.3000 * 1.0000 = 14.0005
+- Outputs: value=14.0005
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=14.0005
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 14.0005 sorts to rank 2 of 6
+- Outputs: rank=2; score=14.0005
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 57.57 starts from object 84, category 86, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 13.8215; legacy rank 5 with score 49.8187.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.6460 = 48.4965
+- Outputs: value=48.4965
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.4965; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.4965 * 1.0000 * 1.0000 * 0.3000 * 0.9500 = 13.8215
+- Outputs: value=13.8215
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=13.8215
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 13.8215 sorts to rank 3 of 6
+- Outputs: rank=3; score=13.8215
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 49.82 starts from object 86, category 90, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:moon - Moon
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 13.6051; legacy rank 3 with score 54.6060.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 1.0000 * 0.3000 * 1.0000 = 13.6051
+- Outputs: value=13.6051
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=13.6051
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 13.6051 sorts to rank 4 of 6
+- Outputs: rank=4; score=13.6051
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 54.61 starts from object 78, category 90, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 13.4413; legacy rank 2 with score 55.1765.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.6460 = 44.8043
+- Outputs: value=44.8043
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8043; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8043 * 1.0000 * 1.0000 * 0.3000 * 1.0000 = 13.4413
+- Outputs: value=13.4413
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=13.4413
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 13.4413 sorts to rank 5 of 6
+- Outputs: rank=5; score=13.4413
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 55.18 starts from object 78, category 90, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `poor`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 13.3423; legacy rank 6 with score 49.1350.
+Intended NSOM expectation: session quality should reduce opportunity only.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.6460 = 46.8150
+- Outputs: value=46.8150
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.3000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.3000 * 1.0000 = 0.3000
+- Outputs: value=0.3000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.3000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.8150; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.3000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.8150 * 1.0000 * 1.0000 * 0.3000 * 0.9500 = 13.3423
+- Outputs: value=13.3423
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:weather_suitability=0.3000; session:session_viability=0.3000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G08; candidate_count=6; opportunity_score=13.3423
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 13.3423 sorts to rank 6 of 6
+- Outputs: rank=6; score=13.3423
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 49.13 starts from object 82, category 90, weather 30; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 0.65.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:planet - Planet
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 0.0000; legacy rank 1 with score 29.6411.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.0000 * 1.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 1 of 6
+- Outputs: rank=1; score=0.0000
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 29.64 starts from object 84, category 86, weather 10; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:moon - Moon
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 0.0000; legacy rank 2 with score 22.7438.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8200 * 1.0000 = 0.8200
+- Outputs: value=0.8200
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8200; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8200 = 63.9600
+- Outputs: value=63.9600
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8200
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=63.9600; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 63.9600 * 0.6460 = 41.3193
+- Outputs: value=41.3193
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=41.3193; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 41.3193 * 1.0000 * 1.0000 * 0.0000 * 1.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 2 of 6
+- Outputs: rank=2; score=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 22.74 starts from object 78, category 82, weather 10; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -14.01, difficulty factor 1.08, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 63.9600 into PracticalTargetValue 41.3193; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 41.3193.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:galaxy - Galaxy
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 0.0000; legacy rank 6 with score 11.8363.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.7750, sky_background=0.8184, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.7750 * 0.8184 * 0.8200 * 1.0000 = 0.5201
+- Outputs: value=0.5201
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.5201; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.5201 = 45.7700
+- Outputs: value=45.7700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5201
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=45.7700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 45.7700 * 0.6460 = 29.5682
+- Outputs: value=29.5682
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=29.5682; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 29.5682 * 1.0000 * 1.0000 * 0.0000 * 0.9500 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 3 of 6
+- Outputs: rank=3; score=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 11.84 starts from object 88, category 82, weather 10; applies aperture +7.06, Moon penalty -20.27, light-pollution penalty -23.11, difficulty factor 0.95, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 6 by -3.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 45.7700 into PracticalTargetValue 29.5682; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 29.5682.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 0.0000; legacy rank 5 with score 15.0422.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8031, sky_background=0.8444, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8031 * 0.8444 * 0.8200 * 1.0000 = 0.5561
+- Outputs: value=0.5561
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.5561; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.5561 = 47.8220
+- Outputs: value=47.8220
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5561
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=47.8220; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 47.8220 * 0.6460 = 30.8939
+- Outputs: value=30.8939
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=30.8939; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 30.8939 * 1.0000 * 1.0000 * 0.0000 * 0.9500 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 4 of 6
+- Outputs: rank=4; score=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 15.04 starts from object 86, category 82, weather 10; applies aperture +7.06, Moon penalty -13.87, light-pollution penalty -18.91, difficulty factor 0.95, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 5 by -1.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.8220 into PracticalTargetValue 30.8939; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 30.8939.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:open_cluster - Open Cluster
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 0.0000; legacy rank 3 with score 22.3162.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9437, sky_background=0.9377, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9437 * 0.9377 * 0.8200 * 1.0000 = 0.7257
+- Outputs: value=0.7257
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7257; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7257 = 56.6046
+- Outputs: value=56.6046
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7257
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=56.6046; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 56.6046 * 0.6460 = 36.5675
+- Outputs: value=36.5675
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=36.5675; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 36.5675 * 1.0000 * 1.0000 * 0.0000 * 1.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 5 of 6
+- Outputs: rank=5; score=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 22.32 starts from object 78, category 82, weather 10; applies aperture +7.06, Moon penalty -5.33, light-pollution penalty -9.80, difficulty factor 1.08, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 3 by 2.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 56.6046 into PracticalTargetValue 36.5675; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 36.5675.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:globular_cluster - Globular Cluster
+
+Axes: sky `bright_sky`, session `blocked`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 0.0000; legacy rank 4 with score 17.2197.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; SessionViability should cap NSOM opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8988, sky_background=0.9066, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8988 * 0.9066 * 0.8200 * 1.0000 = 0.6682
+- Outputs: value=0.6682
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.6682; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.6682 = 54.7889
+- Outputs: value=54.7889
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6682
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=54.7889; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 54.7889 * 0.6460 = 35.3946
+- Outputs: value=35.3946
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.1000; blocking_factor=0.0000; state=blocked; reason=rischio precipitazioni; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.1000 * 0.0000 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.0000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=35.3946; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.0000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 35.3946 * 1.0000 * 1.0000 * 0.0000 * 0.9500 = 0.0000
+- Outputs: value=0.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: session:blocking_factor=0.0000; session:session_viability=0.0000; session:weather_suitability=0.1000; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G09; candidate_count=6; opportunity_score=0.0000
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 0.0000 sorts to rank 6 of 6
+- Outputs: rank=6; score=0.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 17.22 starts from object 82, category 82, weather 10; applies aperture +7.06, Moon penalty -9.60, light-pollution penalty -14.71, difficulty factor 0.95, weather factor 0.35.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 6 differs from legacy rank 4 by 2.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.7889 into PracticalTargetValue 35.3946; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 35.3946.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 37.8026; legacy rank 4 with score 82.9801.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.5786 = 44.2136
+- Outputs: value=44.2136
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.2136; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.2136 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 37.8026
+- Outputs: value=37.8026
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=37.8026
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.8026 sorts to rank 1 of 6
+- Outputs: rank=1; score=37.8026
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 82.98 starts from object 88, category 90, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 76.4185 into PracticalTargetValue 44.2136; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 44.2136.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 37.6164; legacy rank 1 with score 95.6208.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.5786 = 41.7960
+- Outputs: value=41.7960
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=41.7960; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 41.7960 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 37.6164
+- Outputs: value=37.6164
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=37.6164
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.6164 sorts to rank 2 of 6
+- Outputs: rank=2; score=37.6164
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.62 starts from object 84, category 86, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 72.2400 into PracticalTargetValue 41.7960; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 41.7960.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 37.1355; legacy rank 5 with score 82.8403.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.5786 = 43.4334
+- Outputs: value=43.4334
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=43.4334; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 43.4334 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 37.1355
+- Outputs: value=37.1355
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=37.1355
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.1355 sorts to rank 3 of 6
+- Outputs: rank=3; score=37.1355
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 82.84 starts from object 86, category 90, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 75.0700 into PracticalTargetValue 43.4334; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 43.4334.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 36.5541; legacy rank 3 with score 91.0532.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.5786 = 40.6157
+- Outputs: value=40.6157
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=40.6157; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 40.6157 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 36.5541
+- Outputs: value=36.5541
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=36.5541
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.5541 sorts to rank 4 of 6
+- Outputs: rank=4; score=36.5541
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.05 starts from object 78, category 90, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 70.2000 into PracticalTargetValue 40.6157; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 40.6157.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 36.1140; legacy rank 2 with score 91.9310.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.5786 = 40.1267
+- Outputs: value=40.1267
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=40.1267; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 40.1267 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 36.1140
+- Outputs: value=36.1140
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=36.1140
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.1140 sorts to rank 5 of 6
+- Outputs: rank=5; score=36.1140
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.93 starts from object 78, category 90, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 69.3547 into PracticalTargetValue 40.1267; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 40.1267.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `binocular`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 35.8479; legacy rank 6 with score 81.7884.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=50; focal_length=200; optical_capability=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Binocular 10x50; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Binocular 10x50, aperture_mm=50, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4250, 0.4000, 0.7250, 0.4000, 0.4000, 1.0000, 0.7000) = 0.5786
+- Outputs: summary_for_planning=0.5786; dimensions=light_grasp=0.4250; resolution=0.4000; field_of_view=0.7250; magnification_range=0.4000; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:resolution=0.4000; observer:magnification_range=0.4000; observer:tracking_or_goto=0.4000; observer:light_grasp=0.4250
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.5786
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.5786 = 41.9274
+- Outputs: value=41.9274
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=41.9274; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 41.9274 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 35.8479
+- Outputs: value=35.8479
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5786; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G10; candidate_count=6; opportunity_score=35.8479
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 35.8479 sorts to rank 6 of 6
+- Outputs: rank=6; score=35.8479
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 81.79 starts from object 82, category 90, weather 90; applies aperture +2.78, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 72.4670 into PracticalTargetValue 41.9274; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 41.9274.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 38.3046; legacy rank 4 with score 83.5079.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.5863 = 44.8007
+- Outputs: value=44.8007
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8007; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8007 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 38.3046
+- Outputs: value=38.3046
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=38.3046
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 38.3046 sorts to rank 1 of 6
+- Outputs: rank=1; score=38.3046
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 83.51 starts from object 88, category 90, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 76.4185 into PracticalTargetValue 44.8007; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 44.8007.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 38.1160; legacy rank 1 with score 96.2208.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.5863 = 42.3511
+- Outputs: value=42.3511
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=42.3511; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 42.3511 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 38.1160
+- Outputs: value=38.1160
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=38.1160
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 38.1160 sorts to rank 2 of 6
+- Outputs: rank=2; score=38.1160
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 96.22 starts from object 84, category 86, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 72.2400 into PracticalTargetValue 42.3511; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 42.3511.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 37.6287; legacy rank 5 with score 83.3680.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.5863 = 44.0102
+- Outputs: value=44.0102
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.0102; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.0102 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 37.6287
+- Outputs: value=37.6287
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=37.6287
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.6287 sorts to rank 3 of 6
+- Outputs: rank=3; score=37.6287
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 83.37 starts from object 86, category 90, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 75.0700 into PracticalTargetValue 44.0102; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 44.0102.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 37.0396; legacy rank 3 with score 91.6532.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.5863 = 41.1551
+- Outputs: value=41.1551
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=41.1551; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 41.1551 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 37.0396
+- Outputs: value=37.0396
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=37.0396
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 37.0396 sorts to rank 4 of 6
+- Outputs: rank=4; score=37.0396
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.65 starts from object 78, category 90, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 70.2000 into PracticalTargetValue 41.1551; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 41.1551.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 36.5936; legacy rank 2 with score 92.5310.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.5863 = 40.6596
+- Outputs: value=40.6596
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=40.6596; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 40.6596 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 36.5936
+- Outputs: value=36.5936
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=36.5936
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.5936 sorts to rank 5 of 6
+- Outputs: rank=5; score=36.5936
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 92.53 starts from object 78, category 90, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 69.3547 into PracticalTargetValue 40.6596; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 40.6596.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `small_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 36.3240; legacy rank 6 with score 82.3162.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=60; focal_length=400; optical_capability=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Small Manual; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Small Manual, aperture_mm=60, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.4500, 0.4250, 0.7136, 0.4152, 0.4000, 1.0000, 0.7000) = 0.5863
+- Outputs: summary_for_planning=0.5863; dimensions=light_grasp=0.4500; resolution=0.4250; field_of_view=0.7136; magnification_range=0.4152; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:magnification_range=0.4152; observer:resolution=0.4250; observer:light_grasp=0.4500
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.5863
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.5863 = 42.4842
+- Outputs: value=42.4842
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=42.4842; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 42.4842 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 36.3240
+- Outputs: value=36.3240
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.5863; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G11; candidate_count=6; opportunity_score=36.3240
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.3240 sorts to rank 6 of 6
+- Outputs: rank=6; score=36.3240
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 82.32 starts from object 82, category 90, weather 90; applies aperture +3.33, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 72.4670 into PracticalTargetValue 42.4842; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 42.4842.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 50.4954; legacy rank 4 with score 91.9523.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.7728 = 59.0589
+- Outputs: value=59.0589
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=59.0589; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 59.0589 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 50.4954
+- Outputs: value=50.4954
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=50.4954
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 50.4954 sorts to rank 1 of 6
+- Outputs: rank=1; score=50.4954
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.95 starts from object 88, category 90, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 76.4185 into PracticalTargetValue 59.0589; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 59.0589.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 50.2467; legacy rank 1 with score 105.8208.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.7728 = 55.8296
+- Outputs: value=55.8296
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=55.8296; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 55.8296 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 50.2467
+- Outputs: value=50.2467
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=50.2467
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 50.2467 sorts to rank 2 of 6
+- Outputs: rank=2; score=50.2467
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 105.82 starts from object 84, category 86, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.2400 into PracticalTargetValue 55.8296; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 55.8296.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 49.6043; legacy rank 5 with score 91.8125.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.7728 = 58.0168
+- Outputs: value=58.0168
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=58.0168; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 58.0168 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 49.6043
+- Outputs: value=49.6043
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=49.6043
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 49.6043 sorts to rank 3 of 6
+- Outputs: rank=3; score=49.6043
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 91.81 starts from object 86, category 90, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 75.0700 into PracticalTargetValue 58.0168; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 58.0168.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 48.8277; legacy rank 3 with score 101.2532.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.7728 = 54.2531
+- Outputs: value=54.2531
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=54.2531; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 54.2531 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 48.8277
+- Outputs: value=48.8277
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=48.8277
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 48.8277 sorts to rank 4 of 6
+- Outputs: rank=4; score=48.8277
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 101.25 starts from object 78, category 90, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 70.2000 into PracticalTargetValue 54.2531; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 54.2531.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 48.2398; legacy rank 2 with score 102.1310.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.7728 = 53.5998
+- Outputs: value=53.5998
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=53.5998; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 53.5998 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 48.2398
+- Outputs: value=48.2398
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=48.2398
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 48.2398 sorts to rank 5 of 6
+- Outputs: rank=5; score=48.2398
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 102.13 starts from object 78, category 90, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 69.3547 into PracticalTargetValue 53.5998; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 53.5998.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 47.8844; legacy rank 6 with score 90.7606.
+Intended NSOM expectation: equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.7728 = 56.0051
+- Outputs: value=56.0051
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=56.0051; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 56.0051 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 47.8844
+- Outputs: value=47.8844
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G12; candidate_count=6; opportunity_score=47.8844
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 47.8844 sorts to rank 6 of 6
+- Outputs: rank=6; score=47.8844
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 90.76 starts from object 82, category 90, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.4670 into PracticalTargetValue 56.0051; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 56.0051.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:planet - Planet
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 50.2467; legacy rank 1 with score 105.8208.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.7728 = 55.8296
+- Outputs: value=55.8296
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=55.8296; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 55.8296 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 50.2467
+- Outputs: value=50.2467
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=50.2467
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 50.2467 sorts to rank 1 of 6
+- Outputs: rank=1; score=50.2467
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 105.82 starts from object 84, category 86, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.2400 into PracticalTargetValue 55.8296; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 55.8296.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:moon - Moon
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 44.4875; legacy rank 2 with score 86.1143.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8200 * 1.0000 = 0.8200
+- Outputs: value=0.8200
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8200; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8200 = 63.9600
+- Outputs: value=63.9600
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8200
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=63.9600; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 63.9600 * 0.7728 = 49.4306
+- Outputs: value=49.4306
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.4306; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.4306 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 44.4875
+- Outputs: value=44.4875
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=44.4875
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 44.4875 sorts to rank 2 of 6
+- Outputs: rank=2; score=44.4875
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 86.11 starts from object 78, category 82, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -14.01, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 63.9600 into PracticalTargetValue 49.4306; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 49.4306.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:open_cluster - Open Cluster
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 39.3714; legacy rank 3 with score 84.8925.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9437, sky_background=0.9377, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9437; sky_background=0.9377; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9437 * 0.9377 * 0.8200 * 1.0000 = 0.7257
+- Outputs: value=0.7257
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.7257; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.7257 = 56.6046
+- Outputs: value=56.6046
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7257
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=56.6046; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 56.6046 * 0.7728 = 43.7460
+- Outputs: value=43.7460
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=43.7460; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 43.7460 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 39.3714
+- Outputs: value=39.3714
+- Dominant positive contributors: observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9377; sky:moon_background=0.9437
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=39.3714
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 39.3714 sorts to rank 3 of 6
+- Outputs: rank=3; score=39.3714
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 84.89 starts from object 78, category 82, weather 90; applies aperture +12.22, Moon penalty -5.33, light-pollution penalty -9.80, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 56.6046 into PracticalTargetValue 43.7460; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 43.7460.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:globular_cluster - Globular Cluster
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 36.2031; legacy rank 4 with score 67.7874.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8988, sky_background=0.9066, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8988; sky_background=0.9066; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8988 * 0.9066 * 0.8200 * 1.0000 = 0.6682
+- Outputs: value=0.6682
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; sky:sky_background=0.9066
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.6682; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.6682 = 54.7889
+- Outputs: value=54.7889
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6682
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=54.7889; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 54.7889 * 0.7728 = 42.3428
+- Outputs: value=42.3428
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=42.3428; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 42.3428 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 36.2031
+- Outputs: value=36.2031
+- Dominant positive contributors: observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:atmospheric_transparency=0.8200; sky:moon_background=0.8988; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9066; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=36.2031
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 36.2031 sorts to rank 4 of 6
+- Outputs: rank=4; score=36.2031
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 67.79 starts from object 82, category 82, weather 90; applies aperture +12.22, Moon penalty -9.60, light-pollution penalty -14.71, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 54.7889 into PracticalTargetValue 42.3428; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 42.3428.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 31.5996; legacy rank 5 with score 61.5662.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8031, sky_background=0.8444, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8031; sky_background=0.8444; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8031 * 0.8444 * 0.8200 * 1.0000 = 0.5561
+- Outputs: value=0.5561
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.5561; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.5561 = 47.8220
+- Outputs: value=47.8220
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5561
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=47.8220; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 47.8220 * 0.7728 = 36.9586
+- Outputs: value=36.9586
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=36.9586; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 36.9586 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 31.5996
+- Outputs: value=31.5996
+- Dominant positive contributors: observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:moon_background=0.8031; sky:atmospheric_transparency=0.8200; sky:sky_background=0.8444; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=31.5996
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 31.5996 sorts to rank 5 of 6
+- Outputs: rank=5; score=31.5996
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 61.57 starts from object 86, category 82, weather 90; applies aperture +12.22, Moon penalty -13.87, light-pollution penalty -18.91, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 47.8220 into PracticalTargetValue 36.9586; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 36.9586.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:galaxy - Galaxy
+
+Axes: sky `bright_sky`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 30.2436; legacy rank 6 with score 52.4062.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.7750, sky_background=0.8184, atmospheric_transparency=0.8200, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.7750; sky_background=0.8184; atmospheric_transparency=0.8200; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.7750 * 0.8184 * 0.8200 * 1.0000 = 0.5201
+- Outputs: value=0.5201
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.5201; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.5201 = 45.7700
+- Outputs: value=45.7700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5201
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=45.7700; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 45.7700 * 0.7728 = 35.3726
+- Outputs: value=35.3726
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=35.3726; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 35.3726 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 30.2436
+- Outputs: value=30.2436
+- Dominant positive contributors: observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; sky:moon_background=0.7750; sky:sky_background=0.8184; sky:atmospheric_transparency=0.8200; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G13; candidate_count=6; opportunity_score=30.2436
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 30.2436 sorts to rank 6 of 6
+- Outputs: rank=6; score=30.2436
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 52.41 starts from object 88, category 82, weather 90; applies aperture +12.22, Moon penalty -20.27, light-pollution penalty -23.11, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 45.7700 into PracticalTargetValue 35.3726; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 35.3726.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:planet - Planet
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 46.8854; legacy rank 1 with score 103.9128.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9600 * 1.0000 = 0.9600
+- Outputs: value=0.9600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.9600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.9600 = 80.6400
+- Outputs: value=80.6400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=80.6400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 80.6400 * 0.6460 = 52.0948
+- Outputs: value=52.0948
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=52.0948; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 52.0948 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 46.8854
+- Outputs: value=46.8854
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:atmospheric_transparency=0.9600
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=46.8854
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 46.8854 sorts to rank 1 of 6
+- Outputs: rank=1; score=46.8854
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 103.91 starts from object 84, category 96, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 80.6400 into PracticalTargetValue 52.0948; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 80.6400 and PracticalTargetValue stays 52.0948.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:moon - Moon
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 30.8383; legacy rank 2 with score 69.6304.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.6800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.6800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.6800 * 1.0000 = 0.6800
+- Outputs: value=0.6800
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.6800; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.6800 = 53.0400
+- Outputs: value=53.0400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.6800
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=53.0400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 53.0400 * 0.6460 = 34.2648
+- Outputs: value=34.2648
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=34.2648; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 34.2648 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 30.8383
+- Outputs: value=30.8383
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.6800; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=30.8383
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 30.8383 sorts to rank 2 of 6
+- Outputs: rank=2; score=30.8383
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 69.63 starts from object 78, category 68, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -19.34, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 19.3430.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 53.0400 into PracticalTargetValue 34.2648; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 53.0400 and PracticalTargetValue stays 34.2648.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:open_cluster - Open Cluster
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 25.4389; legacy rank 3 with score 65.3855.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.9025; sky_background=0.9140; atmospheric_transparency=0.6800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.9025, sky_background=0.9140, atmospheric_transparency=0.6800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.9025; sky_background=0.9140; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800; sky:moon_background=0.9025; sky:sky_background=0.9140
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.9025; sky_background=0.9140; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.9025 * 0.9140 * 0.6800 * 1.0000 = 0.5609
+- Outputs: value=0.5609
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800; sky:moon_background=0.9025; sky:sky_background=0.9140
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.5609; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.5609 = 43.7534
+- Outputs: value=43.7534
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.5609
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=43.7534; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 43.7534 * 0.6460 = 28.2655
+- Outputs: value=28.2655
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=28.2655; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 28.2655 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 25.4389
+- Outputs: value=25.4389
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.6800; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:moon_background=0.9025; sky:sky_background=0.9140
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=25.4389
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 25.4389 sorts to rank 3 of 6
+- Outputs: rank=3; score=25.4389
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 65.39 starts from object 78, category 68, weather 90; applies aperture +7.06, Moon penalty -9.73, light-pollution penalty -13.54, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9025 inside ObservationEnvironment; legacy exposes moon_penalty 9.7333.
+- Sky background is 0.9140 inside ObservationEnvironment; legacy exposes pollution_penalty 13.5401.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 43.7534 into PracticalTargetValue 28.2655; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 43.7534 and PracticalTargetValue stays 28.2655.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:globular_cluster - Globular Cluster
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 22.1190; legacy rank 4 with score 45.5102.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.8245; sky_background=0.8710; atmospheric_transparency=0.6800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.8245, sky_background=0.8710, atmospheric_transparency=0.6800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.8245; sky_background=0.8710; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800; sky:moon_background=0.8245; sky:sky_background=0.8710
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.8245; sky_background=0.8710; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.8245 * 0.8710 * 0.6800 * 1.0000 = 0.4884
+- Outputs: value=0.4884
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.6800; sky:moon_background=0.8245; sky:sky_background=0.8710
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.4884; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.4884 = 40.0456
+- Outputs: value=40.0456
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.4884
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=40.0456; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 40.0456 * 0.6460 = 25.8702
+- Outputs: value=25.8702
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=25.8702; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 25.8702 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 22.1190
+- Outputs: value=22.1190
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.6800; sky:moon_background=0.8245; sky:sky_background=0.8710; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=22.1190
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 22.1190 sorts to rank 4 of 6
+- Outputs: rank=4; score=22.1190
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 45.51 starts from object 82, category 68, weather 90; applies aperture +7.06, Moon penalty -17.52, light-pollution penalty -20.31, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8245 inside ObservationEnvironment; legacy exposes moon_penalty 17.5200.
+- Sky background is 0.8710 inside ObservationEnvironment; legacy exposes pollution_penalty 20.3101.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 40.0456 into PracticalTargetValue 25.8702; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 40.0456 and PracticalTargetValue stays 25.8702.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 16.7052; legacy rank 5 with score 34.4241.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.6587; sky_background=0.7851; atmospheric_transparency=0.6800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.6587, sky_background=0.7851, atmospheric_transparency=0.6800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.6587; sky_background=0.7851; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6587; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7851
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.6587; sky_background=0.7851; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.6587 * 0.7851 * 0.6800 * 1.0000 = 0.3517
+- Outputs: value=0.3517
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6587; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7851
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.3517; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.3517 = 30.2441
+- Outputs: value=30.2441
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.3517
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=30.2441; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 30.2441 * 0.6460 = 19.5382
+- Outputs: value=19.5382
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=19.5382; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 19.5382 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 16.7052
+- Outputs: value=16.7052
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:moon_background=0.6587; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7851; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=16.7052
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 16.7052 sorts to rank 5 of 6
+- Outputs: rank=5; score=16.7052
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 34.42 starts from object 86, category 68, weather 90; applies aperture +7.06, Moon penalty -25.31, light-pollution penalty -26.11, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.6587 inside ObservationEnvironment; legacy exposes moon_penalty 25.3067.
+- Sky background is 0.7851 inside ObservationEnvironment; legacy exposes pollution_penalty 26.1130.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 30.2441 into PracticalTargetValue 19.5382; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 30.2441 and PracticalTargetValue stays 19.5382.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:galaxy - Galaxy
+
+Axes: sky `planet_favouring`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 15.1065; legacy rank 6 with score 18.7273.
+Intended NSOM expectation: planet/Moon protection and deep-sky sky-background sensitivity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=0.6100; sky_background=0.7493; atmospheric_transparency=0.6800; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=0.6100, sky_background=0.7493, atmospheric_transparency=0.6800, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=0.6100; sky_background=0.7493; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6100; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7493
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=0.6100; sky_background=0.7493; atmospheric_transparency=0.6800; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 0.6100 * 0.7493 * 0.6800 * 1.0000 = 0.3108
+- Outputs: value=0.3108
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6100; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7493
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.3108; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.3108 = 27.3497
+- Outputs: value=27.3497
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.3108
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=27.3497; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 27.3497 * 0.6460 = 17.6684
+- Outputs: value=17.6684
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=17.6684; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 17.6684 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 15.1065
+- Outputs: value=15.1065
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:moon_background=0.6100; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.6800; sky:sky_background=0.7493; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G14; candidate_count=6; opportunity_score=15.1065
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 15.1065 sorts to rank 6 of 6
+- Outputs: rank=6; score=15.1065
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 18.73 starts from object 88, category 68, weather 90; applies aperture +7.06, Moon penalty -36.99, light-pollution penalty -31.92, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.6100 inside ObservationEnvironment; legacy exposes moon_penalty 36.9867.
+- Sky background is 0.7493 inside ObservationEnvironment; legacy exposes pollution_penalty 31.9159.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 27.3497 into PracticalTargetValue 17.6684; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 27.3497 and PracticalTargetValue stays 17.6684.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:galaxy - Galaxy
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 1 with score 53.8617; legacy rank 4 with score 93.8903.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9600 * 1.0000 = 0.9263
+- Outputs: value=0.9263
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.9263; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.9263 = 81.5130
+- Outputs: value=81.5130
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9263
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=81.5130; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 81.5130 * 0.7728 = 62.9962
+- Outputs: value=62.9962
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=62.9962; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 62.9962 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 53.8617
+- Outputs: value=53.8617
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:atmospheric_transparency=0.9600; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=53.8617
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 53.8617 sorts to rank 1 of 6
+- Outputs: rank=1; score=53.8617
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 93.89 starts from object 88, category 96, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 81.5130 into PracticalTargetValue 62.9962; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 81.5130 and PracticalTargetValue stays 62.9962.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 2 with score 52.9113; legacy rank 5 with score 93.7505.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9600 * 1.0000 = 0.9311
+- Outputs: value=0.9311
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.9311; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.9311 = 80.0747
+- Outputs: value=80.0747
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9311
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=80.0747; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 80.0747 * 0.7728 = 61.8846
+- Outputs: value=61.8846
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=61.8846; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 61.8846 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 52.9113
+- Outputs: value=52.9113
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:atmospheric_transparency=0.9600; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=52.9113
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 52.9113 sorts to rank 2 of 6
+- Outputs: rank=2; score=52.9113
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 93.75 starts from object 86, category 96, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 5 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 80.0747 into PracticalTargetValue 61.8846; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 80.0747 and PracticalTargetValue stays 61.8846.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:moon - Moon
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 3 with score 52.0829; legacy rank 2 with score 103.4564.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9600 * 1.0000 = 0.9600
+- Outputs: value=0.9600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9600; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9600 = 74.8800
+- Outputs: value=74.8800
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9600
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=74.8800; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 74.8800 * 0.7728 = 57.8699
+- Outputs: value=57.8699
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=57.8699; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 57.8699 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 52.0829
+- Outputs: value=52.0829
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:atmospheric_transparency=0.9600
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=52.0829
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 52.0829 sorts to rank 3 of 6
+- Outputs: rank=3; score=52.0829
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 103.46 starts from object 78, category 96, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 2 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 74.8800 into PracticalTargetValue 57.8699; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 74.8800 and PracticalTargetValue stays 57.8699.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:open_cluster - Open Cluster
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 4 with score 51.4558; legacy rank 1 with score 104.3342.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9600 * 1.0000 = 0.9484
+- Outputs: value=0.9484
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9484; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9484 = 73.9784
+- Outputs: value=73.9784
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9484
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=73.9784; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 73.9784 * 0.7728 = 57.1731
+- Outputs: value=57.1731
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=57.1731; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 57.1731 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 51.4558
+- Outputs: value=51.4558
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:atmospheric_transparency=0.9600; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=51.4558
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 51.4558 sorts to rank 4 of 6
+- Outputs: rank=4; score=51.4558
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 104.33 starts from object 78, category 96, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 1 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 73.9784 into PracticalTargetValue 57.1731; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.9784 and PracticalTargetValue stays 57.1731.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:globular_cluster - Globular Cluster
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 5 with score 51.0767; legacy rank 6 with score 92.6986.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9600 * 1.0000 = 0.9427
+- Outputs: value=0.9427
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9600; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.9427; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.9427 = 77.2982
+- Outputs: value=77.2982
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9427
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=77.2982; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 77.2982 * 0.7728 = 59.7388
+- Outputs: value=59.7388
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=59.7388; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 59.7388 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 51.0767
+- Outputs: value=51.0767
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:atmospheric_transparency=0.9600; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=51.0767
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 51.0767 sorts to rank 5 of 6
+- Outputs: rank=5; score=51.0767
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 92.70 starts from object 82, category 96, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 6 by -1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 77.2982 into PracticalTargetValue 59.7388; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 77.2982 and PracticalTargetValue stays 59.7388.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:planet - Planet
+
+Axes: sky `deep_sky_favouring`, session `good`, equipment `large_telescope`, geometry `standard`, confidence `high`.
+Final NSOM rank 6 with score 44.4040; legacy rank 3 with score 102.1488.
+Intended NSOM expectation: deep-sky targets should retain high effective observability; equipment should move PracticalTargetValue but not ObservableTargetValue.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.7600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.7600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.7600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.7600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.7600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.7600 * 1.0000 = 0.7600
+- Outputs: value=0.7600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.7600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.7600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.7600 = 63.8400
+- Outputs: value=63.8400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.7600
+
+#### ObserverCapability
+
+- Inputs: aperture=220; focal_length=1800; optical_capability=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking=0.8000; filters=[]; setup_contribution=setup_type=telescope; telescope=Large GoTo; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Large GoTo, aperture_mm=220, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.8500, 0.8250, 0.3955, 0.8394, 0.8000, 1.0000, 0.7000) = 0.7728
+- Outputs: summary_for_planning=0.7728; dimensions=light_grasp=0.8500; resolution=0.8250; field_of_view=0.3955; magnification_range=0.8394; tracking_or_goto=0.8000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:light_grasp=0.8500; observer:resolution=0.8250; observer:magnification_range=0.8394; observer:tracking_or_goto=0.8000; observer:experience_level=1.0000
+- Dominant limiting contributors: observer:field_of_view=0.3955
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=63.8400; observer_capability_summary=0.7728
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 63.8400 * 0.7728 = 49.3378
+- Outputs: value=49.3378
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.7728
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3378; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3378 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 44.4040
+- Outputs: value=44.4040
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; observer:observer_capability_summary=0.7728; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.7600; observer:observer_capability_summary=0.7728; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G15; candidate_count=6; opportunity_score=44.4040
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 44.4040 sorts to rank 6 of 6
+- Outputs: rank=6; score=44.4040
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 102.15 starts from object 84, category 76, weather 90; applies aperture +12.22, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 6 differs from legacy rank 3 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 63.8400 into PracticalTargetValue 49.3378; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.8400 and PracticalTargetValue stays 49.3378.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 1 with score 12.0598; legacy rank 4 with score 87.0440.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 0.2857 = 0.2481
+- Outputs: value=0.2481
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.2481; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.2481 = 21.8339
+- Outputs: value=21.8339
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2481
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=21.8339; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 21.8339 * 0.6460 = 14.1050
+- Outputs: value=14.1050
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=14.1050; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 14.1050 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 12.0598
+- Outputs: value=12.0598
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=12.0598
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 12.0598 sorts to rank 1 of 6
+- Outputs: rank=1; score=12.0598
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 87.04 starts from object 88, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 21.8339 into PracticalTargetValue 14.1050; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 21.8339 and PracticalTargetValue stays 14.1050.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 2 with score 12.0004; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 0.2857 = 0.2457
+- Outputs: value=0.2457
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.2457; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.2457 = 20.6400
+- Outputs: value=20.6400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2457
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=20.6400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 20.6400 * 0.6460 = 13.3338
+- Outputs: value=13.3338
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=13.3338; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 13.3338 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 12.0004
+- Outputs: value=12.0004
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=12.0004
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 12.0004 sorts to rank 2 of 6
+- Outputs: rank=2; score=12.0004
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.6400 into PracticalTargetValue 13.3338; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.6400 and PracticalTargetValue stays 13.3338.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 3 with score 11.8470; legacy rank 5 with score 86.9041.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 0.2857 = 0.2494
+- Outputs: value=0.2494
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.2494; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.2494 = 21.4486
+- Outputs: value=21.4486
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2494
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=21.4486; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 21.4486 * 0.6460 = 13.8562
+- Outputs: value=13.8562
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=13.8562; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 13.8562 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 11.8470
+- Outputs: value=11.8470
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=11.8470
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 11.8470 sorts to rank 3 of 6
+- Outputs: rank=3; score=11.8470
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 86.90 starts from object 86, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 21.4486 into PracticalTargetValue 13.8562; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 21.4486 and PracticalTargetValue stays 13.8562.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 4 with score 11.6615; legacy rank 3 with score 95.6732.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 0.2857 = 0.2571
+- Outputs: value=0.2571
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.2571; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.2571 = 20.0571
+- Outputs: value=20.0571
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2571
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=20.0571; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 20.0571 * 0.6460 = 12.9573
+- Outputs: value=12.9573
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=12.9573; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 12.9573 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 11.6615
+- Outputs: value=11.6615
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=11.6615
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 11.6615 sorts to rank 4 of 6
+- Outputs: rank=4; score=11.6615
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.67 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.0571 into PracticalTargetValue 12.9573; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.0571 and PracticalTargetValue stays 12.9573.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 5 with score 11.5211; legacy rank 2 with score 96.5510.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 0.2857 = 0.2540
+- Outputs: value=0.2540
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.2540; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.2540 = 19.8156
+- Outputs: value=19.8156
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2540
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=19.8156; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 19.8156 * 0.6460 = 12.8012
+- Outputs: value=12.8012
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=12.8012; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 12.8012 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 11.5211
+- Outputs: value=11.5211
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=11.5211
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 11.5211 sorts to rank 5 of 6
+- Outputs: rank=5; score=11.5211
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 96.55 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 19.8156 into PracticalTargetValue 12.8012; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 19.8156 and PracticalTargetValue stays 12.8012.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `low_altitude`, confidence `high`.
+Final NSOM rank 6 with score 11.4362; legacy rank 6 with score 85.8523.
+Intended NSOM expectation: horizon context should limit EffectiveObservability.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=15 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=0.2857; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=0.2857
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=0.2857
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 0.2857 = 0.2525
+- Outputs: value=0.2525
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.2525; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.2525 = 20.7049
+- Outputs: value=20.7049
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.2525
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=20.7049; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 20.7049 * 0.6460 = 13.3757
+- Outputs: value=13.3757
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=13.3757; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 13.3757 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 11.4362
+- Outputs: value=11.4362
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: sky:horizon_context=0.2857; observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G16; candidate_count=6; opportunity_score=11.4362
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 11.4362 sorts to rank 6 of 6
+- Outputs: rank=6; score=11.4362
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 85.85 starts from object 82, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.7049 into PracticalTargetValue 13.3757; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.7049 and PracticalTargetValue stays 13.3757.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 1 with score 35.8779; legacy rank 4 with score 87.0440.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.6460 = 49.3677
+- Outputs: value=49.3677
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3677; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3677 * 1.0000 * 0.8500 * 0.9000 * 0.9500 = 35.8779
+- Outputs: value=35.8779
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=35.8779
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 35.8779 sorts to rank 1 of 6
+- Outputs: rank=1; score=35.8779
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 87.04 starts from object 88, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 2 with score 35.7012; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 0.8500 * 0.9000 * 1.0000 = 35.7012
+- Outputs: value=35.7012
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=35.7012
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 35.7012 sorts to rank 2 of 6
+- Outputs: rank=2; score=35.7012
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 3 with score 35.2449; legacy rank 5 with score 86.9041.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.6460 = 48.4965
+- Outputs: value=48.4965
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.4965; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.4965 * 1.0000 * 0.8500 * 0.9000 * 0.9500 = 35.2449
+- Outputs: value=35.2449
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=35.2449
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 35.2449 sorts to rank 3 of 6
+- Outputs: rank=3; score=35.2449
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 86.90 starts from object 86, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 4 with score 34.6931; legacy rank 3 with score 95.6732.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 0.8500 * 0.9000 * 1.0000 = 34.6931
+- Outputs: value=34.6931
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=34.6931
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 34.6931 sorts to rank 4 of 6
+- Outputs: rank=4; score=34.6931
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.67 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 5 with score 34.2753; legacy rank 2 with score 96.5510.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.6460 = 44.8043
+- Outputs: value=44.8043
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8043; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8043 * 1.0000 * 0.8500 * 0.9000 * 1.0000 = 34.2753
+- Outputs: value=34.2753
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=34.2753
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 34.2753 sorts to rank 5 of 6
+- Outputs: rank=5; score=34.2753
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 96.55 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `late_window`, confidence `high`.
+Final NSOM rank 6 with score 34.0228; legacy rank 6 with score 85.8523.
+Intended NSOM expectation: chronology fit should affect opportunity.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.6460 = 46.8150
+- Outputs: value=46.8150
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=04:30 - 05:30; best_time=04:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=04:30; chronology_fit=0.8500
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 0.8500
+- Outputs: value=0.8500
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:chronology_fit=0.8500
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.8150; observing_window_quality=1.0000; chronology_fit=0.8500; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.8150 * 1.0000 * 0.8500 * 0.9000 * 0.9500 = 34.0228
+- Outputs: value=34.0228
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; opportunity:chronology_fit=0.8500; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G17; candidate_count=6; opportunity_score=34.0228
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 34.0228 sorts to rank 6 of 6
+- Outputs: rank=6; score=34.0228
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 1.0000
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 85.85 starts from object 82, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G18:galaxy - Galaxy
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 1 with score 42.2094; legacy rank 4 with score 87.0440.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=galaxy; name=Galaxy; target_class=galaxy; runtime_score=88.0000; magnitude=8.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'galaxy'], ['name', 'Galaxy'], ['object_type', 'Galaxy'], ['score', 88], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(88.0000, 0, 100) = 88.0000
+- Outputs: value=88.0000
+- Dominant positive contributors: universe:runtime_score=0.8800
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9649, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9649; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9649 * 0.9000 * 1.0000 = 0.8684
+- Outputs: value=0.8684
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9649
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=88.0000; effective_observability=0.8684; target_class=galaxy
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 88.0000 * 0.8684 = 76.4185
+- Outputs: value=76.4185
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8684
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=76.4185; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 76.4185 * 0.6460 = 49.3677
+- Outputs: value=49.3677
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:00 - 02:00; best_time=22:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=49.3677; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 49.3677 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 42.2094
+- Outputs: value=42.2094
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9649
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=42.2094
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.2094 sorts to rank 1 of 6
+- Outputs: rank=1; score=42.2094
+- Dominant positive contributors: opportunity:rank=1.0000
+- Dominant limiting contributors: none
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 87.04 starts from object 88, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -4.47, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:planet - Planet
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 2 with score 42.0015; legacy rank 1 with score 100.2408.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=planet; name=Planet; target_class=planet; runtime_score=84.0000; magnitude=-1.7; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'planet'], ['name', 'Planet'], ['object_type', 'Pianeta'], ['score', 84], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(84.0000, 0, 100) = 84.0000
+- Outputs: value=84.0000
+- Dominant positive contributors: universe:runtime_score=0.8400
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.8600, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.8600; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.8600 * 1.0000 = 0.8600
+- Outputs: value=0.8600
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.8600
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=84.0000; effective_observability=0.8600; target_class=planet
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 84.0000 * 0.8600 = 72.2400
+- Outputs: value=72.2400
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8600
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.2400; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.2400 * 0.6460 = 46.6683
+- Outputs: value=46.6683
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:00 - 02:00; best_time=21:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.6683; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.6683 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 42.0015
+- Outputs: value=42.0015
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.8600; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=42.0015
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 42.0015 sorts to rank 2 of 6
+- Outputs: rank=2; score=42.0015
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.3333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 100.24 starts from object 84, category 86, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -0.00, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:diffuse_nebula - Diffuse Nebula
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 3 with score 41.4645; legacy rank 5 with score 86.9041.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=diffuse_nebula; name=Diffuse Nebula; target_class=diffuse_nebula; runtime_score=86.0000; magnitude=7.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'diffuse_nebula'], ['name', 'Diffuse Nebula'], ['object_type', 'Nebula'], ['score', 86], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(86.0000, 0, 100) = 86.0000
+- Outputs: value=86.0000
+- Dominant positive contributors: universe:runtime_score=0.8600
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9699, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9699; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9699 * 0.9000 * 1.0000 = 0.8729
+- Outputs: value=0.8729
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9699
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=86.0000; effective_observability=0.8729; target_class=diffuse_nebula
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 86.0000 * 0.8729 = 75.0700
+- Outputs: value=75.0700
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8729
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=75.0700; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 75.0700 * 0.6460 = 48.4965
+- Outputs: value=48.4965
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=22:30 - 02:00; best_time=22:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=22:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=48.4965; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 48.4965 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 41.4645
+- Outputs: value=41.4645
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9699
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=41.4645
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 41.4645 sorts to rank 3 of 6
+- Outputs: rank=3; score=41.4645
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.5000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 86.90 starts from object 86, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -3.66, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:moon - Moon
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 4 with score 40.8154; legacy rank 3 with score 95.6732.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=moon; name=Moon; target_class=moon; runtime_score=78.0000; magnitude=-12.0; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'moon'], ['name', 'Moon'], ['object_type', 'Luna'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=1.0000, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=1.0000; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:sky_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.9000; target_class=moon
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.9000 = 70.2000
+- Outputs: value=70.2000
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.9000
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=70.2000; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 70.2000 * 0.6460 = 45.3504
+- Outputs: value=45.3504
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=21:30 - 02:00; best_time=21:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=21:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=45.3504; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 45.3504 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.8154
+- Outputs: value=40.8154
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; sky:sky_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=40.8154
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.8154 sorts to rank 4 of 6
+- Outputs: rank=4; score=40.8154
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.6667
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 95.67 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.71, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:open_cluster - Open Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 5 with score 40.3239; legacy rank 2 with score 96.5510.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=open_cluster; name=Open Cluster; target_class=open_cluster; runtime_score=78.0000; magnitude=5.2; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'open_cluster'], ['name', 'Open Cluster'], ['object_type', 'Open Cluster'], ['score', 78], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(78.0000, 0, 100) = 78.0000
+- Outputs: value=78.0000
+- Dominant positive contributors: none
+- Dominant limiting contributors: universe:runtime_score=0.7800
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9880, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9880; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9880 * 0.9000 * 1.0000 = 0.8892
+- Outputs: value=0.8892
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9880
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=78.0000; effective_observability=0.8892; target_class=open_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 78.0000 * 0.8892 = 69.3547
+- Outputs: value=69.3547
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8892
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=69.3547; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 69.3547 * 0.6460 = 44.8043
+- Outputs: value=44.8043
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:00 - 02:00; best_time=23:00; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:00; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=44.8043; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=1.0000
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 44.8043 * 1.0000 * 1.0000 * 0.9000 * 1.0000 = 40.3239
+- Outputs: value=40.3239
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; sky:sky_background=0.9880
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=40.3239
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.3239 sorts to rank 5 of 6
+- Outputs: rank=5; score=40.3239
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=0.8333
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 96.55 starts from object 78, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -1.90, difficulty factor 1.08, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:globular_cluster - Globular Cluster
+
+Axes: sky `dark_sky`, session `good`, equipment `medium_telescope`, geometry `standard`, confidence `low`.
+Final NSOM rank 6 with score 40.0268; legacy rank 6 with score 85.8523.
+Intended NSOM expectation: low confidence should remain metadata.
+
+#### IntrinsicTargetQuality
+
+- Inputs: object_id=globular_cluster; name=Globular Cluster; target_class=globular_cluster; runtime_score=82.0000; magnitude=6.8; altitude=45 gradi; astronomical_visibility=True; source_fields=[['object_id', 'globular_cluster'], ['name', 'Globular Cluster'], ['object_type', 'Globular Cluster'], ['score', 82], ...]
+- Formula: IntrinsicTargetQuality = clamp(runtime target quality score, 0, 100)
+- Intermediate calculation: clamp(82.0000, 0, 100) = 82.0000
+- Outputs: value=82.0000
+- Dominant positive contributors: universe:runtime_score=0.8200
+- Dominant limiting contributors: none
+
+#### ObservationEnvironment
+
+- Inputs: moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_geometry=1.0000; geometric_visibility=1.0000; sky_quality_source=Fixture; weather_source=; atmosphere_source=; other_active_environmental_components=[nsom:planner_experimental, nsom:planner_runtime_environment, nsom:runtime_environment, sky_quality_source=Fixture, ...]
+- Formula: ObservationEnvironment = prepared sky-owned component multipliers; no score is produced at this stage
+- Intermediate calculation: prepared multipliers: geometric_visibility=1.0000, moon_background=1.0000, sky_background=0.9819, atmospheric_transparency=0.9000, horizon_context=1.0000
+- Outputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### EffectiveObservability
+
+- Inputs: geometric_visibility=1.0000; moon_background=1.0000; sky_background=0.9819; atmospheric_transparency=0.9000; horizon_context=1.0000
+- Formula: EffectiveObservability = geometric_visibility * moon_background * sky_background * atmospheric_transparency * horizon_context
+- Intermediate calculation: 1.0000 * 1.0000 * 0.9819 * 0.9000 * 1.0000 = 0.8837
+- Outputs: value=0.8837
+- Dominant positive contributors: sky:geometric_visibility=1.0000; sky:moon_background=1.0000; sky:horizon_context=1.0000
+- Dominant limiting contributors: sky:atmospheric_transparency=0.9000; sky:sky_background=0.9819
+
+#### ObservableTargetValue
+
+- Inputs: intrinsic_target_quality=82.0000; effective_observability=0.8837; target_class=globular_cluster
+- Formula: ObservableTargetValue = IntrinsicTargetQuality * EffectiveObservability
+- Intermediate calculation: 82.0000 * 0.8837 = 72.4670
+- Outputs: value=72.4670
+- Dominant positive contributors: none
+- Dominant limiting contributors: sky:effective_observability=0.8837
+
+#### ObserverCapability
+
+- Inputs: aperture=127; focal_length=1500; optical_capability=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking=0.4000; filters=[]; setup_contribution=setup_type=telescope; telescope=Medium Mak; practical_comfort=0.7000; other_active_observer_components=automation_or_eaa=0.0000; experience_level=1.0000; observing_style=visual; notes=[setup_type=telescope, nsom:planner_observer_capability, telescope=Medium Mak, aperture_mm=127, ...]
+- Formula: ObserverCapability summary = mean(light_grasp, resolution, field_of_view, magnification_range, tracking_or_goto, experience_level, practical_comfort)
+- Intermediate calculation: mean(0.6175, 0.5925, 0.4636, 0.7485, 0.4000, 1.0000, 0.7000) = 0.6460
+- Outputs: summary_for_planning=0.6460; dimensions=light_grasp=0.6175; resolution=0.5925; field_of_view=0.4636; magnification_range=0.7485; tracking_or_goto=0.4000; experience_level=1.0000; practical_comfort=0.7000
+- Dominant positive contributors: observer:experience_level=1.0000
+- Dominant limiting contributors: observer:tracking_or_goto=0.4000; observer:field_of_view=0.4636; observer:resolution=0.5925; observer:light_grasp=0.6175
+
+#### PracticalTargetValue
+
+- Inputs: observable_target_value=72.4670; observer_capability_summary=0.6460
+- Formula: PracticalTargetValue = ObservableTargetValue * ObserverCapability summary
+- Intermediate calculation: 72.4670 * 0.6460 = 46.8150
+- Outputs: value=46.8150
+- Dominant positive contributors: none
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460
+
+#### ObservationWindow
+
+- Inputs: observing_window=23:30 - 02:00; best_time=23:30; observing_window_quality=1.0000
+- Formula: ObservationWindow = Planner-prepared observing_window_quality multiplier
+- Intermediate calculation: observing_window_quality = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: none
+
+#### Chronology
+
+- Inputs: best_time=23:30; chronology_fit=1.0000
+- Formula: Chronology = Planner-prepared chronology_fit multiplier
+- Intermediate calculation: chronology_fit = 1.0000
+- Outputs: value=1.0000
+- Dominant positive contributors: opportunity:chronology_fit=1.0000
+- Dominant limiting contributors: none
+
+#### SessionViability
+
+- Inputs: weather_suitability=0.9000; blocking_factor=1.0000; state=usable; reason=; notes=[nsom:runtime_session]
+- Formula: SessionViability = weather_suitability * blocking_factor
+- Intermediate calculation: 0.9000 * 1.0000 = 0.9000
+- Outputs: value=0.9000
+- Dominant positive contributors: none
+- Dominant limiting contributors: session:session_viability=0.9000
+
+#### ObservationOpportunity
+
+- Inputs: practical_target_value=46.8150; observing_window_quality=1.0000; chronology_fit=1.0000; session_viability=0.9000; practical_constraints=0.9500
+- Formula: ObservationOpportunity = PracticalTargetValue * observing_window_quality * chronology_fit * SessionViability * practical_constraints
+- Intermediate calculation: 46.8150 * 1.0000 * 1.0000 * 0.9000 * 0.9500 = 40.0268
+- Outputs: value=40.0268
+- Dominant positive contributors: sky:moon_background_neutral=1.0000; opportunity:observing_window_quality=1.0000
+- Dominant limiting contributors: observer:observer_capability_summary=0.6460; sky:atmospheric_transparency=0.9000; session:weather_suitability=0.9000; session:session_viability=0.9000; opportunity:practical_constraints=0.9500; sky:sky_background=0.9819
+
+#### FinalPlannerRanking
+
+- Inputs: group_id=G18; candidate_count=6; opportunity_score=40.0268
+- Formula: Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group
+- Intermediate calculation: 40.0268 sorts to rank 6 of 6
+- Outputs: rank=6; score=40.0268
+- Dominant positive contributors: none
+- Dominant limiting contributors: opportunity:rank=1.0000
+
+#### RecommendationConfidence Metadata
+
+- Confidence value: 0.1875
+- Role: metadata_only
+- Score effect: 0.0000
+- Pipeline membership: outside mathematical pipeline
+
+#### Legacy Comparison
+
+- Legacy score 85.85 starts from object 82, category 90, weather 90; applies aperture +7.06, Moon penalty -0.00, light-pollution penalty -2.84, difficulty factor 0.95, weather factor 1.00.
+- Unavailable legacy components: observing_window_quality, chronology_fit, observer_capability, recommendation_confidence
+
+#### Why NSOM Differs
+
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+## Legacy Comparison
+
+Legacy values below are limited to fields exposed by `PlannerScoringService.score_breakdown()`.
+
+| Scenario | Target | Legacy Rank | Legacy Score | Available Legacy Components | Unavailable Legacy Components |
+| --- | --- | ---: | ---: | --- | --- |
+| G01:galaxy | Galaxy | 4 | 87.0440 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G01:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G01:diffuse_nebula | Diffuse Nebula | 5 | 86.9041 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G01:moon | Moon | 3 | 95.6732 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G01:open_cluster | Open Cluster | 2 | 96.5510 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G01:globular_cluster | Globular Cluster | 6 | 85.8523 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:moon | Moon | 2 | 80.5343 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:open_cluster | Open Cluster | 3 | 79.3125 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:globular_cluster | Globular Cluster | 4 | 62.8791 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:diffuse_nebula | Diffuse Nebula | 5 | 56.6578 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G02:galaxy | Galaxy | 6 | 47.4979 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:planet | Planet | 1 | 100.9752 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:moon | Moon | 2 | 91.7584 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:open_cluster | Open Cluster | 3 | 83.0697 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:globular_cluster | Globular Cluster | 4 | 66.3734 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:diffuse_nebula | Diffuse Nebula | 5 | 59.8803 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G03:galaxy | Galaxy | 6 | 48.9285 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:galaxy | Galaxy | 5 | 84.5598 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:moon | Moon | 3 | 93.9616 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:diffuse_nebula | Diffuse Nebula | 4 | 84.8716 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:open_cluster | Open Cluster | 2 | 95.3529 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G04:globular_cluster | Globular Cluster | 6 | 84.2714 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:planet | Planet | 1 | 78.7970 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:moon | Moon | 2 | 70.3783 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:open_cluster | Open Cluster | 3 | 65.3788 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:globular_cluster | Globular Cluster | 4 | 52.5443 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:diffuse_nebula | Diffuse Nebula | 5 | 47.8334 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G05:galaxy | Galaxy | 6 | 39.9787 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:moon | Moon | 3 | 74.6825 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:open_cluster | Open Cluster | 2 | 80.7559 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:globular_cluster | Globular Cluster | 4 | 66.6266 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:diffuse_nebula | Diffuse Nebula | 5 | 63.1082 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G06:galaxy | Galaxy | 6 | 58.6779 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:galaxy | Galaxy | 4 | 68.9001 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:planet | Planet | 1 | 79.4213 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:diffuse_nebula | Diffuse Nebula | 5 | 68.7813 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:moon | Moon | 3 | 75.5388 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:open_cluster | Open Cluster | 2 | 76.2849 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G07:globular_cluster | Globular Cluster | 6 | 67.8872 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:galaxy | Galaxy | 4 | 49.9096 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:planet | Planet | 1 | 57.5749 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:diffuse_nebula | Diffuse Nebula | 5 | 49.8187 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:moon | Moon | 3 | 54.6060 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:open_cluster | Open Cluster | 2 | 55.1765 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G08:globular_cluster | Globular Cluster | 6 | 49.1350 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:planet | Planet | 1 | 29.6411 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:moon | Moon | 2 | 22.7438 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:galaxy | Galaxy | 6 | 11.8363 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:diffuse_nebula | Diffuse Nebula | 5 | 15.0422 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:open_cluster | Open Cluster | 3 | 22.3162 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G09:globular_cluster | Globular Cluster | 4 | 17.2197 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:galaxy | Galaxy | 4 | 82.9801 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:planet | Planet | 1 | 95.6208 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:diffuse_nebula | Diffuse Nebula | 5 | 82.8403 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:moon | Moon | 3 | 91.0532 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:open_cluster | Open Cluster | 2 | 91.9310 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G10:globular_cluster | Globular Cluster | 6 | 81.7884 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:galaxy | Galaxy | 4 | 83.5079 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:planet | Planet | 1 | 96.2208 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:diffuse_nebula | Diffuse Nebula | 5 | 83.3680 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:moon | Moon | 3 | 91.6532 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:open_cluster | Open Cluster | 2 | 92.5310 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G11:globular_cluster | Globular Cluster | 6 | 82.3162 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:galaxy | Galaxy | 4 | 91.9523 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:planet | Planet | 1 | 105.8208 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:diffuse_nebula | Diffuse Nebula | 5 | 91.8125 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:moon | Moon | 3 | 101.2532 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:open_cluster | Open Cluster | 2 | 102.1310 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G12:globular_cluster | Globular Cluster | 6 | 90.7606 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:planet | Planet | 1 | 105.8208 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:moon | Moon | 2 | 86.1143 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:open_cluster | Open Cluster | 3 | 84.8925 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:globular_cluster | Globular Cluster | 4 | 67.7874 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:diffuse_nebula | Diffuse Nebula | 5 | 61.5662 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G13:galaxy | Galaxy | 6 | 52.4062 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:planet | Planet | 1 | 103.9128 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:moon | Moon | 2 | 69.6304 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:open_cluster | Open Cluster | 3 | 65.3855 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:globular_cluster | Globular Cluster | 4 | 45.5102 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:diffuse_nebula | Diffuse Nebula | 5 | 34.4241 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G14:galaxy | Galaxy | 6 | 18.7273 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:galaxy | Galaxy | 4 | 93.8903 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:diffuse_nebula | Diffuse Nebula | 5 | 93.7505 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:moon | Moon | 2 | 103.4564 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:open_cluster | Open Cluster | 1 | 104.3342 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:globular_cluster | Globular Cluster | 6 | 92.6986 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G15:planet | Planet | 3 | 102.1488 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:galaxy | Galaxy | 4 | 87.0440 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:diffuse_nebula | Diffuse Nebula | 5 | 86.9041 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:moon | Moon | 3 | 95.6732 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:open_cluster | Open Cluster | 2 | 96.5510 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G16:globular_cluster | Globular Cluster | 6 | 85.8523 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:galaxy | Galaxy | 4 | 87.0440 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:diffuse_nebula | Diffuse Nebula | 5 | 86.9041 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:moon | Moon | 3 | 95.6732 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:open_cluster | Open Cluster | 2 | 96.5510 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G17:globular_cluster | Globular Cluster | 6 | 85.8523 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:galaxy | Galaxy | 4 | 87.0440 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:planet | Planet | 1 | 100.2408 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:diffuse_nebula | Diffuse Nebula | 5 | 86.9041 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:moon | Moon | 3 | 95.6732 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:open_cluster | Open Cluster | 2 | 96.5510 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+| G18:globular_cluster | Globular Cluster | 6 | 85.8523 | base_score, category_score, weather_score, object_score_contribution, category_score_contribution, weather_score_contribution, aperture_bonus, moon_penalty, pollution_penalty, difficulty_factor, weather_factor, raw_score_before_difficulty, raw_score_before_weather | observing_window_quality, chronology_fit, observer_capability, recommendation_confidence |
+
+## Why The Two Systems Differ
+
+### G01:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G01:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 63.9600 into PracticalTargetValue 41.3193; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 41.3193.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:open_cluster
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 56.6046 into PracticalTargetValue 36.5675; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 36.5675.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.7889 into PracticalTargetValue 35.3946; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 35.3946.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.8220 into PracticalTargetValue 30.8939; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 30.8939.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G02:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 45.7700 into PracticalTargetValue 29.5682; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 29.5682.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 73.9200 into PracticalTargetValue 47.7536; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.9200 and PracticalTargetValue stays 47.7536.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 4.2941.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 65.5200 into PracticalTargetValue 42.3271; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 65.5200 and PracticalTargetValue stays 42.3271.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:open_cluster
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9062 inside ObservationEnvironment; legacy exposes moon_penalty 9.3333.
+- Sky background is 0.9809 inside ObservationEnvironment; legacy exposes pollution_penalty 3.0059.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 58.2443 into PracticalTargetValue 37.6268; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 58.2443 and PracticalTargetValue stays 37.6268.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8313 inside ObservationEnvironment; legacy exposes moon_penalty 16.8000.
+- Sky background is 0.9714 inside ObservationEnvironment; legacy exposes pollution_penalty 4.5088.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 55.6174 into PracticalTargetValue 35.9298; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 55.6174 and PracticalTargetValue stays 35.9298.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.6719 inside ObservationEnvironment; legacy exposes moon_penalty 24.2667.
+- Sky background is 0.9523 inside ObservationEnvironment; legacy exposes pollution_penalty 5.7970.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 46.2205 into PracticalTargetValue 29.8592; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 46.2205 and PracticalTargetValue stays 29.8592.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G03:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.6250 inside ObservationEnvironment; legacy exposes moon_penalty 35.4667.
+- Sky background is 0.9443 inside ObservationEnvironment; legacy exposes pollution_penalty 7.0853.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 43.6283 into PracticalTargetValue 28.1846; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 43.6283 and PracticalTargetValue stays 28.1846.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:galaxy
+- NSOM rank 2 differs from legacy rank 5 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9443 inside ObservationEnvironment; legacy exposes pollution_penalty 7.0853.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 74.7914 into PracticalTargetValue 48.3165; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 74.7914 and PracticalTargetValue stays 48.3165.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:moon
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 4.2941.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:diffuse_nebula
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9523 inside ObservationEnvironment; legacy exposes pollution_penalty 5.7970.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 73.7071 into PracticalTargetValue 47.6161; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.7071 and PracticalTargetValue stays 47.6161.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9809 inside ObservationEnvironment; legacy exposes pollution_penalty 3.0059.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 68.8602 into PracticalTargetValue 44.4849; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 68.8602 and PracticalTargetValue stays 44.4849.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G04:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9714 inside ObservationEnvironment; legacy exposes pollution_penalty 4.5088.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 71.6873 into PracticalTargetValue 46.3112; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 71.6873 and PracticalTargetValue stays 46.3112.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.5600 into PracticalTargetValue 45.5830; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 70.5600 and PracticalTargetValue stays 45.5830.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 6.2907.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 65.5200 into PracticalTargetValue 42.3271; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 65.5200 and PracticalTargetValue stays 42.3271.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:open_cluster
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9250 inside ObservationEnvironment; legacy exposes moon_penalty 7.3333.
+- Sky background is 0.9720 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4035.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 58.9115 into PracticalTargetValue 38.0579; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 58.9115 and PracticalTargetValue stays 38.0579.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8650 inside ObservationEnvironment; legacy exposes moon_penalty 13.2000.
+- Sky background is 0.9581 inside ObservationEnvironment; legacy exposes pollution_penalty 6.6053.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.0825 into PracticalTargetValue 36.8763; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 57.0825 and PracticalTargetValue stays 36.8763.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.7375 inside ObservationEnvironment; legacy exposes moon_penalty 19.0667.
+- Sky background is 0.9301 inside ObservationEnvironment; legacy exposes pollution_penalty 8.4925.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 49.5531 into PracticalTargetValue 32.0122; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 49.5531 and PracticalTargetValue stays 32.0122.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G05:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7000 inside ObservationEnvironment; legacy exposes moon_penalty 27.8667.
+- Sky background is 0.9185 inside ObservationEnvironment; legacy exposes pollution_penalty 10.3797.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.5245 into PracticalTargetValue 30.7016; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 47.5245 and PracticalTargetValue stays 30.7016.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:moon
+- NSOM rank 2 differs from legacy rank 3 by -1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 18.7451.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 62.4000 into PracticalTargetValue 40.3115; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 62.4000 and PracticalTargetValue stays 40.3115.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:open_cluster
+- NSOM rank 3 differs from legacy rank 2 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9167 inside ObservationEnvironment; legacy exposes pollution_penalty 13.1215.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.2014 into PracticalTargetValue 36.9531; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 57.2014 and PracticalTargetValue stays 36.9531.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.8750 inside ObservationEnvironment; legacy exposes pollution_penalty 19.6823.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 57.4022 into PracticalTargetValue 37.0828; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 57.4022 and PracticalTargetValue stays 37.0828.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.7917 inside ObservationEnvironment; legacy exposes pollution_penalty 25.3058.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.4704 into PracticalTargetValue 35.1888; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.4704 and PracticalTargetValue stays 35.1888.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G06:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.7570 inside ObservationEnvironment; legacy exposes pollution_penalty 30.9294.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 53.2934 into PracticalTargetValue 34.4285; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 53.2934 and PracticalTargetValue stays 34.4285.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G07:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.5500 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G08:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.3000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 63.9600 into PracticalTargetValue 41.3193; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 41.3193.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:galaxy
+- NSOM rank 3 differs from legacy rank 6 by -3.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 45.7700 into PracticalTargetValue 29.5682; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 29.5682.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:diffuse_nebula
+- NSOM rank 4 differs from legacy rank 5 by -1.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 47.8220 into PracticalTargetValue 30.8939; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 30.8939.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:open_cluster
+- NSOM rank 5 differs from legacy rank 3 by 2.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 56.6046 into PracticalTargetValue 36.5675; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 36.5675.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G09:globular_cluster
+- NSOM rank 6 differs from legacy rank 4 by 2.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 54.7889 into PracticalTargetValue 35.3946; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.0000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 35.3946.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 76.4185 into PracticalTargetValue 44.2136; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 44.2136.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 72.2400 into PracticalTargetValue 41.7960; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 41.7960.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 75.0700 into PracticalTargetValue 43.4334; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 43.4334.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 70.2000 into PracticalTargetValue 40.6157; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 40.6157.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 69.3547 into PracticalTargetValue 40.1267; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 40.1267.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G10:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.5786 turns ObservableTargetValue 72.4670 into PracticalTargetValue 41.9274; legacy exposes only aperture_bonus 2.7778.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 41.9274.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 76.4185 into PracticalTargetValue 44.8007; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 44.8007.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 72.2400 into PracticalTargetValue 42.3511; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 42.3511.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 75.0700 into PracticalTargetValue 44.0102; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 44.0102.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 70.2000 into PracticalTargetValue 41.1551; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 41.1551.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 69.3547 into PracticalTargetValue 40.6596; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 40.6596.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G11:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.5863 turns ObservableTargetValue 72.4670 into PracticalTargetValue 42.4842; legacy exposes only aperture_bonus 3.3333.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 42.4842.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 76.4185 into PracticalTargetValue 59.0589; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 59.0589.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.2400 into PracticalTargetValue 55.8296; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 55.8296.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 75.0700 into PracticalTargetValue 58.0168; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 58.0168.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 70.2000 into PracticalTargetValue 54.2531; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 54.2531.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 69.3547 into PracticalTargetValue 53.5998; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 53.5998.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G12:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.4670 into PracticalTargetValue 56.0051; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 56.0051.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 72.2400 into PracticalTargetValue 55.8296; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 55.8296.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 14.0067.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 63.9600 into PracticalTargetValue 49.4306; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.9600 and PracticalTargetValue stays 49.4306.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:open_cluster
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9437 inside ObservationEnvironment; legacy exposes moon_penalty 5.3333.
+- Sky background is 0.9377 inside ObservationEnvironment; legacy exposes pollution_penalty 9.8047.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 56.6046 into PracticalTargetValue 43.7460; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 56.6046 and PracticalTargetValue stays 43.7460.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8988 inside ObservationEnvironment; legacy exposes moon_penalty 9.6000.
+- Sky background is 0.9066 inside ObservationEnvironment; legacy exposes pollution_penalty 14.7071.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 54.7889 into PracticalTargetValue 42.3428; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 54.7889 and PracticalTargetValue stays 42.3428.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.8031 inside ObservationEnvironment; legacy exposes moon_penalty 13.8667.
+- Sky background is 0.8444 inside ObservationEnvironment; legacy exposes pollution_penalty 18.9091.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 47.8220 into PracticalTargetValue 36.9586; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 47.8220 and PracticalTargetValue stays 36.9586.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G13:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.7750 inside ObservationEnvironment; legacy exposes moon_penalty 20.2667.
+- Sky background is 0.8184 inside ObservationEnvironment; legacy exposes pollution_penalty 23.1111.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 45.7700 into PracticalTargetValue 35.3726; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 45.7700 and PracticalTargetValue stays 35.3726.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:planet
+- NSOM and legacy both rank this target at 1 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 80.6400 into PracticalTargetValue 52.0948; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 80.6400 and PracticalTargetValue stays 52.0948.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:moon
+- NSOM and legacy both rank this target at 2 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 19.3430.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 53.0400 into PracticalTargetValue 34.2648; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 53.0400 and PracticalTargetValue stays 34.2648.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:open_cluster
+- NSOM and legacy both rank this target at 3 in this group.
+- Moon background is 0.9025 inside ObservationEnvironment; legacy exposes moon_penalty 9.7333.
+- Sky background is 0.9140 inside ObservationEnvironment; legacy exposes pollution_penalty 13.5401.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 43.7534 into PracticalTargetValue 28.2655; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 43.7534 and PracticalTargetValue stays 28.2655.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:globular_cluster
+- NSOM and legacy both rank this target at 4 in this group.
+- Moon background is 0.8245 inside ObservationEnvironment; legacy exposes moon_penalty 17.5200.
+- Sky background is 0.8710 inside ObservationEnvironment; legacy exposes pollution_penalty 20.3101.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 40.0456 into PracticalTargetValue 25.8702; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 40.0456 and PracticalTargetValue stays 25.8702.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:diffuse_nebula
+- NSOM and legacy both rank this target at 5 in this group.
+- Moon background is 0.6587 inside ObservationEnvironment; legacy exposes moon_penalty 25.3067.
+- Sky background is 0.7851 inside ObservationEnvironment; legacy exposes pollution_penalty 26.1130.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 30.2441 into PracticalTargetValue 19.5382; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 30.2441 and PracticalTargetValue stays 19.5382.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G14:galaxy
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 0.6100 inside ObservationEnvironment; legacy exposes moon_penalty 36.9867.
+- Sky background is 0.7493 inside ObservationEnvironment; legacy exposes pollution_penalty 31.9159.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 27.3497 into PracticalTargetValue 17.6684; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 27.3497 and PracticalTargetValue stays 17.6684.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 81.5130 into PracticalTargetValue 62.9962; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 81.5130 and PracticalTargetValue stays 62.9962.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:diffuse_nebula
+- NSOM rank 2 differs from legacy rank 5 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 80.0747 into PracticalTargetValue 61.8846; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 80.0747 and PracticalTargetValue stays 61.8846.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:moon
+- NSOM rank 3 differs from legacy rank 2 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 74.8800 into PracticalTargetValue 57.8699; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 74.8800 and PracticalTargetValue stays 57.8699.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:open_cluster
+- NSOM rank 4 differs from legacy rank 1 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 73.9784 into PracticalTargetValue 57.1731; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 73.9784 and PracticalTargetValue stays 57.1731.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:globular_cluster
+- NSOM rank 5 differs from legacy rank 6 by -1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 77.2982 into PracticalTargetValue 59.7388; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 77.2982 and PracticalTargetValue stays 59.7388.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G15:planet
+- NSOM rank 6 differs from legacy rank 3 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.7728 turns ObservableTargetValue 63.8400 into PracticalTargetValue 49.3378; legacy exposes only aperture_bonus 12.2222.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 63.8400 and PracticalTargetValue stays 49.3378.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 21.8339 into PracticalTargetValue 14.1050; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 21.8339 and PracticalTargetValue stays 14.1050.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.6400 into PracticalTargetValue 13.3338; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.6400 and PracticalTargetValue stays 13.3338.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 21.4486 into PracticalTargetValue 13.8562; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 21.4486 and PracticalTargetValue stays 13.8562.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.0571 into PracticalTargetValue 12.9573; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.0571 and PracticalTargetValue stays 12.9573.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 19.8156 into PracticalTargetValue 12.8012; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 19.8156 and PracticalTargetValue stays 12.8012.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G16:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 20.7049 into PracticalTargetValue 13.3757; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 20.7049 and PracticalTargetValue stays 13.3757.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G17:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 1.0000 is metadata-only with score_effect 0.0000.
+
+### G18:galaxy
+- NSOM rank 1 differs from legacy rank 4 by -3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9649 inside ObservationEnvironment; legacy exposes pollution_penalty 4.4703.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 76.4185 into PracticalTargetValue 49.3677; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 76.4185 and PracticalTargetValue stays 49.3677.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:planet
+- NSOM rank 2 differs from legacy rank 1 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 0.0000.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.2400 into PracticalTargetValue 46.6683; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.2400 and PracticalTargetValue stays 46.6683.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:diffuse_nebula
+- NSOM rank 3 differs from legacy rank 5 by -2.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9699 inside ObservationEnvironment; legacy exposes pollution_penalty 3.6575.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 75.0700 into PracticalTargetValue 48.4965; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 75.0700 and PracticalTargetValue stays 48.4965.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:moon
+- NSOM rank 4 differs from legacy rank 3 by 1.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 1.0000 inside ObservationEnvironment; legacy exposes pollution_penalty 2.7093.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 70.2000 into PracticalTargetValue 45.3504; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 70.2000 and PracticalTargetValue stays 45.3504.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:open_cluster
+- NSOM rank 5 differs from legacy rank 2 by 3.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9880 inside ObservationEnvironment; legacy exposes pollution_penalty 1.8965.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 69.3547 into PracticalTargetValue 44.8043; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 69.3547 and PracticalTargetValue stays 44.8043.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+### G18:globular_cluster
+- NSOM and legacy both rank this target at 6 in this group.
+- Moon background is 1.0000 inside ObservationEnvironment; legacy exposes moon_penalty 0.0000.
+- Sky background is 0.9819 inside ObservationEnvironment; legacy exposes pollution_penalty 2.8447.
+- ObserverCapability summary 0.6460 turns ObservableTargetValue 72.4670 into PracticalTargetValue 46.8150; legacy exposes only aperture_bonus 7.0556.
+- SessionViability 0.9000 affects ObservationOpportunity only; ObservableTargetValue stays 72.4670 and PracticalTargetValue stays 46.8150.
+- RecommendationConfidence value 0.1875 is metadata-only with score_effect 0.0000.
+
+## Behaviour That Matches The NSOM Model
+
+- 36 planet/Moon scenarios keep sky-background handling in ObservationEnvironment.
+- 36 galaxy/diffuse nebula scenarios expose sky-owned EffectiveObservability before observer capability.
+- 6 blocked-session scenarios reach score zero through SessionViability while target values remain present.
+- Equipment changes PracticalTargetValue through ObserverCapability rather than mutating ObservableTargetValue.
+- All confidence score effects are [0.0]; confidence remains metadata only.
+
+## Behaviour That Deserves Review
+
+- ObserverCapability is frequently the broadest limiter; review whether fixture equipment baselines represent intended observing practice.
+- Blocked sessions impose a hard zero opportunity value; this is mathematically coherent but needs Planner policy review before default-on use.
+- Legacy score and NSOM value remain different scales, so raw numeric equality is not a calibration target.
+
+## Potential Calibration Concerns
+
+- ObserverCapability summary uses a flat mean of seven dimensions; future calibration may need target-class-aware weights.
+- Window and chronology components have limited variation in the current deterministic matrix.
+- Deep-sky sky-background sensitivity is visible; future work should verify exact slopes against real observing expectations.
+
+## Component Diagnostics
+
+- Most common limiting factor: observer:observer_capability_summary (108 scenarios).
+- Most common positive factor: opportunity:observing_window_quality (108 scenarios).
+
+| Component | Average | Min | Max | Range |
+| --- | ---: | ---: | ---: | ---: |
+| IntrinsicTargetQuality | 82.6667 | 78.0000 | 88.0000 | 10.0000 |
+| EffectiveObservability | 0.7681 | 0.2457 | 0.9600 | 0.7143 |
+| ObservableTargetValue | 63.3473 | 19.8156 | 81.5130 | 61.6974 |
+| ObserverCapability | 0.6601 | 0.5786 | 0.7728 | 0.1943 |
+| PracticalTargetValue | 41.8528 | 12.8012 | 62.9962 | 50.1949 |
+| SessionViability | 0.7778 | 0.0000 | 0.9000 | 0.9000 |
+| RecommendationConfidence | 0.9549 | 0.1875 | 1.0000 | 0.8125 |
+
+Components that dominate too many scenarios:
+- observer:observer_capability_summary appears in 108 scenarios (100.0000%).
+- sky:atmospheric_transparency appears in 108 scenarios (100.0000%).
+- session:weather_suitability appears in 108 scenarios (100.0000%).
+- session:session_viability appears in 108 scenarios (100.0000%).
+- sky:sky_background appears in 72 scenarios (66.6667%).
+- opportunity:practical_constraints appears in 54 scenarios (50.0000%).
+
+Components that almost never contribute:
+- opportunity:observing_window_quality appears in 108 scenarios (100.0000%) with value range 0.0000.
+
+Opportunities for future calibration:
+- Review whether ObserverCapability should remain a flat mean or become target-class aware.
+- Keep blocked-session handling explicit before enabling NSOM Planner by default.
+- Use real observing logs later to calibrate sky-background and atmospheric transparency slopes.
+- Inspect dominant factors observer:observer_capability_summary, sky:atmospheric_transparency, session:weather_suitability, session:session_viability, sky:sky_background, opportunity:practical_constraints before tuning any weights.
+- Add or expand fixtures for under-used factors opportunity:observing_window_quality.
+
+## Final Recommendations
+
+1. Keep the trace report developer-only until the Planner NSOM path is ready for default-on evaluation.
+2. Review observer capability calibration before changing Planner rankings because it is the broadest limiter in this matrix.
+3. Add more varied chronology/window fixtures before tuning timing components.
+4. Continue treating confidence as metadata only; do not convert it into a score multiplier.

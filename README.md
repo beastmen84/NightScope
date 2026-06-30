@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.7`.
+Versione corrente: `1.4.8`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -93,6 +93,15 @@ Lo step `1.4.7` aggiunge il report developer-facing
 sperimentale con spiegazioni, rank delta, componenti disponibili e componenti
 legacy marcati come non disponibili quando non esposti. Il report non modifica
 i pesi NSOM, non abilita il flag Planner NSOM e non viene collegato al runtime.
+Lo step `1.4.8` aggiunge il report developer-facing
+`docs/NSOM_MATHEMATICAL_TRACE_REPORT.md`: per ogni scenario deterministico
+esistente mostra la pipeline matematica NSOM completa, da
+`IntrinsicTargetQuality` fino al ranking Planner finale, con input, formule,
+calcoli intermedi, fattori positivi/limitanti e confronto legacy limitato ai
+campi realmente disponibili. `RecommendationConfidence` resta fuori dalla
+pipeline matematica come metadato diagnostico; il tooling non abilita Planner
+NSOM, non modifica scoring, non scrive file a runtime, non logga
+automaticamente e non espone QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

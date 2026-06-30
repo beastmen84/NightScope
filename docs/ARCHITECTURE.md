@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.7`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.4.8`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -126,6 +126,19 @@ confidence axes, compares exposed legacy Planner score breakdowns with
 experimental NSOM `ObservationOpportunity` explanations, and marks unavailable
 legacy concepts explicitly. This is not imported by runtime services or QML and
 does not tune weights or enable NSOM Planner by default.
+`1.4.8` adds developer/test tooling in
+`astro_viewer/tools/nsom_mathematical_trace_report.py` plus the static report
+`docs/NSOM_MATHEMATICAL_TRACE_REPORT.md`. The tool reuses the existing
+deterministic comparison matrix and traces the complete NSOM mathematical
+pipeline for every scenario: `IntrinsicTargetQuality`,
+`ObservationEnvironment`, `EffectiveObservability`, `ObservableTargetValue`,
+`ObserverCapability`, `PracticalTargetValue`, observation window, chronology,
+`SessionViability`, `ObservationOpportunity` and final Planner ranking.
+`RecommendationConfidence` is reported outside that pipeline as trust metadata
+with zero score effect. The report also aggregates common limiting/positive
+factors and calibration concerns. It is generated only by explicit developer
+tooling and is not connected to runtime services, QML, automatic logging,
+network work or Planner scoring changes.
 
 ## Dependency Flow
 
