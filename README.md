@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.5`.
+Versione corrente: `1.4.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -81,6 +81,12 @@ finale, componenti NSOM, fattori limitanti/positivi e metadati di confidence in
 forma compatibile JSON. La confidence resta una spiegazione di trust separata e
 non diventa un fattore di score; il flag Planner NSOM resta interno e spento di
 default, senza esposizione QML, scrittura file o logging automatico.
+Lo step `1.4.6` usa comparison ed explanation per una inspection di calibrazione
+developer-only: scenari nominati per cielo brillante, sessione buona/scarsa,
+telescopi piccoli/grandi, condizioni favorevoli a pianeti o deep-sky e target
+Luna producono output JSON con ranking NSOM, riferimento legacy, componenti,
+fattori e aspettativa comportamentale. L'ispezione non abilita il Planner NSOM,
+non scrive file, non logga automaticamente e non espone nulla a QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
