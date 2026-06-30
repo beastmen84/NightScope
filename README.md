@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.3.8e`.
+Versione corrente: `1.4.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -42,6 +42,12 @@ dataset locali derivati e fallback, serializzazione JSON stretta, refresh dello
 snapshot dopo completamento OpenAQ/AOD e nessuna esposizione QML, scrittura file,
 logging automatico, segnale o ricomputazione di Planner/Home/Equipment/Sky
 Compass.
+La serie `1.4` avvia l'implementazione reale del core NSOM come codice interno:
+DTO immutabili per Universe/Sky/Observer/Session/Opportunity/Confidence,
+adattatori dai runtime object correnti e compatibilità JSON stretta. In `1.4.0`
+questo layer non sostituisce ancora ranking Planner, Home, Best Object, Sky
+Compass o Recommendation Engine: la sostituzione dei percorsi legacy parte dai
+commit successivi.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

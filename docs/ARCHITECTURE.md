@@ -64,12 +64,17 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.3.8e`: `AppController` maintains an
-internal NSOM diagnostic snapshot/export for regression tests and architectural
-inspection only. The diagnostic export is not exposed to QML, does not write
-files, does not log automatically, does not emit signals and does not recompute
-Planner, Home, Equipment or Sky Compass output. Confidence remains parallel
-metadata and does not change recommendation score.
+Current implementation status for `1.4.0`: `astro_viewer/app/models/nsom.py`
+contains the first internal immutable NSOM core DTOs for Universe, Sky,
+Observer, Session, Opportunity and Confidence ownership boundaries.
+`astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
+objects and diagnostic snapshots into that core model without network calls or
+heavy recomputation. `AppController` still only maintains an internal NSOM
+diagnostic snapshot/export for regression tests and architectural inspection.
+The diagnostic export is not exposed to QML, does not write files, does not log
+automatically, does not emit signals and does not recompute Planner, Home,
+Equipment or Sky Compass output. Confidence remains parallel metadata and does
+not change recommendation score.
 
 ## Dependency Flow
 

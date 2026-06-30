@@ -1,17 +1,23 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from datetime import date
 from typing import Any
 
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
+    IntrinsicTargetQuality,
+    NsomDiagnosticSnapshot,
     NsomTargetClass,
     ObservableTargetValue,
+    ObservationEnvironment,
     ObservationOpportunity,
+    ObserverCapability,
     ObserverCapabilityProfile,
     PracticalTargetValue,
     RecommendationConfidence,
+    SessionViability,
 )
 
 
@@ -39,6 +45,71 @@ _SOLAR_SYSTEM_IDS = frozenset(
 )
 
 
+def build_intrinsic_target_quality(target: Any) -> IntrinsicTargetQuality:
+    """Build the Universe-owned NSOM target quality from an existing target DTO."""
+
+    object_id = _text_field(target, "id", "object_id")
+    name = _text_field(target, "name")
+    source_fields = tuple(
+        (key, value)
+        for key, value in (
+            ("object_id", object_id),
+            ("name", name),
+            ("object_type", _text_field(target, "object_type", "type")),
+            ("score", _value(target, "score")),
+            ("magnitude", _text_field(target, "magnitude")),
+            ("max_altitude", _text_field(target, "max_altitude")),
+            ("apparent_size", _text_field(target, "apparent_size")),
+            ("visible", _value(target, "visible")),
+        )
+        if value not in (None, "")
+    )
+    return IntrinsicTargetQuality.from_score(
+        _numeric_field(target, "score", default=0.0),
+        object_id=object_id,
+        name=name,
+        target_class=target_class_from_runtime_target(target),
+        altitude=_text_field(target, "max_altitude", "current_altitude"),
+        magnitude=_text_field(target, "magnitude"),
+        angular_size=_text_field(target, "apparent_size"),
+        astronomical_visibility=_bool_or_none(_value(target, "visible")),
+        source_fields=source_fields,
+    )
+
+
+def build_observation_environment(
+    *,
+    weather_summary: Any | None = None,
+    sky_quality: Any | None = None,
+    seeing_transparency: Any | None = None,
+    local_atmosphere: Any | None = None,
+    aod_result: Any | None = None,
+) -> ObservationEnvironment:
+    """Build the Sky-owned NSOM environment from already available runtime data."""
+
+    notes = tuple(
+        item
+        for item in (
+            _note_from_source("sky_quality", sky_quality, "source"),
+            _note_from_source("seeing", seeing_transparency, "source"),
+            _note_from_source("openaq", local_atmosphere, "source"),
+            _note_from_source("aod", aod_result, "source"),
+            _note_from_value("bortle", _value(sky_quality, "bortle_class")),
+            _note_from_value("weather_score", _value(weather_summary, "score_value", "scoreValue")),
+        )
+        if item
+    )
+    return ObservationEnvironment.from_components(
+        sky_quality_source=_text_field(sky_quality, "source"),
+        weather_source=_text_field(weather_summary, "source"),
+        atmosphere_source=_first_text(
+            _text_field(aod_result, "source"),
+            _text_field(local_atmosphere, "source"),
+        ),
+        notes=("nsom:runtime_environment", *notes),
+    )
+
+
 def build_effective_observability_from_breakdown(breakdown: Any) -> EffectiveObservability:
     """Build an NSOM diagnostic observability DTO from an existing breakdown."""
 
@@ -50,7 +121,7 @@ def build_effective_observability_from_breakdown(breakdown: Any) -> EffectiveObs
     transparency_factor = _numeric_field(breakdown, "transparency_factor", default=1.0)
     notes = tuple(_value(breakdown, "diagnostic_notes", default=()) or ())
 
-    return EffectiveObservability.from_components(
+    environment = ObservationEnvironment.from_components(
         lunar_sky_background=_component_from_delta(base_score, moon_penalty),
         static_sky_background=_component_from_delta(base_score, pollution_penalty),
         atmospheric_transparency=_component_from_delta(
@@ -60,6 +131,7 @@ def build_effective_observability_from_breakdown(breakdown: Any) -> EffectiveObs
         ),
         notes=("nsom:from_condition_breakdown", *notes),
     )
+    return EffectiveObservability.from_environment(environment)
 
 
 def build_observable_target_value(
@@ -69,14 +141,15 @@ def build_observable_target_value(
     """Build objective NSOM target value from an already scored target."""
 
     effective = effective_observability or EffectiveObservability.from_components()
+    intrinsic = build_intrinsic_target_quality(target)
     return ObservableTargetValue.from_intrinsic(
-        intrinsic_target_quality=_numeric_field(target, "score", default=0.0),
+        intrinsic_target_quality=intrinsic,
         effective_observability=effective,
-        target_class=target_class_from_runtime_target(target),
+        target_class=intrinsic.target_class,
     )
 
 
-def build_observer_capability_profile_from_recommendation(recommendation: Any) -> ObserverCapabilityProfile:
+def build_observer_capability_profile_from_recommendation(recommendation: Any) -> ObserverCapability:
     """Translate an existing recommendation/presenter output into observer capability diagnostics."""
 
     setup_type = _text_field(recommendation, "setupType", "recommended_setup_type", "equipmentType")
@@ -177,27 +250,65 @@ def build_recommendation_confidence(
     )
 
 
+def build_session_viability(
+    *,
+    weather_summary: Any | None = None,
+    blocking_status: Any | None = None,
+    value: float | None = None,
+) -> SessionViability:
+    """Build session-owned viability metadata without changing target values."""
+
+    weather_score = _value(weather_summary, "score_value", "scoreValue")
+    weather_suitability = (
+        1.0
+        if weather_score is None
+        else _numeric_field(weather_summary, "score_value", default=0.0) / 100.0
+    )
+    blocks_plan = bool(_value(blocking_status, "blocks_plan", "blocksPlan", default=False))
+    state = "blocked" if blocks_plan else "usable"
+    reason = _text_field(blocking_status, "reason", "detail")
+    return SessionViability.from_components(
+        value=value,
+        weather_suitability=weather_suitability,
+        blocking_factor=0.0 if blocks_plan else 1.0,
+        state=state,
+        reason=reason,
+        notes=("nsom:runtime_session",),
+    )
+
+
 def build_observation_opportunity(
     practical_target_value: PracticalTargetValue,
     *,
     observing_window_quality: float = 1.0,
     chronology_fit: float = 1.0,
     session_viability: float = 1.0,
+    session: SessionViability | None = None,
     practical_constraints: float = 1.0,
     confidence: RecommendationConfidence | None = None,
     context: tuple[str, ...] = (),
 ) -> ObservationOpportunity:
     """Build a diagnostic NSOM opportunity without changing upstream DTOs."""
 
+    session_context = session or SessionViability.from_components(value=session_viability)
     return ObservationOpportunity(
         practical_target_value=practical_target_value,
         observing_window_quality=observing_window_quality,
         chronology_fit=chronology_fit,
-        session_viability=session_viability,
+        session_viability=session_context.value,
+        session=session_context,
         practical_constraints=practical_constraints,
         confidence=confidence,
         context=tuple(context),
     )
+
+
+def build_observation_opportunities_from_diagnostic_snapshot(
+    snapshot: NsomDiagnosticSnapshot,
+) -> tuple[ObservationOpportunity, ...]:
+    """Adapt a diagnostic snapshot back into first-class NSOM opportunities."""
+
+    return tuple(target.observation_opportunity for target in snapshot.targets)
 
 
 def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
@@ -224,9 +335,9 @@ def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
 
 
 def _profile_with_option_context(
-    profile: ObserverCapabilityProfile,
+    profile: ObserverCapability,
     setup_options: Any,
-) -> ObserverCapabilityProfile:
+) -> ObserverCapability:
     option_text = " ".join(
         str(_mapping_or_attr(option, "role", default=""))
         + " "
@@ -253,6 +364,25 @@ def _profile_with_option_context(
         practical_comfort=profile.practical_comfort,
         notes=profile.notes,
     )
+
+
+def _bool_or_none(value: Any) -> bool | None:
+    if value is None:
+        return None
+    return bool(value)
+
+
+def _note_from_source(label: str, item: Any | None, *names: str) -> str:
+    source = _text_field(item, *(names or ("source",)))
+    return f"{label}_source={source}" if source else ""
+
+
+def _note_from_value(label: str, value: Any) -> str:
+    return f"{label}={value}" if value not in (None, "") else ""
+
+
+def _first_text(*values: str) -> str:
+    return next((value for value in values if value), "")
 
 
 def _component_from_delta(base_score: float, delta: float, *, base_component: float = 1.0) -> float:
@@ -325,9 +455,10 @@ def _age_days_from_iso_date(value: str, *, today: date | None) -> float | None:
 def _numeric_field(item: Any, *names: str, default: float) -> float:
     value = _value(item, *names, default=default)
     try:
-        return float(value)
+        number = float(value)
     except (TypeError, ValueError):
         return default
+    return number if math.isfinite(number) else default
 
 
 def _text_field(item: Any, *names: str) -> str:

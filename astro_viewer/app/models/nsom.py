@@ -1,12 +1,24 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import math
+from dataclasses import dataclass, field, fields, is_dataclass
 from enum import Enum
 from types import MappingProxyType
-from typing import Mapping
+from typing import ClassVar, Mapping
 
 NsomDiagnosticScalar = str | int | float | bool | None
 NsomDiagnosticFields = tuple[tuple[str, NsomDiagnosticScalar], ...]
+
+
+class NsomOwnershipBoundary(Enum):
+    """NSOM ownership boundaries from the frozen reference model."""
+
+    UNIVERSE = "universe"
+    SKY = "sky"
+    OBSERVER = "observer"
+    SESSION = "session"
+    OPPORTUNITY = "opportunity"
+    CONFIDENCE = "confidence"
 
 
 class NsomTargetClass(Enum):
@@ -109,17 +121,113 @@ NSOM_TARGET_CLASS_PROFILES: Mapping[NsomTargetClass, NsomTargetClassProfile] = M
 )
 
 
-def _clamp_unit(value: float) -> float:
-    return max(0.0, min(1.0, float(value)))
+def _finite_float(value: object, *, default: float = 0.0) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    return number if math.isfinite(number) else default
 
 
-def _clamp_score(value: float) -> float:
-    return max(0.0, min(100.0, float(value)))
+def _clamp_unit(value: object) -> float:
+    return max(0.0, min(1.0, _finite_float(value)))
+
+
+def _clamp_score(value: object) -> float:
+    return max(0.0, min(100.0, _finite_float(value)))
+
+
+@dataclass(frozen=True)
+class IntrinsicTargetQuality:
+    """Universe-owned target value before sky, observer or session context."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.UNIVERSE
+
+    value: float
+    object_id: str = ""
+    name: str = ""
+    target_class: NsomTargetClass | None = None
+    altitude: str = ""
+    magnitude: str = ""
+    angular_size: str = ""
+    astronomical_visibility: bool | None = None
+    source_fields: NsomDiagnosticFields = field(default_factory=tuple)
+
+    @classmethod
+    def from_score(
+        cls,
+        value: object,
+        *,
+        object_id: str = "",
+        name: str = "",
+        target_class: NsomTargetClass | None = None,
+        altitude: str = "",
+        magnitude: str = "",
+        angular_size: str = "",
+        astronomical_visibility: bool | None = None,
+        source_fields: NsomDiagnosticFields = (),
+    ) -> IntrinsicTargetQuality:
+        return cls(
+            value=_clamp_score(value),
+            object_id=object_id,
+            name=name,
+            target_class=target_class,
+            altitude=altitude,
+            magnitude=magnitude,
+            angular_size=angular_size,
+            astronomical_visibility=astronomical_visibility,
+            source_fields=tuple(source_fields),
+        )
+
+
+@dataclass(frozen=True)
+class ObservationEnvironment:
+    """Sky-owned physical environment through which a target is observed."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.SKY
+
+    geometric_visibility: float = 1.0
+    lunar_sky_background: float = 1.0
+    static_sky_background: float = 1.0
+    atmospheric_transparency: float = 1.0
+    horizon_context: float = 1.0
+    sky_quality_source: str = ""
+    weather_source: str = ""
+    atmosphere_source: str = ""
+    notes: tuple[str, ...] = field(default_factory=tuple)
+
+    @classmethod
+    def from_components(
+        cls,
+        *,
+        geometric_visibility: object = 1.0,
+        lunar_sky_background: object = 1.0,
+        static_sky_background: object = 1.0,
+        atmospheric_transparency: object = 1.0,
+        horizon_context: object = 1.0,
+        sky_quality_source: str = "",
+        weather_source: str = "",
+        atmosphere_source: str = "",
+        notes: tuple[str, ...] = (),
+    ) -> ObservationEnvironment:
+        return cls(
+            geometric_visibility=_clamp_unit(geometric_visibility),
+            lunar_sky_background=_clamp_unit(lunar_sky_background),
+            static_sky_background=_clamp_unit(static_sky_background),
+            atmospheric_transparency=_clamp_unit(atmospheric_transparency),
+            horizon_context=_clamp_unit(horizon_context),
+            sky_quality_source=sky_quality_source,
+            weather_source=weather_source,
+            atmosphere_source=atmosphere_source,
+            notes=tuple(notes),
+        )
 
 
 @dataclass(frozen=True)
 class EffectiveObservability:
     """Objective fraction of intrinsic target quality observable under the sky."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.SKY
 
     value: float
     geometric_visibility: float = 1.0
@@ -127,6 +235,7 @@ class EffectiveObservability:
     static_sky_background: float = 1.0
     atmospheric_transparency: float = 1.0
     horizon_context: float = 1.0
+    environment: ObservationEnvironment | None = None
     notes: tuple[str, ...] = field(default_factory=tuple)
 
     @classmethod
@@ -140,12 +249,24 @@ class EffectiveObservability:
         horizon_context: float = 1.0,
         notes: tuple[str, ...] = (),
     ) -> EffectiveObservability:
+        environment = ObservationEnvironment.from_components(
+            geometric_visibility=geometric_visibility,
+            lunar_sky_background=lunar_sky_background,
+            static_sky_background=static_sky_background,
+            atmospheric_transparency=atmospheric_transparency,
+            horizon_context=horizon_context,
+            notes=notes,
+        )
+        return cls.from_environment(environment)
+
+    @classmethod
+    def from_environment(cls, environment: ObservationEnvironment) -> EffectiveObservability:
         components = (
-            _clamp_unit(geometric_visibility),
-            _clamp_unit(lunar_sky_background),
-            _clamp_unit(static_sky_background),
-            _clamp_unit(atmospheric_transparency),
-            _clamp_unit(horizon_context),
+            environment.geometric_visibility,
+            environment.lunar_sky_background,
+            environment.static_sky_background,
+            environment.atmospheric_transparency,
+            environment.horizon_context,
         )
         value = 1.0
         for component in components:
@@ -157,7 +278,8 @@ class EffectiveObservability:
             static_sky_background=components[2],
             atmospheric_transparency=components[3],
             horizon_context=components[4],
-            notes=tuple(notes),
+            environment=environment,
+            notes=environment.notes,
         )
 
 
@@ -165,31 +287,45 @@ class EffectiveObservability:
 class ObservableTargetValue:
     """Target value after intrinsic quality meets the observation environment."""
 
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.SKY
+
     intrinsic_target_quality: float
     effective_observability: EffectiveObservability
     value: float
     target_class: NsomTargetClass | None = None
+    intrinsic_target: IntrinsicTargetQuality | None = None
 
     @classmethod
     def from_intrinsic(
         cls,
         *,
-        intrinsic_target_quality: float,
+        intrinsic_target_quality: float | IntrinsicTargetQuality,
         effective_observability: EffectiveObservability,
         target_class: NsomTargetClass | None = None,
     ) -> ObservableTargetValue:
-        intrinsic = _clamp_score(intrinsic_target_quality)
+        intrinsic_target = (
+            intrinsic_target_quality
+            if isinstance(intrinsic_target_quality, IntrinsicTargetQuality)
+            else IntrinsicTargetQuality.from_score(
+                intrinsic_target_quality,
+                target_class=target_class,
+            )
+        )
+        intrinsic = intrinsic_target.value
         return cls(
             intrinsic_target_quality=intrinsic,
             effective_observability=effective_observability,
             value=_clamp_score(intrinsic * _clamp_unit(effective_observability.value)),
-            target_class=target_class,
+            target_class=target_class or intrinsic_target.target_class,
+            intrinsic_target=intrinsic_target,
         )
 
 
 @dataclass(frozen=True)
-class ObserverCapabilityProfile:
+class ObserverCapability:
     """Multidimensional capability profile for a specific observer."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.OBSERVER
 
     light_grasp: float = 1.0
     resolution: float = 1.0
@@ -227,12 +363,17 @@ class ObserverCapabilityProfile:
         return _clamp_unit(weighted_total / weight_sum)
 
 
+ObserverCapabilityProfile = ObserverCapability
+
+
 @dataclass(frozen=True)
 class PracticalTargetValue:
     """Value a specific observer can realistically exploit."""
 
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.OBSERVER
+
     observable_target_value: ObservableTargetValue
-    observer_capability: ObserverCapabilityProfile
+    observer_capability: ObserverCapability
     observer_capability_summary: float
     value: float
 
@@ -241,7 +382,7 @@ class PracticalTargetValue:
         cls,
         *,
         observable_target_value: ObservableTargetValue,
-        observer_capability: ObserverCapabilityProfile,
+        observer_capability: ObserverCapability,
         capability_summary: float | None = None,
     ) -> PracticalTargetValue:
         summary = (
@@ -260,6 +401,8 @@ class PracticalTargetValue:
 @dataclass(frozen=True)
 class RecommendationConfidence:
     """Parallel confidence dimension; it does not modify target value."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.CONFIDENCE
 
     weather_confidence: float | None = None
     aod_confidence: float | None = None
@@ -289,24 +432,65 @@ class RecommendationConfidence:
 
 
 @dataclass(frozen=True)
+class SessionViability:
+    """Session-owned usability context; it does not mutate target value."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.SESSION
+
+    value: float = 1.0
+    weather_suitability: float = 1.0
+    blocking_factor: float = 1.0
+    state: str = "usable"
+    reason: str = ""
+    notes: tuple[str, ...] = field(default_factory=tuple)
+
+    @classmethod
+    def from_components(
+        cls,
+        *,
+        value: object | None = None,
+        weather_suitability: object = 1.0,
+        blocking_factor: object = 1.0,
+        state: str = "usable",
+        reason: str = "",
+        notes: tuple[str, ...] = (),
+    ) -> SessionViability:
+        weather = _clamp_unit(weather_suitability)
+        blocking = _clamp_unit(blocking_factor)
+        session_value = _clamp_unit(value) if value is not None else weather * blocking
+        return cls(
+            value=session_value,
+            weather_suitability=weather,
+            blocking_factor=blocking,
+            state=state,
+            reason=reason,
+            notes=tuple(notes),
+        )
+
+
+@dataclass(frozen=True)
 class ObservationOpportunity:
     """Concrete planning candidate built from target, observer, time and session."""
+
+    owner: ClassVar[NsomOwnershipBoundary] = NsomOwnershipBoundary.OPPORTUNITY
 
     practical_target_value: PracticalTargetValue
     observing_window_quality: float = 1.0
     chronology_fit: float = 1.0
     session_viability: float = 1.0
+    session: SessionViability | None = None
     practical_constraints: float = 1.0
     confidence: RecommendationConfidence | None = None
     context: tuple[str, ...] = field(default_factory=tuple)
 
     @property
     def value(self) -> float:
+        session_value = self.session.value if self.session is not None else self.session_viability
         return _clamp_score(
             self.practical_target_value.value
             * _clamp_unit(self.observing_window_quality)
             * _clamp_unit(self.chronology_fit)
-            * _clamp_unit(self.session_viability)
+            * _clamp_unit(session_value)
             * _clamp_unit(self.practical_constraints)
         )
 
@@ -319,7 +503,7 @@ class NsomTargetDiagnostic:
     name: str
     source: str
     observable_target_value: ObservableTargetValue
-    observer_capability: ObserverCapabilityProfile
+    observer_capability: ObserverCapability
     practical_target_value: PracticalTargetValue
     observation_opportunity: ObservationOpportunity
     runtime_fields: NsomDiagnosticFields = field(default_factory=tuple)
@@ -336,3 +520,26 @@ class NsomDiagnosticSnapshot:
     confidence_inputs: NsomDiagnosticFields = field(default_factory=tuple)
     metadata: NsomDiagnosticFields = field(default_factory=tuple)
     notes: tuple[str, ...] = field(default_factory=tuple)
+
+
+def nsom_to_json_compatible(value: object) -> object:
+    """Return a strict-JSON-compatible projection of internal NSOM objects."""
+
+    if value is None or isinstance(value, str | bool):
+        return value
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, Enum):
+        return value.value
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            field_info.name: nsom_to_json_compatible(getattr(value, field_info.name))
+            for field_info in fields(value)
+        }
+    if isinstance(value, Mapping):
+        return {str(key): nsom_to_json_compatible(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [nsom_to_json_compatible(item) for item in value]
+    return str(value)
