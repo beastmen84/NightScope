@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.9`.
+Versione corrente: `1.5.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -121,6 +121,15 @@ background, Moon background, SessionViability, observing window, horizon e
 confidence. Il report traccia expected/reported per le formule ricostruibili e
 mantiene adapter-derived/unavailable dove gli input non sono sufficienti. Non
 cambia scoring, ranking, Planner runtime, UI o QML.
+Lo step `1.5.0` aggiunge una review developer-only di `ObserverCapability`
+prima di qualsiasi tuning: fixture controllate isolano aperture-only,
+focal-length-only, mount/tracking-only, field-of-view-only e practical
+comfort/setup-only su pianeta, Luna, galassia, nebulosa diffusa, ammasso aperto
+e globulare. La review conferma che `ObservableTargetValue` resta invariato e
+che il flat mean corrente produce delta di summary uniformi tra classi target;
+per questo la pesatura target-specific resta un punto da decidere prima della
+calibrazione. Nessun peso viene modificato e il Planner NSOM resta spento di
+default.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

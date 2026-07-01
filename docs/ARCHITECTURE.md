@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.9`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.0`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -159,6 +159,17 @@ geometric/horizon visibility, observing-window quality, observer-capability
 summary and SessionViability. Separate sensitivity fixtures isolate one
 component at a time and assert direction plus ownership without tuning weights,
 changing Planner scoring or enabling the NSOM Planner flag.
+`1.5.0` adds a developer-only ObserverCapability target-specific review before
+calibration. `astro_viewer/tools/nsom_observer_capability_review.py` builds
+JSON-compatible fixtures that isolate aperture-only, focal-length-only,
+mount/tracking-only, field-of-view-only and practical-comfort/setup-only
+changes across planet, Moon, galaxy, diffuse nebula, open cluster and globular
+cluster targets. The review is also summarized in the mathematical trace
+report. It keeps sky/session inputs stable, verifies that observer changes do
+not mutate `ObservableTargetValue`, and records that the current flat
+`ObserverCapability.summary_for_planning()` produces uniform observer-summary
+deltas across target classes. This is evidence for a future target-specific
+weighting decision, not a calibration or scoring change.
 
 ## Dependency Flow
 

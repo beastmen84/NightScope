@@ -17591,6 +17591,51 @@ Legacy values below are limited to fields exposed by `PlannerScoringService.scor
 - Controlled sensitivity fixtures isolate ObserverCapability, sky_background, moon_background, SessionViability, observing_window_quality and horizon_context before any calibration work.
 - Sensitivity assertions check direction and ownership only; they are not weight tuning and do not treat report frequency counts as dominance evidence.
 
+## ObserverCapability Target-Specific Review
+
+This developer-only review isolates observer changes across planet, Moon, galaxy, diffuse nebula, open cluster and globular cluster fixtures while keeping sky/session inputs stable. Legacy scores are not used as expected output.
+
+Findings from the current flat summary:
+- The current flat mean produces the same ObserverCapability summary delta for each isolated observer change across all target classes.
+- PracticalTargetValue deltas vary only because ObservableTargetValue differs by target class; the observer multiplier itself is target-class neutral.
+- Focal length is mixed in the current model: it improves magnification_range while reducing field_of_view, and the flat mean nets those dimensions uniformly.
+- Practical comfort can be isolated in the core DTO but not through the current Planner telescope adapter.
+- Target-specific weighting review: `recommended_before_calibration`.
+- Confidence score delta in the review check: 0.0000.
+
+| Target Class | Observer Change | Representability | Summary Delta | Practical Delta | Observable Unchanged | Future Weighting Note |
+| --- | --- | --- | ---: | ---: | --- | --- |
+| planet | aperture_only | planner_runtime_telescope | 0.0664 | 5.0220 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| planet | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6545 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| planet | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.3200 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| planet | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.6200 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| planet | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.7000 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+| moon | aperture_only | planner_runtime_telescope | 0.0664 | 5.0220 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| moon | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6545 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| moon | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.3200 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| moon | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.6200 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| moon | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.7000 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+| galaxy | aperture_only | planner_runtime_telescope | 0.0664 | 4.8456 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| galaxy | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6316 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| galaxy | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.1683 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| galaxy | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.5631 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| galaxy | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.6052 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+| diffuse_nebula | aperture_only | planner_runtime_telescope | 0.0664 | 4.8708 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| diffuse_nebula | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6348 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| diffuse_nebula | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.1900 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| diffuse_nebula | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.5712 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| diffuse_nebula | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.6187 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+| open_cluster | aperture_only | planner_runtime_telescope | 0.0664 | 4.9615 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| open_cluster | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6467 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| open_cluster | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.2680 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| open_cluster | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.6005 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| open_cluster | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.6675 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+| globular_cluster | aperture_only | planner_runtime_telescope | 0.0664 | 4.9313 | True | Review whether light grasp and resolution should have the same target-class weight for planets, Moon and deep-sky targets. |
+| globular_cluster | focal_length_only | planner_runtime_telescope | 0.0087 | 0.6427 | True | Review whether field_of_view and magnification_range should offset each other equally for extended targets and compact targets. |
+| globular_cluster | mount_tracking_only | planner_runtime_telescope | 0.0571 | 4.2420 | True | Review whether tracking should matter uniformly across bright solar-system targets and faint deep-sky targets. |
+| globular_cluster | field_of_view_only | planner_runtime_setup_options | 0.0214 | 1.5907 | True | Review whether wide-field setup should matter more for diffuse nebulae and open clusters than for planets. |
+| globular_cluster | practical_comfort_setup_only | core_observer_capability_only | 0.0357 | 2.6512 | True | Review whether setup comfort should remain a general practicality factor or vary by target workflow. |
+
 ## Component Diagnostics
 
 - Most common limiting factor: observer:observer_capability_summary (120 scenarios).

@@ -28,6 +28,8 @@ def test_trace_report_data_is_deterministic_and_strict_json() -> None:
     assert first["metadata"]["scenario_group_count"] == 20
     assert first["metadata"]["confidence_role"] == "metadata_only_outside_mathematical_pipeline"
     assert first["metadata"]["nsom_planner_scoring_enabled"] is False
+    assert first["observer_capability_review"]["metadata"]["developer_only"] is True
+    assert first["observer_capability_review"]["metadata"]["legacy_score_used_as_expected_output"] is False
 
 
 def test_every_trace_has_complete_pipeline_stage_details() -> None:
@@ -203,6 +205,7 @@ def test_trace_markdown_contains_required_sections_and_all_scenarios() -> None:
     assert "## Behaviour That Deserves Review" in markdown
     assert "## Potential Calibration Concerns" in markdown
     assert "## Sensitivity Validation" in markdown
+    assert "## ObserverCapability Target-Specific Review" in markdown
     assert "## Component Diagnostics" in markdown
     assert "## Final Recommendations" in markdown
     assert markdown.count("### G") >= data["metadata"]["scenario_count"]

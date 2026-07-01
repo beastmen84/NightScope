@@ -530,6 +530,13 @@ obtain very different results from the same `ObservableTargetValue`.
 a scalar summary for Planner, but that scalar is a projection of the capability
 profile, not the capability itself.
 
+Implementation note for 1.5.0: the current experimental Planner path still uses
+a flat mean for `ObserverCapability.summary_for_planning()`. The developer-only
+ObserverCapability review fixtures show that isolated aperture, focal length,
+tracking, field-of-view and practical-comfort changes produce uniform observer
+summary deltas across target classes. That is useful evidence for reviewing
+`Q_target` before calibration; it is not a weight tuning change.
+
 Examples:
 
 - binocular-only profile;

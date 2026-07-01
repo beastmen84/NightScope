@@ -7,6 +7,7 @@ from statistics import mean
 
 from astro_viewer.app.models.nsom import NSOM_TARGET_CLASS_PROFILES, NsomTargetClass, nsom_to_json_compatible
 from astro_viewer.app.services.night_planner_service import NightPlannerService
+from astro_viewer.tools.nsom_observer_capability_review import generate_observer_capability_review_data
 from astro_viewer.tools.nsom_planner_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     UNAVAILABLE,
@@ -42,6 +43,7 @@ AVERAGE_COMPONENTS = (
 
 def generate_trace_report_data() -> dict[str, object]:
     comparison = generate_report_data()
+    observer_review = generate_observer_capability_review_data()
     traced_groups = []
     traced_rows = []
     for group in comparison["scenario_groups"]:
@@ -73,6 +75,7 @@ def generate_trace_report_data() -> dict[str, object]:
             "confidence_role": "metadata_only_outside_mathematical_pipeline",
         },
         "scenario_groups": tuple(traced_groups),
+        "observer_capability_review": observer_review,
         "component_diagnostics": _component_diagnostics(traced_rows),
         "summary": _summary(traced_rows),
     }
@@ -84,6 +87,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     metadata = report["metadata"]
     rows = _rows(report)
     diagnostics = report["component_diagnostics"]
+    observer_review = report["observer_capability_review"]
     summary = report["summary"]
 
     lines = [
@@ -226,6 +230,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     for item in summary["sensitivity_validation"]:
         lines.append(f"- {item}")
 
+    lines.extend(_observer_capability_review_markdown(observer_review))
+
     lines.extend(
         [
             "",
@@ -286,6 +292,50 @@ def write_markdown_report(path: Path = TRACE_REPORT_PATH) -> Path:
 
     path.write_text(render_markdown_report(), encoding="utf-8")
     return path
+
+
+def _observer_capability_review_markdown(review: dict[str, object]) -> list[str]:
+    aggregate = review["aggregate_review"]
+    lines = [
+        "",
+        "## ObserverCapability Target-Specific Review",
+        "",
+        (
+            "This developer-only review isolates observer changes across planet, Moon, galaxy, "
+            "diffuse nebula, open cluster and globular cluster fixtures while keeping sky/session "
+            "inputs stable. Legacy scores are not used as expected output."
+        ),
+        "",
+        "Findings from the current flat summary:",
+    ]
+    for item in aggregate["flat_mean_findings"]:
+        lines.append(f"- {item}")
+    lines.extend(
+        [
+            f"- Target-specific weighting review: `{aggregate['target_specific_weighting_review']}`.",
+            f"- Confidence score delta in the review check: {_fmt(review['confidence_neutrality']['score_delta'])}.",
+            "",
+            "| Target Class | Observer Change | Representability | Summary Delta | Practical Delta | Observable Unchanged | Future Weighting Note |",
+            "| --- | --- | --- | ---: | ---: | --- | --- |",
+        ]
+    )
+    for row in review["cases"]:
+        lines.append(
+            "| "
+            + " | ".join(
+                (
+                    str(row["target_class"]),
+                    str(row["changed_observer_dimension"]),
+                    str(row["representability"]),
+                    _fmt(row["observer_capability_summary_delta"]),
+                    _fmt(row["practical_target_value_delta"]),
+                    str(row["observable_target_value_unchanged"]),
+                    str(row["notes_for_future_target_specific_weighting"]),
+                )
+            )
+            + " |"
+        )
+    return lines
 
 
 def _trace_scenario(group: dict[str, object], row: dict[str, object]) -> dict[str, object]:
