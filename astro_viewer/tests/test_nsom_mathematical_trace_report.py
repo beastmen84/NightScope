@@ -44,6 +44,9 @@ def test_every_trace_has_complete_pipeline_stage_details() -> None:
             assert stage["formula"]
             assert stage["intermediate_calculation"]
             assert "sub_formulas" in stage
+            for formula in stage["sub_formulas"]:
+                assert "expected_output" in formula
+                assert "matches_reported_output" in formula
             assert stage["outputs"]
             assert "dominant_positive_contributors" in stage
             assert "dominant_limiting_contributors" in stage
@@ -199,6 +202,7 @@ def test_trace_markdown_contains_required_sections_and_all_scenarios() -> None:
     assert "## Behaviour That Matches The NSOM Model" in markdown
     assert "## Behaviour That Deserves Review" in markdown
     assert "## Potential Calibration Concerns" in markdown
+    assert "## Sensitivity Validation" in markdown
     assert "## Component Diagnostics" in markdown
     assert "## Final Recommendations" in markdown
     assert markdown.count("### G") >= data["metadata"]["scenario_count"]

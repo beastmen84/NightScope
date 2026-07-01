@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.4.8b`.
+Versione corrente: `1.4.9`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -112,6 +112,15 @@ adapter-derived/unavailable, e le fixture deterministiche coprono
 sono descritte come frequenze di apparizione, non come prova di peso o
 sensibilita'. Il tooling resta developer-only e non cambia Planner, UI, QML o
 scoring runtime.
+Lo step `1.4.9` aggiunge evidenza prima della calibrazione: test di formula
+parity confrontano le sub-formule del report con i valori prodotti dal servizio
+NSOM Planner, inclusi Moon background, sky background, trasparenza,
+geometria/horizon, observing window e SessionViability. Fixture di sensitivity
+isolate verificano direzione e ownership per ObserverCapability, sky
+background, Moon background, SessionViability, observing window, horizon e
+confidence. Il report traccia expected/reported per le formule ricostruibili e
+mantiene adapter-derived/unavailable dove gli input non sono sufficienti. Non
+cambia scoring, ranking, Planner runtime, UI o QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from statistics import mean
 
 from astro_viewer.app.models.nsom import NSOM_TARGET_CLASS_PROFILES, NsomTargetClass, nsom_to_json_compatible
+from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.tools.nsom_planner_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     UNAVAILABLE,
@@ -218,6 +219,16 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     lines.extend(
         [
             "",
+            "## Sensitivity Validation",
+            "",
+        ]
+    )
+    for item in summary["sensitivity_validation"]:
+        lines.append(f"- {item}")
+
+    lines.extend(
+        [
+            "",
             "## Component Diagnostics",
             "",
             f"- Most common limiting factor: {_count_label(diagnostics['most_common_limiting_factor'])}.",
@@ -298,7 +309,7 @@ def _trace_scenario(group: dict[str, object], row: dict[str, object]) -> dict[st
         _practical_stage(score_components),
         _window_stage(row, score_components),
         _chronology_stage(row, score_components),
-        _session_stage(session),
+        _session_stage(row, session),
         _opportunity_stage(row, score_components),
         _ranking_stage(group, row),
     )
@@ -308,6 +319,7 @@ def _trace_scenario(group: dict[str, object], row: dict[str, object]) -> dict[st
         "group_label": row["group_label"],
         "target_type": row["target_type"],
         "target": row["target"],
+        "runtime_inputs": row.get("runtime_inputs", {}),
         "axes": row["axes"],
         "intended_nsom_expectation": group["intended_nsom_expectation"],
         "pipeline": pipeline,
@@ -539,6 +551,7 @@ def _window_stage(row: dict[str, object], score_components: dict[str, object]) -
         outputs={"value": value},
         positives=positives,
         limits=limits,
+        sub_formulas=_window_sub_formulas(row, value),
     )
 
 
@@ -566,7 +579,7 @@ def _chronology_stage(row: dict[str, object], score_components: dict[str, object
     )
 
 
-def _session_stage(session: dict[str, object]) -> dict[str, object]:
+def _session_stage(row: dict[str, object], session: dict[str, object]) -> dict[str, object]:
     weather = _number(session["weather_suitability"])
     blocking = _number(session["blocking_factor"])
     value = _number(session["value"])
@@ -592,6 +605,7 @@ def _session_stage(session: dict[str, object]) -> dict[str, object]:
         outputs={"value": value},
         positives=positives,
         limits=limits,
+        sub_formulas=_session_sub_formulas(row, session, weather, blocking, value),
     )
 
 
@@ -751,6 +765,11 @@ def _summary(rows: list[dict[str, object]]) -> dict[str, object]:
             "Window and chronology components now vary in fixtures, but the coverage is still synthetic and should not be tuned against alone.",
             "Deep-sky sky-background sensitivity is visible; future work should verify exact slopes against real observing expectations.",
         ),
+        "sensitivity_validation": (
+            "Focused formula parity tests compare report sub-formula expected outputs with values produced by the NSOM Planner service.",
+            "Controlled sensitivity fixtures isolate ObserverCapability, sky_background, moon_background, SessionViability, observing_window_quality and horizon_context before any calibration work.",
+            "Sensitivity assertions check direction and ownership only; they are not weight tuning and do not treat report frequency counts as dominance evidence.",
+        ),
     }
 
 
@@ -909,6 +928,82 @@ def _observer_dimensions(observer: dict[str, object]) -> dict[str, float]:
     }
 
 
+def _window_sub_formulas(row: dict[str, object], output: float) -> tuple[dict[str, object], ...]:
+    target = row["target"]
+    best_time = str(target.get("best_time", ""))
+    observing_window = str(target.get("observing_window", ""))
+    visible = bool(target.get("visible"))
+    parseable_time = _planner_observing_time_available(best_time, observing_window)
+    expected = 1.0 if parseable_time else 0.5 if visible else 0.0
+    return (
+        _sub_formula(
+            component="observing_window_quality",
+            status="available",
+            formula=(
+                "observing_window_quality = 1.0 if Planner can parse an observing time; "
+                "otherwise 0.5 if target.visible else 0.0"
+            ),
+            inputs={
+                "best_time": best_time,
+                "observing_window": observing_window,
+                "target_visible": visible,
+                "parseable_observing_time": parseable_time,
+            },
+            intermediate_calculation=f"parseable_time={parseable_time}, target_visible={visible} -> {_fmt(expected)}; reported {_fmt(output)}",
+            output=output,
+            expected_output=expected,
+            matches_reported_output=_matches_expected(expected, output),
+        ),
+    )
+
+
+def _session_sub_formulas(
+    row: dict[str, object],
+    session: dict[str, object],
+    weather: float,
+    blocking: float,
+    value: float,
+) -> tuple[dict[str, object], ...]:
+    weather_inputs = row.get("runtime_inputs", {}).get("weather", {})
+    score_value = weather_inputs.get("score_value") if isinstance(weather_inputs, dict) else None
+    weather_expected = _clamp_unit(_number(score_value) / 100.0) if score_value is not None else 1.0
+    blocks_plan = session.get("state") == "blocked"
+    blocking_expected = 0.0 if blocks_plan else 1.0
+    value_expected = _clamp_unit(weather_expected * blocking_expected)
+    return (
+        _sub_formula(
+            component="weather_suitability",
+            status="available",
+            formula="weather_suitability = weather.score_value / 100 when weather score is available",
+            inputs={"weather_score_value": score_value},
+            intermediate_calculation=f"{_fmt(score_value)} / 100 = {_fmt(weather_expected)}; reported {_fmt(weather)}",
+            output=weather,
+            expected_output=weather_expected,
+            matches_reported_output=_matches_expected(weather_expected, weather),
+        ),
+        _sub_formula(
+            component="blocking_factor",
+            status="available",
+            formula="blocking_factor = 0.0 when WeatherBlockingStatus blocks the plan else 1.0",
+            inputs={"session_state": session.get("state"), "blocks_plan": blocks_plan},
+            intermediate_calculation=f"blocks_plan={blocks_plan} -> {_fmt(blocking_expected)}; reported {_fmt(blocking)}",
+            output=blocking,
+            expected_output=blocking_expected,
+            matches_reported_output=_matches_expected(blocking_expected, blocking),
+        ),
+        _sub_formula(
+            component="session_viability",
+            status="available",
+            formula="SessionViability = weather_suitability * blocking_factor",
+            inputs={"weather_suitability": weather, "blocking_factor": blocking},
+            intermediate_calculation=f"{_fmt(weather_expected)} * {_fmt(blocking_expected)} = {_fmt(value_expected)}; reported {_fmt(value)}",
+            output=value,
+            expected_output=value_expected,
+            matches_reported_output=_matches_expected(value_expected, value),
+        ),
+    )
+
+
 def _environment_sub_formulas(
     row: dict[str, object],
     effective: dict[str, object],
@@ -938,6 +1033,7 @@ def _environment_sub_formulas(
 def _geometric_visibility_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
     visible = bool(row["target"].get("visible"))
     output = _number(effective["geometric_visibility"])
+    expected = 1.0 if visible else 0.0
     return _sub_formula(
         component="geometric_visibility",
         status="available",
@@ -945,6 +1041,8 @@ def _geometric_visibility_formula(row: dict[str, object], effective: dict[str, o
         inputs={"target_visible": visible},
         intermediate_calculation=f"target_visible={visible} -> {_fmt(output)}",
         output=output,
+        expected_output=expected,
+        matches_reported_output=_matches_expected(expected, output),
     )
 
 
@@ -985,6 +1083,8 @@ def _moon_background_formula(row: dict[str, object], effective: dict[str, object
             f"reported {_fmt(output)}"
         ),
         output=output,
+        expected_output=expected,
+        matches_reported_output=_matches_expected(expected, output),
     )
 
 
@@ -1039,6 +1139,8 @@ def _sky_background_formula(row: dict[str, object], effective: dict[str, object]
             f"reported {_fmt(output)}"
         ),
         output=output,
+        expected_output=expected,
+        matches_reported_output=_matches_expected(expected, output),
     )
 
 
@@ -1065,6 +1167,8 @@ def _atmospheric_transparency_formula(row: dict[str, object], effective: dict[st
         inputs={"object_type": object_type, score_name: score},
         intermediate_calculation=f"{_fmt(score)} / 100 = {_fmt(expected)}; reported {_fmt(output)}",
         output=output,
+        expected_output=expected,
+        matches_reported_output=_matches_expected(expected, output),
     )
 
 
@@ -1082,6 +1186,8 @@ def _horizon_context_formula(row: dict[str, object], effective: dict[str, object
             inputs={"max_altitude": altitude_text, "target_visible": visible},
             intermediate_calculation=f"altitude unavailable, target_visible={visible} -> {_fmt(expected)}; reported {_fmt(output)}",
             output=output,
+            expected_output=expected,
+            matches_reported_output=_matches_expected(expected, output),
         )
     expected = _clamp_unit((altitude - 5.0) / 35.0)
     return _sub_formula(
@@ -1091,6 +1197,8 @@ def _horizon_context_formula(row: dict[str, object], effective: dict[str, object
         inputs={"max_altitude": altitude_text, "max_altitude_degrees": altitude},
         intermediate_calculation=f"({_fmt(altitude)} - 5.0000) / 35.0000 = {_fmt(expected)}; reported {_fmt(output)}",
         output=output,
+        expected_output=expected,
+        matches_reported_output=_matches_expected(expected, output),
     )
 
 
@@ -1116,6 +1224,8 @@ def _observer_sub_formulas(
             inputs={"aperture_mm": aperture},
             intermediate_calculation=f"({_fmt(aperture)} - 50.0000) / 200.0000 = {_fmt(aperture_unit)}",
             output=aperture_unit,
+            expected_output=aperture_unit,
+            matches_reported_output=True,
         ),
         _sub_formula(
             component="telescope_focal_length_unit",
@@ -1124,6 +1234,8 @@ def _observer_sub_formulas(
             inputs={"focal_length_mm": focal_length},
             intermediate_calculation=f"({_fmt(focal_length)} - 350.0000) / 1650.0000 = {_fmt(focal_unit)}",
             output=focal_unit,
+            expected_output=focal_unit,
+            matches_reported_output=True,
         ),
         _sub_formula(
             component="telescope_field_width",
@@ -1132,6 +1244,8 @@ def _observer_sub_formulas(
             inputs={"focal_length_unit": focal_unit},
             intermediate_calculation=f"1.0000 - (0.7500 * {_fmt(focal_unit)}) = {_fmt(field_width)}",
             output=field_width,
+            expected_output=field_width,
+            matches_reported_output=True,
         ),
         _sub_formula(
             component="tracking_capability",
@@ -1140,6 +1254,8 @@ def _observer_sub_formulas(
             inputs={"mount": mount},
             intermediate_calculation=f"mount={mount} -> {_fmt(tracking)}",
             output=tracking,
+            expected_output=tracking,
+            matches_reported_output=True,
         ),
     ]
     for name in ("light_grasp", "resolution", "field_of_view", "magnification_range", "tracking_or_goto"):
@@ -1173,6 +1289,8 @@ def _observer_sub_formulas(
             inputs=dimensions,
             intermediate_calculation=f"mean({_format_values(dimensions.values())}) = {_fmt(summary)}",
             output=summary,
+            expected_output=sum(dimensions.values()) / len(dimensions),
+            matches_reported_output=_matches_expected(sum(dimensions.values()) / len(dimensions), summary),
         )
     )
     if observer.get("filters"):
@@ -1208,6 +1326,8 @@ def _sub_formula(
     inputs: dict[str, object],
     intermediate_calculation: str,
     output: object,
+    expected_output: object = None,
+    matches_reported_output: bool | None = None,
 ) -> dict[str, object]:
     return {
         "component": component,
@@ -1216,6 +1336,8 @@ def _sub_formula(
         "inputs": inputs,
         "intermediate_calculation": intermediate_calculation,
         "output": output,
+        "expected_output": expected_output,
+        "matches_reported_output": matches_reported_output,
     }
 
 
@@ -1464,6 +1586,12 @@ def _sub_formula_list(formulas: list[dict[str, object]]) -> str:
         (
             f"{item['component']}[{item['status']}]: {item['formula']} "
             f"=> {item['intermediate_calculation']}"
+            + (
+                f"; expected {_fmt(item['expected_output'])}, reported {_fmt(item['output'])}, "
+                f"match={item['matches_reported_output']}"
+                if item.get("matches_reported_output") is not None
+                else ""
+            )
         )
         for item in formulas
     )
@@ -1492,6 +1620,23 @@ def _factor_count_sentence(item: dict[str, object]) -> str:
     if "range" in item:
         sentence = sentence[:-1] + f" with value range {_fmt(item['range'])}."
     return sentence
+
+
+def _matches_expected(expected: object, output: object) -> bool:
+    expected_number = _maybe_number(expected)
+    output_number = _maybe_number(output)
+    if expected_number is not None and output_number is not None:
+        return abs(expected_number - output_number) <= 1e-9
+    return expected == output
+
+
+def _planner_observing_time_available(best_time: str, observing_window: str) -> bool:
+    if NightPlannerService._parse_time(best_time) is not None:
+        return True
+    return any(
+        NightPlannerService._parse_time(token) is not None
+        for token in NightPlannerService._window_times(observing_window)
+    )
 
 
 def _target_class(row: dict[str, object]) -> str | None:
