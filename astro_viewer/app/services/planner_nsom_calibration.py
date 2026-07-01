@@ -13,6 +13,7 @@ from astro_viewer.app.services.planner_nsom_comparison import PlannerNsomCompari
 
 CALIBRATION_SCENARIO_NAMES = (
     "bright_sky",
+    "blocked_session",
     "poor_session",
     "good_session",
     "small_telescope",
@@ -32,6 +33,34 @@ CALIBRATION_SCORE_COMPONENTS = (
     "chronology_fit",
     "practical_constraints",
 )
+
+CALIBRATION_REVIEW_STATUSES = ("expected", "review", "warning")
+
+CALIBRATION_REVIEW_THRESHOLDS = {
+    "large_rank_delta_review": 3,
+    "large_rank_delta_warning": 5,
+    "protected_target_min_effective_observability": 0.75,
+    "deep_sky_bright_sky_max_effective_observability": 0.75,
+    "observer_q_target_review": 0.65,
+    "observer_q_target_warning": 0.50,
+    "observer_dominance_review_share": 0.75,
+    "observer_dominance_warning_share": 0.90,
+    "missing_window_expected_quality": 0.50,
+    "invisible_target_expected_quality": 0.0,
+}
+
+BRIGHT_SKY_PROFILES = {
+    "bright_sky",
+    "strong_moon",
+    "high_moon",
+    "high_light_pollution",
+    "planet_favouring",
+    "planet_favouring_conditions",
+    "moon_target_case",
+}
+
+PROTECTED_TARGET_TYPES = {"planet", "moon"}
+BRIGHT_SKY_SENSITIVE_TARGET_TYPES = {"galaxy", "diffuse_nebula"}
 
 
 @dataclass(frozen=True)
@@ -78,6 +107,8 @@ class PlannerNsomCalibrationInspectionService:
                 "dominant_limiting_factor_summary": _dominant_limiting_factor_summary(
                     scenario_outputs
                 ),
+                "calibration_review_summary": _aggregate_calibration_review(scenario_outputs),
+                "calibration_review_thresholds": CALIBRATION_REVIEW_THRESHOLDS,
                 "metadata": {
                     "developer_only": True,
                     "nsom_planner_scoring_enabled": NSOM_PLANNER_SCORING_ENABLED,
@@ -107,6 +138,11 @@ class PlannerNsomCalibrationInspectionService:
             _inspection_row(item)
             for item in sorted(comparison["items"], key=lambda row: int(row["nsom"]["rank"]))
         )
+        axes = _scenario_axes(scenario.name)
+        ranked, review_summary, policy_review = annotate_calibration_review_group(
+            ranked,
+            axes=axes,
+        )
         return {
             "name": scenario.name,
             "intended_nsom_expectation": scenario.intended_nsom_expectation,
@@ -116,6 +152,8 @@ class PlannerNsomCalibrationInspectionService:
             "legacy_reference_ranking": comparison["rankings"]["legacy"],
             "nsom_ranking": comparison["rankings"]["nsom"],
             "comparison_metadata": comparison["metadata"],
+            "calibration_review_summary": review_summary,
+            "blocked_session_policy_review": policy_review,
         }
 
 
@@ -143,6 +181,388 @@ def _inspection_row(item: dict[str, object]) -> dict[str, object]:
     }
 
 
+def annotate_calibration_review_group(
+    rows: tuple[dict[str, object], ...],
+    *,
+    axes: dict[str, object],
+) -> tuple[tuple[dict[str, object], ...], dict[str, object], dict[str, object]]:
+    policy_review = blocked_session_policy_review(rows, axes=axes)
+    annotated_rows = tuple(
+        {
+            **row,
+            "ranking_actionable": policy_review["ranking_actionable"],
+            "stable_order_is_deterministic_tie": policy_review[
+                "stable_order_is_deterministic_tie"
+            ],
+            "blocked_session_policy_notes": policy_review["policy_notes"],
+            "calibration_review": calibration_review_for_row(
+                row,
+                axes=axes,
+                policy_review=policy_review,
+            ),
+        }
+        for row in rows
+    )
+    return (
+        annotated_rows,
+        _calibration_review_summary(annotated_rows),
+        policy_review,
+    )
+
+
+def blocked_session_policy_review(
+    rows: tuple[dict[str, object], ...],
+    *,
+    axes: dict[str, object],
+) -> dict[str, object]:
+    scores = tuple(_row_nsom_score(row) for row in rows)
+    all_zero = bool(scores) and all(score == 0.0 for score in scores)
+    blocked = str(axes.get("session_profile", "")) == "blocked" or any(
+        _session_state(row) == "blocked" for row in rows
+    )
+    ranking_actionable = not blocked and not all_zero
+    preserved_order = tuple(
+        {
+            "rank": index,
+            "scenario_id": _row_identifier(row),
+            "object_id": row.get("object_id", row.get("target_type")),
+            "target_type": _target_type(row),
+            "practical_target_value": _score_component(row, "practical_target_value"),
+        }
+        for index, row in enumerate(
+            sorted(
+                rows,
+                key=lambda item: (
+                    -_score_component(item, "practical_target_value"),
+                    str(_row_identifier(item)),
+                ),
+            ),
+            start=1,
+        )
+    )
+    if blocked and all_zero:
+        notes = (
+            "Current hard-block policy produces all-zero NSOM opportunity scores; "
+            "the stable order is deterministic tie order, not a recommendation order."
+        )
+    elif blocked:
+        notes = (
+            "Session is blocked; any preserved PracticalTargetValue order is "
+            "diagnostic only and should remain non-actionable."
+        )
+    elif all_zero:
+        notes = (
+            "All NSOM opportunity scores are zero; the stable order is deterministic "
+            "tie order, not a meaningful recommendation order."
+        )
+    else:
+        notes = "Current NSOM opportunity ranking is actionable for this review group."
+    return {
+        "applies": blocked,
+        "current_runtime_policy": "hard_block" if blocked else "not_blocked",
+        "ranking_actionable": ranking_actionable,
+        "stable_order_is_deterministic_tie": all_zero,
+        "policy_notes": notes,
+        "interpretations": {
+            "hard_block": {
+                "observation_opportunity": 0.0 if blocked else "not_applicable",
+                "ranking_actionable": False if blocked else ranking_actionable,
+                "notes": (
+                    "ObservationOpportunity is capped at 0.0 when SessionViability "
+                    "is blocked."
+                    if blocked
+                    else "Hard-block interpretation does not apply to this group."
+                ),
+            },
+            "preserved_target_ranking_with_blocked_annotation": {
+                "ranking_basis": "PracticalTargetValue",
+                "ranking_actionable": False if blocked else ranking_actionable,
+                "internal_order": preserved_order,
+                "notes": (
+                    "Keeps target/equipment ordering visible for review while marking "
+                    "the blocked session as non-actionable."
+                ),
+            },
+        },
+    }
+
+
+def calibration_review_for_row(
+    row: dict[str, object],
+    *,
+    axes: dict[str, object],
+    policy_review: dict[str, object],
+) -> dict[str, object]:
+    checks = [
+        _rank_delta_check(row),
+        _blocked_all_zero_check(policy_review),
+        _protected_target_degradation_check(row, axes),
+        _deep_sky_bright_sky_check(row, axes),
+        _observer_dominance_check(row),
+        _window_geometry_check(row, axes),
+    ]
+    status = _max_status(check["status"] for check in checks)
+    review_reasons = tuple(
+        check["reason"] for check in checks if check["status"] != "expected"
+    )
+    return {
+        "status": status,
+        "rank_delta_severity": checks[0]["status"],
+        "checks": tuple(checks),
+        "suggested_human_review_reason": (
+            "; ".join(review_reasons)
+            if review_reasons
+            else "No calibration review threshold exceeded."
+        ),
+        "thresholds": CALIBRATION_REVIEW_THRESHOLDS,
+    }
+
+
+def _rank_delta_check(row: dict[str, object]) -> dict[str, object]:
+    rank_delta = abs(int(row.get("rank_delta", 0)))
+    if rank_delta >= int(CALIBRATION_REVIEW_THRESHOLDS["large_rank_delta_warning"]):
+        return _review_check(
+            "large_rank_delta",
+            "warning",
+            f"Rank delta {rank_delta} reaches warning threshold.",
+        )
+    if rank_delta >= int(CALIBRATION_REVIEW_THRESHOLDS["large_rank_delta_review"]):
+        return _review_check(
+            "large_rank_delta",
+            "review",
+            f"Rank delta {rank_delta} reaches review threshold.",
+        )
+    return _review_check(
+        "large_rank_delta",
+        "expected",
+        f"Rank delta {rank_delta} is within review threshold.",
+    )
+
+
+def _blocked_all_zero_check(policy_review: dict[str, object]) -> dict[str, object]:
+    if policy_review["stable_order_is_deterministic_tie"]:
+        return _review_check(
+            "blocked_or_all_zero_group",
+            "warning",
+            "All scores are 0.0; stable order is deterministic tie order.",
+        )
+    return _review_check(
+        "blocked_or_all_zero_group",
+        "expected",
+        "NSOM scores are not an all-zero tie group.",
+    )
+
+
+def _protected_target_degradation_check(
+    row: dict[str, object],
+    axes: dict[str, object],
+) -> dict[str, object]:
+    target_type = _target_type(row)
+    if target_type not in PROTECTED_TARGET_TYPES or not _is_bright_sky_context(axes):
+        return _review_check(
+            "protected_target_degradation",
+            "expected",
+            "Protected planet/Moon bright-sky rule does not apply.",
+        )
+    effective = _score_component(row, "effective_observability")
+    has_sky_limit = _has_factor(row, "sky", "moon_background") or _has_factor(
+        row,
+        "sky",
+        "sky_background",
+    )
+    if (
+        has_sky_limit
+        or effective
+        < float(CALIBRATION_REVIEW_THRESHOLDS["protected_target_min_effective_observability"])
+    ):
+        return _review_check(
+            "protected_target_degradation",
+            "warning",
+            "Planet/Moon row degrades under bright sky or exposes sky-background limits.",
+        )
+    return _review_check(
+        "protected_target_degradation",
+        "expected",
+        "Planet/Moon row remains protected from sky-background degradation.",
+    )
+
+
+def _deep_sky_bright_sky_check(
+    row: dict[str, object],
+    axes: dict[str, object],
+) -> dict[str, object]:
+    target_type = _target_type(row)
+    if target_type not in BRIGHT_SKY_SENSITIVE_TARGET_TYPES or not _is_bright_sky_context(axes):
+        return _review_check(
+            "deep_sky_bright_sky_sensitivity",
+            "expected",
+            "Bright-sky deep-sky sensitivity rule does not apply.",
+        )
+    effective = _score_component(row, "effective_observability")
+    has_sky_limit = _has_factor(row, "sky", "moon_background") or _has_factor(
+        row,
+        "sky",
+        "sky_background",
+    )
+    if (
+        effective
+        > float(CALIBRATION_REVIEW_THRESHOLDS["deep_sky_bright_sky_max_effective_observability"])
+        or not has_sky_limit
+    ):
+        return _review_check(
+            "deep_sky_bright_sky_sensitivity",
+            "warning",
+            "Galaxy/nebula row appears over-protected under bright sky.",
+        )
+    return _review_check(
+        "deep_sky_bright_sky_sensitivity",
+        "expected",
+        "Galaxy/nebula row shows bright-sky sensitivity.",
+    )
+
+
+def _observer_dominance_check(row: dict[str, object]) -> dict[str, object]:
+    first = _first_limiting_factor(row)
+    q_target = _score_component(row, "q_target")
+    if first and first.get("owner") == "observer" and first.get("factor") == "q_target":
+        if q_target <= float(CALIBRATION_REVIEW_THRESHOLDS["observer_q_target_warning"]):
+            return _review_check(
+                "observer_dominance",
+                "warning",
+                "Q_target is the strongest limiter and below warning threshold.",
+            )
+        if q_target <= float(CALIBRATION_REVIEW_THRESHOLDS["observer_q_target_review"]):
+            return _review_check(
+                "observer_dominance",
+                "review",
+                "Q_target is the strongest limiter and below review threshold.",
+            )
+    return _review_check(
+        "observer_dominance",
+        "expected",
+        "Observer projection is not below dominance thresholds.",
+    )
+
+
+def _window_geometry_check(row: dict[str, object], axes: dict[str, object]) -> dict[str, object]:
+    geometry = str(axes.get("target_geometry_profile", "standard"))
+    window_quality = _score_component(row, "observing_window_quality")
+    visible = _target_visible(row)
+    if geometry == "missing_window":
+        expected = float(CALIBRATION_REVIEW_THRESHOLDS["missing_window_expected_quality"])
+        if window_quality == expected and visible:
+            return _review_check(
+                "missing_window_handling",
+                "review",
+                "Missing observing time uses the current 0.5 fallback and needs policy review.",
+            )
+        return _review_check(
+            "missing_window_handling",
+            "warning",
+            "Missing-window row does not match the expected 0.5 visible-target fallback.",
+        )
+    if geometry == "invisible_missing_window" or not visible:
+        expected = float(CALIBRATION_REVIEW_THRESHOLDS["invisible_target_expected_quality"])
+        if window_quality == expected and _row_nsom_score(row) == 0.0:
+            return _review_check(
+                "invisible_target_handling",
+                "expected",
+                "Invisible target with missing time is non-actionable with zero score.",
+            )
+        return _review_check(
+            "invisible_target_handling",
+            "warning",
+            "Invisible target is not producing the expected non-actionable zero score.",
+        )
+    return _review_check(
+        "missing_or_invisible_window_handling",
+        "expected",
+        "Missing-window and invisible-target rules do not apply.",
+    )
+
+
+def _calibration_review_summary(rows: tuple[dict[str, object], ...]) -> dict[str, object]:
+    status_counts = {status: 0 for status in CALIBRATION_REVIEW_STATUSES}
+    for row in rows:
+        status_counts[row["calibration_review"]["status"]] += 1
+    observer_share = _observer_dominance_share(rows)
+    observer_status = _observer_share_status(observer_share)
+    group_status = _max_status(
+        (
+            *(row["calibration_review"]["status"] for row in rows),
+            observer_status,
+        )
+    )
+    return {
+        "status": group_status,
+        "status_counts": status_counts,
+        "warning_cases": tuple(
+            _row_identifier(row)
+            for row in rows
+            if row["calibration_review"]["status"] == "warning"
+        ),
+        "review_cases": tuple(
+            _row_identifier(row)
+            for row in rows
+            if row["calibration_review"]["status"] == "review"
+        ),
+        "observer_dominance": {
+            "share": observer_share,
+            "status": observer_status,
+            "review_threshold": CALIBRATION_REVIEW_THRESHOLDS[
+                "observer_dominance_review_share"
+            ],
+            "warning_threshold": CALIBRATION_REVIEW_THRESHOLDS[
+                "observer_dominance_warning_share"
+            ],
+            "interpretation": (
+                "Frequency of observer limiting factors is a review signal, not proof "
+                "of weight dominance."
+            ),
+        },
+    }
+
+
+def _aggregate_calibration_review(scenarios: tuple[dict[str, object], ...]) -> dict[str, object]:
+    status_counts = {status: 0 for status in CALIBRATION_REVIEW_STATUSES}
+    non_actionable = []
+    for scenario in scenarios:
+        status_counts[scenario["calibration_review_summary"]["status"]] += 1
+        if not scenario["blocked_session_policy_review"]["ranking_actionable"]:
+            non_actionable.append(scenario["name"])
+    return {
+        "status_counts": status_counts,
+        "non_actionable_groups": tuple(non_actionable),
+        "blocked_policy_groups": tuple(
+            scenario["name"]
+            for scenario in scenarios
+            if scenario["blocked_session_policy_review"]["applies"]
+        ),
+    }
+
+
+def _scenario_axes(name: str) -> dict[str, object]:
+    return {
+        "sky_profile": {
+            "bright_sky": "bright_sky",
+            "moon_target_case": "moon_target_case",
+            "planet_favouring_conditions": "planet_favouring",
+            "deep_sky_favouring_conditions": "deep_sky_favouring",
+        }.get(name, "dark_sky"),
+        "session_profile": {
+            "blocked_session": "blocked",
+            "poor_session": "poor",
+            "good_session": "good",
+        }.get(name, "good"),
+        "equipment_profile": {
+            "small_telescope": "small_telescope",
+            "large_telescope": "large_telescope",
+        }.get(name, "medium_telescope"),
+        "target_geometry_profile": "standard",
+        "confidence_profile": "high",
+    }
+
+
 def _calibration_scenarios() -> tuple[PlannerNsomCalibrationScenario, ...]:
     return (
         PlannerNsomCalibrationScenario(
@@ -157,6 +577,20 @@ def _calibration_scenarios() -> tuple[PlannerNsomCalibrationScenario, ...]:
             sky_quality=_sky_quality(9, radiance=120),
             telescope=_telescope(),
             moon=_moon(95),
+        ),
+        PlannerNsomCalibrationScenario(
+            name="blocked_session",
+            intended_nsom_expectation=(
+                "Blocked sessions hard-cap current NSOM opportunity scores at zero; "
+                "preserved PracticalTargetValue ranking is reported only as a "
+                "non-actionable policy alternative."
+            ),
+            targets=_mixed_targets(include_moon=True),
+            weather=_weather(10),
+            scores=_scores(planetary=86, deep_sky=88),
+            sky_quality=_sky_quality(3, radiance=2),
+            telescope=_telescope(),
+            moon=_moon(10),
         ),
         PlannerNsomCalibrationScenario(
             name="poor_session",
@@ -341,6 +775,133 @@ def _dominant_limiting_factor_summary(scenarios: tuple[dict[str, object], ...]) 
         "by_factor": dict(sorted(factor_counts.items())),
         "by_owner": dict(sorted(owner_counts.items())),
     }
+
+
+def _review_check(name: str, status: str, reason: str) -> dict[str, object]:
+    return {"name": name, "status": status, "reason": reason}
+
+
+def _max_status(statuses: Iterable[str]) -> str:
+    severity = {"expected": 0, "review": 1, "warning": 2}
+    return max(statuses, key=lambda status: severity[str(status)])
+
+
+def _observer_dominance_share(rows: tuple[dict[str, object], ...]) -> float:
+    if not rows:
+        return 0.0
+    observer_limited = sum(
+        1
+        for row in rows
+        if (factor := _first_limiting_factor(row))
+        and factor.get("owner") == "observer"
+        and factor.get("factor") == "q_target"
+    )
+    return observer_limited / len(rows)
+
+
+def _observer_share_status(share: float) -> str:
+    if share >= float(CALIBRATION_REVIEW_THRESHOLDS["observer_dominance_warning_share"]):
+        return "warning"
+    if share >= float(CALIBRATION_REVIEW_THRESHOLDS["observer_dominance_review_share"]):
+        return "review"
+    return "expected"
+
+
+def _is_bright_sky_context(axes: dict[str, object]) -> bool:
+    return str(axes.get("sky_profile", "")) in BRIGHT_SKY_PROFILES
+
+
+def _row_identifier(row: dict[str, object]) -> object:
+    return row.get("scenario_id", row.get("object_id", row.get("target_type", "unknown")))
+
+
+def _row_nsom_score(row: dict[str, object]) -> float:
+    if "nsom_score" in row:
+        return float(row["nsom_score"])
+    nsom = row.get("nsom", {})
+    return float(nsom.get("score", 0.0)) if isinstance(nsom, dict) else 0.0
+
+
+def _target_type(row: dict[str, object]) -> str:
+    value = row.get("target_type") or row.get("object_id") or row.get("object_type", "")
+    return str(value).strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def _target_visible(row: dict[str, object]) -> bool:
+    target = row.get("target")
+    if isinstance(target, dict) and "visible" in target:
+        return bool(target["visible"])
+    return True
+
+
+def _score_component(row: dict[str, object], component: str) -> float:
+    components = row.get("score_components")
+    if isinstance(components, dict) and component in components:
+        return _float_value(components[component])
+    nsom = row.get("nsom")
+    if isinstance(nsom, dict):
+        explanation = nsom.get("explanation")
+        if isinstance(explanation, dict):
+            score_components = explanation.get("score_components")
+            if isinstance(score_components, dict) and component in score_components:
+                return _float_value(score_components[component])
+        if component in nsom:
+            return _float_value(nsom[component])
+    return 0.0
+
+
+def _float_value(value: object) -> float:
+    if isinstance(value, dict) and "value" in value:
+        return float(value["value"])
+    if hasattr(value, "value"):
+        return float(value.value)
+    return float(value)
+
+
+def _has_factor(
+    row: dict[str, object],
+    owner: str,
+    factor: str,
+    *,
+    section: str = "limiting_factors",
+) -> bool:
+    factors = row.get(section)
+    if factors is None and isinstance(row.get("nsom"), dict):
+        factors = row["nsom"].get(
+            "main_limiting_factors" if section == "limiting_factors" else "main_positive_factors"
+        )
+    if factors is None:
+        return False
+    return any(item.get("owner") == owner and item.get("factor") == factor for item in factors)
+
+
+def _first_limiting_factor(row: dict[str, object]) -> dict[str, object] | None:
+    factors = row.get("limiting_factors")
+    if factors is None and isinstance(row.get("nsom"), dict):
+        factors = row["nsom"].get("main_limiting_factors")
+    if not factors:
+        return None
+    return factors[0]
+
+
+def _session_state(row: dict[str, object]) -> str | None:
+    component_breakdown = row.get("component_breakdown")
+    if isinstance(component_breakdown, dict):
+        state = _state_from_session(component_breakdown.get("session_viability"))
+        if state is not None:
+            return state
+    nsom = row.get("nsom")
+    if isinstance(nsom, dict):
+        return _state_from_session(nsom.get("session_viability"))
+    return None
+
+
+def _state_from_session(session: object) -> str | None:
+    if isinstance(session, dict):
+        state = session.get("state")
+        return str(state) if state is not None else None
+    state = getattr(session, "state", None)
+    return str(state) if state is not None else None
 
 
 def _mixed_targets(

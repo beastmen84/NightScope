@@ -61,6 +61,59 @@ def test_every_report_scenario_has_nsom_explanation_fields() -> None:
         assert required_explanation_fields <= set(row["nsom"]["explanation"])
         assert row["nsom"]["recommendation_confidence"]["role"] == "metadata_only"
         assert row["nsom"]["recommendation_confidence"]["score_factor"] is False
+        assert row["calibration_review"]["status"] in {"expected", "review", "warning"}
+        assert row["calibration_review"]["rank_delta_severity"] in {
+            "expected",
+            "review",
+            "warning",
+        }
+        assert isinstance(row["ranking_actionable"], bool)
+        assert isinstance(row["stable_order_is_deterministic_tie"], bool)
+        assert row["calibration_review"]["suggested_human_review_reason"]
+
+
+def test_blocked_and_all_zero_report_groups_are_non_actionable_ties() -> None:
+    data = generate_report_data()
+    blocked = _group(data, "G09")
+    invisible = _group(data, "G20")
+
+    for group in (blocked, invisible):
+        policy = group["blocked_session_policy_review"]
+        assert policy["ranking_actionable"] is False
+        assert policy["stable_order_is_deterministic_tie"] is True
+        assert "not" in policy["policy_notes"]
+        assert "recommendation order" in policy["policy_notes"]
+        assert group["calibration_review_summary"]["status"] == "warning"
+        for row in group["scenarios"]:
+            assert row["nsom"]["score"] == pytest.approx(0.0)
+            assert row["ranking_actionable"] is False
+            assert row["stable_order_is_deterministic_tie"] is True
+            assert row["calibration_review"]["status"] == "warning"
+
+    assert blocked["blocked_session_policy_review"]["applies"] is True
+    assert invisible["blocked_session_policy_review"]["applies"] is False
+
+
+def test_review_thresholds_classify_known_large_deltas_and_window_cases() -> None:
+    data = generate_report_data()
+    large_delta = _row(data, "G10:planet")
+    missing_window = _row(data, "G19:planet")
+    invisible = _row(data, "G20:planet")
+
+    assert abs(large_delta["rank_delta"]) >= data["metadata"]["calibration_review_thresholds"][
+        "large_rank_delta_warning"
+    ]
+    assert large_delta["calibration_review"]["rank_delta_severity"] == "warning"
+    assert large_delta["calibration_review"]["status"] == "warning"
+
+    assert missing_window["nsom"]["observing_window_quality"] == pytest.approx(0.5)
+    assert missing_window["ranking_actionable"] is True
+    assert missing_window["calibration_review"]["status"] == "review"
+
+    assert invisible["target"]["visible"] is False
+    assert invisible["nsom"]["observing_window_quality"] == pytest.approx(0.0)
+    assert invisible["ranking_actionable"] is False
+    assert invisible["stable_order_is_deterministic_tie"] is True
 
 
 def test_unavailable_legacy_components_are_marked_not_fabricated() -> None:
@@ -104,6 +157,8 @@ def test_report_markdown_contains_required_sections_and_matrix() -> None:
     assert "## Intentional NSOM Differences From Legacy" in markdown
     assert "## Cases Where NSOM Better Follows The Model" in markdown
     assert "## Cases Requiring Further Review" in markdown
+    assert "## Calibration Review Thresholds" in markdown
+    assert "## Blocked Session Policy Review" in markdown
     assert "## Recommended Next Steps" in markdown
     assert markdown.count("| G") >= data["metadata"]["scenario_count"]
 
@@ -141,3 +196,11 @@ def test_checked_in_markdown_report_exists() -> None:
 
 def _rows(data: dict[str, object]) -> list[dict[str, object]]:
     return [row for group in data["scenario_groups"] for row in group["scenarios"]]
+
+
+def _group(data: dict[str, object], group_id: str) -> dict[str, object]:
+    return next(group for group in data["scenario_groups"] if group["group_id"] == group_id)
+
+
+def _row(data: dict[str, object], scenario_id: str) -> dict[str, object]:
+    return next(row for row in _rows(data) if row["scenario_id"] == scenario_id)

@@ -13,6 +13,10 @@ from astro_viewer.app.services.night_planner_service import (
     NSOM_PLANNER_SCORING_ENABLED,
     NightPlannerService,
 )
+from astro_viewer.app.services.planner_nsom_calibration import (
+    CALIBRATION_REVIEW_THRESHOLDS,
+    annotate_calibration_review_group,
+)
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.planner_scoring_service import PlannerScoringService
 
@@ -63,6 +67,7 @@ def generate_report_data() -> dict[str, object]:
                 "target_geometry_profile",
                 "confidence_profile",
             ),
+            "calibration_review_thresholds": CALIBRATION_REVIEW_THRESHOLDS,
         },
         "scenario_groups": group_outputs,
         "summary": _summary(group_outputs, rows),
@@ -138,8 +143,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Score And Rank Comparison",
             "",
-            "| Scenario | Target | Legacy Rank | Legacy Score | NSOM Rank | NSOM Score | Rank Delta | Main NSOM Limit |",
-            "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+            "| Scenario | Target | Legacy Rank | Legacy Score | NSOM Rank | NSOM Score | Rank Delta | Review | Actionable | Main NSOM Limit |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |",
         ]
     )
     for row in rows:
@@ -156,7 +161,54 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                     str(row["nsom"]["rank"]),
                     f"{float(row['nsom']['score']):.2f}",
                     str(row["rank_delta"]),
+                    str(row["calibration_review"]["status"]),
+                    "yes" if row["ranking_actionable"] else "no",
                     limit_label,
+                )
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Calibration Review Thresholds",
+            "",
+            (
+                "Thresholds classify deterministic fixture rows as `expected`, `review` "
+                "or `warning`. They are review gates only; they do not tune NSOM weights "
+                "and do not alter Planner scoring."
+            ),
+            "",
+            "| Threshold | Value |",
+            "| --- | ---: |",
+        ]
+    )
+    for key, value in metadata["calibration_review_thresholds"].items():
+        lines.append(f"| `{key}` | {value} |")
+
+    lines.extend(
+        [
+            "",
+            "## Blocked Session Policy Review",
+            "",
+            "| Group | Current Policy | Actionable | Tie Order | Policy Notes |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for group in report_data["scenario_groups"]:
+        policy = group["blocked_session_policy_review"]
+        if not policy["applies"] and policy["ranking_actionable"]:
+            continue
+        lines.append(
+            "| "
+            + " | ".join(
+                (
+                    str(group["group_id"]),
+                    str(policy["current_runtime_policy"]),
+                    "yes" if policy["ranking_actionable"] else "no",
+                    "yes" if policy["stable_order_is_deterministic_tie"] else "no",
+                    str(policy["policy_notes"]),
                 )
             )
             + " |"
@@ -313,6 +365,18 @@ def _evaluate_group(group: MatrixGroup) -> dict[str, object]:
             }
         )
 
+    axes = {
+        "sky_profile": group.sky_profile,
+        "session_profile": group.session_profile,
+        "equipment_profile": group.equipment_profile,
+        "target_geometry_profile": group.target_geometry_profile,
+        "confidence_profile": group.confidence_profile,
+    }
+    annotated_rows, review_summary, policy_review = annotate_calibration_review_group(
+        tuple(ranked_rows),
+        axes=axes,
+    )
+    ranked_rows = list(annotated_rows)
     return {
         "group_id": group.group_id,
         "label": group.label,
@@ -327,6 +391,8 @@ def _evaluate_group(group: MatrixGroup) -> dict[str, object]:
         "legacy_ranking": _ranking_projection(ranked_rows, "legacy"),
         "nsom_ranking": _ranking_projection(ranked_rows, "nsom"),
         "scenarios": tuple(sorted(ranked_rows, key=lambda row: (int(row["nsom"]["rank"]), row["index"]))),
+        "calibration_review_summary": review_summary,
+        "blocked_session_policy_review": policy_review,
     }
 
 
@@ -434,6 +500,8 @@ def _summary(groups: tuple[dict[str, object], ...], rows: tuple[dict[str, object
     bright_profiles = {"bright_sky", "strong_moon", "high_moon", "high_light_pollution", "planet_favouring"}
     bright_rows = [row for row in rows if row["axes"]["sky_profile"] in bright_profiles]
     blocked_rows = [row for row in rows if row["nsom"]["session_viability"].state == "blocked"]
+    warning_rows = [row for row in rows if row["calibration_review"]["status"] == "warning"]
+    review_rows = [row for row in rows if row["calibration_review"]["status"] == "review"]
     sky_sensitive_rows = [
         row
         for row in bright_rows
@@ -460,6 +528,8 @@ def _summary(groups: tuple[dict[str, object], ...], rows: tuple[dict[str, object
         ),
         "review_cases": (
             f"{len(blocked_rows)} blocked-session rows need policy review before default-on Planner NSOM.",
+            f"{len(warning_rows)} rows are classified as calibration warnings by developer-only thresholds.",
+            f"{len(review_rows)} rows are classified as calibration review cases by developer-only thresholds.",
             f"{len(differing)} rows have rank deltas; review large deltas against observing priorities.",
             "Legacy exposes aperture bonus but not full observer capability, so equipment parity cannot be exact.",
             "Legacy and NSOM scores use different semantics and should not be calibrated by raw numeric equality.",

@@ -558,6 +558,16 @@ view and comfort; globular clusters emphasize light grasp and resolution. These
 profiles are experimental evidence for the next review step, not final
 calibration.
 
+Implementation note for 1.5.2: calibration review thresholds are now reported
+by developer-only tooling before any weight tuning. They classify deterministic
+NSOM Planner evidence as `expected`, `review` or `warning` for large rank
+deltas, protected planet/Moon degradation, bright-sky deep-sky sensitivity,
+observer dominance, all-zero groups and missing/invisible-window handling.
+Blocked sessions are reviewed under two policies: the current hard block where
+`ObservationOpportunity` becomes `0.0`, and a preserved target-ordering view
+based on `PracticalTargetValue` that remains explicitly non-actionable. These
+thresholds are not part of the NSOM formula and must not affect score.
+
 Examples:
 
 - binocular-only profile;

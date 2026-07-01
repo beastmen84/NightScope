@@ -8,6 +8,7 @@ import pytest
 from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING_ENABLED
 from astro_viewer.app.services.planner_nsom_calibration import (
     CALIBRATION_SCENARIO_NAMES,
+    CALIBRATION_REVIEW_THRESHOLDS,
     CALIBRATION_SCORE_COMPONENTS,
     PlannerNsomCalibrationInspectionService,
 )
@@ -41,6 +42,8 @@ def test_calibration_inspection_exposes_named_scenarios_as_strict_json() -> None
             assert row["limiting_factors"] == row["explanation"]["main_limiting_factors"]
             assert row["positive_factors"] == row["explanation"]["main_positive_factors"]
             assert {"rank", "score"} <= set(row["legacy_reference"])
+            assert row["calibration_review"]["status"] in {"expected", "review", "warning"}
+            assert row["calibration_review"]["thresholds"] == CALIBRATION_REVIEW_THRESHOLDS
 
 
 def test_calibration_sky_rules_are_visible_in_bright_sky_and_moon_scenarios() -> None:
@@ -96,7 +99,33 @@ def test_calibration_session_and_equipment_rules_stay_on_their_owners() -> None:
         small_galaxy,
         "practical_target_value",
     )
+    assert _component(large_galaxy, "q_target") > _component(small_galaxy, "q_target")
     assert _has_factor(small_galaxy, "observer", "q_target")
+
+
+def test_calibration_blocked_session_policy_marks_all_zero_ranking_non_actionable() -> None:
+    inspection = PlannerNsomCalibrationInspectionService().inspect()
+    blocked = _scenario(inspection, "blocked_session")
+    policy = blocked["blocked_session_policy_review"]
+
+    assert policy["applies"] is True
+    assert policy["current_runtime_policy"] == "hard_block"
+    assert policy["ranking_actionable"] is False
+    assert policy["stable_order_is_deterministic_tie"] is True
+    assert "not a recommendation order" in policy["policy_notes"]
+    assert policy["interpretations"]["hard_block"]["observation_opportunity"] == pytest.approx(0.0)
+    preserved = policy["interpretations"]["preserved_target_ranking_with_blocked_annotation"]
+    assert preserved["ranking_basis"] == "PracticalTargetValue"
+    assert preserved["ranking_actionable"] is False
+    assert preserved["internal_order"][0]["practical_target_value"] > preserved["internal_order"][-1][
+        "practical_target_value"
+    ]
+
+    for row in blocked["ranked_nsom_opportunities"]:
+        assert row["nsom_score"] == pytest.approx(0.0)
+        assert row["ranking_actionable"] is False
+        assert row["stable_order_is_deterministic_tie"] is True
+        assert row["calibration_review"]["status"] == "warning"
 
 
 def test_calibration_condition_groups_match_intended_direction() -> None:

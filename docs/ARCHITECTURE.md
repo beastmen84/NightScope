@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.1`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.2`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -120,7 +120,7 @@ does not log automatically, performs no network work and is not connected to
 QML.
 `1.4.7` adds developer/test tooling in
 `astro_viewer/tools/nsom_planner_comparison_report.py` plus the static report
-`docs/NSOM_PLANNER_COMPARISON_REPORT.md`. The tool builds 108 deterministic
+`docs/NSOM_PLANNER_COMPARISON_REPORT.md`. The tool builds 120 deterministic
 scenario rows across target type, sky, session, equipment, target geometry and
 confidence axes, compares exposed legacy Planner score breakdowns with
 experimental NSOM `ObservationOpportunity` explanations, and marks unavailable
@@ -180,6 +180,18 @@ cluster. Reports now show the full ObserverCapability profile, the flat summary,
 `Q_target`, the weighting profile and the practical-value delta versus flat.
 This is not final calibration, does not alter legacy Planner scoring and does
 not expose anything to QML.
+`1.5.2` adds developer-only calibration review thresholds around the existing
+experimental NSOM Planner evidence. `PlannerNsomCalibrationInspectionService`
+and `nsom_planner_comparison_report.py` now classify rows and groups as
+`expected`, `review` or `warning` for large rank deltas, unexpected protected
+target degradation, unexpected bright-sky deep-sky protection, observer
+dominance, all-zero groups and missing/invisible-window handling. The
+comparison report also documents blocked-session policy alternatives: the
+current hard block where `ObservationOpportunity` is `0.0`, and a preserved
+`PracticalTargetValue` ordering that remains explicitly non-actionable. These
+thresholds are review metadata only; they do not tune NSOM weights, change
+legacy Planner scoring, enable NSOM Planner by default, write runtime files,
+log automatically or expose QML.
 
 ## Dependency Flow
 

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.1`.
+Versione corrente: `1.5.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -89,7 +89,7 @@ fattori e aspettativa comportamentale. L'ispezione non abilita il Planner NSOM,
 non scrive file, non logga automaticamente e non espone nulla a QML.
 Lo step `1.4.7` aggiunge il report developer-facing
 `docs/NSOM_PLANNER_COMPARISON_REPORT.md` e il relativo tooling deterministico:
-108 scenari confrontano scoring Planner legacy e scoring Planner NSOM
+120 scenari confrontano scoring Planner legacy e scoring Planner NSOM
 sperimentale con spiegazioni, rank delta, componenti disponibili e componenti
 legacy marcati come non disponibili quando non esposti. Il report non modifica
 i pesi NSOM, non abilita il flag Planner NSOM e non viene collegato al runtime.
@@ -138,6 +138,14 @@ Luna, galassia, nebulosa diffusa, ammasso aperto e globulare; il report mostra
 profilo completo, flat summary, `Q_target`, pesi usati e delta rispetto al flat
 mean. Nessun peso finale viene calibrato, il Planner legacy resta invariato e
 il flag NSOM Planner resta spento.
+Lo step `1.5.2` aggiunge soglie developer-only per review di calibrazione:
+rank delta grandi, degrado inatteso di pianeti/Luna, protezione inattesa dei
+target deep-sky sotto cielo brillante, dominanza osservatore, gruppi all-zero e
+casi missing/invisible window sono classificati come `expected`, `review` o
+`warning`. Il report confronta anche la policy blocked-session corrente
+hard-block con una lettura alternativa non azionabile basata su
+`PracticalTargetValue`. Le soglie non calibrano pesi, non cambiano Planner
+runtime e non abilitano NSOM Planner di default.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
