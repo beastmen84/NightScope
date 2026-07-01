@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.4`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.5`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -212,6 +212,16 @@ non-actionable ties, and visible missing-window targets keep the conservative
 0.5 observing-window fallback with timing uncertainty. The preserved
 `PracticalTargetValue` order is exposed only as `non_actionable_preserved_order`
 for diagnostics; it is not runtime ranking, logging, QML or UI.
+`1.5.5` resolves the targeted `small-equipment-planet-q-target` calibration
+blocker inside the Observer layer. `project_observer_capability_for_target()`
+keeps the target-class weighting profiles, then applies a planet-only
+observable floor when small equipment still meets minimum light grasp,
+resolution, magnification and tracking dimensions. The floor affects only
+`Q_target`, so `PracticalTargetValue` can change while `ObservableTargetValue`,
+`EffectiveObservability`, `SessionViability` and `RecommendationConfidence`
+remain unchanged. The comparison report, mathematical trace and decision log
+show the conditional floor; the NSOM Planner flag remains default-off and
+legacy Planner scoring is unchanged.
 
 ## Dependency Flow
 

@@ -5,7 +5,14 @@ from collections import Counter
 from pathlib import Path
 from statistics import mean
 
-from astro_viewer.app.models.nsom import NSOM_TARGET_CLASS_PROFILES, NsomTargetClass, nsom_to_json_compatible
+from astro_viewer.app.models.nsom import (
+    NSOM_TARGET_CLASS_PROFILES,
+    PLANET_OBSERVABLE_MIN_DIMENSION,
+    PLANET_OBSERVABLE_Q_TARGET_FLOOR,
+    PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
+    NsomTargetClass,
+    nsom_to_json_compatible,
+)
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.tools.nsom_observer_capability_review import generate_observer_capability_review_data
 from astro_viewer.tools.nsom_planner_comparison_report import (
@@ -512,6 +519,8 @@ def _observer_stage(
     flat_summary = _number(score_components.get("flat_observer_capability_summary", observer.get("summary_for_planning")))
     q_target_delta_vs_flat = _number(score_components.get("q_target_delta_vs_flat"))
     target_weighting = observer.get("target_class_weighting_profile", {})
+    target_class = _target_class(row)
+    planet_floor_applies = _planet_observable_floor_applies_to_dimensions(target_class, dimensions)
     positives, limits = _unit_component_factors(
         dimensions,
         owner="observer",
@@ -547,15 +556,28 @@ def _observer_stage(
         "q_target": q_target,
         "q_target_delta_vs_flat": q_target_delta_vs_flat,
         "target_class_weighting_profile": target_weighting,
+        "q_target_calibration": {
+            "target_class": target_class,
+            "planet_observable_floor": PLANET_OBSERVABLE_Q_TARGET_FLOOR,
+            "planet_observable_min_dimension": PLANET_OBSERVABLE_MIN_DIMENSION,
+            "planet_observable_required_dimensions": PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
+            "planet_observable_floor_applies": planet_floor_applies,
+        },
     }
     return _stage(
         "ObserverCapability",
         inputs=inputs,
         formula=(
             "Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile); "
+            "for planet observable profiles only, Q_target = max(weighted_mean, planet_observable_floor); "
             "flat summary is retained for comparison only"
         ),
-        intermediate_calculation=_weighted_calculation(dimensions, target_weighting, q_target),
+        intermediate_calculation=_weighted_calculation(
+            dimensions,
+            target_weighting,
+            q_target,
+            target_class=target_class,
+        ),
         outputs={
             "flat_summary_for_planning": flat_summary,
             "q_target": q_target,
@@ -565,7 +587,14 @@ def _observer_stage(
         },
         positives=positives,
         limits=limits,
-        sub_formulas=_observer_sub_formulas(row, observer, dimensions, flat_summary, q_target, target_weighting),
+        sub_formulas=_observer_sub_formulas(
+            row,
+            observer,
+            dimensions,
+            flat_summary,
+            q_target,
+            target_weighting,
+        ),
     )
 
 
@@ -996,6 +1025,8 @@ def _weighted_calculation(
     dimensions: dict[str, float],
     weights: object,
     output: float,
+    *,
+    target_class: str | None = None,
 ) -> str:
     if not isinstance(weights, dict) or not weights:
         return f"mean({_format_values(dimensions.values())}) = {_fmt(output)}"
@@ -1005,10 +1036,29 @@ def _weighted_calculation(
         f"{name}({_fmt(dimensions[name])})*{_fmt(weights.get(name))}"
         for name in dimensions
     )
-    return f"({terms}) / {_fmt(denominator)} = {_fmt(output)}; numerator={_fmt(numerator)}"
+    weighted = _weighted_mean(dimensions, weights)
+    calculation = f"({terms}) / {_fmt(denominator)} = {_fmt(weighted)}; numerator={_fmt(numerator)}"
+    if _planet_observable_floor_applies_to_dimensions(target_class, dimensions):
+        calculation += (
+            f"; planet observable floor max({_fmt(weighted)}, "
+            f"{_fmt(PLANET_OBSERVABLE_Q_TARGET_FLOOR)}) = {_fmt(output)}"
+        )
+    return calculation
 
 
-def _weighted_expected(dimensions: dict[str, float], weights: object) -> float:
+def _weighted_expected(
+    dimensions: dict[str, float],
+    weights: object,
+    *,
+    target_class: str | None = None,
+) -> float:
+    weighted = _weighted_mean(dimensions, weights)
+    if _planet_observable_floor_applies_to_dimensions(target_class, dimensions):
+        return max(weighted, PLANET_OBSERVABLE_Q_TARGET_FLOOR)
+    return weighted
+
+
+def _weighted_mean(dimensions: dict[str, float], weights: object) -> float:
     if not isinstance(weights, dict) or not weights:
         return sum(dimensions.values()) / len(dimensions)
     numerator = sum(dimensions[name] * _number(weights.get(name)) for name in dimensions)
@@ -1016,6 +1066,16 @@ def _weighted_expected(dimensions: dict[str, float], weights: object) -> float:
     if denominator <= 0.0:
         return sum(dimensions.values()) / len(dimensions)
     return _clamp_unit(numerator / denominator)
+
+
+def _planet_observable_floor_applies_to_dimensions(
+    target_class: str | None,
+    dimensions: dict[str, float],
+) -> bool:
+    return target_class == NsomTargetClass.PLANET.value and all(
+        dimensions[name] >= PLANET_OBSERVABLE_MIN_DIMENSION
+        for name in PLANET_OBSERVABLE_REQUIRED_DIMENSIONS
+    )
 
 
 def _window_sub_formulas(row: dict[str, object], output: float) -> tuple[dict[str, object], ...]:
@@ -1308,6 +1368,13 @@ def _observer_sub_formulas(
     focal_unit = _unit_from_range(focal_length, lower=350.0, upper=2000.0)
     field_width = _clamp_unit(1.0 - (0.75 * focal_unit))
     tracking = _tracking_capability(mount)
+    target_class = _target_class(row)
+    planet_floor_applies = _planet_observable_floor_applies_to_dimensions(target_class, dimensions)
+    expected_q_target = _weighted_expected(
+        dimensions,
+        target_weighting,
+        target_class=target_class,
+    )
     formulas = [
         _sub_formula(
             component="telescope_aperture_unit",
@@ -1389,15 +1456,28 @@ def _observer_sub_formulas(
         _sub_formula(
             component="q_target",
             status="available",
-            formula="Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile)",
+            formula=(
+                "Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile); "
+                "for planet observable profiles only, Q_target = max(weighted_mean, planet_observable_floor)"
+            ),
             inputs={
+                "target_class": target_class,
                 "dimensions": dimensions,
                 "target_class_weighting_profile": target_weighting,
+                "planet_observable_floor": PLANET_OBSERVABLE_Q_TARGET_FLOOR,
+                "planet_observable_min_dimension": PLANET_OBSERVABLE_MIN_DIMENSION,
+                "planet_observable_required_dimensions": PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
+                "planet_observable_floor_applies": planet_floor_applies,
             },
-            intermediate_calculation=_weighted_calculation(dimensions, target_weighting, q_target),
+            intermediate_calculation=_weighted_calculation(
+                dimensions,
+                target_weighting,
+                q_target,
+                target_class=target_class,
+            ),
             output=q_target,
-            expected_output=_weighted_expected(dimensions, target_weighting),
-            matches_reported_output=_matches_expected(_weighted_expected(dimensions, target_weighting), q_target),
+            expected_output=expected_q_target,
+            matches_reported_output=_matches_expected(expected_q_target, q_target),
         )
     )
     if observer.get("filters"):

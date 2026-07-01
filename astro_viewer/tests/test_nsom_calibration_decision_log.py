@@ -60,9 +60,7 @@ def test_decision_statuses_and_expected_focus_cases_are_present() -> None:
     ] is False
     assert decisions["invisible-target-non-actionable-policy"]["decision_status"] == "accepted"
     assert decisions["missing-window-policy"]["decision_status"] == "accepted"
-    assert decisions["small-equipment-planet-q-target"]["decision_status"] == (
-        "needs_calibration"
-    )
+    assert decisions["small-equipment-planet-q-target"]["decision_status"] == "accepted"
     assert decisions["open-cluster-recurring-demotion"]["decision_status"] == (
         "needs_calibration"
     )
@@ -95,6 +93,7 @@ def test_accepted_differences_do_not_become_tuning_requirements() -> None:
     assert set(data["summary"]["accepted_without_tuning"]) == {
         "blocked-session-hard-block-policy",
         "invisible-target-non-actionable-policy",
+        "small-equipment-planet-q-target",
         "globular-large-telescope-promotion",
         "missing-window-policy",
     }
@@ -106,7 +105,6 @@ def test_policy_decisions_are_resolved_and_not_default_on_blockers() -> None:
     assert data["summary"]["unresolved_policy_decisions"] == []
     assert data["summary"]["remaining_policy_blockers"] == []
     assert set(data["summary"]["default_on_blockers"]) == {
-        "small-equipment-planet-q-target",
         "open-cluster-recurring-demotion",
     }
     assert "blocked-session-hard-block-policy" not in data["summary"]["default_on_blockers"]

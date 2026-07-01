@@ -110,6 +110,20 @@ def test_observer_capability_sub_formulas_mark_adapter_derived_dimensions() -> N
     )
 
 
+def test_planet_observable_q_target_floor_is_explicit_in_report_formula() -> None:
+    row = _scenario(generate_trace_report_data(), "G10:planet")
+    stage = _stage(row, "ObserverCapability")
+    formula = _sub_formulas(stage)["q_target"]
+
+    assert formula["inputs"]["target_class"] == "planet"
+    assert formula["inputs"]["planet_observable_floor_applies"] is True
+    assert "planet_observable_floor" in formula["formula"]
+    assert formula["output"] == pytest.approx(0.55)
+    assert formula["expected_output"] == pytest.approx(0.55)
+    assert formula["matches_reported_output"] is True
+    assert stage["inputs"]["q_target_calibration"]["planet_observable_floor_applies"] is True
+
+
 def test_sensitivity_sky_background_changes_effective_and_observable_target_value() -> None:
     service = PlannerNsomScoringService()
     target = _target("galaxy", "Galaxy")

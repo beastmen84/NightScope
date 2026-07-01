@@ -8,14 +8,13 @@ This developer-only decision log records how current NSOM Planner calibration re
 
 | Status | Count |
 | --- | ---: |
-| `accepted` | 4 |
+| `accepted` | 5 |
 | `deferred` | 2 |
-| `needs_calibration` | 2 |
+| `needs_calibration` | 1 |
 | `needs_policy_decision` | 0 |
 
 ## Default-On Blockers
 
-- `small-equipment-planet-q-target`
 - `open-cluster-recurring-demotion`
 
 ## Decision Entries
@@ -24,7 +23,7 @@ This developer-only decision log records how current NSOM Planner calibration re
 | --- | --- | --- | --- | --- | --- |
 | `blocked-session-hard-block-policy` | `accepted` | SessionViability/ObservationOpportunity | all | no | G09 keeps the current hard-block score behaviour. ObservationOpportunity remains 0.0, stable order is deterministic tie order, and non_actionable_preserved_order is diagnostic-only. |
 | `invisible-target-non-actionable-policy` | `accepted` | ObservationEnvironment/ObservationOpportunity | all | no | G20 invisible targets remain non-actionable when geometric visibility is 0.0; stable all-zero order is deterministic tie order and never recommendation ranking. |
-| `small-equipment-planet-q-target` | `needs_calibration` | ObserverCapability/PracticalTargetValue | planet | yes | G10/G11 planets fall five ranks with binocular/small telescope inputs. Planet observer projection needs a targeted floor or resolution/magnification review before default-on. |
+| `small-equipment-planet-q-target` | `accepted` | ObserverCapability/PracticalTargetValue | planet | no | G10/G11 planets now use a planet-observable Q_target floor for small but usable equipment, preserving the distinction between planet observable and planet optimal detail without changing sky, session or confidence layers. |
 | `globular-large-telescope-promotion` | `accepted` | ObserverCapability/PracticalTargetValue | globular_cluster | no | Large-telescope deep-sky conditions intentionally favour globular clusters through light grasp and resolution in Q_target. |
 | `open-cluster-recurring-demotion` | `needs_calibration` | Universe/ObserverCapability/PracticalTargetValue | open_cluster | yes | Open clusters recur as large positive rank deltas across baseline, session, geometry and large-telescope groups. Review intrinsic cluster value and Q_target field-of-view/comfort weighting together. |
 | `medium-equipment-q-target-review-band` | `deferred` | ObserverCapability/PracticalTargetValue | all | no | Many review rows are driven by Q_target being below the current review threshold rather than by a directional rule failure. Keep them linked but do not turn them into broad tuning work. |
@@ -76,15 +75,15 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G10:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G10:diffuse_nebula` | `medium-equipment-q-target-review-band` |
 | `G10:galaxy` | `medium-equipment-q-target-review-band` |
+| `G10:planet` | `small-equipment-planet-q-target`, `medium-equipment-q-target-review-band` |
 | `G10:moon` | `medium-equipment-q-target-review-band` |
 | `G10:globular_cluster` | `medium-equipment-q-target-review-band` |
-| `G10:planet` | `small-equipment-planet-q-target`, `medium-equipment-q-target-review-band` |
 | `G11:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G11:diffuse_nebula` | `medium-equipment-q-target-review-band` |
 | `G11:galaxy` | `medium-equipment-q-target-review-band` |
+| `G11:planet` | `small-equipment-planet-q-target`, `medium-equipment-q-target-review-band` |
 | `G11:moon` | `medium-equipment-q-target-review-band` |
 | `G11:globular_cluster` | `medium-equipment-q-target-review-band` |
-| `G11:planet` | `small-equipment-planet-q-target`, `medium-equipment-q-target-review-band` |
 | `G12:globular_cluster` | `globular-large-telescope-promotion` |
 | `G12:open_cluster` | `open-cluster-recurring-demotion` |
 | `G14:planet` | `medium-equipment-q-target-review-band` |

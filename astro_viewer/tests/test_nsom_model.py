@@ -10,6 +10,8 @@ from astro_viewer.app.models.nsom import (
     IntrinsicTargetQuality,
     OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES,
     NSOM_TARGET_CLASS_PROFILES,
+    PLANET_OBSERVABLE_MIN_DIMENSION,
+    PLANET_OBSERVABLE_Q_TARGET_FLOOR,
     EffectiveObservability,
     NsomDiagnosticSnapshot,
     NsomTargetDiagnostic,
@@ -278,6 +280,49 @@ def test_q_target_differs_by_target_class_for_same_observer_profile() -> None:
     )
 
 
+def test_planet_q_target_floor_preserves_observable_small_equipment_cases() -> None:
+    observer = ObserverCapability(
+        light_grasp=0.425,
+        resolution=0.4,
+        field_of_view=0.725,
+        magnification_range=0.4,
+        tracking_or_goto=0.4,
+        experience_level=1.0,
+        practical_comfort=0.7,
+    )
+    planet_weights = observer_capability_weight_profile_for_target(NsomTargetClass.PLANET)
+    galaxy_weights = observer_capability_weight_profile_for_target(NsomTargetClass.GALAXY)
+    raw_planet_q = observer.summary_for_planning(planet_weights)
+
+    assert raw_planet_q < PLANET_OBSERVABLE_Q_TARGET_FLOOR
+    assert project_observer_capability_for_target(observer, NsomTargetClass.PLANET) == pytest.approx(
+        PLANET_OBSERVABLE_Q_TARGET_FLOOR
+    )
+    assert project_observer_capability_for_target(observer, NsomTargetClass.GALAXY) == pytest.approx(
+        observer.summary_for_planning(galaxy_weights)
+    )
+
+
+def test_planet_q_target_floor_does_not_hide_genuinely_poor_capability() -> None:
+    poor_observer = ObserverCapability(
+        light_grasp=PLANET_OBSERVABLE_MIN_DIMENSION,
+        resolution=0.2,
+        field_of_view=0.8,
+        magnification_range=0.2,
+        tracking_or_goto=0.2,
+        experience_level=0.6,
+        practical_comfort=0.7,
+    )
+    planet_weights = observer_capability_weight_profile_for_target(NsomTargetClass.PLANET)
+    raw_planet_q = poor_observer.summary_for_planning(planet_weights)
+
+    assert raw_planet_q < PLANET_OBSERVABLE_Q_TARGET_FLOOR
+    assert project_observer_capability_for_target(
+        poor_observer,
+        NsomTargetClass.PLANET,
+    ) == pytest.approx(raw_planet_q)
+
+
 def test_q_target_changes_practical_value_without_mutating_observable_value() -> None:
     observable = ObservableTargetValue.from_intrinsic(
         intrinsic_target_quality=80.0,
@@ -316,13 +361,13 @@ def test_q_target_changes_practical_value_without_mutating_observable_value() ->
 
 def test_q_target_dimension_sensitivity_is_target_specific() -> None:
     base = ObserverCapability(
-        light_grasp=0.5,
-        resolution=0.5,
-        field_of_view=0.5,
-        magnification_range=0.5,
-        tracking_or_goto=0.5,
-        experience_level=0.5,
-        practical_comfort=0.5,
+        light_grasp=0.7,
+        resolution=0.7,
+        field_of_view=0.7,
+        magnification_range=0.7,
+        tracking_or_goto=0.7,
+        experience_level=0.7,
+        practical_comfort=0.7,
     )
 
     def delta(target_class: NsomTargetClass, **changes: float) -> float:
@@ -340,16 +385,16 @@ def test_q_target_dimension_sensitivity_is_target_specific() -> None:
             - project_observer_capability_for_target(base, target_class)
         )
 
-    planet_fov = delta(NsomTargetClass.PLANET, field_of_view=0.7)
-    planet_mag = delta(NsomTargetClass.PLANET, magnification_range=0.7)
-    planet_tracking = delta(NsomTargetClass.PLANET, tracking_or_goto=0.7)
-    galaxy_fov = delta(NsomTargetClass.GALAXY, field_of_view=0.7)
-    galaxy_tracking = delta(NsomTargetClass.GALAXY, tracking_or_goto=0.7)
-    diffuse_light = delta(NsomTargetClass.DIFFUSE_NEBULA, light_grasp=0.7)
-    diffuse_tracking = delta(NsomTargetClass.DIFFUSE_NEBULA, tracking_or_goto=0.7)
-    open_fov = delta(NsomTargetClass.OPEN_CLUSTER, field_of_view=0.7)
-    open_mag = delta(NsomTargetClass.OPEN_CLUSTER, magnification_range=0.7)
-    globular_aperture = delta(NsomTargetClass.GLOBULAR_CLUSTER, light_grasp=0.7, resolution=0.7)
+    planet_fov = delta(NsomTargetClass.PLANET, field_of_view=0.9)
+    planet_mag = delta(NsomTargetClass.PLANET, magnification_range=0.9)
+    planet_tracking = delta(NsomTargetClass.PLANET, tracking_or_goto=0.9)
+    galaxy_fov = delta(NsomTargetClass.GALAXY, field_of_view=0.9)
+    galaxy_tracking = delta(NsomTargetClass.GALAXY, tracking_or_goto=0.9)
+    diffuse_light = delta(NsomTargetClass.DIFFUSE_NEBULA, light_grasp=0.9)
+    diffuse_tracking = delta(NsomTargetClass.DIFFUSE_NEBULA, tracking_or_goto=0.9)
+    open_fov = delta(NsomTargetClass.OPEN_CLUSTER, field_of_view=0.9)
+    open_mag = delta(NsomTargetClass.OPEN_CLUSTER, magnification_range=0.9)
+    globular_aperture = delta(NsomTargetClass.GLOBULAR_CLUSTER, light_grasp=0.9, resolution=0.9)
 
     assert planet_mag > planet_fov
     assert planet_tracking > planet_fov

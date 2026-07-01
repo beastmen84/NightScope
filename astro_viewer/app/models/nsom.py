@@ -209,6 +209,15 @@ OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES: Mapping[NsomTargetClass, Mapping[str
     }
 )
 
+PLANET_OBSERVABLE_Q_TARGET_FLOOR = 0.55
+PLANET_OBSERVABLE_MIN_DIMENSION = 0.35
+PLANET_OBSERVABLE_REQUIRED_DIMENSIONS = (
+    "light_grasp",
+    "resolution",
+    "magnification_range",
+    "tracking_or_goto",
+)
+
 
 def observer_capability_weight_profile_for_target(
     target_class: NsomTargetClass | str | None,
@@ -227,8 +236,22 @@ def project_observer_capability_for_target(
 ) -> float:
     """Project a full ObserverCapability profile to the target-specific Q_target scalar."""
 
+    normalized = _normalize_target_class(target_class)
     weights = observer_capability_weight_profile_for_target(target_class)
-    return observer_capability.summary_for_planning(weights or None)
+    q_target = observer_capability.summary_for_planning(weights or None)
+    if normalized is NsomTargetClass.PLANET and _planet_observable_floor_applies(
+        observer_capability
+    ):
+        return max(q_target, PLANET_OBSERVABLE_Q_TARGET_FLOOR)
+    return q_target
+
+
+def _planet_observable_floor_applies(observer_capability: ObserverCapability) -> bool:
+    dimensions = observer_capability.planning_dimensions()
+    return all(
+        dimensions[name] >= PLANET_OBSERVABLE_MIN_DIMENSION
+        for name in PLANET_OBSERVABLE_REQUIRED_DIMENSIONS
+    )
 
 
 def _finite_float(value: object, *, default: float = 0.0) -> float:

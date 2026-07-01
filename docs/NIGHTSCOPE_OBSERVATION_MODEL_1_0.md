@@ -586,6 +586,16 @@ targets with missing observing windows keep the conservative 0.5 fallback and ar
 marked `actionable_with_uncertain_timing`. These policy labels resolve the
 policy blockers without changing score formulas or legacy Planner behaviour.
 
+Implementation note for 1.5.5: the targeted small-equipment planet calibration
+is implemented as an Observer-layer `Q_target` projection rule, not as a sky,
+session, confidence or legacy-score change. For planets only, a profile that
+meets minimum observable dimensions for light grasp, resolution, magnification
+and tracking may use a small floor in `Q_target`; this represents "planet
+observable" rather than "planet optimal detail". The rule changes
+`PracticalTargetValue` only through `Q_target` and leaves
+`ObservableTargetValue`, `EffectiveObservability`, `SessionViability` and
+`RecommendationConfidence` unchanged.
+
 Examples:
 
 - binocular-only profile;

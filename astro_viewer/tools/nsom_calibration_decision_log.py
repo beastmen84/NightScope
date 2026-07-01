@@ -336,20 +336,24 @@ def _decision_entries() -> tuple[CalibrationDecision, ...]:
         ),
         CalibrationDecision(
             decision_id="small-equipment-planet-q-target",
-            decision_status="needs_calibration",
+            decision_status="accepted",
             decision_reason=(
-                "G10/G11 planets fall five ranks with binocular/small telescope "
-                "inputs. Planet observer projection needs a targeted floor or "
-                "resolution/magnification review before default-on."
+                "G10/G11 planets now use a planet-observable Q_target floor for "
+                "small but usable equipment, preserving the distinction between "
+                "planet observable and planet optimal detail without changing "
+                "sky, session or confidence layers."
             ),
             affected_nsom_layer="ObserverCapability/PracticalTargetValue",
             affected_target_class="planet",
             intentional_nsom_behaviour=False,
-            possible_calibration_issue=True,
-            blocks_default_on_work=True,
+            possible_calibration_issue=False,
+            blocks_default_on_work=False,
             blocked_session_policy_decision_placeholder=False,
-            rank_delta_review_notes="Rank delta 5 is too large to accept without targeted review.",
-            requires_tuning=True,
+            rank_delta_review_notes=(
+                "Rank delta is reduced from warning to review; the preserved "
+                "ObservableTargetValue confirms the change is limited to Q_target."
+            ),
+            requires_tuning=False,
             match=lambda row: _scenario_id(row) in {"G10:planet", "G11:planet"},
         ),
         CalibrationDecision(

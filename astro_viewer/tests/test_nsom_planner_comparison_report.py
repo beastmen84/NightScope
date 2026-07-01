@@ -109,7 +109,7 @@ def test_blocked_and_all_zero_report_groups_are_non_actionable_ties() -> None:
 
 def test_review_thresholds_classify_known_large_deltas_and_window_cases() -> None:
     data = generate_report_data()
-    large_delta = _row(data, "G10:planet")
+    large_delta = _row(data, "G15:open_cluster")
     missing_window = _row(data, "G19:planet")
     invisible = _row(data, "G20:planet")
 
@@ -134,6 +134,41 @@ def test_review_thresholds_classify_known_large_deltas_and_window_cases() -> Non
     assert invisible["ranking_actionable"] is False
     assert invisible["stable_order_is_deterministic_tie"] is True
     assert invisible["opportunity_policy_type"] == "non_actionable_invisible_target"
+
+
+def test_small_equipment_planets_are_not_bottom_ranked_by_q_target_floor() -> None:
+    data = generate_report_data()
+
+    for scenario_id, group_id in (("G10:planet", "G10"), ("G11:planet", "G11")):
+        row = _row(data, scenario_id)
+        group_size = len(_group(data, group_id)["scenarios"])
+        components = row["nsom"]["explanation"]["score_components"]
+
+        assert row["nsom"]["rank"] < group_size
+        assert row["nsom"]["rank"] == 4
+        assert row["rank_delta"] == 3
+        assert row["calibration_review"]["rank_delta_severity"] == "review"
+        assert components["q_target"] == pytest.approx(0.55)
+        assert components["observable_target_value"] == pytest.approx(72.24)
+        assert components["practical_target_value"] == pytest.approx(39.732)
+
+
+def test_planet_q_target_calibration_does_not_change_deep_sky_q_target_rows() -> None:
+    data = generate_report_data()
+    expected_q_targets = {
+        "G10:galaxy": 0.5575000000000002,
+        "G10:diffuse_nebula": 0.6000000000000001,
+        "G10:open_cluster": 0.6455,
+        "G11:galaxy": 0.5672121212121213,
+        "G11:diffuse_nebula": 0.6056969696969698,
+        "G11:open_cluster": 0.6475454545454544,
+    }
+
+    for scenario_id, expected in expected_q_targets.items():
+        row = _row(data, scenario_id)
+        components = row["nsom"]["explanation"]["score_components"]
+
+        assert components["q_target"] == pytest.approx(expected)
 
 
 def test_unavailable_legacy_components_are_marked_not_fabricated() -> None:

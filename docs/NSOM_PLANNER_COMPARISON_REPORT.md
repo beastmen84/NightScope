@@ -101,15 +101,15 @@ The inspection also highlights review areas before enabling NSOM by default: leg
 | G10:open_cluster | open_cluster | 2 | 91.93 | 1 | 40.29 | -1 | review | actionable_ranked_recommendation | observer:q_target=0.65 |
 | G10:diffuse_nebula | diffuse_nebula | 5 | 82.84 | 2 | 38.51 | -3 | review | actionable_ranked_recommendation | observer:q_target=0.60 |
 | G10:galaxy | galaxy | 4 | 82.98 | 3 | 36.43 | -1 | review | actionable_ranked_recommendation | observer:q_target=0.56 |
-| G10:moon | moon | 3 | 91.05 | 4 | 34.69 | 1 | review | actionable_ranked_recommendation | observer:q_target=0.55 |
-| G10:globular_cluster | globular_cluster | 6 | 81.79 | 5 | 30.95 | -1 | warning | actionable_ranked_recommendation | observer:q_target=0.50 |
-| G10:planet | planet | 1 | 95.62 | 6 | 30.53 | 5 | warning | actionable_ranked_recommendation | observer:q_target=0.47 |
+| G10:planet | planet | 1 | 95.62 | 4 | 35.76 | 3 | review | actionable_ranked_recommendation | observer:q_target=0.55 |
+| G10:moon | moon | 3 | 91.05 | 5 | 34.69 | 2 | review | actionable_ranked_recommendation | observer:q_target=0.55 |
+| G10:globular_cluster | globular_cluster | 6 | 81.79 | 6 | 30.95 | 0 | warning | actionable_ranked_recommendation | observer:q_target=0.50 |
 | G11:open_cluster | open_cluster | 2 | 92.53 | 1 | 40.42 | -1 | review | actionable_ranked_recommendation | observer:q_target=0.65 |
 | G11:diffuse_nebula | diffuse_nebula | 5 | 83.37 | 2 | 38.88 | -3 | review | actionable_ranked_recommendation | observer:q_target=0.61 |
 | G11:galaxy | galaxy | 4 | 83.51 | 3 | 37.06 | -1 | review | actionable_ranked_recommendation | observer:q_target=0.57 |
-| G11:moon | moon | 3 | 91.65 | 4 | 35.33 | 1 | review | actionable_ranked_recommendation | observer:q_target=0.56 |
-| G11:globular_cluster | globular_cluster | 6 | 82.32 | 5 | 31.89 | -1 | review | actionable_ranked_recommendation | observer:q_target=0.51 |
-| G11:planet | planet | 1 | 96.22 | 6 | 31.39 | 5 | warning | actionable_ranked_recommendation | observer:q_target=0.48 |
+| G11:planet | planet | 1 | 96.22 | 4 | 35.76 | 3 | review | actionable_ranked_recommendation | observer:q_target=0.55 |
+| G11:moon | moon | 3 | 91.65 | 5 | 35.33 | 2 | review | actionable_ranked_recommendation | observer:q_target=0.56 |
+| G11:globular_cluster | globular_cluster | 6 | 82.32 | 6 | 31.89 | 0 | review | actionable_ranked_recommendation | observer:q_target=0.51 |
 | G12:planet | planet | 1 | 105.82 | 1 | 52.85 | 0 | expected | actionable_ranked_recommendation | observer:q_target=0.81 |
 | G12:globular_cluster | globular_cluster | 6 | 90.76 | 2 | 49.86 | -4 | review | actionable_ranked_recommendation | observer:q_target=0.80 |
 | G12:moon | moon | 3 | 101.25 | 3 | 48.30 | 0 | expected | actionable_ranked_recommendation | observer:q_target=0.76 |
@@ -214,9 +214,9 @@ Thresholds classify deterministic fixture rows as `expected`, `review` or `warni
 - 6 blocked-session rows use the resolved non-actionable hard-block policy.
 - 6 invisible-target rows use the resolved non-actionable invisible-target policy.
 - 6 missing-window rows remain actionable with uncertain timing.
-- 18 rows are classified as calibration warnings by developer-only thresholds.
-- 61 rows are classified as calibration review cases by developer-only thresholds.
-- 66 rows have rank deltas; review large deltas against observing priorities.
+- 16 rows are classified as calibration warnings by developer-only thresholds.
+- 63 rows are classified as calibration review cases by developer-only thresholds.
+- 64 rows have rank deltas; review large deltas against observing priorities.
 - Legacy exposes aperture bonus but not full observer capability, so equipment parity cannot be exact.
 - Legacy and NSOM scores use different semantics and should not be calibrated by raw numeric equality.
 
