@@ -24,8 +24,8 @@ def test_trace_report_data_is_deterministic_and_strict_json() -> None:
 
     assert first_json == second_json
     assert first["metadata"]["developer_only"] is True
-    assert first["metadata"]["scenario_count"] == 108
-    assert first["metadata"]["scenario_group_count"] == 18
+    assert first["metadata"]["scenario_count"] == 120
+    assert first["metadata"]["scenario_group_count"] == 20
     assert first["metadata"]["confidence_role"] == "metadata_only_outside_mathematical_pipeline"
     assert first["metadata"]["nsom_planner_scoring_enabled"] is False
 
@@ -43,6 +43,7 @@ def test_every_trace_has_complete_pipeline_stage_details() -> None:
             assert stage["inputs"]
             assert stage["formula"]
             assert stage["intermediate_calculation"]
+            assert "sub_formulas" in stage
             assert stage["outputs"]
             assert "dominant_positive_contributors" in stage
             assert "dominant_limiting_contributors" in stage
@@ -108,20 +109,80 @@ def test_legacy_unavailable_components_remain_unavailable() -> None:
             assert components[component]["reason"]
 
 
+def test_all_zero_blocked_group_is_tied_non_actionable() -> None:
+    data = generate_trace_report_data()
+    blocked_rows = [row for row in _rows(data) if row["group_id"] == "G09"]
+
+    assert blocked_rows
+    assert all(_stage(row, "ObservationOpportunity")["outputs"]["value"] == pytest.approx(0.0) for row in blocked_rows)
+    for row in blocked_rows:
+        ranking = _stage(row, "FinalPlannerRanking")
+        assert ranking["outputs"]["ranking_status"] == "tied_non_actionable"
+        assert ranking["outputs"]["meaningful_recommendation_order"] is False
+        assert ranking["outputs"]["stable_order_only"] is True
+        assert not any(factor["factor"] == "rank" for factor in ranking["dominant_positive_contributors"])
+        assert any(factor["factor"] == "all_zero_tie" for factor in ranking["dominant_limiting_contributors"])
+
+
+def test_lower_level_formulas_are_present_or_explicitly_marked() -> None:
+    data = generate_trace_report_data()
+    row = _scenario(data, "G02:galaxy")
+    environment = _stage(row, "ObservationEnvironment")
+    observer = _stage(row, "ObserverCapability")
+
+    environment_components = {item["component"]: item for item in environment["sub_formulas"]}
+    observer_components = {item["component"]: item for item in observer["sub_formulas"]}
+
+    for component in (
+        "geometric_visibility",
+        "moon_background",
+        "sky_background",
+        "atmospheric_transparency",
+        "horizon_context",
+    ):
+        assert component in environment_components
+        assert environment_components[component]["status"] in {"available", "adapter-derived", "unavailable"}
+        assert environment_components[component]["formula"]
+
+    for component in (
+        "telescope_aperture_unit",
+        "telescope_focal_length_unit",
+        "telescope_field_width",
+        "tracking_capability",
+        "light_grasp",
+        "resolution",
+        "field_of_view",
+        "magnification_range",
+        "tracking_or_goto",
+        "observer_capability_summary",
+    ):
+        assert component in observer_components
+        assert observer_components[component]["status"] in {"available", "adapter-derived", "unavailable"}
+        assert observer_components[component]["formula"]
+
+
+def test_observing_window_quality_varies_across_report_fixtures() -> None:
+    data = generate_trace_report_data()
+    values = {
+        _stage(row, "ObservationWindow")["outputs"]["value"]
+        for row in _rows(data)
+    }
+
+    assert values == {0.0, 0.5, 1.0}
+
+
 def test_component_diagnostics_report_dominance_and_under_use() -> None:
     data = generate_trace_report_data()
     diagnostics = data["component_diagnostics"]
 
     assert diagnostics["most_common_limiting_factor"]["owner"] == "observer"
     assert diagnostics["most_common_limiting_factor"]["factor"] == "observer_capability_summary"
+    assert diagnostics["dominance_interpretation"] == "frequency_only_not_weight_or_sensitivity"
     assert "ObserverCapability" in diagnostics["component_statistics"]
     assert "RecommendationConfidence" in diagnostics["component_statistics"]
     assert diagnostics["component_statistics"]["RecommendationConfidence"]["range"] > 0.0
     assert diagnostics["components_that_dominate_too_many_scenarios"]
-    assert any(
-        item["owner"] == "opportunity" and item["factor"] == "observing_window_quality"
-        for item in diagnostics["components_that_almost_never_contribute"]
-    )
+    assert diagnostics["fixture_coverage_limitations"]
 
 
 def test_trace_markdown_contains_required_sections_and_all_scenarios() -> None:
@@ -150,7 +211,7 @@ def test_checked_in_trace_report_matches_generator() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Mathematical Trace Report" in text
-    assert "108 deterministic scenarios" in text
+    assert "120 deterministic scenarios" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
 
 

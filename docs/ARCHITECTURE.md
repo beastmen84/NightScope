@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.4.8`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.4.8b`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -139,6 +139,17 @@ with zero score effect. The report also aggregates common limiting/positive
 factors and calibration concerns. It is generated only by explicit developer
 tooling and is not connected to runtime services, QML, automatic logging,
 network work or Planner scoring changes.
+`1.4.8b` hardens that trace report for calibration review. All-zero
+opportunity groups, including blocked sessions, are marked as tied and
+non-actionable so deterministic stable order is not presented as a meaningful
+recommendation. The trace expands lower-level formula diagnostics for Moon
+background, sky background, atmospheric transparency, horizon/geometric
+visibility and observer-capability derivation, marking values as
+adapter-derived or unavailable where inputs are not retained. The deterministic
+report fixtures now expose `observing_window_quality` values of `1.0`, `0.5`
+and `0.0`, and component dominance language is explicitly frequency-based
+rather than a statement about weight or calibrated sensitivity. The hardening
+remains developer/report tooling only.
 
 ## Dependency Flow
 

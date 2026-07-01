@@ -22,9 +22,9 @@ def test_report_data_generates_around_one_hundred_deterministic_scenarios() -> N
     second_json = json.dumps(second, sort_keys=True, allow_nan=False)
 
     assert first_json == second_json
-    assert first["metadata"]["scenario_count"] == 108
-    assert 95 <= first["metadata"]["scenario_count"] <= 115
-    assert first["metadata"]["scenario_group_count"] == 18
+    assert first["metadata"]["scenario_count"] == 120
+    assert 95 <= first["metadata"]["scenario_count"] <= 125
+    assert first["metadata"]["scenario_group_count"] == 20
     assert first["metadata"]["developer_only"] is True
 
 
@@ -135,7 +135,7 @@ def test_checked_in_markdown_report_exists() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Planner Comparison Report" in text
-    assert "108 deterministic scenario rows" in text
+    assert "120 deterministic scenario rows" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
 
 

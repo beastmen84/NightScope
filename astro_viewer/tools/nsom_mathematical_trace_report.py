@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import math
 from collections import Counter
 from pathlib import Path
 from statistics import mean
 
-from astro_viewer.app.models.nsom import nsom_to_json_compatible
+from astro_viewer.app.models.nsom import NSOM_TARGET_CLASS_PROFILES, NsomTargetClass, nsom_to_json_compatible
 from astro_viewer.tools.nsom_planner_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     UNAVAILABLE,
@@ -102,9 +103,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         ),
         (
             "The dominant mathematical review item is observer capability: it is a common "
-            "limiter in the current fixtures because the medium, small and binocular "
-            "profiles intentionally have sub-perfect practical capability. Session viability "
-            "correctly caps blocked or poor sessions without mutating target physics."
+            "limiter in the current fixtures because several profiles intentionally have "
+            "sub-perfect practical capability. This is a frequency observation, not proof "
+            "of an overweighted component. Session viability correctly caps blocked or "
+            "poor sessions without mutating target physics."
         ),
         "",
         "## Methodology",
@@ -112,6 +114,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "- Reuses the existing deterministic NSOM comparison scenario matrix; no random scenarios are generated.",
         "- Builds trace rows from already exported NSOM opportunities and explanations.",
         "- Shows unavailable legacy concepts as unavailable instead of reconstructing or inventing values.",
+        "- Reports lower-level sub-formulas when their inputs are present; otherwise marks the value adapter-derived or unavailable.",
+        "- Marks all-zero opportunity groups as tied/non-actionable so stable order is not treated as recommendation order.",
         "- Does not change Planner scoring, enable the NSOM Planner flag, write runtime files, log automatically, expose QML or perform network work.",
         "- The checked-in Markdown file is generated only by the explicit developer tool command.",
         "",
@@ -230,12 +234,22 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         )
 
     lines.extend(["", "Components that dominate too many scenarios:"])
+    lines.append(
+        "These are frequency counts across fixtures. They are not weight, sensitivity or elasticity measurements by themselves."
+    )
     for item in diagnostics["components_that_dominate_too_many_scenarios"]:
         lines.append(f"- {_factor_count_sentence(item)}")
 
     lines.extend(["", "Components that almost never contribute:"])
-    for item in diagnostics["components_that_almost_never_contribute"]:
-        lines.append(f"- {_factor_count_sentence(item)}")
+    if diagnostics["components_that_almost_never_contribute"]:
+        for item in diagnostics["components_that_almost_never_contribute"]:
+            lines.append(f"- {_factor_count_sentence(item)}")
+    else:
+        lines.append("- none")
+
+    lines.extend(["", "Fixture coverage limitations:"])
+    for item in diagnostics["fixture_coverage_limitations"]:
+        lines.append(f"- {item}")
 
     lines.extend(["", "Opportunities for future calibration:"])
     for item in diagnostics["opportunities_for_future_calibration"]:
@@ -247,8 +261,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Final Recommendations",
             "",
             "1. Keep the trace report developer-only until the Planner NSOM path is ready for default-on evaluation.",
-            "2. Review observer capability calibration before changing Planner rankings because it is the broadest limiter in this matrix.",
-            "3. Add more varied chronology/window fixtures before tuning timing components.",
+            "2. Treat frequent limiter counts as triage signals; confirm with sensitivity fixtures before changing weights.",
+            "3. Review all-zero tie handling before turning blocked-session NSOM Planner output into user-visible order.",
             "4. Continue treating confidence as metadata only; do not convert it into a score multiplier.",
             "",
         ]
@@ -277,10 +291,10 @@ def _trace_scenario(group: dict[str, object], row: dict[str, object]) -> dict[st
     component_values = _component_values(score_components, observable, confidence)
     pipeline = (
         _intrinsic_stage(row, intrinsic, observable),
-        _environment_stage(effective, environment),
+        _environment_stage(row, effective, environment),
         _effective_stage(effective),
         _observable_stage(observable, effective),
-        _observer_stage(observer, score_components),
+        _observer_stage(row, observer, score_components),
         _practical_stage(score_components),
         _window_stage(row, score_components),
         _chronology_stage(row, score_components),
@@ -302,7 +316,7 @@ def _trace_scenario(group: dict[str, object], row: dict[str, object]) -> dict[st
         "legacy": row["legacy"],
         "main_positive_factors": nsom["main_positive_factors"],
         "main_limiting_factors": nsom["main_limiting_factors"],
-        "why_nsom_differs": _why_nsom_differs(row, component_values),
+        "why_nsom_differs": _why_nsom_differs(row, component_values, pipeline[-1]),
     }
 
 
@@ -340,6 +354,7 @@ def _intrinsic_stage(
 
 
 def _environment_stage(
+    row: dict[str, object],
     effective: dict[str, object],
     environment: dict[str, object],
 ) -> dict[str, object]:
@@ -369,6 +384,7 @@ def _environment_stage(
         outputs=components,
         positives=positives,
         limits=limits,
+        sub_formulas=_environment_sub_formulas(row, effective, environment),
     )
 
 
@@ -424,6 +440,7 @@ def _observable_stage(
 
 
 def _observer_stage(
+    row: dict[str, object],
     observer: dict[str, object],
     score_components: dict[str, object],
 ) -> dict[str, object]:
@@ -472,6 +489,7 @@ def _observer_stage(
         outputs={"summary_for_planning": summary, "dimensions": dimensions},
         positives=positives,
         limits=limits,
+        sub_formulas=_observer_sub_formulas(row, observer, dimensions, summary),
     )
 
 
@@ -611,22 +629,50 @@ def _ranking_stage(group: dict[str, object], row: dict[str, object]) -> dict[str
     score = _number(row["nsom"]["score"])
     rank = int(row["nsom"]["rank"])
     group_size = len(group["scenarios"])
+    group_scores = [_number(candidate["nsom"]["score"]) for candidate in group["scenarios"]]
+    all_zero_group = bool(group_scores) and all(abs(value) <= 1e-12 for value in group_scores)
     positives = []
     limits = []
-    if rank == 1:
+    if all_zero_group:
+        limits.append(
+            _factor(
+                "opportunity",
+                "FinalPlannerRanking",
+                "all_zero_tie",
+                0.0,
+                "All candidate opportunity scores are zero; stable order is non-actionable.",
+            )
+        )
+    elif rank == 1:
         positives.append(_factor("opportunity", "FinalPlannerRanking", "rank", 1.0, "This opportunity ranks first in its scenario group."))
     else:
         limits.append(_factor("opportunity", "FinalPlannerRanking", "rank", rank / group_size, "Other opportunities rank higher in this scenario group."))
+    status = "tied_non_actionable" if all_zero_group else "ranked_actionable"
+    calculation = (
+        f"all {group_size} candidate scores are 0.0000; stable position {rank} is non-actionable"
+        if all_zero_group
+        else f"{_fmt(score)} sorts to rank {rank} of {group_size}"
+    )
     return _stage(
         "FinalPlannerRanking",
         inputs={
             "group_id": group["group_id"],
             "candidate_count": group_size,
             "opportunity_score": score,
+            "all_candidate_scores": group_scores,
         },
-        formula="Final Planner ranking = sort ObservationOpportunity scores descending within the scenario group",
-        intermediate_calculation=f"{_fmt(score)} sorts to rank {rank} of {group_size}",
-        outputs={"rank": rank, "score": score},
+        formula=(
+            "Final Planner ranking = sort ObservationOpportunity scores descending; "
+            "if all scores are 0.0, order is a deterministic tie and not actionable"
+        ),
+        intermediate_calculation=calculation,
+        outputs={
+            "rank": rank,
+            "score": score,
+            "ranking_status": status,
+            "meaningful_recommendation_order": not all_zero_group,
+            "stable_order_only": all_zero_group,
+        },
         positives=positives,
         limits=limits,
     )
@@ -667,11 +713,13 @@ def _component_diagnostics(rows: list[dict[str, object]]) -> dict[str, object]:
     return {
         "most_common_limiting_factor": _most_common(limiting_counts),
         "most_common_positive_factor": _most_common(positive_counts),
+        "dominance_interpretation": "frequency_only_not_weight_or_sensitivity",
         "component_statistics": component_stats,
         "limiting_factor_counts": dict(sorted(limiting_counts.items())),
         "positive_factor_counts": dict(sorted(positive_counts.items())),
         "components_that_dominate_too_many_scenarios": dominant,
         "components_that_almost_never_contribute": under_used,
+        "fixture_coverage_limitations": _fixture_coverage_limitations(rows),
         "opportunities_for_future_calibration": _future_calibration_items(dominant, under_used),
     }
 
@@ -695,12 +743,12 @@ def _summary(rows: list[dict[str, object]]) -> dict[str, object]:
         ),
         "behaviour_requiring_review": (
             "ObserverCapability is frequently the broadest limiter; review whether fixture equipment baselines represent intended observing practice.",
-            "Blocked sessions impose a hard zero opportunity value; this is mathematically coherent but needs Planner policy review before default-on use.",
+            "All-zero opportunity groups are tied/non-actionable; stable order should not become user-visible recommendation order.",
             "Legacy score and NSOM value remain different scales, so raw numeric equality is not a calibration target.",
         ),
         "potential_calibration_concerns": (
             "ObserverCapability summary uses a flat mean of seven dimensions; future calibration may need target-class-aware weights.",
-            "Window and chronology components have limited variation in the current deterministic matrix.",
+            "Window and chronology components now vary in fixtures, but the coverage is still synthetic and should not be tuned against alone.",
             "Deep-sky sky-background sensitivity is visible; future work should verify exact slopes against real observing expectations.",
         ),
     }
@@ -716,9 +764,8 @@ def _scenario_markdown(row: dict[str, object]) -> list[str]:
             f"confidence `{row['axes']['confidence_profile']}`."
         ),
         (
-            f"Final NSOM rank {row['pipeline'][-1]['outputs']['rank']} with score "
-            f"{_fmt(row['pipeline'][-1]['outputs']['score'])}; legacy rank "
-            f"{row['legacy']['rank']} with score {_fmt(row['legacy']['score'])}."
+            _ranking_summary(row)
+            + f"; legacy rank {row['legacy']['rank']} with score {_fmt(row['legacy']['score'])}."
         ),
         f"Intended NSOM expectation: {row['intended_nsom_expectation']}.",
         "",
@@ -731,6 +778,7 @@ def _scenario_markdown(row: dict[str, object]) -> list[str]:
                 f"- Inputs: {_compact_mapping(stage['inputs'])}",
                 f"- Formula: {stage['formula']}",
                 f"- Intermediate calculation: {stage['intermediate_calculation']}",
+                f"- Sub-formulas: {_sub_formula_list(stage['sub_formulas'])}",
                 f"- Outputs: {_compact_mapping(stage['outputs'])}",
                 f"- Dominant positive contributors: {_factor_list(stage['dominant_positive_contributors'])}",
                 f"- Dominant limiting contributors: {_factor_list(stage['dominant_limiting_contributors'])}",
@@ -765,6 +813,7 @@ def _scenario_markdown(row: dict[str, object]) -> list[str]:
 def _why_nsom_differs(
     row: dict[str, object],
     component_values: dict[str, float | None],
+    ranking_stage: dict[str, object],
 ) -> tuple[str, ...]:
     effective = row["nsom"]["effective_observability"]
     legacy_components = row["legacy"]["components"]
@@ -778,11 +827,17 @@ def _why_nsom_differs(
     practical = _number(component_values["PracticalTargetValue"])
     session = _number(component_values["SessionViability"])
     rank_delta = int(row["rank_delta"])
-    rank_text = (
-        f"NSOM rank {row['nsom']['rank']} differs from legacy rank {row['legacy']['rank']} by {rank_delta}."
-        if rank_delta
-        else f"NSOM and legacy both rank this target at {row['nsom']['rank']} in this group."
-    )
+    if ranking_stage["outputs"]["ranking_status"] == "tied_non_actionable":
+        rank_text = (
+            "All NSOM opportunity scores in this group are 0.0; stable row order is "
+            "non-actionable and not a meaningful recommendation order."
+        )
+    else:
+        rank_text = (
+            f"NSOM rank {row['nsom']['rank']} differs from legacy rank {row['legacy']['rank']} by {rank_delta}."
+            if rank_delta
+            else f"NSOM and legacy both rank this target at {row['nsom']['rank']} in this group."
+        )
     return (
         rank_text,
         (
@@ -818,12 +873,14 @@ def _stage(
     outputs: dict[str, object],
     positives: list[dict[str, object]],
     limits: list[dict[str, object]],
+    sub_formulas: tuple[dict[str, object], ...] = (),
 ) -> dict[str, object]:
     return {
         "stage": name,
         "inputs": inputs,
         "formula": formula,
         "intermediate_calculation": intermediate_calculation,
+        "sub_formulas": sub_formulas,
         "outputs": outputs,
         "dominant_positive_contributors": tuple(positives),
         "dominant_limiting_contributors": tuple(limits),
@@ -849,6 +906,316 @@ def _observer_dimensions(observer: dict[str, object]) -> dict[str, float]:
         "tracking_or_goto": _number(observer["tracking_or_goto"]),
         "experience_level": _number(observer["experience_level"]),
         "practical_comfort": _number(observer["practical_comfort"]),
+    }
+
+
+def _environment_sub_formulas(
+    row: dict[str, object],
+    effective: dict[str, object],
+    environment: dict[str, object],
+) -> tuple[dict[str, object], ...]:
+    return (
+        _geometric_visibility_formula(row, effective),
+        _moon_background_formula(row, effective),
+        _sky_background_formula(row, effective),
+        _atmospheric_transparency_formula(row, effective),
+        _horizon_context_formula(row, effective),
+        _sub_formula(
+            component="environment_sources",
+            status="adapter-derived",
+            formula="ObservationEnvironment preserves source labels supplied by the runtime environment adapter",
+            inputs={
+                "sky_quality_source": environment.get("sky_quality_source", ""),
+                "weather_source": environment.get("weather_source", ""),
+                "atmosphere_source": environment.get("atmosphere_source", ""),
+            },
+            intermediate_calculation="source labels do not modify score",
+            output=None,
+        ),
+    )
+
+
+def _geometric_visibility_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
+    visible = bool(row["target"].get("visible"))
+    output = _number(effective["geometric_visibility"])
+    return _sub_formula(
+        component="geometric_visibility",
+        status="available",
+        formula="geometric_visibility = 1.0 if target.visible else 0.0",
+        inputs={"target_visible": visible},
+        intermediate_calculation=f"target_visible={visible} -> {_fmt(output)}",
+        output=output,
+    )
+
+
+def _moon_background_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
+    output = _number(effective["lunar_sky_background"])
+    target_class = _target_class(row)
+    profile = _target_profile(target_class)
+    moon = row.get("runtime_inputs", {}).get("moon", {})
+    illumination_text = moon.get("illumination") if isinstance(moon, dict) else None
+    if profile is None or illumination_text is None:
+        return _sub_formula(
+            component="moon_background",
+            status="adapter-derived",
+            formula="PlannerNsomScoringService._moon_background_factor(); profile or Moon input not retained",
+            inputs={"target_class": target_class, "moon_illumination": illumination_text},
+            intermediate_calculation="not enough retained inputs to expand safely",
+            output=output,
+        )
+    max_influence = _clamp_unit(profile.max_moon_influence / 100.0)
+    illumination = _unit_from_percentage_text(illumination_text)
+    severity = _clamp_unit((illumination - 0.2) / 0.8)
+    expected = _clamp_unit(1.0 - (severity * max_influence))
+    return _sub_formula(
+        component="moon_background",
+        status="available",
+        formula=(
+            "moon_background = 1.0 when max_moon_influence <= 0; otherwise "
+            "1.0 - clamp((illumination - 0.2) / 0.8) * clamp(max_moon_influence / 100)"
+        ),
+        inputs={
+            "target_class": target_class,
+            "moon_illumination": illumination_text,
+            "illumination_unit": illumination,
+            "max_moon_influence": profile.max_moon_influence,
+        },
+        intermediate_calculation=(
+            f"1.0 - ({_fmt(severity)} * {_fmt(max_influence)}) = {_fmt(expected)}; "
+            f"reported {_fmt(output)}"
+        ),
+        output=output,
+    )
+
+
+def _sky_background_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
+    output = _number(effective["static_sky_background"])
+    target_class = _target_class(row)
+    profile = _target_profile(target_class)
+    sky_quality = row.get("runtime_inputs", {}).get("sky_quality", {})
+    if profile is None or not isinstance(sky_quality, dict):
+        return _sub_formula(
+            component="sky_background",
+            status="adapter-derived",
+            formula="PlannerNsomScoringService._sky_background_factor(); profile or sky-quality input not retained",
+            inputs={"target_class": target_class},
+            intermediate_calculation="not enough retained inputs to expand safely",
+            output=output,
+        )
+    max_influence = _clamp_unit(profile.max_sky_background_influence / 100.0)
+    radiance = sky_quality.get("viirs_radiance")
+    bortle = sky_quality.get("bortle_class")
+    if radiance is not None:
+        radiance_value = max(0.0, _number(radiance))
+        severity = _clamp_unit(math.log10(radiance_value + 1.0) / 3.0)
+        formula = (
+            "severity = clamp(log10(max(0, viirs_radiance) + 1) / 3); "
+            "sky_background = 1.0 - severity * clamp(max_sky_background_influence / 100)"
+        )
+        inputs = {
+            "target_class": target_class,
+            "viirs_radiance": radiance,
+            "max_sky_background_influence": profile.max_sky_background_influence,
+        }
+    else:
+        severity = _clamp_unit((_number(bortle) - 3.0) / 6.0)
+        formula = (
+            "severity = clamp((bortle_class - 3) / 6); "
+            "sky_background = 1.0 - severity * clamp(max_sky_background_influence / 100)"
+        )
+        inputs = {
+            "target_class": target_class,
+            "bortle_class": bortle,
+            "max_sky_background_influence": profile.max_sky_background_influence,
+        }
+    expected = _clamp_unit(1.0 - (severity * max_influence))
+    return _sub_formula(
+        component="sky_background",
+        status="available",
+        formula=formula,
+        inputs=inputs,
+        intermediate_calculation=(
+            f"1.0 - ({_fmt(severity)} * {_fmt(max_influence)}) = {_fmt(expected)}; "
+            f"reported {_fmt(output)}"
+        ),
+        output=output,
+    )
+
+
+def _atmospheric_transparency_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
+    output = _number(effective["atmospheric_transparency"])
+    scores = row.get("runtime_inputs", {}).get("advanced_scores", {})
+    if not isinstance(scores, dict):
+        return _sub_formula(
+            component="atmospheric_transparency",
+            status="adapter-derived",
+            formula="PlannerNsomScoringService._category_factor(); advanced scores not retained",
+            inputs={},
+            intermediate_calculation="not enough retained inputs to expand safely",
+            output=output,
+        )
+    object_type = str(row["target"].get("object_type", ""))
+    score_name = "planetary_score" if object_type == "Pianeta" else "deep_sky_score"
+    score = _number(scores.get(score_name))
+    expected = _clamp_unit(score / 100.0)
+    return _sub_formula(
+        component="atmospheric_transparency",
+        status="available",
+        formula="atmospheric_transparency = selected AdvancedObservingScores category score / 100",
+        inputs={"object_type": object_type, score_name: score},
+        intermediate_calculation=f"{_fmt(score)} / 100 = {_fmt(expected)}; reported {_fmt(output)}",
+        output=output,
+    )
+
+
+def _horizon_context_formula(row: dict[str, object], effective: dict[str, object]) -> dict[str, object]:
+    output = _number(effective["horizon_context"])
+    altitude_text = row["target"].get("max_altitude", "")
+    altitude = _first_number(altitude_text)
+    visible = bool(row["target"].get("visible"))
+    if altitude is None:
+        expected = 1.0 if visible else 0.0
+        return _sub_formula(
+            component="horizon_context",
+            status="available",
+            formula="horizon_context = 1.0 if target.visible else 0.0 when altitude is unavailable",
+            inputs={"max_altitude": altitude_text, "target_visible": visible},
+            intermediate_calculation=f"altitude unavailable, target_visible={visible} -> {_fmt(expected)}; reported {_fmt(output)}",
+            output=output,
+        )
+    expected = _clamp_unit((altitude - 5.0) / 35.0)
+    return _sub_formula(
+        component="horizon_context",
+        status="available",
+        formula="horizon_context = clamp((max_altitude_degrees - 5) / 35)",
+        inputs={"max_altitude": altitude_text, "max_altitude_degrees": altitude},
+        intermediate_calculation=f"({_fmt(altitude)} - 5.0000) / 35.0000 = {_fmt(expected)}; reported {_fmt(output)}",
+        output=output,
+    )
+
+
+def _observer_sub_formulas(
+    row: dict[str, object],
+    observer: dict[str, object],
+    dimensions: dict[str, float],
+    summary: float,
+) -> tuple[dict[str, object], ...]:
+    telescope = row.get("runtime_inputs", {}).get("telescope", {})
+    aperture = _number(telescope.get("aperture_mm")) if isinstance(telescope, dict) else 0.0
+    focal_length = _number(telescope.get("focal_length_mm")) if isinstance(telescope, dict) else 0.0
+    mount = str(telescope.get("mount", "")) if isinstance(telescope, dict) else ""
+    aperture_unit = _unit_from_range(aperture, lower=50.0, upper=250.0)
+    focal_unit = _unit_from_range(focal_length, lower=350.0, upper=2000.0)
+    field_width = _clamp_unit(1.0 - (0.75 * focal_unit))
+    tracking = _tracking_capability(mount)
+    formulas = [
+        _sub_formula(
+            component="telescope_aperture_unit",
+            status="available",
+            formula="aperture_unit = clamp((aperture_mm - 50) / (250 - 50))",
+            inputs={"aperture_mm": aperture},
+            intermediate_calculation=f"({_fmt(aperture)} - 50.0000) / 200.0000 = {_fmt(aperture_unit)}",
+            output=aperture_unit,
+        ),
+        _sub_formula(
+            component="telescope_focal_length_unit",
+            status="available",
+            formula="focal_length_unit = clamp((focal_length_mm - 350) / (2000 - 350))",
+            inputs={"focal_length_mm": focal_length},
+            intermediate_calculation=f"({_fmt(focal_length)} - 350.0000) / 1650.0000 = {_fmt(focal_unit)}",
+            output=focal_unit,
+        ),
+        _sub_formula(
+            component="telescope_field_width",
+            status="available",
+            formula="field_width = clamp(1.0 - 0.75 * focal_length_unit)",
+            inputs={"focal_length_unit": focal_unit},
+            intermediate_calculation=f"1.0000 - (0.7500 * {_fmt(focal_unit)}) = {_fmt(field_width)}",
+            output=field_width,
+        ),
+        _sub_formula(
+            component="tracking_capability",
+            status="available",
+            formula="tracking = 0.8 for GoTo/tracking/EQ mounts, 0.2 for manual/dob/altaz, otherwise 0.4",
+            inputs={"mount": mount},
+            intermediate_calculation=f"mount={mount} -> {_fmt(tracking)}",
+            output=tracking,
+        ),
+    ]
+    for name in ("light_grasp", "resolution", "field_of_view", "magnification_range", "tracking_or_goto"):
+        formulas.append(
+            _sub_formula(
+                component=name,
+                status="adapter-derived",
+                formula=(
+                    f"{name} is produced from recommendation-adapter base capability plus telescope inputs; "
+                    "base capability is not retained separately in this report row"
+                ),
+                inputs={
+                    "reported_dimension": dimensions[name],
+                    "aperture_unit": aperture_unit,
+                    "focal_length_unit": focal_unit,
+                    "field_width": field_width,
+                    "tracking_capability": tracking,
+                },
+                intermediate_calculation="reported final dimension is traced, base adapter input is unavailable",
+                output=dimensions[name],
+            )
+        )
+    formulas.append(
+        _sub_formula(
+            component="observer_capability_summary",
+            status="available",
+            formula=(
+                "summary = mean(light_grasp, resolution, field_of_view, magnification_range, "
+                "tracking_or_goto, experience_level, practical_comfort)"
+            ),
+            inputs=dimensions,
+            intermediate_calculation=f"mean({_format_values(dimensions.values())}) = {_fmt(summary)}",
+            output=summary,
+        )
+    )
+    if observer.get("filters"):
+        formulas.append(
+            _sub_formula(
+                component="filters",
+                status="available",
+                formula="filters are retained as observer metadata and do not enter the current summary formula",
+                inputs={"filters": observer.get("filters", [])},
+                intermediate_calculation="no score multiplier",
+                output=None,
+            )
+        )
+    else:
+        formulas.append(
+            _sub_formula(
+                component="filters",
+                status="unavailable",
+                formula="no filter contribution is present in the current ObserverCapability summary formula",
+                inputs={"filters": []},
+                intermediate_calculation="no score multiplier",
+                output=None,
+            )
+        )
+    return tuple(formulas)
+
+
+def _sub_formula(
+    *,
+    component: str,
+    status: str,
+    formula: str,
+    inputs: dict[str, object],
+    intermediate_calculation: str,
+    output: object,
+) -> dict[str, object]:
+    return {
+        "component": component,
+        "status": status,
+        "formula": formula,
+        "inputs": inputs,
+        "intermediate_calculation": intermediate_calculation,
+        "output": output,
     }
 
 
@@ -970,7 +1337,7 @@ def _future_calibration_items(
     under_used: tuple[dict[str, object], ...],
 ) -> tuple[str, ...]:
     items = [
-        "Review whether ObserverCapability should remain a flat mean or become target-class aware.",
+        "Review whether ObserverCapability should remain a flat mean or become target-class aware using sensitivity tests, not frequency counts alone.",
         "Keep blocked-session handling explicit before enabling NSOM Planner by default.",
         "Use real observing logs later to calibrate sky-background and atmospheric transparency slopes.",
     ]
@@ -978,7 +1345,7 @@ def _future_calibration_items(
         items.append(
             "Inspect dominant factors "
             + ", ".join(f"{item['owner']}:{item['factor']}" for item in dominant)
-            + " before tuning any weights."
+            + " as high-frequency signals before tuning any weights."
         )
     if under_used:
         items.append(
@@ -987,6 +1354,25 @@ def _future_calibration_items(
             + "."
         )
     return tuple(items)
+
+
+def _fixture_coverage_limitations(rows: list[dict[str, object]]) -> tuple[str, ...]:
+    equipment_counts = Counter(str(row["axes"]["equipment_profile"]) for row in rows)
+    session_counts = Counter(str(row["axes"]["session_profile"]) for row in rows)
+    window_values = sorted(
+        {
+            _factor_value(row, "opportunity", "observing_window_quality")
+            for row in rows
+        }
+    )
+    limitations = [
+        "Dominance counts are frequency counts across deterministic fixtures, not direct sensitivity measurements.",
+        "Component min/max/range is a fixture sensitivity proxy, not calibrated elasticity.",
+        f"Equipment coverage is uneven: {dict(sorted(equipment_counts.items()))}.",
+        f"Session coverage is uneven: {dict(sorted(session_counts.items()))}.",
+        f"Observed observing_window_quality fixture values: {window_values}.",
+    ]
+    return tuple(limitations)
 
 
 def _stats(values: list[float | None]) -> dict[str, float | None]:
@@ -1061,6 +1447,28 @@ def _compact_mapping(value: object) -> str:
     return str(value)
 
 
+def _ranking_summary(row: dict[str, object]) -> str:
+    ranking = row["pipeline"][-1]["outputs"]
+    if ranking["ranking_status"] == "tied_non_actionable":
+        return (
+            f"NSOM ranking tied/non-actionable at score {_fmt(ranking['score'])} "
+            f"(stable position {ranking['rank']}; not a recommendation order)"
+        )
+    return f"Final NSOM rank {ranking['rank']} with score {_fmt(ranking['score'])}"
+
+
+def _sub_formula_list(formulas: list[dict[str, object]]) -> str:
+    if not formulas:
+        return "none"
+    return "; ".join(
+        (
+            f"{item['component']}[{item['status']}]: {item['formula']} "
+            f"=> {item['intermediate_calculation']}"
+        )
+        for item in formulas
+    )
+
+
 def _factor_list(factors: list[dict[str, object]]) -> str:
     if not factors:
         return "none"
@@ -1086,6 +1494,21 @@ def _factor_count_sentence(item: dict[str, object]) -> str:
     return sentence
 
 
+def _target_class(row: dict[str, object]) -> str | None:
+    observable = row["nsom"]["observable_target_value"]
+    target_class = observable.get("target_class") if isinstance(observable, dict) else None
+    return str(target_class) if target_class else None
+
+
+def _target_profile(target_class: str | None):
+    if not target_class:
+        return None
+    try:
+        return NSOM_TARGET_CLASS_PROFILES.get(NsomTargetClass(target_class))
+    except ValueError:
+        return None
+
+
 def _factor_value(row: dict[str, object], owner: str, factor: str) -> float:
     if owner == "sky":
         effective = next(stage for stage in row["pipeline"] if stage["stage"] == "EffectiveObservability")
@@ -1104,6 +1527,49 @@ def _factor_value(row: dict[str, object], owner: str, factor: str) -> float:
         stage = next(stage for stage in row["pipeline"] if stage["stage"] == "ObservationOpportunity")
         return _number(stage["inputs"]["practical_constraints"])
     return 0.0
+
+
+def _unit_from_percentage_text(value: object) -> float:
+    number = _first_number(value)
+    return _clamp_unit((number or 0.0) / 100.0)
+
+
+def _first_number(value: object) -> float | None:
+    text = str(value).replace(",", ".")
+    current = ""
+    found_digit = False
+    for char in text:
+        if char.isdigit() or char in ".-":
+            current += char
+            found_digit = found_digit or char.isdigit()
+        elif current and found_digit:
+            break
+        else:
+            current = ""
+            found_digit = False
+    if not current or not found_digit:
+        return None
+    return _maybe_number(current)
+
+
+def _unit_from_range(value: object, *, lower: float, upper: float) -> float:
+    number = _number(value)
+    if upper <= lower:
+        return 0.0
+    return _clamp_unit((number - lower) / (upper - lower))
+
+
+def _tracking_capability(value: object) -> float:
+    text = str(value).lower()
+    if any(token in text for token in ("goto", "go-to", "computer", "eq", "tracking", "motoriz")):
+        return 0.8
+    if any(token in text for token in ("dob", "altaz", "manual")):
+        return 0.2
+    return 0.4
+
+
+def _clamp_unit(value: object) -> float:
+    return max(0.0, min(1.0, _number(value)))
 
 
 def _fmt(value: object) -> str:

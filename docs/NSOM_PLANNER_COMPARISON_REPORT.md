@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-facing report compares legacy Planner scoring with the default-off experimental NSOM Planner path across 108 deterministic scenario rows in 18 ranked groups.
+This developer-facing report compares legacy Planner scoring with the default-off experimental NSOM Planner path across 120 deterministic scenario rows in 20 ranked groups.
 NSOM generally follows the intended model direction: planets and the Moon remain protected from sky-background damage, galaxies and diffuse nebulae show sky-owned degradation under bright sky, equipment changes practical target value, session viability changes opportunity value, and confidence remains metadata only.
 The inspection also highlights review areas before enabling NSOM by default: legacy and NSOM use different score scales, blocked sessions expose a sharper NSOM session cap than legacy score reduction, and some rank differences are expected rather than regressions.
 
@@ -37,6 +37,8 @@ The inspection also highlights review areas before enabling NSOM by default: leg
 | G16 | dark_sky | good | medium_telescope | low_altitude | high | horizon context should limit EffectiveObservability |
 | G17 | dark_sky | good | medium_telescope | late_window | high | chronology fit should affect opportunity |
 | G18 | dark_sky | good | medium_telescope | standard | low | low confidence should remain metadata |
+| G19 | dark_sky | good | medium_telescope | missing_window | high | missing observing time should expose observing_window_quality 0.5 |
+| G20 | dark_sky | good | medium_telescope | invisible_missing_window | high | invisible target without observing time should expose observing_window_quality 0.0 |
 
 ## Score And Rank Comparison
 
@@ -150,6 +152,18 @@ The inspection also highlights review areas before enabling NSOM by default: leg
 | G18:moon | moon | 3 | 95.67 | 4 | 40.82 | 1 | observer:observer_capability_summary=0.65 |
 | G18:open_cluster | open_cluster | 2 | 96.55 | 5 | 40.32 | 3 | observer:observer_capability_summary=0.65 |
 | G18:globular_cluster | globular_cluster | 6 | 85.85 | 6 | 40.03 | 0 | observer:observer_capability_summary=0.65 |
+| G19:galaxy | galaxy | 4 | 87.04 | 1 | 16.88 | -3 | opportunity:observing_window_quality=0.50 |
+| G19:planet | planet | 1 | 100.24 | 2 | 16.80 | 1 | opportunity:observing_window_quality=0.50 |
+| G19:diffuse_nebula | diffuse_nebula | 5 | 86.90 | 3 | 16.59 | -2 | opportunity:observing_window_quality=0.50 |
+| G19:moon | moon | 3 | 95.67 | 4 | 16.33 | 1 | opportunity:observing_window_quality=0.50 |
+| G19:open_cluster | open_cluster | 2 | 96.55 | 5 | 16.13 | 3 | opportunity:observing_window_quality=0.50 |
+| G19:globular_cluster | globular_cluster | 6 | 85.85 | 6 | 16.01 | 0 | opportunity:observing_window_quality=0.50 |
+| G20:planet | planet | 1 | 100.24 | 1 | 0.00 | 0 | sky:geometric_visibility=0.00 |
+| G20:moon | moon | 3 | 95.67 | 2 | 0.00 | -1 | sky:geometric_visibility=0.00 |
+| G20:galaxy | galaxy | 4 | 87.04 | 3 | 0.00 | -1 | sky:geometric_visibility=0.00 |
+| G20:diffuse_nebula | diffuse_nebula | 5 | 86.90 | 4 | 0.00 | -1 | sky:geometric_visibility=0.00 |
+| G20:open_cluster | open_cluster | 2 | 96.55 | 5 | 0.00 | 3 | sky:geometric_visibility=0.00 |
+| G20:globular_cluster | globular_cluster | 6 | 85.85 | 6 | 0.00 | 0 | sky:geometric_visibility=0.00 |
 
 ## Intentional NSOM Differences From Legacy
 
@@ -173,7 +187,7 @@ The inspection also highlights review areas before enabling NSOM by default: leg
 ## Cases Requiring Further Review
 
 - 6 blocked-session rows need policy review before default-on Planner NSOM.
-- 59 rows have rank deltas; review large deltas against observing priorities.
+- 68 rows have rank deltas; review large deltas against observing priorities.
 - Legacy exposes aperture bonus but not full observer capability, so equipment parity cannot be exact.
 - Legacy and NSOM scores use different semantics and should not be calibrated by raw numeric equality.
 

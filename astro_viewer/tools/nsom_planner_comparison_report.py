@@ -282,7 +282,9 @@ def _evaluate_group(group: MatrixGroup) -> dict[str, object]:
                     "best_time": target.best_time,
                     "observing_window": target.observing_window,
                     "difficulty": target.difficulty,
+                    "visible": target.visible,
                 },
+                "runtime_inputs": _runtime_inputs(group),
                 "legacy": _legacy_projection(legacy_breakdown),
                 "nsom": _nsom_projection(opportunity, explanation),
             }
@@ -362,6 +364,35 @@ def _legacy_projection(breakdown) -> dict[str, object]:  # noqa: ANN001
             "diagnostic_notes": breakdown.conditions.diagnostic_notes,
         },
         "readable_explanation": _legacy_explanation(breakdown),
+    }
+
+
+def _runtime_inputs(group: MatrixGroup) -> dict[str, object]:
+    return {
+        "moon": {
+            "illumination": group.moon.illumination if group.moon else None,
+            "phase": group.moon.phase if group.moon else None,
+        },
+        "sky_quality": {
+            "bortle_class": group.sky_quality.bortle_class,
+            "viirs_radiance": group.sky_quality.viirs_radiance,
+            "source": group.sky_quality.source,
+        },
+        "advanced_scores": {
+            "planetary_score": group.scores.planetary_score,
+            "deep_sky_score": group.scores.deep_sky_score,
+        },
+        "telescope": {
+            "name": group.telescope.name,
+            "aperture_mm": group.telescope.aperture_mm,
+            "focal_length_mm": group.telescope.focal_length_mm,
+            "mount": group.telescope.mount,
+        },
+        "weather": {
+            "score_value": group.weather.score_value,
+            "cloud_cover": group.weather.cloud_cover,
+            "precipitation_probability": group.weather.precipitation_probability,
+        },
     }
 
 
@@ -531,6 +562,8 @@ def _matrix_groups() -> tuple[MatrixGroup, ...]:
         ("G16", "dark_good_medium_low_altitude", "dark_sky", "good", "medium_telescope", "low_altitude", "high"),
         ("G17", "dark_good_medium_late_window", "dark_sky", "good", "medium_telescope", "late_window", "high"),
         ("G18", "dark_good_medium_low_confidence", "dark_sky", "good", "medium_telescope", "standard", "low"),
+        ("G19", "dark_good_medium_missing_window", "dark_sky", "good", "medium_telescope", "missing_window", "high"),
+        ("G20", "dark_good_medium_invisible_window", "dark_sky", "good", "medium_telescope", "invisible_missing_window", "high"),
     )
     return tuple(_matrix_group(*spec) for spec in group_specs)
 
@@ -580,11 +613,20 @@ def _target_for_type(target_type: str, geometry: str) -> CelestialObject:
     object_type, score, magnitude, difficulty, name, best_time = specs[target_type]
     max_altitude = "45 gradi"
     observing_window = f"{best_time} - 02:00"
+    visible = True
     if geometry == "low_altitude":
         max_altitude = "15 gradi"
     elif geometry == "late_window":
         best_time = "04:30"
         observing_window = "04:30 - 05:30"
+    elif geometry == "missing_window":
+        best_time = "Non disponibile"
+        observing_window = "Non disponibile"
+    elif geometry == "invisible_missing_window":
+        max_altitude = "sotto orizzonte"
+        best_time = "Non disponibile"
+        observing_window = "Non disponibile"
+        visible = False
     return CelestialObject(
         id=target_type,
         name=name,
@@ -601,7 +643,7 @@ def _target_for_type(target_type: str, geometry: str) -> CelestialObject:
         visibility_class="",
         azimuth="180 gradi",
         time_above_horizon="3 h",
-        visible=True,
+        visible=visible,
         score=score,
         score_label="Fixture",
         difficulty=difficulty,
@@ -683,6 +725,10 @@ def _expectation(
         parts.append("horizon context should limit EffectiveObservability")
     if geometry_profile == "late_window":
         parts.append("chronology fit should affect opportunity")
+    if geometry_profile == "missing_window":
+        parts.append("missing observing time should expose observing_window_quality 0.5")
+    if geometry_profile == "invisible_missing_window":
+        parts.append("invisible target without observing time should expose observing_window_quality 0.0")
     if confidence_profile == "low":
         parts.append("low confidence should remain metadata")
     return "; ".join(parts) or "baseline NSOM component separation"
