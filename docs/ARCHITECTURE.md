@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.0`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.1`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -170,6 +170,16 @@ not mutate `ObservableTargetValue`, and records that the current flat
 `ObserverCapability.summary_for_planning()` produces uniform observer-summary
 deltas across target classes. This is evidence for a future target-specific
 weighting decision, not a calibration or scoring change.
+`1.5.1` adds the internal experimental `Q_target` projection:
+`project_observer_capability_for_target(observer_capability, target_class)`.
+`ObserverCapability` remains multidimensional; `Q_target` is only the
+Observer-layer scalar projection consumed by the default-off NSOM Planner path
+when building `PracticalTargetValue`. Target-class weighting profiles are
+explicit for planet, Moon, galaxy, diffuse nebula, open cluster and globular
+cluster. Reports now show the full ObserverCapability profile, the flat summary,
+`Q_target`, the weighting profile and the practical-value delta versus flat.
+This is not final calibration, does not alter legacy Planner scoring and does
+not expose anything to QML.
 
 ## Dependency Flow
 

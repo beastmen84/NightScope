@@ -9,12 +9,14 @@ import pytest
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
+    NsomTargetClass,
     ObservableTargetValue,
     ObservationOpportunity,
     ObserverCapability,
     PracticalTargetValue,
     RecommendationConfidence,
     SessionViability,
+    project_observer_capability_for_target,
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
@@ -203,6 +205,48 @@ def test_observer_equipment_changes_practical_value_without_changing_observable(
     assert large_scope_practical.observable_target_value is observable
     assert observable.value == pytest.approx(80.0)
     assert large_scope_practical.value > small_scope_practical.value
+
+
+def test_planner_nsom_uses_q_target_projection_for_practical_value() -> None:
+    service = PlannerNsomScoringService()
+    galaxy_target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    open_cluster_target = _target("open-cluster", "Open Cluster", 82, "Facile", "21:00", "5.0")
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=80.0,
+        effective_observability=EffectiveObservability.from_components(),
+        target_class=NsomTargetClass.GALAXY,
+    )
+    telescope = _telescope(aperture_mm=127, focal_length_mm=1500, mount="manual")
+
+    galaxy_practical = service.practical_target_value_from_observable(
+        observable,
+        galaxy_target,
+        telescope=telescope,
+    )
+    open_cluster_observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=80.0,
+        effective_observability=EffectiveObservability.from_components(),
+        target_class=NsomTargetClass.OPEN_CLUSTER,
+    )
+    open_cluster_practical = service.practical_target_value_from_observable(
+        open_cluster_observable,
+        open_cluster_target,
+        telescope=telescope,
+    )
+    observer = galaxy_practical.observer_capability
+
+    assert galaxy_practical.observer_capability_summary == pytest.approx(
+        project_observer_capability_for_target(observer, NsomTargetClass.GALAXY)
+    )
+    assert open_cluster_practical.observer_capability_summary == pytest.approx(
+        project_observer_capability_for_target(observer, NsomTargetClass.OPEN_CLUSTER)
+    )
+    assert galaxy_practical.observer_capability_summary != pytest.approx(
+        open_cluster_practical.observer_capability_summary
+    )
+    assert galaxy_practical.observable_target_value.value == pytest.approx(
+        open_cluster_practical.observable_target_value.value
+    )
 
 
 def test_confidence_does_not_affect_nsom_planner_score() -> None:

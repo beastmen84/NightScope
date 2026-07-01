@@ -15,6 +15,8 @@ from astro_viewer.app.models.nsom import (
     PracticalTargetValue,
     RecommendationConfidence,
     nsom_to_json_compatible,
+    observer_capability_weight_profile_for_target,
+    project_observer_capability_for_target,
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
@@ -93,7 +95,15 @@ class PlannerNsomScoringService:
         telescope: Telescope,
     ) -> PracticalTargetValue:
         observer_capability = self.observer_capability(item, telescope=telescope)
-        return build_practical_target_value(observable_target_value, observer_capability)
+        q_target = project_observer_capability_for_target(
+            observer_capability,
+            observable_target_value.target_class,
+        )
+        return build_practical_target_value(
+            observable_target_value,
+            observer_capability,
+            capability_summary=q_target,
+        )
 
     @staticmethod
     def observer_capability(item: CelestialObject, *, telescope: Telescope) -> ObserverCapability:
@@ -209,6 +219,9 @@ class PlannerNsomScoringService:
         effective = observable.effective_observability
         observer = practical.observer_capability
         target_class = observable.target_class.value if observable.target_class else None
+        flat_observer_summary = observer.summary_for_planning()
+        q_target = practical.observer_capability_summary
+        target_weighting = observer_capability_weight_profile_for_target(observable.target_class)
         explanation = {
             "target": {
                 "object_id": item.id,
@@ -221,7 +234,10 @@ class PlannerNsomScoringService:
                 "practical_target_value": practical.value,
                 "observable_target_value": observable.value,
                 "effective_observability": effective.value,
-                "observer_capability_summary": practical.observer_capability_summary,
+                "observer_capability_summary": q_target,
+                "q_target": q_target,
+                "flat_observer_capability_summary": flat_observer_summary,
+                "q_target_delta_vs_flat": q_target - flat_observer_summary,
                 "session_viability": opportunity.session.value,
                 "observing_window_quality": opportunity.observing_window_quality,
                 "chronology_fit": opportunity.chronology_fit,
@@ -234,7 +250,10 @@ class PlannerNsomScoringService:
                 "observer_capability_summary": practical.observer_capability_summary,
                 "observer_capability": {
                     **nsom_to_json_compatible(observer),
-                    "summary_for_planning": observer.summary_for_planning(),
+                    "summary_for_planning": flat_observer_summary,
+                    "q_target": q_target,
+                    "q_target_delta_vs_flat": q_target - flat_observer_summary,
+                    "target_class_weighting_profile": target_weighting,
                 },
                 "session_viability": opportunity.session,
                 "recommendation_confidence": _confidence_explanation(opportunity.confidence),
@@ -320,9 +339,9 @@ def _main_limiting_factors(opportunity: ObservationOpportunity) -> tuple[dict[st
         factors,
         owner="observer",
         component="PracticalTargetValue",
-        factor="observer_capability_summary",
+        factor="q_target",
         value=practical.observer_capability_summary,
-        reason="Equipment and observer capability reduce practical target value.",
+        reason="Target-specific observer capability projection reduces practical target value.",
     )
     _append_factor_if_below(
         factors,
@@ -402,9 +421,9 @@ def _main_positive_factors(opportunity: ObservationOpportunity) -> tuple[dict[st
         factors,
         owner="observer",
         component="PracticalTargetValue",
-        factor="observer_capability_summary",
+        factor="q_target",
         value=practical.observer_capability_summary,
-        reason="Equipment and observer capability support practical target value.",
+        reason="Target-specific observer capability projection supports practical target value.",
         threshold=0.65,
     )
     _append_factor_if_at_least(

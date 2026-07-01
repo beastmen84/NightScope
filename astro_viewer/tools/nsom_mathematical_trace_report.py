@@ -306,17 +306,17 @@ def _observer_capability_review_markdown(review: dict[str, object]) -> list[str]
             "inputs stable. Legacy scores are not used as expected output."
         ),
         "",
-        "Findings from the current flat summary:",
+        "Findings from the current experimental projection:",
     ]
-    for item in aggregate["flat_mean_findings"]:
+    for item in aggregate["observer_projection_findings"]:
         lines.append(f"- {item}")
     lines.extend(
         [
             f"- Target-specific weighting review: `{aggregate['target_specific_weighting_review']}`.",
             f"- Confidence score delta in the review check: {_fmt(review['confidence_neutrality']['score_delta'])}.",
             "",
-            "| Target Class | Observer Change | Representability | Summary Delta | Practical Delta | Observable Unchanged | Future Weighting Note |",
-            "| --- | --- | --- | ---: | ---: | --- | --- |",
+            "| Target Class | Observer Change | Representability | Flat Delta | Q_target Delta | Practical Delta | Observable Unchanged | Future Weighting Note |",
+            "| --- | --- | --- | ---: | ---: | ---: | --- | --- |",
         ]
     )
     for row in review["cases"]:
@@ -327,7 +327,8 @@ def _observer_capability_review_markdown(review: dict[str, object]) -> list[str]
                     str(row["target_class"]),
                     str(row["changed_observer_dimension"]),
                     str(row["representability"]),
-                    _fmt(row["observer_capability_summary_delta"]),
+                    _fmt(row["flat_observer_capability_summary_delta"]),
+                    _fmt(row["q_target_delta"]),
                     _fmt(row["practical_target_value_delta"]),
                     str(row["observable_target_value_unchanged"]),
                     str(row["notes_for_future_target_specific_weighting"]),
@@ -507,7 +508,10 @@ def _observer_stage(
     score_components: dict[str, object],
 ) -> dict[str, object]:
     dimensions = _observer_dimensions(observer)
-    summary = _number(score_components["observer_capability_summary"])
+    q_target = _number(score_components.get("q_target", score_components["observer_capability_summary"]))
+    flat_summary = _number(score_components.get("flat_observer_capability_summary", observer.get("summary_for_planning")))
+    q_target_delta_vs_flat = _number(score_components.get("q_target_delta_vs_flat"))
+    target_weighting = observer.get("target_class_weighting_profile", {})
     positives, limits = _unit_component_factors(
         dimensions,
         owner="observer",
@@ -539,39 +543,49 @@ def _observer_stage(
             "observing_style": observer.get("observing_style"),
             "notes": notes,
         },
+        "flat_summary_for_planning": flat_summary,
+        "q_target": q_target,
+        "q_target_delta_vs_flat": q_target_delta_vs_flat,
+        "target_class_weighting_profile": target_weighting,
     }
     return _stage(
         "ObserverCapability",
         inputs=inputs,
         formula=(
-            "ObserverCapability summary = mean(light_grasp, resolution, field_of_view, "
-            "magnification_range, tracking_or_goto, experience_level, practical_comfort)"
+            "Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile); "
+            "flat summary is retained for comparison only"
         ),
-        intermediate_calculation=f"mean({_format_values(dimensions.values())}) = {_fmt(summary)}",
-        outputs={"summary_for_planning": summary, "dimensions": dimensions},
+        intermediate_calculation=_weighted_calculation(dimensions, target_weighting, q_target),
+        outputs={
+            "flat_summary_for_planning": flat_summary,
+            "q_target": q_target,
+            "q_target_delta_vs_flat": q_target_delta_vs_flat,
+            "dimensions": dimensions,
+            "target_class_weighting_profile": target_weighting,
+        },
         positives=positives,
         limits=limits,
-        sub_formulas=_observer_sub_formulas(row, observer, dimensions, summary),
+        sub_formulas=_observer_sub_formulas(row, observer, dimensions, flat_summary, q_target, target_weighting),
     )
 
 
 def _practical_stage(score_components: dict[str, object]) -> dict[str, object]:
     observable = _number(score_components["observable_target_value"])
-    capability = _number(score_components["observer_capability_summary"])
+    capability = _number(score_components.get("q_target", score_components["observer_capability_summary"]))
     practical = _number(score_components["practical_target_value"])
     positives = []
     limits = []
     if capability >= 0.995:
-        positives.append(_factor("observer", "PracticalTargetValue", "observer_capability_summary", capability, "Observer capability preserves observable target value."))
+        positives.append(_factor("observer", "PracticalTargetValue", "q_target", capability, "Q_target preserves observable target value."))
     else:
-        limits.append(_factor("observer", "PracticalTargetValue", "observer_capability_summary", capability, "Observer capability reduces practical target value."))
+        limits.append(_factor("observer", "PracticalTargetValue", "q_target", capability, "Q_target reduces practical target value."))
     return _stage(
         "PracticalTargetValue",
         inputs={
             "observable_target_value": observable,
-            "observer_capability_summary": capability,
+            "q_target": capability,
         },
-        formula="PracticalTargetValue = ObservableTargetValue * ObserverCapability summary",
+        formula="PracticalTargetValue = ObservableTargetValue * Q_target",
         intermediate_calculation=f"{_fmt(observable)} * {_fmt(capability)} = {_fmt(practical)}",
         outputs={"value": practical},
         positives=positives,
@@ -806,12 +820,12 @@ def _summary(rows: list[dict[str, object]]) -> dict[str, object]:
             f"All confidence score effects are {sorted(set(confidence_score_effects))}; confidence remains metadata only.",
         ),
         "behaviour_requiring_review": (
-            "ObserverCapability is frequently the broadest limiter; review whether fixture equipment baselines represent intended observing practice.",
+            "Q_target is frequently the broadest observer limiter; review whether fixture equipment baselines represent intended observing practice.",
             "All-zero opportunity groups are tied/non-actionable; stable order should not become user-visible recommendation order.",
             "Legacy score and NSOM value remain different scales, so raw numeric equality is not a calibration target.",
         ),
         "potential_calibration_concerns": (
-            "ObserverCapability summary uses a flat mean of seven dimensions; future calibration may need target-class-aware weights.",
+            "Q_target now uses experimental target-class-aware observer weights; future work should validate the profiles before calibration.",
             "Window and chronology components now vary in fixtures, but the coverage is still synthetic and should not be tuned against alone.",
             "Deep-sky sky-background sensitivity is visible; future work should verify exact slopes against real observing expectations.",
         ),
@@ -918,7 +932,7 @@ def _why_nsom_differs(
             f"legacy exposes pollution_penalty {_fmt(legacy_pollution)}."
         ),
         (
-            f"ObserverCapability summary {_fmt(observer)} turns ObservableTargetValue "
+            f"Q_target {_fmt(observer)} turns ObservableTargetValue "
             f"{_fmt(observable)} into PracticalTargetValue {_fmt(practical)}; legacy exposes "
             f"only aperture_bonus {_fmt(_legacy_value(legacy_components, 'aperture_bonus'))}."
         ),
@@ -976,6 +990,32 @@ def _observer_dimensions(observer: dict[str, object]) -> dict[str, float]:
         "experience_level": _number(observer["experience_level"]),
         "practical_comfort": _number(observer["practical_comfort"]),
     }
+
+
+def _weighted_calculation(
+    dimensions: dict[str, float],
+    weights: object,
+    output: float,
+) -> str:
+    if not isinstance(weights, dict) or not weights:
+        return f"mean({_format_values(dimensions.values())}) = {_fmt(output)}"
+    numerator = sum(dimensions[name] * _number(weights.get(name)) for name in dimensions)
+    denominator = sum(_number(weights.get(name)) for name in dimensions)
+    terms = " + ".join(
+        f"{name}({_fmt(dimensions[name])})*{_fmt(weights.get(name))}"
+        for name in dimensions
+    )
+    return f"({terms}) / {_fmt(denominator)} = {_fmt(output)}; numerator={_fmt(numerator)}"
+
+
+def _weighted_expected(dimensions: dict[str, float], weights: object) -> float:
+    if not isinstance(weights, dict) or not weights:
+        return sum(dimensions.values()) / len(dimensions)
+    numerator = sum(dimensions[name] * _number(weights.get(name)) for name in dimensions)
+    denominator = sum(_number(weights.get(name)) for name in dimensions)
+    if denominator <= 0.0:
+        return sum(dimensions.values()) / len(dimensions)
+    return _clamp_unit(numerator / denominator)
 
 
 def _window_sub_formulas(row: dict[str, object], output: float) -> tuple[dict[str, object], ...]:
@@ -1256,7 +1296,9 @@ def _observer_sub_formulas(
     row: dict[str, object],
     observer: dict[str, object],
     dimensions: dict[str, float],
-    summary: float,
+    flat_summary: float,
+    q_target: float,
+    target_weighting: object,
 ) -> tuple[dict[str, object], ...]:
     telescope = row.get("runtime_inputs", {}).get("telescope", {})
     aperture = _number(telescope.get("aperture_mm")) if isinstance(telescope, dict) else 0.0
@@ -1333,14 +1375,29 @@ def _observer_sub_formulas(
             component="observer_capability_summary",
             status="available",
             formula=(
-                "summary = mean(light_grasp, resolution, field_of_view, magnification_range, "
+                "flat_summary = mean(light_grasp, resolution, field_of_view, magnification_range, "
                 "tracking_or_goto, experience_level, practical_comfort)"
             ),
             inputs=dimensions,
-            intermediate_calculation=f"mean({_format_values(dimensions.values())}) = {_fmt(summary)}",
-            output=summary,
+            intermediate_calculation=f"mean({_format_values(dimensions.values())}) = {_fmt(flat_summary)}",
+            output=flat_summary,
             expected_output=sum(dimensions.values()) / len(dimensions),
-            matches_reported_output=_matches_expected(sum(dimensions.values()) / len(dimensions), summary),
+            matches_reported_output=_matches_expected(sum(dimensions.values()) / len(dimensions), flat_summary),
+        )
+    )
+    formulas.append(
+        _sub_formula(
+            component="q_target",
+            status="available",
+            formula="Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile)",
+            inputs={
+                "dimensions": dimensions,
+                "target_class_weighting_profile": target_weighting,
+            },
+            intermediate_calculation=_weighted_calculation(dimensions, target_weighting, q_target),
+            output=q_target,
+            expected_output=_weighted_expected(dimensions, target_weighting),
+            matches_reported_output=_matches_expected(_weighted_expected(dimensions, target_weighting), q_target),
         )
     )
     if observer.get("filters"):
@@ -1479,7 +1536,7 @@ def _under_used_factors(
         ("sky", "sky_background"),
         ("sky", "atmospheric_transparency"),
         ("sky", "horizon_context"),
-        ("observer", "observer_capability_summary"),
+        ("observer", "q_target"),
         ("session", "session_viability"),
         ("opportunity", "observing_window_quality"),
         ("opportunity", "chronology_fit"),
@@ -1509,7 +1566,7 @@ def _future_calibration_items(
     under_used: tuple[dict[str, object], ...],
 ) -> tuple[str, ...]:
     items = [
-        "Review whether ObserverCapability should remain a flat mean or become target-class aware using sensitivity tests, not frequency counts alone.",
+        "Validate the experimental Q_target weighting profiles with sensitivity tests before any calibration or default-on Planner work.",
         "Keep blocked-session handling explicit before enabling NSOM Planner by default.",
         "Use real observing logs later to calibrate sky-background and atmospheric transparency slopes.",
     ]
@@ -1708,7 +1765,7 @@ def _factor_value(row: dict[str, object], owner: str, factor: str) -> float:
     if owner == "sky":
         effective = next(stage for stage in row["pipeline"] if stage["stage"] == "EffectiveObservability")
         return _number(effective["inputs"].get(factor))
-    if owner == "observer" and factor == "observer_capability_summary":
+    if owner == "observer" and factor in {"observer_capability_summary", "q_target"}:
         return _number(row["component_values"]["ObserverCapability"])
     if owner == "session" and factor == "session_viability":
         return _number(row["component_values"]["SessionViability"])

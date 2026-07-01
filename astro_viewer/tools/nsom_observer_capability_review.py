@@ -4,7 +4,14 @@ from dataclasses import replace
 from statistics import mean
 
 from astro_viewer.app.models.equipment import Telescope
-from astro_viewer.app.models.nsom import PracticalTargetValue, RecommendationConfidence, nsom_to_json_compatible
+from astro_viewer.app.models.nsom import (
+    NsomTargetClass,
+    PracticalTargetValue,
+    RecommendationConfidence,
+    nsom_to_json_compatible,
+    observer_capability_weight_profile_for_target,
+    project_observer_capability_for_target,
+)
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
@@ -62,6 +69,7 @@ def generate_observer_capability_review_data() -> dict[str, object]:
                 _review_case(
                     service,
                     target_class=target_class,
+                    nsom_target_class=_target_class_from_label(target_class),
                     target=target,
                     baseline=baseline,
                     baseline_telescope=telescope,
@@ -101,6 +109,7 @@ def _review_case(
     service: PlannerNsomScoringService,
     *,
     target_class: str,
+    nsom_target_class: NsomTargetClass,
     target: CelestialObject,
     baseline: PracticalTargetValue,
     baseline_telescope: Telescope,
@@ -120,9 +129,11 @@ def _review_case(
             practical_comfort=0.95,
             notes=(*baseline.observer_capability.notes, "observer_review:practical_comfort_only"),
         )
+        changed_q_target = project_observer_capability_for_target(changed_observer, nsom_target_class)
         changed = PracticalTargetValue.from_observable(
             observable_target_value=baseline.observable_target_value,
             observer_capability=changed_observer,
+            capability_summary=changed_q_target,
         )
     else:
         changed = service.practical_target_value(
@@ -147,8 +158,30 @@ def _review_case(
     observable_unchanged = abs(
         changed.observable_target_value.value - baseline.observable_target_value.value
     ) <= 1e-12
+    baseline_flat_summary = baseline.observer_capability.summary_for_planning()
+    changed_flat_summary = changed.observer_capability.summary_for_planning()
+    flat_summary_delta = changed_flat_summary - baseline_flat_summary
+    baseline_q_target = project_observer_capability_for_target(
+        baseline.observer_capability,
+        nsom_target_class,
+    )
+    changed_q_target = project_observer_capability_for_target(
+        changed.observer_capability,
+        nsom_target_class,
+    )
+    q_target_delta = changed_q_target - baseline_q_target
+    baseline_flat_practical = PracticalTargetValue.from_observable(
+        observable_target_value=baseline.observable_target_value,
+        observer_capability=baseline.observer_capability,
+        capability_summary=baseline_flat_summary,
+    )
+    changed_flat_practical = PracticalTargetValue.from_observable(
+        observable_target_value=changed.observable_target_value,
+        observer_capability=changed.observer_capability,
+        capability_summary=changed_flat_summary,
+    )
     practical_delta = changed.value - baseline.value
-    summary_delta = changed.observer_capability_summary - baseline.observer_capability_summary
+    q_target_delta_vs_flat = changed_q_target - changed_flat_summary
     return {
         "target_class": target_class,
         "target_identity": {
@@ -158,12 +191,25 @@ def _review_case(
         },
         "changed_observer_dimension": case_name,
         "representability": representability,
+        "target_class_weighting_profile": observer_capability_weight_profile_for_target(nsom_target_class),
+        "baseline_flat_observer_capability_summary": baseline_flat_summary,
+        "changed_flat_observer_capability_summary": changed_flat_summary,
+        "flat_observer_capability_summary_delta": flat_summary_delta,
+        "baseline_q_target": baseline_q_target,
+        "changed_q_target": changed_q_target,
+        "q_target_delta": q_target_delta,
+        "q_target_delta_vs_flat": q_target_delta_vs_flat,
         "baseline_observer_capability_summary": baseline.observer_capability_summary,
         "changed_observer_capability_summary": changed.observer_capability_summary,
-        "observer_capability_summary_delta": summary_delta,
+        "observer_capability_summary_delta": q_target_delta,
         "baseline_practical_target_value": baseline.value,
         "changed_practical_target_value": changed.value,
         "practical_target_value_delta": practical_delta,
+        "baseline_practical_target_value_using_q_target": baseline.value,
+        "changed_practical_target_value_using_q_target": changed.value,
+        "baseline_practical_target_value_using_flat_summary": baseline_flat_practical.value,
+        "changed_practical_target_value_using_flat_summary": changed_flat_practical.value,
+        "practical_target_value_q_target_delta_vs_flat": changed.value - changed_flat_practical.value,
         "baseline_observable_target_value": baseline.observable_target_value.value,
         "changed_observable_target_value": changed.observable_target_value.value,
         "observable_target_value_unchanged": observable_unchanged,
@@ -171,7 +217,12 @@ def _review_case(
         "changed_dimensions": changed_dimensions,
         "dimension_delta": dimension_delta,
         "changed_dimensions_only": changed_dimensions_only,
-        "direction_makes_nsom_sense": practical_delta > 0 and observable_unchanged,
+        "direction_makes_nsom_sense": _direction_makes_nsom_sense(
+            target_class,
+            case_name,
+            q_target_delta,
+            observable_unchanged,
+        ),
         "legacy_score_used_as_expected_output": False,
         "notes_for_future_target_specific_weighting": _target_specific_note(case_name),
         "case_note": case_note,
@@ -233,14 +284,19 @@ def _aggregate_review(cases: list[dict[str, object]]) -> dict[str, object]:
     by_dimension = {}
     for case_name in OBSERVER_REVIEW_CASES:
         rows = [row for row in cases if row["changed_observer_dimension"] == case_name]
-        summary_deltas = [float(row["observer_capability_summary_delta"]) for row in rows]
+        flat_summary_deltas = [float(row["flat_observer_capability_summary_delta"]) for row in rows]
+        q_target_deltas = [float(row["q_target_delta"]) for row in rows]
         practical_deltas = [float(row["practical_target_value_delta"]) for row in rows]
         by_dimension[case_name] = {
             "target_class_count": len({row["target_class"] for row in rows}),
-            "summary_delta_min": min(summary_deltas),
-            "summary_delta_max": max(summary_deltas),
-            "summary_delta_average": mean(summary_deltas),
-            "summary_delta_uniform_across_target_classes": _all_close(summary_deltas),
+            "flat_summary_delta_min": min(flat_summary_deltas),
+            "flat_summary_delta_max": max(flat_summary_deltas),
+            "flat_summary_delta_average": mean(flat_summary_deltas),
+            "flat_summary_delta_uniform_across_target_classes": _all_close(flat_summary_deltas),
+            "q_target_delta_min": min(q_target_deltas),
+            "q_target_delta_max": max(q_target_deltas),
+            "q_target_delta_average": mean(q_target_deltas),
+            "q_target_delta_uniform_across_target_classes": _all_close(q_target_deltas),
             "practical_delta_min": min(practical_deltas),
             "practical_delta_max": max(practical_deltas),
             "practical_delta_average": mean(practical_deltas),
@@ -251,18 +307,24 @@ def _aggregate_review(cases: list[dict[str, object]]) -> dict[str, object]:
     uniform_cases = [
         name
         for name, stats in by_dimension.items()
-        if stats["summary_delta_uniform_across_target_classes"]
+        if stats["flat_summary_delta_uniform_across_target_classes"]
+    ]
+    target_specific_cases = [
+        name
+        for name, stats in by_dimension.items()
+        if not stats["q_target_delta_uniform_across_target_classes"]
     ]
     return {
         "by_changed_observer_dimension": by_dimension,
-        "flat_mean_findings": (
+        "observer_projection_findings": (
             "The current flat mean produces the same ObserverCapability summary delta for each isolated observer change across all target classes.",
-            "PracticalTargetValue deltas vary only because ObservableTargetValue differs by target class; the observer multiplier itself is target-class neutral.",
-            "Focal length is mixed in the current model: it improves magnification_range while reducing field_of_view, and the flat mean nets those dimensions uniformly.",
+            "Experimental Q_target produces target-class-specific observer deltas while preserving the full ObserverCapability profile.",
+            "Focal length remains mixed: it improves magnification_range while reducing field_of_view, so Q_target can improve compact targets and reduce wide-field targets.",
             "Practical comfort can be isolated in the core DTO but not through the current Planner telescope adapter.",
         ),
         "uniform_summary_delta_cases": tuple(uniform_cases),
-        "target_specific_weighting_review": "recommended_before_calibration",
+        "q_target_class_specific_cases": tuple(target_specific_cases),
+        "target_specific_weighting_review": "q_target_experimental_internal",
     }
 
 
@@ -313,6 +375,18 @@ def _target_cases() -> tuple[tuple[str, CelestialObject], ...]:
         (target_class, _target(object_id, object_type, name, difficulty))
         for target_class, object_id, object_type, name, difficulty in TARGET_CLASS_SPECS
     )
+
+
+def _target_class_from_label(target_class: str) -> NsomTargetClass:
+    mapping = {
+        "planet": NsomTargetClass.PLANET,
+        "moon": NsomTargetClass.MOON,
+        "galaxy": NsomTargetClass.GALAXY,
+        "diffuse_nebula": NsomTargetClass.DIFFUSE_NEBULA,
+        "open_cluster": NsomTargetClass.OPEN_CLUSTER,
+        "globular_cluster": NsomTargetClass.GLOBULAR_CLUSTER,
+    }
+    return mapping[target_class]
 
 
 def _target(object_id: str, object_type: str, name: str, difficulty: str) -> CelestialObject:
@@ -415,6 +489,20 @@ def _target_specific_note(case_name: str) -> str:
         "practical_comfort_setup_only": "Review whether setup comfort should remain a general practicality factor or vary by target workflow.",
     }
     return notes[case_name]
+
+
+def _direction_makes_nsom_sense(
+    target_class: str,
+    case_name: str,
+    q_target_delta: float,
+    observable_unchanged: bool,
+) -> bool:
+    if not observable_unchanged or abs(q_target_delta) <= 1e-12:
+        return False
+    if case_name == "focal_length_only":
+        compact_classes = {"planet", "moon", "globular_cluster"}
+        return q_target_delta > 0 if target_class in compact_classes else q_target_delta < 0
+    return q_target_delta > 0
 
 
 def _all_close(values: list[float], *, tolerance: float = 1e-12) -> bool:

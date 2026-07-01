@@ -537,6 +537,27 @@ tracking, field-of-view and practical-comfort changes produce uniform observer
 summary deltas across target classes. That is useful evidence for reviewing
 `Q_target` before calibration; it is not a weight tuning change.
 
+Implementation note for 1.5.1: the experimental Planner path now uses an
+internal Observer-layer projection named `Q_target`:
+
+```text
+Q_target = project_observer_capability_for_target(
+    ObserverCapabilityProfile,
+    target_class,
+)
+```
+
+The profile remains multidimensional. `Q_target` is only the scalar projection
+used when `PracticalTargetValue` needs a multiplier. Explicit internal weighting
+profiles cover planet, Moon, galaxy, diffuse nebula, open cluster and globular
+cluster. Planets emphasize resolution, magnification and tracking; Moon
+emphasizes resolution and practical comfort; galaxies emphasize light grasp and
+field of view; diffuse nebulae emphasize light grasp, field of view and setup
+suitability represented by practical comfort; open clusters emphasize field of
+view and comfort; globular clusters emphasize light grasp and resolution. These
+profiles are experimental evidence for the next review step, not final
+calibration.
+
 Examples:
 
 - binocular-only profile;

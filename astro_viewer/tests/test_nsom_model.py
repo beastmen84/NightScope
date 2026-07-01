@@ -8,6 +8,7 @@ import pytest
 
 from astro_viewer.app.models.nsom import (
     IntrinsicTargetQuality,
+    OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES,
     NSOM_TARGET_CLASS_PROFILES,
     EffectiveObservability,
     NsomDiagnosticSnapshot,
@@ -21,7 +22,9 @@ from astro_viewer.app.models.nsom import (
     PracticalTargetValue,
     RecommendationConfidence,
     SessionViability,
+    observer_capability_weight_profile_for_target,
     nsom_to_json_compatible,
+    project_observer_capability_for_target,
 )
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
@@ -208,6 +211,152 @@ def test_observer_capability_is_structured_not_only_scalar() -> None:
     assert profile.filters == ("UHC",)
     assert profile.observing_style == "visual"
     assert profile.summary_for_planning() == pytest.approx(0.6357142857)
+
+
+def test_q_target_profiles_cover_required_classes_and_match_nsom_semantics() -> None:
+    required = {
+        NsomTargetClass.PLANET,
+        NsomTargetClass.MOON,
+        NsomTargetClass.GALAXY,
+        NsomTargetClass.DIFFUSE_NEBULA,
+        NsomTargetClass.OPEN_CLUSTER,
+        NsomTargetClass.GLOBULAR_CLUSTER,
+    }
+
+    assert required.issubset(OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES)
+
+    planet = observer_capability_weight_profile_for_target(NsomTargetClass.PLANET)
+    moon = observer_capability_weight_profile_for_target(NsomTargetClass.MOON)
+    galaxy = observer_capability_weight_profile_for_target(NsomTargetClass.GALAXY)
+    diffuse = observer_capability_weight_profile_for_target(NsomTargetClass.DIFFUSE_NEBULA)
+    open_cluster = observer_capability_weight_profile_for_target(NsomTargetClass.OPEN_CLUSTER)
+    globular = observer_capability_weight_profile_for_target(NsomTargetClass.GLOBULAR_CLUSTER)
+
+    assert planet["resolution"] > planet["field_of_view"]
+    assert planet["magnification_range"] > planet["field_of_view"]
+    assert planet["tracking_or_goto"] > planet["field_of_view"]
+    assert moon["resolution"] > moon["field_of_view"]
+    assert moon["practical_comfort"] > moon["tracking_or_goto"]
+    assert galaxy["light_grasp"] > galaxy["tracking_or_goto"]
+    assert galaxy["field_of_view"] > galaxy["tracking_or_goto"]
+    assert diffuse["light_grasp"] > diffuse["tracking_or_goto"]
+    assert diffuse["field_of_view"] > diffuse["magnification_range"]
+    assert open_cluster["field_of_view"] > open_cluster["magnification_range"]
+    assert open_cluster["practical_comfort"] > open_cluster["magnification_range"]
+    assert globular["light_grasp"] > globular["field_of_view"]
+    assert globular["resolution"] > globular["field_of_view"]
+
+
+def test_q_target_differs_by_target_class_for_same_observer_profile() -> None:
+    observer = ObserverCapability(
+        light_grasp=0.9,
+        resolution=0.75,
+        field_of_view=0.25,
+        magnification_range=0.85,
+        tracking_or_goto=0.8,
+        experience_level=0.6,
+        practical_comfort=0.45,
+    )
+
+    projections = {
+        target_class: project_observer_capability_for_target(observer, target_class)
+        for target_class in (
+            NsomTargetClass.PLANET,
+            NsomTargetClass.MOON,
+            NsomTargetClass.GALAXY,
+            NsomTargetClass.DIFFUSE_NEBULA,
+            NsomTargetClass.OPEN_CLUSTER,
+            NsomTargetClass.GLOBULAR_CLUSTER,
+        )
+    }
+
+    assert len({round(value, 6) for value in projections.values()}) > 3
+    assert projections[NsomTargetClass.PLANET] > projections[NsomTargetClass.OPEN_CLUSTER]
+    assert projections[NsomTargetClass.GALAXY] != pytest.approx(projections[NsomTargetClass.MOON])
+    assert project_observer_capability_for_target(observer, None) == pytest.approx(
+        observer.summary_for_planning()
+    )
+
+
+def test_q_target_changes_practical_value_without_mutating_observable_value() -> None:
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=80.0,
+        effective_observability=EffectiveObservability.from_components(),
+        target_class=NsomTargetClass.GALAXY,
+    )
+    observer = ObserverCapability(
+        light_grasp=0.9,
+        resolution=0.75,
+        field_of_view=0.25,
+        magnification_range=0.85,
+        tracking_or_goto=0.8,
+        experience_level=0.6,
+        practical_comfort=0.45,
+    )
+
+    galaxy_q = project_observer_capability_for_target(observer, NsomTargetClass.GALAXY)
+    open_cluster_q = project_observer_capability_for_target(observer, NsomTargetClass.OPEN_CLUSTER)
+    galaxy_practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=observer,
+        capability_summary=galaxy_q,
+    )
+    open_cluster_practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=observer,
+        capability_summary=open_cluster_q,
+    )
+
+    assert galaxy_q != pytest.approx(open_cluster_q)
+    assert galaxy_practical.value != pytest.approx(open_cluster_practical.value)
+    assert galaxy_practical.observable_target_value is observable
+    assert open_cluster_practical.observable_target_value is observable
+    assert observable.value == pytest.approx(80.0)
+
+
+def test_q_target_dimension_sensitivity_is_target_specific() -> None:
+    base = ObserverCapability(
+        light_grasp=0.5,
+        resolution=0.5,
+        field_of_view=0.5,
+        magnification_range=0.5,
+        tracking_or_goto=0.5,
+        experience_level=0.5,
+        practical_comfort=0.5,
+    )
+
+    def delta(target_class: NsomTargetClass, **changes: float) -> float:
+        changed = ObserverCapability(
+            light_grasp=changes.get("light_grasp", base.light_grasp),
+            resolution=changes.get("resolution", base.resolution),
+            field_of_view=changes.get("field_of_view", base.field_of_view),
+            magnification_range=changes.get("magnification_range", base.magnification_range),
+            tracking_or_goto=changes.get("tracking_or_goto", base.tracking_or_goto),
+            experience_level=base.experience_level,
+            practical_comfort=changes.get("practical_comfort", base.practical_comfort),
+        )
+        return (
+            project_observer_capability_for_target(changed, target_class)
+            - project_observer_capability_for_target(base, target_class)
+        )
+
+    planet_fov = delta(NsomTargetClass.PLANET, field_of_view=0.7)
+    planet_mag = delta(NsomTargetClass.PLANET, magnification_range=0.7)
+    planet_tracking = delta(NsomTargetClass.PLANET, tracking_or_goto=0.7)
+    galaxy_fov = delta(NsomTargetClass.GALAXY, field_of_view=0.7)
+    galaxy_tracking = delta(NsomTargetClass.GALAXY, tracking_or_goto=0.7)
+    diffuse_light = delta(NsomTargetClass.DIFFUSE_NEBULA, light_grasp=0.7)
+    diffuse_tracking = delta(NsomTargetClass.DIFFUSE_NEBULA, tracking_or_goto=0.7)
+    open_fov = delta(NsomTargetClass.OPEN_CLUSTER, field_of_view=0.7)
+    open_mag = delta(NsomTargetClass.OPEN_CLUSTER, magnification_range=0.7)
+    globular_aperture = delta(NsomTargetClass.GLOBULAR_CLUSTER, light_grasp=0.7, resolution=0.7)
+
+    assert planet_mag > planet_fov
+    assert planet_tracking > planet_fov
+    assert galaxy_fov > galaxy_tracking
+    assert diffuse_light > diffuse_tracking
+    assert open_fov > open_mag
+    assert globular_aperture > planet_fov
 
 
 def test_observation_opportunity_combines_context_without_mutating_upstream_values() -> None:

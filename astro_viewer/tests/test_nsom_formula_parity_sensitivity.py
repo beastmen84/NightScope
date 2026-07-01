@@ -103,6 +103,11 @@ def test_observer_capability_sub_formulas_mark_adapter_derived_dimensions() -> N
     assert formulas["observer_capability_summary"]["status"] == "available"
     assert formulas["observer_capability_summary"]["matches_reported_output"] is True
     assert formulas["observer_capability_summary"]["output"] == pytest.approx(observer.summary_for_planning())
+    assert formulas["q_target"]["status"] == "available"
+    assert formulas["q_target"]["matches_reported_output"] is True
+    assert formulas["q_target"]["output"] == pytest.approx(
+        stage["outputs"]["q_target"]
+    )
 
 
 def test_sensitivity_sky_background_changes_effective_and_observable_target_value() -> None:

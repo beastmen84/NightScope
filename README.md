@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.0`.
+Versione corrente: `1.5.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -130,6 +130,14 @@ che il flat mean corrente produce delta di summary uniformi tra classi target;
 per questo la pesatura target-specific resta un punto da decidere prima della
 calibrazione. Nessun peso viene modificato e il Planner NSOM resta spento di
 default.
+Lo step `1.5.1` introduce la proiezione sperimentale interna `Q_target`:
+`ObserverCapability` resta un profilo multidimensionale, ma il Planner NSOM
+default-off può proiettarlo con pesi espliciti per classe target quando serve
+un singolo moltiplicatore di `PracticalTargetValue`. I profili coprono pianeta,
+Luna, galassia, nebulosa diffusa, ammasso aperto e globulare; il report mostra
+profilo completo, flat summary, `Q_target`, pesi usati e delta rispetto al flat
+mean. Nessun peso finale viene calibrato, il Planner legacy resta invariato e
+il flag NSOM Planner resta spento.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

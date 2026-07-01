@@ -121,6 +121,116 @@ NSOM_TARGET_CLASS_PROFILES: Mapping[NsomTargetClass, NsomTargetClassProfile] = M
 )
 
 
+OBSERVER_CAPABILITY_PLANNING_DIMENSIONS: tuple[str, ...] = (
+    "light_grasp",
+    "resolution",
+    "field_of_view",
+    "magnification_range",
+    "tracking_or_goto",
+    "experience_level",
+    "practical_comfort",
+)
+
+
+def _weight_profile(**weights: float) -> Mapping[str, float]:
+    return MappingProxyType(
+        {
+            name: float(weights.get(name, 0.0))
+            for name in OBSERVER_CAPABILITY_PLANNING_DIMENSIONS
+        }
+    )
+
+
+OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES: Mapping[NsomTargetClass, Mapping[str, float]] = MappingProxyType(
+    {
+        NsomTargetClass.PLANET: _weight_profile(
+            light_grasp=0.10,
+            resolution=0.28,
+            field_of_view=0.04,
+            magnification_range=0.28,
+            tracking_or_goto=0.18,
+            experience_level=0.06,
+            practical_comfort=0.06,
+        ),
+        NsomTargetClass.MOON: _weight_profile(
+            light_grasp=0.08,
+            resolution=0.30,
+            field_of_view=0.12,
+            magnification_range=0.14,
+            tracking_or_goto=0.08,
+            experience_level=0.08,
+            practical_comfort=0.20,
+        ),
+        NsomTargetClass.GALAXY: _weight_profile(
+            light_grasp=0.32,
+            resolution=0.12,
+            field_of_view=0.22,
+            magnification_range=0.08,
+            tracking_or_goto=0.08,
+            experience_level=0.08,
+            practical_comfort=0.10,
+        ),
+        NsomTargetClass.DIFFUSE_NEBULA: _weight_profile(
+            light_grasp=0.26,
+            resolution=0.08,
+            field_of_view=0.30,
+            magnification_range=0.04,
+            tracking_or_goto=0.08,
+            experience_level=0.08,
+            practical_comfort=0.16,
+        ),
+        NsomTargetClass.OPEN_CLUSTER: _weight_profile(
+            light_grasp=0.12,
+            resolution=0.08,
+            field_of_view=0.34,
+            magnification_range=0.06,
+            tracking_or_goto=0.06,
+            experience_level=0.10,
+            practical_comfort=0.24,
+        ),
+        NsomTargetClass.GLOBULAR_CLUSTER: _weight_profile(
+            light_grasp=0.30,
+            resolution=0.26,
+            field_of_view=0.08,
+            magnification_range=0.14,
+            tracking_or_goto=0.08,
+            experience_level=0.08,
+            practical_comfort=0.06,
+        ),
+        NsomTargetClass.PLANETARY_NEBULA: _weight_profile(
+            light_grasp=0.22,
+            resolution=0.20,
+            field_of_view=0.12,
+            magnification_range=0.18,
+            tracking_or_goto=0.08,
+            experience_level=0.08,
+            practical_comfort=0.12,
+        ),
+    }
+)
+
+
+def observer_capability_weight_profile_for_target(
+    target_class: NsomTargetClass | str | None,
+) -> Mapping[str, float]:
+    """Return the experimental Observer-layer weighting profile for a target class."""
+
+    normalized = _normalize_target_class(target_class)
+    if normalized is None:
+        return MappingProxyType({})
+    return OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES.get(normalized, MappingProxyType({}))
+
+
+def project_observer_capability_for_target(
+    observer_capability: ObserverCapability,
+    target_class: NsomTargetClass | str | None,
+) -> float:
+    """Project a full ObserverCapability profile to the target-specific Q_target scalar."""
+
+    weights = observer_capability_weight_profile_for_target(target_class)
+    return observer_capability.summary_for_planning(weights or None)
+
+
 def _finite_float(value: object, *, default: float = 0.0) -> float:
     try:
         number = float(value)
@@ -135,6 +245,25 @@ def _clamp_unit(value: object) -> float:
 
 def _clamp_score(value: object) -> float:
     return max(0.0, min(100.0, _finite_float(value)))
+
+
+def _normalize_target_class(target_class: NsomTargetClass | str | None) -> NsomTargetClass | None:
+    if isinstance(target_class, NsomTargetClass):
+        return target_class
+    if target_class is None:
+        return None
+    try:
+        return NsomTargetClass(str(target_class))
+    except ValueError:
+        normalized = str(target_class).strip().lower()
+        return next(
+            (
+                candidate
+                for candidate in NsomTargetClass
+                if candidate.name.lower() == normalized
+            ),
+            None,
+        )
 
 
 @dataclass(frozen=True)
@@ -339,16 +468,16 @@ class ObserverCapability:
     practical_comfort: float = 1.0
     notes: tuple[str, ...] = field(default_factory=tuple)
 
+    def planning_dimensions(self) -> Mapping[str, float]:
+        return MappingProxyType(
+            {
+                name: _clamp_unit(getattr(self, name))
+                for name in OBSERVER_CAPABILITY_PLANNING_DIMENSIONS
+            }
+        )
+
     def summary_for_planning(self, weights: Mapping[str, float] | None = None) -> float:
-        dimensions = {
-            "light_grasp": _clamp_unit(self.light_grasp),
-            "resolution": _clamp_unit(self.resolution),
-            "field_of_view": _clamp_unit(self.field_of_view),
-            "magnification_range": _clamp_unit(self.magnification_range),
-            "tracking_or_goto": _clamp_unit(self.tracking_or_goto),
-            "experience_level": _clamp_unit(self.experience_level),
-            "practical_comfort": _clamp_unit(self.practical_comfort),
-        }
+        dimensions = self.planning_dimensions()
         if not weights:
             return sum(dimensions.values()) / len(dimensions)
 

@@ -96,7 +96,7 @@ def test_calibration_session_and_equipment_rules_stay_on_their_owners() -> None:
         small_galaxy,
         "practical_target_value",
     )
-    assert _has_factor(small_galaxy, "observer", "observer_capability_summary")
+    assert _has_factor(small_galaxy, "observer", "q_target")
 
 
 def test_calibration_condition_groups_match_intended_direction() -> None:

@@ -77,14 +77,17 @@ def test_trace_formula_arithmetic_matches_exported_nsom_values() -> None:
 
     observer = _stage(row, "ObserverCapability")
     dimensions = observer["outputs"]["dimensions"]
-    assert observer["outputs"]["summary_for_planning"] == pytest.approx(
+    assert observer["outputs"]["flat_summary_for_planning"] == pytest.approx(
         sum(dimensions.values()) / len(dimensions)
+    )
+    assert observer["outputs"]["q_target"] == pytest.approx(
+        row["component_values"]["ObserverCapability"]
     )
 
     practical = _stage(row, "PracticalTargetValue")
     assert practical["outputs"]["value"] == pytest.approx(
         practical["inputs"]["observable_target_value"]
-        * practical["inputs"]["observer_capability_summary"]
+        * practical["inputs"]["q_target"]
     )
 
     opportunity = _stage(row, "ObservationOpportunity")
@@ -160,6 +163,7 @@ def test_lower_level_formulas_are_present_or_explicitly_marked() -> None:
         "magnification_range",
         "tracking_or_goto",
         "observer_capability_summary",
+        "q_target",
     ):
         assert component in observer_components
         assert observer_components[component]["status"] in {"available", "adapter-derived", "unavailable"}
@@ -181,7 +185,7 @@ def test_component_diagnostics_report_dominance_and_under_use() -> None:
     diagnostics = data["component_diagnostics"]
 
     assert diagnostics["most_common_limiting_factor"]["owner"] == "observer"
-    assert diagnostics["most_common_limiting_factor"]["factor"] == "observer_capability_summary"
+    assert diagnostics["most_common_limiting_factor"]["factor"] == "q_target"
     assert diagnostics["dominance_interpretation"] == "frequency_only_not_weight_or_sensitivity"
     assert "ObserverCapability" in diagnostics["component_statistics"]
     assert "RecommendationConfidence" in diagnostics["component_statistics"]

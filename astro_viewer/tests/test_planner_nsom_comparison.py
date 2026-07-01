@@ -65,6 +65,9 @@ def test_nsom_explanation_is_strict_json_compatible() -> None:
         "observable_target_value",
         "effective_observability",
         "observer_capability_summary",
+        "q_target",
+        "flat_observer_capability_summary",
+        "q_target_delta_vs_flat",
         "session_viability",
         "observing_window_quality",
         "chronology_fit",
@@ -277,10 +280,12 @@ def test_equipment_explanation_accounts_for_practical_target_value_change() -> N
         "galaxy",
         "practical_target_value",
     )["value"]
-    assert small_explanation["score_components"]["observer_capability_summary"] < large_explanation[
-        "score_components"
-    ]["observer_capability_summary"]
-    assert _has_factor(small_explanation, "observer", "observer_capability_summary")
+    assert small_explanation["score_components"]["q_target"] < large_explanation["score_components"]["q_target"]
+    assert small_explanation["score_components"]["observer_capability_summary"] == pytest.approx(
+        small_explanation["score_components"]["q_target"]
+    )
+    assert "target_class_weighting_profile" in small_explanation["nsom_components"]["observer_capability"]
+    assert _has_factor(small_explanation, "observer", "q_target")
 
 
 def test_confidence_does_not_change_nsom_planner_score() -> None:

@@ -47,8 +47,10 @@ def test_observer_changes_affect_practical_target_value() -> None:
     data = generate_observer_capability_review_data()
 
     for case in data["cases"]:
-        assert case["changed_practical_target_value"] > case["baseline_practical_target_value"]
-        assert case["practical_target_value_delta"] > 0.0
+        assert case["changed_practical_target_value"] != pytest.approx(
+            case["baseline_practical_target_value"]
+        )
+        assert case["q_target_delta"] != pytest.approx(0.0)
         assert case["direction_makes_nsom_sense"] is True
 
 
@@ -111,9 +113,62 @@ def test_current_flat_mean_is_uniform_across_target_classes_before_calibration()
     data = generate_observer_capability_review_data()
     aggregate = data["aggregate_review"]
 
-    assert aggregate["target_specific_weighting_review"] == "recommended_before_calibration"
+    assert aggregate["target_specific_weighting_review"] == "q_target_experimental_internal"
     assert set(aggregate["uniform_summary_delta_cases"]) == set(OBSERVER_REVIEW_CASES)
+    assert set(aggregate["q_target_class_specific_cases"]) == set(OBSERVER_REVIEW_CASES)
     for stats in aggregate["by_changed_observer_dimension"].values():
         assert stats["target_class_count"] == len(TARGET_CLASS_SPECS)
-        assert stats["summary_delta_uniform_across_target_classes"] is True
-        assert stats["summary_delta_max"] == pytest.approx(stats["summary_delta_min"])
+        assert stats["flat_summary_delta_uniform_across_target_classes"] is True
+        assert stats["q_target_delta_uniform_across_target_classes"] is False
+        assert stats["flat_summary_delta_max"] == pytest.approx(stats["flat_summary_delta_min"])
+
+
+def test_q_target_report_contains_weight_profiles_and_flat_comparison() -> None:
+    data = generate_observer_capability_review_data()
+
+    for case in data["cases"]:
+        weights = case["target_class_weighting_profile"]
+        assert set(weights) == {
+            "light_grasp",
+            "resolution",
+            "field_of_view",
+            "magnification_range",
+            "tracking_or_goto",
+            "experience_level",
+            "practical_comfort",
+        }
+        assert sum(weights.values()) == pytest.approx(1.0)
+        assert case["baseline_q_target"] == pytest.approx(case["baseline_observer_capability_summary"])
+        assert case["changed_q_target"] == pytest.approx(case["changed_observer_capability_summary"])
+        assert "baseline_practical_target_value_using_flat_summary" in case
+        assert "changed_practical_target_value_using_q_target" in case
+
+
+def test_q_target_observer_changes_have_target_class_specific_effects() -> None:
+    data = generate_observer_capability_review_data()
+    cases = {
+        (case["target_class"], case["changed_observer_dimension"]): case
+        for case in data["cases"]
+    }
+
+    assert cases[("planet", "focal_length_only")]["q_target_delta"] > cases[
+        ("planet", "field_of_view_only")
+    ]["q_target_delta"]
+    assert cases[("planet", "mount_tracking_only")]["q_target_delta"] > cases[
+        ("planet", "field_of_view_only")
+    ]["q_target_delta"]
+    assert cases[("galaxy", "aperture_only")]["q_target_delta"] > cases[
+        ("galaxy", "mount_tracking_only")
+    ]["q_target_delta"]
+    assert cases[("galaxy", "field_of_view_only")]["q_target_delta"] > cases[
+        ("galaxy", "mount_tracking_only")
+    ]["q_target_delta"]
+    assert cases[("diffuse_nebula", "field_of_view_only")]["q_target_delta"] > cases[
+        ("diffuse_nebula", "mount_tracking_only")
+    ]["q_target_delta"]
+    assert cases[("open_cluster", "field_of_view_only")]["q_target_delta"] > cases[
+        ("open_cluster", "focal_length_only")
+    ]["q_target_delta"]
+    assert cases[("globular_cluster", "aperture_only")]["q_target_delta"] > cases[
+        ("open_cluster", "aperture_only")
+    ]["q_target_delta"]

@@ -400,6 +400,7 @@ def _nsom_projection(opportunity, explanation: dict[str, object]) -> dict[str, o
     practical = opportunity.practical_target_value
     observable = practical.observable_target_value
     effective = observable.effective_observability
+    observer_projection = explanation["nsom_components"]["observer_capability"]
     return {
         "score": opportunity.value,
         "rank": None,
@@ -407,7 +408,7 @@ def _nsom_projection(opportunity, explanation: dict[str, object]) -> dict[str, o
         "effective_observability": effective,
         "practical_target_value": practical,
         "session_viability": opportunity.session,
-        "observer_capability": practical.observer_capability,
+        "observer_capability": observer_projection,
         "observing_window_quality": opportunity.observing_window_quality,
         "chronology_fit": opportunity.chronology_fit,
         "practical_constraints": opportunity.practical_constraints,
@@ -494,6 +495,10 @@ def _equipment_snapshot(groups: dict[str, dict[str, object]]) -> dict[str, objec
             "practical_target_value": galaxy["nsom"]["practical_target_value"].value,
             "observer_capability_summary": galaxy["nsom"]["explanation"]["score_components"][
                 "observer_capability_summary"
+            ],
+            "q_target": galaxy["nsom"]["explanation"]["score_components"]["q_target"],
+            "flat_observer_capability_summary": galaxy["nsom"]["explanation"]["score_components"][
+                "flat_observer_capability_summary"
             ],
         }
     return snapshot
