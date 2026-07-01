@@ -7,6 +7,9 @@ from statistics import mean
 
 from astro_viewer.app.models.nsom import (
     NSOM_TARGET_CLASS_PROFILES,
+    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR,
+    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION,
+    OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION,
     PLANET_OBSERVABLE_MIN_DIMENSION,
     PLANET_OBSERVABLE_Q_TARGET_FLOOR,
     PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
@@ -521,6 +524,10 @@ def _observer_stage(
     target_weighting = observer.get("target_class_weighting_profile", {})
     target_class = _target_class(row)
     planet_floor_applies = _planet_observable_floor_applies_to_dimensions(target_class, dimensions)
+    open_cluster_fov_floor_applies = _open_cluster_field_of_view_floor_applies_to_dimensions(
+        target_class,
+        dimensions,
+    )
     positives, limits = _unit_component_factors(
         dimensions,
         owner="observer",
@@ -562,6 +569,14 @@ def _observer_stage(
             "planet_observable_min_dimension": PLANET_OBSERVABLE_MIN_DIMENSION,
             "planet_observable_required_dimensions": PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
             "planet_observable_floor_applies": planet_floor_applies,
+            "open_cluster_usable_field_of_view_floor": OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR,
+            "open_cluster_usable_field_of_view_min_dimension": (
+                OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+            ),
+            "open_cluster_usable_practical_comfort_min_dimension": (
+                OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION
+            ),
+            "open_cluster_field_of_view_floor_applies": open_cluster_fov_floor_applies,
         },
     }
     return _stage(
@@ -570,6 +585,8 @@ def _observer_stage(
         formula=(
             "Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile); "
             "for planet observable profiles only, Q_target = max(weighted_mean, planet_observable_floor); "
+            "for usable open-cluster profiles only, field_of_view = max(field_of_view, "
+            "open_cluster_usable_field_of_view_floor) before the weighted mean; "
             "flat summary is retained for comparison only"
         ),
         intermediate_calculation=_weighted_calculation(
@@ -1030,14 +1047,25 @@ def _weighted_calculation(
 ) -> str:
     if not isinstance(weights, dict) or not weights:
         return f"mean({_format_values(dimensions.values())}) = {_fmt(output)}"
-    numerator = sum(dimensions[name] * _number(weights.get(name)) for name in dimensions)
-    denominator = sum(_number(weights.get(name)) for name in dimensions)
-    terms = " + ".join(
-        f"{name}({_fmt(dimensions[name])})*{_fmt(weights.get(name))}"
-        for name in dimensions
+    projection_dimensions = _q_target_projection_dimensions(target_class, dimensions)
+    numerator = sum(
+        projection_dimensions[name] * _number(weights.get(name))
+        for name in projection_dimensions
     )
-    weighted = _weighted_mean(dimensions, weights)
+    denominator = sum(_number(weights.get(name)) for name in projection_dimensions)
+    terms = " + ".join(
+        f"{name}({_fmt(projection_dimensions[name])})*{_fmt(weights.get(name))}"
+        for name in projection_dimensions
+    )
+    weighted = _weighted_mean(projection_dimensions, weights)
     calculation = f"({terms}) / {_fmt(denominator)} = {_fmt(weighted)}; numerator={_fmt(numerator)}"
+    if _open_cluster_field_of_view_floor_applies_to_dimensions(target_class, dimensions):
+        calculation += (
+            f"; open-cluster field-of-view usability floor max("
+            f"{_fmt(dimensions['field_of_view'])}, "
+            f"{_fmt(OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR)}) = "
+            f"{_fmt(projection_dimensions['field_of_view'])}"
+        )
     if _planet_observable_floor_applies_to_dimensions(target_class, dimensions):
         calculation += (
             f"; planet observable floor max({_fmt(weighted)}, "
@@ -1052,7 +1080,8 @@ def _weighted_expected(
     *,
     target_class: str | None = None,
 ) -> float:
-    weighted = _weighted_mean(dimensions, weights)
+    projection_dimensions = _q_target_projection_dimensions(target_class, dimensions)
+    weighted = _weighted_mean(projection_dimensions, weights)
     if _planet_observable_floor_applies_to_dimensions(target_class, dimensions):
         return max(weighted, PLANET_OBSERVABLE_Q_TARGET_FLOOR)
     return weighted
@@ -1076,6 +1105,34 @@ def _planet_observable_floor_applies_to_dimensions(
         dimensions[name] >= PLANET_OBSERVABLE_MIN_DIMENSION
         for name in PLANET_OBSERVABLE_REQUIRED_DIMENSIONS
     )
+
+
+def _open_cluster_field_of_view_floor_applies_to_dimensions(
+    target_class: str | None,
+    dimensions: dict[str, float],
+) -> bool:
+    return (
+        target_class == NsomTargetClass.OPEN_CLUSTER.value
+        and dimensions["field_of_view"] >= OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+        and dimensions["practical_comfort"]
+        >= OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION
+    )
+
+
+def _q_target_projection_dimensions(
+    target_class: str | None,
+    dimensions: dict[str, float],
+) -> dict[str, float]:
+    projection_dimensions = dict(dimensions)
+    if _open_cluster_field_of_view_floor_applies_to_dimensions(
+        target_class,
+        projection_dimensions,
+    ):
+        projection_dimensions["field_of_view"] = max(
+            projection_dimensions["field_of_view"],
+            OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR,
+        )
+    return projection_dimensions
 
 
 def _window_sub_formulas(row: dict[str, object], output: float) -> tuple[dict[str, object], ...]:
@@ -1458,7 +1515,9 @@ def _observer_sub_formulas(
             status="available",
             formula=(
                 "Q_target = weighted_mean(ObserverCapability dimensions, target_class_weighting_profile); "
-                "for planet observable profiles only, Q_target = max(weighted_mean, planet_observable_floor)"
+                "for planet observable profiles only, Q_target = max(weighted_mean, planet_observable_floor); "
+                "for usable open-cluster profiles only, field_of_view = max(field_of_view, "
+                "open_cluster_usable_field_of_view_floor) before the weighted mean"
             ),
             inputs={
                 "target_class": target_class,
@@ -1468,6 +1527,21 @@ def _observer_sub_formulas(
                 "planet_observable_min_dimension": PLANET_OBSERVABLE_MIN_DIMENSION,
                 "planet_observable_required_dimensions": PLANET_OBSERVABLE_REQUIRED_DIMENSIONS,
                 "planet_observable_floor_applies": planet_floor_applies,
+                "open_cluster_usable_field_of_view_floor": (
+                    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR
+                ),
+                "open_cluster_usable_field_of_view_min_dimension": (
+                    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+                ),
+                "open_cluster_usable_practical_comfort_min_dimension": (
+                    OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION
+                ),
+                "open_cluster_field_of_view_floor_applies": (
+                    _open_cluster_field_of_view_floor_applies_to_dimensions(
+                        target_class,
+                        dimensions,
+                    )
+                ),
             },
             intermediate_calculation=_weighted_calculation(
                 dimensions,

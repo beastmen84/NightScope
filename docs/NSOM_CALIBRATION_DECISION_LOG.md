@@ -8,14 +8,13 @@ This developer-only decision log records how current NSOM Planner calibration re
 
 | Status | Count |
 | --- | ---: |
-| `accepted` | 5 |
+| `accepted` | 7 |
 | `deferred` | 2 |
-| `needs_calibration` | 1 |
+| `needs_calibration` | 0 |
 | `needs_policy_decision` | 0 |
 
 ## Default-On Blockers
 
-- `open-cluster-recurring-demotion`
 
 ## Decision Entries
 
@@ -25,7 +24,8 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `invisible-target-non-actionable-policy` | `accepted` | ObservationEnvironment/ObservationOpportunity | all | no | G20 invisible targets remain non-actionable when geometric visibility is 0.0; stable all-zero order is deterministic tie order and never recommendation ranking. |
 | `small-equipment-planet-q-target` | `accepted` | ObserverCapability/PracticalTargetValue | planet | no | G10/G11 planets now use a planet-observable Q_target floor for small but usable equipment, preserving the distinction between planet observable and planet optimal detail without changing sky, session or confidence layers. |
 | `globular-large-telescope-promotion` | `accepted` | ObserverCapability/PracticalTargetValue | globular_cluster | no | Large-telescope deep-sky conditions intentionally favour globular clusters through light grasp and resolution in Q_target. |
-| `open-cluster-recurring-demotion` | `needs_calibration` | Universe/ObserverCapability/PracticalTargetValue | open_cluster | yes | Open clusters recur as large positive rank deltas across baseline, session, geometry and large-telescope groups. Review intrinsic cluster value and Q_target field-of-view/comfort weighting together. |
+| `deep-sky-favouring-planet-review-row` | `accepted` | ObservationEnvironment/PracticalTargetValue | planet | no | G15 is explicitly a deep-sky-favouring large-telescope scenario; after the open-cluster Q_target fix, the planet row remains actionable but is reasonably behind better-matched deep-sky targets. |
+| `open-cluster-recurring-demotion` | `accepted` | ObserverCapability/PracticalTargetValue | open_cluster | no | Open clusters now use an open-cluster-only field-of-view usability floor inside Q_target when field and comfort are usable but not optimal. This resolves recurring bottom-rank demotion without changing intrinsic target value, sky, session or confidence layers. |
 | `medium-equipment-q-target-review-band` | `deferred` | ObserverCapability/PracticalTargetValue | all | no | Many review rows are driven by Q_target being below the current review threshold rather than by a directional rule failure. Keep them linked but do not turn them into broad tuning work. |
 | `missing-window-policy` | `accepted` | ObservationOpportunity | all | no | G19 visible targets keep the conservative 0.5 observing-window fallback and are marked actionable_with_uncertain_timing rather than fully normal. |
 | `moon-planet-favouring-category-factor` | `deferred` | Sky/ObservableTargetValue | moon | no | G14 Moon warning is caused by the generic protected-target threshold interacting with category/session factors, not by sky-background damage. Keep it visible for the Moon-specific pass. |
@@ -37,9 +37,9 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G01:planet` | `medium-equipment-q-target-review-band` |
 | `G01:moon` | `medium-equipment-q-target-review-band` |
 | `G01:galaxy` | `medium-equipment-q-target-review-band` |
+| `G01:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G01:globular_cluster` | `medium-equipment-q-target-review-band` |
 | `G01:diffuse_nebula` | `medium-equipment-q-target-review-band` |
-| `G01:open_cluster` | `open-cluster-recurring-demotion`, `medium-equipment-q-target-review-band` |
 | `G02:planet` | `medium-equipment-q-target-review-band` |
 | `G02:moon` | `medium-equipment-q-target-review-band` |
 | `G02:open_cluster` | `medium-equipment-q-target-review-band` |
@@ -54,9 +54,9 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G03:galaxy` | `medium-equipment-q-target-review-band` |
 | `G04:planet` | `medium-equipment-q-target-review-band` |
 | `G04:moon` | `medium-equipment-q-target-review-band` |
+| `G04:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G04:galaxy` | `medium-equipment-q-target-review-band` |
 | `G04:globular_cluster` | `medium-equipment-q-target-review-band` |
-| `G04:open_cluster` | `open-cluster-recurring-demotion`, `medium-equipment-q-target-review-band` |
 | `G04:diffuse_nebula` | `medium-equipment-q-target-review-band` |
 | `G06:planet` | `medium-equipment-q-target-review-band` |
 | `G06:moon` | `medium-equipment-q-target-review-band` |
@@ -64,8 +64,6 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G06:globular_cluster` | `medium-equipment-q-target-review-band` |
 | `G06:diffuse_nebula` | `medium-equipment-q-target-review-band` |
 | `G06:galaxy` | `medium-equipment-q-target-review-band` |
-| `G07:open_cluster` | `open-cluster-recurring-demotion` |
-| `G08:open_cluster` | `open-cluster-recurring-demotion` |
 | `G09:planet` | `blocked-session-hard-block-policy` |
 | `G09:moon` | `blocked-session-hard-block-policy` |
 | `G09:galaxy` | `blocked-session-hard-block-policy` |
@@ -93,20 +91,19 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G14:diffuse_nebula` | `medium-equipment-q-target-review-band` |
 | `G15:globular_cluster` | `globular-large-telescope-promotion` |
 | `G15:open_cluster` | `open-cluster-recurring-demotion` |
-| `G16:open_cluster` | `open-cluster-recurring-demotion` |
+| `G15:planet` | `deep-sky-favouring-planet-review-row` |
 | `G17:planet` | `medium-equipment-q-target-review-band` |
 | `G17:moon` | `medium-equipment-q-target-review-band` |
 | `G17:galaxy` | `medium-equipment-q-target-review-band` |
+| `G17:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G17:globular_cluster` | `medium-equipment-q-target-review-band` |
 | `G17:diffuse_nebula` | `medium-equipment-q-target-review-band` |
-| `G17:open_cluster` | `open-cluster-recurring-demotion`, `medium-equipment-q-target-review-band` |
 | `G18:planet` | `medium-equipment-q-target-review-band` |
 | `G18:moon` | `medium-equipment-q-target-review-band` |
 | `G18:galaxy` | `medium-equipment-q-target-review-band` |
+| `G18:open_cluster` | `medium-equipment-q-target-review-band` |
 | `G18:globular_cluster` | `medium-equipment-q-target-review-band` |
 | `G18:diffuse_nebula` | `medium-equipment-q-target-review-band` |
-| `G18:open_cluster` | `open-cluster-recurring-demotion`, `medium-equipment-q-target-review-band` |
-| `G19:open_cluster` | `open-cluster-recurring-demotion`, `missing-window-policy` |
 | `G20:planet` | `invisible-target-non-actionable-policy` |
 | `G20:moon` | `invisible-target-non-actionable-policy` |
 | `G20:galaxy` | `invisible-target-non-actionable-policy` |
@@ -116,6 +113,7 @@ This developer-only decision log records how current NSOM Planner calibration re
 | `G19:planet` | `missing-window-policy` |
 | `G19:moon` | `missing-window-policy` |
 | `G19:galaxy` | `missing-window-policy` |
+| `G19:open_cluster` | `missing-window-policy` |
 | `G19:globular_cluster` | `missing-window-policy` |
 | `G19:diffuse_nebula` | `missing-window-policy` |
 

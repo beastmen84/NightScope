@@ -62,7 +62,10 @@ def test_decision_statuses_and_expected_focus_cases_are_present() -> None:
     assert decisions["missing-window-policy"]["decision_status"] == "accepted"
     assert decisions["small-equipment-planet-q-target"]["decision_status"] == "accepted"
     assert decisions["open-cluster-recurring-demotion"]["decision_status"] == (
-        "needs_calibration"
+        "accepted"
+    )
+    assert decisions["deep-sky-favouring-planet-review-row"]["decision_status"] == (
+        "accepted"
     )
     assert decisions["globular-large-telescope-promotion"]["decision_status"] == "accepted"
 
@@ -75,6 +78,7 @@ def test_decision_statuses_and_expected_focus_cases_are_present() -> None:
         "G15:globular_cluster"
     ]
     assert "open-cluster-recurring-demotion" in data["row_decisions"]["G15:open_cluster"]
+    assert "deep-sky-favouring-planet-review-row" in data["row_decisions"]["G15:planet"]
 
 
 def test_accepted_differences_do_not_become_tuning_requirements() -> None:
@@ -94,7 +98,9 @@ def test_accepted_differences_do_not_become_tuning_requirements() -> None:
         "blocked-session-hard-block-policy",
         "invisible-target-non-actionable-policy",
         "small-equipment-planet-q-target",
+        "open-cluster-recurring-demotion",
         "globular-large-telescope-promotion",
+        "deep-sky-favouring-planet-review-row",
         "missing-window-policy",
     }
 
@@ -104,9 +110,7 @@ def test_policy_decisions_are_resolved_and_not_default_on_blockers() -> None:
 
     assert data["summary"]["unresolved_policy_decisions"] == []
     assert data["summary"]["remaining_policy_blockers"] == []
-    assert set(data["summary"]["default_on_blockers"]) == {
-        "open-cluster-recurring-demotion",
-    }
+    assert data["summary"]["default_on_blockers"] == []
     assert "blocked-session-hard-block-policy" not in data["summary"]["default_on_blockers"]
     assert "invisible-target-non-actionable-policy" not in data["summary"]["default_on_blockers"]
     assert "missing-window-policy" not in data["summary"]["default_on_blockers"]

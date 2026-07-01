@@ -376,21 +376,46 @@ def _decision_entries() -> tuple[CalibrationDecision, ...]:
             and int(row["rank_delta"]) <= -3,
         ),
         CalibrationDecision(
-            decision_id="open-cluster-recurring-demotion",
-            decision_status="needs_calibration",
+            decision_id="deep-sky-favouring-planet-review-row",
+            decision_status="accepted",
             decision_reason=(
-                "Open clusters recur as large positive rank deltas across baseline, "
-                "session, geometry and large-telescope groups. Review intrinsic "
-                "cluster value and Q_target field-of-view/comfort weighting together."
+                "G15 is explicitly a deep-sky-favouring large-telescope scenario; "
+                "after the open-cluster Q_target fix, the planet row remains "
+                "actionable but is reasonably behind better-matched deep-sky targets."
             ),
-            affected_nsom_layer="Universe/ObserverCapability/PracticalTargetValue",
+            affected_nsom_layer="ObservationEnvironment/PracticalTargetValue",
+            affected_target_class="planet",
+            intentional_nsom_behaviour=True,
+            possible_calibration_issue=False,
+            blocks_default_on_work=False,
+            blocked_session_policy_decision_placeholder=False,
+            rank_delta_review_notes=(
+                "The review delta is contextual to the deep-sky-favouring fixture "
+                "and is not an open-cluster calibration blocker."
+            ),
+            requires_tuning=False,
+            match=lambda row: _scenario_id(row) == "G15:planet",
+        ),
+        CalibrationDecision(
+            decision_id="open-cluster-recurring-demotion",
+            decision_status="accepted",
+            decision_reason=(
+                "Open clusters now use an open-cluster-only field-of-view usability "
+                "floor inside Q_target when field and comfort are usable but not "
+                "optimal. This resolves recurring bottom-rank demotion without "
+                "changing intrinsic target value, sky, session or confidence layers."
+            ),
+            affected_nsom_layer="ObserverCapability/PracticalTargetValue",
             affected_target_class="open_cluster",
             intentional_nsom_behaviour=False,
-            possible_calibration_issue=True,
-            blocks_default_on_work=True,
+            possible_calibration_issue=False,
+            blocks_default_on_work=False,
             blocked_session_policy_decision_placeholder=False,
-            rank_delta_review_notes="Recurring open-cluster demotion is a targeted calibration blocker.",
-            requires_tuning=True,
+            rank_delta_review_notes=(
+                "Residual rank deltas remain review rows, but open clusters no "
+                "longer recur as bottom-ranked solely because of Q_target bias."
+            ),
+            requires_tuning=False,
             match=lambda row: _target_type(row) == "open_cluster"
             and abs(int(row["rank_delta"])) >= 3
             and _group_id(row) != "G20",

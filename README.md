@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.5`.
+Versione corrente: `1.5.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -171,6 +171,14 @@ da "planet optimal detail". La calibrazione resta nel layer
 Planner legacy, QML o il flag Planner NSOM default-off. I report developer-only
 e il decision log sono aggiornati; il blocker default-on residuo e'
 `open-cluster-recurring-demotion`.
+Lo step `1.5.6` risolve il blocker mirato `open-cluster-recurring-demotion`:
+per gli ammassi aperti soltanto, `Q_target` applica una floor di usabilita' alla
+dimensione field-of-view quando campo e comfort sono utilizzabili ma non
+ottimali. La correzione resta nel layer `ObserverCapability` e modifica
+`PracticalTargetValue` solo tramite `Q_target`; `ObservableTargetValue`, sky,
+sessione, confidence, Planner legacy e UI/QML restano invariati. I report
+developer-only e il decision log sono rigenerati e non restano blocker
+default-on aperti.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

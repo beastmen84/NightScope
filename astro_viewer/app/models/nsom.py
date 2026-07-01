@@ -217,6 +217,9 @@ PLANET_OBSERVABLE_REQUIRED_DIMENSIONS = (
     "magnification_range",
     "tracking_or_goto",
 )
+OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR = 0.534
+OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION = 0.35
+OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION = 0.65
 
 
 def observer_capability_weight_profile_for_target(
@@ -238,7 +241,10 @@ def project_observer_capability_for_target(
 
     normalized = _normalize_target_class(target_class)
     weights = observer_capability_weight_profile_for_target(target_class)
-    q_target = observer_capability.summary_for_planning(weights or None)
+    if normalized is NsomTargetClass.OPEN_CLUSTER:
+        q_target = _open_cluster_observer_projection(observer_capability, weights)
+    else:
+        q_target = observer_capability.summary_for_planning(weights or None)
     if normalized is NsomTargetClass.PLANET and _planet_observable_floor_applies(
         observer_capability
     ):
@@ -252,6 +258,45 @@ def _planet_observable_floor_applies(observer_capability: ObserverCapability) ->
         dimensions[name] >= PLANET_OBSERVABLE_MIN_DIMENSION
         for name in PLANET_OBSERVABLE_REQUIRED_DIMENSIONS
     )
+
+
+def _open_cluster_observer_projection(
+    observer_capability: ObserverCapability,
+    weights: Mapping[str, float],
+) -> float:
+    dimensions = dict(observer_capability.planning_dimensions())
+    if _open_cluster_field_of_view_floor_applies(dimensions):
+        dimensions["field_of_view"] = max(
+            dimensions["field_of_view"],
+            OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR,
+        )
+    return _weighted_unit_mean(dimensions, weights)
+
+
+def _open_cluster_field_of_view_floor_applies(dimensions: Mapping[str, float]) -> bool:
+    return (
+        dimensions["field_of_view"] >= OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+        and dimensions["practical_comfort"]
+        >= OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION
+    )
+
+
+def _weighted_unit_mean(
+    dimensions: Mapping[str, float],
+    weights: Mapping[str, float] | None,
+) -> float:
+    if not weights:
+        return sum(dimensions.values()) / len(dimensions)
+
+    weighted_total = 0.0
+    weight_sum = 0.0
+    for name, value in dimensions.items():
+        weight = max(0.0, float(weights.get(name, 0.0)))
+        weighted_total += value * weight
+        weight_sum += weight
+    if weight_sum <= 0.0:
+        return sum(dimensions.values()) / len(dimensions)
+    return _clamp_unit(weighted_total / weight_sum)
 
 
 def _finite_float(value: object, *, default: float = 0.0) -> float:

@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.5`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.6`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -222,6 +222,17 @@ resolution, magnification and tracking dimensions. The floor affects only
 remain unchanged. The comparison report, mathematical trace and decision log
 show the conditional floor; the NSOM Planner flag remains default-off and
 legacy Planner scoring is unchanged.
+`1.5.6` resolves the targeted `open-cluster-recurring-demotion` calibration
+blocker inside the Observer layer. `project_observer_capability_for_target()`
+now applies an open-cluster-only field-of-view usability floor before computing
+the target-class weighted `Q_target`, but only when the reported field of view
+is usable and practical comfort is adequate. Genuinely narrow fields remain
+limited. The rule affects `PracticalTargetValue` only through `Q_target`; it
+does not change `IntrinsicTargetQuality`, `ObservableTargetValue`,
+`EffectiveObservability`, `SessionViability`, confidence metadata, legacy
+Planner scoring, QML exposure or the default-off NSOM Planner flag. The
+comparison report, mathematical trace and decision log show the conditional
+open-cluster projection, and no default-on calibration blockers remain.
 
 ## Dependency Flow
 

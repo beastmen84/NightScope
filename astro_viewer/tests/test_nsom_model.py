@@ -9,6 +9,9 @@ import pytest
 from astro_viewer.app.models.nsom import (
     IntrinsicTargetQuality,
     OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES,
+    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR,
+    OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION,
+    OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION,
     NSOM_TARGET_CLASS_PROFILES,
     PLANET_OBSERVABLE_MIN_DIMENSION,
     PLANET_OBSERVABLE_Q_TARGET_FLOOR,
@@ -244,7 +247,9 @@ def test_q_target_profiles_cover_required_classes_and_match_nsom_semantics() -> 
     assert diffuse["light_grasp"] > diffuse["tracking_or_goto"]
     assert diffuse["field_of_view"] > diffuse["magnification_range"]
     assert open_cluster["field_of_view"] > open_cluster["magnification_range"]
+    assert open_cluster["field_of_view"] > open_cluster["resolution"]
     assert open_cluster["practical_comfort"] > open_cluster["magnification_range"]
+    assert open_cluster["practical_comfort"] > open_cluster["resolution"]
     assert globular["light_grasp"] > globular["field_of_view"]
     assert globular["resolution"] > globular["field_of_view"]
 
@@ -321,6 +326,129 @@ def test_planet_q_target_floor_does_not_hide_genuinely_poor_capability() -> None
         poor_observer,
         NsomTargetClass.PLANET,
     ) == pytest.approx(raw_planet_q)
+
+
+def test_open_cluster_q_target_uses_fov_floor_for_usable_comfortable_fields() -> None:
+    observer = ObserverCapability(
+        light_grasp=0.6175,
+        resolution=0.5925,
+        field_of_view=0.4636363636363636,
+        magnification_range=0.7484848484848485,
+        tracking_or_goto=0.4,
+        experience_level=1.0,
+        practical_comfort=0.7,
+    )
+    weights = observer_capability_weight_profile_for_target(NsomTargetClass.OPEN_CLUSTER)
+    raw_q = observer.summary_for_planning(weights)
+    calibrated_q = project_observer_capability_for_target(
+        observer,
+        NsomTargetClass.OPEN_CLUSTER,
+    )
+
+    assert observer.field_of_view >= OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+    assert (
+        observer.practical_comfort
+        >= OPEN_CLUSTER_USABLE_PRACTICAL_COMFORT_MIN_DIMENSION
+    )
+    assert observer.field_of_view < OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_FLOOR
+    assert raw_q == pytest.approx(0.6160454545454546)
+    assert calibrated_q == pytest.approx(0.6399690909090909)
+    assert calibrated_q > raw_q
+
+
+def test_open_cluster_q_target_keeps_genuinely_narrow_fields_limited() -> None:
+    observer = ObserverCapability(
+        light_grasp=0.85,
+        resolution=0.825,
+        field_of_view=0.2,
+        magnification_range=0.8393939393939395,
+        tracking_or_goto=0.8,
+        experience_level=1.0,
+        practical_comfort=0.7,
+    )
+    weights = observer_capability_weight_profile_for_target(NsomTargetClass.OPEN_CLUSTER)
+    raw_q = observer.summary_for_planning(weights)
+
+    assert observer.field_of_view < OPEN_CLUSTER_USABLE_FIELD_OF_VIEW_MIN_DIMENSION
+    assert project_observer_capability_for_target(
+        observer,
+        NsomTargetClass.OPEN_CLUSTER,
+    ) == pytest.approx(raw_q)
+
+
+def test_open_cluster_q_target_fov_and_comfort_outweigh_resolution_and_magnification() -> None:
+    base = ObserverCapability(
+        light_grasp=0.6,
+        resolution=0.6,
+        field_of_view=0.6,
+        magnification_range=0.6,
+        tracking_or_goto=0.6,
+        experience_level=0.7,
+        practical_comfort=0.7,
+    )
+
+    def delta(**changes: float) -> float:
+        changed = ObserverCapability(
+            light_grasp=base.light_grasp,
+            resolution=changes.get("resolution", base.resolution),
+            field_of_view=changes.get("field_of_view", base.field_of_view),
+            magnification_range=changes.get(
+                "magnification_range",
+                base.magnification_range,
+            ),
+            tracking_or_goto=base.tracking_or_goto,
+            experience_level=base.experience_level,
+            practical_comfort=changes.get("practical_comfort", base.practical_comfort),
+        )
+        return (
+            project_observer_capability_for_target(changed, NsomTargetClass.OPEN_CLUSTER)
+            - project_observer_capability_for_target(base, NsomTargetClass.OPEN_CLUSTER)
+        )
+
+    assert delta(field_of_view=0.8) > delta(resolution=0.8)
+    assert delta(practical_comfort=0.9) > delta(magnification_range=0.8)
+
+
+def test_open_cluster_q_target_changes_practical_value_without_mutating_observable_value() -> None:
+    observable = ObservableTargetValue.from_intrinsic(
+        intrinsic_target_quality=78.0,
+        effective_observability=EffectiveObservability.from_components(
+            atmospheric_transparency=0.889162,
+        ),
+        target_class=NsomTargetClass.OPEN_CLUSTER,
+    )
+    observer = ObserverCapability(
+        light_grasp=0.6175,
+        resolution=0.5925,
+        field_of_view=0.4636363636363636,
+        magnification_range=0.7484848484848485,
+        tracking_or_goto=0.4,
+        experience_level=1.0,
+        practical_comfort=0.7,
+    )
+    weights = observer_capability_weight_profile_for_target(NsomTargetClass.OPEN_CLUSTER)
+    raw_q = observer.summary_for_planning(weights)
+    calibrated_q = project_observer_capability_for_target(
+        observer,
+        NsomTargetClass.OPEN_CLUSTER,
+    )
+
+    raw_practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=observer,
+        capability_summary=raw_q,
+    )
+    calibrated_practical = PracticalTargetValue.from_observable(
+        observable_target_value=observable,
+        observer_capability=observer,
+        capability_summary=calibrated_q,
+    )
+
+    assert calibrated_q > raw_q
+    assert calibrated_practical.value > raw_practical.value
+    assert calibrated_practical.observable_target_value is observable
+    assert raw_practical.observable_target_value is observable
+    assert observable.value == pytest.approx(69.354636)
 
 
 def test_q_target_changes_practical_value_without_mutating_observable_value() -> None:

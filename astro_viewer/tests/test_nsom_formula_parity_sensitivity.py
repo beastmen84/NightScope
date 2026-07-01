@@ -124,6 +124,22 @@ def test_planet_observable_q_target_floor_is_explicit_in_report_formula() -> Non
     assert stage["inputs"]["q_target_calibration"]["planet_observable_floor_applies"] is True
 
 
+def test_open_cluster_field_of_view_floor_is_explicit_in_report_formula() -> None:
+    row = _scenario(generate_trace_report_data(), "G01:open_cluster")
+    stage = _stage(row, "ObserverCapability")
+    formula = _sub_formulas(stage)["q_target"]
+
+    assert formula["inputs"]["target_class"] == "open_cluster"
+    assert formula["inputs"]["open_cluster_field_of_view_floor_applies"] is True
+    assert "open_cluster_usable_field_of_view_floor" in formula["formula"]
+    assert formula["output"] == pytest.approx(0.6399690909090909)
+    assert formula["expected_output"] == pytest.approx(0.6399690909090909)
+    assert formula["matches_reported_output"] is True
+    assert stage["inputs"]["q_target_calibration"][
+        "open_cluster_field_of_view_floor_applies"
+    ] is True
+
+
 def test_sensitivity_sky_background_changes_effective_and_observable_target_value() -> None:
     service = PlannerNsomScoringService()
     target = _target("galaxy", "Galaxy")

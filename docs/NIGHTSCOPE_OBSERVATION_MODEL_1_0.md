@@ -596,6 +596,18 @@ observable" rather than "planet optimal detail". The rule changes
 `ObservableTargetValue`, `EffectiveObservability`, `SessionViability` and
 `RecommendationConfidence` unchanged.
 
+Implementation note for 1.5.6: the targeted open-cluster recurring-demotion
+calibration is also implemented as an Observer-layer `Q_target` projection rule.
+For open clusters only, when the ObserverCapability profile already has usable
+field of view and adequate practical comfort, the projection applies a modest
+field-of-view usability floor before computing the target-class weighted mean.
+This represents the fact that open clusters are often easy, wide-field,
+beginner-friendly targets even when the field is not optimal. Genuinely narrow
+fields remain limited. The rule changes `PracticalTargetValue` only through
+`Q_target` and leaves `IntrinsicTargetQuality`, `ObservableTargetValue`,
+`EffectiveObservability`, `SessionViability` and `RecommendationConfidence`
+unchanged.
+
 Examples:
 
 - binocular-only profile;

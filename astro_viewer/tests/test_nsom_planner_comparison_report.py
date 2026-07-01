@@ -109,7 +109,7 @@ def test_blocked_and_all_zero_report_groups_are_non_actionable_ties() -> None:
 
 def test_review_thresholds_classify_known_large_deltas_and_window_cases() -> None:
     data = generate_report_data()
-    large_delta = _row(data, "G15:open_cluster")
+    large_delta = _row(data, "G15:globular_cluster")
     missing_window = _row(data, "G19:planet")
     invisible = _row(data, "G20:planet")
 
@@ -134,6 +134,86 @@ def test_review_thresholds_classify_known_large_deltas_and_window_cases() -> Non
     assert invisible["ranking_actionable"] is False
     assert invisible["stable_order_is_deterministic_tie"] is True
     assert invisible["opportunity_policy_type"] == "non_actionable_invisible_target"
+
+
+def test_open_clusters_are_no_longer_bottom_ranked_in_recurring_demotion_groups() -> None:
+    data = generate_report_data()
+    affected_groups = (
+        "G01",
+        "G04",
+        "G07",
+        "G08",
+        "G12",
+        "G15",
+        "G16",
+        "G17",
+        "G18",
+        "G19",
+    )
+    expected_q_targets = {
+        "G01": 0.6399690909090909,
+        "G04": 0.6399690909090909,
+        "G07": 0.6399690909090909,
+        "G08": 0.6399690909090909,
+        "G12": 0.7159236363636363,
+        "G15": 0.7159236363636363,
+        "G16": 0.6399690909090909,
+        "G17": 0.6399690909090909,
+        "G18": 0.6399690909090909,
+        "G19": 0.6399690909090909,
+    }
+
+    for group_id in affected_groups:
+        row = _row(data, f"{group_id}:open_cluster")
+        group_size = len(_group(data, group_id)["scenarios"])
+        components = row["nsom"]["explanation"]["score_components"]
+
+        assert row["nsom"]["rank"] < group_size
+        assert row["calibration_review"]["status"] != "warning"
+        assert row["rank_delta"] <= 3
+        assert components["q_target"] == pytest.approx(expected_q_targets[group_id])
+
+    assert _row(data, "G12:open_cluster")["nsom"]["rank"] == 5
+    assert _row(data, "G15:open_cluster")["nsom"]["rank"] == 4
+
+
+def test_open_cluster_q_target_calibration_preserves_observable_target_values() -> None:
+    data = generate_report_data()
+    expected_observable_values = {
+        "G01:open_cluster": 69.35470777217554,
+        "G12:open_cluster": 69.35470777217554,
+        "G15:open_cluster": 73.97835495698725,
+        "G16:open_cluster": 19.815630792050154,
+        "G19:open_cluster": 69.35470777217554,
+    }
+
+    for scenario_id, expected in expected_observable_values.items():
+        row = _row(data, scenario_id)
+        components = row["nsom"]["explanation"]["score_components"]
+
+        assert components["observable_target_value"] == pytest.approx(expected)
+
+
+def test_open_cluster_calibration_does_not_change_other_deep_sky_q_target_scores() -> None:
+    data = generate_report_data()
+    expected = {
+        "G01:galaxy": (0.6125787878787878, 40.02455205919594),
+        "G01:diffuse_nebula": (0.6009803030303029, 38.57384490490017),
+        "G01:globular_cluster": (0.6351787878787879, 39.35524482149254),
+        "G12:galaxy": (0.7391515151515152, 48.294535957175945),
+        "G12:diffuse_nebula": (0.6952121212121212, 44.622102262627465),
+        "G12:globular_cluster": (0.8046515151515153, 49.85565950734474),
+        "G15:galaxy": (0.7391515151515152, 51.51417168765435),
+        "G15:diffuse_nebula": (0.6952121212121212, 47.596909080135966),
+        "G15:globular_cluster": (0.8046515151515153, 53.17937014116772),
+    }
+
+    for scenario_id, (expected_q_target, expected_score) in expected.items():
+        row = _row(data, scenario_id)
+        components = row["nsom"]["explanation"]["score_components"]
+
+        assert components["q_target"] == pytest.approx(expected_q_target)
+        assert row["nsom"]["score"] == pytest.approx(expected_score)
 
 
 def test_small_equipment_planets_are_not_bottom_ranked_by_q_target_floor() -> None:
