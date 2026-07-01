@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.3`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.4`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -203,6 +203,15 @@ issue, whether it blocks default-on work, and notes for blocked-session and
 rank-delta review. This is documentation and developer tooling only; it does
 not tune weights, change runtime Planner behaviour, write files except through
 the explicit report command, log automatically or expose QML.
+`1.5.4` resolves the non-actionable Planner policy blockers in developer-only
+metadata. `opportunity_policy_review` now classifies groups as
+`actionable_ranked_recommendation`, `actionable_with_uncertain_timing`,
+`non_actionable_hard_block` or `non_actionable_invisible_target`. Blocked
+sessions keep the current hard-block score behaviour, invisible targets remain
+non-actionable ties, and visible missing-window targets keep the conservative
+0.5 observing-window fallback with timing uncertainty. The preserved
+`PracticalTargetValue` order is exposed only as `non_actionable_preserved_order`
+for diagnostics; it is not runtime ranking, logging, QML or UI.
 
 ## Dependency Flow
 

@@ -55,12 +55,19 @@ def generate_decision_log_data(
     report_data: dict[str, object] | None = None,
 ) -> dict[str, object]:
     comparison = generate_report_data() if report_data is None else report_data
-    rows = tuple(
+    review_rows_source = tuple(
         row
         for group in comparison["scenario_groups"]
         for row in group["scenarios"]
         if row["calibration_review"]["status"] != "expected"
     )
+    policy_rows = tuple(
+        row
+        for group in comparison["scenario_groups"]
+        for row in group["scenarios"]
+        if row["opportunity_policy_type"] != "actionable_ranked_recommendation"
+    )
+    rows = tuple({str(row["scenario_id"]): row for row in (*review_rows_source, *policy_rows)}.values())
     decisions = _decision_entries()
     row_decisions = {
         str(row["scenario_id"]): tuple(
@@ -82,14 +89,15 @@ def generate_decision_log_data(
     )
     warning_rows = tuple(
         str(row["scenario_id"])
-        for row in rows
+        for row in review_rows_source
         if row["calibration_review"]["status"] == "warning"
     )
     review_rows = tuple(
         str(row["scenario_id"])
-        for row in rows
+        for row in review_rows_source
         if row["calibration_review"]["status"] == "review"
     )
+    policy_row_ids = tuple(str(row["scenario_id"]) for row in policy_rows)
     log_data = {
         "metadata": {
             "developer_only": True,
@@ -106,12 +114,14 @@ def generate_decision_log_data(
             row_decisions=row_decisions,
             warning_rows=warning_rows,
             review_rows=review_rows,
+            policy_rows=policy_row_ids,
             confidence_control=comparison["confidence_control"],
         ),
         "decisions": decision_payloads,
         "row_decisions": row_decisions,
         "warning_rows": warning_rows,
         "review_rows": review_rows,
+        "policy_rows": policy_row_ids,
         "confidence_control": comparison["confidence_control"],
     }
     return nsom_to_json_compatible(log_data)
@@ -195,14 +205,15 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     lines.extend(
         [
             "",
-            "## Blocked-Session Policy Placeholder",
+            "## Resolved Opportunity Policies",
             "",
             (
-                "`blocked-session-hard-block-policy` keeps the current hard-block "
-                "runtime interpretation for now. Before NSOM Planner can be made "
-                "default-on, a human decision must choose whether all-zero blocked "
-                "groups stay hard ties or whether a non-actionable "
-                "`PracticalTargetValue` ordering should be shown in diagnostics only."
+                "`blocked-session-hard-block-policy`, "
+                "`invisible-target-non-actionable-policy` and "
+                "`missing-window-policy` are resolved as developer-only policy "
+                "metadata. G09 and G20 remain non-actionable; G19 remains "
+                "actionable with uncertain timing through the conservative 0.5 "
+                "observing-window fallback."
             ),
             "",
             "## Confidence Control",
@@ -216,8 +227,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Resolve policy decisions before default-on work, then target only "
-                "the entries marked `needs_calibration` with isolated formula changes."
+                "Target only the entries marked `needs_calibration` with isolated "
+                "formula changes before reconsidering default-on NSOM Planner work."
             ),
             "",
         ]
@@ -238,6 +249,7 @@ def _summary(
     row_decisions: dict[str, tuple[str, ...]],
     warning_rows: tuple[str, ...],
     review_rows: tuple[str, ...],
+    policy_rows: tuple[str, ...],
     confidence_control: dict[str, object],
 ) -> dict[str, object]:
     status_counts = {status: 0 for status in DECISION_STATUSES}
@@ -247,6 +259,7 @@ def _summary(
         "decision_status_counts": status_counts,
         "warning_rows_covered": all(row_decisions[row] for row in warning_rows),
         "review_rows_linked": all(row_decisions[row] for row in review_rows),
+        "policy_rows_linked": all(row_decisions[row] for row in policy_rows),
         "unlinked_rows": tuple(
             scenario_id
             for scenario_id, decision_ids in row_decisions.items()
@@ -261,6 +274,12 @@ def _summary(
             decision["decision_id"]
             for decision in decisions
             if decision["blocks_default_on_work"]
+        ),
+        "remaining_policy_blockers": tuple(
+            decision["decision_id"]
+            for decision in decisions
+            if decision["decision_status"] == "needs_policy_decision"
+            and decision["blocks_default_on_work"]
         ),
         "tuning_requirement_decisions": tuple(
             decision["decision_id"]
@@ -281,36 +300,37 @@ def _decision_entries() -> tuple[CalibrationDecision, ...]:
     return (
         CalibrationDecision(
             decision_id="blocked-session-hard-block-policy",
-            decision_status="needs_policy_decision",
+            decision_status="accepted",
             decision_reason=(
-                "G09 all-zero scores are correct for the current hard block, but "
-                "stable ordering is not a meaningful recommendation order."
+                "G09 keeps the current hard-block score behaviour. "
+                "ObservationOpportunity remains 0.0, stable order is deterministic "
+                "tie order, and non_actionable_preserved_order is diagnostic-only."
             ),
             affected_nsom_layer="SessionViability/ObservationOpportunity",
             affected_target_class="all",
             intentional_nsom_behaviour=True,
             possible_calibration_issue=False,
-            blocks_default_on_work=True,
-            blocked_session_policy_decision_placeholder=True,
-            rank_delta_review_notes="Ignore rank deltas inside the all-zero blocked tie.",
+            blocks_default_on_work=False,
+            blocked_session_policy_decision_placeholder=False,
+            rank_delta_review_notes="Rank deltas inside the all-zero blocked tie are not recommendation deltas.",
             requires_tuning=False,
             match=lambda row: _group_id(row) == "G09",
         ),
         CalibrationDecision(
             decision_id="invisible-target-non-actionable-policy",
-            decision_status="needs_policy_decision",
+            decision_status="accepted",
             decision_reason=(
-                "G20 invisible targets correctly reach zero opportunity, but the "
-                "diagnostic stable order needs the same non-actionable policy as "
-                "blocked sessions."
+                "G20 invisible targets remain non-actionable when geometric "
+                "visibility is 0.0; stable all-zero order is deterministic tie order "
+                "and never recommendation ranking."
             ),
             affected_nsom_layer="ObservationEnvironment/ObservationOpportunity",
             affected_target_class="all",
             intentional_nsom_behaviour=True,
             possible_calibration_issue=False,
-            blocks_default_on_work=True,
+            blocks_default_on_work=False,
             blocked_session_policy_decision_placeholder=False,
-            rank_delta_review_notes="Ignore rank deltas inside all-zero invisible-target ties.",
+            rank_delta_review_notes="Rank deltas inside invisible-target ties are diagnostic only.",
             requires_tuning=False,
             match=lambda row: _group_id(row) == "G20",
         ),
@@ -393,19 +413,19 @@ def _decision_entries() -> tuple[CalibrationDecision, ...]:
         ),
         CalibrationDecision(
             decision_id="missing-window-policy",
-            decision_status="needs_policy_decision",
+            decision_status="accepted",
             decision_reason=(
-                "G19 visible targets with missing observing time use the current "
-                "0.5 timing fallback. Decide whether this fallback is acceptable "
-                "before default-on ranking."
+                "G19 visible targets keep the conservative 0.5 observing-window "
+                "fallback and are marked actionable_with_uncertain_timing rather "
+                "than fully normal."
             ),
             affected_nsom_layer="ObservationOpportunity",
             affected_target_class="all",
             intentional_nsom_behaviour=True,
             possible_calibration_issue=False,
-            blocks_default_on_work=True,
+            blocks_default_on_work=False,
             blocked_session_policy_decision_placeholder=False,
-            rank_delta_review_notes="Rank deltas are secondary until missing-window policy is decided.",
+            rank_delta_review_notes="Rank deltas are reviewed with explicit uncertain timing metadata.",
             requires_tuning=False,
             match=lambda row: _group_id(row) == "G19",
         ),

@@ -577,6 +577,15 @@ work, while `needs_policy_decision` entries hold blocked-session, invisible
 target and missing-window policy questions outside the score path. The log is
 developer-only metadata and must not affect recommendation score.
 
+Implementation note for 1.5.4: non-actionable opportunity policy is now
+explicit developer metadata. Blocked sessions keep the hard-block equation
+`ObservationOpportunity = 0.0`, but any preserved `PracticalTargetValue` order is
+reported as `non_actionable_preserved_order` and is never recommendation order.
+Invisible targets with zero geometric visibility are non-actionable ties. Visible
+targets with missing observing windows keep the conservative 0.5 fallback and are
+marked `actionable_with_uncertain_timing`. These policy labels resolve the
+policy blockers without changing score formulas or legacy Planner behaviour.
+
 Examples:
 
 - binocular-only profile;

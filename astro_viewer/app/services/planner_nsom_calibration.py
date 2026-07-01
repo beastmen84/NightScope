@@ -49,6 +49,13 @@ CALIBRATION_REVIEW_THRESHOLDS = {
     "invisible_target_expected_quality": 0.0,
 }
 
+OPPORTUNITY_POLICY_TYPES = (
+    "actionable_ranked_recommendation",
+    "actionable_with_uncertain_timing",
+    "non_actionable_hard_block",
+    "non_actionable_invisible_target",
+)
+
 BRIGHT_SKY_PROFILES = {
     "bright_sky",
     "strong_moon",
@@ -153,6 +160,7 @@ class PlannerNsomCalibrationInspectionService:
             "nsom_ranking": comparison["rankings"]["nsom"],
             "comparison_metadata": comparison["metadata"],
             "calibration_review_summary": review_summary,
+            "opportunity_policy_review": policy_review,
             "blocked_session_policy_review": policy_review,
         }
 
@@ -186,7 +194,7 @@ def annotate_calibration_review_group(
     *,
     axes: dict[str, object],
 ) -> tuple[tuple[dict[str, object], ...], dict[str, object], dict[str, object]]:
-    policy_review = blocked_session_policy_review(rows, axes=axes)
+    policy_review = opportunity_policy_review(rows, axes=axes)
     annotated_rows = tuple(
         {
             **row,
@@ -194,6 +202,13 @@ def annotate_calibration_review_group(
             "stable_order_is_deterministic_tie": policy_review[
                 "stable_order_is_deterministic_tie"
             ],
+            "stable_order_is_recommendation_order": policy_review[
+                "stable_order_is_recommendation_order"
+            ],
+            "opportunity_policy_type": policy_review["policy_type"],
+            "opportunity_policy_notes": policy_review["policy_notes"],
+            "timing_uncertainty": policy_review["timing_uncertainty"],
+            "non_actionable_reason": policy_review["non_actionable_reason"],
             "blocked_session_policy_notes": policy_review["policy_notes"],
             "calibration_review": calibration_review_for_row(
                 row,
@@ -210,7 +225,7 @@ def annotate_calibration_review_group(
     )
 
 
-def blocked_session_policy_review(
+def opportunity_policy_review(
     rows: tuple[dict[str, object], ...],
     *,
     axes: dict[str, object],
@@ -220,8 +235,128 @@ def blocked_session_policy_review(
     blocked = str(axes.get("session_profile", "")) == "blocked" or any(
         _session_state(row) == "blocked" for row in rows
     )
-    ranking_actionable = not blocked and not all_zero
-    preserved_order = tuple(
+    invisible = (
+        str(axes.get("target_geometry_profile", "")) == "invisible_missing_window"
+        or (bool(rows) and all(not _target_visible(row) for row in rows))
+    )
+    missing_window = str(axes.get("target_geometry_profile", "")) == "missing_window"
+    if blocked:
+        policy_type = "non_actionable_hard_block"
+        current_runtime_policy = "hard_block"
+        ranking_actionable = False
+        timing_uncertainty = False
+        non_actionable_reason = "blocked_session"
+        notes = (
+            "Current hard-block policy is accepted for now: all-zero NSOM "
+            "opportunity scores are non-actionable, and stable order is not "
+            "a recommendation order."
+        )
+    elif invisible:
+        policy_type = "non_actionable_invisible_target"
+        current_runtime_policy = "invisible_target_non_actionable"
+        ranking_actionable = False
+        timing_uncertainty = False
+        non_actionable_reason = "invisible_target"
+        notes = (
+            "Invisible targets are non-actionable; all-zero stable order is "
+            "not a recommendation order."
+        )
+    elif missing_window:
+        policy_type = "actionable_with_uncertain_timing"
+        current_runtime_policy = "missing_window_conservative_fallback"
+        ranking_actionable = True
+        timing_uncertainty = True
+        non_actionable_reason = None
+        notes = (
+            "Visible targets with missing observing time keep the conservative "
+            "0.5 observing-window fallback and are marked actionable with "
+            "uncertain timing."
+        )
+    elif all_zero:
+        policy_type = "non_actionable_invisible_target"
+        current_runtime_policy = "all_zero_non_actionable"
+        ranking_actionable = False
+        timing_uncertainty = False
+        non_actionable_reason = "all_zero_opportunity"
+        notes = (
+            "All NSOM opportunity scores are zero; stable order is deterministic "
+            "tie order, not a recommendation order."
+        )
+    else:
+        policy_type = "actionable_ranked_recommendation"
+        current_runtime_policy = "normal_ranked_recommendation"
+        ranking_actionable = True
+        timing_uncertainty = False
+        non_actionable_reason = None
+        notes = "Current NSOM opportunity ranking is actionable for this review group."
+
+    preserved_order = _preserved_practical_target_value_order(rows)
+    stable_order_is_recommendation_order = ranking_actionable and not all_zero
+    return {
+        "applies": policy_type != "actionable_ranked_recommendation",
+        "policy_type": policy_type,
+        "current_runtime_policy": current_runtime_policy,
+        "ranking_actionable": ranking_actionable,
+        "stable_order_is_deterministic_tie": all_zero,
+        "stable_order_is_recommendation_order": stable_order_is_recommendation_order,
+        "policy_notes": notes,
+        "timing_uncertainty": timing_uncertainty,
+        "non_actionable_reason": non_actionable_reason,
+        "non_actionable_preserved_order": preserved_order
+        if not ranking_actionable
+        else tuple(),
+        "preserved_order_basis": "PracticalTargetValue",
+        "preserved_order_is_diagnostic_only": True,
+        "preserved_order_used_for_runtime_ranking": False,
+        "preserved_order_qml_exposure": False,
+        "interpretations": {
+            "current_policy": {
+                "policy_type": policy_type,
+                "ranking_actionable": ranking_actionable,
+                "stable_order_is_recommendation_order": stable_order_is_recommendation_order,
+                "notes": notes,
+            },
+            "non_actionable_preserved_order": {
+                "ranking_basis": "PracticalTargetValue",
+                "ranking_actionable": False,
+                "internal_order": preserved_order,
+                "used_for_runtime_ranking": False,
+                "qml_exposure": False,
+                "notes": (
+                    "Keeps target/equipment ordering visible for diagnostics only; "
+                    "it is never a recommendation order."
+                ),
+            },
+            "hard_block": {
+                "observation_opportunity": 0.0
+                if policy_type == "non_actionable_hard_block"
+                else "not_applicable",
+                "ranking_actionable": False
+                if policy_type == "non_actionable_hard_block"
+                else ranking_actionable,
+                "notes": (
+                    "ObservationOpportunity is capped at 0.0 when SessionViability "
+                    "is blocked."
+                    if policy_type == "non_actionable_hard_block"
+                    else "Hard-block interpretation does not apply to this group."
+                ),
+            },
+        },
+    }
+
+
+def blocked_session_policy_review(
+    rows: tuple[dict[str, object], ...],
+    *,
+    axes: dict[str, object],
+) -> dict[str, object]:
+    return opportunity_policy_review(rows, axes=axes)
+
+
+def _preserved_practical_target_value_order(
+    rows: tuple[dict[str, object], ...],
+) -> tuple[dict[str, object], ...]:
+    return tuple(
         {
             "rank": index,
             "scenario_id": _row_identifier(row),
@@ -240,51 +375,6 @@ def blocked_session_policy_review(
             start=1,
         )
     )
-    if blocked and all_zero:
-        notes = (
-            "Current hard-block policy produces all-zero NSOM opportunity scores; "
-            "the stable order is deterministic tie order, not a recommendation order."
-        )
-    elif blocked:
-        notes = (
-            "Session is blocked; any preserved PracticalTargetValue order is "
-            "diagnostic only and should remain non-actionable."
-        )
-    elif all_zero:
-        notes = (
-            "All NSOM opportunity scores are zero; the stable order is deterministic "
-            "tie order, not a meaningful recommendation order."
-        )
-    else:
-        notes = "Current NSOM opportunity ranking is actionable for this review group."
-    return {
-        "applies": blocked,
-        "current_runtime_policy": "hard_block" if blocked else "not_blocked",
-        "ranking_actionable": ranking_actionable,
-        "stable_order_is_deterministic_tie": all_zero,
-        "policy_notes": notes,
-        "interpretations": {
-            "hard_block": {
-                "observation_opportunity": 0.0 if blocked else "not_applicable",
-                "ranking_actionable": False if blocked else ranking_actionable,
-                "notes": (
-                    "ObservationOpportunity is capped at 0.0 when SessionViability "
-                    "is blocked."
-                    if blocked
-                    else "Hard-block interpretation does not apply to this group."
-                ),
-            },
-            "preserved_target_ranking_with_blocked_annotation": {
-                "ranking_basis": "PracticalTargetValue",
-                "ranking_actionable": False if blocked else ranking_actionable,
-                "internal_order": preserved_order,
-                "notes": (
-                    "Keeps target/equipment ordering visible for review while marking "
-                    "the blocked session as non-actionable."
-                ),
-            },
-        },
-    }
 
 
 def calibration_review_for_row(
@@ -453,8 +543,8 @@ def _window_geometry_check(row: dict[str, object], axes: dict[str, object]) -> d
         if window_quality == expected and visible:
             return _review_check(
                 "missing_window_handling",
-                "review",
-                "Missing observing time uses the current 0.5 fallback and needs policy review.",
+                "expected",
+                "Missing observing time uses the accepted conservative 0.5 fallback.",
             )
         return _review_check(
             "missing_window_handling",
@@ -526,17 +616,29 @@ def _calibration_review_summary(rows: tuple[dict[str, object], ...]) -> dict[str
 def _aggregate_calibration_review(scenarios: tuple[dict[str, object], ...]) -> dict[str, object]:
     status_counts = {status: 0 for status in CALIBRATION_REVIEW_STATUSES}
     non_actionable = []
+    uncertain_timing = []
     for scenario in scenarios:
         status_counts[scenario["calibration_review_summary"]["status"]] += 1
-        if not scenario["blocked_session_policy_review"]["ranking_actionable"]:
+        policy = scenario["opportunity_policy_review"]
+        if not policy["ranking_actionable"]:
             non_actionable.append(scenario["name"])
+        if policy["policy_type"] == "actionable_with_uncertain_timing":
+            uncertain_timing.append(scenario["name"])
     return {
         "status_counts": status_counts,
         "non_actionable_groups": tuple(non_actionable),
+        "uncertain_timing_groups": tuple(uncertain_timing),
         "blocked_policy_groups": tuple(
             scenario["name"]
             for scenario in scenarios
-            if scenario["blocked_session_policy_review"]["applies"]
+            if scenario["opportunity_policy_review"]["policy_type"]
+            == "non_actionable_hard_block"
+        ),
+        "invisible_policy_groups": tuple(
+            scenario["name"]
+            for scenario in scenarios
+            if scenario["opportunity_policy_review"]["policy_type"]
+            == "non_actionable_invisible_target"
         ),
     }
 

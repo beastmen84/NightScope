@@ -40,11 +40,13 @@ def test_decision_log_covers_all_warning_rows_and_links_review_rows() -> None:
 
     assert data["summary"]["warning_rows_covered"] is True
     assert data["summary"]["review_rows_linked"] is True
+    assert data["summary"]["policy_rows_linked"] is True
     assert data["summary"]["unlinked_rows"] == []
     assert data["warning_rows"]
     assert data["review_rows"]
+    assert data["policy_rows"]
 
-    for scenario_id in (*data["warning_rows"], *data["review_rows"]):
+    for scenario_id in (*data["warning_rows"], *data["review_rows"], *data["policy_rows"]):
         assert data["row_decisions"][scenario_id]
 
 
@@ -52,15 +54,12 @@ def test_decision_statuses_and_expected_focus_cases_are_present() -> None:
     data = generate_decision_log_data()
     decisions = {decision["decision_id"]: decision for decision in data["decisions"]}
 
-    assert decisions["blocked-session-hard-block-policy"]["decision_status"] == (
-        "needs_policy_decision"
-    )
+    assert decisions["blocked-session-hard-block-policy"]["decision_status"] == "accepted"
     assert decisions["blocked-session-hard-block-policy"][
         "blocked_session_policy_decision_placeholder"
-    ] is True
-    assert decisions["invisible-target-non-actionable-policy"]["decision_status"] == (
-        "needs_policy_decision"
-    )
+    ] is False
+    assert decisions["invisible-target-non-actionable-policy"]["decision_status"] == "accepted"
+    assert decisions["missing-window-policy"]["decision_status"] == "accepted"
     assert decisions["small-equipment-planet-q-target"]["decision_status"] == (
         "needs_calibration"
     )
@@ -71,6 +70,7 @@ def test_decision_statuses_and_expected_focus_cases_are_present() -> None:
 
     assert "blocked-session-hard-block-policy" in data["row_decisions"]["G09:planet"]
     assert "invisible-target-non-actionable-policy" in data["row_decisions"]["G20:moon"]
+    assert "missing-window-policy" in data["row_decisions"]["G19:planet"]
     assert "small-equipment-planet-q-target" in data["row_decisions"]["G10:planet"]
     assert "small-equipment-planet-q-target" in data["row_decisions"]["G11:planet"]
     assert "globular-large-telescope-promotion" in data["row_decisions"][
@@ -92,21 +92,26 @@ def test_accepted_differences_do_not_become_tuning_requirements() -> None:
     assert accepted
     assert all(decision["requires_tuning"] is False for decision in accepted)
     assert all(decision["blocks_default_on_work"] is False for decision in accepted)
-    assert data["summary"]["accepted_without_tuning"] == [
-        "globular-large-telescope-promotion"
-    ]
-
-
-def test_unresolved_policy_decisions_are_surfaced_clearly() -> None:
-    data = generate_decision_log_data()
-
-    assert set(data["summary"]["unresolved_policy_decisions"]) == {
+    assert set(data["summary"]["accepted_without_tuning"]) == {
         "blocked-session-hard-block-policy",
         "invisible-target-non-actionable-policy",
+        "globular-large-telescope-promotion",
         "missing-window-policy",
     }
-    assert "blocked-session-hard-block-policy" in data["summary"]["default_on_blockers"]
-    assert "missing-window-policy" in data["summary"]["default_on_blockers"]
+
+
+def test_policy_decisions_are_resolved_and_not_default_on_blockers() -> None:
+    data = generate_decision_log_data()
+
+    assert data["summary"]["unresolved_policy_decisions"] == []
+    assert data["summary"]["remaining_policy_blockers"] == []
+    assert set(data["summary"]["default_on_blockers"]) == {
+        "small-equipment-planet-q-target",
+        "open-cluster-recurring-demotion",
+    }
+    assert "blocked-session-hard-block-policy" not in data["summary"]["default_on_blockers"]
+    assert "invisible-target-non-actionable-policy" not in data["summary"]["default_on_blockers"]
+    assert "missing-window-policy" not in data["summary"]["default_on_blockers"]
 
 
 def test_confidence_remains_score_neutral_in_decision_log() -> None:
@@ -128,7 +133,7 @@ def test_decision_log_markdown_contains_required_sections() -> None:
     assert "## Decision Status Counts" in markdown
     assert "## Decision Entries" in markdown
     assert "## Warning And Review Row Links" in markdown
-    assert "## Blocked-Session Policy Placeholder" in markdown
+    assert "## Resolved Opportunity Policies" in markdown
     assert "blocked-session-hard-block-policy" in markdown
     assert "small-equipment-planet-q-target" in markdown
 
@@ -190,6 +195,78 @@ def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() 
     assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
 
 
+def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() -> None:
+    class FailingNsomService:
+        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
+            raise AssertionError("NSOM planner path should stay disabled.")
+
+        def score(self, opportunity):  # noqa: ANN001
+            raise AssertionError("NSOM planner path should stay disabled.")
+
+    objects = [
+        _target(
+            "missing",
+            "Galaxy",
+            83,
+            best_time="Non disponibile",
+            observing_window="Non disponibile",
+        ),
+        _target(
+            "invisible",
+            "Galaxy",
+            82,
+            best_time="Non disponibile",
+            observing_window="Non disponibile",
+            visible=False,
+            max_altitude="sotto orizzonte",
+        ),
+        _target("normal", "Pianeta", 84, magnitude="-1.7", best_time="21:00"),
+    ]
+    weather = _weather(85)
+    scores = _scores()
+    sky_quality = _sky_quality()
+    telescope = _telescope()
+    moon = _moon(10)
+
+    legacy_plan = NightPlannerService().plan(
+        objects,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+        objects,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+    blocked_legacy_plan = NightPlannerService().plan(
+        objects,
+        _weather(10, cloud_cover=90, precipitation=80),
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+    blocked_flag_off_plan = NightPlannerService(
+        nsom_scoring_service=FailingNsomService()
+    ).plan(
+        objects,
+        _weather(10, cloud_cover=90, precipitation=80),
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+
+    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
+    assert blocked_flag_off_plan == blocked_legacy_plan == []
+
+
 def test_checked_in_decision_log_report_exists() -> None:
     report = Path(__file__).parents[2] / DECISION_LOG_PATH
 
@@ -206,6 +283,9 @@ def _target(
     *,
     magnitude: str = "8.0",
     best_time: str = "21:00",
+    observing_window: str | None = None,
+    max_altitude: str = "45 gradi",
+    visible: bool = True,
 ) -> CelestialObject:
     return CelestialObject(
         id=object_id,
@@ -214,16 +294,16 @@ def _target(
         image="",
         magnitude=magnitude,
         distance="",
-        max_altitude="45 gradi",
+        max_altitude=max_altitude,
         direction="Sud",
         best_time=best_time,
-        observing_window=f"{best_time} - 02:00",
+        observing_window=observing_window or f"{best_time} - 02:00",
         notes="Fixture",
         recommended_setup="Mak 127 + 16 mm",
         visibility_class="",
         azimuth="180 gradi",
         time_above_horizon="3 h",
-        visible=True,
+        visible=visible,
         score=score,
         score_label="Fixture",
         difficulty="Media",
@@ -231,13 +311,18 @@ def _target(
     )
 
 
-def _weather(score: int) -> WeatherSummary:
+def _weather(
+    score: int,
+    *,
+    cloud_cover: int = 10,
+    precipitation: int = 0,
+) -> WeatherSummary:
     return WeatherSummary(
         score="Fixture",
         score_value=score,
         explanation="Fixture",
-        cloud_cover=10,
-        precipitation_probability=0,
+        cloud_cover=cloud_cover,
+        precipitation_probability=precipitation,
         wind_kmh=5,
         humidity=50,
         temperature_c=12,

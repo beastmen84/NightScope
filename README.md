@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.3`.
+Versione corrente: `1.5.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -154,6 +154,14 @@ motivazione, intenzionalita' e impatto sul default-on. Il log marca G09/G20 e
 missing-window come policy aperte, G10/G11 pianeti e demotion ricorrenti degli
 ammassi aperti come calibrazione mirata futura, e accetta la promozione dei
 globular cluster con grande telescopio. Non modifica score, pesi o runtime.
+Lo step `1.5.4` risolve le policy non-actionable che bloccavano il default-on:
+G09 resta hard-block con `ObservationOpportunity = 0.0`, G20 resta target
+invisibile non azionabile, e G19 conserva il fallback conservativo
+`observing_window_quality = 0.5` ma viene marcato
+`actionable_with_uncertain_timing`. L'ordine preservato per i casi non
+azionabili e' `non_actionable_preserved_order`, diagnostico-only, non usato per
+ranking runtime e non esposto a QML. I blocker restanti sono solo calibrazioni
+mirate.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

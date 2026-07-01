@@ -143,7 +143,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Score And Rank Comparison",
             "",
-            "| Scenario | Target | Legacy Rank | Legacy Score | NSOM Rank | NSOM Score | Rank Delta | Review | Actionable | Main NSOM Limit |",
+            "| Scenario | Target | Legacy Rank | Legacy Score | NSOM Rank | NSOM Score | Rank Delta | Review | Policy | Main NSOM Limit |",
             "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |",
         ]
     )
@@ -162,7 +162,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                     f"{float(row['nsom']['score']):.2f}",
                     str(row["rank_delta"]),
                     str(row["calibration_review"]["status"]),
-                    "yes" if row["ranking_actionable"] else "no",
+                    str(row["opportunity_policy_type"]),
                     limit_label,
                 )
             )
@@ -190,24 +190,26 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     lines.extend(
         [
             "",
-            "## Blocked Session Policy Review",
+            "## Opportunity Policy Review",
             "",
-            "| Group | Current Policy | Actionable | Tie Order | Policy Notes |",
-            "| --- | --- | --- | --- | --- |",
+            "| Group | Policy Type | Actionable | Recommendation Order | Tie Order | Timing Uncertain | Policy Notes |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
     for group in report_data["scenario_groups"]:
-        policy = group["blocked_session_policy_review"]
-        if not policy["applies"] and policy["ranking_actionable"]:
+        policy = group["opportunity_policy_review"]
+        if policy["policy_type"] == "actionable_ranked_recommendation":
             continue
         lines.append(
             "| "
             + " | ".join(
                 (
                     str(group["group_id"]),
-                    str(policy["current_runtime_policy"]),
+                    str(policy["policy_type"]),
                     "yes" if policy["ranking_actionable"] else "no",
+                    "yes" if policy["stable_order_is_recommendation_order"] else "no",
                     "yes" if policy["stable_order_is_deterministic_tie"] else "no",
+                    "yes" if policy["timing_uncertainty"] else "no",
                     str(policy["policy_notes"]),
                 )
             )
@@ -261,7 +263,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Steps",
             "",
             "1. Review rank-delta examples manually against expected observing priorities.",
-            "2. Decide whether blocked-session handling should become an explicit Planner NSOM policy before default-on work.",
+            "2. Keep non-actionable opportunity policy metadata explicit while resolving targeted calibration blockers.",
             "3. Tune only named NSOM components with failing behavioural evidence, not broad legacy parity targets.",
             "4. Keep comparison/report tooling developer-only until the Planner path is ready to replace legacy ranking.",
             "",
@@ -392,6 +394,7 @@ def _evaluate_group(group: MatrixGroup) -> dict[str, object]:
         "nsom_ranking": _ranking_projection(ranked_rows, "nsom"),
         "scenarios": tuple(sorted(ranked_rows, key=lambda row: (int(row["nsom"]["rank"]), row["index"]))),
         "calibration_review_summary": review_summary,
+        "opportunity_policy_review": policy_review,
         "blocked_session_policy_review": policy_review,
     }
 
@@ -500,6 +503,8 @@ def _summary(groups: tuple[dict[str, object], ...], rows: tuple[dict[str, object
     bright_profiles = {"bright_sky", "strong_moon", "high_moon", "high_light_pollution", "planet_favouring"}
     bright_rows = [row for row in rows if row["axes"]["sky_profile"] in bright_profiles]
     blocked_rows = [row for row in rows if row["nsom"]["session_viability"].state == "blocked"]
+    invisible_rows = [row for row in rows if row["opportunity_policy_type"] == "non_actionable_invisible_target"]
+    uncertain_rows = [row for row in rows if row["opportunity_policy_type"] == "actionable_with_uncertain_timing"]
     warning_rows = [row for row in rows if row["calibration_review"]["status"] == "warning"]
     review_rows = [row for row in rows if row["calibration_review"]["status"] == "review"]
     sky_sensitive_rows = [
@@ -527,7 +532,9 @@ def _summary(groups: tuple[dict[str, object], ...], rows: tuple[dict[str, object
             "Confidence controls produce zero score delta.",
         ),
         "review_cases": (
-            f"{len(blocked_rows)} blocked-session rows need policy review before default-on Planner NSOM.",
+            f"{len(blocked_rows)} blocked-session rows use the resolved non-actionable hard-block policy.",
+            f"{len(invisible_rows)} invisible-target rows use the resolved non-actionable invisible-target policy.",
+            f"{len(uncertain_rows)} missing-window rows remain actionable with uncertain timing.",
             f"{len(warning_rows)} rows are classified as calibration warnings by developer-only thresholds.",
             f"{len(review_rows)} rows are classified as calibration review cases by developer-only thresholds.",
             f"{len(differing)} rows have rank deltas; review large deltas against observing priorities.",
