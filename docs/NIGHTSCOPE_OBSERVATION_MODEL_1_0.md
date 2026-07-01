@@ -568,6 +568,15 @@ Blocked sessions are reviewed under two policies: the current hard block where
 based on `PracticalTargetValue` that remains explicitly non-actionable. These
 thresholds are not part of the NSOM formula and must not affect score.
 
+Implementation note for 1.5.3: the calibration decision log records review
+outcomes without changing the model. Decision statuses are `accepted`,
+`deferred`, `needs_calibration` and `needs_policy_decision`. Accepted entries
+are documented as intentional NSOM behaviour and do not become tuning
+requirements. `needs_calibration` entries identify future targeted formula
+work, while `needs_policy_decision` entries hold blocked-session, invisible
+target and missing-window policy questions outside the score path. The log is
+developer-only metadata and must not affect recommendation score.
+
 Examples:
 
 - binocular-only profile;

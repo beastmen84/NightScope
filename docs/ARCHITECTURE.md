@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.2`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.3`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -192,6 +192,17 @@ current hard block where `ObservationOpportunity` is `0.0`, and a preserved
 thresholds are review metadata only; they do not tune NSOM weights, change
 legacy Planner scoring, enable NSOM Planner by default, write runtime files,
 log automatically or expose QML.
+`1.5.3` adds developer/test tooling in
+`astro_viewer/tools/nsom_calibration_decision_log.py` plus the static report
+`docs/NSOM_CALIBRATION_DECISION_LOG.md`. The decision log consumes the existing
+deterministic comparison report data and links every warning/review row to a
+decision entry with status `accepted`, `deferred`, `needs_calibration` or
+`needs_policy_decision`. It records the affected NSOM layer and target class,
+whether the difference is intentional NSOM behaviour or a possible calibration
+issue, whether it blocks default-on work, and notes for blocked-session and
+rank-delta review. This is documentation and developer tooling only; it does
+not tune weights, change runtime Planner behaviour, write files except through
+the explicit report command, log automatically or expose QML.
 
 ## Dependency Flow
 

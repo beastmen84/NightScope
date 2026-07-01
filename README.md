@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.2`.
+Versione corrente: `1.5.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -146,6 +146,14 @@ casi missing/invisible window sono classificati come `expected`, `review` o
 hard-block con una lettura alternativa non azionabile basata su
 `PracticalTargetValue`. Le soglie non calibrano pesi, non cambiano Planner
 runtime e non abilitano NSOM Planner di default.
+Lo step `1.5.3` aggiunge il decision log developer-only
+`docs/NSOM_CALIBRATION_DECISION_LOG.md`: ogni warning/review della matrice di
+calibrazione viene collegato a una decisione `accepted`, `deferred`,
+`needs_calibration` o `needs_policy_decision`, con layer NSOM, classe target,
+motivazione, intenzionalita' e impatto sul default-on. Il log marca G09/G20 e
+missing-window come policy aperte, G10/G11 pianeti e demotion ricorrenti degli
+ammassi aperti come calibrazione mirata futura, e accetta la promozione dei
+globular cluster con grande telescopio. Non modifica score, pesi o runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
