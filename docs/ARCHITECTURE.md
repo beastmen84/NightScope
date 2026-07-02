@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.9`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.6.5`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -261,6 +261,19 @@ unwired from runtime services and QML. The remaining deferred non-blocking
 review items are `medium-equipment-q-target-review-band` and
 `moon-planet-favouring-category-factor`; they remain future calibration review
 topics, not default-on blockers.
+`1.6.5` closes the Home `recommendedDeepSky` NSOM migration. The default Home
+deep-sky list now orders candidates with NSOM `ObservableTargetValue`, using
+`IntrinsicTargetQuality`, Home `ObservationEnvironment` and
+`EffectiveObservability` only. It deliberately does not consume
+`PracticalTargetValue`, `ObserverCapability`, `SessionViability`,
+`RecommendationConfidence` or `ObservationOpportunity` for Home ranking. The
+legacy Home order remains available through the explicit controller rollback
+`AppController(use_nsom_home_recommended_deep_sky=False)`. If runtime sky
+quality is unavailable, the controller keeps the legacy moon-adjusted fallback.
+The QML payload remains the same and no NSOM fields are exposed; displayed Home
+scores remain the legacy/base score for compatibility, so visible score values
+may not be monotonic with the NSOM order. Best Object, Sky Compass, report
+tooling, logging, network behaviour and runtime file writes are unchanged.
 
 ## Dependency Flow
 

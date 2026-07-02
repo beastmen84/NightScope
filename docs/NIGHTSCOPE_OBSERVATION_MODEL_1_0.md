@@ -638,6 +638,22 @@ topics and do not block the completed Planner migration. Comparison,
 mathematical trace, calibration decision-log and readiness-audit tooling remain
 developer-only and are not runtime Planner inputs.
 
+Implementation note for 1.6.5: the Home `recommendedDeepSky` migration is
+closed. The default Home deep-sky order is now NSOM `ObservableTargetValue`
+order, owned by the Universe/Sky side of the model:
+`IntrinsicTargetQuality`, `ObservationEnvironment`, `EffectiveObservability`
+and `ObservableTargetValue`. Home intentionally does not use
+`PracticalTargetValue`, `ObserverCapability`, `SessionViability`,
+`RecommendationConfidence` or `ObservationOpportunity` for this list. The
+legacy Home order remains available only as an explicit internal rollback with
+`AppController(use_nsom_home_recommended_deep_sky=False)`. If sky quality is
+missing, Home still falls back to the legacy moon-adjusted path because
+`ObservationEnvironment` cannot be built from current sky inputs. The QML
+payload remains unchanged and no NSOM fields are exposed. Displayed Home scores
+remain legacy/base scores for compatibility, so they may not be monotonic with
+the NSOM order until a future UI rationale pass decides how to present NSOM
+explanations.
+
 Examples:
 
 - binocular-only profile;

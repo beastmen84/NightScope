@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.9`.
+Versione corrente: `1.6.5`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -200,6 +200,15 @@ al runtime. Restano documentati come deferred non bloccanti
 `medium-equipment-q-target-review-band` e
 `moon-planet-favouring-category-factor`; sono punti di osservazione/calibrazione
 futura, non blocker della migrazione Planner.
+Lo step `1.6.5` chiude la migrazione Home `recommendedDeepSky`: la lista Home
+di cielo profondo usa ora di default l'ordinamento NSOM `ObservableTargetValue`,
+costruito da `IntrinsicTargetQuality`, `ObservationEnvironment` ed
+`EffectiveObservability`. Il rollback interno resta esplicito con
+`AppController(use_nsom_home_recommended_deep_sky=False)`. Best Object, Sky
+Compass, QML/UI, payload e report runtime restano invariati. La Home continua a
+mostrare lo score legacy/base per compatibilita', quindi lo score visibile puo'
+non essere monotono rispetto all'ordine NSOM. Se manca la sky quality runtime,
+`recommendedDeepSky` usa ancora il path legacy moon-adjusted.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

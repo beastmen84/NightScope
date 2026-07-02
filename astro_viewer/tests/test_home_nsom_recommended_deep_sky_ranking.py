@@ -19,6 +19,13 @@ def test_home_nsom_recommended_deep_sky_flag_defaults_on() -> None:
     assert NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED is True
 
 
+def test_controller_constructor_default_uses_current_home_nsom_flag() -> None:
+    defaults = AppController.__init__.__kwdefaults__
+
+    assert defaults is not None
+    assert defaults["use_nsom_home_recommended_deep_sky"] is NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED
+
+
 def test_default_path_uses_nsom_observable_target_value_order() -> None:
     controller = _controller(
         enabled=NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
@@ -38,6 +45,17 @@ def test_default_path_uses_nsom_observable_target_value_order() -> None:
 
 def test_flag_off_preserves_legacy_recommended_deep_sky_order() -> None:
     controller = _controller(enabled=False, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
+
+    controller._refresh_conditioned_observing_candidates()
+
+    assert _ids(controller._conditioned_deep_sky) == _ids(expected)
+    assert controller._conditioned_deep_sky == expected
+
+
+def test_missing_sky_quality_falls_back_to_legacy_moon_adjusted_order() -> None:
+    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    controller._sky_quality = None
     expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
 
     controller._refresh_conditioned_observing_candidates()
