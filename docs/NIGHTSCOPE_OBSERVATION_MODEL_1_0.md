@@ -608,6 +608,15 @@ fields remain limited. The rule changes `PracticalTargetValue` only through
 `EffectiveObservability`, `SessionViability` and `RecommendationConfidence`
 unchanged.
 
+Implementation note for 1.5.7: the default-on readiness audit is developer-only
+evidence, not a model or scoring change. It verifies that `default_on_blockers`
+is empty, accepted/deferred calibration decisions are documented, deferred items
+are non-blocking, the Planner NSOM flag remains default-off, legacy Planner
+remains the default runtime path and report tooling is not exposed to QML,
+automatic logging, network calls or runtime file writes. The audit verdict can
+recommend a separate default-on switch PR, but this step does not enable NSOM
+Planner.
+
 Examples:
 
 - binocular-only profile;

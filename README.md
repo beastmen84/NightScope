@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.6`.
+Versione corrente: `1.5.7`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -179,6 +179,14 @@ ottimali. La correzione resta nel layer `ObserverCapability` e modifica
 sessione, confidence, Planner legacy e UI/QML restano invariati. I report
 developer-only e il decision log sono rigenerati e non restano blocker
 default-on aperti.
+Lo step `1.5.7` aggiunge l'audit developer-only di readiness per il futuro
+switch default-on del Planner NSOM. Il report
+`docs/NSOM_PLANNER_DEFAULT_ON_READINESS_AUDIT.md` verifica che non restino
+blocker di calibrazione o policy, che le decisioni accettate/deferred siano
+documentate, che i deferred siano non bloccanti, che il flag
+`NSOM_PLANNER_SCORING_ENABLED` resti `False` e che comparison, trace e decision
+log restino tooling non collegato a runtime, QML, logging automatico, rete o
+scritture file runtime. Questo commit non abilita NSOM Planner.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
