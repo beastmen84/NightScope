@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.6.5`.
+Versione corrente: `1.7.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -209,6 +209,15 @@ Compass, QML/UI, payload e report runtime restano invariati. La Home continua a
 mostrare lo score legacy/base per compatibilita', quindi lo score visibile puo'
 non essere monotono rispetto all'ordine NSOM. Se manca la sky quality runtime,
 `recommendedDeepSky` usa ancora il path legacy moon-adjusted.
+Lo step `1.7.0` avvia l'analisi Best Object aggiungendo un layer di confronto
+developer-only tra la formula legacy `item.score * weather_factor *
+difficulty_factor` e i concetti NSOM: `IntrinsicTargetQuality`,
+`ObservationEnvironment`, `EffectiveObservability`, `ObservableTargetValue`,
+`PracticalTargetValue`, `SessionViability` e `RecommendationConfidence`. Il
+confronto evidenzia dove il legacy mescola valore target, meteo/sessione e
+difficolta', marcando i componenti non disponibili invece di ricostruirli. Non
+cambia Best Object, `recommendedDeepSky`, Planner, Sky Compass, QML/UI, logging,
+rete o scritture file runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

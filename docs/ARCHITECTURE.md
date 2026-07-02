@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.6.5`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.7.0`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -274,6 +274,19 @@ The QML payload remains the same and no NSOM fields are exposed; displayed Home
 scores remain the legacy/base score for compatibility, so visible score values
 may not be monotonic with the NSOM order. Best Object, Sky Compass, report
 tooling, logging, network behaviour and runtime file writes are unchanged.
+`1.7.0` adds `astro_viewer/app/services/best_object_nsom_comparison.py`, a
+developer-only comparison helper for the current Best Object candidate set. It
+computes `IntrinsicTargetQuality`, `ObservationEnvironment`,
+`EffectiveObservability`, `ObservableTargetValue`, `PracticalTargetValue`,
+`SessionViability` metadata and `RecommendationConfidence` metadata next to
+the legacy Best Object formula `item.score * weather_factor *
+difficulty_factor`. The helper explicitly records that the legacy scalar mixes
+target value, weather/session and difficulty, and marks sky, observer,
+session-policy and confidence breakdowns as unavailable when the legacy path
+does not expose them. It is not imported by `AppController`, QML or report
+runtime wiring, and it does not change Best Object selection,
+`recommendedDeepSky`, Planner, Sky Compass, logging, network behaviour or
+runtime file writes.
 
 ## Dependency Flow
 

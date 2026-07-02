@@ -654,6 +654,19 @@ remain legacy/base scores for compatibility, so they may not be monotonic with
 the NSOM order until a future UI rationale pass decides how to present NSOM
 explanations.
 
+Implementation note for 1.7.0: Best Object now has a developer-only NSOM
+comparison layer. The runtime Best Object selector is still legacy and still
+uses `item.score * weather_factor * difficulty_factor`; the comparison helper
+does not alter selection. For the same candidate set it projects
+`IntrinsicTargetQuality`, `ObservationEnvironment`, `EffectiveObservability`,
+`ObservableTargetValue`, `PracticalTargetValue`, `SessionViability` metadata
+and `RecommendationConfidence` metadata. This exposes the ownership mismatch:
+legacy Best Object combines target score, weather/session and difficulty in a
+single scalar, while NSOM keeps sky, observer, session and confidence
+separate. Components not exposed by the legacy implementation are marked
+unavailable rather than inferred. The helper is not runtime ranking, QML/UI,
+logging, network work or runtime file output.
+
 Examples:
 
 - binocular-only profile;
