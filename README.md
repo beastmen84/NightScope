@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.8`.
+Versione corrente: `1.5.9`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -192,6 +192,14 @@ Lo step `1.5.8` abilita Planner NSOM di default impostando
 default del flag: il rollback legacy resta esplicito tramite
 `NightPlannerService(use_nsom_planner_scoring=False)`, senza QML, logging
 automatico, rete, scritture file runtime o wiring dei report developer-only.
+Lo step `1.5.9` chiude la migrazione Planner NSOM: il Planner NSOM e' il path
+default supportato, mentre il Planner legacy resta disponibile soltanto come
+rollback esplicito interno con `NightPlannerService(use_nsom_planner_scoring=False)`.
+Non cambia scoring rispetto a `1.5.8`, non aggiunge QML/UI e non collega report
+al runtime. Restano documentati come deferred non bloccanti
+`medium-equipment-q-target-review-band` e
+`moon-planet-favouring-category-factor`; sono punti di osservazione/calibrazione
+futura, non blocker della migrazione Planner.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

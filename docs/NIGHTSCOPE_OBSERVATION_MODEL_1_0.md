@@ -625,6 +625,19 @@ behaviour, logging and runtime file writes are unchanged. The legacy Planner
 scoring path remains callable as an explicit rollback with
 `NightPlannerService(use_nsom_planner_scoring=False)`.
 
+Implementation note for 1.5.9: the NSOM Planner migration is closed. NSOM
+Planner is now the default Planner path, and legacy Planner is retained only as
+an explicit rollback through `NightPlannerService(use_nsom_planner_scoring=False)`.
+This step does not change scoring, NSOM formulas, `Q_target`,
+`RecommendationConfidence`, QML exposure, report runtime wiring, logging,
+network behaviour or runtime file writes beyond the already-enabled `1.5.8`
+state. The remaining deferred non-blocking review items are
+`medium-equipment-q-target-review-band` and
+`moon-planet-favouring-category-factor`; they are future calibration review
+topics and do not block the completed Planner migration. Comparison,
+mathematical trace, calibration decision-log and readiness-audit tooling remain
+developer-only and are not runtime Planner inputs.
+
 Examples:
 
 - binocular-only profile;

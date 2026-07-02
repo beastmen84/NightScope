@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.8`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.9`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -250,6 +250,17 @@ limited to `NSOM_PLANNER_SCORING_ENABLED = True`; no NSOM formula, QML exposure,
 report wiring, logging, network path or runtime file write is added. The legacy
 Planner path remains an explicit rollback through
 `NightPlannerService(use_nsom_planner_scoring=False)`.
+`1.5.9` closes the NSOM Planner migration. NSOM Planner is now the default
+Planner implementation, and legacy Planner is retained only as an explicit
+internal rollback path through `NightPlannerService(use_nsom_planner_scoring=False)`.
+This is a documentation/status step only: it does not change scoring, Planner
+runtime behaviour beyond the existing `1.5.8` default-on state, QML/UI,
+runtime logging, network behaviour or runtime file writes. The developer-only
+comparison, trace, decision-log and readiness-audit tooling remains passive and
+unwired from runtime services and QML. The remaining deferred non-blocking
+review items are `medium-equipment-q-target-review-band` and
+`moon-planet-favouring-category-factor`; they remain future calibration review
+topics, not default-on blockers.
 
 ## Dependency Flow
 
