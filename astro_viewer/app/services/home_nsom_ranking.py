@@ -7,7 +7,7 @@ from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 
 
-NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED = False
+NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED = True
 
 
 class HomeRecommendedDeepSkyNsomRankingService:

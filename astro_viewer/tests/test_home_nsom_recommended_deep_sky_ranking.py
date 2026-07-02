@@ -15,8 +15,25 @@ from astro_viewer.app.services.observation_conditions_service import Observation
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_home_nsom_recommended_deep_sky_flag_defaults_off() -> None:
-    assert NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED is False
+def test_home_nsom_recommended_deep_sky_flag_defaults_on() -> None:
+    assert NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED is True
+
+
+def test_default_path_uses_nsom_observable_target_value_order() -> None:
+    controller = _controller(
+        enabled=NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
+        sky_quality=_sky_quality(9, radiance=120.0),
+        moon=_moon(20),
+    )
+
+    controller._refresh_conditioned_observing_candidates()
+
+    assert _ids(controller._conditioned_deep_sky) == [
+        "globular_cluster",
+        "open_cluster",
+        "diffuse_nebula",
+        "galaxy",
+    ]
 
 
 def test_flag_off_preserves_legacy_recommended_deep_sky_order() -> None:
