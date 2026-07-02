@@ -667,6 +667,19 @@ separate. Components not exposed by the legacy implementation are marked
 unavailable rather than inferred. The helper is not runtime ranking, QML/UI,
 logging, network work or runtime file output.
 
+Implementation note for 1.7.1: `docs/BEST_OBJECT_NSOM_COMPARISON_REPORT.md`
+captures the Best Object comparison layer as a deterministic developer-only
+report. It compares legacy Best Object score/order with NSOM
+`ObservableTargetValue` order, NSOM `PracticalTargetValue` order,
+`SessionViability` metadata and `RecommendationConfidence` metadata across
+good, poor and blocked sessions, bright Moon, high light pollution, small and
+large equipment, and a mixed planet/deep-sky candidate set. The report's
+semantic recommendation is that Best Object is currently a Home-specific
+hybrid: `ObservableTargetValue` is too object/sky-only, `PracticalTargetValue`
+omits session actionability, and a future NSOM runtime path should evaluate
+`ObservationOpportunity` with a Home-specific presentation policy. The report
+tool remains explicit developer tooling and is not a runtime input.
+
 Examples:
 
 - binocular-only profile;

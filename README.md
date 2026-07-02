@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.7.0`.
+Versione corrente: `1.7.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -218,6 +218,14 @@ confronto evidenzia dove il legacy mescola valore target, meteo/sessione e
 difficolta', marcando i componenti non disponibili invece di ricostruirli. Non
 cambia Best Object, `recommendedDeepSky`, Planner, Sky Compass, QML/UI, logging,
 rete o scritture file runtime.
+Lo step `1.7.1` aggiunge il report developer-only
+`docs/BEST_OBJECT_NSOM_COMPARISON_REPORT.md`, generato da scenari deterministici
+che confrontano ordine Best Object legacy, ordine NSOM `ObservableTargetValue`,
+ordine NSOM `PracticalTargetValue`, metadati `SessionViability` e metadati
+`RecommendationConfidence`. Il report conclude che Best Object e' oggi piu'
+vicino a un ibrido Home-specific; una futura migrazione dovrebbe valutare
+`ObservationOpportunity` con policy di presentazione Home, non un puro valore
+Observable o Practical. Nessun report e' collegato al runtime o a QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
