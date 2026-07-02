@@ -11,7 +11,10 @@ from astro_viewer.app.models.nsom import (
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
-from astro_viewer.app.services.night_planner_service import NightPlannerService
+from astro_viewer.app.services.night_planner_service import (
+    NSOM_PLANNER_SCORING_ENABLED,
+    NightPlannerService,
+)
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.planner_scoring_service import (
     PlannerScoreBreakdown,
@@ -98,7 +101,7 @@ class PlannerNsomComparisonService:
                     "nsom": _ranking_projection(evaluated, nsom_ranks, "nsom"),
                 },
                 "metadata": {
-                    "nsom_planner_scoring_enabled": False,
+                    "nsom_planner_scoring_enabled": NSOM_PLANNER_SCORING_ENABLED,
                     "blocking_status": blocking_status,
                     "object_count": len(comparison_items),
                 },

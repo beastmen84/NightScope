@@ -611,11 +611,19 @@ unchanged.
 Implementation note for 1.5.7: the default-on readiness audit is developer-only
 evidence, not a model or scoring change. It verifies that `default_on_blockers`
 is empty, accepted/deferred calibration decisions are documented, deferred items
-are non-blocking, the Planner NSOM flag remains default-off, legacy Planner
-remains the default runtime path and report tooling is not exposed to QML,
+are non-blocking, the Planner NSOM flag remained default-off in that step,
+legacy Planner remained the default runtime path and report tooling is not exposed to QML,
 automatic logging, network calls or runtime file writes. The audit verdict can
 recommend a separate default-on switch PR, but this step does not enable NSOM
 Planner.
+
+Implementation note for 1.5.8: Planner NSOM is enabled by default by setting
+`NSOM_PLANNER_SCORING_ENABLED = True`. This is a switch of the existing
+Planner consumer path, not a mathematical model change: NSOM formulas,
+`Q_target`, `RecommendationConfidence`, report tooling, QML exposure, network
+behaviour, logging and runtime file writes are unchanged. The legacy Planner
+scoring path remains callable as an explicit rollback with
+`NightPlannerService(use_nsom_planner_scoring=False)`.
 
 Examples:
 

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.5.7`.
+Versione corrente: `1.5.8`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -132,7 +132,7 @@ calibrazione. Nessun peso viene modificato e il Planner NSOM resta spento di
 default.
 Lo step `1.5.1` introduce la proiezione sperimentale interna `Q_target`:
 `ObserverCapability` resta un profilo multidimensionale, ma il Planner NSOM
-default-off può proiettarlo con pesi espliciti per classe target quando serve
+allora default-off puo' proiettarlo con pesi espliciti per classe target quando serve
 un singolo moltiplicatore di `PracticalTargetValue`. I profili coprono pianeta,
 Luna, galassia, nebulosa diffusa, ammasso aperto e globulare; il report mostra
 profilo completo, flat summary, `Q_target`, pesi usati e delta rispetto al flat
@@ -183,10 +183,15 @@ Lo step `1.5.7` aggiunge l'audit developer-only di readiness per il futuro
 switch default-on del Planner NSOM. Il report
 `docs/NSOM_PLANNER_DEFAULT_ON_READINESS_AUDIT.md` verifica che non restino
 blocker di calibrazione o policy, che le decisioni accettate/deferred siano
-documentate, che i deferred siano non bloccanti, che il flag
-`NSOM_PLANNER_SCORING_ENABLED` resti `False` e che comparison, trace e decision
+documentate, che i deferred siano non bloccanti, che in quello step il flag
+Planner NSOM fosse ancora disabilitato e che comparison, trace e decision
 log restino tooling non collegato a runtime, QML, logging automatico, rete o
-scritture file runtime. Questo commit non abilita NSOM Planner.
+scritture file runtime. Lo step `1.5.7` non abilita NSOM Planner.
+Lo step `1.5.8` abilita Planner NSOM di default impostando
+`NSOM_PLANNER_SCORING_ENABLED = True`. La modifica runtime e' limitata al
+default del flag: il rollback legacy resta esplicito tramite
+`NightPlannerService(use_nsom_planner_scoring=False)`, senza QML, logging
+automatico, rete, scritture file runtime o wiring dei report developer-only.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -99,7 +99,13 @@ class Phase3ServiceTests(unittest.TestCase):
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 5})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        plan = NightPlannerService().plan([target], weather, scores, sky_quality, telescope)
+        plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+            [target],
+            weather,
+            scores,
+            sky_quality,
+            telescope,
+        )
 
         self.assertEqual(len(plan), 1)
         self.assertEqual(plan[0].name, "Saturno")
@@ -224,8 +230,23 @@ class Phase3ServiceTests(unittest.TestCase):
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        new_moon_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, MoonSummary("Nuova", "0%", "", "", "", ""))
-        full_moon_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, MoonSummary("Piena", "100%", "", "", "", ""))
+        legacy_planner = NightPlannerService(use_nsom_planner_scoring=False)
+        new_moon_plan = legacy_planner.plan(
+            objects,
+            weather,
+            scores,
+            sky_quality,
+            telescope,
+            MoonSummary("Nuova", "0%", "", "", "", ""),
+        )
+        full_moon_plan = legacy_planner.plan(
+            objects,
+            weather,
+            scores,
+            sky_quality,
+            telescope,
+            MoonSummary("Piena", "100%", "", "", "", ""),
+        )
 
         self.assertEqual(new_moon_plan[0].name, "M31")
         self.assertEqual(full_moon_plan[0].name, "M11")

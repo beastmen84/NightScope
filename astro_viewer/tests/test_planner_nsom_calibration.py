@@ -21,7 +21,7 @@ def test_calibration_inspection_exposes_named_scenarios_as_strict_json() -> None
     json.dumps(inspection, allow_nan=False)
 
     assert inspection["metadata"]["developer_only"] is True
-    assert inspection["metadata"]["nsom_planner_scoring_enabled"] is False
+    assert inspection["metadata"]["nsom_planner_scoring_enabled"] is True
     assert tuple(inspection["metadata"]["scenario_names"]) == CALIBRATION_SCENARIO_NAMES
     assert {scenario["name"] for scenario in inspection["scenario_groups"]} == set(
         CALIBRATION_SCENARIO_NAMES
@@ -196,7 +196,7 @@ def test_calibration_inspection_is_not_exposed_to_qml() -> None:
     ui_root = Path(__file__).parents[1] / "app" / "ui"
     qml_text = "\n".join(path.read_text(encoding="utf-8") for path in ui_root.rglob("*.qml"))
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert NSOM_PLANNER_SCORING_ENABLED is True
     assert "PlannerNsomCalibrationInspectionService" not in qml_text
     assert "planner_nsom_calibration" not in qml_text
 

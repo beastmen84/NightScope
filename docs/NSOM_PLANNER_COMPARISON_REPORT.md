@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-facing report compares legacy Planner scoring with the default-off experimental NSOM Planner path across 120 deterministic scenario rows in 20 ranked groups.
+This developer-facing report compares legacy Planner scoring with the NSOM Planner path across 120 deterministic scenario rows in 20 ranked groups.
 NSOM generally follows the intended model direction: planets and the Moon remain protected from sky-background damage, galaxies and diffuse nebulae show sky-owned degradation under bright sky, equipment changes practical target value, session viability changes opportunity value, and confidence remains metadata only.
 The inspection also highlights review areas before enabling NSOM by default: legacy and NSOM use different score scales, blocked sessions expose a sharper NSOM session cap than legacy score reduction, and some rank differences are expected rather than regressions.
 
@@ -13,7 +13,7 @@ The inspection also highlights review areas before enabling NSOM by default: leg
 - Used legacy `PlannerScoringService.score_breakdown()` only for legacy values that are actually exposed.
 - Marked unavailable legacy concepts explicitly instead of fabricating values.
 - Built NSOM opportunities with `PlannerNsomScoringService` and exported the existing explanation breakdown.
-- Left `NSOM_PLANNER_SCORING_ENABLED` set to `False`; this report is not wired into runtime, QML or automatic logging.
+- Reports the current `NSOM_PLANNER_SCORING_ENABLED` state; this report is not wired into runtime, QML or automatic logging.
 
 ## Scenario Matrix Overview
 

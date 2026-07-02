@@ -28,17 +28,18 @@ def test_readiness_audit_is_strict_json_and_developer_only() -> None:
     assert data["metadata"]["automatic_logging"] is False
     assert data["metadata"]["network"] is False
     assert data["metadata"]["qml_exposure"] is False
-    assert data["metadata"]["nsom_planner_scoring_enabled"] is False
+    assert data["metadata"]["nsom_planner_scoring_enabled"] is True
 
 
-def test_readiness_verdict_allows_next_pr_but_does_not_enable_now() -> None:
+def test_readiness_verdict_confirms_default_on_with_rollback() -> None:
     data = generate_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "ready_for_default_on_switch_pr"
+    assert data["readiness"]["verdict"] == "default_on_enabled"
     assert data["readiness"]["ready_for_default_on_switch_pr"] is True
-    assert data["readiness"]["ready_to_enable_in_this_commit"] is False
-    assert data["readiness"]["recommendation"] == "ready_for_default_on_switch_pr"
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert data["readiness"]["default_on_switch_completed"] is True
+    assert data["readiness"]["ready_to_enable_in_this_commit"] is True
+    assert data["readiness"]["recommendation"] == "keep_default_on_with_explicit_rollback"
+    assert NSOM_PLANNER_SCORING_ENABLED is True
 
 
 def test_no_calibration_or_policy_blockers_remain() -> None:
@@ -79,8 +80,8 @@ def test_runtime_safety_checks_remain_green() -> None:
     data = generate_readiness_audit_data()
 
     assert data["runtime_safety"] == {
-        "flag_default_off": True,
-        "legacy_planner_preserved_by_default_flag": True,
+        "flag_default_on": True,
+        "legacy_planner_explicit_rollback_available": True,
         "qml_exposure_absent": True,
         "runtime_report_imports_absent": True,
         "tooling_developer_only": True,
@@ -108,7 +109,7 @@ def test_source_tooling_remains_developer_only() -> None:
             "automatic_logging": False,
             "network": False,
             "qml_exposure": False,
-            "nsom_planner_scoring_enabled": False,
+            "nsom_planner_scoring_enabled": True,
         }
 
 
@@ -141,7 +142,7 @@ def test_flag_off_runtime_planner_remains_legacy_with_readiness_audit_present() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService().plan(
+    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
         objects,
         weather,
         scores,
@@ -149,7 +150,10 @@ def test_flag_off_runtime_planner_remains_legacy_with_readiness_audit_present() 
         telescope,
         moon,
     )
-    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+    flag_off_plan = NightPlannerService(
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
+    ).plan(
         objects,
         weather,
         scores,

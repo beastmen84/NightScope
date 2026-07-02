@@ -29,7 +29,7 @@ from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringSer
 from astro_viewer.app.services.planner_scoring_service import PlannerScoringService
 
 
-def test_nsom_planner_feature_flag_is_default_off_and_preserves_legacy_output() -> None:
+def test_legacy_planner_path_still_works_when_forced_off() -> None:
     class FailingNsomService:
         def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
             raise AssertionError("NSOM planner path should stay disabled.")
@@ -44,9 +44,19 @@ def test_nsom_planner_feature_flag_is_default_off_and_preserves_legacy_output() 
     telescope = _telescope()
     moon = _moon(10)
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
-    legacy_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, moon)
-    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+    assert NSOM_PLANNER_SCORING_ENABLED is True
+    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+        objects,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+    flag_off_plan = NightPlannerService(
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
+    ).plan(
         objects,
         weather,
         scores,
@@ -58,7 +68,7 @@ def test_nsom_planner_feature_flag_is_default_off_and_preserves_legacy_output() 
     assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
 
 
-def test_nsom_planner_feature_flag_uses_observation_opportunity_ranking() -> None:
+def test_default_planner_path_uses_observation_opportunity_ranking() -> None:
     objects = [
         _target("legacy-high", "Galaxy", 100, "Facile", "21:00", "4.0"),
         _target("nsom-a", "Galaxy", 60, "Facile", "21:15", "4.0"),
@@ -80,10 +90,7 @@ def test_nsom_planner_feature_flag_uses_observation_opportunity_ranking() -> Non
         }
     )
 
-    plan = NightPlannerService(
-        use_nsom_planner_scoring=True,
-        nsom_scoring_service=nsom_service,
-    ).plan(
+    plan = NightPlannerService(nsom_scoring_service=nsom_service).plan(
         objects,
         _weather(85),
         _scores(),

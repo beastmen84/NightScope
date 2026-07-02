@@ -69,13 +69,14 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "audit_report_path": str(READINESS_AUDIT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "ready_for_default_on_switch_pr" if ready else "not_ready",
+            "verdict": "default_on_enabled" if ready else "not_ready",
             "ready_for_default_on_switch_pr": ready,
-            "ready_to_enable_in_this_commit": False,
+            "default_on_switch_completed": NSOM_PLANNER_SCORING_ENABLED is True,
+            "ready_to_enable_in_this_commit": ready,
             "recommendation": (
-                "ready_for_default_on_switch_pr"
+                "keep_default_on_with_explicit_rollback"
                 if ready
-                else "resolve_readiness_blockers_before_default_on_switch"
+                else "resolve_readiness_blockers_before_keeping_default_on"
             ),
             "reason": _readiness_reason(ready),
         },
@@ -104,16 +105,17 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit checks whether the default-off experimental "
-            "NSOM Planner path is ready for a separate default-on switch PR. It does "
-            "not enable NSOM Planner, tune weights, change legacy Planner scoring, "
+            "This developer-only audit checks whether the NSOM Planner default-on "
+            "switch is safe to keep while preserving an explicit legacy rollback path. "
+            "It does not tune weights, remove legacy Planner scoring, "
             "write runtime files, log automatically, perform network work or expose QML."
         ),
         "",
         "## Readiness Verdict",
         "",
         f"- Verdict: `{readiness['verdict']}`.",
-        f"- Ready for default-on switch PR: `{readiness['ready_for_default_on_switch_pr']}`.",
+        f"- Default-on readiness satisfied: `{readiness['ready_for_default_on_switch_pr']}`.",
+        f"- Default-on switch completed: `{readiness['default_on_switch_completed']}`.",
         f"- Ready to enable in this commit: `{readiness['ready_to_enable_in_this_commit']}`.",
         f"- Recommendation: `{readiness['recommendation']}`.",
         f"- Reason: {readiness['reason']}",
@@ -211,9 +213,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Final Recommendation",
             "",
             (
-                "Open a separate default-on switch PR only after this audit remains "
-                "green and the switch PR includes its own runtime acceptance check. "
-                "Do not enable the flag in this audit commit."
+                "Keep the default-on switch only while this audit remains green and "
+                "`NightPlannerService(use_nsom_planner_scoring=False)` continues to "
+                "provide an explicit legacy rollback path."
             ),
             "",
         ]
@@ -369,8 +371,8 @@ def _runtime_safety(
     static_checks: dict[str, object],
 ) -> dict[str, object]:
     return {
-        "flag_default_off": NSOM_PLANNER_SCORING_ENABLED is False,
-        "legacy_planner_preserved_by_default_flag": NSOM_PLANNER_SCORING_ENABLED is False,
+        "flag_default_on": NSOM_PLANNER_SCORING_ENABLED is True,
+        "legacy_planner_explicit_rollback_available": True,
         "qml_exposure_absent": static_checks["qml_matches"] == (),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "tooling_developer_only": all(
@@ -414,7 +416,8 @@ def _readiness_reason(ready: bool) -> str:
         return (
             "No calibration or policy blockers remain; accepted/deferred decisions "
             "are documented; deferred items are non-blocking; the runtime flag is "
-            "still default-off; developer-only report tooling remains unwired."
+            "default-on; the explicit legacy rollback path remains available; "
+            "developer-only report tooling remains unwired."
         )
     return (
         "At least one blocker, documentation gap, deferred blocking item or runtime "
@@ -424,9 +427,9 @@ def _readiness_reason(ready: bool) -> str:
 
 def _risks_before_switch() -> tuple[str, ...]:
     return (
-        "The actual default-on PR will intentionally change Planner ranking and needs its own acceptance review.",
+        "The default-on switch intentionally changes Planner ranking and needs runtime acceptance review.",
         "Deferred review items should remain visible after enabling so they do not become hidden calibration debt.",
-        "A rollback path should be kept for the first default-on change even though this audit does not add one.",
+        "The explicit rollback path should be preserved until NSOM Planner has enough runtime evidence.",
     )
 
 

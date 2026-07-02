@@ -15,7 +15,7 @@ from astro_viewer.app.services.planner_scoring_service import (
 )
 
 
-NSOM_PLANNER_SCORING_ENABLED = False
+NSOM_PLANNER_SCORING_ENABLED = True
 
 
 class NightPlannerService:

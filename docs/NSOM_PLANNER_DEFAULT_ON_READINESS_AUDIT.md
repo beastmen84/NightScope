@@ -2,15 +2,16 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the default-off experimental NSOM Planner path is ready for a separate default-on switch PR. It does not enable NSOM Planner, tune weights, change legacy Planner scoring, write runtime files, log automatically, perform network work or expose QML.
+This developer-only audit checks whether the NSOM Planner default-on switch is safe to keep while preserving an explicit legacy rollback path. It does not tune weights, remove legacy Planner scoring, write runtime files, log automatically, perform network work or expose QML.
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_default_on_switch_pr`.
-- Ready for default-on switch PR: `True`.
-- Ready to enable in this commit: `False`.
-- Recommendation: `ready_for_default_on_switch_pr`.
-- Reason: No calibration or policy blockers remain; accepted/deferred decisions are documented; deferred items are non-blocking; the runtime flag is still default-off; developer-only report tooling remains unwired.
+- Verdict: `default_on_enabled`.
+- Default-on readiness satisfied: `True`.
+- Default-on switch completed: `True`.
+- Ready to enable in this commit: `True`.
+- Recommendation: `keep_default_on_with_explicit_rollback`.
+- Reason: No calibration or policy blockers remain; accepted/deferred decisions are documented; deferred items are non-blocking; the runtime flag is default-on; the explicit legacy rollback path remains available; developer-only report tooling remains unwired.
 
 ## Blocking Checks
 
@@ -40,8 +41,8 @@ This developer-only audit checks whether the default-off experimental NSOM Plann
 
 | Check | Result |
 | --- | --- |
-| `flag_default_off` | `True` |
-| `legacy_planner_preserved_by_default_flag` | `True` |
+| `flag_default_on` | `True` |
+| `legacy_planner_explicit_rollback_available` | `True` |
 | `qml_exposure_absent` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `tooling_developer_only` | `True` |
@@ -60,9 +61,9 @@ This developer-only audit checks whether the default-off experimental NSOM Plann
 
 ## Risks Before Actual Default-On Switch
 
-- The actual default-on PR will intentionally change Planner ranking and needs its own acceptance review.
+- The default-on switch intentionally changes Planner ranking and needs runtime acceptance review.
 - Deferred review items should remain visible after enabling so they do not become hidden calibration debt.
-- A rollback path should be kept for the first default-on change even though this audit does not add one.
+- The explicit rollback path should be preserved until NSOM Planner has enough runtime evidence.
 
 ## Source Reports
 
@@ -72,4 +73,4 @@ This developer-only audit checks whether the default-off experimental NSOM Plann
 
 ## Final Recommendation
 
-Open a separate default-on switch PR only after this audit remains green and the switch PR includes its own runtime acceptance check. Do not enable the flag in this audit commit.
+Keep the default-on switch only while this audit remains green and `NightPlannerService(use_nsom_planner_scoring=False)` continues to provide an explicit legacy rollback path.

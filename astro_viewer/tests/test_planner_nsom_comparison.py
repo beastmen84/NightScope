@@ -369,9 +369,19 @@ def test_flag_off_runtime_planner_remains_unchanged_with_explanation_service_pre
     telescope = _telescope()
     moon = _moon(10)
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
-    legacy_plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope, moon)
-    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+    assert NSOM_PLANNER_SCORING_ENABLED is True
+    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+        objects,
+        weather,
+        scores,
+        sky_quality,
+        telescope,
+        moon,
+    )
+    flag_off_plan = NightPlannerService(
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
+    ).plan(
         objects,
         weather,
         scores,
@@ -387,7 +397,7 @@ def test_comparison_helper_is_not_exposed_to_qml() -> None:
     ui_root = Path(__file__).parents[1] / "app" / "ui"
     qml_text = "\n".join(path.read_text(encoding="utf-8") for path in ui_root.rglob("*.qml"))
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert NSOM_PLANNER_SCORING_ENABLED is True
     assert "PlannerNsomComparisonService" not in qml_text
     assert "planner_nsom_comparison" not in qml_text
 

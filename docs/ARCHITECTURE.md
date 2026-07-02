@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.5.7`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.5.8`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -74,9 +74,8 @@ single session source of truth; the diagnostic `session_viability` value is a
 read-only compatibility projection and cannot diverge from the session object.
 `astro_viewer/app/services/planner_nsom_service.py` is the first real NSOM
 consumer: `NightPlannerService` can use it behind the internal
-`NSOM_PLANNER_SCORING_ENABLED` flag, which is `False` by default. With the flag
-disabled, Planner continues to use the legacy `PlannerScoringService` ranking.
-With the flag enabled, Planner candidates are converted to
+`NSOM_PLANNER_SCORING_ENABLED` flag, which is `True` by default as of `1.5.8`.
+Planner candidates are converted to
 `ObservationOpportunity` instances and ranked by opportunity value. In `1.4.2`
 the experimental NSOM path no longer asks `PlannerScoringService` for
 Moon/light-pollution condition ownership; `planner_nsom_service.py` builds the
@@ -85,13 +84,15 @@ builds telescope-aware `ObserverCapability` before deriving
 `PracticalTargetValue`. The diagnostic export is not exposed to QML, does not
 write files, does not log automatically, does not emit signals and does not
 recompute Planner, Home, Equipment or Sky Compass output. Confidence remains
-parallel metadata and does not change recommendation score.
+parallel metadata and does not change recommendation score. The legacy Planner
+path remains available by explicitly constructing
+`NightPlannerService(use_nsom_planner_scoring=False)`.
 `astro_viewer/app/services/planner_nsom_comparison.py` adds an internal,
 developer-only comparison helper for `1.4.3`. It computes legacy Planner scores
 and experimental NSOM Planner opportunities from the same supplied runtime
 inputs, then returns JSON-compatible dictionaries with score/rank deltas and
 NSOM component projections. It is not connected to QML, performs no writes or
-automatic logging, and does not change the default-off Planner NSOM flag.
+automatic logging, and did not change the then-default-off Planner NSOM flag.
 `1.4.4` adds behavioural comparison fixtures that intentionally validate NSOM
 rules rather than legacy equivalence: planets and the Moon stay protected from
 sky-background penalties, galaxies and diffuse nebulae degrade more under bright
@@ -173,7 +174,8 @@ weighting decision, not a calibration or scoring change.
 `1.5.1` adds the internal experimental `Q_target` projection:
 `project_observer_capability_for_target(observer_capability, target_class)`.
 `ObserverCapability` remains multidimensional; `Q_target` is only the
-Observer-layer scalar projection consumed by the default-off NSOM Planner path
+Observer-layer scalar projection consumed by the NSOM Planner path, which was
+still default-off at that step,
 when building `PracticalTargetValue`. Target-class weighting profiles are
 explicit for planet, Moon, galaxy, diffuse nebula, open cluster and globular
 cluster. Reports now show the full ObserverCapability profile, the flat summary,
@@ -221,7 +223,7 @@ resolution, magnification and tracking dimensions. The floor affects only
 `EffectiveObservability`, `SessionViability` and `RecommendationConfidence`
 remain unchanged. The comparison report, mathematical trace and decision log
 show the conditional floor; the NSOM Planner flag remains default-off and
-legacy Planner scoring is unchanged.
+legacy Planner scoring is unchanged in that calibration step.
 `1.5.6` resolves the targeted `open-cluster-recurring-demotion` calibration
 blocker inside the Observer layer. `project_observer_capability_for_target()`
 now applies an open-cluster-only field-of-view usability floor before computing
@@ -230,7 +232,7 @@ is usable and practical comfort is adequate. Genuinely narrow fields remain
 limited. The rule affects `PracticalTargetValue` only through `Q_target`; it
 does not change `IntrinsicTargetQuality`, `ObservableTargetValue`,
 `EffectiveObservability`, `SessionViability`, confidence metadata, legacy
-Planner scoring, QML exposure or the default-off NSOM Planner flag. The
+Planner scoring, QML exposure or the then-default-off NSOM Planner flag. The
 comparison report, mathematical trace and decision log show the conditional
 open-cluster projection, and no default-on calibration blockers remain.
 `1.5.7` adds developer/test tooling in
@@ -243,6 +245,11 @@ remains `False`, report tooling is developer-only, and no QML/runtime import
 wiring exists for the reports. It is an explicit developer command only; it
 does not enable NSOM Planner, tune weights, change legacy Planner scoring, log
 automatically, perform network work or write runtime files.
+`1.5.8` changes the Planner NSOM flag default to `True`. The runtime switch is
+limited to `NSOM_PLANNER_SCORING_ENABLED = True`; no NSOM formula, QML exposure,
+report wiring, logging, network path or runtime file write is added. The legacy
+Planner path remains an explicit rollback through
+`NightPlannerService(use_nsom_planner_scoring=False)`.
 
 ## Dependency Flow
 

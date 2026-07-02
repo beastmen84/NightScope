@@ -226,7 +226,7 @@ def test_planner_output_current_conditions_matrix_is_characterized(
     expected,
 ):
     del name
-    plan = NightPlannerService().plan(
+    plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
         _planner_fixture_objects(),
         weather=weather,
         scores=scores,
@@ -464,7 +464,10 @@ def test_night_planner_reuses_injected_scoring_service_and_scores_visible_target
 
     scoring_service = RecordingScoringService()
 
-    plan = NightPlannerService(scoring_service).plan(
+    plan = NightPlannerService(
+        scoring_service,
+        use_nsom_planner_scoring=False,
+    ).plan(
         _planner_fixture_objects(),
         _weather(85),
         _scores(),

@@ -27,7 +27,7 @@ def test_decision_log_is_strict_json_and_developer_only() -> None:
     json.dumps(data, sort_keys=True, allow_nan=False)
 
     assert data["metadata"]["developer_only"] is True
-    assert data["metadata"]["nsom_planner_scoring_enabled"] is False
+    assert data["metadata"]["nsom_planner_scoring_enabled"] is True
     assert tuple(data["metadata"]["decision_statuses"]) == DECISION_STATUSES
     assert data["metadata"]["runtime_writes"] is False
     assert data["metadata"]["automatic_logging"] is False
@@ -153,7 +153,7 @@ def test_decision_log_generation_is_not_wired_into_runtime_or_qml() -> None:
         for path in root.rglob("*.py")
     )
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert NSOM_PLANNER_SCORING_ENABLED is True
     assert "nsom_calibration_decision_log" not in qml_text
     assert "NSOM_CALIBRATION_DECISION_LOG" not in qml_text
     assert "nsom_calibration_decision_log" not in runtime_text
@@ -177,7 +177,7 @@ def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService().plan(
+    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
         objects,
         weather,
         scores,
@@ -185,7 +185,10 @@ def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() 
         telescope,
         moon,
     )
-    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+    flag_off_plan = NightPlannerService(
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
+    ).plan(
         objects,
         weather,
         scores,
@@ -230,7 +233,7 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService().plan(
+    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
         objects,
         weather,
         scores,
@@ -238,7 +241,10 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
         telescope,
         moon,
     )
-    flag_off_plan = NightPlannerService(nsom_scoring_service=FailingNsomService()).plan(
+    flag_off_plan = NightPlannerService(
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
+    ).plan(
         objects,
         weather,
         scores,
@@ -246,7 +252,7 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
         telescope,
         moon,
     )
-    blocked_legacy_plan = NightPlannerService().plan(
+    blocked_legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
         objects,
         _weather(10, cloud_cover=90, precipitation=80),
         scores,
@@ -255,7 +261,8 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
         moon,
     )
     blocked_flag_off_plan = NightPlannerService(
-        nsom_scoring_service=FailingNsomService()
+        use_nsom_planner_scoring=False,
+        nsom_scoring_service=FailingNsomService(),
     ).plan(
         objects,
         _weather(10, cloud_cover=90, precipitation=80),

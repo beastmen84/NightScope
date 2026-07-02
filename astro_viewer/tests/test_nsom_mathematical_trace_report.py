@@ -27,7 +27,7 @@ def test_trace_report_data_is_deterministic_and_strict_json() -> None:
     assert first["metadata"]["scenario_count"] == 120
     assert first["metadata"]["scenario_group_count"] == 20
     assert first["metadata"]["confidence_role"] == "metadata_only_outside_mathematical_pipeline"
-    assert first["metadata"]["nsom_planner_scoring_enabled"] is False
+    assert first["metadata"]["nsom_planner_scoring_enabled"] is True
     assert first["observer_capability_review"]["metadata"]["developer_only"] is True
     assert first["observer_capability_review"]["metadata"]["legacy_score_used_as_expected_output"] is False
 
@@ -239,7 +239,7 @@ def test_trace_report_generation_is_not_wired_into_runtime_or_qml() -> None:
         for path in root.rglob("*.py")
     )
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert NSOM_PLANNER_SCORING_ENABLED is True
     assert "nsom_mathematical_trace_report" not in qml_text
     assert "NSOM_MATHEMATICAL_TRACE_REPORT" not in qml_text
     assert "nsom_mathematical_trace_report" not in runtime_text

@@ -312,7 +312,7 @@ def test_report_generation_is_not_wired_into_runtime_or_qml() -> None:
         if path.name != "planner_nsom_calibration.py"
     )
 
-    assert NSOM_PLANNER_SCORING_ENABLED is False
+    assert NSOM_PLANNER_SCORING_ENABLED is True
     assert "nsom_planner_comparison_report" not in qml_text
     assert "NSOM_PLANNER_COMPARISON_REPORT" not in qml_text
     assert "nsom_planner_comparison_report" not in runtime_text

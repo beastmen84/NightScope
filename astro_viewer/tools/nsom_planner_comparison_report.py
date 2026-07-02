@@ -89,7 +89,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             f"This developer-facing report compares legacy Planner scoring with the "
-            f"default-off experimental NSOM Planner path across "
+            f"NSOM Planner path across "
             f"{metadata['scenario_count']} deterministic scenario rows in "
             f"{metadata['scenario_group_count']} ranked groups."
         ),
@@ -114,7 +114,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "- Used legacy `PlannerScoringService.score_breakdown()` only for legacy values that are actually exposed.",
         "- Marked unavailable legacy concepts explicitly instead of fabricating values.",
         "- Built NSOM opportunities with `PlannerNsomScoringService` and exported the existing explanation breakdown.",
-        "- Left `NSOM_PLANNER_SCORING_ENABLED` set to `False`; this report is not wired into runtime, QML or automatic logging.",
+        "- Reports the current `NSOM_PLANNER_SCORING_ENABLED` state; this report is not wired into runtime, QML or automatic logging.",
         "",
         "## Scenario Matrix Overview",
         "",
