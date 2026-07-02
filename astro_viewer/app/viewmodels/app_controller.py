@@ -47,6 +47,10 @@ from astro_viewer.app.services.location_service import (
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
+from astro_viewer.app.services.home_nsom_ranking import (
+    HomeRecommendedDeepSkyNsomRankingService,
+    NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
+)
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
@@ -115,7 +119,14 @@ class AppController(QObject):
     _localAtmosphereRefreshFinished = Signal(str, object)
     _nasaAodRefreshFinished = Signal(str, object)
 
-    def __init__(self, base_dir: Path, database_path: Path):
+    def __init__(
+        self,
+        base_dir: Path,
+        database_path: Path,
+        *,
+        use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
+        home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
+    ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
         self._openaqConnectionTestFinished.connect(self._finish_openaq_connection_test)
@@ -192,6 +203,10 @@ class AppController(QObject):
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
         self._conditions_service = ObservationConditionsService()
+        self._use_nsom_home_recommended_deep_sky = use_nsom_home_recommended_deep_sky
+        self._home_recommended_deep_sky_nsom_ranking_service = (
+            home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
+        )
         self._night_planner_service = NightPlannerService()
         self._sky_map_service = SkyMapService()
         self._sky_compass_service = SkyCompassService()
@@ -3403,9 +3418,21 @@ class AppController(QObject):
         return item.visibility_class.startswith("Catalogo ")
 
     def _refresh_conditioned_observing_candidates(self) -> None:
-        conditioned_deep_sky = self._moon_adjusted_objects(self._home_visible_objects(self._deep_sky))
+        conditioned_deep_sky = self._recommended_deep_sky_candidates(self._home_visible_objects(self._deep_sky))
         self._conditioned_deep_sky = conditioned_deep_sky
         self._conditioned_home_objects = self._home_visible_objects(self._visible_planets) + conditioned_deep_sky
+
+    def _recommended_deep_sky_candidates(self, objects: list[CelestialObject]) -> list[CelestialObject]:
+        if not getattr(self, "_use_nsom_home_recommended_deep_sky", False):
+            return self._moon_adjusted_objects(objects)
+        sky_quality = getattr(self, "_sky_quality", None)
+        if sky_quality is None:
+            return self._moon_adjusted_objects(objects)
+        return self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
+            objects,
+            sky_quality=sky_quality,
+            moon=getattr(self, "_moon", None),
+        )
 
     def _conditioned_deep_sky_candidates(self) -> list[CelestialObject]:
         if not hasattr(self, "_conditioned_deep_sky"):
