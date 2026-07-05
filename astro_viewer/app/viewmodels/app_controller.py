@@ -47,6 +47,10 @@ from astro_viewer.app.services.location_service import (
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
+from astro_viewer.app.services.best_object_nsom_ranking import (
+    BestObjectNsomSelectionService,
+    NSOM_BEST_OBJECT_ENABLED,
+)
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
     NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
@@ -124,7 +128,9 @@ class AppController(QObject):
         base_dir: Path,
         database_path: Path,
         *,
+        use_nsom_best_object: bool = NSOM_BEST_OBJECT_ENABLED,
         use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
+        best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
     ):
         super().__init__()
@@ -203,6 +209,10 @@ class AppController(QObject):
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
         self._conditions_service = ObservationConditionsService()
+        self._use_nsom_best_object = use_nsom_best_object
+        self._best_object_nsom_selection_service = (
+            best_object_nsom_selection_service or BestObjectNsomSelectionService()
+        )
         self._use_nsom_home_recommended_deep_sky = use_nsom_home_recommended_deep_sky
         self._home_recommended_deep_sky_nsom_ranking_service = (
             home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
@@ -1890,7 +1900,7 @@ class AppController(QObject):
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
-        self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
+        self._best_object = self._select_best_object(planning_objects)
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
@@ -1909,6 +1919,19 @@ class AppController(QObject):
             self._moon,
         )
         self._refresh_nsom_diagnostics()
+
+    def _select_best_object(self, planning_objects: list[CelestialObject]) -> CelestialObject | None:
+        if not self._weather_summary:
+            return None
+        if not self._use_nsom_best_object or not self._sky_quality:
+            return self._score_service.best_object(planning_objects, self._weather_summary)
+        return self._best_object_nsom_selection_service.best_object(
+            planning_objects,
+            weather=self._weather_summary,
+            sky_quality=self._sky_quality,
+            telescope=self._current_telescope(),
+            moon=self._moon,
+        )
 
     def _refresh_nsom_diagnostics(self) -> None:
         notes = ["diagnostic_only", "score_neutral"]
@@ -2677,7 +2700,7 @@ class AppController(QObject):
         if self._weather_summary and self._sky_quality:
             self._recalculate_observing_outputs()
         elif self._weather_summary:
-            self._best_object = self._score_service.best_object(planning_objects, self._weather_summary)
+            self._best_object = self._select_best_object(planning_objects)
             self._night_plan = []
             self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
             self._refresh_sky_compass()

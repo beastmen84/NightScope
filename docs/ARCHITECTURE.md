@@ -298,6 +298,21 @@ recommendation is that current Best Object is a Home-specific hybrid; a future
 NSOM migration should evaluate ObservationOpportunity with Home presentation
 policy. The tool is explicit developer tooling and is not imported by runtime
 services or QML.
+`1.7.2` adds `astro_viewer/app/services/best_object_nsom_ranking.py`, an
+internal default-off runtime path for Best Object. The default flag is
+`NSOM_BEST_OBJECT_ENABLED = False`, so `AppController` still preserves legacy
+Best Object selection unless constructed with `use_nsom_best_object=True`; the
+explicit rollback is `AppController(use_nsom_best_object=False)`. The NSOM path
+builds Home `ObservableTargetValue`, projects telescope-aware
+`ObserverCapability` through target-specific `Q_target`, derives
+`PracticalTargetValue`, and ranks `ObservationOpportunity` with Home-specific
+actionability. Blocked sessions and invisible candidates are non-actionable;
+blocked-session practical ordering remains diagnostic-only inside the service,
+not a runtime recommendation. `RecommendationConfidence` is metadata only. The
+path does not expose NSOM fields to QML, does not wire report tooling into
+runtime, does not log automatically, does not perform network work and does not
+write runtime files. If sky quality is unavailable, `AppController` falls back
+to legacy Best Object selection.
 
 ## Dependency Flow
 

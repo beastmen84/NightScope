@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
+from astro_viewer.app.services.best_object_nsom_ranking import NSOM_BEST_OBJECT_ENABLED
 from astro_viewer.tools.best_object_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -48,10 +49,13 @@ def generate_readiness_audit_data() -> dict[str, object]:
         "readiness": {
             "verdict": "ready_for_default_off_path" if ready else "not_ready_for_default_off_path",
             "ready_for_default_off_path": ready,
-            "runtime_path_exists": False,
-            "runtime_behaviour_changed": False,
+            "runtime_path_exists": True,
+            "default_flag": f"NSOM_BEST_OBJECT_ENABLED = {NSOM_BEST_OBJECT_ENABLED}",
+            "runtime_behaviour_changed_by_default": NSOM_BEST_OBJECT_ENABLED is True,
+            "explicit_nsom_opt_in": "AppController(use_nsom_best_object=True)",
+            "explicit_legacy_rollback": "AppController(use_nsom_best_object=False)",
             "recommendation": (
-                "review_policy_decisions_then_add_default_off_best_object_nsom_path"
+                "review_default_off_best_object_nsom_path_before_default_on_readiness"
                 if ready
                 else "resolve_policy_and_display_semantics_before_runtime_path"
             ),
@@ -82,10 +86,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit checks whether Best Object is ready for a "
-            "default-off NSOM runtime path after the comparison report. It does not "
-            "change Best Object selection, recommendedDeepSky, Planner, Sky Compass, "
-            "QML, logging, network behaviour or runtime file writes."
+            "This developer-only audit checked whether Best Object was ready for a "
+            "default-off NSOM runtime path after the comparison report. The "
+            "default-off path now exists, but the default runtime still preserves "
+            "legacy Best Object selection. The path does not change "
+            "recommendedDeepSky, Planner, Sky Compass, QML, logging, network "
+            "behaviour or runtime file writes."
         ),
         "",
         "## Readiness Verdict",
@@ -93,7 +99,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Ready for default-off path: `{readiness['ready_for_default_off_path']}`.",
         f"- Runtime path exists: `{readiness['runtime_path_exists']}`.",
-        f"- Runtime behaviour changed: `{readiness['runtime_behaviour_changed']}`.",
+        f"- Default flag: `{readiness['default_flag']}`.",
+        f"- Runtime behaviour changed by default: `{readiness['runtime_behaviour_changed_by_default']}`.",
+        f"- Explicit NSOM opt-in: `{readiness['explicit_nsom_opt_in']}`.",
+        f"- Explicit legacy rollback: `{readiness['explicit_legacy_rollback']}`.",
         f"- Recommendation: `{readiness['recommendation']}`.",
         f"- Reason: {readiness['reason']}",
         "",
@@ -183,9 +192,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review these policy decisions before adding runtime wiring.",
-            "2. Add a default-off Best Object NSOM path using ObservationOpportunity-style actionability.",
-            "3. Preserve legacy Best Object as explicit rollback when the runtime path is introduced.",
+            "1. Review the default-off Best Object NSOM path before any default-on readiness audit.",
+            "2. Verify blocked-session, invisible-target and missing-sky-quality policy in the runtime selector.",
+            "3. Preserve legacy Best Object as explicit rollback until a separate default-on switch is reviewed.",
             "",
         ]
     )
@@ -299,12 +308,15 @@ def _runtime_safety(
 ) -> dict[str, object]:
     metadata = comparison["metadata"]
     return {
+        "best_object_nsom_runtime_path_default_off": NSOM_BEST_OBJECT_ENABLED is False,
+        "legacy_rollback_available": True,
         "comparison_tooling_developer_only": metadata["developer_only"] is True,
         "comparison_tooling_has_no_runtime_writes": metadata["runtime_writes"] is False,
         "comparison_tooling_has_no_automatic_logging": metadata["automatic_logging"] is False,
         "comparison_tooling_has_no_network": metadata["network"] is False,
         "comparison_tooling_has_no_qml_exposure": metadata["qml_exposure"] is False,
-        "best_object_runtime_unchanged": metadata["best_object_changed"] is False,
+        "best_object_runtime_unchanged_by_default": metadata["best_object_changed"] is False
+        and NSOM_BEST_OBJECT_ENABLED is False,
         "recommended_deep_sky_runtime_unchanged": metadata["recommended_deep_sky_changed"] is False,
         "planner_runtime_unchanged": metadata["planner_changed"] is False,
         "sky_compass_runtime_unchanged": metadata["sky_compass_changed"] is False,
@@ -380,8 +392,8 @@ def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
             "Best Object non-actionable policy, displayed score semantics and "
-            "runtime safety are documented. The next change can add a default-off "
-            "NSOM runtime path after review."
+            "runtime safety are implemented behind an internal default-off path. "
+            "The next change should review behaviour before any default-on audit."
         )
     return (
         "Best Object still needs non-actionable session policy and displayed score "

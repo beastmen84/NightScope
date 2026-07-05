@@ -2,16 +2,19 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether Best Object is ready for a default-off NSOM runtime path after the comparison report. It does not change Best Object selection, recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
+This developer-only audit checked whether Best Object was ready for a default-off NSOM runtime path after the comparison report. The default-off path now exists, but the default runtime still preserves legacy Best Object selection. The path does not change recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
 
 ## Readiness Verdict
 
 - Verdict: `ready_for_default_off_path`.
 - Ready for default-off path: `True`.
-- Runtime path exists: `False`.
-- Runtime behaviour changed: `False`.
-- Recommendation: `review_policy_decisions_then_add_default_off_best_object_nsom_path`.
-- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety are documented. The next change can add a default-off NSOM runtime path after review.
+- Runtime path exists: `True`.
+- Default flag: `NSOM_BEST_OBJECT_ENABLED = False`.
+- Runtime behaviour changed by default: `False`.
+- Explicit NSOM opt-in: `AppController(use_nsom_best_object=True)`.
+- Explicit legacy rollback: `AppController(use_nsom_best_object=False)`.
+- Recommendation: `review_default_off_best_object_nsom_path_before_default_on_readiness`.
+- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety are implemented behind an internal default-off path. The next change should review behaviour before any default-on audit.
 
 ## Default-Off Blockers
 
@@ -56,12 +59,14 @@ This developer-only audit checks whether Best Object is ready for a default-off 
 
 | Check | Result |
 | --- | --- |
+| `best_object_nsom_runtime_path_default_off` | `True` |
+| `legacy_rollback_available` | `True` |
 | `comparison_tooling_developer_only` | `True` |
 | `comparison_tooling_has_no_runtime_writes` | `True` |
 | `comparison_tooling_has_no_automatic_logging` | `True` |
 | `comparison_tooling_has_no_network` | `True` |
 | `comparison_tooling_has_no_qml_exposure` | `True` |
-| `best_object_runtime_unchanged` | `True` |
+| `best_object_runtime_unchanged_by_default` | `True` |
 | `recommended_deep_sky_runtime_unchanged` | `True` |
 | `planner_runtime_unchanged` | `True` |
 | `sky_compass_runtime_unchanged` | `True` |
@@ -70,6 +75,6 @@ This developer-only audit checks whether Best Object is ready for a default-off 
 
 ## Recommended Next Steps
 
-1. Review these policy decisions before adding runtime wiring.
-2. Add a default-off Best Object NSOM path using ObservationOpportunity-style actionability.
-3. Preserve legacy Best Object as explicit rollback when the runtime path is introduced.
+1. Review the default-off Best Object NSOM path before any default-on readiness audit.
+2. Verify blocked-session, invisible-target and missing-sky-quality policy in the runtime selector.
+3. Preserve legacy Best Object as explicit rollback until a separate default-on switch is reviewed.

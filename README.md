@@ -226,6 +226,16 @@ ordine NSOM `PracticalTargetValue`, metadati `SessionViability` e metadati
 vicino a un ibrido Home-specific; una futura migrazione dovrebbe valutare
 `ObservationOpportunity` con policy di presentazione Home, non un puro valore
 Observable o Practical. Nessun report e' collegato al runtime o a QML.
+Lo step `1.7.2` introduce il primo path runtime Best Object NSOM, interno e
+spento di default tramite `NSOM_BEST_OBJECT_ENABLED = False`. Quando viene
+forzato con `AppController(use_nsom_best_object=True)`, Best Object valuta
+`ObservationOpportunity` con policy Home-specific: `PracticalTargetValue`
+deriva da `ObservableTargetValue` e `Q_target`, `SessionViability` gestisce la
+non-actionability delle sessioni bloccate e `RecommendationConfidence` resta
+metadato senza effetto sullo score. Il rollback legacy e' esplicito con
+`AppController(use_nsom_best_object=False)`. Il payload QML resta invariato,
+lo score mostrato resta legacy/base per compatibilita' e, se manca la sky
+quality runtime, il controller usa ancora il path legacy.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

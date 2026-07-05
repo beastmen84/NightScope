@@ -680,6 +680,22 @@ omits session actionability, and a future NSOM runtime path should evaluate
 `ObservationOpportunity` with a Home-specific presentation policy. The report
 tool remains explicit developer tooling and is not a runtime input.
 
+Implementation note for 1.7.2: Best Object now has an internal default-off NSOM
+runtime path in `BestObjectNsomSelectionService`, guarded by
+`NSOM_BEST_OBJECT_ENABLED = False`. The controller default still preserves the
+legacy formula; rollback remains explicit with
+`AppController(use_nsom_best_object=False)`, and the experimental path can be
+forced with `AppController(use_nsom_best_object=True)`. The path builds
+Home-owned `ObservableTargetValue`, projects telescope-aware
+`ObserverCapability` through target-specific `Q_target`, derives
+`PracticalTargetValue`, and ranks by `ObservationOpportunity` with a compact
+Home actionability policy. Blocked sessions are non-actionable and return no
+runtime Best Object while preserving diagnostic practical ordering inside the
+service; invisible candidates are also non-actionable. `RecommendationConfidence`
+is carried only as metadata and does not affect opportunity value. No NSOM
+fields are added to QML, no report tooling is wired into runtime, and missing
+sky quality keeps the legacy Best Object fallback.
+
 Examples:
 
 - binocular-only profile;

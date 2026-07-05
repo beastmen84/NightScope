@@ -35,10 +35,13 @@ def test_best_object_readiness_accepts_policy_before_default_off_path() -> None:
 
     assert data["readiness"]["verdict"] == "ready_for_default_off_path"
     assert data["readiness"]["ready_for_default_off_path"] is True
-    assert data["readiness"]["runtime_path_exists"] is False
-    assert data["readiness"]["runtime_behaviour_changed"] is False
+    assert data["readiness"]["runtime_path_exists"] is True
+    assert data["readiness"]["default_flag"] == "NSOM_BEST_OBJECT_ENABLED = False"
+    assert data["readiness"]["runtime_behaviour_changed_by_default"] is False
+    assert data["readiness"]["explicit_nsom_opt_in"] == "AppController(use_nsom_best_object=True)"
+    assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_best_object=False)"
     assert data["readiness"]["recommendation"] == (
-        "review_policy_decisions_then_add_default_off_best_object_nsom_path"
+        "review_default_off_best_object_nsom_path_before_default_on_readiness"
     )
     assert data["blockers"] == []
 
@@ -103,12 +106,14 @@ def test_best_object_readiness_audit_has_no_runtime_or_qml_wiring() -> None:
     data = generate_readiness_audit_data()
 
     assert data["runtime_safety"] == {
+        "best_object_nsom_runtime_path_default_off": True,
+        "legacy_rollback_available": True,
         "comparison_tooling_developer_only": True,
         "comparison_tooling_has_no_runtime_writes": True,
         "comparison_tooling_has_no_automatic_logging": True,
         "comparison_tooling_has_no_network": True,
         "comparison_tooling_has_no_qml_exposure": True,
-        "best_object_runtime_unchanged": True,
+        "best_object_runtime_unchanged_by_default": True,
         "recommended_deep_sky_runtime_unchanged": True,
         "planner_runtime_unchanged": True,
         "sky_compass_runtime_unchanged": True,
