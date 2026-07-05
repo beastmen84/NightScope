@@ -51,7 +51,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_path_exists": False,
             "runtime_behaviour_changed": False,
             "recommendation": (
-                "add_default_off_best_object_nsom_path"
+                "review_policy_decisions_then_add_default_off_best_object_nsom_path"
                 if ready
                 else "resolve_policy_and_display_semantics_before_runtime_path"
             ),
@@ -159,6 +159,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Score monotonic with proposed NSOM order: `{display['score_monotonic_with_proposed_nsom_order']}`.",
             f"- Blocks default-off path: `{display['blocks_default_off_path']}`.",
             f"- Decision: {display['decision']}",
+            f"- Future runtime policy: {display['future_runtime_policy']}",
             "",
             "## Semantic Migration Target",
             "",
@@ -182,8 +183,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Define Best Object non-actionable policy before any runtime NSOM path.",
-            "2. Add a default-off Best Object NSOM path only after blocked-session and display semantics are settled.",
+            "1. Review these policy decisions before adding runtime wiring.",
+            "2. Add a default-off Best Object NSOM path using ObservationOpportunity-style actionability.",
             "3. Preserve legacy Best Object as explicit rollback when the runtime path is introduced.",
             "",
         ]
@@ -210,11 +211,12 @@ def _policy_review(comparison: dict[str, object]) -> dict[str, object]:
         "decisions": (
             {
                 "policy_id": "best-object-blocked-session-non-actionable-policy",
-                "status": "needs_policy_decision",
-                "blocks_default_off_path": True,
+                "status": "accepted",
+                "blocks_default_off_path": False,
                 "decision": (
-                    "Blocked sessions must not surface legacy, ObservableTargetValue "
-                    "or PracticalTargetValue order as an actionable Best Object recommendation."
+                    "Blocked sessions are non-actionable in a future NSOM Best Object "
+                    "path. Do not surface legacy, ObservableTargetValue or "
+                    "PracticalTargetValue order as an actionable recommendation."
                 ),
             },
             {
@@ -250,22 +252,27 @@ def _blocked_session_evidence(scenario: dict[str, object]) -> dict[str, object]:
         "legacy_weather_floor_still_ranks": True,
         "diagnostic_orders_are_recommendation_orders": False,
         "required_policy": (
-            "A future Best Object NSOM path must annotate blocked sessions as "
-            "non-actionable before ranking is exposed to Home."
+            "A future Best Object NSOM path must return a non-actionable state for "
+            "blocked sessions. Diagnostic ranking can remain available to developer "
+            "tooling, but it is not a recommendation order."
         ),
     }
 
 
 def _display_score_semantics() -> dict[str, object]:
     return {
-        "status": "needs_policy_decision",
+        "status": "accepted_for_default_off_experiment",
         "keep_legacy_displayed_score_for_compatibility": True,
         "score_monotonic_with_proposed_nsom_order": False,
-        "blocks_default_off_path": True,
+        "blocks_default_off_path": False,
         "decision": (
-            "Best Object cannot switch runtime ordering until Home card score/rationale "
-            "semantics are defined. Keeping the legacy displayed score is compatible, "
-            "but it may not be monotonic with an ObservationOpportunity-based order."
+            "For the first default-off experiment, preserve the existing Best Object "
+            "payload and displayed legacy/base score. Do not expose provisional NSOM "
+            "score rationale to QML."
+        ),
+        "future_runtime_policy": (
+            "Displayed score is compatibility data, not the NSOM ordering rationale. "
+            "A later UI/rationale step can add explicit NSOM explanation fields."
         ),
     }
 
@@ -372,8 +379,9 @@ def _scenario(data: dict[str, object], scenario_id: str) -> dict[str, object]:
 def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
-            "Best Object policy, displayed score semantics and runtime safety are "
-            "ready for a default-off NSOM runtime path."
+            "Best Object non-actionable policy, displayed score semantics and "
+            "runtime safety are documented. The next change can add a default-off "
+            "NSOM runtime path after review."
         )
     return (
         "Best Object still needs non-actionable session policy and displayed score "

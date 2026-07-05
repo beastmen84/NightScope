@@ -30,26 +30,30 @@ def test_best_object_readiness_audit_is_strict_json_and_developer_only() -> None
     }
 
 
-def test_best_object_readiness_requires_policy_before_default_off_path() -> None:
+def test_best_object_readiness_accepts_policy_before_default_off_path() -> None:
     data = generate_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "not_ready_for_default_off_path"
-    assert data["readiness"]["ready_for_default_off_path"] is False
+    assert data["readiness"]["verdict"] == "ready_for_default_off_path"
+    assert data["readiness"]["ready_for_default_off_path"] is True
     assert data["readiness"]["runtime_path_exists"] is False
     assert data["readiness"]["runtime_behaviour_changed"] is False
     assert data["readiness"]["recommendation"] == (
-        "resolve_policy_and_display_semantics_before_runtime_path"
+        "review_policy_decisions_then_add_default_off_best_object_nsom_path"
     )
-    assert set(data["blockers"]) == {
-        "best-object-blocked-session-non-actionable-policy",
-        "best-object-displayed-score-semantics",
-    }
+    assert data["blockers"] == []
 
 
 def test_blocked_session_is_non_actionable_and_diagnostic_orders_are_not_recommendations() -> None:
     data = generate_readiness_audit_data()
     blocked = data["policy_review"]["blocked_session_evidence"]
+    policy = next(
+        decision
+        for decision in data["policy_review"]["decisions"]
+        if decision["policy_id"] == "best-object-blocked-session-non-actionable-policy"
+    )
 
+    assert policy["status"] == "accepted"
+    assert policy["blocks_default_off_path"] is False
     assert blocked["scenario_id"] == "B03_blocked_session"
     assert blocked["actionability"] == "non_actionable"
     assert blocked["legacy_weather_floor_still_ranks"] is True
@@ -71,14 +75,15 @@ def test_semantic_target_rejects_pure_observable_and_pure_practical() -> None:
     assert semantic["use_observation_opportunity_with_home_policy"] is True
 
 
-def test_displayed_score_semantics_are_documented_as_blocking_default_off_path() -> None:
+def test_displayed_score_semantics_are_documented_for_default_off_path() -> None:
     data = generate_readiness_audit_data()
     display = data["display_score_semantics"]
 
-    assert display["status"] == "needs_policy_decision"
+    assert display["status"] == "accepted_for_default_off_experiment"
     assert display["keep_legacy_displayed_score_for_compatibility"] is True
     assert display["score_monotonic_with_proposed_nsom_order"] is False
-    assert display["blocks_default_off_path"] is True
+    assert display["blocks_default_off_path"] is False
+    assert "compatibility data" in display["future_runtime_policy"]
 
 
 def test_confidence_remains_metadata_only_in_best_object_readiness_audit() -> None:
@@ -120,6 +125,6 @@ def test_checked_in_best_object_readiness_audit_report_exists() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Best Object NSOM Readiness Audit" in text
-    assert "not_ready_for_default_off_path" in text
+    assert "ready_for_default_off_path" in text
     assert "best-object-blocked-session-non-actionable-policy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

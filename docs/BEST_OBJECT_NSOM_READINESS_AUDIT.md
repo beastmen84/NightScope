@@ -6,23 +6,22 @@ This developer-only audit checks whether Best Object is ready for a default-off 
 
 ## Readiness Verdict
 
-- Verdict: `not_ready_for_default_off_path`.
-- Ready for default-off path: `False`.
+- Verdict: `ready_for_default_off_path`.
+- Ready for default-off path: `True`.
 - Runtime path exists: `False`.
 - Runtime behaviour changed: `False`.
-- Recommendation: `resolve_policy_and_display_semantics_before_runtime_path`.
-- Reason: Best Object still needs non-actionable session policy and displayed score semantics before a runtime NSOM path is introduced.
+- Recommendation: `review_policy_decisions_then_add_default_off_best_object_nsom_path`.
+- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety are documented. The next change can add a default-off NSOM runtime path after review.
 
 ## Default-Off Blockers
 
-- `best-object-blocked-session-non-actionable-policy`
-- `best-object-displayed-score-semantics`
+- none
 
 ## Policy Review
 
 | Policy | Status | Blocks Default-Off Path | Decision |
 | --- | --- | --- | --- |
-| `best-object-blocked-session-non-actionable-policy` | `needs_policy_decision` | `True` | Blocked sessions must not surface legacy, ObservableTargetValue or PracticalTargetValue order as an actionable Best Object recommendation. |
+| `best-object-blocked-session-non-actionable-policy` | `accepted` | `False` | Blocked sessions are non-actionable in a future NSOM Best Object path. Do not surface legacy, ObservableTargetValue or PracticalTargetValue order as an actionable recommendation. |
 | `best-object-observation-opportunity-home-policy` | `accepted_direction` | `False` | Best Object should migrate toward ObservationOpportunity-style actionability with a Home-specific presentation policy. |
 | `best-object-confidence-metadata-policy` | `accepted` | `False` | RecommendationConfidence remains metadata and must not modify score. |
 
@@ -38,11 +37,12 @@ This developer-only audit checks whether Best Object is ready for a default-off 
 
 ## Displayed Score Semantics
 
-- Decision status: `needs_policy_decision`.
+- Decision status: `accepted_for_default_off_experiment`.
 - Keep legacy displayed score for compatibility: `True`.
 - Score monotonic with proposed NSOM order: `False`.
-- Blocks default-off path: `True`.
-- Decision: Best Object cannot switch runtime ordering until Home card score/rationale semantics are defined. Keeping the legacy displayed score is compatible, but it may not be monotonic with an ObservationOpportunity-based order.
+- Blocks default-off path: `False`.
+- Decision: For the first default-off experiment, preserve the existing Best Object payload and displayed legacy/base score. Do not expose provisional NSOM score rationale to QML.
+- Future runtime policy: Displayed score is compatibility data, not the NSOM ordering rationale. A later UI/rationale step can add explicit NSOM explanation fields.
 
 ## Semantic Migration Target
 
@@ -70,6 +70,6 @@ This developer-only audit checks whether Best Object is ready for a default-off 
 
 ## Recommended Next Steps
 
-1. Define Best Object non-actionable policy before any runtime NSOM path.
-2. Add a default-off Best Object NSOM path only after blocked-session and display semantics are settled.
+1. Review these policy decisions before adding runtime wiring.
+2. Add a default-off Best Object NSOM path using ObservationOpportunity-style actionability.
 3. Preserve legacy Best Object as explicit rollback when the runtime path is introduced.
