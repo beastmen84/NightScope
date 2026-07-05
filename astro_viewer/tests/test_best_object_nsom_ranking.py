@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import RecommendationConfidence
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.best_object_nsom_ranking import (
     NSOM_BEST_OBJECT_ENABLED,
@@ -48,6 +49,42 @@ def test_best_object_nsom_service_ranks_by_observation_opportunity() -> None:
     assert ranked[0].opportunity.value == pytest.approx(ranked[0].score)
 
 
+def test_best_object_nsom_score_formula_uses_practical_value_and_session_only() -> None:
+    service = BestObjectNsomSelectionService()
+
+    candidate = service.ranked_candidates(
+        [_target("galaxy", "Galaxy", 90, difficulty="Media")],
+        weather=_weather(73),
+        sky_quality=_sky_quality(3),
+        telescope=_telescope(),
+        moon=_moon(10),
+    )[0]
+
+    opportunity = candidate.opportunity
+    assert opportunity.observing_window_quality == 1.0
+    assert opportunity.chronology_fit == 1.0
+    assert opportunity.practical_constraints == 1.0
+    assert candidate.score == pytest.approx(
+        candidate.practical_target_value.value * opportunity.session.value
+    )
+
+
+def test_best_object_nsom_observer_capability_uses_best_object_context() -> None:
+    service = BestObjectNsomSelectionService()
+
+    candidate = service.ranked_candidates(
+        [_target("galaxy", "Galaxy", 90, difficulty="Media")],
+        weather=_weather(90),
+        sky_quality=_sky_quality(3),
+        telescope=_telescope(),
+        moon=_moon(10),
+    )[0]
+
+    notes = candidate.practical_target_value.observer_capability.notes
+    assert "nsom:best_object_observer_capability" in notes
+    assert "nsom:planner_observer_capability" not in notes
+
+
 def test_best_object_nsom_blocked_session_is_non_actionable_with_preserved_order() -> None:
     targets = _targets()
 
@@ -71,6 +108,32 @@ def test_best_object_nsom_blocked_session_is_non_actionable_with_preserved_order
     assert {candidate.score for candidate in ranked} == {0.0}
     assert [candidate.target.id for candidate in ranked] == [target.id for target in targets]
     assert [candidate.practical_target_value.value for candidate in ranked] != [0.0] * len(ranked)
+
+
+def test_best_object_nsom_invisible_targets_are_non_actionable() -> None:
+    targets = [
+        _target("hidden_galaxy", "Galaxy", 100, difficulty="Media", visible=False),
+        _target("open_cluster", "Open Cluster", 78, difficulty="Facile", recommended_setup_type="binoculars"),
+    ]
+    service = BestObjectNsomSelectionService()
+
+    ranked = service.ranked_candidates(
+        targets,
+        weather=_weather(90),
+        sky_quality=_sky_quality(3),
+        telescope=_telescope(),
+        moon=_moon(10),
+    )
+
+    hidden = next(candidate for candidate in ranked if candidate.target.id == "hidden_galaxy")
+    assert hidden.actionability == "non_actionable_invisible_target"
+    assert service.best_object(
+        targets,
+        weather=_weather(90),
+        sky_quality=_sky_quality(3),
+        telescope=_telescope(),
+        moon=_moon(10),
+    ).id == "open_cluster"
 
 
 def test_best_object_nsom_confidence_is_score_neutral() -> None:
@@ -148,6 +211,48 @@ def test_app_controller_forced_nsom_blocked_session_returns_no_best_object() -> 
     assert selected is None
 
 
+def test_app_controller_recalculate_outputs_uses_forced_nsom_best_object_path() -> None:
+    controller = _controller(use_nsom_best_object=True)
+    controller._visible_planets = [_targets()[0]]
+    controller._deep_sky = _targets()[1:]
+    controller._home_visible_objects = lambda objects: list(objects)
+    controller._refresh_conditioned_observing_candidates = Mock()
+    controller._weather_hours = []
+    controller._seeing_service = Mock()
+    controller._seeing_service.estimate.return_value = SeeingTransparency(
+        "Good",
+        "Good",
+        80,
+        80,
+        "Fixture",
+    )
+    controller._advanced_observing_service = Mock()
+    controller._advanced_observing_service.scores.return_value = AdvancedObservingScores(
+        planetary_score=80,
+        deep_sky_score=80,
+        planetary_label="Fixture",
+        deep_sky_label="Fixture",
+        explanation="Fixture",
+    )
+    controller._night_planner_service = Mock()
+    controller._night_planner_service.plan.return_value = []
+    controller._sky_map_service = Mock()
+    controller._sky_map_service.map_targets.return_value = []
+    controller._refresh_sky_compass = Mock()
+    controller._notification_service = Mock()
+    controller._notification_service.notifications.return_value = []
+    controller._events = []
+    controller._refresh_nsom_diagnostics = Mock()
+
+    controller._recalculate_observing_outputs()
+
+    assert controller._best_object.id == "galaxy"
+    assert AppController.bestObjectOfNight.fget(controller)["id"] == "galaxy"
+    controller._night_planner_service.plan.assert_called_once()
+    controller._refresh_sky_compass.assert_called_once()
+    controller._refresh_nsom_diagnostics.assert_called_once()
+
+
 def test_best_object_qml_payload_shape_stays_legacy_compatible() -> None:
     controller = _controller(use_nsom_best_object=True)
     selected = controller._select_best_object(_targets())
@@ -169,6 +274,9 @@ def test_best_object_nsom_runtime_path_has_no_qml_or_report_wiring() -> None:
     app_controller = (Path(__file__).parents[1] / "app" / "viewmodels" / "app_controller.py").read_text(
         encoding="utf-8"
     )
+    ranking_service = (
+        Path(__file__).parents[1] / "app" / "services" / "best_object_nsom_ranking.py"
+    ).read_text(encoding="utf-8")
     qml_text = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (Path(__file__).parents[1] / "app" / "ui").rglob("*.qml")
@@ -179,6 +287,8 @@ def test_best_object_nsom_runtime_path_has_no_qml_or_report_wiring() -> None:
     assert "NSOM_BEST_OBJECT_ENABLED" not in qml_text
     assert "BestObjectNsomSelectionService" not in qml_text
     assert "best_object_nsom" not in qml_text
+    assert "PlannerNsomScoringService" not in ranking_service
+    assert "nsom:planner_observer_capability" not in ranking_service
 
 
 def _controller(*, use_nsom_best_object: bool) -> AppController:
@@ -217,6 +327,7 @@ def _target(
     magnitude: str = "8.0",
     difficulty: str = "Media",
     recommended_setup_type: str = "telescope",
+    visible: bool = True,
 ) -> CelestialObject:
     return CelestialObject(
         id=object_id,
@@ -234,7 +345,7 @@ def _target(
         visibility_class="",
         azimuth="180 gradi",
         time_above_horizon="3 h",
-        visible=True,
+        visible=visible,
         score=score,
         score_label="Fixture",
         difficulty=difficulty,

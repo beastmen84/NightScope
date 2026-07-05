@@ -22,7 +22,7 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_recommendation_confidence,
     build_session_viability,
 )
-from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
 NSOM_BEST_OBJECT_ENABLED = False
@@ -54,13 +54,6 @@ class BestObjectNsomSelectionService:
     The service consumes caller-supplied runtime state only. It does not write
     files, log, fetch data, expose QML fields or mutate CelestialObject inputs.
     """
-
-    def __init__(
-        self,
-        *,
-        nsom_scoring_service: PlannerNsomScoringService | None = None,
-    ) -> None:
-        self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
     def best_object(
         self,
@@ -134,7 +127,11 @@ class BestObjectNsomSelectionService:
         confidence: RecommendationConfidence,
     ) -> BestObjectNsomCandidate:
         observable = build_home_observable_target_value(item, sky_quality=sky_quality, moon=moon)
-        observer = self._nsom_scoring_service.observer_capability(item, telescope=telescope)
+        observer = build_observer_capability_for_target(
+            item,
+            telescope=telescope,
+            context_note="nsom:best_object_observer_capability",
+        )
         q_target = project_observer_capability_for_target(observer, observable.target_class)
         practical = build_practical_target_value(
             observable,

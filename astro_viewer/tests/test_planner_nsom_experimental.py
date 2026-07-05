@@ -362,7 +362,7 @@ def test_planner_nsom_does_not_rebuild_observer_capability_from_existing_practic
     )
 
     with patch(
-        "astro_viewer.app.services.planner_nsom_service.build_observer_capability_profile_from_recommendation",
+        "astro_viewer.app.services.observer_capability_adapter.build_observer_capability_profile_from_recommendation",
         side_effect=AssertionError("observer capability should already be part of PracticalTargetValue"),
     ):
         opportunity = service.opportunity_from_practical_target_value(

@@ -31,7 +31,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionsService,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
-from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
 class HomeNsomComparisonService:
@@ -48,11 +48,9 @@ class HomeNsomComparisonService:
         *,
         conditions_service: ObservationConditionsService | None = None,
         score_service: ObservingScoreService | None = None,
-        nsom_scoring_service: PlannerNsomScoringService | None = None,
     ) -> None:
         self._conditions_service = conditions_service or ObservationConditionsService()
         self._score_service = score_service or ObservingScoreService()
-        self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
     def compare(
         self,
@@ -180,7 +178,11 @@ class HomeNsomComparisonService:
             effective_observability=effective,
             target_class=intrinsic.target_class,
         )
-        observer = self._nsom_scoring_service.observer_capability(item, telescope=telescope)
+        observer = build_observer_capability_for_target(
+            item,
+            telescope=telescope,
+            context_note="nsom:home_observer_capability",
+        )
         q_target = project_observer_capability_for_target(observer, observable.target_class)
         practical = build_practical_target_value(
             observable,
