@@ -10,7 +10,9 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current production code does not fully implement NSOM 1.0 yet.
+Current production code does not fully implement NSOM 1.0 yet, but Planner,
+Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
+with explicit internal rollback paths.
 
 ## Core Diagram
 
@@ -231,10 +233,11 @@ SkyfieldAstronomyEngine raw objects
     -> AppController Home filtering and condition presentation
     -> ObservationConditionsService moon/light-pollution presentation context
     -> EquipmentService optical setup recommendation
-    -> ObservingScoreService global observing score and best object
+    -> ObservingScoreService global observing score and legacy fallback
+    -> BestObjectNsomSelectionService default Best Object
     -> SeeingTransparencyService seeing/transparency estimates
     -> AdvancedObservingService planetary/deep-sky category scores
-    -> PlannerScoringService observing-plan ranking
+    -> PlannerNsomScoringService default observing-plan ranking
     -> SkyCompassService broad direction ranking
     -> QML presentation
 ```
@@ -262,15 +265,15 @@ of the same physical effect inside the same mathematical decision.
 | Score or factor | Current owner | Physical meaning | Current consumers | Overlap risk |
 | --- | --- | --- | --- | --- |
 | Raw object score | `SkyfieldAstronomyEngine` | altitude, magnitude, object type, visibility | Home, Planner, Sky Compass, best object | Low |
-| Global observing score | `ObservingScoreService` | weather plus Moon illumination | Home, best object, Planner, advanced scores | High: includes Moon and weather |
-| Best object | `ObservingScoreService` | visible object score times weather/difficulty | Home | Medium: difficulty overlaps Planner |
+| Global observing score | `ObservingScoreService` | weather plus Moon illumination | Home, best object fallback/display compatibility, Planner rollback, advanced scores | High: includes Moon and weather |
+| Best object | `BestObjectNsomSelectionService` default; `ObservingScoreService` rollback/fallback | Home-specific `ObservationOpportunity` from practical value and session viability | Home | Managed: legacy displayed score remains compatibility data |
 | Seeing score | `SeeingTransparencyService` | atmospheric steadiness | Advanced scores, equipment | Medium but acceptable if separated by dimension |
 | Transparency score | `SeeingTransparencyService` | cloud layers, humidity, visibility, VIIRS/Bortle | Advanced deep-sky score | High if AOD/PM are added elsewhere |
 | Advanced planetary score | `AdvancedObservingService` | weather, seeing, wind, Moon | Planner category score, UI | High: weather and Moon already exist |
 | Advanced deep-sky score | `AdvancedObservingService` | weather, transparency, VIIRS/Bortle, Moon | Planner category score, UI | High |
 | Home/Detail Moon adjustment | `ObservationConditionsService` | object-specific Moon sensitivity | Home, Detail, Sky Compass candidates | Medium |
 | Home/Detail pollution context | `ObservationConditionsService` | presentation/context adjustment for bright skies | Home, Detail, Sky Compass candidates | Medium |
-| Planner score | `PlannerScoringService` | plan-specific aggregation | Night Planner | High: includes object, category, weather, Moon, pollution, difficulty |
+| Planner score | `PlannerNsomScoringService` default; `PlannerScoringService` rollback | NSOM `ObservationOpportunity` by default, legacy plan-specific aggregation as rollback | Night Planner | Managed: legacy path retained only as rollback |
 | Equipment score | `EquipmentService` | current observer capability / optical suitability | Home, Detail, Planner setup | Acceptable if it feeds observer capability instead of target physics |
 | Recommendation presentation | `RecommendationPresenter` | serialization and labels | QML | Low |
 | Sky Compass score | `SkyCompassService` | direction grouping from prepared targets | Home | Low if it only consumes prepared targets |
@@ -695,6 +698,33 @@ service; invisible candidates are also non-actionable. `RecommendationConfidence
 is carried only as metadata and does not affect opportunity value. No NSOM
 fields are added to QML, no report tooling is wired into runtime, and missing
 sky quality keeps the legacy Best Object fallback.
+
+Implementation note for 1.7.3: Best Object actionability policy is resolved
+for default-on readiness. Blocked sessions and invisible candidates remain
+non-actionable and are not treated as meaningful recommendation order; visible
+candidates with missing or uncertain windows are marked with timing
+uncertainty. Preserved practical ordering for non-actionable cases is
+diagnostic-only inside the service.
+
+Implementation note for 1.7.4: the developer-only readiness audit
+`docs/BEST_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md` verifies that the Best
+Object NSOM path has no blocking policy issues, keeps confidence score-neutral,
+preserves rollback and does not expose QML, logging, network work, runtime file
+writes or report runtime wiring.
+
+Implementation note for 1.7.5: Best Object NSOM is enabled by default via
+`NSOM_BEST_OBJECT_ENABLED = True`. Runtime selection uses
+`BestObjectNsomSelectionService` when weather and sky quality inputs are
+available. Legacy Best Object remains available only as explicit rollback with
+`AppController(use_nsom_best_object=False)` and as fallback when sky quality is
+missing.
+
+Implementation note for 1.7.6: the Best Object NSOM migration is closed as a
+documented default-on path. Best Object now uses Home-specific
+`ObservationOpportunity` policy by default; the QML payload remains unchanged,
+no NSOM fields are exposed, and the displayed score remains legacy/base
+compatibility data. That score may not be monotonic with NSOM selection until a
+future presentation rationale pass changes score display semantics.
 
 Examples:
 
@@ -1544,8 +1574,10 @@ A future `ObserverCapabilityService` should own:
 
 ### Step 8: Home and Best Object integration
 
-- Only after Planner equivalence is proven, move Home/Best Object to the same
-  observable/practical target value split.
+- Status: Planner, Home `recommendedDeepSky` and Best Object have now moved to
+  staged default-on NSOM consumers with explicit rollback paths.
+- Future work should review score presentation, AdvancedObserving and Sky
+  Compass consumers before removing remaining legacy score surfaces.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 
@@ -1560,9 +1592,9 @@ A future `ObserverCapabilityService` should own:
 
 ### Characterization tests
 
-- Current Planner output unchanged with flags off.
-- Current Home/Detail output unchanged with flags off.
-- Current Best Object unchanged with flags off.
+- Legacy Planner output unchanged through explicit rollback.
+- Legacy Home/Detail output unchanged through explicit rollback/fallback.
+- Legacy Best Object unchanged through explicit rollback/fallback.
 - Current equipment recommendations unchanged with flags off.
 - Observable target value remains identical for two observers under the same sky.
 - Practical target value can differ for two observers under the same sky.

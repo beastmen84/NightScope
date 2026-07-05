@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.7.1`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.7.6`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -313,6 +313,28 @@ path does not expose NSOM fields to QML, does not wire report tooling into
 runtime, does not log automatically, does not perform network work and does not
 write runtime files. If sky quality is unavailable, `AppController` falls back
 to legacy Best Object selection.
+`1.7.3` resolves Best Object actionability policy for default-on readiness.
+Blocked sessions and invisible targets remain non-actionable; visible targets
+with missing or uncertain windows stay actionable with timing uncertainty. Any
+preserved practical ordering for non-actionable candidates is diagnostic-only
+inside the NSOM service and is never runtime recommendation order.
+`1.7.4` adds the developer-only default-on readiness audit in
+`docs/BEST_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md`, verifying rollback,
+non-actionable policy, QML/runtime safety and confidence neutrality before the
+switch.
+`1.7.5` changes the Best Object NSOM flag default to `True`. The default
+controller path now selects Best Object through
+`BestObjectNsomSelectionService` when weather and sky quality are available.
+The legacy selector remains available only through the explicit internal
+rollback `AppController(use_nsom_best_object=False)` and through the
+missing-sky-quality fallback. No QML fields, report runtime wiring, logging,
+network work or runtime file writes are added.
+`1.7.6` closes the Best Object NSOM migration as documentation/status. Best
+Object is now default-on NSOM with Home-specific `ObservationOpportunity`
+policy; legacy Best Object is retained only as explicit rollback/fallback. The
+QML payload remains compatible and displayed Best Object score remains the
+legacy/base compatibility score, so it may not be monotonic with NSOM
+selection.
 
 ## Dependency Flow
 
@@ -470,9 +492,12 @@ Home recommendation flow:
 2. `AppController` applies active-profile equipment recommendations.
 3. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
    Moon context through `ObservationConditionsService`.
-4. `ObservingScoreService` selects the best object.
+4. `BestObjectNsomSelectionService` selects Best Object by default when weather
+   and sky quality are available; `ObservingScoreService` remains the explicit
+   rollback and missing-sky fallback.
 5. `NightPlannerService` produces the observing plan unless weather is
-   blocking, using `PlannerScoringService` for Planner-specific ranking.
+   blocking, using the NSOM Planner path by default while keeping
+   `PlannerScoringService` as explicit rollback.
 6. `AppController` exposes the centralized blocking state to QML.
 7. QML presents the plan, a global "Sessione da monitorare" warning with a
    potential observing window, or a full "Sessione sconsigliata" warning when

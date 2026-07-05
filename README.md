@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.7.1`.
+Versione corrente: `1.7.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -236,6 +236,25 @@ metadato senza effetto sullo score. Il rollback legacy e' esplicito con
 `AppController(use_nsom_best_object=False)`. Il payload QML resta invariato,
 lo score mostrato resta legacy/base per compatibilita' e, se manca la sky
 quality runtime, il controller usa ancora il path legacy.
+Lo step `1.7.3` risolve le policy Best Object per target non azionabili:
+sessioni bloccate e target invisibili restano non azionabili, mentre i target
+visibili con finestra incerta sono marcati come timing incerto. L'ordine
+pratico preservato resta diagnostico interno e non diventa ordine di
+raccomandazione runtime.
+Lo step `1.7.4` aggiunge l'audit developer-only di readiness per il default-on
+di Best Object NSOM, verificando rollback, policy non-actionable, assenza di
+QML/report runtime wiring e score-neutrality della confidence.
+Lo step `1.7.5` abilita Best Object NSOM di default con
+`NSOM_BEST_OBJECT_ENABLED = True`. La selezione Best Object usa ora
+`ObservationOpportunity` con policy Home-specific quando meteo e sky quality
+runtime sono disponibili; il rollback legacy resta esplicito con
+`AppController(use_nsom_best_object=False)`. Non vengono aggiunti campi QML,
+logging, rete, scritture runtime o collegamenti ai report.
+Lo step `1.7.6` chiude la migrazione Best Object NSOM come stato documentato:
+Best Object e' default-on su NSOM, il path legacy resta solo rollback interno e
+fallback quando manca la sky quality. Il payload QML resta invariato e lo score
+mostrato resta legacy/base per compatibilita', quindi puo' non essere monotono
+rispetto alla selezione NSOM.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

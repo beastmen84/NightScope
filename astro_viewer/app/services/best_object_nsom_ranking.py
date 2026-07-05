@@ -49,7 +49,7 @@ class BestObjectNsomCandidate:
 
 
 class BestObjectNsomSelectionService:
-    """Default-off NSOM Best Object selector.
+    """Default NSOM Best Object selector with explicit controller rollback.
 
     The service consumes caller-supplied runtime state only. It does not write
     files, log, fetch data, expose QML fields or mutate CelestialObject inputs.
