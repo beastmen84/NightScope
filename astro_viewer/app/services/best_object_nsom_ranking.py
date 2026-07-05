@@ -25,7 +25,7 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
-NSOM_BEST_OBJECT_ENABLED = False
+NSOM_BEST_OBJECT_ENABLED = True
 
 
 @dataclass(frozen=True)
@@ -146,7 +146,7 @@ class BestObjectNsomSelectionService:
             session=session,
             practical_constraints=1.0,
             confidence=confidence,
-            context=("best_object", "nsom_default_off"),
+            context=("best_object", "nsom_runtime"),
         )
         return BestObjectNsomCandidate(
             target=item,

@@ -2,20 +2,20 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the existing default-off Best Object NSOM path is ready for a separate default-on switch. It does not enable `NSOM_BEST_OBJECT_ENABLED`, change Best Object ranking, expose QML fields, write runtime files, log automatically, call the network, change recommendedDeepSky, Planner or Sky Compass.
+This developer-only audit checks whether the existing default-off Best Object NSOM path is safe after the default-on switch. It reports the current `NSOM_BEST_OBJECT_ENABLED` flag, rollback path and policy state without exposing QML fields, writing runtime files, logging automatically, calling the network, changing recommendedDeepSky, Planner or Sky Compass.
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_default_on_switch_pr`.
+- Verdict: `best_object_nsom_default_on_enabled`.
 - Ready for default-on switch: `True`.
-- Current default flag: `NSOM_BEST_OBJECT_ENABLED = False`.
-- Default flag currently enabled: `False`.
-- Requires separate flag change: `True`.
+- Current default flag: `NSOM_BEST_OBJECT_ENABLED = True`.
+- Default flag currently enabled: `True`.
+- Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
 - Explicit legacy rollback: `AppController(use_nsom_best_object=False)`.
 - Explicit NSOM path: `AppController(use_nsom_best_object=True)`.
-- Recommended switch change: `set NSOM_BEST_OBJECT_ENABLED = True`.
-- Reason: The default-off runtime path, non-actionable policies, confidence neutrality, rollback path, missing-sky fallback and developer-only safety checks are ready for a separate flag switch.
+- Recommended switch change: `already enabled`.
+- Reason: The default-off runtime path, non-actionable policies, confidence neutrality, rollback path, missing-sky fallback and developer-only safety checks remain valid with the Best Object NSOM flag enabled by default.
 
 ## Default-On Blockers
 
@@ -25,7 +25,7 @@ This developer-only audit checks whether the existing default-off Best Object NS
 
 | Policy | Evidence |
 | --- | --- |
-| Good session | Selected `jupiter` as `actionable_ranked_recommendation`. |
+| Good session | Selected `galaxy` as `actionable_ranked_recommendation`. |
 | Blocked session | Selected `None`; actionabilities `non_actionable_hard_block > non_actionable_hard_block > non_actionable_hard_block > non_actionable_hard_block`; stable order is recommendation order `False`. |
 | Invisible target | `hidden_galaxy` is `non_actionable_invisible_target` and selected `False`. |
 | Confidence | Low/high score parity `True`; score effect `0.0`. |
@@ -37,7 +37,7 @@ This developer-only audit checks whether the existing default-off Best Object NS
 - All scores zero: `True`.
 - Actionability: `non_actionable_hard_block > non_actionable_hard_block > non_actionable_hard_block > non_actionable_hard_block`.
 - Stable order is recommendation order: `False`.
-- Diagnostic-only preserved PracticalTargetValue order: `jupiter > galaxy > diffuse_nebula > open_cluster`.
+- Diagnostic-only preserved PracticalTargetValue order: `galaxy > jupiter > diffuse_nebula > open_cluster`.
 - Preserved order is recommendation order: `False`.
 
 ## Displayed Score Semantics
@@ -66,8 +66,8 @@ This developer-only audit checks whether the existing default-off Best Object NS
 
 | Check | Result |
 | --- | --- |
-| `current_flag_remains_default_off` | `True` |
-| `default_off_audit_ready` | `True` |
+| `current_flag_default_on_enabled` | `True` |
+| `default_off_audit_policy_ready` | `True` |
 | `comparison_tooling_developer_only` | `True` |
 | `comparison_tooling_has_no_runtime_writes` | `True` |
 | `comparison_tooling_has_no_automatic_logging` | `True` |
@@ -90,4 +90,4 @@ This developer-only audit checks whether the existing default-off Best Object NS
 
 ## Recommended Next Step
 
-Create a separate default-on switch commit that only sets `NSOM_BEST_OBJECT_ENABLED = True`, keeps `AppController(use_nsom_best_object=False)` as rollback, and reruns focused Best Object runtime tests.
+Review the default-on switch, then close the Best Object NSOM migration in documentation while keeping `AppController(use_nsom_best_object=False)` as rollback.

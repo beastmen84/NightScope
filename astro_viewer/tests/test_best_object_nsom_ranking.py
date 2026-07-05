@@ -19,8 +19,8 @@ from astro_viewer.app.services.observing_score_service import ObservingScoreServ
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_best_object_nsom_flag_is_default_off() -> None:
-    assert NSOM_BEST_OBJECT_ENABLED is False
+def test_best_object_nsom_flag_is_default_on() -> None:
+    assert NSOM_BEST_OBJECT_ENABLED is True
     assert AppController.__init__.__kwdefaults__["use_nsom_best_object"] is NSOM_BEST_OBJECT_ENABLED
 
 
@@ -45,7 +45,7 @@ def test_best_object_nsom_service_ranks_by_observation_opportunity() -> None:
         moon=_moon(10),
     ).id == "galaxy"
     assert ObservingScoreService().best_object(targets, _weather(90)).id == "jupiter"
-    assert ranked[0].opportunity.context == ("best_object", "nsom_default_off")
+    assert ranked[0].opportunity.context == ("best_object", "nsom_runtime")
     assert ranked[0].opportunity.value == pytest.approx(ranked[0].score)
 
 
@@ -183,6 +183,14 @@ def test_app_controller_forced_legacy_rollback_preserves_best_object_order() -> 
     selected = controller._select_best_object(_targets())
 
     assert selected.id == "jupiter"
+
+
+def test_app_controller_default_flag_uses_nsom_best_object_path() -> None:
+    controller = _controller(use_nsom_best_object=NSOM_BEST_OBJECT_ENABLED)
+
+    selected = controller._select_best_object(_targets())
+
+    assert selected.id == "galaxy"
 
 
 def test_app_controller_forced_nsom_path_selects_nsom_best_object() -> None:

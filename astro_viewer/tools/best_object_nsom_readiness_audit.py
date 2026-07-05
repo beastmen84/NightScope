@@ -54,11 +54,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_default": NSOM_BEST_OBJECT_ENABLED is True,
             "explicit_nsom_opt_in": "AppController(use_nsom_best_object=True)",
             "explicit_legacy_rollback": "AppController(use_nsom_best_object=False)",
-            "recommendation": (
-                "review_default_off_best_object_nsom_path_before_default_on_readiness"
-                if ready
-                else "resolve_policy_and_display_semantics_before_runtime_path"
-            ),
+            "recommendation": _readiness_recommendation(ready),
             "reason": _readiness_reason(ready),
         },
         "blockers": blockers,
@@ -87,9 +83,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checked whether Best Object was ready for a "
-            "default-off NSOM runtime path after the comparison report. The "
-            "default-off path now exists, but the default runtime still preserves "
-            "legacy Best Object selection. The path does not change "
+            "default-off NSOM runtime path after the comparison report. The path "
+            "exists and remains available through explicit constructor control; "
+            "the current default flag is reported below. The path does not change "
             "recommendedDeepSky, Planner, Sky Compass, QML, logging, network "
             "behaviour or runtime file writes."
         ),
@@ -308,15 +304,15 @@ def _runtime_safety(
 ) -> dict[str, object]:
     metadata = comparison["metadata"]
     return {
-        "best_object_nsom_runtime_path_default_off": NSOM_BEST_OBJECT_ENABLED is False,
+        "best_object_nsom_runtime_path_available": True,
+        "current_default_flag_enabled": NSOM_BEST_OBJECT_ENABLED is True,
         "legacy_rollback_available": True,
         "comparison_tooling_developer_only": metadata["developer_only"] is True,
         "comparison_tooling_has_no_runtime_writes": metadata["runtime_writes"] is False,
         "comparison_tooling_has_no_automatic_logging": metadata["automatic_logging"] is False,
         "comparison_tooling_has_no_network": metadata["network"] is False,
         "comparison_tooling_has_no_qml_exposure": metadata["qml_exposure"] is False,
-        "best_object_runtime_unchanged_by_default": metadata["best_object_changed"] is False
-        and NSOM_BEST_OBJECT_ENABLED is False,
+        "best_object_runtime_unchanged_when_flag_off": metadata["best_object_changed"] is False,
         "recommended_deep_sky_runtime_unchanged": metadata["recommended_deep_sky_changed"] is False,
         "planner_runtime_unchanged": metadata["planner_changed"] is False,
         "sky_compass_runtime_unchanged": metadata["sky_compass_changed"] is False,
@@ -337,7 +333,10 @@ def _default_off_blockers(
             blockers.append(str(decision["policy_id"]))
     if display["blocks_default_off_path"] is True:
         blockers.append("best-object-displayed-score-semantics")
-    if not all(value is True for value in runtime_safety.values()):
+    blocking_safety = {
+        key: value for key, value in runtime_safety.items() if key != "current_default_flag_enabled"
+    }
+    if not all(value is True for value in blocking_safety.values()):
         blockers.append("best-object-runtime-safety")
     return tuple(blockers)
 
@@ -392,13 +391,21 @@ def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
             "Best Object non-actionable policy, displayed score semantics and "
-            "runtime safety are implemented behind an internal default-off path. "
-            "The next change should review behaviour before any default-on audit."
+            "runtime safety were validated behind an internal Best Object NSOM "
+            "path. Legacy rollback remains explicit through the constructor."
         )
     return (
         "Best Object still needs non-actionable session policy and displayed score "
         "semantics before a runtime NSOM path is introduced."
     )
+
+
+def _readiness_recommendation(ready: bool) -> str:
+    if not ready:
+        return "resolve_policy_and_display_semantics_before_runtime_path"
+    if NSOM_BEST_OBJECT_ENABLED:
+        return "default_off_path_validated_and_rollback_preserved"
+    return "review_default_off_best_object_nsom_path_before_default_on_readiness"
 
 
 def _order_label(order: object) -> str:

@@ -2,19 +2,19 @@
 
 ## Executive Summary
 
-This developer-only audit checked whether Best Object was ready for a default-off NSOM runtime path after the comparison report. The default-off path now exists, but the default runtime still preserves legacy Best Object selection. The path does not change recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
+This developer-only audit checked whether Best Object was ready for a default-off NSOM runtime path after the comparison report. The path exists and remains available through explicit constructor control; the current default flag is reported below. The path does not change recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
 
 ## Readiness Verdict
 
 - Verdict: `ready_for_default_off_path`.
 - Ready for default-off path: `True`.
 - Runtime path exists: `True`.
-- Default flag: `NSOM_BEST_OBJECT_ENABLED = False`.
-- Runtime behaviour changed by default: `False`.
+- Default flag: `NSOM_BEST_OBJECT_ENABLED = True`.
+- Runtime behaviour changed by default: `True`.
 - Explicit NSOM opt-in: `AppController(use_nsom_best_object=True)`.
 - Explicit legacy rollback: `AppController(use_nsom_best_object=False)`.
-- Recommendation: `review_default_off_best_object_nsom_path_before_default_on_readiness`.
-- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety are implemented behind an internal default-off path. The next change should review behaviour before any default-on audit.
+- Recommendation: `default_off_path_validated_and_rollback_preserved`.
+- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety were validated behind an internal Best Object NSOM path. Legacy rollback remains explicit through the constructor.
 
 ## Default-Off Blockers
 
@@ -59,14 +59,15 @@ This developer-only audit checked whether Best Object was ready for a default-of
 
 | Check | Result |
 | --- | --- |
-| `best_object_nsom_runtime_path_default_off` | `True` |
+| `best_object_nsom_runtime_path_available` | `True` |
+| `current_default_flag_enabled` | `True` |
 | `legacy_rollback_available` | `True` |
 | `comparison_tooling_developer_only` | `True` |
 | `comparison_tooling_has_no_runtime_writes` | `True` |
 | `comparison_tooling_has_no_automatic_logging` | `True` |
 | `comparison_tooling_has_no_network` | `True` |
 | `comparison_tooling_has_no_qml_exposure` | `True` |
-| `best_object_runtime_unchanged_by_default` | `True` |
+| `best_object_runtime_unchanged_when_flag_off` | `True` |
 | `recommended_deep_sky_runtime_unchanged` | `True` |
 | `planner_runtime_unchanged` | `True` |
 | `sky_compass_runtime_unchanged` | `True` |

@@ -63,15 +63,19 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
             "audit_report_path": str(DEFAULT_ON_READINESS_AUDIT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "ready_for_default_on_switch_pr" if ready else "not_ready_for_default_on_switch_pr",
+            "verdict": "best_object_nsom_default_on_enabled" if ready else "not_ready_for_default_on_switch_pr",
             "ready_for_default_on_switch": ready,
             "default_flag": f"NSOM_BEST_OBJECT_ENABLED = {NSOM_BEST_OBJECT_ENABLED}",
             "default_flag_currently_enabled": NSOM_BEST_OBJECT_ENABLED is True,
-            "requires_separate_flag_change": True,
+            "requires_separate_flag_change": NSOM_BEST_OBJECT_ENABLED is False,
             "runtime_behaviour_changed_by_this_audit": False,
             "explicit_legacy_rollback": "AppController(use_nsom_best_object=False)",
             "explicit_nsom_path": "AppController(use_nsom_best_object=True)",
-            "recommended_switch_change": "set NSOM_BEST_OBJECT_ENABLED = True",
+            "recommended_switch_change": (
+                "already enabled"
+                if NSOM_BEST_OBJECT_ENABLED
+                else "set NSOM_BEST_OBJECT_ENABLED = True"
+            ),
             "reason": _readiness_reason(ready),
         },
         "blockers": blockers,
@@ -104,9 +108,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether the existing default-off Best Object "
-            "NSOM path is ready for a separate default-on switch. It does not enable "
-            "`NSOM_BEST_OBJECT_ENABLED`, change Best Object ranking, expose QML fields, "
-            "write runtime files, log automatically, call the network, change "
+            "NSOM path is safe after the default-on switch. It reports the current "
+            "`NSOM_BEST_OBJECT_ENABLED` flag, rollback path and policy state without "
+            "exposing QML fields, writing runtime files, logging automatically, calling the network, changing "
             "recommendedDeepSky, Planner or Sky Compass."
         ),
         "",
@@ -218,10 +222,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Create a separate default-on switch commit that only sets "
-                "`NSOM_BEST_OBJECT_ENABLED = True`, keeps "
-                "`AppController(use_nsom_best_object=False)` as rollback, and reruns "
-                "focused Best Object runtime tests."
+                "Review the default-on switch, then close the Best Object NSOM migration "
+                "in documentation while keeping `AppController(use_nsom_best_object=False)` "
+                "as rollback."
             ),
             "",
         ]
@@ -239,7 +242,7 @@ def write_markdown_report(path: Path = DEFAULT_ON_READINESS_AUDIT_PATH) -> Path:
 def _runtime_policy_evidence() -> dict[str, object]:
     service = BestObjectNsomSelectionService()
     weather = _weather(90)
-    sky_quality = _sky_quality(3, radiance=1.0)
+    sky_quality = _sky_quality(3)
     telescope = _telescope()
     moon = _moon(10)
     targets = _targets()
@@ -410,8 +413,8 @@ def _runtime_safety(
 ) -> dict[str, object]:
     metadata = comparison["metadata"]
     return {
-        "current_flag_remains_default_off": NSOM_BEST_OBJECT_ENABLED is False,
-        "default_off_audit_ready": default_off_audit["readiness"]["ready_for_default_off_path"] is True,
+        "current_flag_default_on_enabled": NSOM_BEST_OBJECT_ENABLED is True,
+        "default_off_audit_policy_ready": default_off_audit["readiness"]["ready_for_default_off_path"] is True,
         "comparison_tooling_developer_only": metadata["developer_only"] is True,
         "comparison_tooling_has_no_runtime_writes": metadata["runtime_writes"] is False,
         "comparison_tooling_has_no_automatic_logging": metadata["automatic_logging"] is False,
@@ -441,7 +444,7 @@ def _readiness_checks(
     rollback = _rollback_policy()
     return {
         "default_off_audit_ready": default_off_audit["readiness"]["ready_for_default_off_path"] is True,
-        "default_flag_still_off_for_audit": NSOM_BEST_OBJECT_ENABLED is False,
+        "default_flag_enabled_for_switch": NSOM_BEST_OBJECT_ENABLED is True,
         "blocked_sessions_non_actionable": blocked["selected_object_id"] is None
         and blocked["all_scores_zero"] is True
         and set(blocked["actionabilities"]) == {"non_actionable_hard_block"},
@@ -464,6 +467,7 @@ def _readiness_checks(
 def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
     names = {
         "default_off_audit_ready": "best-object-default-off-audit-not-ready",
+        "default_flag_enabled_for_switch": "best-object-default-flag-not-enabled",
         "blocked_sessions_non_actionable": "best-object-blocked-session-policy",
         "blocked_stable_order_not_recommendation": "best-object-blocked-stable-order-policy",
         "invisible_targets_non_actionable": "best-object-invisible-target-policy",
@@ -526,8 +530,8 @@ def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
             "The default-off runtime path, non-actionable policies, confidence neutrality, "
-            "rollback path, missing-sky fallback and developer-only safety checks are ready "
-            "for a separate flag switch."
+            "rollback path, missing-sky fallback and developer-only safety checks remain "
+            "valid with the Best Object NSOM flag enabled by default."
         )
     return "One or more Best Object default-on policy or runtime-safety checks still blocks the switch."
 

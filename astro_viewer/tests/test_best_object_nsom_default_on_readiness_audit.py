@@ -34,16 +34,16 @@ def test_best_object_default_on_readiness_audit_is_strict_json_and_developer_onl
 def test_best_object_default_on_readiness_verdict_requires_separate_flag_change() -> None:
     data = generate_default_on_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "ready_for_default_on_switch_pr"
+    assert data["readiness"]["verdict"] == "best_object_nsom_default_on_enabled"
     assert data["readiness"]["ready_for_default_on_switch"] is True
-    assert data["readiness"]["default_flag"] == "NSOM_BEST_OBJECT_ENABLED = False"
-    assert data["readiness"]["default_flag_currently_enabled"] is False
-    assert data["readiness"]["requires_separate_flag_change"] is True
+    assert data["readiness"]["default_flag"] == "NSOM_BEST_OBJECT_ENABLED = True"
+    assert data["readiness"]["default_flag_currently_enabled"] is True
+    assert data["readiness"]["requires_separate_flag_change"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_best_object=False)"
-    assert data["readiness"]["recommended_switch_change"] == "set NSOM_BEST_OBJECT_ENABLED = True"
+    assert data["readiness"]["recommended_switch_change"] == "already enabled"
     assert data["blockers"] == []
-    assert data["checks"]["default_flag_still_off_for_audit"] is True
+    assert data["checks"]["default_flag_enabled_for_switch"] is True
 
 
 def test_default_on_audit_accepts_blocked_session_as_non_actionable() -> None:
@@ -100,8 +100,8 @@ def test_default_on_audit_has_no_runtime_or_qml_wiring() -> None:
     data = generate_default_on_readiness_audit_data()
 
     assert data["runtime_safety"] == {
-        "current_flag_remains_default_off": True,
-        "default_off_audit_ready": True,
+        "current_flag_default_on_enabled": True,
+        "default_off_audit_policy_ready": True,
         "comparison_tooling_developer_only": True,
         "comparison_tooling_has_no_runtime_writes": True,
         "comparison_tooling_has_no_automatic_logging": True,
@@ -126,6 +126,6 @@ def test_checked_in_best_object_default_on_readiness_report_exists() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Best Object NSOM Default-On Readiness Audit" in text
-    assert "ready_for_default_on_switch_pr" in text
-    assert "NSOM_BEST_OBJECT_ENABLED = False" in text
+    assert "best_object_nsom_default_on_enabled" in text
+    assert "NSOM_BEST_OBJECT_ENABLED = True" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
