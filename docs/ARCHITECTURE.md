@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.8.0`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.8.1`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -344,6 +344,13 @@ target-class sky sensitivity, effective observability and confidence metadata.
 The helper is reference-only and is not runtime score parity: it does not
 change `AdvancedObservingService`, Home, Best Object, Planner, Sky Compass,
 QML, logging, network behaviour or runtime file writes.
+`1.8.1` adds explicit developer/test tooling in
+`astro_viewer/tools/advanced_observing_nsom_comparison_report.py` plus the
+static report `docs/ADVANCED_OBSERVING_NSOM_COMPARISON_REPORT.md`. The report
+covers deterministic good/poor/blocked sessions, bright Moon, high light
+pollution, poor seeing, poor transparency and low-confidence scenarios. It is
+not imported by runtime services or QML and does not change advanced scores or
+other recommendation paths.
 
 ## Dependency Flow
 

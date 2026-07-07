@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.8.1 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_comparison_report.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_COMPARISON_REPORT.md` con scenari
+  deterministici per sessione buona/scarsa/bloccata, Luna brillante, light
+  pollution alta, seeing scarso, trasparenza scarsa e bassa confidence.
+- Il report confronta formule legacy `AdvancedObservingService` e proiezioni
+  NSOM reference-only, chiarendo che la migrazione futura dovrebbe trattare gli
+  advanced scores come diagnostica/presentazione di categoria, non come nuovo
+  owner indipendente di score.
+- Aggiunti test per output deterministico, JSON stretto, ownership, confidence
+  metadata-only e assenza di wiring runtime/QML.
+- Nessun cambiamento runtime a punteggi avanzati, Home, Best Object, Planner,
+  Sky Compass, UI, logging, rete o scritture runtime.
+
 ## NightScope 1.8.0 - 2026-07-07
 
 - Aggiunto `AdvancedObservingNsomComparisonService`, layer developer-only che

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.0`.
+Versione corrente: `1.8.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -263,6 +263,12 @@ trasparenza/seeing, Luna, light pollution e confidence. Non cambia i punteggi
 avanzati, Home, Best Object, Planner, Sky Compass, QML/UI, logging, rete o
 scritture runtime. Da questo step il changelog `astro_viewer/CHANGELOG.md`
 viene riportato in pari come traccia umana sintetica del lavoro NSOM.
+Lo step `1.8.1` aggiunge il report developer-only
+`docs/ADVANCED_OBSERVING_NSOM_COMPARISON_REPORT.md`: scenari deterministici
+per sessione buona/scarsa/bloccata, Luna brillante, light pollution alta,
+seeing scarso, trasparenza scarsa e bassa confidence mostrano le formule
+legacy e le proiezioni NSOM di riferimento. Il report resta esplicito,
+non collegato al runtime e non modifica punteggi avanzati o UI.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

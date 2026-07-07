@@ -14,7 +14,7 @@ Current production code does not fully implement NSOM 1.0 yet, but Planner,
 Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
 with explicit internal rollback paths. `AdvancedObservingService` remains a
 legacy score surface, with a developer-only NSOM comparison layer added in
-`1.8.0`.
+`1.8.0` and a static comparison report added in `1.8.1`.
 
 ## Core Diagram
 
@@ -738,6 +738,16 @@ NSOM projections for `SessionViability`, target-class `ObservationEnvironment`,
 `RecommendationConfidence`. The NSOM projection is explicitly not score parity,
 not a replacement advanced score and not wired to QML, logging, network work or
 runtime file output.
+
+Implementation note for 1.8.1: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_COMPARISON_REPORT.md` renders the Advanced
+Observing comparison layer across deterministic scenarios for good, poor and
+blocked sessions, bright Moon, high light pollution, poor seeing, poor
+transparency and low confidence. It documents that Advanced Observing is best
+treated as a presentation/category diagnostic consumer of NSOM components,
+rather than an independent owner of Moon, weather, light-pollution and
+transparency scoring. The report is explicit tooling only and is not runtime
+wiring.
 
 Examples:
 
@@ -1593,6 +1603,8 @@ A future `ObserverCapabilityService` should own:
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
   developer-only comparison layer; runtime advanced scores are still legacy.
+- Status update for 1.8.1: AdvancedObserving comparison now has a static
+  developer-only report; no default-off runtime path exists yet.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 
