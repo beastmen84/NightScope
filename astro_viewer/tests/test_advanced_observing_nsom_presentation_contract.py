@@ -44,12 +44,13 @@ def test_presentation_contract_defines_separate_payload_without_default_on() -> 
 
     assert readiness["verdict"] == "advanced_observing_nsom_presentation_read_only_qml_property_wired"
     assert readiness["ready_for_default_on_switch"] is False
-    assert readiness["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
+    assert readiness["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
     assert readiness["runtime_behaviour_changed_by_this_contract"] is False
     assert readiness["future_qml_property"] == "advancedObservingNsom"
     assert readiness["current_qml_property"] == "advancedScores"
     assert "advanced-observing-runtime-projection-not-implemented" not in data["default_on_blockers"]
     assert "advanced-observing-future-property-not-wired" not in data["default_on_blockers"]
+    assert "advanced-observing-default-flag-still-off" not in data["default_on_blockers"]
 
 
 def test_contract_payload_shape_and_consumer_policy_are_explicit() -> None:

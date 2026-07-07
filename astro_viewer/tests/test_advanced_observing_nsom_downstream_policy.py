@@ -40,12 +40,12 @@ def test_downstream_policy_keeps_flag_off_and_blocks_default_on() -> None:
     data = generate_downstream_policy_data()
 
     assert data["readiness"]["verdict"] == "consumer_split_resolved_but_qml_policy_blocks_default_on"
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
     assert data["readiness"]["ready_for_default_on_switch"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_policy"] is False
     assert data["readiness"]["forced_on_path_safe_to_keep"] is True
     assert data["readiness"]["consumer_split_implemented"] is True
-    assert data["checks"]["default_flag_still_off"] is True
+    assert data["checks"]["default_flag_still_off"] is False
     assert data["checks"]["runtime_behaviour_unchanged"] is True
 
 
@@ -76,6 +76,7 @@ def test_downstream_policy_records_required_consumer_decisions() -> None:
     assert "advanced-observing-planner-consumer-policy" not in data["default_on_blockers"]
     assert "advanced-observing-notification-consumer-policy" not in data["default_on_blockers"]
     assert "advanced-observing-qml-display-policy" in data["default_on_blockers"]
+    assert "advanced-observing-default-flag-still-off" not in data["default_on_blockers"]
 
 
 def test_notification_policy_evidence_shows_blocked_session_risk() -> None:

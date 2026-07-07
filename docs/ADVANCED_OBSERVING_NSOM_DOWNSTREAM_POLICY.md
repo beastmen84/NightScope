@@ -7,7 +7,7 @@ This developer-only policy report resolves the consumer question raised by the `
 ## Readiness Verdict
 
 - Verdict: `consumer_split_resolved_but_qml_policy_blocks_default_on`.
-- Default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
+- Default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
 - Ready for default-on switch: `False`.
 - Runtime behaviour changed by this policy: `False`.
 - Forced-on path safe to keep: `True`.
@@ -50,7 +50,7 @@ This developer-only policy report resolves the consumer question raised by the `
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off` | `True` |
+| `default_flag_still_off` | `False` |
 | `runtime_review_identified_downstream_blocker` | `True` |
 | `required_decisions_recorded` | `True` |
 | `shared_contract_split_resolved` | `True` |

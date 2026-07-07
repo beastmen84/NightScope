@@ -53,7 +53,9 @@ def generate_default_on_readiness_data() -> dict[str, object]:
             "home_changed": False,
             "best_object_changed": False,
             "sky_compass_changed": False,
-            "runtime_behaviour_changed": False,
+            "runtime_behaviour_changed": True,
+            "runtime_default_changed_by_switch": True,
+            "visible_runtime_behaviour_changed": False,
             "source_reports": (
                 str(PRESENTATION_CONTRACT_PATH).replace("\\", "/"),
                 str(QML_EXPOSURE_READINESS_PATH).replace("\\", "/"),
@@ -63,7 +65,7 @@ def generate_default_on_readiness_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "ready_for_advanced_observing_nsom_backend_default_on"
+                "advanced_observing_nsom_backend_default_on_enabled"
                 if not blockers
                 else "not_ready_for_advanced_observing_nsom_backend_default_on"
             ),
@@ -73,11 +75,13 @@ def generate_default_on_readiness_data() -> dict[str, object]:
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "requires_separate_flag_change": NSOM_ADVANCED_OBSERVING_ENABLED is False,
+            "default_on_switch_completed": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "explicit_rollback": "AppController(use_nsom_advanced_observing=False)",
-            "runtime_behaviour_changed_by_this_audit": False,
+            "runtime_default_changed_by_switch": NSOM_ADVANCED_OBSERVING_ENABLED is True,
+            "visible_runtime_behaviour_changed": False,
             "recommended_next_change": (
-                "set `NSOM_ADVANCED_OBSERVING_ENABLED = True` in a separate backend-only "
-                "switch commit, keeping `advancedScores` and visible QML unchanged"
+                "keep the backend default-on switch, use explicit rollback for legacy "
+                "diagnostics when needed, and review visible UI separately"
                 if not blockers
                 else "resolve default-on blockers before changing the flag"
             ),
@@ -109,11 +113,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether Advanced Observing NSOM can be "
-            "enabled by default as a backend/internal projection. It does not enable "
-            "the flag, does not replace `advancedScores`, does not render visible "
-            "QML UI, does not tune scores, does not change Planner, NotificationService, "
-            "Home Best Object or Sky Compass, and does not log automatically, call "
-            "the network or write runtime files."
+            "kept enabled by default as a backend/internal projection. It records "
+            "the backend switch state, does not replace `advancedScores`, does not "
+            "render visible QML UI, does not tune scores, does not change Planner, "
+            "NotificationService, Home Best Object or Sky Compass, and does not log "
+            "automatically, call the network or write runtime files."
         ),
         "",
         "## Readiness Verdict",
@@ -125,8 +129,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Current default flag: `{readiness['default_flag']}`.",
         f"- Default flag currently enabled: `{readiness['default_flag_currently_enabled']}`.",
         f"- Requires separate flag change: `{readiness['requires_separate_flag_change']}`.",
+        f"- Default-on switch completed: `{readiness['default_on_switch_completed']}`.",
         f"- Explicit rollback: `{readiness['explicit_rollback']}`.",
-        f"- Runtime behaviour changed by this audit: `{readiness['runtime_behaviour_changed_by_this_audit']}`.",
+        f"- Runtime default changed by switch: `{readiness['runtime_default_changed_by_switch']}`.",
+        f"- Visible runtime behaviour changed: `{readiness['visible_runtime_behaviour_changed']}`.",
         f"- Recommended next change: {readiness['recommended_next_change']}.",
         "",
         "## Default-On Blockers",
@@ -210,11 +216,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement the default-on switch as a narrow backend-only commit: set "
-                "`NSOM_ADVANCED_OBSERVING_ENABLED = True`, preserve "
+                "Keep the backend default-on switch narrow: preserve "
                 "`AppController(use_nsom_advanced_observing=False)` as rollback, keep "
-                "`advancedScores` and visible QML unchanged, and rerun focused Advanced "
-                "Observing NSOM runtime tests."
+                "`advancedScores` and visible QML unchanged, and review any visible "
+                "Advanced Observing NSOM UI separately."
             ),
             "",
         ]
@@ -238,8 +243,8 @@ def _default_on_decisions(
     return (
         _decision(
             "backend_projection_default_on",
-            status="ready",
-            summary="Default-on is scoped to the internal Advanced Observing NSOM projection.",
+            status="enabled",
+            summary="Default-on is active for the internal Advanced Observing NSOM projection.",
             reason="The projection is separate from `advancedScores` and has an explicit rollback constructor.",
             blocks_backend_default_on=False,
             blocks_visible_ui=False,
@@ -352,7 +357,7 @@ def _checks(
 ) -> dict[str, object]:
     decision_ids = {decision["decision_id"] for decision in decisions}
     return {
-        "default_flag_still_off_for_audit": NSOM_ADVANCED_OBSERVING_ENABLED is False,
+        "default_flag_enabled_for_switch": NSOM_ADVANCED_OBSERVING_ENABLED is True,
         "source_reports_strict_json_compatible": _strict_json_compatible(exposure)
         and _strict_json_compatible(policy)
         and _strict_json_compatible(contract),

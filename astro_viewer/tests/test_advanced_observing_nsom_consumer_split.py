@@ -6,7 +6,10 @@ from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
-from astro_viewer.app.services.advanced_observing_nsom_service import AdvancedObservingNsomService
+from astro_viewer.app.services.advanced_observing_nsom_service import (
+    NSOM_ADVANCED_OBSERVING_ENABLED,
+    AdvancedObservingNsomService,
+)
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -33,6 +36,18 @@ def test_consumer_split_keeps_public_advanced_scores_legacy_when_nsom_forced_on(
         "planetaryLabel",
         "deepSkyLabel",
     }
+
+
+def test_default_flag_keeps_public_advanced_scores_legacy_and_computes_parallel_nsom() -> None:
+    controller = _controller(enabled=NSOM_ADVANCED_OBSERVING_ENABLED)
+    expected_legacy = _legacy_scores(controller)
+    expected_nsom = _nsom_scores(controller)
+
+    controller._recalculate_observing_outputs()
+
+    assert controller._advanced_scores == expected_legacy
+    assert controller._advanced_observing_nsom_scores == expected_nsom
+    assert controller._advanced_observing_nsom_scores != controller._advanced_scores
 
 
 def test_planner_and_notifications_receive_legacy_scores_when_nsom_forced_on() -> None:

@@ -8,7 +8,7 @@ This developer-only contract defines the future QML-safe Advanced Observing NSOM
 
 - Verdict: `advanced_observing_nsom_presentation_read_only_qml_property_wired`.
 - Ready for default-on switch: `False`.
-- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
+- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
 - Runtime behaviour changed by this contract: `False`.
 - Contract status: `read_only_qml_property_wired_default_off`.
 - Future QML property: `advancedObservingNsom`.
@@ -52,7 +52,7 @@ This developer-only contract defines the future QML-safe Advanced Observing NSOM
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off` | `True` |
+| `default_flag_still_off` | `False` |
 | `presentation_readiness_was_blocked` | `True` |
 | `contract_schema_versioned` | `True` |
 | `contract_defines_separate_future_property` | `True` |

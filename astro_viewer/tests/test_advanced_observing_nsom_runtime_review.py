@@ -40,13 +40,12 @@ def test_runtime_review_keeps_flag_off_and_blocks_default_on_switch() -> None:
     data = generate_runtime_review_data()
 
     assert data["readiness"]["verdict"] == "not_ready_for_default_on_switch"
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
-    assert data["readiness"]["default_flag_enabled"] is False
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
+    assert data["readiness"]["default_flag_enabled"] is True
     assert data["readiness"]["ready_for_default_on_switch"] is False
     assert data["readiness"]["forced_on_path_safe_to_keep"] is True
     assert data["readiness"]["runtime_behaviour_changed_by_this_review"] is False
     assert data["default_on_blockers"] == [
-        "advanced-observing-default-flag-still-off",
         "advanced-observing-downstream-consumer-policy",
         "advanced-observing-score-label-policy",
         "advanced-observing-blocked-session-display-policy",

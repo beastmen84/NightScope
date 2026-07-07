@@ -379,7 +379,6 @@ def _checks(
 
 def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
     names = {
-        "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "contract_schema_versioned": "advanced-observing-contract-schema-missing",
         "contract_defines_separate_future_property": "advanced-observing-contract-property-missing",
         "contract_does_not_replace_advanced_scores": "advanced-observing-contract-replaces-legacy-score",

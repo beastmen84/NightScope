@@ -7,17 +7,16 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 ## Readiness Verdict
 
 - Verdict: `not_ready_for_default_on_switch`.
-- Default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
+- Default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
 - Ready for default-on switch: `False`.
 - Forced-on path safe to keep: `True`.
 - Runtime behaviour changed by this review: `False`.
-- Explicit opt-in: `AppController(use_nsom_advanced_observing=True)`.
-- Legacy default: `AppController() / AdvancedObservingService.scores(...)`.
+- Explicit opt-in: `AppController() / NSOM_ADVANCED_OBSERVING_ENABLED`.
+- Legacy default: `AppController(use_nsom_advanced_observing=False)`.
 - Recommended next change: Add an Advanced Observing default-on readiness audit only after Planner/notification use of advancedScores has an explicit policy.
 
 ## Default-On Blockers
 
-- `advanced-observing-default-flag-still-off`
 - `advanced-observing-downstream-consumer-policy`
 - `advanced-observing-score-label-policy`
 - `advanced-observing-blocked-session-display-policy`
@@ -37,7 +36,7 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 
 ## Policy Checks
 
-- Default flag remains off: passed
+- Default flag remains off: review
 - Forced-on path changes scores and therefore needs review: passed
 - QML payload shape remains compatible: passed
 - Confidence remains score-neutral: passed

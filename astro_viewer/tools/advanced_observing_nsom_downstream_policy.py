@@ -493,7 +493,6 @@ def _default_on_blockers(
         if decision["blocks_default_on"] is True
     ]
     safety_names = {
-        "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "runtime_review_identified_downstream_blocker": "advanced-observing-runtime-review-missing-downstream-blocker",
         "required_decisions_recorded": "advanced-observing-downstream-policy-incomplete",
         "shared_contract_split_resolved": "advanced-observing-shared-contract-split-unresolved",

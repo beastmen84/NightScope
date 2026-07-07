@@ -9,8 +9,8 @@ This developer-only audit checks whether the internal Advanced Observing NSOM pr
 - Verdict: `advanced_observing_nsom_read_only_qml_property_available`.
 - Ready for QML exposure: `True`.
 - Ready for user-visible UI: `False`.
-- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
-- Default flag currently enabled: `False`.
+- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
+- Default flag currently enabled: `True`.
 - Runtime behaviour changed by this audit: `False`.
 - Recommended next change: decide separately whether visible UI should consume `advancedObservingNsom` or whether Advanced Observing NSOM should remain developer-facing.
 - Reason: The internal projection is now available through a read-only QML property using the existing weather lifecycle. No QML UI consumes it yet, and visible UI still needs explicit design approval.
@@ -54,7 +54,7 @@ This developer-only audit checks whether the internal Advanced Observing NSOM pr
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off` | `True` |
+| `default_flag_still_off` | `False` |
 | `contract_runtime_projection_available` | `True` |
 | `contract_visible_ui_review_still_blocking` | `True` |
 | `required_qml_exposure_decisions_recorded` | `True` |

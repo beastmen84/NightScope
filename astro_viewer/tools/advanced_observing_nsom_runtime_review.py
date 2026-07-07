@@ -88,14 +88,13 @@ def generate_runtime_review_data() -> dict[str, object]:
             "default_flag_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "ready_for_default_on_switch": False,
             "forced_on_path_safe_to_keep": blockers == (
-                "advanced-observing-default-flag-still-off",
                 "advanced-observing-downstream-consumer-policy",
                 "advanced-observing-score-label-policy",
                 "advanced-observing-blocked-session-display-policy",
             ),
             "runtime_behaviour_changed_by_this_review": False,
-            "explicit_nsom_opt_in": "AppController(use_nsom_advanced_observing=True)",
-            "explicit_legacy_default": "AppController() / AdvancedObservingService.scores(...)",
+            "explicit_nsom_opt_in": "AppController() / NSOM_ADVANCED_OBSERVING_ENABLED",
+            "explicit_legacy_default": "AppController(use_nsom_advanced_observing=False)",
             "recommended_next_change": (
                 "Add an Advanced Observing default-on readiness audit only after "
                 "Planner/notification use of advancedScores has an explicit policy."
@@ -339,7 +338,7 @@ def _review_checks(
 
 
 def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
-    blockers = ["advanced-observing-default-flag-still-off"]
+    blockers: list[str] = []
     if checks["downstream_consumers_share_advanced_scores"]:
         blockers.append("advanced-observing-downstream-consumer-policy")
     if checks["forced_on_changes_scores"]:

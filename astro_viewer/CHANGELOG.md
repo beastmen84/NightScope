@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.8.17 - 2026-07-07
+
+- Abilitato Advanced Observing NSOM di default impostando
+  `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
+- Il default calcola ora lo snapshot interno parallelo
+  `_advanced_observing_nsom_scores` e la presentazione read-only
+  `advancedObservingNsom`.
+- `advancedScores` resta legacy-compatible e continua a essere il contratto
+  visibile delle card Home e l'input per Planner e NotificationService.
+- Il rollback resta esplicito con
+  `AppController(use_nsom_advanced_observing=False)`.
+- Aggiornato il report di readiness per registrare lo switch backend attivo.
+- Nessuna UI QML visibile, nessun logging automatico, rete, scrittura runtime o
+  wiring dei report developer-only.
+
 ## NightScope 1.8.16 - 2026-07-07
 
 - Aggiunto il tool developer-only

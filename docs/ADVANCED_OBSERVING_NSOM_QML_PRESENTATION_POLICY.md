@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only policy closes the 1.8.12 presentation-design gap for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy is applied to a read-only `advancedObservingNsom` property. The property returns a defensive deep copy as of 1.8.15, does not render visible UI, does not change `advancedScores`, does not enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, log automatically or call the network.
+This developer-only policy closes the 1.8.12 presentation-design gap for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy is applied to a read-only `advancedObservingNsom` property. The property returns a defensive deep copy as of 1.8.15, does not render visible UI, does not change `advancedScores`, and does not write files at runtime, log automatically or call the network.
 
 ## Readiness Verdict
 
@@ -12,16 +12,15 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 - Ready for runtime QML exposure now: `True`.
 - Ready for user-visible UI now: `False`.
 - Read-only property wired: `True`.
-- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
-- Default flag currently enabled: `False`.
+- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
+- Default flag currently enabled: `True`.
 - Runtime behaviour changed by this policy: `False`.
-- Recommended next change: decide separately whether visible UI or default-on Advanced Observing NSOM should follow.
-- Reason: The lifecycle, copy and score-label decisions from 1.8.13 are now applied to a read-only property. No visible UI consumes it and the Advanced Observing NSOM flag remains default-off.
+- Recommended next change: decide separately whether visible Advanced Observing NSOM UI should follow.
+- Reason: The lifecycle, copy and score-label decisions from 1.8.13 are now applied to a read-only property. No visible UI consumes it.
 
 ## Remaining Items Before Runtime QML Exposure
 
 - `advanced-observing-visible-ui-design-not-approved`
-- `advanced-observing-default-flag-still-off`
 
 ## Policy Decisions
 
@@ -79,7 +78,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off` | `True` |
+| `default_flag_still_off` | `False` |
 | `source_readiness_was_not_ready` | `True` |
 | `policy_covers_source_blockers` | `True` |
 | `future_property_name_defined` | `True` |

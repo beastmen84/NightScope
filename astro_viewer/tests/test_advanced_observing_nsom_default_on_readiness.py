@@ -30,7 +30,9 @@ def test_default_on_readiness_data_is_deterministic_strict_json_and_developer_on
         "home_changed": False,
         "best_object_changed": False,
         "sky_compass_changed": False,
-        "runtime_behaviour_changed": False,
+        "runtime_behaviour_changed": True,
+        "runtime_default_changed_by_switch": True,
+        "visible_runtime_behaviour_changed": False,
         "source_reports": [
             "docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md",
             "docs/ADVANCED_OBSERVING_NSOM_QML_EXPOSURE_READINESS.md",
@@ -43,12 +45,13 @@ def test_default_on_readiness_data_is_deterministic_strict_json_and_developer_on
 def test_default_on_readiness_distinguishes_backend_switch_from_visible_ui() -> None:
     data = generate_default_on_readiness_data()
 
-    assert data["readiness"]["verdict"] == "ready_for_advanced_observing_nsom_backend_default_on"
+    assert data["readiness"]["verdict"] == "advanced_observing_nsom_backend_default_on_enabled"
     assert data["readiness"]["ready_for_backend_default_on"] is True
     assert data["readiness"]["ready_for_visible_ui"] is False
     assert data["readiness"]["ready_to_replace_advanced_scores"] is False
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
-    assert data["readiness"]["requires_separate_flag_change"] is True
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
+    assert data["readiness"]["requires_separate_flag_change"] is False
+    assert data["readiness"]["default_on_switch_completed"] is True
     assert data["default_on_blockers"] == []
     assert "advanced-observing-visible-ui-design-not-approved" in data["remaining_non_blocking_items"]
 
@@ -67,6 +70,7 @@ def test_default_on_decisions_keep_advanced_scores_legacy_and_confidence_metadat
     assert data["checks"]["advanced_scores_not_replaced"] is True
     assert data["checks"]["planner_notifications_keep_legacy_inputs"] is True
     assert data["checks"]["confidence_metadata_only"] is True
+    assert data["checks"]["default_flag_enabled_for_switch"] is True
 
 
 def test_default_on_readiness_verifies_property_safety_and_no_runtime_wiring() -> None:
@@ -90,6 +94,6 @@ def test_checked_in_default_on_readiness_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Advanced Observing NSOM Default-On Readiness Audit" in text
-    assert "ready_for_advanced_observing_nsom_backend_default_on" in text
+    assert "advanced_observing_nsom_backend_default_on_enabled" in text
     assert "None for backend/internal projection default-on" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

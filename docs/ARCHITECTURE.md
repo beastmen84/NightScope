@@ -478,6 +478,15 @@ parallel NSOM projection by default, while `advancedScores`, visible QML,
 Planner, NotificationService, Home Best Object and Sky Compass remain unchanged.
 Visible UI, localized copy and any replacement of legacy score semantics remain
 separate non-blocking work.
+`1.8.17` enables that backend/internal Advanced Observing NSOM projection by
+default with `NSOM_ADVANCED_OBSERVING_ENABLED = True`. `AppController` now
+computes `_advanced_observing_nsom_scores` and the read-only
+`advancedObservingNsom` presentation snapshot by default, while `advancedScores`
+continues to be produced by the legacy `AdvancedObservingService` and remains
+the visible Home-card, Planner and NotificationService contract. The explicit
+rollback is `AppController(use_nsom_advanced_observing=False)`. No visible QML
+consumer, report runtime wiring, logging, network path or runtime file write is
+added by the switch.
 
 ## Dependency Flow
 

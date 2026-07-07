@@ -2,20 +2,22 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether Advanced Observing NSOM can be enabled by default as a backend/internal projection. It does not enable the flag, does not replace `advancedScores`, does not render visible QML UI, does not tune scores, does not change Planner, NotificationService, Home Best Object or Sky Compass, and does not log automatically, call the network or write runtime files.
+This developer-only audit checks whether Advanced Observing NSOM can be kept enabled by default as a backend/internal projection. It records the backend switch state, does not replace `advancedScores`, does not render visible QML UI, does not tune scores, does not change Planner, NotificationService, Home Best Object or Sky Compass, and does not log automatically, call the network or write runtime files.
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_advanced_observing_nsom_backend_default_on`.
+- Verdict: `advanced_observing_nsom_backend_default_on_enabled`.
 - Ready for backend default-on: `True`.
 - Ready for visible UI: `False`.
 - Ready to replace `advancedScores`: `False`.
-- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
-- Default flag currently enabled: `False`.
-- Requires separate flag change: `True`.
+- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
+- Default flag currently enabled: `True`.
+- Requires separate flag change: `False`.
+- Default-on switch completed: `True`.
 - Explicit rollback: `AppController(use_nsom_advanced_observing=False)`.
-- Runtime behaviour changed by this audit: `False`.
-- Recommended next change: set `NSOM_ADVANCED_OBSERVING_ENABLED = True` in a separate backend-only switch commit, keeping `advancedScores` and visible QML unchanged.
+- Runtime default changed by switch: `True`.
+- Visible runtime behaviour changed: `False`.
+- Recommended next change: keep the backend default-on switch, use explicit rollback for legacy diagnostics when needed, and review visible UI separately.
 
 ## Default-On Blockers
 
@@ -31,7 +33,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be enabled 
 
 | Decision | Status | Blocks backend default-on | Blocks visible UI | Summary |
 | --- | --- | --- | --- | --- |
-| `backend_projection_default_on` | `ready` | `False` | `False` | Default-on is scoped to the internal Advanced Observing NSOM projection. |
+| `backend_projection_default_on` | `enabled` | `False` | `False` | Default-on is active for the internal Advanced Observing NSOM projection. |
 | `visible_ui` | `deferred_non_blocking` | `False` | `True` | Do not render Advanced Observing NSOM in visible QML UI yet. |
 | `advanced_scores_replacement` | `out_of_scope` | `False` | `False` | Do not replace `advancedScores` in this switch. |
 | `read_only_property_safety` | `accepted` | `False` | `False` | The `advancedObservingNsom` property is read-only and defensive-copy hardened. |
@@ -45,7 +47,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be enabled 
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off_for_audit` | `True` |
+| `default_flag_enabled_for_switch` | `True` |
 | `source_reports_strict_json_compatible` | `True` |
 | `read_only_property_available` | `True` |
 | `property_defensive_copy_hardened` | `True` |
@@ -78,8 +80,8 @@ This developer-only audit checks whether Advanced Observing NSOM can be enabled 
 - QML exposure verdict: `advanced_observing_nsom_read_only_qml_property_available`.
 - QML presentation policy verdict: `advanced_observing_nsom_qml_policy_applied_read_only_property`.
 - Historical contract blockers: `['advanced-observing-visible-ui-review-required']`.
-- QML policy remaining items: `['advanced-observing-visible-ui-design-not-approved', 'advanced-observing-default-flag-still-off']`.
+- QML policy remaining items: `['advanced-observing-visible-ui-design-not-approved']`.
 
 ## Recommended Next Step
 
-Implement the default-on switch as a narrow backend-only commit: set `NSOM_ADVANCED_OBSERVING_ENABLED = True`, preserve `AppController(use_nsom_advanced_observing=False)` as rollback, keep `advancedScores` and visible QML unchanged, and rerun focused Advanced Observing NSOM runtime tests.
+Keep the backend default-on switch narrow: preserve `AppController(use_nsom_advanced_observing=False)` as rollback, keep `advancedScores` and visible QML unchanged, and review any visible Advanced Observing NSOM UI separately.

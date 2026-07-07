@@ -43,10 +43,11 @@ def test_qml_exposure_readiness_reports_read_only_property_without_visible_ui() 
     assert data["readiness"]["verdict"] == "advanced_observing_nsom_read_only_qml_property_available"
     assert data["readiness"]["ready_for_qml_exposure"] is True
     assert data["readiness"]["ready_for_user_visible_ui"] is False
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert "advanced-observing-public-qml-property" not in data["default_on_blockers"]
     assert "advanced-observing-unplanned-visible-qml-usage" not in data["default_on_blockers"]
+    assert "advanced-observing-default-flag-still-off" not in data["default_on_blockers"]
 
 
 def test_qml_exposure_decisions_record_copy_lifecycle_and_score_policy() -> None:

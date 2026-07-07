@@ -15,7 +15,10 @@ from astro_viewer.app.services.advanced_observing_nsom_presentation import (
     ADVANCED_OBSERVING_NSOM_PRESENTATION_SCHEMA_VERSION,
     build_advanced_observing_nsom_presentation,
 )
-from astro_viewer.app.services.advanced_observing_nsom_service import AdvancedObservingNsomService
+from astro_viewer.app.services.advanced_observing_nsom_service import (
+    NSOM_ADVANCED_OBSERVING_ENABLED,
+    AdvancedObservingNsomService,
+)
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -148,6 +151,32 @@ def test_controller_forced_on_projects_presentation_without_changing_advanced_sc
     assert values_by_category["planetary"]["legacyCompatibilityValue"] == expected_legacy.planetary_score
     assert values_by_category["deepSky"]["legacyCompatibilityValue"] == expected_legacy.deep_sky_score
     assert controller._advanced_observing_nsom_payload() == payload
+
+
+def test_controller_default_path_projects_presentation_without_changing_advanced_scores() -> None:
+    controller = _controller(enabled=NSOM_ADVANCED_OBSERVING_ENABLED)
+    expected_legacy = _legacy_scores(
+        controller._weather_summary,
+        controller._seeing_transparency,
+        controller._sky_quality,
+        controller._moon,
+    )
+    expected_nsom = _nsom_scores(
+        controller._weather_summary,
+        controller._seeing_transparency,
+        controller._sky_quality,
+        controller._moon,
+    )
+
+    controller._recalculate_observing_outputs()
+
+    payload = controller._advanced_observing_nsom_presentation
+    json.dumps(payload, sort_keys=True, allow_nan=False)
+
+    assert controller._advanced_scores == expected_legacy
+    assert controller._advanced_observing_nsom_scores == expected_nsom
+    assert payload["enabled"] is True
+    assert payload["consumerPolicy"]["replacesAdvancedScores"] is False
 
 
 def test_presentation_session_metadata_matches_monitor_session_state() -> None:

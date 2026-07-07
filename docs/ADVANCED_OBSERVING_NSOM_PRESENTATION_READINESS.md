@@ -8,9 +8,9 @@ This developer-only audit checks whether Advanced Observing NSOM can be enabled 
 
 - Verdict: `not_ready_for_advanced_observing_nsom_default_on`.
 - Ready for default-on switch: `False`.
-- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
-- Default flag currently enabled: `False`.
-- Requires separate flag change: `True`.
+- Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = True`.
+- Default flag currently enabled: `True`.
+- Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
 - Consumer split resolved: `True`.
 - Recommended switch change: do not set NSOM_ADVANCED_OBSERVING_ENABLED = True yet; review the read-only QML property and visible presentation policy first
@@ -46,7 +46,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be enabled 
 
 | Check | Result |
 | --- | --- |
-| `default_flag_still_off` | `True` |
+| `default_flag_still_off` | `False` |
 | `downstream_consumer_split_resolved` | `True` |
 | `required_presentation_decisions_recorded` | `True` |
 | `existing_qml_payload_remains_legacy_compatible` | `True` |

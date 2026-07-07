@@ -378,7 +378,6 @@ def _default_on_blockers(
         if decision["blocks_default_on"] is True
     ]
     safety_names = {
-        "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "downstream_consumer_split_resolved": "advanced-observing-consumer-split-regressed",
         "required_presentation_decisions_recorded": "advanced-observing-presentation-decisions-incomplete",
         "existing_qml_payload_remains_legacy_compatible": "advanced-observing-payload-shape-regressed",

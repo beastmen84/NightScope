@@ -48,7 +48,7 @@ def test_qml_presentation_policy_is_applied_to_read_only_property_without_visibl
     assert data["readiness"]["ready_for_runtime_qml_exposure"] is True
     assert data["readiness"]["ready_for_user_visible_ui"] is False
     assert data["readiness"]["ready_for_separate_read_only_property_step"] is True
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
     assert data["readiness"]["runtime_behaviour_changed_by_this_policy"] is False
 
     source_blockers = set(data["source_readiness_summary"]["default_on_blockers"])
@@ -128,7 +128,6 @@ def test_qml_policy_rollback_and_remaining_items_are_explicit() -> None:
     assert decisions["rollback_policy"]["future_property_when_disabled"] == {}
     assert data["remaining_items_before_runtime_qml_exposure"] == [
         "advanced-observing-visible-ui-design-not-approved",
-        "advanced-observing-default-flag-still-off",
     ]
 
 

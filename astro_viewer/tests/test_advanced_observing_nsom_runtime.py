@@ -16,8 +16,8 @@ from astro_viewer.app.services.advanced_observing_service import AdvancedObservi
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_advanced_observing_nsom_flag_is_default_off() -> None:
-    assert NSOM_ADVANCED_OBSERVING_ENABLED is False
+def test_advanced_observing_nsom_flag_is_default_on() -> None:
+    assert NSOM_ADVANCED_OBSERVING_ENABLED is True
     assert (
         AppController.__init__.__kwdefaults__["use_nsom_advanced_observing"]
         is NSOM_ADVANCED_OBSERVING_ENABLED
@@ -36,6 +36,36 @@ def test_flag_off_preserves_legacy_advanced_scores() -> None:
     scores = controller._select_advanced_observing_scores()
 
     assert scores == expected
+    assert controller._select_advanced_observing_nsom_scores() is None
+
+
+def test_default_path_keeps_advanced_scores_legacy_and_computes_internal_nsom_scores() -> None:
+    controller = _controller(
+        enabled=NSOM_ADVANCED_OBSERVING_ENABLED,
+        weather=_weather(90),
+        seeing=_seeing(seeing_score=86, transparency_score=84),
+        sky_quality=_sky_quality(9, radiance=120.0),
+        moon=_moon(95),
+    )
+    expected = AdvancedObservingNsomService().scores(
+        controller._weather_summary,
+        controller._seeing_transparency,
+        controller._sky_quality,
+        controller._moon,
+    )
+    legacy = AdvancedObservingService().scores(
+        controller._weather_summary,
+        controller._seeing_transparency,
+        controller._sky_quality,
+        controller._moon,
+    )
+
+    scores = controller._select_advanced_observing_scores()
+    nsom_scores = controller._select_advanced_observing_nsom_scores()
+
+    assert scores == legacy
+    assert nsom_scores == expected
+    assert nsom_scores != scores
 
 
 def test_forced_on_keeps_advanced_scores_legacy_and_computes_internal_nsom_scores() -> None:

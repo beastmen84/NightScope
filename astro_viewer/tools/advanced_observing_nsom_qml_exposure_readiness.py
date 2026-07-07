@@ -326,7 +326,6 @@ def _default_on_blockers(
         if decision["blocks_qml_exposure"] is True
     ]
     safety_names = {
-        "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "contract_runtime_projection_available": "advanced-observing-runtime-projection-missing",
         "contract_visible_ui_review_still_blocking": "advanced-observing-contract-visible-ui-blocker-missing",
         "required_qml_exposure_decisions_recorded": "advanced-observing-qml-decisions-incomplete",

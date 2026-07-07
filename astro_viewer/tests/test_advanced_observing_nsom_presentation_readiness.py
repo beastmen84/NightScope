@@ -42,12 +42,13 @@ def test_presentation_readiness_blocks_default_on_until_presentation_contract_ex
 
     assert data["readiness"]["verdict"] == "not_ready_for_advanced_observing_nsom_default_on"
     assert data["readiness"]["ready_for_default_on_switch"] is False
-    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
-    assert data["readiness"]["default_flag_currently_enabled"] is False
-    assert data["readiness"]["requires_separate_flag_change"] is True
+    assert data["readiness"]["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = True"
+    assert data["readiness"]["default_flag_currently_enabled"] is True
+    assert data["readiness"]["requires_separate_flag_change"] is False
     assert data["readiness"]["consumer_split_resolved"] is True
     assert "advanced-observing-nsom-presentation-contract" not in data["default_on_blockers"]
     assert "advanced-observing-score-label-semantics" in data["default_on_blockers"]
+    assert "advanced-observing-default-flag-still-off" not in data["default_on_blockers"]
 
 
 def test_presentation_decisions_keep_legacy_cards_and_hide_nsom_snapshot() -> None:

@@ -920,6 +920,17 @@ Compass inputs. The remaining visible UI design, copy/localization and future
 legacy-score replacement questions are explicitly non-blocking for that backend
 switch and remain separate NSOM presentation work.
 
+Implementation note for 1.8.17:
+Advanced Observing NSOM is enabled by default for the backend/internal
+projection only: `NSOM_ADVANCED_OBSERVING_ENABLED = True`. The default
+controller path computes the parallel NSOM category snapshot and read-only
+presentation data, but keeps `advancedScores` legacy-compatible for visible Home
+cards, Planner transparency input and NotificationService thresholds. The
+rollback remains `AppController(use_nsom_advanced_observing=False)`.
+SessionViability and RecommendationConfidence remain metadata outside category
+values; no visible QML consumer, scoring replacement, report runtime wiring,
+logging, network call or runtime file write is introduced by the switch.
+
 Examples:
 
 - binocular-only profile;

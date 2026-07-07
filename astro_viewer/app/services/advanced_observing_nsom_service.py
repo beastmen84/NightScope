@@ -21,13 +21,13 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 
-NSOM_ADVANCED_OBSERVING_ENABLED = False
+NSOM_ADVANCED_OBSERVING_ENABLED = True
 
 
 class AdvancedObservingNsomService:
     """Experimental Advanced Observing scores from NSOM category diagnostics.
 
-    The service is an internal/default-off runtime path. It preserves the
+    The service is an internal/default-on runtime path. It preserves the
     existing `AdvancedObservingScores` payload shape, does not expose NSOM fields
     to QML, and keeps SessionViability and RecommendationConfidence out of the
     score path.

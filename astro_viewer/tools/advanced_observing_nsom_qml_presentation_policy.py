@@ -61,13 +61,11 @@ def generate_qml_presentation_policy_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_policy": False,
             "recommended_next_change": (
-                "decide separately whether visible UI or default-on Advanced "
-                "Observing NSOM should follow"
+                "decide separately whether visible Advanced Observing NSOM UI should follow"
             ),
             "reason": (
                 "The lifecycle, copy and score-label decisions from 1.8.13 are now "
-                "applied to a read-only property. No visible UI consumes it and the "
-                "Advanced Observing NSOM flag remains default-off."
+                "applied to a read-only property. No visible UI consumes it."
             ),
         },
         "remaining_items_before_runtime_qml_exposure": remaining_items,
@@ -98,8 +96,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy "
             "is applied to a read-only `advancedObservingNsom` property. The property "
             "returns a defensive deep copy as of 1.8.15, does not render visible UI, "
-            "does not change `advancedScores`, does not enable "
-            "`NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, "
+            "does not change `advancedScores`, and does not write files at runtime, "
             "log automatically or call the network."
         ),
         "",
@@ -412,8 +409,6 @@ def _remaining_items(checks: dict[str, object]) -> tuple[str, ...]:
     items: list[str] = []
     if checks["visible_ui_still_not_approved"] is True:
         items.append("advanced-observing-visible-ui-design-not-approved")
-    if checks["default_flag_still_off"] is True:
-        items.append("advanced-observing-default-flag-still-off")
     safety_names = {
         "policy_covers_source_blockers": "advanced-observing-qml-policy-incomplete",
         "future_read_only_property_policy_defined": "advanced-observing-qml-lifecycle-policy-missing",
