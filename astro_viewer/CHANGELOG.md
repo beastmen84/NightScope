@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.8.13 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_qml_presentation_policy.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_QML_PRESENTATION_POLICY.md`, policy
+  per una futura superficie QML `advancedObservingNsom`.
+- Definita la policy di lifecycle: una futura property read-only dovra' usare
+  lo snapshot privato `_advanced_observing_nsom_presentation` e il lifecycle
+  esistente `weatherChanged`, senza ricomputare al read e senza introdurre un
+  nuovo signal.
+- Definite le policy di copy/placement/score-label: la UI visibile resta
+  bloccata, la copy futura deve passare da chiavi localizzabili e i valori NSOM
+  vanno etichettati come diagnostica `ObservableTargetValue`, non come score
+  legacy `/100`, input Planner o soglie NotificationService.
+- Confermato che `advancedScores` resta l'unico contratto QML pubblico
+  corrente; nessuna property QML, logging, rete, scrittura runtime o modifica a
+  Planner, NotificationService, Home, Best Object o Sky Compass.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; il prossimo step
+  utile e' una review della policy prima di qualsiasi esposizione QML.
+
 ## NightScope 1.8.12 - 2026-07-07
 
 - Aggiunto il tool developer-only

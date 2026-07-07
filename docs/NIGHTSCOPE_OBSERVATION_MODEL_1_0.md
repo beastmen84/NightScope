@@ -876,6 +876,19 @@ localized UI copy, visual placement and score-label semantics. This prevents
 `/100` actionability scores. `advancedScores` remains the only current public
 QML contract and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
 
+Implementation note for 1.8.13: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_QML_PRESENTATION_POLICY.md` defines the missing
+QML presentation policy without adding runtime exposure. A future
+`advancedObservingNsom` property, if implemented in a later step, must be
+read-only, use `_advanced_observing_nsom_presentation` as its source, reuse the
+existing `weatherChanged` lifecycle, avoid recomputation on property read and
+avoid a new notify signal. Visible UI remains blocked pending a separate design
+decision; future copy must be localization-key based and label values as NSOM
+diagnostics, not legacy `/100` actionability scores, Planner inputs or
+NotificationService thresholds. `RecommendationConfidence` remains metadata
+only, `advancedScores` remains the only current public QML contract and
+`NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
+
 Examples:
 
 - binocular-only profile;

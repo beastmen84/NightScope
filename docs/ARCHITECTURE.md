@@ -445,6 +445,17 @@ audit confirms that the internal projection is safe to keep, but a public QML
 property or visible UI remains blocked until property notify/lifecycle policy,
 localized copy, visual placement and NSOM score-label semantics are explicitly
 designed. `advancedScores` remains the only current public QML contract.
+`1.8.13` defines that policy in
+`astro_viewer/tools/advanced_observing_nsom_qml_presentation_policy.py` and
+`docs/ADVANCED_OBSERVING_NSOM_QML_PRESENTATION_POLICY.md`. The future
+`advancedObservingNsom` property is still not implemented, but if a later step
+adds it, the policy says it must be read-only, use the private
+`_advanced_observing_nsom_presentation` snapshot, reuse the existing
+`weatherChanged` lifecycle, avoid recomputation on property read and avoid new
+signals. Visible UI remains unapproved; future copy must be localization-key
+based and values must be labelled as NSOM diagnostics rather than legacy `/100`
+actionability scores. Runtime behaviour, QML exposure, Planner,
+NotificationService, Home, Best Object and Sky Compass remain unchanged.
 
 ## Dependency Flow
 
