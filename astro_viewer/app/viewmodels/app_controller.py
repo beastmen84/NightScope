@@ -588,6 +588,13 @@ class AppController(QObject):
         return self._advanced_scores.to_qml() if self._advanced_scores else {}
 
     @Property("QVariant", notify=weatherChanged)
+    def advancedObservingNsom(self) -> dict:
+        return self._advanced_observing_nsom_payload()
+
+    def _advanced_observing_nsom_payload(self) -> dict:
+        return self._advanced_observing_nsom_presentation or {}
+
+    @Property("QVariant", notify=weatherChanged)
     def weatherDigest(self) -> dict:
         return self._weather_digest()
 

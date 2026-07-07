@@ -889,6 +889,16 @@ NotificationService thresholds. `RecommendationConfidence` remains metadata
 only, `advancedScores` remains the only current public QML contract and
 `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
 
+Implementation note for 1.8.14: `AppController` now exposes
+`advancedObservingNsom` as a read-only QML property. The property returns the
+existing private `_advanced_observing_nsom_presentation` snapshot, or `{}` when
+Advanced Observing NSOM is disabled or no snapshot exists. It uses the existing
+`weatherChanged` lifecycle, introduces no new signal and does not recompute on
+property read. No visible QML UI consumes the property yet; `advancedScores`
+remains the visible Home card contract, Planner/NotificationService/Home Best
+Object/Sky Compass inputs are unchanged, `RecommendationConfidence` remains
+metadata-only and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
+
 Examples:
 
 - binocular-only profile;

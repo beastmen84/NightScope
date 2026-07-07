@@ -24,7 +24,8 @@ def test_presentation_contract_data_is_deterministic_strict_json_and_developer_o
         "runtime_writes": False,
         "automatic_logging": False,
         "network": False,
-        "qml_exposure": False,
+        "qml_exposure": True,
+        "visible_ui_exposure": False,
         "advanced_scores_changed_by_default": False,
         "home_changed": False,
         "best_object_changed": False,
@@ -41,14 +42,14 @@ def test_presentation_contract_defines_separate_payload_without_default_on() -> 
     data = generate_presentation_contract_data()
     readiness = data["readiness"]
 
-    assert readiness["verdict"] == "advanced_observing_nsom_presentation_runtime_projected_not_qml_exposed"
+    assert readiness["verdict"] == "advanced_observing_nsom_presentation_read_only_qml_property_wired"
     assert readiness["ready_for_default_on_switch"] is False
     assert readiness["default_flag"] == "NSOM_ADVANCED_OBSERVING_ENABLED = False"
     assert readiness["runtime_behaviour_changed_by_this_contract"] is False
     assert readiness["future_qml_property"] == "advancedObservingNsom"
     assert readiness["current_qml_property"] == "advancedScores"
     assert "advanced-observing-runtime-projection-not-implemented" not in data["default_on_blockers"]
-    assert "advanced-observing-qml-exposure-review-required" in data["default_on_blockers"]
+    assert "advanced-observing-future-property-not-wired" not in data["default_on_blockers"]
 
 
 def test_contract_payload_shape_and_consumer_policy_are_explicit() -> None:
@@ -122,11 +123,12 @@ def test_contract_decisions_resolve_design_but_keep_runtime_and_qml_blockers() -
     assert decisions["session_and_confidence_metadata"]["confidence_score_effect"] == 0.0
     assert decisions["session_and_confidence_metadata"]["session_score_effect"] == 0.0
     assert decisions["runtime_projection_implemented_default_off"]["blocks_default_on"] is False
-    assert decisions["qml_exposure_review_required"]["blocks_default_on"] is True
+    assert decisions["qml_exposure_review_required"]["status"] == "read_only_property_implemented"
+    assert decisions["qml_exposure_review_required"]["blocks_default_on"] is False
     assert decisions["previous_readiness_blocker_addressed"]["status"] == "accepted"
 
 
-def test_presentation_contract_checks_runtime_safety_and_no_qml_wiring() -> None:
+def test_presentation_contract_checks_runtime_safety_and_read_only_qml_wiring() -> None:
     data = generate_presentation_contract_data()
 
     assert data["checks"]["contract_schema_versioned"] is True
@@ -137,13 +139,14 @@ def test_presentation_contract_checks_runtime_safety_and_no_qml_wiring() -> None
     assert data["checks"]["session_and_confidence_are_metadata"] is True
     assert data["checks"]["observer_and_opportunity_excluded"] is True
     assert data["checks"]["runtime_projection_available"] is True
+    assert data["checks"]["read_only_qml_property_implemented"] is True
     assert data["checks"]["runtime_report_imports_absent"] is True
     assert data["checks"]["qml_exposure_absent"] is True
-    assert data["checks"]["future_property_not_wired"] is True
+    assert data["checks"]["future_property_wired"] is True
     assert data["checks"]["runtime_behaviour_unchanged"] is True
     assert data["static_wiring_checks"]["qml_matches"] == []
     assert data["static_wiring_checks"]["runtime_report_import_matches"] == []
-    assert data["static_wiring_checks"]["future_property_already_wired"] is False
+    assert data["static_wiring_checks"]["future_property_already_wired"] is True
 
 
 def test_checked_in_advanced_observing_presentation_contract_report_exists() -> None:
@@ -152,6 +155,6 @@ def test_checked_in_advanced_observing_presentation_contract_report_exists() -> 
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Advanced Observing NSOM Presentation Contract" in text
-    assert "advanced_observing_nsom_presentation_runtime_projected_not_qml_exposed" in text
+    assert "advanced_observing_nsom_presentation_read_only_qml_property_wired" in text
     assert "advancedObservingNsom" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

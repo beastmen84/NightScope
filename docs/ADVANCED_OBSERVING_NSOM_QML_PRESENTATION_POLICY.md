@@ -2,25 +2,24 @@
 
 ## Executive Summary
 
-This developer-only policy closes the 1.8.12 presentation-design gap for a future Advanced Observing NSOM QML surface. It defines the future property name, notify/lifecycle policy, visible-copy boundaries, score label semantics and rollback expectation. It does not add a QML property, does not render visible UI, does not change `advancedScores`, does not enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, log automatically or call the network.
+This developer-only policy closes the 1.8.12 presentation-design gap for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy is applied to a read-only `advancedObservingNsom` property. The property does not render visible UI, does not change `advancedScores`, does not enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, log automatically or call the network.
 
 ## Readiness Verdict
 
-- Verdict: `advanced_observing_nsom_qml_policy_defined_not_wired`.
-- Policy status: `defined_developer_only`.
+- Verdict: `advanced_observing_nsom_qml_policy_applied_read_only_property`.
+- Policy status: `applied_to_read_only_property`.
 - Policy covers 1.8.12 blockers: `True`.
-- Ready for runtime QML exposure now: `False`.
+- Ready for runtime QML exposure now: `True`.
 - Ready for user-visible UI now: `False`.
-- Ready for separate read-only property step: `True`.
+- Read-only property wired: `True`.
 - Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
 - Default flag currently enabled: `False`.
 - Runtime behaviour changed by this policy: `False`.
-- Recommended next change: review this policy, then implement a separate default-off read-only `advancedObservingNsom` property only if QML exposure is approved.
-- Reason: The missing lifecycle, copy and score-label decisions from 1.8.12 are now documented, but no public QML property or visible UI is implemented in this step.
+- Recommended next change: review the read-only `advancedObservingNsom` property, then decide separately whether visible UI or default-on Advanced Observing NSOM should follow.
+- Reason: The lifecycle, copy and score-label decisions from 1.8.13 are now applied to a read-only property. No visible UI consumes it and the Advanced Observing NSOM flag remains default-off.
 
 ## Remaining Items Before Runtime QML Exposure
 
-- `advanced-observing-read-only-qml-property-not-implemented`
 - `advanced-observing-visible-ui-design-not-approved`
 - `advanced-observing-default-flag-still-off`
 
@@ -35,7 +34,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 | `confidence_metadata_policy` | `accepted` | `advanced-observing-score-label-semantics` | `False` | Display confidence only as data-trust metadata if a future UI uses it. |
 | `visual_placement_policy` | `accepted_policy` | `advanced-observing-visible-ui-copy` | `False` | Any future visible UI belongs in a separate diagnostic area, not inside legacy score cards. |
 | `rollback_policy` | `accepted` | `None` | `False` | Keep the future rollback path as the existing internal flag/constructor override. |
-| `source_blockers_addressed_at_policy_level` | `verified` | `None` | `False` | The 1.8.12 blocker categories now have explicit policy decisions. |
+| `source_blockers_addressed_at_policy_level` | `verified` | `None` | `False` | The 1.8.12 blocker categories now have explicit policy decisions or implementation. |
 
 ## Future Property Lifecycle
 
@@ -57,8 +56,8 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 
 ## Source Readiness Summary
 
-- Source verdict: `advanced_observing_nsom_qml_exposure_not_ready`.
-- Source blockers: `['advanced-observing-public-qml-property', 'advanced-observing-visible-ui-copy', 'advanced-observing-score-label-semantics']`.
+- Source verdict: `advanced_observing_nsom_read_only_qml_property_available`.
+- Source blockers: `[]`.
 - Future property: `advancedObservingNsom`.
 - Current property: `advancedScores`.
 
@@ -69,7 +68,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 | `qml_nsom_matches` | `[]` |
 | `runtime_report_import_matches` | `[]` |
 | `controller_private_projection_present` | `True` |
-| `controller_public_property_present` | `False` |
+| `controller_public_property_present` | `True` |
 | `controller_public_signal_present` | `False` |
 | `weather_changed_signal_present` | `True` |
 | `advanced_scores_property_uses_weather_changed` | `True` |
@@ -84,6 +83,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 | `policy_covers_source_blockers` | `True` |
 | `future_property_name_defined` | `True` |
 | `future_read_only_property_policy_defined` | `True` |
+| `future_read_only_property_wired` | `True` |
 | `visible_ui_copy_policy_defined` | `True` |
 | `visible_ui_still_not_approved` | `True` |
 | `score_label_policy_avoids_legacy_actionability` | `True` |
@@ -91,8 +91,8 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 | `rollback_policy_defined` | `True` |
 | `advanced_scores_remains_current_qml_contract` | `True` |
 | `runtime_report_imports_absent` | `True` |
-| `qml_exposure_absent` | `True` |
-| `future_property_not_wired` | `True` |
+| `visible_qml_usage_absent` | `True` |
+| `future_property_wired` | `True` |
 | `new_signal_not_wired` | `True` |
 | `existing_weather_changed_available` | `True` |
 | `private_projection_available` | `True` |
@@ -101,4 +101,4 @@ This developer-only policy closes the 1.8.12 presentation-design gap for a futur
 
 ## Recommended Next Step
 
-Review this policy. If accepted, implement a separate read-only `advancedObservingNsom` property in a later step using the existing `weatherChanged` lifecycle and the private `_advanced_observing_nsom_presentation` snapshot. Keep visible UI and default-on Advanced Observing NSOM as separate decisions.
+Review the read-only `advancedObservingNsom` property. Keep visible UI and default-on Advanced Observing NSOM as separate decisions.

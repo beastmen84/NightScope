@@ -23,7 +23,8 @@ def test_presentation_readiness_data_is_deterministic_strict_json_and_developer_
         "runtime_writes": False,
         "automatic_logging": False,
         "network": False,
-        "qml_exposure": False,
+        "qml_exposure": True,
+        "visible_ui_exposure": False,
         "advanced_scores_changed_by_default": False,
         "home_changed": False,
         "best_object_changed": False,
@@ -45,7 +46,7 @@ def test_presentation_readiness_blocks_default_on_until_presentation_contract_ex
     assert data["readiness"]["default_flag_currently_enabled"] is False
     assert data["readiness"]["requires_separate_flag_change"] is True
     assert data["readiness"]["consumer_split_resolved"] is True
-    assert "advanced-observing-nsom-presentation-contract" in data["default_on_blockers"]
+    assert "advanced-observing-nsom-presentation-contract" not in data["default_on_blockers"]
     assert "advanced-observing-score-label-semantics" in data["default_on_blockers"]
 
 
@@ -55,9 +56,10 @@ def test_presentation_decisions_keep_legacy_cards_and_hide_nsom_snapshot() -> No
 
     assert decisions["legacy_advanced_scores_cards"]["blocks_default_on"] is False
     assert decisions["legacy_advanced_scores_cards"]["status"] == "accepted_current_runtime_contract"
-    assert decisions["nsom_snapshot_visibility"]["status"] == "hidden_internal_only"
+    assert decisions["nsom_snapshot_visibility"]["status"] == "read_only_property_exposed_no_visible_ui"
     assert decisions["nsom_snapshot_visibility"]["blocks_default_on"] is True
-    assert decisions["nsom_presentation_contract"]["status"] == "needs_design_before_default_on"
+    assert decisions["nsom_presentation_contract"]["status"] == "implemented_read_only"
+    assert decisions["nsom_presentation_contract"]["blocks_default_on"] is False
     assert decisions["score_label_semantics"]["status"] == "needs_copy_policy_before_default_on"
     assert decisions["downstream_consumer_split"]["status"] == "resolved"
     assert decisions["confidence_policy"]["score_effect"] == 0.0
@@ -96,16 +98,17 @@ def test_presentation_readiness_keeps_consumer_split_and_confidence_neutral() ->
     assert data["presentation_evidence"]["confidence_score_effect"] == 0.0
 
 
-def test_presentation_readiness_has_no_runtime_or_qml_wiring() -> None:
+def test_presentation_readiness_has_read_only_property_but_no_visible_qml_usage() -> None:
     data = generate_presentation_readiness_data()
 
     assert data["checks"]["runtime_report_imports_absent"] is True
+    assert data["checks"]["read_only_qml_property_present"] is True
     assert data["checks"]["qml_nsom_exposure_absent"] is True
     assert data["checks"]["runtime_behaviour_unchanged"] is True
     assert data["static_wiring_checks"]["qml_nsom_matches"] == []
     assert data["static_wiring_checks"]["runtime_report_import_matches"] == []
     assert data["static_wiring_checks"]["controller_internal_snapshot_present"] is True
-    assert data["static_wiring_checks"]["controller_public_nsom_property_present"] is False
+    assert data["static_wiring_checks"]["controller_public_nsom_property_present"] is True
 
 
 def test_checked_in_advanced_observing_presentation_readiness_report_exists() -> None:
@@ -115,5 +118,5 @@ def test_checked_in_advanced_observing_presentation_readiness_report_exists() ->
     text = report.read_text(encoding="utf-8")
     assert "# Advanced Observing NSOM Presentation Readiness" in text
     assert "not_ready_for_advanced_observing_nsom_default_on" in text
-    assert "advanced-observing-nsom-presentation-contract" in text
+    assert "read_only_property_exposed_no_visible_ui" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -456,6 +456,14 @@ signals. Visible UI remains unapproved; future copy must be localization-key
 based and values must be labelled as NSOM diagnostics rather than legacy `/100`
 actionability scores. Runtime behaviour, QML exposure, Planner,
 NotificationService, Home, Best Object and Sky Compass remain unchanged.
+`1.8.14` implements that read-only property in `AppController`.
+`advancedObservingNsom` returns the existing private
+`_advanced_observing_nsom_presentation` snapshot or `{}` when the path is
+disabled/unavailable. It reuses `weatherChanged`, adds no new signal and does
+not recompute on property read. No visible QML file reads the property yet, so
+the Home Advanced Observing cards continue to use `advancedScores`. Planner,
+NotificationService, Home Best Object and Sky Compass continue to receive their
+existing inputs, and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
 
 ## Dependency Flow
 

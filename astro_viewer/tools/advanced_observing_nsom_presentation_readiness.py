@@ -45,7 +45,8 @@ def generate_presentation_readiness_data() -> dict[str, object]:
             "runtime_writes": False,
             "automatic_logging": False,
             "network": False,
-            "qml_exposure": False,
+            "qml_exposure": True,
+            "visible_ui_exposure": False,
             "advanced_scores_changed_by_default": False,
             "home_changed": False,
             "best_object_changed": False,
@@ -67,14 +68,14 @@ def generate_presentation_readiness_data() -> dict[str, object]:
             and downstream["checks"]["planner_consumer_split_resolved"]
             and downstream["checks"]["notification_consumer_split_resolved"],
             "recommended_switch_change": (
-                "do not set NSOM_ADVANCED_OBSERVING_ENABLED = True yet; implement "
-                "a presentation contract for NSOM Advanced Observing first"
+                "do not set NSOM_ADVANCED_OBSERVING_ENABLED = True yet; review the "
+                "read-only QML property and visible presentation policy first"
             ),
             "reason": (
                 "Planner and NotificationService are protected by the consumer split, "
-                "but the forced-on NSOM Advanced Observing values are still a private "
-                "snapshot with no QML/presentation contract. Enabling the flag now "
-                "would not complete the Advanced Observing migration."
+                "but the forced-on NSOM Advanced Observing values still do not affect "
+                "the visible Advanced Observing UI. Enabling the flag now would not "
+                "complete the Advanced Observing migration."
             ),
         },
         "default_on_blockers": blockers,
@@ -104,10 +105,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit checks whether Advanced Observing NSOM can be "
             "enabled by default after the 1.8.7 consumer split. It does not change "
-            "the flag, tune scores, expose QML, log automatically, call the network "
-            "or write runtime files. Planner and NotificationService are protected "
-            "by legacy-compatible consumer inputs, but the NSOM category values are "
-            "still private diagnostics with no presentation contract."
+            "the flag, tune scores, render visible QML UI, log automatically, call "
+            "the network or write runtime files. Planner and NotificationService are "
+            "protected by legacy-compatible consumer inputs; as of 1.8.14 the NSOM "
+            "category values are available through a read-only property but are not "
+            "consumed by visible UI."
         ),
         "",
         "## Readiness Verdict",
@@ -164,7 +166,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"`{presentation['forced_on_nsom_snapshot_differs_from_legacy']}`.",
             f"- Forced-on NSOM snapshot has presentation effect: "
             f"`{presentation['forced_on_nsom_snapshot_has_presentation_effect']}`.",
-            f"- Hidden snapshot blocks meaningful default-on switch: "
+            f"- No visible UI blocks meaningful default-on switch: "
             f"`{presentation['hidden_snapshot_blocks_meaningful_default_on']}`.",
             f"- Confidence score-neutral: `{presentation['confidence_score_neutral']}`.",
             "",
@@ -224,20 +226,17 @@ def _presentation_decisions(
         ),
         _decision(
             "nsom_snapshot_visibility",
-            status="hidden_internal_only",
-            summary="Do not expose `_advanced_observing_nsom_scores` to QML in this step.",
-            reason="No NSOM presentation copy or explanatory UI contract exists yet.",
+            status="read_only_property_exposed_no_visible_ui",
+            summary="Expose the presentation snapshot through read-only QML, but do not render it in UI.",
+            reason="The property exists for inspection; no visible NSOM presentation is approved yet.",
             blocks_default_on=bool(presentation["hidden_snapshot_blocks_meaningful_default_on"]),
         ),
         _decision(
             "nsom_presentation_contract",
-            status="needs_design_before_default_on",
-            summary="Define whether Advanced Observing NSOM is hidden diagnostics or user-facing category guidance.",
-            reason=(
-                "A default-on switch would otherwise compute private NSOM values without "
-                "changing the displayed Advanced Observing surface."
-            ),
-            blocks_default_on=True,
+            status="implemented_read_only",
+            summary="The Advanced Observing NSOM presentation contract has a read-only QML property.",
+            reason="The property is wired, but visible UI remains a separate decision.",
+            blocks_default_on=False,
         ),
         _decision(
             "score_label_semantics",
@@ -309,9 +308,7 @@ def _presentation_evidence() -> dict[str, object]:
     )
     static_checks = _static_wiring_checks(Path(__file__).parents[2])
     forced_on_differs = nsom_scores != legacy_scores
-    qml_reads_snapshot = bool(static_checks["qml_nsom_matches"]) or bool(
-        static_checks["controller_public_nsom_property_present"]
-    )
+    qml_reads_snapshot = bool(static_checks["qml_nsom_matches"])
     return {
         "legacy_scores": legacy_scores.to_qml(),
         "forced_on_nsom_scores": nsom_scores.to_qml(),
@@ -351,13 +348,14 @@ def _checks(
         }.issubset(decision_ids),
         "existing_qml_payload_remains_legacy_compatible": presentation["public_payload_shape_unchanged"] is True,
         "existing_qml_advanced_scores_still_used": presentation["qml_reads_existing_advanced_scores"] is True,
-        "nsom_snapshot_not_qml_exposed": presentation["qml_reads_nsom_advanced_observing_snapshot"] is False,
+        "nsom_snapshot_not_visible_in_qml": presentation["qml_reads_nsom_advanced_observing_snapshot"] is False,
+        "read_only_qml_property_present": static_checks["controller_public_nsom_property_present"] is True,
         "hidden_snapshot_blocks_default_on": presentation["hidden_snapshot_blocks_meaningful_default_on"] is True,
-        "presentation_contract_blocks_default_on": _decision_by_id(
+        "presentation_contract_available": _decision_by_id(
             decisions,
             "nsom_presentation_contract",
         )["blocks_default_on"]
-        is True,
+        is False,
         "score_label_semantics_blocks_default_on": _decision_by_id(
             decisions,
             "score_label_semantics",
@@ -385,13 +383,14 @@ def _default_on_blockers(
         "required_presentation_decisions_recorded": "advanced-observing-presentation-decisions-incomplete",
         "existing_qml_payload_remains_legacy_compatible": "advanced-observing-payload-shape-regressed",
         "existing_qml_advanced_scores_still_used": "advanced-observing-existing-qml-contract-missing",
-        "nsom_snapshot_not_qml_exposed": "advanced-observing-unplanned-qml-nsom-exposure",
+        "nsom_snapshot_not_visible_in_qml": "advanced-observing-unplanned-visible-qml-nsom-usage",
+        "read_only_qml_property_present": "advanced-observing-read-only-qml-property-missing",
         "hidden_snapshot_blocks_default_on": "advanced-observing-hidden-snapshot-not-recognized",
-        "presentation_contract_blocks_default_on": "advanced-observing-presentation-contract-not-blocking",
+        "presentation_contract_available": "advanced-observing-presentation-contract-missing",
         "score_label_semantics_blocks_default_on": "advanced-observing-score-label-policy-not-blocking",
         "confidence_score_neutral": "advanced-observing-confidence-not-neutral",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
-        "qml_nsom_exposure_absent": "advanced-observing-qml-nsom-exposure",
+        "qml_nsom_exposure_absent": "advanced-observing-visible-qml-nsom-usage",
         "runtime_behaviour_unchanged": "advanced-observing-runtime-behaviour-change",
     }
     blockers.extend(name for key, name in safety_names.items() if checks[key] is not True)

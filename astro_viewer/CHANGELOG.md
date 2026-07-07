@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.8.14 - 2026-07-07
+
+- Aggiunta in `AppController` la property QML read-only
+  `advancedObservingNsom`.
+- La property usa il lifecycle esistente `weatherChanged`, non introduce nuovi
+  signal e legge solo lo snapshot privato
+  `_advanced_observing_nsom_presentation`.
+- Quando `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`, o lo snapshot non e'
+  disponibile, la property restituisce `{}`.
+- Quando il path Advanced Observing NSOM viene forzato internamente, la property
+  espone il payload `advanced_observing_nsom_presentation_v1` gia' proiettato,
+  senza ricomputare al read.
+- Nessuna UI QML visibile legge `advancedObservingNsom`; `advancedScores` resta
+  il contratto Home pubblico usato dalle card esistenti.
+- Aggiornati i report developer-only di readiness/contract/policy per
+  distinguere property QML read-only presente da UI visibile assente.
+- Nessun cambio a Planner, NotificationService, Home Best Object, Sky Compass,
+  scoring, logging, rete o scritture runtime. Il flag
+  `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`.
+
 ## NightScope 1.8.13 - 2026-07-07
 
 - Aggiunto il tool developer-only

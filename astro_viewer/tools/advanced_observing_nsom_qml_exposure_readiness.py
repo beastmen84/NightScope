@@ -36,7 +36,8 @@ def generate_qml_exposure_readiness_data() -> dict[str, object]:
             "runtime_writes": False,
             "automatic_logging": False,
             "network": False,
-            "qml_exposure": False,
+            "qml_exposure": True,
+            "visible_ui_exposure": False,
             "advanced_scores_changed_by_default": False,
             "home_changed": False,
             "best_object_changed": False,
@@ -48,20 +49,20 @@ def generate_qml_exposure_readiness_data() -> dict[str, object]:
             "qml_exposure_readiness_report": str(QML_EXPOSURE_READINESS_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "advanced_observing_nsom_qml_exposure_not_ready",
-            "ready_for_qml_exposure": False,
+            "verdict": "advanced_observing_nsom_read_only_qml_property_available",
+            "ready_for_qml_exposure": True,
             "ready_for_user_visible_ui": False,
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_change": (
-                "define UI copy, score-label semantics and notify-signal lifecycle "
-                "before adding any public `advancedObservingNsom` property"
+                "review the read-only `advancedObservingNsom` property, then decide "
+                "separately whether any visible UI should consume it"
             ),
             "reason": (
-                "The internal projection is JSON-compatible and default-off, but a "
-                "QML surface still needs explicit presentation copy, localization, "
-                "score-display semantics and property lifecycle policy."
+                "The internal projection is now available through a read-only QML "
+                "property using the existing weather lifecycle. No QML UI consumes "
+                "it yet, and visible UI still needs explicit design approval."
             ),
         },
         "default_on_blockers": blockers,
@@ -91,12 +92,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether the internal Advanced Observing "
-            "NSOM presentation payload should be exposed to QML. It does not add a "
-            "QML property, change `advancedScores`, enable "
-            "`NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, log automatically, call "
-            "the network or write runtime files. The 1.8.10 projection exists and "
-            "1.8.11 fixed session metadata fidelity, but a public QML surface is not "
-            "ready until copy, label semantics and property lifecycle are designed."
+            "NSOM presentation payload is safely exposed to QML. As of 1.8.14, "
+            "`advancedObservingNsom` is a read-only property backed by the private "
+            "`_advanced_observing_nsom_presentation` snapshot and the existing "
+            "`weatherChanged` lifecycle. This report does not change `advancedScores`, "
+            "enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, render visible "
+            "UI, log automatically, call the network or write runtime files."
         ),
         "",
         "## Readiness Verdict",
@@ -110,11 +111,14 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Recommended next change: {readiness['recommended_next_change']}.",
         f"- Reason: {readiness['reason']}",
         "",
-        "## Remaining Blockers",
+            "## Remaining Items",
         "",
     ]
-    for blocker in audit["default_on_blockers"]:
-        lines.append(f"- `{blocker}`")
+    if audit["default_on_blockers"]:
+        for blocker in audit["default_on_blockers"]:
+            lines.append(f"- `{blocker}`")
+    else:
+        lines.append("- None for read-only QML exposure; visible UI remains a separate decision.")
 
     lines.extend(
         [
@@ -177,10 +181,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement the next step as UI-copy and lifecycle policy only, or keep "
-                "`advancedObservingNsom` internal. Do not expose a public QML property "
-                "until the notify-signal policy, localization, score-label copy and "
-                "visual placement are approved."
+                "Review the read-only `advancedObservingNsom` property. Keep visible "
+                "UI and any default-on Advanced Observing NSOM switch as separate "
+                "decisions."
             ),
             "",
         ]
@@ -210,24 +213,24 @@ def _qml_exposure_decisions(
         ),
         _decision(
             "public_qml_property",
-            status="blocked_until_lifecycle_policy",
-            summary="Do not add `advancedObservingNsom` as a public QML property yet.",
-            reason="A property needs explicit notify-signal and refresh lifecycle policy.",
-            blocks_qml_exposure=True,
+            status="implemented_read_only",
+            summary="Expose `advancedObservingNsom` as a read-only QML property.",
+            reason="The 1.8.13 lifecycle policy approved using the existing `weatherChanged` signal.",
+            blocks_qml_exposure=False,
         ),
         _decision(
             "visible_ui_copy",
-            status="blocked_until_copy_policy",
+            status="blocks_visible_ui_only",
             summary="Do not render the payload in the Home UI yet.",
             reason="The payload contains developer-facing score semantics and English copy.",
-            blocks_qml_exposure=True,
+            blocks_qml_exposure=False,
         ),
         _decision(
             "score_label_semantics",
-            status="blocked_until_score_display_policy",
+            status="blocks_visible_ui_only",
             summary="Do not show NSOM category values as legacy `/100` actionability scores.",
             reason="The contract defines category diagnostics, not Planner or notification thresholds.",
-            blocks_qml_exposure=True,
+            blocks_qml_exposure=False,
         ),
         _decision(
             "legacy_advanced_scores_contract",
@@ -245,13 +248,13 @@ def _qml_exposure_decisions(
             extra={"score_effect": payload["confidence"]["scoreEffect"]},
         ),
         _decision(
-            "no_current_qml_wiring",
+            "read_only_qml_property_wired",
             status="verified",
-            summary="No current QML or public controller property exposes the payload.",
-            reason="The audit found no QML usage and no `advancedObservingNsom` property.",
+            summary="The controller exposes the payload through a read-only property, but QML UI does not read it.",
+            reason="The audit found the public controller property and no `controller.advancedObservingNsom` QML usage.",
             blocks_qml_exposure=not (
-                static_checks["qml_nsom_matches"] == ()
-                and static_checks["controller_public_property_present"] is False
+                static_checks["controller_public_property_present"] is True
+                and static_checks["qml_nsom_matches"] == ()
             ),
         ),
     )
@@ -289,7 +292,7 @@ def _checks(
     return {
         "default_flag_still_off": NSOM_ADVANCED_OBSERVING_ENABLED is False,
         "contract_runtime_projection_available": contract["checks"]["runtime_projection_available"] is True,
-        "contract_qml_review_still_blocking": "advanced-observing-qml-exposure-review-required"
+        "contract_visible_ui_review_still_blocking": "advanced-observing-visible-ui-review-required"
         in contract["default_on_blockers"],
         "required_qml_exposure_decisions_recorded": {
             "internal_projection_safe_to_keep",
@@ -298,11 +301,11 @@ def _checks(
             "score_label_semantics",
             "legacy_advanced_scores_contract",
             "confidence_metadata",
-            "no_current_qml_wiring",
+            "read_only_qml_property_wired",
         }.issubset(decision_ids),
         "advanced_scores_remains_current_qml_contract": payload["currentQmlProperty"] == "advancedScores",
-        "future_property_not_exposed": static_checks["controller_public_property_present"] is False
-        and static_checks["qml_nsom_matches"] == (),
+        "future_property_exposed_read_only": static_checks["controller_public_property_present"] is True,
+        "visible_qml_usage_absent": static_checks["qml_nsom_matches"] == (),
         "notify_signal_not_introduced": static_checks["controller_public_signal_present"] is False,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "confidence_score_neutral": payload["confidence"]["scoreEffect"] == 0.0,
@@ -322,10 +325,11 @@ def _default_on_blockers(
     safety_names = {
         "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "contract_runtime_projection_available": "advanced-observing-runtime-projection-missing",
-        "contract_qml_review_still_blocking": "advanced-observing-contract-qml-blocker-missing",
+        "contract_visible_ui_review_still_blocking": "advanced-observing-contract-visible-ui-blocker-missing",
         "required_qml_exposure_decisions_recorded": "advanced-observing-qml-decisions-incomplete",
         "advanced_scores_remains_current_qml_contract": "advanced-observing-current-qml-contract-regressed",
-        "future_property_not_exposed": "advanced-observing-unplanned-qml-property",
+        "future_property_exposed_read_only": "advanced-observing-qml-property-missing",
+        "visible_qml_usage_absent": "advanced-observing-unplanned-visible-qml-usage",
         "notify_signal_not_introduced": "advanced-observing-unplanned-qml-signal",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
         "confidence_score_neutral": "advanced-observing-confidence-not-neutral",

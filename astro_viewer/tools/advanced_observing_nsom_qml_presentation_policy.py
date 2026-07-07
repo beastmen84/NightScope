@@ -36,7 +36,8 @@ def generate_qml_presentation_policy_data() -> dict[str, object]:
             "runtime_writes": False,
             "automatic_logging": False,
             "network": False,
-            "qml_exposure": False,
+            "qml_exposure": True,
+            "visible_ui_exposure": False,
             "advanced_scores_changed_by_default": False,
             "home_changed": False,
             "best_object_changed": False,
@@ -48,25 +49,25 @@ def generate_qml_presentation_policy_data() -> dict[str, object]:
             "qml_presentation_policy_report": str(QML_PRESENTATION_POLICY_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "advanced_observing_nsom_qml_policy_defined_not_wired",
-            "policy_status": "defined_developer_only",
+            "verdict": "advanced_observing_nsom_qml_policy_applied_read_only_property",
+            "policy_status": "applied_to_read_only_property",
             "policy_covers_1_8_12_blockers": checks["policy_covers_source_blockers"],
-            "ready_for_runtime_qml_exposure": False,
+            "ready_for_runtime_qml_exposure": True,
             "ready_for_user_visible_ui": False,
             "ready_for_separate_read_only_property_step": checks[
-                "future_read_only_property_policy_defined"
+                "future_read_only_property_wired"
             ],
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_policy": False,
             "recommended_next_change": (
-                "review this policy, then implement a separate default-off read-only "
-                "`advancedObservingNsom` property only if QML exposure is approved"
+                "review the read-only `advancedObservingNsom` property, then decide "
+                "separately whether visible UI or default-on Advanced Observing NSOM should follow"
             ),
             "reason": (
-                "The missing lifecycle, copy and score-label decisions from 1.8.12 "
-                "are now documented, but no public QML property or visible UI is "
-                "implemented in this step."
+                "The lifecycle, copy and score-label decisions from 1.8.13 are now "
+                "applied to a read-only property. No visible UI consumes it and the "
+                "Advanced Observing NSOM flag remains default-off."
             ),
         },
         "remaining_items_before_runtime_qml_exposure": remaining_items,
@@ -94,9 +95,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only policy closes the 1.8.12 presentation-design gap "
-            "for a future Advanced Observing NSOM QML surface. It defines the future "
-            "property name, notify/lifecycle policy, visible-copy boundaries, score "
-            "label semantics and rollback expectation. It does not add a QML property, "
+            "for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy "
+            "is applied to a read-only `advancedObservingNsom` property. The property "
             "does not render visible UI, does not change `advancedScores`, does not "
             "enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at "
             "runtime, log automatically or call the network."
@@ -110,7 +110,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Ready for runtime QML exposure now: `{readiness['ready_for_runtime_qml_exposure']}`.",
         f"- Ready for user-visible UI now: `{readiness['ready_for_user_visible_ui']}`.",
         (
-            "- Ready for separate read-only property step: "
+            "- Read-only property wired: "
             f"`{readiness['ready_for_separate_read_only_property_step']}`."
         ),
         f"- Current default flag: `{readiness['default_flag']}`.",
@@ -208,11 +208,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review this policy. If accepted, implement a separate read-only "
-                "`advancedObservingNsom` property in a later step using the existing "
-                "`weatherChanged` lifecycle and the private "
-                "`_advanced_observing_nsom_presentation` snapshot. Keep visible UI "
-                "and default-on Advanced Observing NSOM as separate decisions."
+                "Review the read-only `advancedObservingNsom` property. Keep visible "
+                "UI and default-on Advanced Observing NSOM as separate decisions."
             ),
             "",
         ]
@@ -238,7 +235,7 @@ def _policy_decisions(readiness: dict[str, object]) -> tuple[dict[str, object], 
             extra={
                 "future_property": "advancedObservingNsom",
                 "current_property": "advancedScores",
-                "implemented_in_this_step": False,
+                "implemented_in_this_step": True,
             },
         ),
         _decision(
@@ -321,8 +318,8 @@ def _policy_decisions(readiness: dict[str, object]) -> tuple[dict[str, object], 
         _decision(
             "source_blockers_addressed_at_policy_level",
             status="verified",
-            summary="The 1.8.12 blocker categories now have explicit policy decisions.",
-            reason="Lifecycle, visible copy and score-label semantics are each covered by this policy.",
+            summary="The 1.8.12 blocker categories now have explicit policy decisions or implementation.",
+            reason="Lifecycle is implemented for the read-only property; visible copy and score-label semantics remain UI-only policy.",
             covers_source_blocker=None,
             extra={"source_blockers": readiness["default_on_blockers"]},
         ),
@@ -369,7 +366,7 @@ def _checks(
     rollback = _decision_by_id(decisions, "rollback_policy")
     return {
         "default_flag_still_off": NSOM_ADVANCED_OBSERVING_ENABLED is False,
-        "source_readiness_was_not_ready": readiness["readiness"]["ready_for_qml_exposure"] is False,
+        "source_readiness_was_not_ready": readiness["readiness"]["ready_for_user_visible_ui"] is False,
         "policy_covers_source_blockers": source_blockers.issubset(covered_blockers),
         "future_property_name_defined": _decision_by_id(
             decisions,
@@ -380,6 +377,8 @@ def _checks(
         and lifecycle["notify_signal"] == "weatherChanged"
         and lifecycle["new_signal_required"] is False
         and lifecycle["recompute_on_property_read"] is False,
+        "future_read_only_property_wired": static_checks["controller_public_property_present"] is True
+        and static_checks["qml_nsom_matches"] == (),
         "visible_ui_copy_policy_defined": copy["visible_ui_approved_now"] is False
         and copy["copy_delivery"] == "localization_keys_or_existing_translation_layer",
         "visible_ui_still_not_approved": visual["implemented_in_this_step"] is False
@@ -396,8 +395,8 @@ def _checks(
         ]
         == "advancedScores",
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
-        "qml_exposure_absent": static_checks["qml_nsom_matches"] == (),
-        "future_property_not_wired": static_checks["controller_public_property_present"] is False,
+        "visible_qml_usage_absent": static_checks["qml_nsom_matches"] == (),
+        "future_property_wired": static_checks["controller_public_property_present"] is True,
         "new_signal_not_wired": static_checks["controller_public_signal_present"] is False,
         "existing_weather_changed_available": static_checks["weather_changed_signal_present"] is True,
         "private_projection_available": static_checks["controller_private_projection_present"] is True,
@@ -408,8 +407,6 @@ def _checks(
 
 def _remaining_items(checks: dict[str, object]) -> tuple[str, ...]:
     items: list[str] = []
-    if checks["qml_exposure_absent"] is True and checks["future_property_not_wired"] is True:
-        items.append("advanced-observing-read-only-qml-property-not-implemented")
     if checks["visible_ui_still_not_approved"] is True:
         items.append("advanced-observing-visible-ui-design-not-approved")
     if checks["default_flag_still_off"] is True:
@@ -417,9 +414,11 @@ def _remaining_items(checks: dict[str, object]) -> tuple[str, ...]:
     safety_names = {
         "policy_covers_source_blockers": "advanced-observing-qml-policy-incomplete",
         "future_read_only_property_policy_defined": "advanced-observing-qml-lifecycle-policy-missing",
+        "future_read_only_property_wired": "advanced-observing-read-only-qml-property-not-implemented",
         "score_label_policy_avoids_legacy_actionability": "advanced-observing-score-label-policy-missing",
         "confidence_score_neutral": "advanced-observing-confidence-not-neutral",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
+        "visible_qml_usage_absent": "advanced-observing-unplanned-visible-qml-usage",
         "new_signal_not_wired": "advanced-observing-unplanned-qml-signal",
         "no_runtime_behaviour_change": "advanced-observing-runtime-behaviour-change",
     }

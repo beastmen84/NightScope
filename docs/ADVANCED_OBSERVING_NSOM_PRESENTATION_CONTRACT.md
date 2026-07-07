@@ -2,22 +2,22 @@
 
 ## Executive Summary
 
-This developer-only contract defines the future QML-safe Advanced Observing NSOM presentation payload. It does not expose QML, change `advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, log automatically, call the network or write runtime files. The contract keeps NSOM category diagnostics separate from legacy scores, Planner inputs and notification thresholds. In `1.8.10`, AppController can project the contract internally when Advanced Observing NSOM is explicitly forced on, but the payload remains private and is not exposed to QML.
+This developer-only contract defines the future QML-safe Advanced Observing NSOM presentation payload. As of 1.8.14, the contract is available through a read-only `advancedObservingNsom` property. It does not change `advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, log automatically, call the network or write runtime files. The contract keeps NSOM category diagnostics separate from legacy scores, Planner inputs and notification thresholds. The property reads the private `_advanced_observing_nsom_presentation` snapshot and no visible QML UI consumes it yet.
 
 ## Readiness Verdict
 
-- Verdict: `advanced_observing_nsom_presentation_runtime_projected_not_qml_exposed`.
+- Verdict: `advanced_observing_nsom_presentation_read_only_qml_property_wired`.
 - Ready for default-on switch: `False`.
 - Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
 - Runtime behaviour changed by this contract: `False`.
-- Contract status: `projected_internal_default_off`.
+- Contract status: `read_only_qml_property_wired_default_off`.
 - Future QML property: `advancedObservingNsom`.
 - Current QML property: `advancedScores`.
-- Recommended next change: Run a separate QML/UI exposure review before any public `advancedObservingNsom` property is added.
+- Recommended next change: Review the read-only `advancedObservingNsom` property before any visible UI or default-on switch is added.
 
 ## Remaining Default-On Blockers
 
-- `advanced-observing-qml-exposure-review-required`
+- `advanced-observing-visible-ui-review-required`
 
 ## Contract Decisions
 
@@ -28,7 +28,7 @@ This developer-only contract defines the future QML-safe Advanced Observing NSOM
 | `observable_value_only` | `accepted` | `False` | Use ObservableTargetValue category diagnostics for Advanced Observing NSOM presentation. |
 | `session_and_confidence_metadata` | `accepted` | `False` | Keep SessionViability and RecommendationConfidence outside category values. |
 | `runtime_projection_implemented_default_off` | `accepted` | `False` | AppController can project the contract internally when the NSOM path is forced on. |
-| `qml_exposure_review_required` | `blocks_default_on` | `True` | QML exposure requires a later UI/review step. |
+| `qml_exposure_review_required` | `read_only_property_implemented` | `False` | Read-only QML exposure is implemented; visible UI still requires later review. |
 | `previous_readiness_blocker_addressed` | `accepted` | `False` | The 1.8.8 presentation-contract blocker is addressed at design level. |
 
 ## Payload Shape
@@ -63,18 +63,18 @@ This developer-only contract defines the future QML-safe Advanced Observing NSOM
 | `observer_and_opportunity_excluded` | `True` |
 | `required_contract_decisions_recorded` | `True` |
 | `runtime_projection_available` | `True` |
-| `qml_exposure_review_still_blocks_default_on` | `True` |
+| `read_only_qml_property_implemented` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `qml_exposure_absent` | `True` |
-| `future_property_not_wired` | `True` |
+| `future_property_wired` | `True` |
 | `runtime_behaviour_unchanged` | `True` |
 
 ## Runtime And QML Wiring
 
 - QML matches: `[]`.
 - Runtime report imports: `[]`.
-- Future property already wired: `False`.
+- Future property already wired: `True`.
 
 ## Recommended Next Step
 
-Implement the next step as a separate QML/UI exposure review. Keep `advancedScores` unchanged and keep `NSOM_ADVANCED_OBSERVING_ENABLED` default-off until the presentation surface is explicitly approved.
+Review the read-only `advancedObservingNsom` property. Keep `advancedScores` unchanged and keep `NSOM_ADVANCED_OBSERVING_ENABLED` default-off until visible presentation and default-on policy are approved.

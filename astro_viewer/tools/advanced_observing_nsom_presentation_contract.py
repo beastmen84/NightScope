@@ -47,7 +47,8 @@ def generate_presentation_contract_data() -> dict[str, object]:
             "runtime_writes": False,
             "automatic_logging": False,
             "network": False,
-            "qml_exposure": False,
+            "qml_exposure": True,
+            "visible_ui_exposure": False,
             "advanced_scores_changed_by_default": False,
             "home_changed": False,
             "best_object_changed": False,
@@ -59,17 +60,17 @@ def generate_presentation_contract_data() -> dict[str, object]:
             "presentation_contract_report": str(PRESENTATION_CONTRACT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "advanced_observing_nsom_presentation_runtime_projected_not_qml_exposed",
+            "verdict": "advanced_observing_nsom_presentation_read_only_qml_property_wired",
             "ready_for_default_on_switch": False,
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_contract": False,
-            "contract_status": "projected_internal_default_off",
+            "contract_status": "read_only_qml_property_wired_default_off",
             "future_qml_property": "advancedObservingNsom",
             "current_qml_property": "advancedScores",
             "recommended_next_change": (
-                "Run a separate QML/UI exposure review before any public "
-                "`advancedObservingNsom` property is added."
+                "Review the read-only `advancedObservingNsom` property before any "
+                "visible UI or default-on switch is added."
             ),
         },
         "default_on_blockers": blockers,
@@ -98,14 +99,14 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only contract defines the future QML-safe Advanced "
-            "Observing NSOM presentation payload. It does not expose QML, change "
-            "`advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, "
-            "log automatically, call the network or write runtime files. The contract "
+            "Observing NSOM presentation payload. As of 1.8.14, the contract is "
+            "available through a read-only `advancedObservingNsom` property. It does "
+            "not change `advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, "
+            "tune scores, log automatically, call the network or write runtime files. The contract "
             "keeps NSOM category diagnostics separate from legacy scores, Planner "
-            "inputs and notification thresholds. In `1.8.10`, AppController can "
-            "project the contract internally when Advanced Observing NSOM is "
-            "explicitly forced on, but the payload remains private and is not "
-            "exposed to QML."
+            "inputs and notification thresholds. The property reads the private "
+            "`_advanced_observing_nsom_presentation` snapshot and no visible QML UI "
+            "consumes it yet."
         ),
         "",
         "## Readiness Verdict",
@@ -205,9 +206,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement the next step as a separate QML/UI exposure review. Keep "
+                "Review the read-only `advancedObservingNsom` property. Keep "
                 "`advancedScores` unchanged and keep `NSOM_ADVANCED_OBSERVING_ENABLED` "
-                "default-off until the presentation surface is explicitly approved."
+                "default-off until visible presentation and default-on policy are approved."
             ),
             "",
         ]
@@ -278,10 +279,10 @@ def _contract_decisions(readiness: dict[str, object]) -> tuple[dict[str, object]
         ),
         _decision(
             "qml_exposure_review_required",
-            status="blocks_default_on",
-            summary="QML exposure requires a later UI/review step.",
-            reason="The contract defines data semantics, not UI placement or visible copy.",
-            blocks_default_on=True,
+            status="read_only_property_implemented",
+            summary="Read-only QML exposure is implemented; visible UI still requires later review.",
+            reason="The property follows the 1.8.13 lifecycle policy and does not render UI.",
+            blocks_default_on=False,
         ),
         _decision(
             "previous_readiness_blocker_addressed",
@@ -363,14 +364,15 @@ def _checks(
             "runtime_projection_implemented_default_off",
         )["blocks_default_on"]
         is False,
-        "qml_exposure_review_still_blocks_default_on": _decision_by_id(
+        "read_only_qml_property_implemented": _decision_by_id(
             decisions,
             "qml_exposure_review_required",
         )["blocks_default_on"]
-        is True,
+        is False
+        and static_checks["future_property_already_wired"] is True,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
-        "future_property_not_wired": static_checks["future_property_already_wired"] is False,
+        "future_property_wired": static_checks["future_property_already_wired"] is True,
         "runtime_behaviour_unchanged": True,
     }
 
@@ -388,11 +390,11 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "required_contract_decisions_recorded": "advanced-observing-contract-decisions-incomplete",
         "runtime_projection_available": "advanced-observing-runtime-projection-not-implemented",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
-        "qml_exposure_absent": "advanced-observing-unplanned-qml-exposure",
-        "future_property_not_wired": "advanced-observing-future-property-already-wired",
+        "qml_exposure_absent": "advanced-observing-unplanned-visible-qml-usage",
+        "future_property_wired": "advanced-observing-future-property-not-wired",
         "runtime_behaviour_unchanged": "advanced-observing-runtime-behaviour-change",
     }
-    blockers = ["advanced-observing-qml-exposure-review-required"]
+    blockers = ["advanced-observing-visible-ui-review-required"]
     blockers.extend(name for key, name in names.items() if checks[key] is not True)
     return tuple(dict.fromkeys(blockers))
 

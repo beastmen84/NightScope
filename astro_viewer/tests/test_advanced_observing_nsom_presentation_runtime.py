@@ -111,6 +111,7 @@ def test_controller_flag_off_does_not_project_advanced_observing_nsom_presentati
     )
     assert controller._advanced_observing_nsom_scores is None
     assert controller._advanced_observing_nsom_presentation is None
+    assert controller._advanced_observing_nsom_payload() == {}
 
 
 def test_controller_forced_on_projects_presentation_without_changing_advanced_scores() -> None:
@@ -144,6 +145,7 @@ def test_controller_forced_on_projects_presentation_without_changing_advanced_sc
     assert values_by_category["deepSky"]["diagnosticValue"] == expected_nsom.deep_sky_score
     assert values_by_category["planetary"]["legacyCompatibilityValue"] == expected_legacy.planetary_score
     assert values_by_category["deepSky"]["legacyCompatibilityValue"] == expected_legacy.deep_sky_score
+    assert controller._advanced_observing_nsom_payload() == payload
 
 
 def test_presentation_session_metadata_matches_monitor_session_state() -> None:
@@ -179,7 +181,7 @@ def test_presentation_projection_does_not_feed_planner_or_notifications() -> Non
     assert notifications.received_scores != controller._advanced_observing_nsom_scores
 
 
-def test_presentation_projection_has_no_qml_property_exposure() -> None:
+def test_presentation_projection_has_read_only_qml_property_but_no_visible_qml_usage() -> None:
     app_root = Path(__file__).parents[1] / "app"
     controller_text = (app_root / "viewmodels" / "app_controller.py").read_text(encoding="utf-8")
     qml_text = "\n".join(
@@ -187,9 +189,17 @@ def test_presentation_projection_has_no_qml_property_exposure() -> None:
         for path in (app_root / "ui").rglob("*.qml")
     )
 
-    assert "def advancedObservingNsom" not in controller_text
-    assert "advancedObservingNsom = Property" not in controller_text
+    assert '@Property("QVariant", notify=weatherChanged)\n    def advancedObservingNsom' in controller_text
+    assert "advancedObservingNsomChanged" not in controller_text
     assert "controller.advancedObservingNsom" not in qml_text
+
+
+def test_advanced_observing_nsom_property_reads_private_snapshot_without_recomputing() -> None:
+    controller = _controller(enabled=True)
+    sentinel = {"schemaVersion": "sentinel", "enabled": True}
+    controller._advanced_observing_nsom_presentation = sentinel
+
+    assert controller._advanced_observing_nsom_payload() is sentinel
 
 
 class _PlannerSpy:

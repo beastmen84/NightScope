@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.13`.
+Versione corrente: `1.8.14`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -357,6 +357,14 @@ valori come diagnostica NSOM, non come score legacy `/100`. La UI visibile e la
 property pubblica non vengono ancora implementate; `advancedScores` resta
 l'unico contratto QML pubblico e `NSOM_ADVANCED_OBSERVING_ENABLED` resta
 `False`.
+Lo step `1.8.14` implementa quella property come superficie QML read-only:
+`AppController.advancedObservingNsom` legge solo lo snapshot privato
+`_advanced_observing_nsom_presentation`, usa il lifecycle `weatherChanged`,
+non introduce nuovi signal e restituisce `{}` quando il path NSOM e' spento o
+lo snapshot non e' disponibile. Nessuna UI QML visibile la consuma ancora:
+`advancedScores` resta il payload delle card Home esistenti, il flag
+`NSOM_ADVANCED_OBSERVING_ENABLED` resta `False` e Planner, NotificationService,
+Best Object e Sky Compass non cambiano.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
