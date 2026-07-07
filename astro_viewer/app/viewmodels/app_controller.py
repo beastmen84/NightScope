@@ -1965,7 +1965,9 @@ class AppController(QObject):
         if not self._weather_summary:
             return ""
         blocking = NightPlannerService.weather_blocking_status(self._weather_summary)
-        return "recommended" if not blocking.show_warning else "discouraged"
+        if not blocking.show_warning:
+            return "recommended"
+        return "monitor" if self._best_usable_observing_window() else "discouraged"
 
     def _advanced_scores_for_planner(self) -> AdvancedObservingScores:
         return self._advanced_scores or self._select_advanced_observing_scores()

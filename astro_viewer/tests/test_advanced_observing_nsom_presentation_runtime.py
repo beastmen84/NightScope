@@ -8,13 +8,14 @@ from types import SimpleNamespace
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
-from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_nsom_presentation import (
     ADVANCED_OBSERVING_NSOM_PRESENTATION_SCHEMA_VERSION,
     build_advanced_observing_nsom_presentation,
 )
 from astro_viewer.app.services.advanced_observing_nsom_service import AdvancedObservingNsomService
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
+from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -145,6 +146,23 @@ def test_controller_forced_on_projects_presentation_without_changing_advanced_sc
     assert values_by_category["deepSky"]["legacyCompatibilityValue"] == expected_legacy.deep_sky_score
 
 
+def test_presentation_session_metadata_matches_monitor_session_state() -> None:
+    controller = _controller(
+        enabled=True,
+        weather=_weather(10, cloud_cover=88, precipitation_probability=80),
+        weather_hours=(
+            _weather_hour("02:00", cloud_cover=88, precipitation_probability=80),
+            _weather_hour("03:00", cloud_cover=24, precipitation_probability=0),
+            _weather_hour("04:00", cloud_cover=24, precipitation_probability=0),
+        ),
+    )
+
+    controller._recalculate_observing_outputs()
+
+    assert controller._advanced_observing_nsom_presentation["session"]["state"] == "monitor"
+    assert controller._observing_session_decision().state == "monitor"
+
+
 def test_presentation_projection_does_not_feed_planner_or_notifications() -> None:
     controller = _controller(enabled=True)
     planner = _PlannerSpy()
@@ -182,6 +200,10 @@ class _PlannerSpy:
         self.received_scores = scores
         return []
 
+    @staticmethod
+    def weather_blocking_status(weather: WeatherSummary):
+        return NightPlannerService.weather_blocking_status(weather)
+
 
 class _NotificationSpy:
     def __init__(self) -> None:
@@ -192,16 +214,21 @@ class _NotificationSpy:
         return []
 
 
-def _controller(*, enabled: bool) -> AppController:
+def _controller(
+    *,
+    enabled: bool,
+    weather: WeatherSummary | None = None,
+    weather_hours: tuple[WeatherHour, ...] = (),
+) -> AppController:
     controller = AppController.__new__(AppController)
     controller._use_nsom_advanced_observing = enabled
     controller._advanced_observing_service = AdvancedObservingService()
     controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
-    controller._weather_summary = _weather(90)
+    controller._weather_summary = weather or _weather(90)
     controller._seeing_transparency = _seeing()
     controller._sky_quality = _sky_quality(9, radiance=120.0)
     controller._moon = _moon(95)
-    controller._weather_hours = []
+    controller._weather_hours = list(weather_hours)
     controller._seeing_service = SimpleNamespace(
         estimate=lambda _hours, _sky_quality: controller._seeing_transparency
     )
@@ -252,17 +279,40 @@ def _nsom_scores(
     return AdvancedObservingNsomService().scores(weather, seeing, sky_quality, moon)
 
 
-def _weather(score: int) -> WeatherSummary:
+def _weather(
+    score: int,
+    *,
+    cloud_cover: int = 10,
+    precipitation_probability: int = 0,
+) -> WeatherSummary:
     return WeatherSummary(
         score="Fixture",
         score_value=score,
         explanation="Advanced Observing NSOM presentation fixture",
-        cloud_cover=10,
-        precipitation_probability=0,
+        cloud_cover=cloud_cover,
+        precipitation_probability=precipitation_probability,
         wind_kmh=5,
         humidity=50,
         temperature_c=12,
         alert="",
+    )
+
+
+def _weather_hour(
+    time: str,
+    *,
+    cloud_cover: int,
+    precipitation_probability: int,
+) -> WeatherHour:
+    return WeatherHour(
+        timestamp=f"2026-06-21T{time}",
+        time=time,
+        cloud_cover=cloud_cover,
+        precipitation_probability=precipitation_probability,
+        wind_kmh=6,
+        humidity=55,
+        temperature_c=18.0,
+        visibility_m=18_000,
     )
 
 

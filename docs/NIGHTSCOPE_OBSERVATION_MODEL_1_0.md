@@ -857,6 +857,15 @@ NotificationService, Best Object or Sky Compass. No QML property is exposed and
 `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`; the only remaining blocker is
 a separate UI/QML exposure review.
 
+Implementation note for 1.8.11: the private Advanced Observing NSOM
+presentation projection now mirrors the controller's existing session state for
+the `monitor` case. If weather is currently blocking but a later usable
+observing window exists, `_advanced_observing_nsom_presentation["session"]`
+reports `monitor` instead of collapsing every warning into `discouraged`.
+Session state remains score-neutral metadata outside `ObservableTargetValue`;
+category values, `advancedScores`, Planner, NotificationService, Best Object,
+Sky Compass and QML exposure are unchanged.
+
 Examples:
 
 - binocular-only profile;

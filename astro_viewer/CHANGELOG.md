@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.8.11 - 2026-07-07
+
+- Rafforzata la proiezione interna/default-off Advanced Observing NSOM
+  introdotta in 1.8.10.
+- Corretta la fedelta' del metadata sessione:
+  `_advanced_observing_nsom_presentation` ora preserva lo stato `monitor` del
+  controller quando il meteo corrente blocca la sessione ma esiste una finestra
+  osservativa utile piu' tardi.
+- Aggiunta copertura regression per la proiezione dello stato `monitor`,
+  mantenendo `SessionViability`/session state come metadata fuori dai valori di
+  categoria.
+- `advancedScores` resta legacy-compatible; non sono stati aggiunti property
+  QML, input Planner, input NotificationService, input Best Object o input Sky
+  Compass.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessun logging, rete
+  o scrittura runtime introdotti.
+
 ## NightScope 1.8.10 - 2026-07-07
 
 - Aggiunto `astro_viewer/app/services/advanced_observing_nsom_presentation.py`,

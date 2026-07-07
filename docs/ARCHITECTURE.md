@@ -433,6 +433,11 @@ property, does not replace `advancedScores`, and is not passed to Planner,
 NotificationService, Home Best Object or Sky Compass. The remaining default-on
 blocker is a separate QML/UI exposure review for any future public
 `advancedObservingNsom` surface.
+`1.8.11` hardens that private projection by aligning the session metadata with
+the controller's existing observing-session policy. A weather-blocked session
+with a later usable observing window is now projected as `monitor`, not
+`discouraged`. This remains metadata outside category values; no QML property or
+new Planner, NotificationService, Best Object or Sky Compass input is added.
 
 ## Dependency Flow
 

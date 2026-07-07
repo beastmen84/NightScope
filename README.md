@@ -335,6 +335,12 @@ NotificationService, Best Object o Sky Compass. Il blocker di proiezione runtime
 e' risolto, mentre l'eventuale esposizione `advancedObservingNsom` resta un
 passaggio separato di review UI/QML. Il flag
 `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`.
+Lo step `1.8.11` fa hardening di quella proiezione interna: il metadata
+sessione del payload privato ora rispecchia anche lo stato `monitor`, usato
+quando il meteo blocca la sessione corrente ma una finestra osservativa utile e'
+prevista piu' tardi. La sessione resta metadata fuori dai valori categoria,
+`advancedScores` resta legacy-compatible e non vengono aggiunte property QML o
+nuovi input per Planner, NotificationService, Best Object o Sky Compass.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
