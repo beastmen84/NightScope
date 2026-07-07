@@ -833,6 +833,18 @@ property exists. Therefore `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`
 until a QML-safe presentation contract and score/label semantics are defined.
 `RecommendationConfidence` remains metadata-only.
 
+Implementation note for 1.8.9: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md` defines the future
+QML-safe contract without wiring it into runtime or QML. The contract introduces
+a separate versioned `advancedObservingNsom` payload, keeps `advancedScores` as
+the legacy-compatible contract, and explicitly excludes Planner,
+NotificationService, Best Object and Sky Compass consumption. Advanced Observing
+category values are defined as `ObservableTargetValue` diagnostics only:
+`ObserverCapability`, `PracticalTargetValue`, `SessionViability`,
+`RecommendationConfidence` and `ObservationOpportunity` stay outside the category
+value. The remaining blockers are runtime projection of the contract and a
+separate QML exposure review.
+
 Examples:
 
 - binocular-only profile;

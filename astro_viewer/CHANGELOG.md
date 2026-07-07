@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.8.9 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_presentation_contract.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md`, contratto
+  per una futura superficie QML-safe separata `advancedObservingNsom`.
+- Definito che il futuro payload NSOM non sostituisce `advancedScores`, non e'
+  input Planner, non e' soglia NotificationService e non alimenta Home Best
+  Object o Sky Compass.
+- Definito che Advanced Observing NSOM usa diagnostiche di categoria da
+  `ObservableTargetValue`; `ObserverCapability`, `PracticalTargetValue`,
+  `SessionViability`, `RecommendationConfidence` e `ObservationOpportunity`
+  restano fuori dal valore categoria.
+- I blocker default-on rimasti sono implementativi: proiezione runtime
+  default-off del nuovo contratto e review separata per eventuale esposizione
+  QML.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessuna esposizione
+  QML, logging, rete o scrittura runtime.
+
 ## NightScope 1.8.8 - 2026-07-07
 
 - Aggiunto il tool developer-only

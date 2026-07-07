@@ -318,6 +318,14 @@ interni, non hanno effetto sulla presentazione QML e non hanno una semantica
 score/label `/100` definita. Il flag resta spento finche' non viene deciso se
 NSOM Advanced Observing resta diagnostica nascosta o diventa una superficie
 QML-safe separata.
+Lo step `1.8.9` definisce quel contratto in
+`docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md`: una futura property
+separata `advancedObservingNsom`, distinta da `advancedScores`, con schema
+versionato, valori categoria da `ObservableTargetValue`, sessione e confidence
+come metadati a effetto score zero, e nessun uso come input Planner,
+NotificationService, Best Object o Sky Compass. Il contratto e' solo
+developer-only: la proiezione runtime e l'eventuale esposizione QML restano step
+separati.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

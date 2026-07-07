@@ -414,6 +414,16 @@ QML continues to render legacy-compatible `advancedScores`, no public NSOM
 property exists, and `/100` score/label semantics for NSOM category diagnostics
 are intentionally unresolved. The flag remains `False` until a presentation
 contract is designed.
+`1.8.9` defines that presentation contract in
+`astro_viewer/tools/advanced_observing_nsom_presentation_contract.py` and
+`docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md`. The future contract is
+a separate, versioned `advancedObservingNsom` payload; it does not replace
+`advancedScores`, does not feed Planner or NotificationService, and does not
+affect Home Best Object or Sky Compass. Category values are documented as
+NSOM `ObservableTargetValue` diagnostics only. `ObserverCapability`,
+`PracticalTargetValue`, `SessionViability`, `RecommendationConfidence` and
+`ObservationOpportunity` remain outside the category value. Runtime projection
+and any QML exposure remain separate future steps.
 
 ## Dependency Flow
 
