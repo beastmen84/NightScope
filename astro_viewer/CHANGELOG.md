@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.8.7 - 2026-07-07
+
+- Implementato lo split dei consumer Advanced Observing NSOM nel controller.
+- `advancedScores` resta il payload legacy-compatible condiviso con QML,
+  Planner e NotificationService.
+- Quando `use_nsom_advanced_observing=True`, il controller calcola i valori
+  Advanced Observing NSOM solo come snapshot interno parallelo
+  `_advanced_observing_nsom_scores`.
+- Planner e NotificationService ricevono input consumer-specifici
+  legacy-compatible, quindi i valori NSOM di categoria non vengono usati come
+  fattore di trasparenza Planner o soglia diretta di notifica.
+- Aggiornato `docs/ADVANCED_OBSERVING_NSOM_DOWNSTREAM_POLICY.md`: i blocker
+  Planner e NotificationService risultano risolti dallo split; resta bloccante
+  la policy di presentazione/QML prima di qualunque default-on.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessuna esposizione
+  QML, logging, rete o scrittura runtime.
+
 ## NightScope 1.8.6 - 2026-07-07
 
 - Aggiunto il tool developer-only

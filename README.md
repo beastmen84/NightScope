@@ -302,6 +302,14 @@ NotificationService non ricevono input consumer-specifici o una policy di split:
 il Planner lo usa come fattore di trasparenza e le notifiche lo usano come
 soglia diretta, quindi i valori NSOM di categoria non possono diventare default
 senza un passaggio dedicato. Il flag Advanced Observing NSOM resta spento.
+Lo step `1.8.7` implementa lo split dei consumer: il payload condiviso
+`advancedScores` resta legacy-compatible per QML, Planner e NotificationService,
+mentre un forced-on Advanced Observing NSOM calcola solo uno snapshot interno
+parallelo `_advanced_observing_nsom_scores`. Planner e notifiche ricevono metodi
+consumer-specifici che ritornano lo score legacy, cosi' i valori NSOM di
+categoria non vengono usati come trasparenza Planner o soglie di notifica. Il
+flag resta `NSOM_ADVANCED_OBSERVING_ENABLED = False`; il blocker default-on
+rimasto e' la policy di presentazione/QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

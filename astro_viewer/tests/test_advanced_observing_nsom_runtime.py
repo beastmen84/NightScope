@@ -38,7 +38,7 @@ def test_flag_off_preserves_legacy_advanced_scores() -> None:
     assert scores == expected
 
 
-def test_forced_on_uses_nsom_advanced_observing_scores() -> None:
+def test_forced_on_keeps_advanced_scores_legacy_and_computes_internal_nsom_scores() -> None:
     controller = _controller(
         enabled=True,
         weather=_weather(90),
@@ -60,11 +60,13 @@ def test_forced_on_uses_nsom_advanced_observing_scores() -> None:
     )
 
     scores = controller._select_advanced_observing_scores()
+    nsom_scores = controller._select_advanced_observing_nsom_scores()
 
-    assert scores == expected
-    assert scores != legacy
-    assert scores.planetary_score == 86
-    assert "NSOM sperimentale" in scores.explanation
+    assert scores == legacy
+    assert nsom_scores == expected
+    assert nsom_scores != scores
+    assert nsom_scores.planetary_score == 86
+    assert "NSOM sperimentale" in nsom_scores.explanation
 
 
 def test_nsom_planetary_score_is_protected_from_moon_and_light_pollution_background() -> None:

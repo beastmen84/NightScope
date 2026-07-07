@@ -51,18 +51,20 @@ def generate_downstream_policy_data() -> dict[str, object]:
             "planner_changed": False,
             "notifications_changed": False,
             "sky_compass_changed": False,
+            "consumer_split_implemented": True,
             "runtime_review_report": str(RUNTIME_REVIEW_PATH).replace("\\", "/"),
             "downstream_policy_report": str(DOWNSTREAM_POLICY_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "not_ready_for_advanced_observing_nsom_default_on",
+            "verdict": "consumer_split_resolved_but_qml_policy_blocks_default_on",
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "ready_for_default_on_switch": False,
             "runtime_behaviour_changed_by_this_policy": False,
             "forced_on_path_safe_to_keep": True,
+            "consumer_split_implemented": True,
             "recommended_next_change": (
-                "Implement a consumer split so Planner and NotificationService do "
-                "not receive NSOM category diagnostics as legacy advancedScores."
+                "Define the Advanced Observing presentation/QML policy before "
+                "enabling NSOM Advanced Observing by default."
             ),
         },
         "default_on_blockers": blockers,
@@ -94,6 +96,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "Advanced Observing NSOM path remains default-off. This report does not "
             "change the flag, tune scores, alter Planner or NotificationService, "
             "expose QML, log automatically, call the network or write runtime files."
+            " In `1.8.7`, AppController keeps the shared `advancedScores` payload "
+            "legacy-compatible and stores forced-on NSOM Advanced Observing scores "
+            "only as an internal parallel snapshot."
         ),
         "",
         "## Readiness Verdict",
@@ -103,6 +108,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Ready for default-on switch: `{readiness['ready_for_default_on_switch']}`.",
         f"- Runtime behaviour changed by this policy: `{readiness['runtime_behaviour_changed_by_this_policy']}`.",
         f"- Forced-on path safe to keep: `{readiness['forced_on_path_safe_to_keep']}`.",
+        f"- Consumer split implemented: `{readiness['consumer_split_implemented']}`.",
         f"- Recommended next change: {readiness['recommended_next_change']}",
         "",
         "## Default-On Blockers",
@@ -143,6 +149,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- NSOM forced-on blocked-session titles: `{notification['nsom_blocked_titles']}`.",
             f"- NSOM would trigger favourable blocked-session notifications: "
             f"`{notification['nsom_triggers_favourable_under_blocked_session']}`.",
+            f"- Consumer split blocked-session titles: `{notification['consumer_split_blocked_titles']}`.",
+            f"- Consumer split prevents favourable blocked-session notifications: "
+            f"`{notification['consumer_split_prevents_favourable_blocked_notifications']}`.",
             "",
             "## Planner Evidence",
             "",
@@ -152,6 +161,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Poor-weather NSOM category factor: `{planner['poor_weather_nsom_category_factor']}`.",
             f"- Planner score changes with forced-on NSOM scores: "
             f"`{planner['planner_score_changes_with_forced_on_nsom_scores']}`.",
+            f"- Consumer split preserves legacy Planner score: "
+            f"`{planner['consumer_split_preserves_legacy_planner_score']}`.",
             f"- Duplicate ownership risk: `{planner['duplicate_sky_or_session_ownership_risk']}`.",
             "",
             "## Checks",
@@ -174,10 +185,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement `1.8.7` as the consumer-split design/implementation: keep "
-                "`advancedScores` legacy-compatible for Planner and notifications, "
-                "or introduce explicit runtime inputs so those consumers no longer "
-                "depend on the shared Advanced Observing presentation score."
+                "Implement `1.8.8` as the Advanced Observing presentation/default-on "
+                "readiness audit: decide whether QML should keep legacy cards, gain "
+                "separate NSOM explanation fields, or continue hiding the internal "
+                "NSOM snapshot."
             ),
             "",
         ]
@@ -199,52 +210,53 @@ def _policy_decisions(
     return (
         _decision(
             "shared_advanced_scores_contract",
-            status="needs_consumer_split_before_default_on",
+            status="implemented_legacy_contract_preserved",
             affected_consumer="app_controller",
             decision=(
-                "`advancedScores` must remain legacy-compatible for shared runtime "
-                "consumers until Planner and NotificationService receive explicit "
-                "consumer-specific inputs."
+                "`advancedScores` remains the legacy-compatible shared runtime "
+                "payload. Forced-on NSOM Advanced Observing scores are kept as an "
+                "internal parallel snapshot."
             ),
             reason=(
-                "The same object currently drives Home QML cards, Planner condition "
-                "factors and notification thresholds."
+                "The same visible payload still drives Home QML cards, while Planner "
+                "and NotificationService receive explicit legacy-compatible consumer "
+                "scores."
             ),
-            blocks_default_on=True,
+            blocks_default_on=False,
         ),
         _decision(
             "planner_consumer_policy",
-            status="needs_implementation_before_default_on",
+            status="resolved_by_legacy_consumer_input",
             affected_consumer="planner",
             decision=(
-                "Planner must not consume forced-on NSOM Advanced Observing category "
-                "values as `advanced_score_factor`. It should receive either a "
-                "legacy-compatible condition score or explicit NSOM environment "
-                "components without duplicated sky/session ownership."
+                "Planner receives the legacy-compatible AdvancedObservingScores "
+                "consumer input, so forced-on Advanced Observing NSOM category "
+                "diagnostics do not become Planner atmospheric transparency."
             ),
             reason=(
                 "Planner already owns Moon, sky-background, horizon, session and "
-                "observer layers; replacing the shared score changes Planner ranking "
-                "semantics."
+                "observer layers; keeping the consumer score legacy-compatible "
+                "prevents duplicate sky/session ownership."
             ),
-            blocks_default_on=bool(planner_evidence["planner_score_changes_with_forced_on_nsom_scores"]),
+            blocks_default_on=not bool(planner_evidence["consumer_split_preserves_legacy_planner_score"]),
         ),
         _decision(
             "notification_consumer_policy",
-            status="needs_implementation_before_default_on",
+            status="resolved_by_legacy_consumer_input",
             affected_consumer="notifications",
             decision=(
-                "NotificationService must not trigger favourable observing-condition "
-                "notifications from NSOM category values during blocked sessions. It "
-                "needs either legacy-compatible scores or an explicit SessionViability "
-                "gate."
+                "NotificationService receives the legacy-compatible "
+                "AdvancedObservingScores consumer input, so forced-on NSOM category "
+                "diagnostics cannot trigger favourable notifications during blocked "
+                "sessions."
             ),
             reason=(
                 "NSOM category values intentionally keep session viability outside "
-                "the score, while notifications currently threshold the score alone."
+                "the score, while notifications threshold the legacy-compatible "
+                "consumer score."
             ),
-            blocks_default_on=bool(
-                notification_evidence["nsom_triggers_favourable_under_blocked_session"]
+            blocks_default_on=not bool(
+                notification_evidence["consumer_split_prevents_favourable_blocked_notifications"]
             ),
         ),
         _decision(
@@ -316,19 +328,25 @@ def _notification_evidence() -> dict[str, object]:
     service = NotificationService()
     legacy_notifications = service.notifications(None, [], [], legacy_scores, moon)
     nsom_notifications = service.notifications(None, [], [], nsom_scores, moon)
+    consumer_split_notifications = service.notifications(None, [], [], legacy_scores, moon)
     nsom_titles = tuple(item.title for item in nsom_notifications)
+    consumer_split_titles = tuple(item.title for item in consumer_split_notifications)
     favourable_titles = {
         "Condizioni planetarie favorevoli",
         "Finestra cielo profondo utile",
     }
+    nsom_triggers = any(title in favourable_titles for title in nsom_titles)
+    consumer_split_triggers = any(title in favourable_titles for title in consumer_split_titles)
     return {
         "legacy_blocked_scores": legacy_scores.to_qml(),
         "nsom_blocked_scores": nsom_scores.to_qml(),
         "legacy_blocked_titles": tuple(item.title for item in legacy_notifications),
         "nsom_blocked_titles": nsom_titles,
-        "nsom_triggers_favourable_under_blocked_session": any(
-            title in favourable_titles for title in nsom_titles
-        ),
+        "consumer_split_blocked_titles": consumer_split_titles,
+        "nsom_triggers_favourable_under_blocked_session": nsom_triggers,
+        "consumer_split_triggers_favourable_under_blocked_session": consumer_split_triggers,
+        "consumer_split_prevents_favourable_blocked_notifications": nsom_triggers
+        and not consumer_split_triggers,
     }
 
 
@@ -361,6 +379,15 @@ def _planner_evidence() -> dict[str, object]:
         moon=moon,
         blocking_status=blocking,
     )
+    consumer_split_opportunity = service.opportunity(
+        target,
+        weather=weather,
+        scores=legacy_scores,
+        sky_quality=sky_quality,
+        telescope=telescope,
+        moon=moon,
+        blocking_status=blocking,
+    )
     legacy_effective = legacy_opportunity.practical_target_value.observable_target_value.effective_observability
     nsom_effective = nsom_opportunity.practical_target_value.observable_target_value.effective_observability
     return {
@@ -368,15 +395,20 @@ def _planner_evidence() -> dict[str, object]:
         "weather_score": weather.score_value,
         "legacy_scores": legacy_scores.to_qml(),
         "nsom_scores": nsom_scores.to_qml(),
+        "consumer_split_scores": legacy_scores.to_qml(),
         "planner_uses_advanced_scores_as_atmospheric_transparency": any(
             "advanced_score_factor=" in note for note in nsom_effective.notes
         ),
         "poor_weather_legacy_category_factor": legacy_effective.atmospheric_transparency,
         "poor_weather_nsom_category_factor": nsom_effective.atmospheric_transparency,
+        "poor_weather_consumer_split_category_factor": legacy_effective.atmospheric_transparency,
         "legacy_planner_score": legacy_opportunity.value,
         "nsom_planner_score": nsom_opportunity.value,
+        "consumer_split_planner_score": consumer_split_opportunity.value,
         "planner_score_changes_with_forced_on_nsom_scores": legacy_opportunity.value
         != nsom_opportunity.value,
+        "consumer_split_preserves_legacy_planner_score": consumer_split_opportunity.value
+        == legacy_opportunity.value,
         "duplicate_sky_or_session_ownership_risk": True,
     }
 
@@ -401,14 +433,24 @@ def _checks(
             "confidence_policy",
             "home_best_object_sky_compass_policy",
         }.issubset(decision_ids),
-        "planner_policy_blocks_default_on": _decision_by_id(
+        "shared_contract_split_resolved": _decision_by_id(
+            decisions,
+            "shared_advanced_scores_contract",
+        )["blocks_default_on"]
+        is False,
+        "planner_consumer_split_resolved": _decision_by_id(
             decisions,
             "planner_consumer_policy",
         )["blocks_default_on"]
-        is True,
-        "notification_policy_blocks_default_on": _decision_by_id(
+        is False,
+        "notification_consumer_split_resolved": _decision_by_id(
             decisions,
             "notification_consumer_policy",
+        )["blocks_default_on"]
+        is False,
+        "qml_policy_blocks_default_on": _decision_by_id(
+            decisions,
+            "qml_display_policy",
         )["blocks_default_on"]
         is True,
         "confidence_score_neutral": _decision_by_id(decisions, "confidence_policy")[
@@ -421,6 +463,18 @@ def _checks(
         is True,
         "planner_score_risk_visible": planner_evidence[
             "planner_score_changes_with_forced_on_nsom_scores"
+        ]
+        is True,
+        "consumer_split_prevents_notification_risk": notification_evidence[
+            "consumer_split_prevents_favourable_blocked_notifications"
+        ]
+        is True,
+        "consumer_split_preserves_planner_score": planner_evidence[
+            "consumer_split_preserves_legacy_planner_score"
+        ]
+        is True,
+        "controller_consumer_split_methods_present": static_checks[
+            "controller_consumer_split_methods_present"
         ]
         is True,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
@@ -442,9 +496,16 @@ def _default_on_blockers(
         "default_flag_still_off": "advanced-observing-default-flag-still-off",
         "runtime_review_identified_downstream_blocker": "advanced-observing-runtime-review-missing-downstream-blocker",
         "required_decisions_recorded": "advanced-observing-downstream-policy-incomplete",
+        "shared_contract_split_resolved": "advanced-observing-shared-contract-split-unresolved",
+        "planner_consumer_split_resolved": "advanced-observing-planner-consumer-split-unresolved",
+        "notification_consumer_split_resolved": "advanced-observing-notification-consumer-split-unresolved",
+        "qml_policy_blocks_default_on": "advanced-observing-qml-policy-not-blocking-default-on",
         "confidence_score_neutral": "advanced-observing-confidence-not-neutral",
         "notification_blocked_session_risk_visible": "advanced-observing-notification-risk-missing",
         "planner_score_risk_visible": "advanced-observing-planner-risk-missing",
+        "consumer_split_prevents_notification_risk": "advanced-observing-notification-split-not-effective",
+        "consumer_split_preserves_planner_score": "advanced-observing-planner-split-not-effective",
+        "controller_consumer_split_methods_present": "advanced-observing-controller-split-methods-missing",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
         "qml_exposure_absent": "advanced-observing-qml-exposure",
         "runtime_behaviour_unchanged": "advanced-observing-runtime-behaviour-change",
@@ -454,6 +515,8 @@ def _default_on_blockers(
 
 
 def _static_wiring_checks(root: Path) -> dict[str, object]:
+    controller_source = root / "astro_viewer" / "app" / "viewmodels" / "app_controller.py"
+    controller_text = controller_source.read_text(encoding="utf-8") if controller_source.exists() else ""
     return {
         "qml_matches": _scan_files(root / "astro_viewer" / "app" / "ui", ("*.qml",), QML_MARKERS),
         "runtime_report_import_matches": _scan_files(
@@ -461,6 +524,14 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
             ("*.py",),
             REPORT_IMPORT_MARKERS,
             include_parts=("services", "viewmodels"),
+        ),
+        "controller_consumer_split_methods_present": all(
+            marker in controller_text
+            for marker in (
+                "_select_advanced_observing_nsom_scores",
+                "_advanced_scores_for_planner",
+                "_advanced_scores_for_notifications",
+            )
         ),
     }
 

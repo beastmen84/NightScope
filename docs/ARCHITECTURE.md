@@ -395,6 +395,15 @@ factor inside NSOM `EffectiveObservability`; NotificationService thresholds it
 directly for favourable observing-condition notifications. Therefore
 `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False` and default-on is blocked
 until those consumers receive explicit consumer-specific inputs or policy gates.
+`1.8.7` implements that consumer split in `AppController`: the public/shared
+`advancedScores` payload remains legacy-compatible, while forced-on Advanced
+Observing NSOM scores are stored only in the internal parallel
+`_advanced_observing_nsom_scores` snapshot. Planner and NotificationService now
+receive explicit legacy-compatible consumer score inputs, so NSOM category
+diagnostics are not reused as Planner atmospheric transparency or notification
+thresholds. The Advanced Observing NSOM flag remains default-off; the remaining
+default-on blocker is the presentation/QML policy for whether and how NSOM
+Advanced Observing diagnostics should ever be shown.
 
 ## Dependency Flow
 

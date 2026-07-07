@@ -2,31 +2,29 @@
 
 ## Executive Summary
 
-This developer-only policy report resolves the consumer question raised by the `1.8.5` runtime review: `advancedScores` is a shared runtime contract read by QML, Planner and NotificationService. The current Advanced Observing NSOM path remains default-off. This report does not change the flag, tune scores, alter Planner or NotificationService, expose QML, log automatically, call the network or write runtime files.
+This developer-only policy report resolves the consumer question raised by the `1.8.5` runtime review: `advancedScores` is a shared runtime contract read by QML, Planner and NotificationService. The current Advanced Observing NSOM path remains default-off. This report does not change the flag, tune scores, alter Planner or NotificationService, expose QML, log automatically, call the network or write runtime files. In `1.8.7`, AppController keeps the shared `advancedScores` payload legacy-compatible and stores forced-on NSOM Advanced Observing scores only as an internal parallel snapshot.
 
 ## Readiness Verdict
 
-- Verdict: `not_ready_for_advanced_observing_nsom_default_on`.
+- Verdict: `consumer_split_resolved_but_qml_policy_blocks_default_on`.
 - Default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
 - Ready for default-on switch: `False`.
 - Runtime behaviour changed by this policy: `False`.
 - Forced-on path safe to keep: `True`.
-- Recommended next change: Implement a consumer split so Planner and NotificationService do not receive NSOM category diagnostics as legacy advancedScores.
+- Consumer split implemented: `True`.
+- Recommended next change: Define the Advanced Observing presentation/QML policy before enabling NSOM Advanced Observing by default.
 
 ## Default-On Blockers
 
-- `advanced-observing-shared-advanced-scores-contract`
-- `advanced-observing-planner-consumer-policy`
-- `advanced-observing-notification-consumer-policy`
 - `advanced-observing-qml-display-policy`
 
 ## Policy Decisions
 
 | Policy | Status | Blocks default-on | Decision |
 | --- | --- | --- | --- |
-| `shared_advanced_scores_contract` | `needs_consumer_split_before_default_on` | `True` | `advancedScores` must remain legacy-compatible for shared runtime consumers until Planner and NotificationService receive explicit consumer-specific inputs. |
-| `planner_consumer_policy` | `needs_implementation_before_default_on` | `True` | Planner must not consume forced-on NSOM Advanced Observing category values as `advanced_score_factor`. It should receive either a legacy-compatible condition score or explicit NSOM environment components without duplicated sky/session ownership. |
-| `notification_consumer_policy` | `needs_implementation_before_default_on` | `True` | NotificationService must not trigger favourable observing-condition notifications from NSOM category values during blocked sessions. It needs either legacy-compatible scores or an explicit SessionViability gate. |
+| `shared_advanced_scores_contract` | `implemented_legacy_contract_preserved` | `False` | `advancedScores` remains the legacy-compatible shared runtime payload. Forced-on NSOM Advanced Observing scores are kept as an internal parallel snapshot. |
+| `planner_consumer_policy` | `resolved_by_legacy_consumer_input` | `False` | Planner receives the legacy-compatible AdvancedObservingScores consumer input, so forced-on Advanced Observing NSOM category diagnostics do not become Planner atmospheric transparency. |
+| `notification_consumer_policy` | `resolved_by_legacy_consumer_input` | `False` | NotificationService receives the legacy-compatible AdvancedObservingScores consumer input, so forced-on NSOM category diagnostics cannot trigger favourable notifications during blocked sessions. |
 | `qml_display_policy` | `deferred_blocking_for_default_on` | `True` | QML may keep the existing payload shape, but a default-on switch needs copy/label policy so NSOM category diagnostics are not read as legacy actionability scores. |
 | `confidence_policy` | `accepted` | `False` | RecommendationConfidence remains metadata-only and must not alter downstream scores. |
 | `home_best_object_sky_compass_policy` | `accepted` | `False` | Home recommendedDeepSky, Best Object and Sky Compass are not changed by this policy step. |
@@ -36,6 +34,8 @@ This developer-only policy report resolves the consumer question raised by the `
 - Legacy blocked-session titles: `[]`.
 - NSOM forced-on blocked-session titles: `['Condizioni planetarie favorevoli', 'Finestra cielo profondo utile']`.
 - NSOM would trigger favourable blocked-session notifications: `True`.
+- Consumer split blocked-session titles: `[]`.
+- Consumer split prevents favourable blocked-session notifications: `True`.
 
 ## Planner Evidence
 
@@ -43,6 +43,7 @@ This developer-only policy report resolves the consumer question raised by the `
 - Poor-weather legacy category factor: `0.43`.
 - Poor-weather NSOM category factor: `0.82`.
 - Planner score changes with forced-on NSOM scores: `True`.
+- Consumer split preserves legacy Planner score: `True`.
 - Duplicate ownership risk: `True`.
 
 ## Checks
@@ -52,11 +53,16 @@ This developer-only policy report resolves the consumer question raised by the `
 | `default_flag_still_off` | `True` |
 | `runtime_review_identified_downstream_blocker` | `True` |
 | `required_decisions_recorded` | `True` |
-| `planner_policy_blocks_default_on` | `True` |
-| `notification_policy_blocks_default_on` | `True` |
+| `shared_contract_split_resolved` | `True` |
+| `planner_consumer_split_resolved` | `True` |
+| `notification_consumer_split_resolved` | `True` |
+| `qml_policy_blocks_default_on` | `True` |
 | `confidence_score_neutral` | `True` |
 | `notification_blocked_session_risk_visible` | `True` |
 | `planner_score_risk_visible` | `True` |
+| `consumer_split_prevents_notification_risk` | `True` |
+| `consumer_split_preserves_planner_score` | `True` |
+| `controller_consumer_split_methods_present` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `qml_exposure_absent` | `True` |
 | `runtime_behaviour_unchanged` | `True` |
@@ -68,4 +74,4 @@ This developer-only policy report resolves the consumer question raised by the `
 
 ## Recommended Next Step
 
-Implement `1.8.7` as the consumer-split design/implementation: keep `advancedScores` legacy-compatible for Planner and notifications, or introduce explicit runtime inputs so those consumers no longer depend on the shared Advanced Observing presentation score.
+Implement `1.8.8` as the Advanced Observing presentation/default-on readiness audit: decide whether QML should keep legacy cards, gain separate NSOM explanation fields, or continue hiding the internal NSOM snapshot.

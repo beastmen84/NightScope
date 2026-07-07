@@ -809,6 +809,19 @@ Planner ranking semantics and could trigger favourable notifications in blocked
 sessions. The Advanced Observing NSOM flag remains default-off and this step
 changes no runtime behaviour.
 
+Implementation note for 1.8.7: `AppController` now applies the downstream
+consumer split. The shared `advancedScores` payload remains the
+legacy-compatible presentation/consumer contract for QML, Planner and
+NotificationService. When the internal Advanced Observing NSOM flag is forced on,
+NSOM category values are computed only as the private
+`_advanced_observing_nsom_scores` snapshot. Planner and NotificationService
+receive explicit legacy-compatible score inputs, so `ObservableTargetValue`
+category diagnostics are not reused as Planner atmospheric transparency or
+notification thresholds. `RecommendationConfidence` remains score-neutral, no
+QML fields are exposed and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
+The remaining blocker before any Advanced Observing NSOM default-on switch is
+the presentation/QML policy.
+
 Examples:
 
 - binocular-only profile;

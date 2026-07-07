@@ -257,6 +257,7 @@ class AppController(QObject):
         self._nasa_aod_result = NasaAodResult.no_location()
         self._seeing_transparency = None
         self._advanced_scores = None
+        self._advanced_observing_nsom_scores = None
         self._night_plan = []
         self._sky_map = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
@@ -1694,6 +1695,7 @@ class AppController(QObject):
         self._sky_quality = SkyQuality(0, 0.0, 0.0, "Nessuna fonte", "n/d", "n/d")
         self._seeing_transparency = SeeingTransparency("n/d", "n/d", 0, 0, "Configura una posizione.", "n/d", "n/d")
         self._advanced_scores = AdvancedObservingScores(0, 0, "n/d", "n/d", "Configura una posizione.")
+        self._advanced_observing_nsom_scores = None
         self._best_object = None
         self._night_plan = []
         self._sky_map = []
@@ -1902,6 +1904,7 @@ class AppController(QObject):
     def _recalculate_observing_outputs(self) -> None:
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
         self._advanced_scores = self._select_advanced_observing_scores()
+        self._advanced_observing_nsom_scores = self._select_advanced_observing_nsom_scores()
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
@@ -1909,7 +1912,7 @@ class AppController(QObject):
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
-            self._advanced_scores,
+            self._advanced_scores_for_planner(),
             self._sky_quality,
             self._current_telescope(),
             self._moon,
@@ -1920,25 +1923,34 @@ class AppController(QObject):
             self._best_object,
             self._night_plan,
             self._events,
-            self._advanced_scores,
+            self._advanced_scores_for_notifications(),
             self._moon,
         )
         self._refresh_nsom_diagnostics()
 
     def _select_advanced_observing_scores(self) -> AdvancedObservingScores:
+        return self._advanced_observing_service.scores(
+            self._weather_summary,
+            self._seeing_transparency,
+            self._sky_quality,
+            self._moon,
+        )
+
+    def _select_advanced_observing_nsom_scores(self) -> AdvancedObservingScores | None:
         if not getattr(self, "_use_nsom_advanced_observing", False):
-            return self._advanced_observing_service.scores(
-                self._weather_summary,
-                self._seeing_transparency,
-                self._sky_quality,
-                self._moon,
-            )
+            return None
         return self._advanced_observing_nsom_service.scores(
             self._weather_summary,
             self._seeing_transparency,
             self._sky_quality,
             self._moon,
         )
+
+    def _advanced_scores_for_planner(self) -> AdvancedObservingScores:
+        return self._advanced_scores or self._select_advanced_observing_scores()
+
+    def _advanced_scores_for_notifications(self) -> AdvancedObservingScores:
+        return self._advanced_scores or self._select_advanced_observing_scores()
 
     def _select_best_object(self, planning_objects: list[CelestialObject]) -> CelestialObject | None:
         if not self._weather_summary:
