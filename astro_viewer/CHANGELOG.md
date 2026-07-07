@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.8.5 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_runtime_review.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_RUNTIME_REVIEW.md`, review del path
+  Advanced Observing NSOM forced-on introdotto in 1.8.4.
+- Il report confronta punteggi legacy e forced-on NSOM sugli scenari
+  deterministici gia' usati per Advanced Observing, verificando JSON stretto,
+  payload compatibile, confidence neutra, sessione fuori dallo score, protezione
+  planetaria da Moon/light-pollution background e sensibilita' deep-sky.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; il default runtime
+  resta legacy.
+- Emerso blocker esplicito per default-on: `advancedScores` e' condiviso con
+  QML, Planner e NotificationService, quindi una futura attivazione deve
+  decidere se questi consumer usano, ignorano o ricevono una copia
+  legacy-compatible degli score avanzati.
+- Nessun cambiamento runtime a formule, flag, Home, Best Object, Planner, Sky
+  Compass, QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.8.4 - 2026-07-07
 
 - Aggiunto `astro_viewer/app/services/advanced_observing_nsom_service.py`, path

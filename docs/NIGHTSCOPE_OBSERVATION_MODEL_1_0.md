@@ -16,7 +16,8 @@ with explicit internal rollback paths. `AdvancedObservingService` remains a
 legacy score surface, with a developer-only NSOM comparison layer added in
 `1.8.0`, a static comparison report added in `1.8.1`, a review checkpoint in
 `1.8.2`, a policy/readiness report added in `1.8.3` and a default-off runtime
-path added in `1.8.4`.
+path added in `1.8.4`. The forced-on runtime path is reviewed in `1.8.5`, but
+the flag remains default-off.
 
 ## Core Diagram
 
@@ -784,6 +785,17 @@ and globular cluster references. `SessionViability` and
 scores; `ObserverCapability` is still deferred for Advanced Observing. This step
 does not add QML fields, report runtime wiring, logging, network work or
 runtime file writes.
+
+Implementation note for 1.8.5: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_RUNTIME_REVIEW.md` reviews the forced-on
+Advanced Observing NSOM path against the legacy path. It confirms the path is
+safe to keep while default-off: payload shape remains compatible, confidence is
+score-neutral, session viability does not cap/multiply category values,
+planetary category values are protected from Moon/light-pollution background,
+and deep-sky remains sensitive to sky background. The report also records that
+default-on is not ready: `advancedScores` is a shared runtime input consumed by
+QML, Planner and NotificationService, so those downstream consumers need an
+explicit policy before `NSOM_ADVANCED_OBSERVING_ENABLED` can change.
 
 Examples:
 
@@ -1647,6 +1659,9 @@ A future `ObserverCapabilityService` should own:
   has no blocker for a separate default-off NSOM runtime path.
 - Status update for 1.8.4: AdvancedObserving now has an internal default-off
   NSOM runtime path with legacy default and no QML exposure.
+- Status update for 1.8.5: AdvancedObserving forced-on runtime review is
+  documented; the path is safe to keep but blocked for default-on by shared
+  `advancedScores` downstream consumers.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 
