@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.8.10 - 2026-07-07
+
+- Aggiunto `astro_viewer/app/services/advanced_observing_nsom_presentation.py`,
+  builder interno del payload `advancedObservingNsom` definito dal contratto
+  1.8.9.
+- `AppController` ora puo' proiettare il payload NSOM Advanced Observing solo
+  quando `use_nsom_advanced_observing=True`, salvandolo nello snapshot privato
+  `_advanced_observing_nsom_presentation`.
+- Il payload condiviso `advancedScores` resta legacy-compatible e continua a
+  essere l'unico dato pubblico letto da QML, Planner e NotificationService.
+- Aggiornato `docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md`: il
+  blocker `advanced-observing-runtime-projection-not-implemented` e' risolto;
+  resta il blocker separato `advanced-observing-qml-exposure-review-required`.
+- Aggiunti test per JSON stretto, proiezione forced-on/off, consumer legacy
+  invariati e assenza di property QML.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessuna esposizione
+  QML, logging, rete o scrittura runtime.
+
 ## NightScope 1.8.9 - 2026-07-07
 
 - Aggiunto il tool developer-only

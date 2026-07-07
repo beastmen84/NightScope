@@ -842,8 +842,20 @@ NotificationService, Best Object and Sky Compass consumption. Advanced Observing
 category values are defined as `ObservableTargetValue` diagnostics only:
 `ObserverCapability`, `PracticalTargetValue`, `SessionViability`,
 `RecommendationConfidence` and `ObservationOpportunity` stay outside the category
-value. The remaining blockers are runtime projection of the contract and a
-separate QML exposure review.
+value. As of 1.8.10, runtime projection is implemented internally/default-off;
+the remaining blocker is a separate QML exposure review.
+
+Implementation note for 1.8.10: `AppController` now has an internal/default-off
+runtime projection for the 1.8.9 Advanced Observing NSOM presentation contract.
+When `use_nsom_advanced_observing=True` is forced in development, the controller
+stores `_advanced_observing_nsom_presentation`, built by
+`astro_viewer/app/services/advanced_observing_nsom_presentation.py`. The payload
+keeps category values as `ObservableTargetValue` diagnostics, keeps
+`SessionViability` and `RecommendationConfidence` as score-neutral metadata,
+does not replace `advancedScores`, and is not consumed by Planner,
+NotificationService, Best Object or Sky Compass. No QML property is exposed and
+`NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`; the only remaining blocker is
+a separate UI/QML exposure review.
 
 Examples:
 

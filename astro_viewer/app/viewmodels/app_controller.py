@@ -36,6 +36,9 @@ from astro_viewer.app.services.advanced_observing_nsom_service import (
     AdvancedObservingNsomService,
     NSOM_ADVANCED_OBSERVING_ENABLED,
 )
+from astro_viewer.app.services.advanced_observing_nsom_presentation import (
+    build_advanced_observing_nsom_presentation,
+)
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
     EarthdataConnectionTester,
@@ -258,6 +261,7 @@ class AppController(QObject):
         self._seeing_transparency = None
         self._advanced_scores = None
         self._advanced_observing_nsom_scores = None
+        self._advanced_observing_nsom_presentation = None
         self._night_plan = []
         self._sky_map = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
@@ -1696,6 +1700,7 @@ class AppController(QObject):
         self._seeing_transparency = SeeingTransparency("n/d", "n/d", 0, 0, "Configura una posizione.", "n/d", "n/d")
         self._advanced_scores = AdvancedObservingScores(0, 0, "n/d", "n/d", "Configura una posizione.")
         self._advanced_observing_nsom_scores = None
+        self._advanced_observing_nsom_presentation = None
         self._best_object = None
         self._night_plan = []
         self._sky_map = []
@@ -1905,6 +1910,7 @@ class AppController(QObject):
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
         self._advanced_scores = self._select_advanced_observing_scores()
         self._advanced_observing_nsom_scores = self._select_advanced_observing_nsom_scores()
+        self._advanced_observing_nsom_presentation = self._select_advanced_observing_nsom_presentation()
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
@@ -1945,6 +1951,21 @@ class AppController(QObject):
             self._sky_quality,
             self._moon,
         )
+
+    def _select_advanced_observing_nsom_presentation(self) -> dict[str, object] | None:
+        if not getattr(self, "_use_nsom_advanced_observing", False):
+            return None
+        return build_advanced_observing_nsom_presentation(
+            self._advanced_observing_nsom_scores,
+            self._advanced_scores,
+            session_state=self._advanced_observing_nsom_session_state(),
+        )
+
+    def _advanced_observing_nsom_session_state(self) -> str:
+        if not self._weather_summary:
+            return ""
+        blocking = NightPlannerService.weather_blocking_status(self._weather_summary)
+        return "recommended" if not blocking.show_warning else "discouraged"
 
     def _advanced_scores_for_planner(self) -> AdvancedObservingScores:
         return self._advanced_scores or self._select_advanced_observing_scores()

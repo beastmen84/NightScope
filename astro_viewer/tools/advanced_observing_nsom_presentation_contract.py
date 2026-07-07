@@ -6,6 +6,10 @@ from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.services.advanced_observing_nsom_presentation import (
+    ADVANCED_OBSERVING_NSOM_PRESENTATION_SCHEMA_VERSION as SCHEMA_VERSION,
+    build_advanced_observing_nsom_presentation,
+)
 from astro_viewer.app.services.advanced_observing_nsom_service import (
     NSOM_ADVANCED_OBSERVING_ENABLED,
     AdvancedObservingNsomService,
@@ -17,7 +21,6 @@ from astro_viewer.tools.advanced_observing_nsom_presentation_readiness import (
 )
 
 PRESENTATION_CONTRACT_PATH = Path("docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_CONTRACT.md")
-SCHEMA_VERSION = "advanced_observing_nsom_presentation_v1"
 
 REPORT_IMPORT_MARKERS = (
     "advanced_observing_nsom_presentation_contract",
@@ -56,17 +59,17 @@ def generate_presentation_contract_data() -> dict[str, object]:
             "presentation_contract_report": str(PRESENTATION_CONTRACT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "advanced_observing_nsom_presentation_contract_defined_not_wired",
+            "verdict": "advanced_observing_nsom_presentation_runtime_projected_not_qml_exposed",
             "ready_for_default_on_switch": False,
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_contract": False,
-            "contract_status": "defined_developer_only",
+            "contract_status": "projected_internal_default_off",
             "future_qml_property": "advancedObservingNsom",
             "current_qml_property": "advancedScores",
             "recommended_next_change": (
-                "Implement a default-off `advancedObservingNsom` runtime property "
-                "using this contract, while leaving `advancedScores` legacy-compatible."
+                "Run a separate QML/UI exposure review before any public "
+                "`advancedObservingNsom` property is added."
             ),
         },
         "default_on_blockers": blockers,
@@ -99,7 +102,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "`advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, "
             "log automatically, call the network or write runtime files. The contract "
             "keeps NSOM category diagnostics separate from legacy scores, Planner "
-            "inputs and notification thresholds."
+            "inputs and notification thresholds. In `1.8.10`, AppController can "
+            "project the contract internally when Advanced Observing NSOM is "
+            "explicitly forced on, but the payload remains private and is not "
+            "exposed to QML."
         ),
         "",
         "## Readiness Verdict",
@@ -199,9 +205,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement `1.8.10` as a default-off runtime projection for the "
-                "`advancedObservingNsom` contract. Keep `advancedScores` unchanged "
-                "and do not expose the new property to QML until a separate UI review."
+                "Implement the next step as a separate QML/UI exposure review. Keep "
+                "`advancedScores` unchanged and keep `NSOM_ADVANCED_OBSERVING_ENABLED` "
+                "default-off until the presentation surface is explicitly approved."
             ),
             "",
         ]
@@ -223,117 +229,13 @@ def _contract_payload_example() -> dict[str, object]:
     moon = _moon(95)
     legacy_scores = AdvancedObservingService().scores(weather, seeing, sky_quality, moon)
     nsom_scores = AdvancedObservingNsomService().scores(weather, seeing, sky_quality, moon)
-    return {
-        "schemaVersion": SCHEMA_VERSION,
-        "runtimeState": "contract_only_not_wired",
-        "currentQmlProperty": "advancedScores",
-        "futureQmlProperty": "advancedObservingNsom",
-        "summary": {
-            "title": "Advanced Observing NSOM",
-            "status": "diagnostic_presentation_contract",
-            "displayPolicy": "separate_from_legacy_advanced_scores",
-            "scoreSemantics": (
-                "Category diagnostics from NSOM ObservableTargetValue; not an "
-                "actionability score, Planner input or notification threshold."
-            ),
-        },
-        "categories": (
-            _category_payload(
-                "planetary",
-                "Planetary conditions",
-                nsom_scores.planetary_score,
-                legacy_scores.planetary_score,
-                nsom_scores.planetary_label,
-                legacy_scores.planetary_label,
-                included_sky_components=(
-                    "geometric_visibility",
-                    "horizon_context",
-                    "atmospheric_transparency_from_seeing",
-                    "planetary_moon_background_protected",
-                    "planetary_static_sky_background_protected",
-                ),
-            ),
-            _category_payload(
-                "deepSky",
-                "Deep-sky conditions",
-                nsom_scores.deep_sky_score,
-                legacy_scores.deep_sky_score,
-                nsom_scores.deep_sky_label,
-                legacy_scores.deep_sky_label,
-                included_sky_components=(
-                    "geometric_visibility",
-                    "horizon_context",
-                    "atmospheric_transparency_from_transparency",
-                    "lunar_sky_background",
-                    "static_sky_background",
-                ),
-            ),
-        ),
-        "session": {
-            "included": True,
-            "placement": "metadata_outside_category_value",
-            "scoreEffect": 0.0,
-            "semantics": "actionability and caution text only",
-        },
-        "confidence": {
-            "included": True,
-            "placement": "metadata_outside_category_value",
-            "scoreEffect": 0.0,
-            "semantics": "source trust only",
-        },
-        "consumerPolicy": {
-            "replacesAdvancedScores": False,
-            "plannerInput": False,
-            "notificationInput": False,
-            "homeBestObjectInput": False,
-            "skyCompassInput": False,
-        },
-        "runtimeSafety": {
-            "defaultOff": True,
-            "noRuntimeFileWrites": True,
-            "noAutomaticLogging": True,
-            "noNetwork": True,
-            "noMutationOfRuntimeObjects": True,
-        },
-    }
-
-
-def _category_payload(
-    category_id: str,
-    title: str,
-    diagnostic_value: int,
-    legacy_value: int,
-    label: str,
-    legacy_label: str,
-    *,
-    included_sky_components: tuple[str, ...],
-) -> dict[str, object]:
-    return {
-        "id": category_id,
-        "title": title,
-        "diagnosticValue": diagnostic_value,
-        "diagnosticLabel": label,
-        "legacyCompatibilityValue": legacy_value,
-        "legacyCompatibilityLabel": legacy_label,
-        "scoreMeaning": "NSOM ObservableTargetValue category diagnostic",
-        "scoreRange": "0..100",
-        "mathPipeline": (
-            "IntrinsicTargetQuality",
-            "ObservationEnvironment",
-            "EffectiveObservability",
-            "ObservableTargetValue",
-        ),
-        "includedSkyComponents": included_sky_components,
-        "excludedFromCategoryValue": (
-            "ObserverCapability",
-            "PracticalTargetValue",
-            "SessionViability",
-            "RecommendationConfidence",
-            "ObservationOpportunity",
-        ),
-        "positiveFactors": (),
-        "limitingFactors": (),
-    }
+    return build_advanced_observing_nsom_presentation(
+        nsom_scores,
+        legacy_scores,
+        session_state="recommended",
+        confidence_value=1.0,
+        runtime_state="default_off_internal_projection",
+    )
 
 
 def _contract_decisions(readiness: dict[str, object]) -> tuple[dict[str, object], ...]:
@@ -368,11 +270,11 @@ def _contract_decisions(readiness: dict[str, object]) -> tuple[dict[str, object]
             extra={"confidence_score_effect": 0.0, "session_score_effect": 0.0},
         ),
         _decision(
-            "runtime_projection_not_implemented",
-            status="blocks_default_on",
-            summary="The future payload is designed but not yet projected by AppController.",
-            reason="Default-on requires a runtime projection that follows this contract.",
-            blocks_default_on=True,
+            "runtime_projection_implemented_default_off",
+            status="accepted",
+            summary="AppController can project the contract internally when the NSOM path is forced on.",
+            reason="The projection follows the contract while remaining private and default-off.",
+            blocks_default_on=False,
         ),
         _decision(
             "qml_exposure_review_required",
@@ -432,12 +334,12 @@ def _checks(
         and payload["consumerPolicy"]["notificationInput"] is False,
         "categories_use_observable_value_only": all(
             category["mathPipeline"]
-            == (
+            == [
                 "IntrinsicTargetQuality",
                 "ObservationEnvironment",
                 "EffectiveObservability",
                 "ObservableTargetValue",
-            )
+            ]
             for category in categories
         ),
         "session_and_confidence_are_metadata": payload["session"]["scoreEffect"] == 0.0
@@ -452,15 +354,15 @@ def _checks(
             "advanced_scores_legacy_compatibility",
             "observable_value_only",
             "session_and_confidence_metadata",
-            "runtime_projection_not_implemented",
+            "runtime_projection_implemented_default_off",
             "qml_exposure_review_required",
             "previous_readiness_blocker_addressed",
         }.issubset(decision_ids),
-        "runtime_projection_still_blocks_default_on": _decision_by_id(
+        "runtime_projection_available": _decision_by_id(
             decisions,
-            "runtime_projection_not_implemented",
+            "runtime_projection_implemented_default_off",
         )["blocks_default_on"]
-        is True,
+        is False,
         "qml_exposure_review_still_blocks_default_on": _decision_by_id(
             decisions,
             "qml_exposure_review_required",
@@ -484,15 +386,13 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "session_and_confidence_are_metadata": "advanced-observing-contract-metadata-score-effect",
         "observer_and_opportunity_excluded": "advanced-observing-contract-opportunity-leak",
         "required_contract_decisions_recorded": "advanced-observing-contract-decisions-incomplete",
+        "runtime_projection_available": "advanced-observing-runtime-projection-not-implemented",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
         "qml_exposure_absent": "advanced-observing-unplanned-qml-exposure",
         "future_property_not_wired": "advanced-observing-future-property-already-wired",
         "runtime_behaviour_unchanged": "advanced-observing-runtime-behaviour-change",
     }
-    blockers = [
-        "advanced-observing-runtime-projection-not-implemented",
-        "advanced-observing-qml-exposure-review-required",
-    ]
+    blockers = ["advanced-observing-qml-exposure-review-required"]
     blockers.extend(name for key, name in names.items() if checks[key] is not True)
     return tuple(dict.fromkeys(blockers))
 

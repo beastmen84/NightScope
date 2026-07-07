@@ -326,6 +326,15 @@ come metadati a effetto score zero, e nessun uso come input Planner,
 NotificationService, Best Object o Sky Compass. Il contratto e' solo
 developer-only: la proiezione runtime e l'eventuale esposizione QML restano step
 separati.
+Lo step `1.8.10` implementa la proiezione runtime interna/default-off di quel
+contratto in `astro_viewer/app/services/advanced_observing_nsom_presentation.py`.
+Quando `use_nsom_advanced_observing=True`, `AppController` salva un payload
+privato `_advanced_observing_nsom_presentation` coerente con il contratto; non
+aggiunge property QML, non sostituisce `advancedScores` e non alimenta Planner,
+NotificationService, Best Object o Sky Compass. Il blocker di proiezione runtime
+e' risolto, mentre l'eventuale esposizione `advancedObservingNsom` resta un
+passaggio separato di review UI/QML. Il flag
+`NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

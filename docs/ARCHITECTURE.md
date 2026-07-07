@@ -424,6 +424,15 @@ NSOM `ObservableTargetValue` diagnostics only. `ObserverCapability`,
 `PracticalTargetValue`, `SessionViability`, `RecommendationConfidence` and
 `ObservationOpportunity` remain outside the category value. Runtime projection
 and any QML exposure remain separate future steps.
+`1.8.10` adds that runtime projection in
+`astro_viewer/app/services/advanced_observing_nsom_presentation.py` and stores
+it in AppController only as the private `_advanced_observing_nsom_presentation`
+snapshot when `use_nsom_advanced_observing=True` is forced internally. The
+projection follows the 1.8.9 contract, remains default-off, is not a QML
+property, does not replace `advancedScores`, and is not passed to Planner,
+NotificationService, Home Best Object or Sky Compass. The remaining default-on
+blocker is a separate QML/UI exposure review for any future public
+`advancedObservingNsom` surface.
 
 ## Dependency Flow
 
