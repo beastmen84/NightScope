@@ -235,7 +235,7 @@ def _contract_payload_example() -> dict[str, object]:
         legacy_scores,
         session_state="recommended",
         confidence_value=1.0,
-        runtime_state="default_off_internal_projection",
+        runtime_state="default_on_internal_projection",
     )
 
 

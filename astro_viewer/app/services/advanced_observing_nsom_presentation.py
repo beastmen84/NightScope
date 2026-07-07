@@ -14,7 +14,7 @@ def build_advanced_observing_nsom_presentation(
     *,
     session_state: str = "",
     confidence_value: float | None = None,
-    runtime_state: str = "default_off_internal_projection",
+    runtime_state: str = "default_on_internal_projection",
 ) -> dict[str, object]:
     """Project internal Advanced Observing NSOM scores into the agreed contract.
 
@@ -31,9 +31,9 @@ def build_advanced_observing_nsom_presentation(
         "summary": {
             "title": "Advanced Observing NSOM",
             "status": (
-                "internal_default_off_projection"
+                runtime_state
                 if nsom_scores
-                else "disabled_default_off_internal_projection"
+                else "disabled_internal_projection"
             ),
             "displayPolicy": "separate_from_legacy_advanced_scores",
             "scoreSemantics": (
@@ -64,7 +64,7 @@ def build_advanced_observing_nsom_presentation(
             "skyCompassInput": False,
         },
         "runtimeSafety": {
-            "defaultOff": True,
+            "defaultOff": False,
             "noRuntimeFileWrites": True,
             "noAutomaticLogging": True,
             "noNetwork": True,

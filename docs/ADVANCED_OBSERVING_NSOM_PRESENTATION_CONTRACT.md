@@ -34,7 +34,7 @@ This developer-only contract defines the future QML-safe Advanced Observing NSOM
 ## Payload Shape
 
 - Schema version: `advanced_observing_nsom_presentation_v1`.
-- Runtime state: `default_off_internal_projection`.
+- Runtime state: `default_on_internal_projection`.
 - Replaces `advancedScores`: `False`.
 - Planner input: `False`.
 - Notification input: `False`.

@@ -38,7 +38,7 @@ def test_presentation_contract_data_is_deterministic_strict_json_and_developer_o
     }
 
 
-def test_presentation_contract_defines_separate_payload_without_default_on() -> None:
+def test_presentation_contract_defines_separate_payload_with_backend_default_on() -> None:
     data = generate_presentation_contract_data()
     readiness = data["readiness"]
 
@@ -67,7 +67,7 @@ def test_contract_payload_shape_and_consumer_policy_are_explicit() -> None:
         "skyCompassInput": False,
     }
     assert payload["runtimeSafety"] == {
-        "defaultOff": True,
+        "defaultOff": False,
         "noRuntimeFileWrites": True,
         "noAutomaticLogging": True,
         "noNetwork": True,

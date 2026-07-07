@@ -37,6 +37,7 @@ def test_disabled_presentation_projection_is_strict_json_and_private() -> None:
     assert payload["schemaVersion"] == ADVANCED_OBSERVING_NSOM_PRESENTATION_SCHEMA_VERSION
     assert payload["runtimeState"] == "disabled"
     assert payload["enabled"] is False
+    assert payload["runtimeSafety"]["defaultOff"] is False
     assert payload["categories"] == []
     assert payload["currentQmlProperty"] == "advancedScores"
     assert payload["futureQmlProperty"] == "advancedObservingNsom"
@@ -60,7 +61,7 @@ def test_enabled_presentation_projection_matches_contract_layers() -> None:
 
     json.dumps(payload, sort_keys=True, allow_nan=False)
 
-    assert payload["runtimeState"] == "default_off_internal_projection"
+    assert payload["runtimeState"] == "default_on_internal_projection"
     assert payload["enabled"] is True
     assert {category["id"] for category in payload["categories"]} == {"planetary", "deepSky"}
     for category in payload["categories"]:
@@ -143,7 +144,7 @@ def test_controller_forced_on_projects_presentation_without_changing_advanced_sc
     assert controller._advanced_observing_nsom_scores == expected_nsom
     assert controller._advanced_observing_nsom_scores != controller._advanced_scores
     assert payload["enabled"] is True
-    assert payload["runtimeState"] == "default_off_internal_projection"
+    assert payload["runtimeState"] == "default_on_internal_projection"
     assert payload["consumerPolicy"]["replacesAdvancedScores"] is False
     values_by_category = {category["id"]: category for category in payload["categories"]}
     assert values_by_category["planetary"]["diagnosticValue"] == expected_nsom.planetary_score
@@ -176,6 +177,9 @@ def test_controller_default_path_projects_presentation_without_changing_advanced
     assert controller._advanced_scores == expected_legacy
     assert controller._advanced_observing_nsom_scores == expected_nsom
     assert payload["enabled"] is True
+    assert payload["runtimeState"] == "default_on_internal_projection"
+    assert payload["summary"]["status"] == "default_on_internal_projection"
+    assert payload["runtimeSafety"]["defaultOff"] is False
     assert payload["consumerPolicy"]["replacesAdvancedScores"] is False
 
 
