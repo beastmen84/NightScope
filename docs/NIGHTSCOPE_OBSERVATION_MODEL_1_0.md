@@ -12,7 +12,9 @@ architectural review.
 
 Current production code does not fully implement NSOM 1.0 yet, but Planner,
 Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
-with explicit internal rollback paths.
+with explicit internal rollback paths. `AdvancedObservingService` remains a
+legacy score surface, with a developer-only NSOM comparison layer added in
+`1.8.0`.
 
 ## Core Diagram
 
@@ -725,6 +727,17 @@ documented default-on path. Best Object now uses Home-specific
 no NSOM fields are exposed, and the displayed score remains legacy/base
 compatibility data. That score may not be monotonic with NSOM selection until a
 future presentation rationale pass changes score display semantics.
+
+Implementation note for 1.8.0: `AdvancedObservingService` now has a
+developer-only NSOM comparison layer. The runtime advanced planetary and
+deep-sky scores remain legacy and unchanged. The comparison helper exposes the
+exact legacy formula components, including weather, seeing/transparency, wind,
+Moon, light pollution and weather caps, then contrasts them with reference-only
+NSOM projections for `SessionViability`, target-class `ObservationEnvironment`,
+`EffectiveObservability`, `ObservableTargetValue` and parallel
+`RecommendationConfidence`. The NSOM projection is explicitly not score parity,
+not a replacement advanced score and not wired to QML, logging, network work or
+runtime file output.
 
 Examples:
 
@@ -1578,6 +1591,8 @@ A future `ObserverCapabilityService` should own:
   staged default-on NSOM consumers with explicit rollback paths.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
+- Status update for 1.8.0: AdvancedObserving review has started as a
+  developer-only comparison layer; runtime advanced scores are still legacy.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 

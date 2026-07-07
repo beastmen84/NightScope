@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.7.6`.
+Versione corrente: `1.8.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -255,6 +255,14 @@ Best Object e' default-on su NSOM, il path legacy resta solo rollback interno e
 fallback quando manca la sky quality. Il payload QML resta invariato e lo score
 mostrato resta legacy/base per compatibilita', quindi puo' non essere monotono
 rispetto alla selezione NSOM.
+Lo step `1.8.0` avvia la migrazione dei punteggi osservativi avanzati con un
+layer developer-only `AdvancedObservingNsomComparisonService`. Il servizio
+confronta le formule legacy `AdvancedObservingService` per planetario e cielo
+profondo con proiezioni NSOM di riferimento, separando meteo/sessione,
+trasparenza/seeing, Luna, light pollution e confidence. Non cambia i punteggi
+avanzati, Home, Best Object, Planner, Sky Compass, QML/UI, logging, rete o
+scritture runtime. Da questo step il changelog `astro_viewer/CHANGELOG.md`
+viene riportato in pari come traccia umana sintetica del lavoro NSOM.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

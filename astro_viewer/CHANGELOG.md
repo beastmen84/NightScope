@@ -1,5 +1,86 @@
 # Changelog
 
+## NightScope 1.8.0 - 2026-07-07
+
+- Aggiunto `AdvancedObservingNsomComparisonService`, layer developer-only che
+  confronta i punteggi avanzati legacy planetario/deep-sky con confini NSOM di
+  riferimento.
+- Esposte le formule legacy reali di `AdvancedObservingService`, inclusi
+  componenti meteo, seeing/trasparenza, vento, Luna, light pollution e cap
+  meteo, senza inventare breakdown non disponibili.
+- La proiezione NSOM separa `SessionViability`, `ObservationEnvironment`,
+  `EffectiveObservability`, `ObservableTargetValue` e
+  `RecommendationConfidence`; la confidence resta metadato e non modifica gli
+  score.
+- Nessun cambiamento runtime: punteggi avanzati, Home, Best Object, Planner,
+  Sky Compass, QML/UI, logging, rete e scritture runtime restano invariati.
+- Riportato il changelog in uso come traccia umana del lavoro NSOM, con
+  riepilogo retroattivo delle tappe 1.4-1.7.
+
+## NightScope 1.7.6 - 2026-07-05
+
+- Chiusa la migrazione Best Object NSOM come stato documentato.
+- Best Object usa ora di default `ObservationOpportunity` con policy
+  Home-specific; il path legacy resta rollback esplicito con
+  `AppController(use_nsom_best_object=False)` e fallback quando manca la sky
+  quality runtime.
+- Documentato che il payload QML resta invariato e che lo score mostrato resta
+  legacy/base compatibility score, quindi puo' non essere monotono con la
+  selezione NSOM.
+
+## NightScope 1.7.0-1.7.5 - 2026-07-02/2026-07-05
+
+- Aggiunto il confronto developer-only Best Object vs NSOM e il report
+  `docs/BEST_OBJECT_NSOM_COMPARISON_REPORT.md`.
+- Introdotto il path runtime Best Object NSOM prima default-off, poi indurito
+  con policy per sessioni bloccate, target invisibili e finestre incerte.
+- Aggiunto l'audit developer-only di readiness e abilitato Best Object NSOM di
+  default con `NSOM_BEST_OBJECT_ENABLED = True`.
+- Conservato rollback legacy esplicito, nessuna esposizione QML e nessun
+  collegamento runtime ai report.
+
+## NightScope 1.6.0-1.6.5 - 2026-07-02
+
+- Aggiunto confronto e report NSOM per Home `recommendedDeepSky`.
+- Introdotto e poi abilitato di default il ranking Home deep-sky basato su
+  `ObservableTargetValue`.
+- Chiusura migrazione Home `recommendedDeepSky`: rollback esplicito con
+  `AppController(use_nsom_home_recommended_deep_sky=False)`, payload QML
+  invariato e fallback legacy quando manca la sky quality runtime.
+
+## NightScope 1.5.0-1.5.9 - 2026-07-01/2026-07-02
+
+- Portata avanti la migrazione Planner NSOM fino al default-on.
+- Aggiunti review target-specific di `ObserverCapability`, proiezione
+  sperimentale `Q_target`, soglie di review calibrazione, decision log e policy
+  per opportunita' non azionabili.
+- Risolti i blocker mirati `small-equipment-planet-q-target` e
+  `open-cluster-recurring-demotion`.
+- Abilitato Planner NSOM di default con `NSOM_PLANNER_SCORING_ENABLED = True` e
+  chiusa la migrazione Planner mantenendo rollback esplicito con
+  `NightPlannerService(use_nsom_planner_scoring=False)`.
+
+## NightScope 1.4.0-1.4.9 - 2026-06-30/2026-07-01
+
+- Introdotto il core NSOM interno con DTO immutabili per Universe, Sky,
+  Observer, Session, Opportunity e Confidence.
+- Aggiunto il primo path Planner NSOM sperimentale default-off, poi pulito dai
+  riferimenti di ownership legacy.
+- Aggiunti fixture di confronto/divergenza, explanation fields, report
+  deterministico Planner, trace matematico, hardening dei casi all-zero e test
+  di formula parity/sensitivity.
+- Tutto il tooling di report resta developer-only, senza QML, logging
+  automatico, rete o scritture runtime.
+
+## NightScope 1.3.8e - 2026-06-30
+
+- Indurito l'export diagnostico NSOM: snapshot Planner coerenti, JSON stretto,
+  semantica VIIRS distinta tra dati provider reali, dataset derivati e fallback.
+- Aggiunto refresh snapshot dopo completamento OpenAQ/AOD senza ricomputare
+  Planner, Home, Equipment o Sky Compass.
+- Confermati no QML, no file writes automatici, no logging automatico, no
+  signal emission e confidence parallela score-neutral.
+
 ## NightScope 1.3.5 - 2026-06-29
 
 - Rafforzata la diagnostica di `ObservationConditionsService`: `moon_adjusted_score()` ora registra l'illuminazione lunare quando applica la penalità Luna.
