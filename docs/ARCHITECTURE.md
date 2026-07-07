@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.8.3`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.8.4`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -365,6 +365,16 @@ stay rollback/default-only for now, `ObserverCapability` is deferred, and
 `RecommendationConfidence` remains metadata-only. It is not runtime wiring and
 does not change advanced scores, Home, Best Object, Planner, Sky Compass, QML,
 logging, network behaviour or runtime file writes.
+`1.8.4` adds the internal/default-off Advanced Observing NSOM runtime path in
+`astro_viewer/app/services/advanced_observing_nsom_service.py`. The controller
+constructor now accepts `use_nsom_advanced_observing`, defaulting to
+`NSOM_ADVANCED_OBSERVING_ENABLED = False`, so existing runtime behaviour remains
+legacy unless explicitly forced in tests/development. The forced-on path keeps
+the existing `AdvancedObservingScores` payload shape and computes planetary and
+deep-sky category diagnostics from NSOM `ObservableTargetValue`; session
+viability and recommendation confidence remain metadata and do not affect the
+score. No QML toggle, report runtime wiring, logging, network work or runtime
+file writes are added.
 
 ## Dependency Flow
 

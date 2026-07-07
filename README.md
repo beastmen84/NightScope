@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.3`.
+Versione corrente: `1.8.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -282,6 +282,13 @@ Moon/light-pollution background, la diagnostica deep-sky conserva componenti per
 classe target, `ObserverCapability` e' differito e `RecommendationConfidence`
 resta metadato senza effetto score. Non cambia `AdvancedObservingService`, Home,
 Best Object, Planner, Sky Compass, QML/UI, logging, rete o scritture runtime.
+Lo step `1.8.4` introduce il primo path runtime Advanced Observing NSOM,
+interno e spento di default con `NSOM_ADVANCED_OBSERVING_ENABLED = False`. Il
+controller mantiene il legacy come default e offre solo override interno
+`use_nsom_advanced_observing=True`. Il path sperimentale conserva il payload
+`advancedScores` esistente, calcola i valori planetario/deep-sky da
+`ObservableTargetValue` di categoria, tiene `SessionViability` e
+`RecommendationConfidence` fuori dallo score e non espone campi NSOM a QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

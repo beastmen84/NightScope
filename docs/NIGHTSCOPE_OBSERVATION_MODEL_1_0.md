@@ -15,7 +15,8 @@ Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
 with explicit internal rollback paths. `AdvancedObservingService` remains a
 legacy score surface, with a developer-only NSOM comparison layer added in
 `1.8.0`, a static comparison report added in `1.8.1`, a review checkpoint in
-`1.8.2` and a policy/readiness report added in `1.8.3`.
+`1.8.2`, a policy/readiness report added in `1.8.3` and a default-off runtime
+path added in `1.8.4`.
 
 ## Core Diagram
 
@@ -768,6 +769,21 @@ implemented, `ObserverCapability` is deferred for Advanced Observing, and
 `RecommendationConfidence` remains parallel metadata with zero score effect.
 This step changes no runtime advanced score, Home, Best Object, Planner, Sky
 Compass, QML, logging, network behaviour or runtime file writes.
+
+Implementation note for 1.8.4: `AdvancedObservingNsomService` introduces the
+first runtime Advanced Observing NSOM path, but it is default-off via
+`NSOM_ADVANCED_OBSERVING_ENABLED = False`. `AppController` keeps the legacy
+`AdvancedObservingService` path by default and exposes only the internal
+constructor override `use_nsom_advanced_observing=True` for tests/development.
+The forced-on path keeps the existing `AdvancedObservingScores`/QML payload
+shape and derives category values from NSOM `ObservableTargetValue` references:
+planetary uses the planet target class and seeing transparency, while deep-sky
+uses a target-class-aware aggregate across galaxy, diffuse nebula, open cluster
+and globular cluster references. `SessionViability` and
+`RecommendationConfidence` are metadata only and do not multiply or cap category
+scores; `ObserverCapability` is still deferred for Advanced Observing. This step
+does not add QML fields, report runtime wiring, logging, network work or
+runtime file writes.
 
 Examples:
 
@@ -1629,6 +1645,8 @@ A future `ObserverCapabilityService` should own:
   without implementation changes.
 - Status update for 1.8.3: AdvancedObserving policy/readiness is documented and
   has no blocker for a separate default-off NSOM runtime path.
+- Status update for 1.8.4: AdvancedObserving now has an internal default-off
+  NSOM runtime path with legacy default and no QML exposure.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 

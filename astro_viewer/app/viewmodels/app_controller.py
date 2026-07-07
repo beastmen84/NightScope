@@ -32,6 +32,10 @@ from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
+from astro_viewer.app.services.advanced_observing_nsom_service import (
+    AdvancedObservingNsomService,
+    NSOM_ADVANCED_OBSERVING_ENABLED,
+)
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
     EarthdataConnectionTester,
@@ -130,8 +134,10 @@ class AppController(QObject):
         *,
         use_nsom_best_object: bool = NSOM_BEST_OBJECT_ENABLED,
         use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
+        use_nsom_advanced_observing: bool = NSOM_ADVANCED_OBSERVING_ENABLED,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
+        advanced_observing_nsom_service: AdvancedObservingNsomService | None = None,
     ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
@@ -208,6 +214,10 @@ class AppController(QObject):
         )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
+        self._use_nsom_advanced_observing = use_nsom_advanced_observing
+        self._advanced_observing_nsom_service = (
+            advanced_observing_nsom_service or AdvancedObservingNsomService()
+        )
         self._conditions_service = ObservationConditionsService()
         self._use_nsom_best_object = use_nsom_best_object
         self._best_object_nsom_selection_service = (
@@ -1891,12 +1901,7 @@ class AppController(QObject):
 
     def _recalculate_observing_outputs(self) -> None:
         self._seeing_transparency = self._seeing_service.estimate(self._weather_hours, self._sky_quality)
-        self._advanced_scores = self._advanced_observing_service.scores(
-            self._weather_summary,
-            self._seeing_transparency,
-            self._sky_quality,
-            self._moon,
-        )
+        self._advanced_scores = self._select_advanced_observing_scores()
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
@@ -1919,6 +1924,21 @@ class AppController(QObject):
             self._moon,
         )
         self._refresh_nsom_diagnostics()
+
+    def _select_advanced_observing_scores(self) -> AdvancedObservingScores:
+        if not getattr(self, "_use_nsom_advanced_observing", False):
+            return self._advanced_observing_service.scores(
+                self._weather_summary,
+                self._seeing_transparency,
+                self._sky_quality,
+                self._moon,
+            )
+        return self._advanced_observing_nsom_service.scores(
+            self._weather_summary,
+            self._seeing_transparency,
+            self._sky_quality,
+            self._moon,
+        )
 
     def _select_best_object(self, planning_objects: list[CelestialObject]) -> CelestialObject | None:
         if not self._weather_summary:
