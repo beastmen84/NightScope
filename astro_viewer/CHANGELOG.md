@@ -1,5 +1,30 @@
 # Changelog
 
+## NightScope 1.8.3 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_policy_readiness.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_POLICY_READINESS.md`, audit di policy
+  e readiness per un futuro path Advanced Observing NSOM default-off.
+- Registrate decisioni esplicite su ruolo Advanced Observing, separazione
+  `SessionViability`, seeing planetario, protezione pianeti/Luna da
+  Moon/light-pollution background, target-class deep-sky, weather cap legacy,
+  ObserverCapability differito e `RecommendationConfidence` metadata-only.
+- Il report dichiara che non restano blocker per implementare un path
+  default-off, ma mantiene i rischi non bloccanti su score display, UI scalare,
+  seeing ownership e badge deep-sky aggregato.
+- Nessun cambiamento runtime a `AdvancedObservingService`, Home, Best Object,
+  Planner, Sky Compass, QML/UI, logging, rete o scritture runtime.
+
+## NightScope 1.8.2 - 2026-07-07
+
+- Review della 1.8.1: il report Advanced Observing e' stato verificato come
+  developer-only, coerente con le formule legacy disponibili e utile per
+  decidere la policy prima di un path runtime default-off.
+- Nessun codice runtime modificato; restano da decidere esplicitamente
+  session/actionability, protezione planetaria da sky background, target-class
+  deep-sky, score display e ruolo futuro di `ObserverCapability`.
+
 ## NightScope 1.8.1 - 2026-07-07
 
 - Aggiunto il tool developer-only

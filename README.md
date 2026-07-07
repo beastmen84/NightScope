@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.1`.
+Versione corrente: `1.8.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -269,6 +269,19 @@ per sessione buona/scarsa/bloccata, Luna brillante, light pollution alta,
 seeing scarso, trasparenza scarsa e bassa confidence mostrano le formule
 legacy e le proiezioni NSOM di riferimento. Il report resta esplicito,
 non collegato al runtime e non modifica punteggi avanzati o UI.
+Lo step `1.8.2` e' una review-only del report 1.8.1: non modifica codice o
+runtime, ma conferma che prima di un path default-off servono decisioni esplicite
+su session/actionability, protezione planetaria da sky background, target-class
+deep-sky e score display.
+Lo step `1.8.3` aggiunge il report developer-only
+`docs/ADVANCED_OBSERVING_NSOM_POLICY_READINESS.md`. Il report registra le
+decisioni di policy per un futuro path Advanced Observing NSOM default-off:
+Advanced Observing resta una superficie diagnostica/presentazione, la
+`SessionViability` resta separata, i pianeti/Luna sono protetti da penalita' di
+Moon/light-pollution background, la diagnostica deep-sky conserva componenti per
+classe target, `ObserverCapability` e' differito e `RecommendationConfidence`
+resta metadato senza effetto score. Non cambia `AdvancedObservingService`, Home,
+Best Object, Planner, Sky Compass, QML/UI, logging, rete o scritture runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

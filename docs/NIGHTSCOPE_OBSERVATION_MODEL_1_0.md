@@ -14,7 +14,8 @@ Current production code does not fully implement NSOM 1.0 yet, but Planner,
 Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
 with explicit internal rollback paths. `AdvancedObservingService` remains a
 legacy score surface, with a developer-only NSOM comparison layer added in
-`1.8.0` and a static comparison report added in `1.8.1`.
+`1.8.0`, a static comparison report added in `1.8.1`, a review checkpoint in
+`1.8.2` and a policy/readiness report added in `1.8.3`.
 
 ## Core Diagram
 
@@ -748,6 +749,25 @@ treated as a presentation/category diagnostic consumer of NSOM components,
 rather than an independent owner of Moon, weather, light-pollution and
 transparency scoring. The report is explicit tooling only and is not runtime
 wiring.
+
+Implementation note for 1.8.2: the Advanced Observing comparison report was
+reviewed without implementation changes. The review confirmed that the report
+is useful for policy work, but that session/actionability handling,
+planetary/Moon protection from sky-background penalties, deep-sky target-class
+visibility, displayed score semantics and deferred observer capability need
+explicit decisions before adding a runtime path.
+
+Implementation note for 1.8.3: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_POLICY_READINESS.md` records those policy
+decisions. Advanced Observing remains a presentation/category diagnostic
+surface, `SessionViability` is separate from sky and target values, planetary
+and Moon diagnostics are protected from Moon/light-pollution background
+penalties, deep-sky diagnostics preserve target-class components, legacy weather
+caps remain only in the legacy/default path until a future default-off path is
+implemented, `ObserverCapability` is deferred for Advanced Observing, and
+`RecommendationConfidence` remains parallel metadata with zero score effect.
+This step changes no runtime advanced score, Home, Best Object, Planner, Sky
+Compass, QML, logging, network behaviour or runtime file writes.
 
 Examples:
 
@@ -1605,6 +1625,10 @@ A future `ObserverCapabilityService` should own:
   developer-only comparison layer; runtime advanced scores are still legacy.
 - Status update for 1.8.1: AdvancedObserving comparison now has a static
   developer-only report; no default-off runtime path exists yet.
+- Status update for 1.8.2: AdvancedObserving report review was completed
+  without implementation changes.
+- Status update for 1.8.3: AdvancedObserving policy/readiness is documented and
+  has no blocker for a separate default-off NSOM runtime path.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 
