@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.3`.
+Versione corrente: `1.9.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -425,6 +425,15 @@ Best Object e presenza target come policy di presentazione. Il payload
 `skyCompass` resta compatibile e non espone campi NSOM; se manca sky quality o
 il path sperimentale fallisce, il controller torna al `SkyCompassService`
 legacy. Il comportamento runtime predefinito resta invariato.
+Lo step `1.9.4` aggiunge il readiness audit developer-only
+`docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md`, generato da
+`astro_viewer/tools/sky_compass_nsom_default_on_readiness_audit.py`. Il verdetto
+e' `ready_for_sky_compass_nsom_default_on_switch`: nessun blocker, rollback
+esplicito `AppController(use_nsom_sky_compass=False)`, fallback legacy quando
+manca sky quality o il servizio sperimentale fallisce, payload `skyCompass`
+invariato e nessuna esposizione QML. Il flag resta `False`; lo switch default-on
+deve essere un commit separato che imposta solo
+`NSOM_SKY_COMPASS_ENABLED = True`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

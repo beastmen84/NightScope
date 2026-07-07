@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.9.4 - 2026-07-07
+
+- Aggiunto il default-on readiness audit developer-only per Sky Compass NSOM:
+  `docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/sky_compass_nsom_default_on_readiness_audit.py`.
+- Il verdetto e' `ready_for_sky_compass_nsom_default_on_switch`, con blocker
+  vuoti e cambio richiesto separato: `NSOM_SKY_COMPASS_ENABLED = True`.
+- Verificati default-off legacy, opt-in NSOM, rollback
+  `AppController(use_nsom_sky_compass=False)`, fallback legacy se manca sky
+  quality o il servizio sperimentale fallisce, payload `skyCompass` invariato e
+  assenza di campi NSOM in QML.
+- Documentato che il campo `score` resta legacy/base compatibility data e non
+  e' una rationale NSOM della direzione; il rischio e' non bloccante per lo
+  switch backend.
+- Confermato che `PracticalTargetValue`, `ObserverCapability`,
+  `SessionViability`, meteo/equipaggiamento e `RecommendationConfidence` non
+  entrano nello score runtime Sky Compass NSOM.
+- Nessun cambio runtime: il flag Sky Compass NSOM resta `False`; nessun cambio a
+  Home, Best Object, Planner, QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.9.3 - 2026-07-07
 
 - Introdotto il path runtime Sky Compass NSOM sperimentale e interno con

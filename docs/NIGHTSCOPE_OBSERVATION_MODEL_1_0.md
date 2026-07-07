@@ -996,6 +996,20 @@ shape without NSOM fields. Missing sky quality or service failure falls back to
 legacy `SkyCompassService`; no report tooling, QML exposure, network, logging
 or runtime file write is introduced.
 
+Implementation note for 1.9.4:
+`docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md` records the developer-only
+readiness audit for making the Sky Compass NSOM path default-on in a later
+switch-only commit. The verdict is
+`ready_for_sky_compass_nsom_default_on_switch`, with no blockers. The audit
+confirms default-off legacy parity, forced-on NSOM behaviour, explicit rollback
+`AppController(use_nsom_sky_compass=False)`, missing-sky-quality and service
+failure fallback to legacy `SkyCompassService`, unchanged `skyCompass` payload
+keys and no QML/report runtime wiring. It also documents that displayed
+`score` remains legacy/base compatibility data and that `PracticalTargetValue`,
+`ObserverCapability`, `SessionViability`, weather/equipment inputs and
+`RecommendationConfidence` remain outside runtime Sky Compass direction
+scoring. `NSOM_SKY_COMPASS_ENABLED` remains `False`.
+
 Examples:
 
 - binocular-only profile;

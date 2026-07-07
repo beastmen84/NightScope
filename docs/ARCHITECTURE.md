@@ -531,6 +531,15 @@ membership, Best Object identity and target presence remain presentation-policy
 boosts. The public `skyCompass` payload shape is preserved, no NSOM fields are
 exposed to QML, and missing sky quality or service failure falls back to the
 legacy `SkyCompassService`. The default runtime path remains unchanged.
+`1.9.4` adds the developer-only default-on readiness audit in
+`docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md`, generated only by
+`astro_viewer/tools/sky_compass_nsom_default_on_readiness_audit.py`. The audit
+verdict is `ready_for_sky_compass_nsom_default_on_switch`; it records no
+blockers, explicit rollback `AppController(use_nsom_sky_compass=False)`,
+legacy fallback for missing sky quality or service failure, unchanged
+`skyCompass` payload shape and no QML/report runtime wiring. The audit does
+not enable the flag; `NSOM_SKY_COMPASS_ENABLED` remains `False` until a
+separate switch-only commit.
 
 ## Dependency Flow
 
