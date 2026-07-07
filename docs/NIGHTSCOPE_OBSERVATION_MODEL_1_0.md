@@ -17,8 +17,9 @@ paths. `AdvancedObservingService` still keeps `advancedScores` as the
 legacy-compatible visible/consumer contract, while the default-on NSOM
 projection is exposed separately through the read-only `advancedObservingNsom`
 property and is not consumed by visible QML. Sky Compass is still a legacy
-direction/presentation service; `1.9.0` adds only a developer-only NSOM
-comparison layer with no runtime ranking or QML change.
+direction/presentation service by default; `1.9.3` adds an internal
+default-off NSOM direction path with explicit controller rollback and no QML
+payload change.
 
 ## Core Diagram
 
@@ -981,6 +982,19 @@ metadata, missing location/direction cases keep legacy unavailable handling,
 and the existing `skyCompass` QML payload shape must be preserved. This step is
 developer-only readiness tooling; it does not add a runtime flag, QML exposure,
 logging, network calls or runtime file writes.
+
+Implementation note for 1.9.3:
+`SkyCompassNsomDirectionService` implements the first internal/default-off Sky
+Compass NSOM direction path. The flag is `NSOM_SKY_COMPASS_ENABLED = False`,
+with opt-in through `AppController(use_nsom_sky_compass=True)` and forced
+rollback through `False`. The experimental path uses `ObservableTargetValue`
+only as the candidate base, preserves Night Plan membership, Best Object status
+and target presence as presentation-policy boosts, keeps
+`PracticalTargetValue`, `SessionViability` and `RecommendationConfidence` out
+of runtime direction scoring, and returns the existing `skyCompass` payload
+shape without NSOM fields. Missing sky quality or service failure falls back to
+legacy `SkyCompassService`; no report tooling, QML exposure, network, logging
+or runtime file write is introduced.
 
 Examples:
 

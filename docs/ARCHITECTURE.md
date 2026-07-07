@@ -523,6 +523,14 @@ remains reference-only for this migration slice, session/caution and confidence
 remain metadata, legacy fallback is required, and the `skyCompass` QML payload
 shape must stay unchanged. No runtime flag or scoring path is added by this
 readiness step.
+`1.9.3` adds that internal/default-off runtime path with
+`NSOM_SKY_COMPASS_ENABLED = False` and `SkyCompassNsomDirectionService`.
+`AppController(use_nsom_sky_compass=True)` opts into the experimental direction
+policy: candidates are based on `ObservableTargetValue.value`, while Night Plan
+membership, Best Object identity and target presence remain presentation-policy
+boosts. The public `skyCompass` payload shape is preserved, no NSOM fields are
+exposed to QML, and missing sky quality or service failure falls back to the
+legacy `SkyCompassService`. The default runtime path remains unchanged.
 
 ## Dependency Flow
 

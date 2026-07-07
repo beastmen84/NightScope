@@ -84,6 +84,10 @@ from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester,
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
+from astro_viewer.app.services.sky_compass_nsom_ranking import (
+    NSOM_SKY_COMPASS_ENABLED,
+    SkyCompassNsomDirectionService,
+)
 from astro_viewer.app.services.sky_map_service import SkyMapService
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
 
@@ -139,9 +143,11 @@ class AppController(QObject):
         use_nsom_best_object: bool = NSOM_BEST_OBJECT_ENABLED,
         use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
         use_nsom_advanced_observing: bool = NSOM_ADVANCED_OBSERVING_ENABLED,
+        use_nsom_sky_compass: bool = NSOM_SKY_COMPASS_ENABLED,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
         advanced_observing_nsom_service: AdvancedObservingNsomService | None = None,
+        sky_compass_nsom_direction_service: SkyCompassNsomDirectionService | None = None,
     ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
@@ -234,6 +240,10 @@ class AppController(QObject):
         self._night_planner_service = NightPlannerService()
         self._sky_map_service = SkyMapService()
         self._sky_compass_service = SkyCompassService()
+        self._use_nsom_sky_compass = use_nsom_sky_compass
+        self._sky_compass_nsom_direction_service = (
+            sky_compass_nsom_direction_service or SkyCompassNsomDirectionService()
+        )
         self._notification_service = NotificationService()
         self._refresh_manager = RefreshManager()
 
@@ -2401,10 +2411,8 @@ class AppController(QObject):
         candidates = self._sky_compass_candidates()
         self._sky_compass_candidate_snapshot = list(candidates)
         self._set_sky_compass(
-            self._sky_compass_service.compass(
+            self._select_sky_compass_payload(
                 candidates,
-                self._night_plan,
-                self._best_object,
                 has_location=self._has_valid_location(),
                 caution_text=self._sky_compass_caution_text(),
             )
@@ -2424,10 +2432,8 @@ class AppController(QObject):
             updated_candidates = position_method(candidates, self._location)
             self._sky_compass_candidate_snapshot = list(updated_candidates)
             self._set_sky_compass(
-                self._sky_compass_service.compass(
+                self._select_sky_compass_payload(
                     updated_candidates,
-                    self._night_plan,
-                    self._best_object,
                     has_location=True,
                     caution_text=self._sky_compass_caution_text(),
                 )
@@ -2442,6 +2448,34 @@ class AppController(QObject):
         self._sky_compass = value
         self.skyCompassChanged.emit()
         self._update_sky_compass_live_timer()
+
+    def _select_sky_compass_payload(
+        self,
+        candidates: list[CelestialObject],
+        *,
+        has_location: bool,
+        caution_text: str,
+    ) -> dict:
+        if getattr(self, "_use_nsom_sky_compass", False) and self._sky_quality:
+            try:
+                return self._sky_compass_nsom_direction_service.compass(
+                    candidates,
+                    self._night_plan,
+                    self._best_object,
+                    sky_quality=self._sky_quality,
+                    moon=self._moon,
+                    has_location=has_location,
+                    caution_text=caution_text,
+                )
+            except Exception:
+                pass
+        return self._sky_compass_service.compass(
+            candidates,
+            self._night_plan,
+            self._best_object,
+            has_location=has_location,
+            caution_text=caution_text,
+        )
 
     def _update_sky_compass_live_timer(self) -> None:
         timer = getattr(self, "_sky_compass_live_timer", None)

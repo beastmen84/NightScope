@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.2`.
+Versione corrente: `1.9.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -417,6 +417,14 @@ policy per un futuro path Sky Compass NSOM default-off: base candidato
 direzionale come policy di presentazione, `PracticalTargetValue` solo
 reference-only, sessione e confidence come metadata, fallback legacy e payload
 `skyCompass` invariato. Nessun flag runtime viene aggiunto in questo step.
+Lo step `1.9.3` introduce quel path runtime sperimentale, interno e spento di
+default con `NSOM_SKY_COMPASS_ENABLED = False`. Quando il controller viene
+forzato con `AppController(use_nsom_sky_compass=True)`, Sky Compass usa
+`ObservableTargetValue.value` come base candidato e conserva i boost da piano,
+Best Object e presenza target come policy di presentazione. Il payload
+`skyCompass` resta compatibile e non espone campi NSOM; se manca sky quality o
+il path sperimentale fallisce, il controller torna al `SkyCompassService`
+legacy. Il comportamento runtime predefinito resta invariato.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

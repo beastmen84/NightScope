@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.9.3 - 2026-07-07
+
+- Introdotto il path runtime Sky Compass NSOM sperimentale e interno con
+  `NSOM_SKY_COMPASS_ENABLED = False`.
+- Aggiunto `SkyCompassNsomDirectionService`: usa `ObservableTargetValue.value`
+  come base candidato e mantiene boost da piano osservativo, Best Object e
+  presenza target come policy di presentazione.
+- Aggiunto l'opt-in interno `AppController(use_nsom_sky_compass=True)` e il
+  rollback/fallback legacy esplicito tramite `use_nsom_sky_compass=False`.
+- Preservato il payload `skyCompass`: nessun campo NSOM esposto a QML e score
+  visualizzato ancora compatibile con il valore legacy/base del target.
+- Aggiunto fallback al `SkyCompassService` legacy quando manca sky quality o il
+  servizio sperimentale non riesce a costruire il payload.
+- Aggiunti test per flag default-off, path opt-in NSOM, rollback legacy,
+  high-light-pollution, boost da piano/Best Object, JSON stretto, payload
+  invariato, assenza di wiring QML/report e assenza di mutazione dei target.
+- Nessun cambio runtime predefinito: Sky Compass legacy resta attivo di default;
+  nessun cambio a Home, Best Object, Planner, QML/UI, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.9.2 - 2026-07-07
 
 - Aggiunto il readiness/policy report developer-only

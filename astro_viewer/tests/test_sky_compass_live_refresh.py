@@ -10,6 +10,7 @@ from PySide6.QtCore import QObject
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager
+from astro_viewer.app.services.sky_compass_nsom_ranking import SkyCompassNsomDirectionService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -250,6 +251,10 @@ def _controller(candidates: list[CelestialObject]) -> tuple[AppController, _Posi
     controller._astronomy_engine = engine
     controller._refresh_manager = RefreshManager()
     controller._sky_compass_service = SkyCompassService()
+    controller._use_nsom_sky_compass = False
+    controller._sky_quality = None
+    controller._moon = None
+    controller._sky_compass_nsom_direction_service = SkyCompassNsomDirectionService()
     controller._sky_compass_live_timer = timer
     controller._night_plan = []
     controller._best_object = candidates[0] if candidates else None
