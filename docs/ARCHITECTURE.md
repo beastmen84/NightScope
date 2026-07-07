@@ -496,6 +496,14 @@ retained through the consumer split and explicit rollback
 `AppController(use_nsom_advanced_observing=False)`. Visible UI, localized copy
 and any replacement of legacy score display semantics remain separate future
 presentation work, not blockers for the completed backend migration.
+`1.9.0` starts the Sky Compass NSOM migration with
+`SkyCompassNsomComparisonService`, a developer-only helper that compares the
+current direction formula against NSOM target, sky, observer, session and
+confidence concepts. The runtime Sky Compass payload and direction ranking
+remain owned by `SkyCompassService`; no controller/QML wiring, logging, network
+path, runtime file write or report runtime hook is added. The helper marks
+legacy components unavailable where Sky Compass only receives an already
+prepared candidate score.
 
 ## Dependency Flow
 

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.18`.
+Versione corrente: `1.9.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -394,6 +394,13 @@ una property read-only separata non usata dalla UI visibile. Il rollback resta
 `AppController(use_nsom_advanced_observing=False)`. UI visibile,
 copy/localizzazione e sostituzione futura degli score legacy restano lavori
 separati, non blocker della migrazione backend.
+Lo step `1.9.0` avvia la migrazione Sky Compass con un comparison layer
+developer-only: `SkyCompassNsomComparisonService` confronta la formula legacy
+direzionale con `IntrinsicTargetQuality`, `ObservationEnvironment`,
+`EffectiveObservability`, `ObservableTargetValue`, `PracticalTargetValue`,
+`SessionViability` e `RecommendationConfidence`. Sky Compass runtime, payload
+QML, ranking direzionale, Home, Best Object e Planner restano invariati; il
+layer non scrive file, non logga, non usa rete e non viene collegato alla UI.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

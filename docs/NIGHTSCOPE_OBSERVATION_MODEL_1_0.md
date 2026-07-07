@@ -16,7 +16,9 @@ have default-on NSOM consumers or projections with explicit internal rollback
 paths. `AdvancedObservingService` still keeps `advancedScores` as the
 legacy-compatible visible/consumer contract, while the default-on NSOM
 projection is exposed separately through the read-only `advancedObservingNsom`
-property and is not consumed by visible QML.
+property and is not consumed by visible QML. Sky Compass is still a legacy
+direction/presentation service; `1.9.0` adds only a developer-only NSOM
+comparison layer with no runtime ranking or QML change.
 
 ## Core Diagram
 
@@ -941,6 +943,19 @@ legacy-compatible path remains available through
 copy/localization and any future replacement of legacy score display semantics
 are deferred non-blocking presentation work, not open backend migration
 blockers.
+
+Implementation note for 1.9.0:
+Sky Compass migration starts with a developer-only comparison layer. The helper
+compares the current direction formula, based on prepared candidate score, plan
+membership, Best Object identity and direction concentration, against NSOM
+`IntrinsicTargetQuality`, `ObservationEnvironment`, `EffectiveObservability`,
+`ObservableTargetValue`, `PracticalTargetValue`, `SessionViability` and
+`RecommendationConfidence`. The comparison is reference-only: it does not
+replace `SkyCompassService`, does not alter the `skyCompass` QML payload, does
+not emit signals, and does not write files, log, fetch network data or wire
+reports into runtime. Legacy score subcomponents that are not available from a
+Sky Compass candidate are explicitly marked unavailable rather than
+reconstructed.
 
 Examples:
 

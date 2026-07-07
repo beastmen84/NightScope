@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.9.0 - 2026-07-07
+
+- Avviata la migrazione Sky Compass con
+  `SkyCompassNsomComparisonService`, un helper developer-only e side-effect-free.
+- Il comparison layer confronta la formula legacy direzionale
+  `sum(item.score + in_plan_bonus + best_object_bonus + target_presence_bonus)`
+  con proiezioni NSOM per `IntrinsicTargetQuality`,
+  `ObservationEnvironment`, `EffectiveObservability`, `ObservableTargetValue`,
+  `PracticalTargetValue`, `SessionViability` e `RecommendationConfidence`.
+- Evidenziato che Sky Compass legacy miscela score candidato gia' preparato,
+  membership nel piano, Best Object e concentrazione direzionale in uno score
+  di direzione.
+- Confermato che sessione/meteo e confidence restano metadata nel confronto e
+  che l'equipaggiamento influenza solo il riferimento `PracticalTargetValue`.
+- Aggiunti test di regressione per JSON stretto, bright Moon/high light
+  pollution, sessione bloccata, equipaggiamento, confidence neutrality, target
+  invisibili/senza direzione, assenza di mutazioni e assenza di wiring QML.
+- Nessun cambio a Sky Compass runtime, payload QML, Home, Best Object, Planner,
+  logging, rete, scritture runtime o report runtime wiring.
+
 ## NightScope 1.8.18 - 2026-07-07
 
 - Chiuso lo stato della migrazione Advanced Observing NSOM come backend
