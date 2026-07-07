@@ -822,6 +822,17 @@ QML fields are exposed and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
 The remaining blocker before any Advanced Observing NSOM default-on switch is
 the presentation/QML policy.
 
+Implementation note for 1.8.8: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_READINESS.md` audits that remaining
+presentation blocker. The consumer split from 1.8.7 is accepted as resolved:
+Planner and NotificationService continue to receive legacy-compatible
+`advancedScores`. However, the forced-on Advanced Observing NSOM values remain
+private `_advanced_observing_nsom_scores`; QML still renders the existing
+legacy-compatible `advancedScores` cards and no public NSOM Advanced Observing
+property exists. Therefore `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`
+until a QML-safe presentation contract and score/label semantics are defined.
+`RecommendationConfidence` remains metadata-only.
+
 Examples:
 
 - binocular-only profile;

@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.8.8 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_presentation_readiness.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_READINESS.md`, audit di
+  readiness per la presentazione/default-on Advanced Observing NSOM.
+- Confermato che lo split 1.8.7 protegge Planner e NotificationService:
+  `advancedScores` resta legacy-compatible e lo snapshot NSOM resta interno.
+- Registrato il verdetto: Advanced Observing NSOM non e' ancora pronto per
+  default-on, perche' i valori NSOM forced-on non hanno un contratto
+  QML/presentazione e non modificano la superficie visuale.
+- Bloccanti rimasti: visibilita' dello snapshot NSOM, contratto di presentazione
+  NSOM e semantica score/label `/100`.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessuna esposizione
+  QML, logging, rete o scrittura runtime.
+
 ## NightScope 1.8.7 - 2026-07-07
 
 - Implementato lo split dei consumer Advanced Observing NSOM nel controller.

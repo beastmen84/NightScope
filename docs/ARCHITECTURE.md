@@ -404,6 +404,16 @@ diagnostics are not reused as Planner atmospheric transparency or notification
 thresholds. The Advanced Observing NSOM flag remains default-off; the remaining
 default-on blocker is the presentation/QML policy for whether and how NSOM
 Advanced Observing diagnostics should ever be shown.
+`1.8.8` adds
+`astro_viewer/tools/advanced_observing_nsom_presentation_readiness.py` and the
+static report `docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_READINESS.md`. The
+audit confirms that the downstream consumer split is resolved, but the Advanced
+Observing NSOM path is not ready for default-on because forced-on NSOM category
+values are still only the private `_advanced_observing_nsom_scores` snapshot.
+QML continues to render legacy-compatible `advancedScores`, no public NSOM
+property exists, and `/100` score/label semantics for NSOM category diagnostics
+are intentionally unresolved. The flag remains `False` until a presentation
+contract is designed.
 
 ## Dependency Flow
 

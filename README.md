@@ -310,6 +310,14 @@ consumer-specifici che ritornano lo score legacy, cosi' i valori NSOM di
 categoria non vengono usati come trasparenza Planner o soglie di notifica. Il
 flag resta `NSOM_ADVANCED_OBSERVING_ENABLED = False`; il blocker default-on
 rimasto e' la policy di presentazione/QML.
+Lo step `1.8.8` aggiunge il report developer-only
+`docs/ADVANCED_OBSERVING_NSOM_PRESENTATION_READINESS.md`. L'audit conferma che
+lo split consumer e' risolto, ma Advanced Observing NSOM non e' pronto per
+default-on: i valori forced-on sono ancora solo `_advanced_observing_nsom_scores`
+interni, non hanno effetto sulla presentazione QML e non hanno una semantica
+score/label `/100` definita. Il flag resta spento finche' non viene deciso se
+NSOM Advanced Observing resta diagnostica nascosta o diventa una superficie
+QML-safe separata.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
