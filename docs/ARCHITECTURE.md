@@ -464,6 +464,11 @@ not recompute on property read. No visible QML file reads the property yet, so
 the Home Advanced Observing cards continue to use `advancedScores`. Planner,
 NotificationService, Home Best Object and Sky Compass continue to receive their
 existing inputs, and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
+`1.8.15` hardens that read-only surface by returning a defensive deep copy of
+the private snapshot, including reads through the Qt property system. This keeps
+the QML property immutable from consumers in practice, preserves strict
+JSON-compatible payload semantics and does not change visible UI, scoring,
+consumer wiring or the default-off Advanced Observing NSOM flag.
 
 ## Dependency Flow
 

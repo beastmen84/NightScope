@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.8.15 - 2026-07-07
+
+- Rafforzata la property QML read-only `advancedObservingNsom`.
+- La property ora restituisce una copia difensiva profonda dello snapshot
+  `_advanced_observing_nsom_presentation`, invece di esporre direttamente il
+  dizionario privato.
+- Aggiunto un test sul Qt property system: la property e' non scrivibile, usa
+  `weatherChanged`, restituisce payload JSON-compatibile e non permette di
+  mutare lo snapshot interno.
+- Nessuna UI QML visibile legge la property; `advancedScores` resta il contratto
+  Home visibile.
+- Nessun cambio a Planner, NotificationService, Home Best Object, Sky Compass,
+  scoring, logging, rete o scritture runtime. Il flag
+  `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`.
+
 ## NightScope 1.8.14 - 2026-07-07
 
 - Aggiunta in `AppController` la property QML read-only

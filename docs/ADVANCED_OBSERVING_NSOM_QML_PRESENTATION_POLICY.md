@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only policy closes the 1.8.12 presentation-design gap for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy is applied to a read-only `advancedObservingNsom` property. The property does not render visible UI, does not change `advancedScores`, does not enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, log automatically or call the network.
+This developer-only policy closes the 1.8.12 presentation-design gap for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy is applied to a read-only `advancedObservingNsom` property. The property returns a defensive deep copy as of 1.8.15, does not render visible UI, does not change `advancedScores`, does not enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, log automatically or call the network.
 
 ## Readiness Verdict
 
@@ -15,7 +15,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 - Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
 - Default flag currently enabled: `False`.
 - Runtime behaviour changed by this policy: `False`.
-- Recommended next change: review the read-only `advancedObservingNsom` property, then decide separately whether visible UI or default-on Advanced Observing NSOM should follow.
+- Recommended next change: decide separately whether visible UI or default-on Advanced Observing NSOM should follow.
 - Reason: The lifecycle, copy and score-label decisions from 1.8.13 are now applied to a read-only property. No visible UI consumes it and the Advanced Observing NSOM flag remains default-off.
 
 ## Remaining Items Before Runtime QML Exposure
@@ -43,6 +43,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 - New signal required: `False`.
 - Runtime source: `_advanced_observing_nsom_presentation`.
 - Recompute on property read: `False`.
+- Payload delivery: `defensive_deep_copy`.
 
 ## Copy And Score Semantics
 
@@ -101,4 +102,4 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 
 ## Recommended Next Step
 
-Review the read-only `advancedObservingNsom` property. Keep visible UI and default-on Advanced Observing NSOM as separate decisions.
+The read-only `advancedObservingNsom` property is wired and defensive-copy hardened. Keep visible UI and default-on Advanced Observing NSOM as separate decisions.

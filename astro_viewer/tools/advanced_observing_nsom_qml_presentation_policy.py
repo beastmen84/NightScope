@@ -61,8 +61,8 @@ def generate_qml_presentation_policy_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_policy": False,
             "recommended_next_change": (
-                "review the read-only `advancedObservingNsom` property, then decide "
-                "separately whether visible UI or default-on Advanced Observing NSOM should follow"
+                "decide separately whether visible UI or default-on Advanced "
+                "Observing NSOM should follow"
             ),
             "reason": (
                 "The lifecycle, copy and score-label decisions from 1.8.13 are now "
@@ -97,9 +97,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "This developer-only policy closes the 1.8.12 presentation-design gap "
             "for the Advanced Observing NSOM QML surface. As of 1.8.14, the policy "
             "is applied to a read-only `advancedObservingNsom` property. The property "
-            "does not render visible UI, does not change `advancedScores`, does not "
-            "enable `NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at "
-            "runtime, log automatically or call the network."
+            "returns a defensive deep copy as of 1.8.15, does not render visible UI, "
+            "does not change `advancedScores`, does not enable "
+            "`NSOM_ADVANCED_OBSERVING_ENABLED`, and does not write files at runtime, "
+            "log automatically or call the network."
         ),
         "",
         "## Readiness Verdict",
@@ -163,6 +164,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- New signal required: `{lifecycle_policy['new_signal_required']}`.",
             f"- Runtime source: `{lifecycle_policy['runtime_source']}`.",
             f"- Recompute on property read: `{lifecycle_policy['recompute_on_property_read']}`.",
+            "- Payload delivery: `defensive_deep_copy`.",
             "",
             "## Copy And Score Semantics",
             "",
@@ -208,8 +210,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review the read-only `advancedObservingNsom` property. Keep visible "
-                "UI and default-on Advanced Observing NSOM as separate decisions."
+                "The read-only `advancedObservingNsom` property is wired and "
+                "defensive-copy hardened. Keep visible UI and default-on Advanced "
+                "Observing NSOM as separate decisions."
             ),
             "",
         ]

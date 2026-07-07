@@ -56,8 +56,9 @@ def generate_qml_exposure_readiness_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_change": (
-                "review the read-only `advancedObservingNsom` property, then decide "
-                "separately whether any visible UI should consume it"
+                "decide separately whether visible UI should consume "
+                "`advancedObservingNsom` or whether Advanced Observing NSOM should "
+                "remain developer-facing"
             ),
             "reason": (
                 "The internal projection is now available through a read-only QML "
@@ -95,9 +96,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "NSOM presentation payload is safely exposed to QML. As of 1.8.14, "
             "`advancedObservingNsom` is a read-only property backed by the private "
             "`_advanced_observing_nsom_presentation` snapshot and the existing "
-            "`weatherChanged` lifecycle. This report does not change `advancedScores`, "
-            "enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, render visible "
-            "UI, log automatically, call the network or write runtime files."
+            "`weatherChanged` lifecycle. As of 1.8.15, the property returns a "
+            "defensive deep copy so consumers cannot mutate the private snapshot. "
+            "This report does not change `advancedScores`, enable "
+            "`NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, render visible UI, "
+            "log automatically, call the network or write runtime files."
         ),
         "",
         "## Readiness Verdict",
@@ -181,9 +184,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review the read-only `advancedObservingNsom` property. Keep visible "
-                "UI and any default-on Advanced Observing NSOM switch as separate "
-                "decisions."
+                "The read-only `advancedObservingNsom` property is wired and "
+                "defensive-copy hardened. Keep visible UI and any default-on Advanced "
+                "Observing NSOM switch as separate decisions."
             ),
             "",
         ]

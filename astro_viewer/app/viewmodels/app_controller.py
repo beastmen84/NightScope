@@ -4,6 +4,7 @@ import logging
 import math
 import re
 from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -592,7 +593,9 @@ class AppController(QObject):
         return self._advanced_observing_nsom_payload()
 
     def _advanced_observing_nsom_payload(self) -> dict:
-        return self._advanced_observing_nsom_presentation or {}
+        if not self._advanced_observing_nsom_presentation:
+            return {}
+        return deepcopy(self._advanced_observing_nsom_presentation)
 
     @Property("QVariant", notify=weatherChanged)
     def weatherDigest(self) -> dict:

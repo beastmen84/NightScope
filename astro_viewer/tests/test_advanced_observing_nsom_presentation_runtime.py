@@ -5,6 +5,8 @@ import math
 from pathlib import Path
 from types import SimpleNamespace
 
+from PySide6.QtCore import QObject
+
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
@@ -194,12 +196,50 @@ def test_presentation_projection_has_read_only_qml_property_but_no_visible_qml_u
     assert "controller.advancedObservingNsom" not in qml_text
 
 
-def test_advanced_observing_nsom_property_reads_private_snapshot_without_recomputing() -> None:
+def test_advanced_observing_nsom_property_reads_defensive_copy_without_recomputing() -> None:
     controller = _controller(enabled=True)
-    sentinel = {"schemaVersion": "sentinel", "enabled": True}
+    sentinel = {
+        "schemaVersion": "sentinel",
+        "enabled": True,
+        "categories": [{"id": "deepSky", "diagnosticValue": 0.82}],
+    }
     controller._advanced_observing_nsom_presentation = sentinel
 
-    assert controller._advanced_observing_nsom_payload() is sentinel
+    payload = controller._advanced_observing_nsom_payload()
+    assert payload == sentinel
+    assert payload is not sentinel
+
+    payload["categories"][0]["diagnosticValue"] = 0.0
+    assert sentinel["categories"][0]["diagnosticValue"] == 0.82
+
+
+def test_advanced_observing_nsom_qt_property_is_read_only_and_returns_copy() -> None:
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    snapshot = {
+        "schemaVersion": ADVANCED_OBSERVING_NSOM_PRESENTATION_SCHEMA_VERSION,
+        "enabled": True,
+        "categories": [{"id": "planetary", "diagnosticValue": 0.74}],
+        "confidence": {"value": 1.0, "scoreEffect": 0.0},
+    }
+    controller._advanced_observing_nsom_presentation = snapshot
+
+    property_index = controller.metaObject().indexOfProperty("advancedObservingNsom")
+    assert property_index >= 0
+    qml_property = controller.metaObject().property(property_index)
+
+    assert qml_property.name() == "advancedObservingNsom"
+    assert qml_property.isWritable() is False
+    assert qml_property.hasNotifySignal() is True
+    assert qml_property.notifySignal().name().data().decode() == "weatherChanged"
+
+    payload = controller.property("advancedObservingNsom")
+    json.dumps(payload, sort_keys=True, allow_nan=False)
+
+    assert payload == snapshot
+    assert payload is not snapshot
+    payload["categories"][0]["diagnosticValue"] = 0.0
+    assert snapshot["categories"][0]["diagnosticValue"] == 0.74
 
 
 class _PlannerSpy:

@@ -899,6 +899,15 @@ remains the visible Home card contract, Planner/NotificationService/Home Best
 Object/Sky Compass inputs are unchanged, `RecommendationConfidence` remains
 metadata-only and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
 
+Implementation note for 1.8.15: the `advancedObservingNsom` getter now returns a
+defensive deep copy of the private presentation snapshot. The Qt property remains
+read-only, uses `weatherChanged` as its notify signal, returns `{}` when the
+NSOM path is disabled/unavailable and can be serialized with strict JSON. Reads
+through the Python helper or Qt property system cannot mutate
+`_advanced_observing_nsom_presentation`. This is a property-safety hardening
+only: no visible QML, scoring path, Planner, NotificationService, Best Object,
+Sky Compass, network, logging or runtime file-write behaviour changes.
+
 Examples:
 
 - binocular-only profile;

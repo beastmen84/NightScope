@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the internal Advanced Observing NSOM presentation payload is safely exposed to QML. As of 1.8.14, `advancedObservingNsom` is a read-only property backed by the private `_advanced_observing_nsom_presentation` snapshot and the existing `weatherChanged` lifecycle. This report does not change `advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, render visible UI, log automatically, call the network or write runtime files.
+This developer-only audit checks whether the internal Advanced Observing NSOM presentation payload is safely exposed to QML. As of 1.8.14, `advancedObservingNsom` is a read-only property backed by the private `_advanced_observing_nsom_presentation` snapshot and the existing `weatherChanged` lifecycle. As of 1.8.15, the property returns a defensive deep copy so consumers cannot mutate the private snapshot. This report does not change `advancedScores`, enable `NSOM_ADVANCED_OBSERVING_ENABLED`, tune scores, render visible UI, log automatically, call the network or write runtime files.
 
 ## Readiness Verdict
 
@@ -12,7 +12,7 @@ This developer-only audit checks whether the internal Advanced Observing NSOM pr
 - Current default flag: `NSOM_ADVANCED_OBSERVING_ENABLED = False`.
 - Default flag currently enabled: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next change: review the read-only `advancedObservingNsom` property, then decide separately whether any visible UI should consume it.
+- Recommended next change: decide separately whether visible UI should consume `advancedObservingNsom` or whether Advanced Observing NSOM should remain developer-facing.
 - Reason: The internal projection is now available through a read-only QML property using the existing weather lifecycle. No QML UI consumes it yet, and visible UI still needs explicit design approval.
 
 ## Remaining Items
@@ -68,4 +68,4 @@ This developer-only audit checks whether the internal Advanced Observing NSOM pr
 
 ## Recommended Next Step
 
-Review the read-only `advancedObservingNsom` property. Keep visible UI and any default-on Advanced Observing NSOM switch as separate decisions.
+The read-only `advancedObservingNsom` property is wired and defensive-copy hardened. Keep visible UI and any default-on Advanced Observing NSOM switch as separate decisions.
