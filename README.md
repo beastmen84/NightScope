@@ -341,6 +341,13 @@ quando il meteo blocca la sessione corrente ma una finestra osservativa utile e'
 prevista piu' tardi. La sessione resta metadata fuori dai valori categoria,
 `advancedScores` resta legacy-compatible e non vengono aggiunte property QML o
 nuovi input per Planner, NotificationService, Best Object o Sky Compass.
+Lo step `1.8.12` aggiunge il report developer-only
+`docs/ADVANCED_OBSERVING_NSOM_QML_EXPOSURE_READINESS.md`. L'audit conferma che
+la proiezione interna `advancedObservingNsom` e' safe-to-keep, ma non ancora
+pronta per una property QML pubblica o una UI visibile: servono prima policy su
+notify-signal/lifecycle, copy localizzata, placement UI e semantica score/label
+per non confondere diagnostiche NSOM con gli score legacy `/100`. Il flag resta
+spento e `advancedScores` resta l'unico contratto QML pubblico corrente.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

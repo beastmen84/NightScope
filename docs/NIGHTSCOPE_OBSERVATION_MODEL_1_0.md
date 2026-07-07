@@ -866,6 +866,16 @@ Session state remains score-neutral metadata outside `ObservableTargetValue`;
 category values, `advancedScores`, Planner, NotificationService, Best Object,
 Sky Compass and QML exposure are unchanged.
 
+Implementation note for 1.8.12: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_QML_EXPOSURE_READINESS.md` audits whether the
+private `advancedObservingNsom` projection should become a public QML surface.
+The verdict is not ready for QML exposure. The projection is safe to keep
+internally, but a public property needs explicit notify-signal/lifecycle policy,
+localized UI copy, visual placement and score-label semantics. This prevents
+`ObservableTargetValue` category diagnostics from being mistaken for legacy
+`/100` actionability scores. `advancedScores` remains the only current public
+QML contract and `NSOM_ADVANCED_OBSERVING_ENABLED` remains `False`.
+
 Examples:
 
 - binocular-only profile;

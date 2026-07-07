@@ -438,6 +438,13 @@ the controller's existing observing-session policy. A weather-blocked session
 with a later usable observing window is now projected as `monitor`, not
 `discouraged`. This remains metadata outside category values; no QML property or
 new Planner, NotificationService, Best Object or Sky Compass input is added.
+`1.8.12` adds
+`astro_viewer/tools/advanced_observing_nsom_qml_exposure_readiness.py` and the
+static report `docs/ADVANCED_OBSERVING_NSOM_QML_EXPOSURE_READINESS.md`. The
+audit confirms that the internal projection is safe to keep, but a public QML
+property or visible UI remains blocked until property notify/lifecycle policy,
+localized copy, visual placement and NSOM score-label semantics are explicitly
+designed. `advancedScores` remains the only current public QML contract.
 
 ## Dependency Flow
 

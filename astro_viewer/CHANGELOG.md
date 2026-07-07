@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.8.12 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_qml_exposure_readiness.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_QML_EXPOSURE_READINESS.md`, audit di
+  readiness per una futura esposizione QML di `advancedObservingNsom`.
+- Confermato che la proiezione interna 1.8.10/1.8.11 e' safe-to-keep, ma non
+  ancora pronta per una property QML pubblica o UI visibile.
+- Bloccanti registrati: lifecycle/notify-signal della property, copy UI,
+  localizzazione e semantica score/label per evitare di presentare valori NSOM
+  come score legacy `/100` di actionability.
+- `advancedScores` resta l'unico contratto QML pubblico corrente; nessun
+  cambio a Planner, NotificationService, Best Object o Sky Compass.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessuna esposizione
+  QML, logging, rete o scrittura runtime.
+
 ## NightScope 1.8.11 - 2026-07-07
 
 - Rafforzata la proiezione interna/default-off Advanced Observing NSOM
