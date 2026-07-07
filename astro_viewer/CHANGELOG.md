@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.9.2 - 2026-07-07
+
+- Aggiunto il readiness/policy report developer-only
+  `docs/SKY_COMPASS_NSOM_POLICY_READINESS.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/sky_compass_nsom_policy_readiness.py`.
+- Documentate le policy per un futuro path Sky Compass NSOM default-off:
+  `ObservableTargetValue.value` come base candidato, boost da piano/Best Object
+  e concentrazione direzionale come presentation policy, `PracticalTargetValue`
+  reference-only, sessione/caution e confidence come metadata.
+- Chiarito che un futuro path sperimentale deve preservare payload
+  `skyCompass`, fallback legacy e assenza di campi NSOM in QML.
+- Aggiunti test per determinismo, JSON stretto, copertura decisioni, evidenza
+  dal comparison report, no runtime/QML wiring e allineamento del report
+  checked-in.
+- Nessun cambio a Sky Compass runtime, Home, Best Object, Planner, QML,
+  logging, rete o scritture runtime.
+
 ## NightScope 1.9.1 - 2026-07-07
 
 - Aggiunto il report developer-only

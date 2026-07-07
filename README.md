@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.1`.
+Versione corrente: `1.9.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -409,6 +409,14 @@ presentazione, non un ranking puro per target-value: NSOM puo' fornire
 riferimenti `ObservableTargetValue`/`PracticalTargetValue`, ma boost da piano,
 Best Object e concentrazione direzionale restano policy separate. Nessun
 runtime, payload QML o ranking viene modificato.
+Lo step `1.9.2` aggiunge il readiness/policy report developer-only
+`docs/SKY_COMPASS_NSOM_POLICY_READINESS.md`, generato da
+`astro_viewer/tools/sky_compass_nsom_policy_readiness.py`. Il report risolve la
+policy per un futuro path Sky Compass NSOM default-off: base candidato
+`ObservableTargetValue.value`, boost da piano/Best Object e concentrazione
+direzionale come policy di presentazione, `PracticalTargetValue` solo
+reference-only, sessione e confidence come metadata, fallback legacy e payload
+`skyCompass` invariato. Nessun flag runtime viene aggiunto in questo step.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

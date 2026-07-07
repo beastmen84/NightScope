@@ -969,6 +969,19 @@ target physics. The tool is explicit developer tooling only; it is not imported
 by the controller, does not alter `skyCompass`, and does not add QML exposure,
 logging, network calls or runtime file writes.
 
+Implementation note for 1.9.2:
+`docs/SKY_COMPASS_NSOM_POLICY_READINESS.md` records the policy decisions for a
+future default-off Sky Compass NSOM path. The first experimental path should
+not be a pure target-value ranking: `ObservableTargetValue.value` may provide
+the candidate base, while plan membership, Best Object identity and target
+concentration remain presentation policy outside target physics.
+`PracticalTargetValue` stays reference-only until equipment-aware compass
+semantics are reviewed. Session state and `RecommendationConfidence` remain
+metadata, missing location/direction cases keep legacy unavailable handling,
+and the existing `skyCompass` QML payload shape must be preserved. This step is
+developer-only readiness tooling; it does not add a runtime flag, QML exposure,
+logging, network calls or runtime file writes.
+
 Examples:
 
 - binocular-only profile;

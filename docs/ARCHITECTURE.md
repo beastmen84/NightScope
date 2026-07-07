@@ -513,6 +513,16 @@ practical direction references are useful for review, but plan membership,
 Best Object identity and direction concentration remain separate presentation
 policy inputs. No runtime import, QML exposure, logging, network path or
 runtime file write is added.
+`1.9.2` adds the developer-only
+`docs/SKY_COMPASS_NSOM_POLICY_READINESS.md`, generated only by
+`astro_viewer/tools/sky_compass_nsom_policy_readiness.py`. It records that a
+future default-off Sky Compass NSOM path may use `ObservableTargetValue.value`
+as the candidate base, while Night Plan membership, Best Object identity and
+direction concentration stay presentation policy. `PracticalTargetValue`
+remains reference-only for this migration slice, session/caution and confidence
+remain metadata, legacy fallback is required, and the `skyCompass` QML payload
+shape must stay unchanged. No runtime flag or scoring path is added by this
+readiness step.
 
 ## Dependency Flow
 
