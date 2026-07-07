@@ -34,19 +34,20 @@ def test_sky_compass_default_on_readiness_audit_is_deterministic_strict_json_and
     }
 
 
-def test_sky_compass_default_on_readiness_verdict_requires_separate_flag_change() -> None:
+def test_sky_compass_default_on_readiness_verdict_records_enabled_flag() -> None:
     data = generate_default_on_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "ready_for_sky_compass_nsom_default_on_switch"
+    assert data["readiness"]["verdict"] == "sky_compass_nsom_default_on_enabled"
     assert data["readiness"]["ready_for_default_on_switch"] is True
-    assert data["readiness"]["default_flag"] == "NSOM_SKY_COMPASS_ENABLED = False"
-    assert data["readiness"]["default_flag_currently_enabled"] is False
-    assert data["readiness"]["requires_separate_flag_change"] is True
+    assert data["readiness"]["default_flag"] == "NSOM_SKY_COMPASS_ENABLED = True"
+    assert data["readiness"]["default_flag_currently_enabled"] is True
+    assert data["readiness"]["requires_separate_flag_change"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_sky_compass=False)"
-    assert data["readiness"]["recommended_switch_change"] == "set NSOM_SKY_COMPASS_ENABLED = True"
+    assert data["readiness"]["recommended_switch_change"] == "already enabled"
     assert data["blockers"] == []
-    assert data["checks"]["default_on_requires_separate_flag_change"] is True
+    assert data["checks"]["default_flag_enabled_for_switch"] is True
+    assert data["checks"]["default_on_switch_complete"] is True
 
 
 def test_audit_proves_flag_off_legacy_and_flag_on_nsom_paths() -> None:
@@ -112,7 +113,7 @@ def test_sky_compass_default_on_audit_has_no_runtime_or_qml_wiring() -> None:
     data = generate_default_on_readiness_audit_data()
 
     assert data["runtime_safety"] == {
-        "current_flag_default_off": True,
+        "current_flag_default_on": True,
         "default_off_policy_ready": True,
         "comparison_tooling_developer_only": True,
         "comparison_tooling_has_no_runtime_writes": True,
@@ -137,6 +138,6 @@ def test_checked_in_sky_compass_default_on_readiness_report_exists() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Sky Compass NSOM Default-On Readiness Audit" in text
-    assert "ready_for_sky_compass_nsom_default_on_switch" in text
-    assert "NSOM_SKY_COMPASS_ENABLED = False" in text
+    assert "sky_compass_nsom_default_on_enabled" in text
+    assert "NSOM_SKY_COMPASS_ENABLED = True" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

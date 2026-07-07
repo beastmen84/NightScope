@@ -70,7 +70,9 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "ready_for_sky_compass_nsom_default_on_switch"
+                "sky_compass_nsom_default_on_enabled"
+                if ready and NSOM_SKY_COMPASS_ENABLED
+                else "ready_for_sky_compass_nsom_default_on_switch"
                 if ready
                 else "not_ready_for_sky_compass_nsom_default_on_switch"
             ),
@@ -118,9 +120,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether the existing default-off Sky "
-            "Compass NSOM direction path is ready for a separate default-on switch. "
-            "It does not enable the flag, change QML, wire report tooling into "
-            "runtime, log automatically, call the network or write runtime files."
+            "Compass NSOM direction path is ready for or already past a separate "
+            "default-on switch. It reports the current flag state but does not "
+            "change QML, wire report tooling into runtime, log automatically, call "
+            "the network or write runtime files."
         ),
         "",
         "## Readiness Verdict",
@@ -236,10 +239,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review this audit. If accepted, implement a separate switch-only "
-                "commit that sets `NSOM_SKY_COMPASS_ENABLED = True`, preserves "
-                "`AppController(use_nsom_sky_compass=False)` as rollback and keeps "
-                "the `skyCompass` QML payload shape unchanged."
+                "Review the default-on switch, then close the Sky Compass NSOM "
+                "migration in documentation while keeping "
+                "`AppController(use_nsom_sky_compass=False)` as rollback and the "
+                "`skyCompass` QML payload shape unchanged."
             ),
             "",
         ]
@@ -343,8 +346,8 @@ def _readiness_checks(
 ) -> dict[str, object]:
     return {
         "default_off_policy_ready": policy["readiness"]["ready_for_default_off_path"] is True,
-        "default_flag_currently_off": NSOM_SKY_COMPASS_ENABLED is False,
-        "default_on_requires_separate_flag_change": NSOM_SKY_COMPASS_ENABLED is False,
+        "default_flag_enabled_for_switch": NSOM_SKY_COMPASS_ENABLED is True,
+        "default_on_switch_complete": NSOM_SKY_COMPASS_ENABLED is True,
         "legacy_rollback_available": runtime["flag_off_legacy"]["equals_legacy"] is True,
         "flag_on_uses_nsom_path": runtime["flag_on_nsom"]["matches_direct_service"] is True,
         "high_light_pollution_direction_changes_as_expected": runtime["flag_on_nsom"][
@@ -379,7 +382,7 @@ def _runtime_safety(
     static_checks: dict[str, object],
 ) -> dict[str, object]:
     return {
-        "current_flag_default_off": NSOM_SKY_COMPASS_ENABLED is False,
+        "current_flag_default_on": NSOM_SKY_COMPASS_ENABLED is True,
         "default_off_policy_ready": policy["readiness"]["ready_for_default_off_path"] is True,
         "comparison_tooling_developer_only": comparison["metadata"]["developer_only"] is True,
         "comparison_tooling_has_no_runtime_writes": comparison["metadata"]["runtime_writes"] is False,
@@ -399,8 +402,8 @@ def _runtime_safety(
 def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
     names = {
         "default_off_policy_ready": "sky-compass-default-off-policy-not-ready",
-        "default_flag_currently_off": "sky-compass-flag-not-default-off-before-switch",
-        "default_on_requires_separate_flag_change": "sky-compass-default-on-not-separate-switch",
+        "default_flag_enabled_for_switch": "sky-compass-flag-not-default-on",
+        "default_on_switch_complete": "sky-compass-default-on-switch-incomplete",
         "legacy_rollback_available": "sky-compass-legacy-rollback-missing",
         "flag_on_uses_nsom_path": "sky-compass-flag-on-not-nsom",
         "high_light_pollution_direction_changes_as_expected": "sky-compass-nsom-behaviour-not-observable",
@@ -629,6 +632,12 @@ def _order_label(order: object) -> str:
 
 def _readiness_reason(ready: bool) -> str:
     if ready:
+        if NSOM_SKY_COMPASS_ENABLED:
+            return (
+                "The Sky Compass NSOM default-on switch is active with explicit "
+                "rollback, legacy fallback, unchanged payload shape, documented "
+                "non-blocking risks and no QML/report runtime wiring."
+            )
         return (
             "The default-off Sky Compass NSOM path has explicit rollback, legacy "
             "fallback, unchanged payload shape, documented non-blocking risks and "

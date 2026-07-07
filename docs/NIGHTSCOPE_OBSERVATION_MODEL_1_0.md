@@ -11,15 +11,14 @@ Changes to this document should be rare and should require explicit
 architectural review.
 
 Current production code does not fully implement NSOM 1.0 yet, but Planner,
-Home `recommendedDeepSky`, Best Object and the Advanced Observing backend now
-have default-on NSOM consumers or projections with explicit internal rollback
-paths. `AdvancedObservingService` still keeps `advancedScores` as the
-legacy-compatible visible/consumer contract, while the default-on NSOM
-projection is exposed separately through the read-only `advancedObservingNsom`
-property and is not consumed by visible QML. Sky Compass is still a legacy
-direction/presentation service by default; `1.9.3` adds an internal
-default-off NSOM direction path with explicit controller rollback and no QML
-payload change.
+Home `recommendedDeepSky`, Best Object, Sky Compass and the Advanced Observing
+backend now have default-on NSOM consumers or projections with explicit
+internal rollback paths. `AdvancedObservingService` still keeps
+`advancedScores` as the legacy-compatible visible/consumer contract, while the
+default-on NSOM projection is exposed separately through the read-only
+`advancedObservingNsom` property and is not consumed by visible QML. Sky
+Compass remains a direction/presentation service, but its default direction
+candidate base is now NSOM `ObservableTargetValue` with no QML payload change.
 
 ## Core Diagram
 
@@ -1009,6 +1008,20 @@ keys and no QML/report runtime wiring. It also documents that displayed
 `ObserverCapability`, `SessionViability`, weather/equipment inputs and
 `RecommendationConfidence` remain outside runtime Sky Compass direction
 scoring. `NSOM_SKY_COMPASS_ENABLED` remains `False`.
+
+Implementation note for 1.9.5:
+Sky Compass NSOM is now enabled by default with
+`NSOM_SKY_COMPASS_ENABLED = True`. The default controller path uses
+`SkyCompassNsomDirectionService` when sky quality exists, with
+`ObservableTargetValue.value` as candidate base and Night Plan membership, Best
+Object identity and target presence retained as presentation-policy boosts.
+Explicit rollback remains `AppController(use_nsom_sky_compass=False)`, and
+missing sky quality or NSOM service failure falls back to legacy
+`SkyCompassService`. `PracticalTargetValue`, `ObserverCapability`,
+`SessionViability`, weather/equipment inputs and `RecommendationConfidence`
+remain outside runtime Sky Compass direction scoring. The `skyCompass` payload
+shape remains legacy-compatible and no QML/UI exposure, logging, network call,
+runtime file write or report runtime wiring is added.
 
 Examples:
 

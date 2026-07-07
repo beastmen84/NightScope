@@ -540,6 +540,14 @@ legacy fallback for missing sky quality or service failure, unchanged
 `skyCompass` payload shape and no QML/report runtime wiring. The audit does
 not enable the flag; `NSOM_SKY_COMPASS_ENABLED` remains `False` until a
 separate switch-only commit.
+`1.9.5` enables Sky Compass NSOM by default with
+`NSOM_SKY_COMPASS_ENABLED = True`. The default controller path now uses
+`SkyCompassNsomDirectionService` when sky quality is available, while
+`AppController(use_nsom_sky_compass=False)` remains the explicit legacy
+rollback and missing sky quality or NSOM service failure still falls back to
+`SkyCompassService`. The public `skyCompass` payload shape remains unchanged
+and no QML/UI field, logging path, network call, runtime file write or report
+runtime wiring is added.
 
 ## Dependency Flow
 

@@ -17,9 +17,9 @@ from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_sky_compass_nsom_flag_is_default_off() -> None:
-    assert NSOM_SKY_COMPASS_ENABLED is False
-    assert AppController.__init__.__kwdefaults__["use_nsom_sky_compass"] is False
+def test_sky_compass_nsom_flag_is_default_on() -> None:
+    assert NSOM_SKY_COMPASS_ENABLED is True
+    assert AppController.__init__.__kwdefaults__["use_nsom_sky_compass"] is True
 
 
 def test_flag_off_legacy_direction_and_payload_are_unchanged() -> None:
@@ -86,9 +86,9 @@ def test_flag_on_preserves_plan_and_best_object_context_boosts() -> None:
     assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
 
 
-def test_controller_flag_on_uses_nsom_and_forced_rollback_uses_legacy() -> None:
+def test_controller_default_uses_nsom_and_forced_rollback_uses_legacy() -> None:
     targets = _targets()
-    enabled = _controller(use_nsom_sky_compass=True, sky_quality=_sky_quality(9, radiance=120.0))
+    enabled = _controller(use_nsom_sky_compass=NSOM_SKY_COMPASS_ENABLED, sky_quality=_sky_quality(9, radiance=120.0))
     disabled = _controller(use_nsom_sky_compass=False, sky_quality=_sky_quality(9, radiance=120.0))
 
     enabled_result = enabled._select_sky_compass_payload(targets, has_location=True, caution_text="")

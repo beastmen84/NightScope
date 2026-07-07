@@ -2,20 +2,20 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the existing default-off Sky Compass NSOM direction path is ready for a separate default-on switch. It does not enable the flag, change QML, wire report tooling into runtime, log automatically, call the network or write runtime files.
+This developer-only audit checks whether the existing default-off Sky Compass NSOM direction path is ready for or already past a separate default-on switch. It reports the current flag state but does not change QML, wire report tooling into runtime, log automatically, call the network or write runtime files.
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_sky_compass_nsom_default_on_switch`.
+- Verdict: `sky_compass_nsom_default_on_enabled`.
 - Ready for default-on switch: `True`.
-- Current default flag: `NSOM_SKY_COMPASS_ENABLED = False`.
-- Default flag currently enabled: `False`.
-- Requires separate flag change: `True`.
+- Current default flag: `NSOM_SKY_COMPASS_ENABLED = True`.
+- Default flag currently enabled: `True`.
+- Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
 - Explicit legacy rollback: `AppController(use_nsom_sky_compass=False)`.
 - Explicit NSOM path: `AppController(use_nsom_sky_compass=True)`.
-- Recommended switch change: `set NSOM_SKY_COMPASS_ENABLED = True`.
-- Reason: The default-off Sky Compass NSOM path has explicit rollback, legacy fallback, unchanged payload shape, documented non-blocking risks and no QML/report runtime wiring. Default-on can be a separate flag-only switch after review.
+- Recommended switch change: `already enabled`.
+- Reason: The Sky Compass NSOM default-on switch is active with explicit rollback, legacy fallback, unchanged payload shape, documented non-blocking risks and no QML/report runtime wiring.
 
 ## Default-On Blockers
 
@@ -55,7 +55,7 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 
 | Check | Result |
 | --- | --- |
-| `current_flag_default_off` | `True` |
+| `current_flag_default_on` | `True` |
 | `default_off_policy_ready` | `True` |
 | `comparison_tooling_developer_only` | `True` |
 | `comparison_tooling_has_no_runtime_writes` | `True` |
@@ -80,4 +80,4 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 
 ## Recommended Next Step
 
-Review this audit. If accepted, implement a separate switch-only commit that sets `NSOM_SKY_COMPASS_ENABLED = True`, preserves `AppController(use_nsom_sky_compass=False)` as rollback and keeps the `skyCompass` QML payload shape unchanged.
+Review the default-on switch, then close the Sky Compass NSOM migration in documentation while keeping `AppController(use_nsom_sky_compass=False)` as rollback and the `skyCompass` QML payload shape unchanged.

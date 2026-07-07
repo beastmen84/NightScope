@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.9.5 - 2026-07-07
+
+- Abilitato Sky Compass NSOM di default impostando
+  `NSOM_SKY_COMPASS_ENABLED = True`.
+- Il default del controller ora usa `SkyCompassNsomDirectionService` quando e'
+  disponibile sky quality; la base candidato e' `ObservableTargetValue.value`,
+  con boost da piano osservativo, Best Object e presenza target come policy di
+  presentazione.
+- Il rollback resta esplicito con
+  `AppController(use_nsom_sky_compass=False)` e conserva il path legacy
+  `SkyCompassService`.
+- Conservato il fallback legacy quando manca sky quality o il path sperimentale
+  fallisce.
+- Aggiornato il readiness/status report
+  `docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md` per registrare lo stato
+  default-on attivo e blocker vuoti.
+- Nessun campo NSOM viene aggiunto al payload `skyCompass`; nessuna modifica
+  QML/UI, logging, rete, scrittura runtime o report runtime wiring.
+
 ## NightScope 1.9.4 - 2026-07-07
 
 - Aggiunto il default-on readiness audit developer-only per Sky Compass NSOM:

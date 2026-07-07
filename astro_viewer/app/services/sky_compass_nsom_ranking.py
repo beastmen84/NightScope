@@ -8,7 +8,7 @@ from astro_viewer.app.services.home_nsom_observable import build_home_observable
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 
 
-NSOM_SKY_COMPASS_ENABLED = False
+NSOM_SKY_COMPASS_ENABLED = True
 
 
 @dataclass(frozen=True)

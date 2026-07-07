@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.4`.
+Versione corrente: `1.9.5`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -434,6 +434,13 @@ manca sky quality o il servizio sperimentale fallisce, payload `skyCompass`
 invariato e nessuna esposizione QML. Il flag resta `False`; lo switch default-on
 deve essere un commit separato che imposta solo
 `NSOM_SKY_COMPASS_ENABLED = True`.
+Lo step `1.9.5` abilita Sky Compass NSOM di default impostando
+`NSOM_SKY_COMPASS_ENABLED = True`. Il default del controller usa ora
+`SkyCompassNsomDirectionService` quando sky quality e' disponibile, mantenendo
+rollback esplicito `AppController(use_nsom_sky_compass=False)` e fallback
+legacy quando manca sky quality o il path NSOM fallisce. Il payload
+`skyCompass` resta invariato e non espone campi NSOM; nessuna modifica QML/UI,
+logging, rete, scrittura runtime o report runtime wiring viene introdotta.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
