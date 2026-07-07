@@ -11,13 +11,12 @@ Changes to this document should be rare and should require explicit
 architectural review.
 
 Current production code does not fully implement NSOM 1.0 yet, but Planner,
-Home `recommendedDeepSky` and Best Object now have default-on NSOM consumers
-with explicit internal rollback paths. `AdvancedObservingService` remains a
-legacy score surface, with a developer-only NSOM comparison layer added in
-`1.8.0`, a static comparison report added in `1.8.1`, a review checkpoint in
-`1.8.2`, a policy/readiness report added in `1.8.3` and a default-off runtime
-path added in `1.8.4`. The forced-on runtime path is reviewed in `1.8.5`, but
-the flag remains default-off. Downstream consumer policy is recorded in `1.8.6`.
+Home `recommendedDeepSky`, Best Object and the Advanced Observing backend now
+have default-on NSOM consumers or projections with explicit internal rollback
+paths. `AdvancedObservingService` still keeps `advancedScores` as the
+legacy-compatible visible/consumer contract, while the default-on NSOM
+projection is exposed separately through the read-only `advancedObservingNsom`
+property and is not consumed by visible QML.
 
 ## Core Diagram
 
