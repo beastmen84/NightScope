@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.8.18 - 2026-07-07
+
+- Chiuso lo stato della migrazione Advanced Observing NSOM come backend
+  default-on.
+- Documentato che `NSOM_ADVANCED_OBSERVING_ENABLED = True` e che il rollback
+  resta esplicito con `AppController(use_nsom_advanced_observing=False)`.
+- Confermato che `advancedScores` resta legacy-compatible per card Home,
+  Planner e NotificationService, mentre `advancedObservingNsom` resta una
+  property read-only separata.
+- Registrato che il metadata runtime di `advancedObservingNsom` e' allineato
+  allo stato default-on (`default_on_internal_projection`).
+- Documentato che UI visibile, copy/localizzazione e sostituzione futura degli
+  score legacy restano lavori separati e non bloccano la migrazione backend.
+- Nessun cambio a scoring, Planner, Home Best Object, Sky Compass, QML visibile,
+  logging, rete, scritture runtime o report runtime wiring.
+
 ## NightScope 1.8.17 - 2026-07-07
 
 - Abilitato Advanced Observing NSOM di default impostando

@@ -487,6 +487,15 @@ the visible Home-card, Planner and NotificationService contract. The explicit
 rollback is `AppController(use_nsom_advanced_observing=False)`. No visible QML
 consumer, report runtime wiring, logging, network path or runtime file write is
 added by the switch.
+`1.8.18` closes the Advanced Observing NSOM backend migration as documented
+status. The default backend projection remains NSOM, the visible and consumer
+contract remains legacy-compatible `advancedScores`, and
+`advancedObservingNsom` remains a separate read-only property with no visible
+QML consumer. Legacy Advanced Observing semantics for Planner/notifications are
+retained through the consumer split and explicit rollback
+`AppController(use_nsom_advanced_observing=False)`. Visible UI, localized copy
+and any replacement of legacy score display semantics remain separate future
+presentation work, not blockers for the completed backend migration.
 
 ## Dependency Flow
 

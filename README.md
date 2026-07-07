@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.17`.
+Versione corrente: `1.8.18`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -386,6 +386,14 @@ compatibilita' con le card Home, Planner e NotificationService. Il rollback
 interno resta esplicito con `AppController(use_nsom_advanced_observing=False)`.
 Non vengono aggiunti UI visibile, logging, rete, scritture runtime o wiring dei
 report developer-only.
+Lo step `1.8.18` chiude la migrazione Advanced Observing NSOM come stato
+backend default-on documentato. Advanced Observing NSOM e' ora calcolato di
+default come proiezione interna/parallela; `advancedScores` resta il contratto
+legacy-compatible visibile e consumer-safe, mentre `advancedObservingNsom` resta
+una property read-only separata non usata dalla UI visibile. Il rollback resta
+`AppController(use_nsom_advanced_observing=False)`. UI visibile,
+copy/localizzazione e sostituzione futura degli score legacy restano lavori
+separati, non blocker della migrazione backend.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -931,6 +931,18 @@ SessionViability and RecommendationConfidence remain metadata outside category
 values; no visible QML consumer, scoring replacement, report runtime wiring,
 logging, network call or runtime file write is introduced by the switch.
 
+Implementation note for 1.8.18:
+the Advanced Observing NSOM backend migration is closed. Advanced Observing now
+has a default-on NSOM internal projection for category diagnostics and a
+read-only `advancedObservingNsom` surface, while the visible/consumer contract
+`advancedScores` intentionally remains legacy-compatible. This preserves Planner
+and NotificationService semantics and keeps visible Home cards unchanged. The
+legacy-compatible path remains available through
+`AppController(use_nsom_advanced_observing=False)`. Visible UI design,
+copy/localization and any future replacement of legacy score display semantics
+are deferred non-blocking presentation work, not open backend migration
+blockers.
+
 Examples:
 
 - binocular-only profile;
