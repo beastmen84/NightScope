@@ -469,6 +469,15 @@ the private snapshot, including reads through the Qt property system. This keeps
 the QML property immutable from consumers in practice, preserves strict
 JSON-compatible payload semantics and does not change visible UI, scoring,
 consumer wiring or the default-off Advanced Observing NSOM flag.
+`1.8.16` adds
+`astro_viewer/tools/advanced_observing_nsom_default_on_readiness.py` and
+`docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md`. The audit
+concludes that Advanced Observing NSOM is ready for a backend/internal default-on
+switch only: the flag can be enabled in a later narrow commit to compute the
+parallel NSOM projection by default, while `advancedScores`, visible QML,
+Planner, NotificationService, Home Best Object and Sky Compass remain unchanged.
+Visible UI, localized copy and any replacement of legacy score semantics remain
+separate non-blocking work.
 
 ## Dependency Flow
 

@@ -908,6 +908,18 @@ through the Python helper or Qt property system cannot mutate
 only: no visible QML, scoring path, Planner, NotificationService, Best Object,
 Sky Compass, network, logging or runtime file-write behaviour changes.
 
+Implementation note for 1.8.16:
+`docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md` audits the final
+backend default-on decision for Advanced Observing NSOM. The verdict is ready
+for a backend/internal projection switch: enabling
+`NSOM_ADVANCED_OBSERVING_ENABLED` in a later commit would compute
+`_advanced_observing_nsom_scores` and `_advanced_observing_nsom_presentation`
+by default, but would not replace `advancedScores`, would not render visible
+QML, and would not change Planner, NotificationService, Home Best Object or Sky
+Compass inputs. The remaining visible UI design, copy/localization and future
+legacy-score replacement questions are explicitly non-blocking for that backend
+switch and remain separate NSOM presentation work.
+
 Examples:
 
 - binocular-only profile;

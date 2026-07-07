@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.15`.
+Versione corrente: `1.8.16`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -370,6 +370,14 @@ copia difensiva JSON-compatibile dello snapshot privato, inclusa la lettura via
 Qt property system. Questo impedisce mutazioni accidentali del payload interno e
 mantiene invariati UI visibile, scoring, flag Advanced Observing NSOM e consumer
 runtime.
+Lo step `1.8.16` aggiunge
+`docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md`: l'audit conclude
+che Advanced Observing NSOM e' pronto per uno switch default-on limitato alla
+proiezione backend/interna. Lo switch non deve sostituire `advancedScores`, non
+deve rendere UI QML visibile e non deve cambiare Planner, NotificationService,
+Home Best Object o Sky Compass. La UI visibile, la copy/localizzazione e
+l'eventuale sostituzione degli score legacy restano item separati e non
+bloccanti per il solo default-on backend.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.8.16 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_default_on_readiness.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md`,
+  audit per lo switch default-on backend/interno di Advanced Observing NSOM.
+- Il verdetto e' `ready_for_advanced_observing_nsom_backend_default_on`: nessun
+  blocker per abilitare la proiezione NSOM interna in un commit separato.
+- Chiarito che lo switch backend non sostituisce `advancedScores`, non rende UI
+  QML visibile e non cambia Planner, NotificationService, Home Best Object o
+  Sky Compass.
+- Registrati come non bloccanti per il backend: design UI visibile,
+  copy/localizzazione e sostituzione futura degli score legacy.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessun cambio runtime,
+  scoring, logging, rete o scritture runtime in questo audit.
+
 ## NightScope 1.8.15 - 2026-07-07
 
 - Rafforzata la property QML read-only `advancedObservingNsom`.
