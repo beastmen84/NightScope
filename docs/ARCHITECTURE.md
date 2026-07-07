@@ -64,7 +64,7 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
-Current implementation status for `1.8.5`: `astro_viewer/app/models/nsom.py`
+Current implementation status for `1.8.6`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.
 `astro_viewer/app/services/nsom_diagnostic_adapters.py` adapts existing runtime
@@ -385,6 +385,16 @@ sensitivity. It also records a default-on blocker: `advancedScores` is consumed
 by QML, Planner and NotificationService, so a future switch must decide whether
 those consumers receive NSOM category values, ignore them or keep a
 legacy-compatible copy.
+`1.8.6` adds
+`astro_viewer/tools/advanced_observing_nsom_downstream_policy.py` and the static
+report `docs/ADVANCED_OBSERVING_NSOM_DOWNSTREAM_POLICY.md`. The report records
+the downstream policy decision: `advancedScores` must stay legacy-compatible
+until Planner and NotificationService are split from that shared presentation
+contract. Planner currently consumes the value as an atmospheric-transparency
+factor inside NSOM `EffectiveObservability`; NotificationService thresholds it
+directly for favourable observing-condition notifications. Therefore
+`NSOM_ADVANCED_OBSERVING_ENABLED` remains `False` and default-on is blocked
+until those consumers receive explicit consumer-specific inputs or policy gates.
 
 ## Dependency Flow
 

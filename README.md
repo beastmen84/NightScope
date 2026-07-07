@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.8.5`.
+Versione corrente: `1.8.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -295,6 +295,13 @@ forced-on NSOM con il legacy senza cambiare il flag. Il report conferma che il
 path sperimentale e' safe-to-keep, ma non pronto per default-on: `advancedScores`
 e' ancora condiviso con QML, Planner e NotificationService, quindi serve una
 policy prima di farlo diventare default.
+Lo step `1.8.6` aggiunge il report developer-only
+`docs/ADVANCED_OBSERVING_NSOM_DOWNSTREAM_POLICY.md`. La policy stabilisce che
+`advancedScores` deve restare legacy-compatible finche' Planner e
+NotificationService non ricevono input consumer-specifici o una policy di split:
+il Planner lo usa come fattore di trasparenza e le notifiche lo usano come
+soglia diretta, quindi i valori NSOM di categoria non possono diventare default
+senza un passaggio dedicato. Il flag Advanced Observing NSOM resta spento.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

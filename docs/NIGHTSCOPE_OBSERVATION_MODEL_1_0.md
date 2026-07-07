@@ -17,7 +17,7 @@ legacy score surface, with a developer-only NSOM comparison layer added in
 `1.8.0`, a static comparison report added in `1.8.1`, a review checkpoint in
 `1.8.2`, a policy/readiness report added in `1.8.3` and a default-off runtime
 path added in `1.8.4`. The forced-on runtime path is reviewed in `1.8.5`, but
-the flag remains default-off.
+the flag remains default-off. Downstream consumer policy is recorded in `1.8.6`.
 
 ## Core Diagram
 
@@ -796,6 +796,18 @@ and deep-sky remains sensitive to sky background. The report also records that
 default-on is not ready: `advancedScores` is a shared runtime input consumed by
 QML, Planner and NotificationService, so those downstream consumers need an
 explicit policy before `NSOM_ADVANCED_OBSERVING_ENABLED` can change.
+
+Implementation note for 1.8.6: the developer-only report
+`docs/ADVANCED_OBSERVING_NSOM_DOWNSTREAM_POLICY.md` records that
+`advancedScores` must remain legacy-compatible until downstream consumers are
+split. Planner currently treats `advancedScores` as an atmospheric-transparency
+factor inside NSOM `EffectiveObservability`, while NotificationService treats it
+as a direct threshold for favourable condition notifications. Forced-on
+Advanced Observing NSOM values intentionally keep session viability outside
+category scores, so using them as shared legacy-style scores would change
+Planner ranking semantics and could trigger favourable notifications in blocked
+sessions. The Advanced Observing NSOM flag remains default-off and this step
+changes no runtime behaviour.
 
 Examples:
 
@@ -1662,6 +1674,9 @@ A future `ObserverCapabilityService` should own:
 - Status update for 1.8.5: AdvancedObserving forced-on runtime review is
   documented; the path is safe to keep but blocked for default-on by shared
   `advancedScores` downstream consumers.
+- Status update for 1.8.6: downstream policy is documented; `advancedScores`
+  stays legacy-compatible until Planner and NotificationService are split from
+  the shared presentation score.
 - Keep Sky Compass consuming prepared targets only.
 - Expose recommendation confidence only after scores and labels remain stable.
 

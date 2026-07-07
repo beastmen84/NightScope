@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.8.6 - 2026-07-07
+
+- Aggiunto il tool developer-only
+  `astro_viewer/tools/advanced_observing_nsom_downstream_policy.py`.
+- Generato `docs/ADVANCED_OBSERVING_NSOM_DOWNSTREAM_POLICY.md`, policy report
+  sui consumer downstream di `advancedScores`.
+- Registrata la decisione che `advancedScores` deve restare legacy-compatible
+  finche' Planner e NotificationService non ricevono input consumer-specifici o
+  una policy esplicita di split.
+- Evidenziato il rischio Planner: il Planner NSOM usa `advancedScores` come
+  fattore di trasparenza atmosferica; usare direttamente i valori Advanced
+  Observing NSOM forced-on cambierebbe ranking e ownership.
+- Evidenziato il rischio notifiche: in sessione bloccata i valori NSOM di
+  categoria restano fisici/alti e potrebbero generare notifiche favorevoli senza
+  un gate di `SessionViability`.
+- Il flag `NSOM_ADVANCED_OBSERVING_ENABLED` resta `False`; nessun cambiamento
+  runtime a formule, Planner, NotificationService, Home, Best Object, Sky
+  Compass, QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.8.5 - 2026-07-07
 
 - Aggiunto il tool developer-only
