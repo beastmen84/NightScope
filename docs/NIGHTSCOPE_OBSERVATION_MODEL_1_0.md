@@ -1023,6 +1023,16 @@ remain outside runtime Sky Compass direction scoring. The `skyCompass` payload
 shape remains legacy-compatible and no QML/UI exposure, logging, network call,
 runtime file write or report runtime wiring is added.
 
+Implementation note for 1.9.6:
+the Sky Compass NSOM migration is closed as a documented default-on backend
+path. Sky Compass now uses `ObservableTargetValue.value` as its default
+candidate base while preserving presentation-policy boosts for Night Plan
+membership, Best Object identity and target presence. Legacy
+`SkyCompassService` remains explicit rollback/fallback only. The visible
+`skyCompass` payload remains legacy-compatible, displayed target `score`
+remains base display data rather than NSOM rationale, and no QML/UI explanation
+fields are introduced in this migration.
+
 Examples:
 
 - binocular-only profile;

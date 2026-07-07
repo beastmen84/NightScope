@@ -25,7 +25,7 @@ class SkyCompassNsomTarget:
 
 
 class SkyCompassNsomDirectionService:
-    """Experimental default-off Sky Compass direction policy.
+    """Default Sky Compass NSOM direction policy.
 
     This service preserves the public Sky Compass payload shape. It uses
     ObservableTargetValue only as the candidate base, keeps plan/best/context

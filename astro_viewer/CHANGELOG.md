@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.9.6 - 2026-07-07
+
+- Chiusa la migrazione Sky Compass NSOM come stato documentato.
+- Sky Compass usa ora di default `SkyCompassNsomDirectionService` con base
+  `ObservableTargetValue.value` e policy di presentazione per piano
+  osservativo, Best Object e presenza target.
+- Il rollback legacy resta esplicito con
+  `AppController(use_nsom_sky_compass=False)`.
+- Documentato che il payload `skyCompass` resta legacy-compatible e che il
+  campo `score` resta dato legacy/base di compatibilita', non rationale NSOM.
+- Documentato il fallback legacy quando manca sky quality o il path NSOM
+  fallisce.
+- Nessun cambio a QML/UI visibile, logging, rete, scritture runtime o report
+  runtime wiring.
+
 ## NightScope 1.9.5 - 2026-07-07
 
 - Abilitato Sky Compass NSOM di default impostando

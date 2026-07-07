@@ -80,4 +80,4 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 
 ## Recommended Next Step
 
-Review the default-on switch, then close the Sky Compass NSOM migration in documentation while keeping `AppController(use_nsom_sky_compass=False)` as rollback and the `skyCompass` QML payload shape unchanged.
+The Sky Compass NSOM backend migration is closed in the base documentation. Keep `AppController(use_nsom_sky_compass=False)` as rollback and treat any visible explanation UI as a separate design step.

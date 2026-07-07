@@ -548,6 +548,13 @@ rollback and missing sky quality or NSOM service failure still falls back to
 `SkyCompassService`. The public `skyCompass` payload shape remains unchanged
 and no QML/UI field, logging path, network call, runtime file write or report
 runtime wiring is added.
+`1.9.6` closes the Sky Compass NSOM migration as documentation/status. Sky
+Compass now defaults to NSOM `ObservableTargetValue` as the candidate base
+inside `SkyCompassNsomDirectionService`; legacy `SkyCompassService` remains
+available only as explicit rollback/fallback. The `skyCompass` payload remains
+legacy-compatible, displayed target `score` remains base display data rather
+than NSOM rationale, and visible explanation UI remains a separate future
+design step.
 
 ## Dependency Flow
 
