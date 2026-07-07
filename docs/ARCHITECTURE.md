@@ -504,6 +504,15 @@ remain owned by `SkyCompassService`; no controller/QML wiring, logging, network
 path, runtime file write or report runtime hook is added. The helper marks
 legacy components unavailable where Sky Compass only receives an already
 prepared candidate score.
+`1.9.1` adds the developer-only
+`docs/SKY_COMPASS_NSOM_COMPARISON_REPORT.md`, generated only by the explicit
+`astro_viewer/tools/sky_compass_nsom_comparison_report.py` command. The report
+uses deterministic scenarios to show that Sky Compass is a direction and
+presentation policy, not a pure target-value ranking. NSOM observable and
+practical direction references are useful for review, but plan membership,
+Best Object identity and direction concentration remain separate presentation
+policy inputs. No runtime import, QML exposure, logging, network path or
+runtime file write is added.
 
 ## Dependency Flow
 

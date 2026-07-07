@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.0`.
+Versione corrente: `1.9.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -401,6 +401,14 @@ direzionale con `IntrinsicTargetQuality`, `ObservationEnvironment`,
 `SessionViability` e `RecommendationConfidence`. Sky Compass runtime, payload
 QML, ranking direzionale, Home, Best Object e Planner restano invariati; il
 layer non scrive file, non logga, non usa rete e non viene collegato alla UI.
+Lo step `1.9.1` aggiunge il report developer-only
+`docs/SKY_COMPASS_NSOM_COMPARISON_REPORT.md`, generato dal tool esplicito
+`astro_viewer/tools/sky_compass_nsom_comparison_report.py`. Il report usa 8
+scenari deterministici e mostra che Sky Compass e' una policy direzionale e di
+presentazione, non un ranking puro per target-value: NSOM puo' fornire
+riferimenti `ObservableTargetValue`/`PracticalTargetValue`, ma boost da piano,
+Best Object e concentrazione direzionale restano policy separate. Nessun
+runtime, payload QML o ranking viene modificato.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

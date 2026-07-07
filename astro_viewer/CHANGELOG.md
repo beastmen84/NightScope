@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.9.1 - 2026-07-07
+
+- Aggiunto il report developer-only
+  `docs/SKY_COMPASS_NSOM_COMPARISON_REPORT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/sky_compass_nsom_comparison_report.py` per rigenerare il
+  report fuori dal runtime.
+- Il report copre 8 scenari deterministici: cielo buio, Luna brillante, alto
+  inquinamento luminoso, meteo scarso, sessione bloccata, piccolo telescopio,
+  grande telescopio e boost da piano/Best Object.
+- Documentato che Sky Compass non e' un ranking puro per target-value: la
+  formula legacy combina score candidato preparato, membership nel piano, Best
+  Object e concentrazione direzionale.
+- Aggiunti test per output deterministico, JSON stretto, componenti legacy
+  non disponibili, separazione sessione/equipaggiamento, confidence neutrality,
+  assenza di wiring runtime/QML e allineamento del report checked-in.
+- Nessun cambio a Sky Compass runtime, Home, Best Object, Planner, QML,
+  logging, rete o scritture runtime.
+
 ## NightScope 1.9.0 - 2026-07-07
 
 - Avviata la migrazione Sky Compass con
