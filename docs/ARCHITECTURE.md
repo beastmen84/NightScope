@@ -555,6 +555,16 @@ available only as explicit rollback/fallback. The `skyCompass` payload remains
 legacy-compatible, displayed target `score` remains base display data rather
 than NSOM rationale, and visible explanation UI remains a separate future
 design step.
+`1.9.7` adds the developer-only overall backend migration audit in
+`docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md`, generated only by
+`astro_viewer/tools/nsom_backend_migration_status_audit.py`. The audit records
+that Planner, Home `recommendedDeepSky`, Best Object, the Advanced Observing
+backend projection and Sky Compass are closed default-on NSOM surfaces with
+explicit rollback paths. Remaining Detail/selected-object, Sky Map, Equipment,
+conditioned-object cache, Notification and catalogue-score work is classified
+as non-blocking follow-up. The audit recommends starting the next backend area
+with a Detail/Object NSOM comparison layer and does not change runtime
+behaviour, QML, scoring, logging, network access or runtime file writes.
 
 ## Dependency Flow
 

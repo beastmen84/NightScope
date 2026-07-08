@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.6`.
+Versione corrente: `1.9.7`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -446,6 +446,14 @@ Sky Compass e' default-on su NSOM `ObservableTargetValue`, il path legacy resta
 solo rollback interno/fallback e il payload QML resta compatibile. Il campo
 `score` nei target Sky Compass continua a essere il valore legacy/base mostrato
 per compatibilita' e non una spiegazione NSOM della direzione.
+Lo step `1.9.7` aggiunge l'audit complessivo developer-only dello stato NSOM
+backend: Planner, Home `recommendedDeepSky`, Best Object, Advanced Observing
+backend e Sky Compass risultano chiusi come superfici default-on con rollback
+espliciti. Il report `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` identifica
+come residui non bloccanti Detail/selected object, Sky Map, Equipment
+recommendations, cache di oggetti condizionati, Notifications e score raw di
+catalogo. Il prossimo step consigliato e' un confronto NSOM Detail/Object,
+senza UI o scoring change.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

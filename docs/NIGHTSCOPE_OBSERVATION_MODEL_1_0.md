@@ -1033,6 +1033,18 @@ membership, Best Object identity and target presence. Legacy
 remains base display data rather than NSOM rationale, and no QML/UI explanation
 fields are introduced in this migration.
 
+Implementation note for 1.9.7:
+`docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` records the overall backend NSOM
+migration status after the Sky Compass close. Planner, Home
+`recommendedDeepSky`, Best Object, Advanced Observing backend and Sky Compass
+are default-on NSOM consumers/projections with explicit rollback paths.
+Remaining Detail/selected-object, Sky Map, Equipment, conditioned-object cache,
+Notification and catalogue-score surfaces are non-blocking follow-up areas, not
+default-on blockers for the already migrated paths. The recommended next backend
+step is a Detail/Object NSOM comparison layer. This audit is developer-only and
+does not change score formulas, QML, runtime logging, network access or runtime
+file writes.
+
 Examples:
 
 - binocular-only profile;

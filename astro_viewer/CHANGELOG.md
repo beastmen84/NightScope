@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.9.7 - 2026-07-08
+
+- Aggiunto l'audit complessivo developer-only dello stato NSOM backend:
+  `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/nsom_backend_migration_status_audit.py`.
+- Confermato che Planner, Home `recommendedDeepSky`, Best Object, Advanced
+  Observing backend e Sky Compass sono superfici NSOM default-on chiuse con
+  rollback interni espliciti.
+- Identificati i residui non bloccanti: Detail/selected object, Sky Map,
+  Equipment recommendations, cache di oggetti condizionati, Notifications e
+  score raw di catalogo.
+- Raccomandato come prossimo step `1.10.0 Detail/Object NSOM comparison layer`.
+- Nessun cambio runtime, QML/UI, scoring, logging, rete, scritture runtime o
+  report runtime wiring.
+
 ## NightScope 1.9.6 - 2026-07-07
 
 - Chiusa la migrazione Sky Compass NSOM come stato documentato.
