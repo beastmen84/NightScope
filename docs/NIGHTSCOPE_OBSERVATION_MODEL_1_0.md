@@ -1159,6 +1159,15 @@ fallbacks and `setupOptions`. The NSOM-owned next step is to extract a shared
 must stay behind explicit environment/setup-stability boundaries; confidence
 remains metadata-only.
 
+Implementation note for 1.12.2:
+`observer_capability_adapter.py` now owns the shared
+`ObserverCapability`/`Q_target` projection from concrete equipment
+configurations and `RecommendationCandidate` objects. The Equipment comparison
+report consumes this adapter instead of carrying report-private capability math.
+This is still backend/internal infrastructure: `EquipmentService` remains the
+runtime setup recommender, no default-off Equipment replacement path is added,
+and QML receives no NSOM equipment fields.
+
 Examples:
 
 - binocular-only profile;

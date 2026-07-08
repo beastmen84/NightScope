@@ -41,12 +41,14 @@ def test_equipment_policy_defers_default_off_replacement_but_allows_adapter_step
     assert data["readiness"]["verdict"] == "equipment_nsom_policy_set_runtime_replacement_deferred"
     assert data["readiness"]["ready_for_default_off_path"] is False
     assert data["readiness"]["ready_for_observer_capability_adapter_step"] is True
+    assert data["readiness"]["observer_capability_adapter_extracted"] is True
     assert data["readiness"]["runtime_behaviour_changed_by_this_review"] is False
     assert data["readiness"]["explicit_legacy_default"] == (
         "EquipmentService.suggest_for_profile(...) remains unchanged"
     )
     assert data["checks"]["default_off_runtime_replacement_deferred"] is True
     assert data["checks"]["observer_capability_adapter_ready_next"] is True
+    assert data["checks"]["observer_capability_adapter_extracted"] is True
     assert "equipment-equipment-runtime-role" in data["blockers"]
 
 
@@ -65,6 +67,7 @@ def test_policy_decision_log_covers_required_equipment_boundaries() -> None:
         "confidence_policy",
     }
     assert decisions["equipment_runtime_role"]["blocks_default_off_path"] is True
+    assert decisions["observer_capability_adapter_policy"]["status"] == "accepted_extracted"
     assert decisions["observer_capability_adapter_policy"]["adapter_extraction_ready"] is True
     assert decisions["q_target_runtime_policy"]["q_target_replaces_equipment_score"] is False
     assert decisions["sky_quality_policy"]["affected_nsom_layer"] == "sky"
@@ -88,6 +91,9 @@ def test_comparison_evidence_supports_policy_without_calibrating_to_legacy() -> 
     assert data["checks"]["legacy_ownership_mixing_documented"] is True
     assert data["recommended_policy"]["default_off_replacement_policy"] == (
         "defer_until_payload_and_environment_boundaries_exist"
+    )
+    assert data["recommended_policy"]["first_runtime_safe_step"] == (
+        "shared_observer_capability_adapter_extracted"
     )
 
 
@@ -119,5 +125,5 @@ def test_checked_in_equipment_policy_readiness_report_matches_renderer() -> None
     text = report.read_text(encoding="utf-8")
     assert "# Equipment NSOM Policy Readiness" in text
     assert "equipment_nsom_policy_set_runtime_replacement_deferred" in text
-    assert "ObserverCapability/Q_target adapter" in text
+    assert "ObserverCapability adapter extracted" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

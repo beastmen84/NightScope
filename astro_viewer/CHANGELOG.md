@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.12.2 - 2026-07-08
+
+- Estratto l'adapter condiviso `ObserverCapability/Q_target` in
+  `astro_viewer/app/services/observer_capability_adapter.py`.
+- `EquipmentNsomComparisonService` ora usa l'adapter condiviso invece di una
+  copia privata della formula di capability derivata dalle configurazioni.
+- Aggiunti test diretti per configurazioni telescopio/binocolo, proiezione
+  target-specific, JSON strict e parita' fra comparison rows e adapter.
+- Aggiornati `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md`,
+  `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` e gli audit backend: Equipment ha
+  ora lo stato `observer_adapter_extracted`, mentre il runtime setup helper
+  resta invariato.
+- Nessun cambio a QML/UI, Equipment runtime, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.12.1 - 2026-07-08
 
 - Aggiunto `docs/EQUIPMENT_NSOM_POLICY_READINESS.md`, audit developer-only che

@@ -62,15 +62,15 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "verdict": "legacy_backend_surface_cleanup_complete",
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "recommended_next_step": (
-                "Review 1.12.1, then extract a shared ObserverCapability/Q_target adapter."
+                "Review 1.12.2, then decide the next backend area."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
                 "`controller.skyMap`. The 1.11.1 cleanup removes the controller "
                 "property, `_sky_map` storage, recomputation and `SkyMapService`, "
                 "so Sky Map is no longer a backend migration target. Equipment now "
-                "has a developer-only policy decision to keep the runtime setup "
-                "helper unchanged and extract ObserverCapability separately."
+                "has a shared ObserverCapability/Q_target adapter while the runtime "
+                "setup helper remains unchanged."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -154,6 +154,20 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "summary": (
                     "Extract reusable ObserverCapability/Q_target projection without "
                     "changing Equipment recommendations."
+                ),
+            },
+            {
+                "step": "Review 1.12.2",
+                "summary": (
+                    "Confirm the adapter extraction preserved Equipment comparison "
+                    "values and runtime behaviour."
+                ),
+            },
+            {
+                "step": "Next backend area decision",
+                "summary": (
+                    "Choose between ObservationConditions read-model cleanup and "
+                    "Equipment presenter contract work."
                 ),
             },
         ),
@@ -314,11 +328,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Sky Map has been removed from the backend runtime surface instead "
-                "of being migrated to NSOM. Equipment now has a developer-only "
-                "policy decision to keep runtime setup recommendations unchanged; "
-                "the next useful backend step is ObserverCapability/Q_target adapter "
-                "extraction, while temporary rollback cleanup remains a separate "
-                "policy decision."
+                "of being migrated to NSOM. Equipment now has a shared "
+                "ObserverCapability/Q_target adapter while runtime setup "
+                "recommendations remain unchanged. The next backend area should be "
+                "chosen explicitly, while temporary rollback cleanup remains a "
+                "separate policy decision."
             ),
             "",
         ]
@@ -462,12 +476,14 @@ def _active_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
             "classification": "active_legacy_or_hybrid",
             "why_active": (
                 "`EquipmentService` still computes practical setup recommendations; "
-                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps that runtime path "
-                "as the setup helper and defers default-off replacement."
+                "`observer_capability_adapter.py` now provides shared "
+                "ObserverCapability/Q_target projection while "
+                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup "
+                "helper unchanged."
             ),
             "recommended_handling": (
-                "Extract shared ObserverCapability/Q_target projection before any "
-                "runtime replacement."
+                "Review the ObserverCapability/Q_target adapter extraction before "
+                "choosing the next backend area."
             ),
         },
         {

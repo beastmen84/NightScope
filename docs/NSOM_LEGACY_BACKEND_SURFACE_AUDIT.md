@@ -9,8 +9,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.12.1, then extract a shared ObserverCapability/Q_target adapter.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a developer-only policy decision to keep the runtime setup helper unchanged and extract ObserverCapability separately.
+- Recommended next step: Review 1.12.2, then decide the next backend area.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged.
 
 ## Classification Policy
 
@@ -51,7 +51,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps that runtime path as the setup helper and defers default-off replacement. | Extract shared ObserverCapability/Q_target projection before any runtime replacement. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Review the ObserverCapability/Q_target adapter extraction before choosing the next backend area. |
 | ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths. | Defer cleanup until an ObservationSnapshot/read-model boundary exists. |
 | Notifications | `active_legacy_or_hybrid` | Notifications consume legacy-compatible best object, plan and advanced-score payloads. | Define notification-specific NSOM semantics before replacement. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -78,7 +78,9 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `1.12.1 Equipment NSOM policy readiness`: Decide whether Equipment gets a default-off NSOM path or stays a practical setup helper.
 - `Review 1.12.1`: Confirm the policy defers runtime replacement and preserves EquipmentService behaviour.
 - `1.12.2 ObserverCapability adapter extraction`: Extract reusable ObserverCapability/Q_target projection without changing Equipment recommendations.
+- `Review 1.12.2`: Confirm the adapter extraction preserved Equipment comparison values and runtime behaviour.
+- `Next backend area decision`: Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Equipment now has a developer-only policy decision to keep runtime setup recommendations unchanged; the next useful backend step is ObserverCapability/Q_target adapter extraction, while temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. The next backend area should be chosen explicitly, while temporary rollback cleanup remains a separate policy decision.

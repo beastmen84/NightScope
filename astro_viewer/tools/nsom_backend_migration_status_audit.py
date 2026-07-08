@@ -79,17 +79,16 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.12.1 Equipment policy readiness, then extract a shared "
-                "ObserverCapability/Q_target adapter"
+                "Review 1.12.2 ObserverCapability adapter extraction, then decide "
+                "the next backend area"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
                 "hybrid surfaces; Sky Map has been removed as dead legacy and "
-                "Equipment now has a developer-only policy decision to keep runtime "
-                "setup recommendations unchanged while extracting ObserverCapability "
-                "as a separate backend step."
+                "Equipment now has a shared ObserverCapability/Q_target adapter "
+                "while runtime setup recommendations remain unchanged."
             ),
         },
         "blockers": blockers,
@@ -230,9 +229,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "The backend NSOM migration is closed for the already migrated "
                 "recommendation surfaces and Detail/Object. Sky Map has been removed "
                 "as dead legacy rather than migrated to NSOM. Equipment now has a "
-                "developer-only policy decision: keep the runtime setup recommender "
-                "unchanged and extract ObserverCapability/Q_target as a shared "
-                "backend adapter next. Visible UI explanation work remains separate."
+                "shared ObserverCapability/Q_target adapter while runtime setup "
+                "recommendations remain unchanged. The next backend step should be "
+                "chosen explicitly; visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -327,16 +326,18 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Equipment recommendations",
-            "status": "policy_ready_adapter_next",
+            "status": "observer_adapter_extracted",
             "why_it_remains": (
                 "`EquipmentService` still ranks eyepiece/Barlow/binocular candidates "
                 "with its own practical configuration score. "
-                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps that runtime path "
-                "as the setup helper and defers any default-off replacement."
+                "`observer_capability_adapter.py` now provides shared "
+                "ObserverCapability/Q_target projection while "
+                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps runtime setup "
+                "recommendations unchanged."
             ),
             "recommended_handling": (
-                "Extract a shared ObserverCapability/Q_target adapter or read model "
-                "before considering any runtime replacement."
+                "Review the adapter extraction, then choose either ObservationConditions "
+                "read-model cleanup or Equipment presenter contract work."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -404,6 +405,10 @@ def _checks(
             "ready_for_observer_capability_adapter_step"
         ]
         is True,
+        "equipment_observer_adapter_extracted": equipment_policy["readiness"][
+            "observer_capability_adapter_extracted"
+        ]
+        is True,
         "source_reports_present": all(documentation["source_reports_present"]),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
@@ -419,6 +424,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "confidence_score_neutral_across_default_on_surfaces": "nsom-confidence-score-effect",
         "source_reports_present": "nsom-source-report-missing",
         "equipment_policy_ready_for_adapter_step": "equipment-policy-adapter-step-not-ready",
+        "equipment_observer_adapter_extracted": "equipment-observer-adapter-not-extracted",
         "runtime_report_imports_absent": "nsom-audit-runtime-wiring",
         "qml_exposure_absent": "nsom-audit-qml-exposure",
         "runtime_behaviour_unchanged_by_audit": "nsom-audit-runtime-change",
@@ -476,6 +482,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.12.2 ObserverCapability adapter extraction",
             "summary": "Extract a shared ObserverCapability/Q_target adapter while leaving EquipmentService runtime output unchanged.",
+        },
+        {
+            "step": "Review 1.12.2",
+            "summary": "Confirm adapter extraction preserved Equipment comparison values and runtime output.",
+        },
+        {
+            "step": "Next backend area decision",
+            "summary": "Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.",
         },
         {
             "step": "Later UI explanation work",

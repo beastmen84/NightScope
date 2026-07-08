@@ -651,6 +651,11 @@ setup helper for eyepieces, Barlow, binoculars, fallbacks and `setupOptions`.
 No default-off Equipment replacement path is added. The next backend step is to
 extract a shared `ObserverCapability`/`Q_target` adapter or read model while
 leaving Equipment recommendations and QML payloads unchanged.
+`1.12.2` extracts that shared adapter in
+`astro_viewer/app/services/observer_capability_adapter.py`. Equipment comparison
+now consumes the shared `ObserverCapability`/`Q_target` projection instead of
+owning report-private capability math. `EquipmentService.suggest_for_profile(...)`
+and all QML payloads remain unchanged.
 
 ## Dependency Flow
 

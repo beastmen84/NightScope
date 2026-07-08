@@ -3,6 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
+from astro_viewer.app.services.observer_capability_adapter import (
+    build_observer_capability_projection_from_candidate,
+)
 from astro_viewer.tools.equipment_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -51,12 +54,13 @@ def generate_policy_readiness_data() -> dict[str, object]:
             ),
             "ready_for_default_off_path": ready_for_default_off,
             "ready_for_observer_capability_adapter_step": True,
+            "observer_capability_adapter_extracted": _adapter_extracted(),
             "runtime_behaviour_changed_by_this_review": False,
             "explicit_legacy_default": "EquipmentService.suggest_for_profile(...) remains unchanged",
             "recommended_next_change": (
-                "Extract a shared ObserverCapability/Q_target adapter or read model "
-                "from the comparison layer while keeping EquipmentService runtime "
-                "setup recommendations unchanged."
+                "Review the shared ObserverCapability/Q_target adapter extraction, "
+                "then decide between ObservationConditions read-model cleanup and "
+                "Equipment presenter contract work."
             ),
             "reason": _readiness_reason(ready_for_default_off),
         },
@@ -99,6 +103,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "- Ready for ObserverCapability adapter step: "
             f"`{readiness['ready_for_observer_capability_adapter_step']}`."
         ),
+        f"- ObserverCapability adapter extracted: `{readiness['observer_capability_adapter_extracted']}`.",
         (
             "- Runtime behaviour changed by this review: "
             f"`{readiness['runtime_behaviour_changed_by_this_review']}`."
@@ -198,10 +203,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement `1.12.2` as an internal ObserverCapability/Q_target "
-                "adapter extraction. Keep `EquipmentService.suggest_for_profile(...)` "
-                "as the runtime setup recommender and do not add a default-off "
-                "Equipment replacement path yet."
+                "Review `1.12.2` and then decide whether the next backend step is "
+                "ObservationConditions read-model cleanup or an Equipment presenter "
+                "contract. Keep `EquipmentService.suggest_for_profile(...)` as the "
+                "runtime setup recommender."
             ),
             "",
         ]
@@ -235,12 +240,11 @@ def _policy_decisions() -> tuple[dict[str, object], ...]:
         ),
         _decision(
             "observer_capability_adapter_policy",
-            status="accepted_for_next_step",
+            status="accepted_extracted",
             affected_layer="observer",
             decision=(
-                "The next NSOM backend step should extract a shared "
-                "ObserverCapability/Q_target adapter or read model from the "
-                "comparison implementation."
+                "A shared ObserverCapability/Q_target adapter has been extracted "
+                "from the comparison implementation."
             ),
             reason=(
                 "ObserverCapability is the NSOM-owned projection needed by Planner, "
@@ -366,7 +370,7 @@ def _recommended_policy() -> dict[str, object]:
     return {
         "equipment_runtime_role": "practical_setup_helper_preserved",
         "nsom_owned_output": "ObserverCapability_profile_and_Q_target_projection",
-        "first_runtime_safe_step": "shared_observer_capability_adapter_extraction",
+        "first_runtime_safe_step": "shared_observer_capability_adapter_extracted",
         "default_off_replacement_policy": "defer_until_payload_and_environment_boundaries_exist",
         "seeing_policy": "environment_or_setup_stability_context_not_capability_scalar",
         "sky_quality_policy": "ObservationEnvironment_input_not_ObserverCapability_modifier",
@@ -403,6 +407,7 @@ def _readiness_checks(
             decision["blocks_default_off_path"] is True for decision in decisions
         ),
         "observer_capability_adapter_ready_next": adapter["adapter_extraction_ready"] is True,
+        "observer_capability_adapter_extracted": _adapter_extracted(),
         "q_target_does_not_replace_setup_score": _decision_by_id(
             decisions,
             "q_target_runtime_policy",
@@ -433,6 +438,7 @@ def _default_off_blockers(
         "comparison_report_has_candidate_evidence": "equipment-comparison-evidence-missing",
         "required_policy_decisions_recorded": "equipment-policy-decisions-missing",
         "observer_capability_adapter_ready_next": "equipment-observer-adapter-not-ready",
+        "observer_capability_adapter_extracted": "equipment-observer-adapter-not-extracted",
         "q_target_does_not_replace_setup_score": "equipment-q-target-replaces-setup-score",
         "observer_isolated_from_observable": "equipment-observer-leaks-into-observable",
         "legacy_ownership_mixing_documented": "equipment-ownership-mixing-undocumented",
@@ -487,7 +493,7 @@ def _non_blocking_risks() -> tuple[str, ...]:
     return (
         "The existing setup recommendation copy and setupOptions roles are UI-facing compatibility data.",
         "Seeing and sky quality still affect legacy EquipmentService setup scoring and need explicit boundaries before replacement.",
-        "A shared ObserverCapability adapter should avoid depending on private EquipmentService helper methods long term.",
+        "The shared ObserverCapability adapter now exists; future work should avoid depending on private EquipmentService helper methods long term.",
         "Q_target can rank capability differently from legacy setup score; this is expected evidence, not a calibration target.",
         "A future visible UI explanation step can expose rationale only after backend semantics are stable.",
     )
@@ -540,6 +546,10 @@ def _decision_by_id(
     decision_id: str,
 ) -> dict[str, object]:
     return next(decision for decision in decisions if decision["decision_id"] == decision_id)
+
+
+def _adapter_extracted() -> bool:
+    return callable(build_observer_capability_projection_from_candidate)
 
 
 def _readiness_reason(ready_for_default_off: bool) -> str:

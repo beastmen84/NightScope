@@ -89,7 +89,7 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
         "Catalogue / raw object score",
     }
     assert active["Equipment recommendations"]["classification"] == "active_legacy_or_hybrid"
-    assert "EQUIPMENT_NSOM_POLICY_READINESS.md" in active["Equipment recommendations"]["why_active"]
+    assert "observer_capability_adapter.py" in active["Equipment recommendations"]["why_active"]
     assert "ObserverCapability/Q_target" in active["Equipment recommendations"]["recommended_handling"]
 
 
@@ -111,7 +111,8 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "# NSOM Legacy Backend Surface Audit" in text
     assert "removed_dead_legacy_surface" in text
     assert "Review 1.11.1" in text
-    assert "Review 1.12.1" in text
+    assert "Review 1.12.2" in text
     assert "1.12.1 Equipment NSOM policy readiness" in text
     assert "1.12.2 ObserverCapability adapter extraction" in text
+    assert "Next backend area decision" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

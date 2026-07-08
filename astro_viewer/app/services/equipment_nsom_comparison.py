@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from collections.abc import Iterable
 
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
@@ -8,13 +7,10 @@ from astro_viewer.app.models.nsom import (
     EffectiveObservability,
     IntrinsicTargetQuality,
     ObservableTargetValue,
-    ObserverCapability,
     ObservationEnvironment,
     PracticalTargetValue,
     RecommendationConfidence,
     nsom_to_json_compatible,
-    observer_capability_weight_profile_for_target,
-    project_observer_capability_for_target,
 )
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -26,6 +22,10 @@ from astro_viewer.app.services.home_nsom_observable import build_home_observatio
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_intrinsic_target_quality,
     build_recommendation_confidence,
+)
+from astro_viewer.app.services.observer_capability_adapter import (
+    ObserverCapabilityProjection,
+    build_observer_capability_projection_from_candidate,
 )
 
 
@@ -195,12 +195,14 @@ class EquipmentNsomComparisonService:
         seeing: SeeingTransparency | None,
         confidence: RecommendationConfidence,
     ) -> dict[str, object]:
-        observer = _observer_capability_from_candidate(candidate)
-        q_target = project_observer_capability_for_target(observer, observable.target_class)
+        observer_projection = build_observer_capability_projection_from_candidate(
+            candidate,
+            observable.target_class,
+        )
         practical = PracticalTargetValue.from_observable(
             observable_target_value=observable,
-            observer_capability=observer,
-            capability_summary=q_target,
+            observer_capability=observer_projection.observer_capability,
+            capability_summary=observer_projection.q_target,
         )
         legacy = self._legacy_candidate_projection(candidate, target, sky_quality=sky_quality, seeing=seeing)
         return {
@@ -217,12 +219,13 @@ class EquipmentNsomComparisonService:
                 effective,
                 observable,
                 practical,
+                observer_projection,
                 confidence,
                 seeing=seeing,
                 sky_quality=sky_quality,
             ),
             "deltas": {
-                "q_target_minus_legacy_unit_score": q_target - candidate.score / 100.0,
+                "q_target_minus_legacy_unit_score": observer_projection.q_target - candidate.score / 100.0,
                 "practical_minus_legacy_score": practical.value - candidate.score,
             },
         }
@@ -339,56 +342,13 @@ class EquipmentNsomComparisonService:
             ),
         }
 
-
-def _observer_capability_from_candidate(candidate: RecommendationCandidate) -> ObserverCapability:
-    configuration = candidate.configuration
-    objective = _configuration_objective_mm(configuration)
-    true_field = configuration.true_field_of_view_deg
-    if configuration.binocular:
-        binocular = configuration.binocular
-        tracking = 0.35 if binocular.image_stabilized else 0.15
-        practical_comfort = _binocular_comfort(configuration.magnification, binocular.image_stabilized)
-        field_of_view = 0.78 if configuration.magnification <= 12.0 else 0.55
-        notes = (
-            "nsom:equipment_observer_capability",
-            "adapter:configuration_derived",
-            f"binocular={binocular.name}",
-            f"magnification={configuration.magnification:.1f}",
-        )
-    else:
-        telescope = configuration.telescope
-        tracking = _tracking_capability(telescope.mount if telescope else "")
-        practical_comfort = _telescope_comfort(configuration)
-        field_of_view = _clamp_unit((true_field or 0.0) / 3.0)
-        notes = (
-            "nsom:equipment_observer_capability",
-            "adapter:configuration_derived",
-            f"telescope={telescope.name if telescope else ''}",
-            f"magnification={configuration.magnification:.1f}",
-            f"true_field={true_field:.3f}" if true_field is not None else "true_field=unavailable",
-        )
-
-    return ObserverCapability(
-        light_grasp=_unit_from_range(objective, lower=35.0, upper=250.0),
-        resolution=_unit_from_range(objective, lower=50.0, upper=250.0),
-        field_of_view=field_of_view,
-        magnification_range=_clamp_unit(configuration.magnification / 180.0),
-        tracking_or_goto=tracking,
-        automation_or_eaa=0.0,
-        filters=(),
-        experience_level=0.75,
-        observing_style="visual",
-        practical_comfort=practical_comfort,
-        notes=notes,
-    )
-
-
 def _nsom_projection(
     intrinsic: IntrinsicTargetQuality,
     environment: ObservationEnvironment,
     effective: EffectiveObservability,
     observable: ObservableTargetValue,
     practical: PracticalTargetValue,
+    observer_projection: ObserverCapabilityProjection,
     confidence: RecommendationConfidence,
     *,
     seeing: SeeingTransparency | None,
@@ -402,10 +362,10 @@ def _nsom_projection(
         "observable_target_value": observable,
         "observer_capability": {
             **nsom_to_json_compatible(observer),
-            "summary_for_planning": observer.summary_for_planning(),
-            "q_target": practical.observer_capability_summary,
-            "target_class_weighting_profile": observer_capability_weight_profile_for_target(observable.target_class),
-            "derivation": "configuration_derived_adapter",
+            "summary_for_planning": observer_projection.summary_for_planning,
+            "q_target": observer_projection.q_target,
+            "target_class_weighting_profile": observer_projection.target_class_weighting_profile,
+            "derivation": observer_projection.derivation,
         },
         "practical_target_value": practical,
         "recommendation_confidence": _confidence_projection(confidence),
@@ -527,66 +487,3 @@ def _score_from_path(row: dict[str, object], section: str, score_path: str) -> o
 def _practical_target_value(row: dict[str, object]) -> float:
     practical = row["nsom"]["practical_target_value"]  # type: ignore[index]
     return float(getattr(practical, "value"))
-
-
-def _configuration_objective_mm(configuration: ObservationConfiguration) -> float:
-    if configuration.telescope:
-        return float(configuration.telescope.aperture_mm)
-    if configuration.binocular:
-        return float(configuration.binocular.objective_diameter_mm)
-    return 7.0
-
-
-def _telescope_comfort(configuration: ObservationConfiguration) -> float:
-    comfort = 0.82
-    if configuration.barlow:
-        comfort -= 0.18
-    if configuration.magnification > 180.0:
-        comfort -= 0.22
-    elif configuration.magnification > 120.0:
-        comfort -= 0.10
-    if configuration.exit_pupil_mm < 0.5:
-        comfort -= 0.20
-    return _clamp_unit(comfort)
-
-
-def _binocular_comfort(magnification: float, image_stabilized: bool) -> float:
-    if magnification <= 10.0:
-        comfort = 0.92
-    elif magnification <= 12.0:
-        comfort = 0.80
-    elif magnification <= 15.0:
-        comfort = 0.62
-    else:
-        comfort = 0.42
-    if image_stabilized:
-        comfort += 0.18
-    return _clamp_unit(comfort)
-
-
-def _tracking_capability(value: object) -> float:
-    text = str(value).lower()
-    if any(token in text for token in ("goto", "go-to", "computer", "eq", "tracking", "motoriz")):
-        return 0.8
-    if any(token in text for token in ("dob", "altaz", "manual")):
-        return 0.2
-    return 0.4
-
-
-def _unit_from_range(value: object, *, lower: float, upper: float) -> float:
-    number = _finite_float(value, default=lower)
-    if upper <= lower:
-        return 0.0
-    return _clamp_unit((number - lower) / (upper - lower))
-
-
-def _finite_float(value: object, *, default: float = 0.0) -> float:
-    try:
-        number = float(value)
-    except (TypeError, ValueError):
-        return default
-    return number if math.isfinite(number) else default
-
-
-def _clamp_unit(value: object) -> float:
-    return max(0.0, min(1.0, _finite_float(value)))

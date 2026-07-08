@@ -526,6 +526,11 @@ helper runtime per oculari, Barlow, binocoli, fallback e `setupOptions`; non si
 aggiunge un path NSOM default-off Equipment. Il prossimo passo backend e'
 estrarre un adapter/read-model condiviso `ObserverCapability/Q_target` senza
 cambiare le raccomandazioni runtime.
+Lo step `1.12.2` estrae quell'adapter in
+`astro_viewer/app/services/observer_capability_adapter.py`: il confronto
+Equipment ora riusa la stessa proiezione `ObserverCapability/Q_target` invece
+di una formula privata del report. `EquipmentService.suggest_for_profile(...)`
+resta invariato e non viene aggiunto nessun flag o campo QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

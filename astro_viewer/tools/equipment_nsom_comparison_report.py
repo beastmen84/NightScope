@@ -85,7 +85,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         "- Uses `EquipmentNsomComparisonService` with fixed in-memory fixtures only.",
         "- Legacy formula is the real EquipmentService component sum.",
-        "- NSOM ObserverCapability is projected from each candidate configuration.",
+        "- NSOM ObserverCapability is projected by the shared `observer_capability_adapter`.",
         "- Q_target is target-class specific and affects PracticalTargetValue only.",
         "- Sky quality and seeing are identified as ownership-mixing in legacy Equipment scoring.",
         "- RecommendationConfidence remains metadata and never modifies score.",
@@ -187,9 +187,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review whether Equipment should get a default-off NSOM path or remain a practical setup helper.",
-            "2. Decide how seeing/transparency should flow into ObserverCapability versus ObservationEnvironment.",
-            "3. Keep EquipmentService runtime ranking unchanged until that policy is explicit.",
+            "1. Review the shared ObserverCapability/Q_target adapter extraction.",
+            "2. Decide whether the next backend area is ObservationConditions read-model cleanup or Equipment presenter contract work.",
+            "3. Keep EquipmentService runtime ranking unchanged until a separate presenter contract exists.",
             "",
         ]
     )
@@ -241,8 +241,9 @@ def _summary(
     findings = [
         "Legacy EquipmentService exposes a useful component sum, but mixes target traits, sky quality, seeing and setup handling in one score.",
         "NSOM Q_target is configuration-derived and target-class-specific; it stays outside ObservableTargetValue.",
+        "ObserverCapability/Q_target projection is now shared adapter logic, not private report-only code.",
         "RecommendationConfidence is present only as metadata and has zero score effect.",
-        "Equipment remains an active backend area; this report is evidence for a future policy/default-off path, not a runtime switch.",
+        "Equipment remains an active backend area; the shared adapter supports diagnostics/read models, not a runtime setup switch.",
     ]
     return {
         "scenario_count": len(scenarios),

@@ -9,9 +9,10 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 - Verdict: `equipment_nsom_policy_set_runtime_replacement_deferred`.
 - Ready for default-off path: `False`.
 - Ready for ObserverCapability adapter step: `True`.
+- ObserverCapability adapter extracted: `True`.
 - Runtime behaviour changed by this review: `False`.
 - Explicit legacy default: EquipmentService.suggest_for_profile(...) remains unchanged.
-- Recommended next change: Extract a shared ObserverCapability/Q_target adapter or read model from the comparison layer while keeping EquipmentService runtime setup recommendations unchanged.
+- Recommended next change: Review the shared ObserverCapability/Q_target adapter extraction, then decide between ObservationConditions read-model cleanup and Equipment presenter contract work.
 - Reason: EquipmentService is still the concrete setup presenter and fallback owner. The comparison is sufficient to extract ObserverCapability/Q_target, but a default-off runtime replacement should wait for payload and environment boundaries.
 
 ## Default-Off Runtime Replacement Blockers
@@ -28,7 +29,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 | Policy | Status | NSOM layer | Blocks default-off runtime path | Decision |
 | --- | --- | --- | --- | --- |
 | `equipment_runtime_role` | `accepted` | `observer` | `True` | Equipment remains a practical setup helper for eyepieces, Barlow, binoculars, focal position, difficulty and setup-option payloads. |
-| `observer_capability_adapter_policy` | `accepted_for_next_step` | `observer` | `False` | The next NSOM backend step should extract a shared ObserverCapability/Q_target adapter or read model from the comparison implementation. |
+| `observer_capability_adapter_policy` | `accepted_extracted` | `observer` | `False` | A shared ObserverCapability/Q_target adapter has been extracted from the comparison implementation. |
 | `q_target_runtime_policy` | `accepted_reference_only` | `observer` | `True` | Q_target may feed PracticalTargetValue and diagnostics, but it is not sufficient by itself to rank concrete eyepiece/Barlow choices. |
 | `seeing_policy` | `deferred_non_blocking` | `sky` | `True` | Seeing may remain legacy setup feasibility context for now; a future NSOM adapter must keep atmospheric conditions separate from ObserverCapability unless a narrow setup-stability field is defined. |
 | `sky_quality_policy` | `accepted_for_legacy_helper_only` | `sky` | `True` | Sky quality must not change ObserverCapability; any Equipment runtime replacement would need an explicit environment input boundary rather than mixing Bortle/VIIRS into capability. |
@@ -40,7 +41,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 
 - Equipment runtime role: `practical_setup_helper_preserved`.
 - NSOM-owned output: `ObserverCapability_profile_and_Q_target_projection`.
-- First runtime-safe step: `shared_observer_capability_adapter_extraction`.
+- First runtime-safe step: `shared_observer_capability_adapter_extracted`.
 - Default-off replacement policy: `defer_until_payload_and_environment_boundaries_exist`.
 - Seeing policy: `environment_or_setup_stability_context_not_capability_scalar`.
 - Sky-quality policy: `ObservationEnvironment_input_not_ObserverCapability_modifier`.
@@ -67,6 +68,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 | `required_policy_decisions_recorded` | `True` |
 | `default_off_runtime_replacement_deferred` | `True` |
 | `observer_capability_adapter_ready_next` | `True` |
+| `observer_capability_adapter_extracted` | `True` |
 | `q_target_does_not_replace_setup_score` | `True` |
 | `observer_isolated_from_observable` | `True` |
 | `legacy_ownership_mixing_documented` | `True` |
@@ -86,10 +88,10 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 
 - The existing setup recommendation copy and setupOptions roles are UI-facing compatibility data.
 - Seeing and sky quality still affect legacy EquipmentService setup scoring and need explicit boundaries before replacement.
-- A shared ObserverCapability adapter should avoid depending on private EquipmentService helper methods long term.
+- The shared ObserverCapability adapter now exists; future work should avoid depending on private EquipmentService helper methods long term.
 - Q_target can rank capability differently from legacy setup score; this is expected evidence, not a calibration target.
 - A future visible UI explanation step can expose rationale only after backend semantics are stable.
 
 ## Recommended Next Step
 
-Implement `1.12.2` as an internal ObserverCapability/Q_target adapter extraction. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender and do not add a default-off Equipment replacement path yet.
+Review `1.12.2` and then decide whether the next backend step is ObservationConditions read-model cleanup or an Equipment presenter contract. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender.

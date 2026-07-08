@@ -1,13 +1,33 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 
 from astro_viewer.app.models.equipment import Telescope
-from astro_viewer.app.models.nsom import ObserverCapability
+from astro_viewer.app.models.nsom import (
+    NsomTargetClass,
+    ObserverCapability,
+    observer_capability_weight_profile_for_target,
+    project_observer_capability_for_target,
+)
+from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_observer_capability_profile_from_recommendation,
 )
+
+
+@dataclass(frozen=True)
+class ObserverCapabilityProjection:
+    """Observer-layer projection from an equipment configuration to Q_target."""
+
+    observer_capability: ObserverCapability
+    target_class: NsomTargetClass | str | None
+    summary_for_planning: float
+    q_target: float
+    target_class_weighting_profile: dict[str, float]
+    derivation: str = "configuration_derived_adapter"
 
 
 def build_observer_capability_for_target(
@@ -42,6 +62,133 @@ def build_observer_capability_for_target(
             f"focal_length_mm={telescope.focal_length_mm}",
         ),
     )
+
+
+def build_observer_capability_from_candidate(
+    candidate: RecommendationCandidate,
+    *,
+    context_note: str = "nsom:equipment_observer_capability",
+) -> ObserverCapability:
+    """Build ObserverCapability from a concrete EquipmentService candidate."""
+
+    return build_observer_capability_from_configuration(
+        candidate.configuration,
+        context_note=context_note,
+    )
+
+
+def build_observer_capability_from_configuration(
+    configuration: ObservationConfiguration,
+    *,
+    context_note: str = "nsom:equipment_observer_capability",
+) -> ObserverCapability:
+    """Project a concrete observation configuration into Observer-owned capability.
+
+    The adapter intentionally uses configuration/equipment inputs only. Sky
+    quality, seeing and confidence must stay outside ObserverCapability.
+    """
+
+    objective = _configuration_objective_mm(configuration)
+    true_field = configuration.true_field_of_view_deg
+    if configuration.binocular:
+        binocular = configuration.binocular
+        tracking = 0.35 if binocular.image_stabilized else 0.15
+        practical_comfort = _binocular_comfort(configuration.magnification, binocular.image_stabilized)
+        field_of_view = 0.78 if configuration.magnification <= 12.0 else 0.55
+        notes = (
+            context_note,
+            "adapter:configuration_derived",
+            f"binocular={binocular.name}",
+            f"magnification={configuration.magnification:.1f}",
+        )
+    else:
+        telescope = configuration.telescope
+        tracking = _tracking_capability(telescope.mount if telescope else "")
+        practical_comfort = _telescope_comfort(configuration)
+        field_of_view = _clamp_unit((true_field or 0.0) / 3.0)
+        notes = (
+            context_note,
+            "adapter:configuration_derived",
+            f"telescope={telescope.name if telescope else ''}",
+            f"magnification={configuration.magnification:.1f}",
+            f"true_field={true_field:.3f}" if true_field is not None else "true_field=unavailable",
+        )
+
+    return ObserverCapability(
+        light_grasp=_unit_from_range(objective, lower=35.0, upper=250.0),
+        resolution=_unit_from_range(objective, lower=50.0, upper=250.0),
+        field_of_view=field_of_view,
+        magnification_range=_clamp_unit(configuration.magnification / 180.0),
+        tracking_or_goto=tracking,
+        automation_or_eaa=0.0,
+        filters=(),
+        experience_level=0.75,
+        observing_style="visual",
+        practical_comfort=practical_comfort,
+        notes=notes,
+    )
+
+
+def build_observer_capability_projection_from_candidate(
+    candidate: RecommendationCandidate,
+    target_class: NsomTargetClass | str | None,
+    *,
+    context_note: str = "nsom:equipment_observer_capability",
+) -> ObserverCapabilityProjection:
+    """Build ObserverCapability plus the target-specific Q_target projection."""
+
+    observer = build_observer_capability_from_candidate(candidate, context_note=context_note)
+    return project_observer_capability_profile(observer, target_class)
+
+
+def project_observer_capability_profile(
+    observer_capability: ObserverCapability,
+    target_class: NsomTargetClass | str | None,
+) -> ObserverCapabilityProjection:
+    """Project an existing ObserverCapability profile to summary and Q_target."""
+
+    return ObserverCapabilityProjection(
+        observer_capability=observer_capability,
+        target_class=target_class,
+        summary_for_planning=observer_capability.summary_for_planning(),
+        q_target=project_observer_capability_for_target(observer_capability, target_class),
+        target_class_weighting_profile=dict(observer_capability_weight_profile_for_target(target_class)),
+    )
+
+
+def _configuration_objective_mm(configuration: ObservationConfiguration) -> float:
+    if configuration.telescope:
+        return float(configuration.telescope.aperture_mm)
+    if configuration.binocular:
+        return float(configuration.binocular.objective_diameter_mm)
+    return 7.0
+
+
+def _telescope_comfort(configuration: ObservationConfiguration) -> float:
+    comfort = 0.82
+    if configuration.barlow:
+        comfort -= 0.18
+    if configuration.magnification > 180.0:
+        comfort -= 0.22
+    elif configuration.magnification > 120.0:
+        comfort -= 0.10
+    if configuration.exit_pupil_mm < 0.5:
+        comfort -= 0.20
+    return _clamp_unit(comfort)
+
+
+def _binocular_comfort(magnification: float, image_stabilized: bool) -> float:
+    if magnification <= 10.0:
+        comfort = 0.92
+    elif magnification <= 12.0:
+        comfort = 0.80
+    elif magnification <= 15.0:
+        comfort = 0.62
+    else:
+        comfort = 0.42
+    if image_stabilized:
+        comfort += 0.18
+    return _clamp_unit(comfort)
 
 
 def _unit_from_range(value: object, *, lower: float, upper: float) -> float:
