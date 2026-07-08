@@ -2,21 +2,21 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the existing default-off Detail/Object NSOM runtime path is ready for a later default-on switch. It does not change `NSOM_DETAIL_OBJECT_ENABLED`, `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network access or runtime file writes.
+This developer-only audit checks whether the Detail/Object NSOM default-on switch is safe to keep. It reports the current `NSOM_DETAIL_OBJECT_ENABLED` flag, rollback path and payload policy without changing `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network access or runtime file writes.
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_detail_object_nsom_default_on_switch`.
+- Verdict: `detail_object_nsom_default_on_enabled`.
 - Ready for default-on switch: `True`.
-- Current default flag: `NSOM_DETAIL_OBJECT_ENABLED = False`.
-- Default flag currently enabled: `False`.
-- Default flag remains off for this commit: `True`.
-- Requires separate flag change: `True`.
+- Current default flag: `NSOM_DETAIL_OBJECT_ENABLED = True`.
+- Default flag currently enabled: `True`.
+- Default flag enabled by this commit: `True`.
+- Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
 - Explicit legacy rollback: `AppController(use_nsom_detail_object=False)`.
 - Explicit NSOM path: `AppController(use_nsom_detail_object=True)`.
-- Recommended switch change: `set NSOM_DETAIL_OBJECT_ENABLED = True`.
-- Reason: The default-off Detail/Object runtime path has rollback, preserves `selectedObject`, keeps session/confidence metadata-only and has no QML or report runtime wiring.
+- Recommended switch change: `already enabled`.
+- Reason: The Detail/Object NSOM default-on switch is active with rollback, preserves `selectedObject`, keeps session/confidence metadata-only and has no QML or report runtime wiring.
 
 ## Default-On Blockers
 
@@ -83,4 +83,4 @@ This developer-only audit checks whether the existing default-off Detail/Object 
 
 ## Recommended Next Step
 
-Review this audit, then use a separate switch commit to set `NSOM_DETAIL_OBJECT_ENABLED = True` if the default-on decision is accepted.
+Review the switch and keep `AppController(use_nsom_detail_object=False)` as rollback.

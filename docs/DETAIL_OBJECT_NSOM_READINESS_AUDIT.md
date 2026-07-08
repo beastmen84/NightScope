@@ -6,12 +6,12 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 
 ## Readiness Verdict
 
-- Verdict: `default_off_detail_nsom_runtime_path_available`.
+- Verdict: `default_on_detail_nsom_runtime_path_enabled`.
 - Ready for default-off path: `True`.
 - Runtime path exists: `True`.
 - Ready for visible UI: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: review 1.10.4, then 1.10.5 Detail/Object default-on switch.
+- Recommended next step: review 1.10.5, then close Detail/Object NSOM backend migration.
 - Reason: Detail source policy, displayed score semantics, separate payload contract, confidence neutrality and runtime safety are all documented.
 
 ## Default-Off Blockers
@@ -55,10 +55,10 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 
 ## Runtime Path Review
 
-- Status: `available_default_off`.
+- Status: `available_default_on`.
 - Runtime path exists: `True`.
-- Default flag: `NSOM_DETAIL_OBJECT_ENABLED = False`.
-- Default flag enabled: `False`.
+- Default flag: `NSOM_DETAIL_OBJECT_ENABLED = True`.
+- Default flag enabled: `True`.
 - Rollback: `AppController(use_nsom_detail_object=False)`.
 - Controller rollback parameter present: `True`.
 - Internal payload method present: `True`.

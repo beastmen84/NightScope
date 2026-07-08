@@ -490,6 +490,11 @@ la path Detail/Object NSOM e' pronta per uno switch default-on separato, ma
 mantiene `NSOM_DETAIL_OBJECT_ENABLED = False` in questo commit. Il prossimo
 passo, dopo review, puo' essere una commit limitata allo switch del flag; la UI
 visibile e le spiegazioni NSOM in pagina Detail restano fuori scope.
+Lo step `1.10.5` esegue quello switch: `NSOM_DETAIL_OBJECT_ENABLED = True`.
+La default path Detail/Object ora costruisce il payload interno NSOM separato
+quando richiesto dal backend, ma `selectedObject`, QML/UI e lo score visibile
+restano compatibili con il comportamento legacy. Il rollback resta
+`AppController(use_nsom_detail_object=False)`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

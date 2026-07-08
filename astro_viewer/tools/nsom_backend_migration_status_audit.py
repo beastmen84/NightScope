@@ -72,13 +72,12 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_to_start_next_backend_area": not blockers,
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "recommended_next_step": "Review 1.10.4 Detail/Object NSOM default-on readiness audit",
+            "recommended_next_step": "Review 1.10.5, then close Detail/Object NSOM backend migration",
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
-                "backend and Sky Compass have default-on NSOM paths with explicit "
-                "rollback. Detail/Object now has a default-off internal NSOM payload "
-                "path that is ready for a separate default-on switch review before "
-                "any UI-facing explanation changes."
+                "backend, Sky Compass and Detail/Object have default-on NSOM paths "
+                "with explicit rollback. Remaining items are non-blocking legacy or "
+                "hybrid surfaces outside the completed Detail/Object backend path."
             ),
         },
         "blockers": blockers,
@@ -105,9 +104,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit reviews the current NSOM backend migration "
             "state after the Planner, Home `recommendedDeepSky`, Best Object, "
-            "Advanced Observing backend and Sky Compass default-on steps. It does "
-            "not change runtime behaviour, QML, scoring, logging, network access "
-            "or runtime file writes."
+            "Advanced Observing backend, Sky Compass and Detail/Object default-on "
+            "steps. It does not change runtime behaviour, QML, scoring, logging, "
+            "network access or runtime file writes."
         ),
         "",
         "## Readiness Verdict",
@@ -216,10 +215,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM migration is closed for the already migrated "
-                "recommendation surfaces. Detail/Object now has a default-on "
-                "readiness audit for its internal NSOM payload path; the next useful "
-                "backend step is a separate switch commit if accepted, while visible "
-                "UI explanation work remains separate."
+                "recommendation surfaces and Detail/Object. The next useful step is "
+                "to close the Detail/Object backend migration in documentation, while "
+                "visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -296,27 +294,22 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "confidence_score_neutral": True,
             "source_report": "docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
         },
+        {
+            "surface": "Detail/Object internal payload",
+            "status": "default_on_closed_backend_only",
+            "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
+            "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
+            "rollback": "AppController(use_nsom_detail_object=False)",
+            "rollback_parameter_present": "use_nsom_detail_object" in controller_parameters,
+            "nsom_role": "separate internal Detail/Object payload",
+            "confidence_score_neutral": True,
+            "source_report": "docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
+        },
     )
 
 
 def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
-        {
-            "area": "Detail / selected object",
-            "status": "ready_for_default_on_switch",
-            "why_it_remains": (
-                "`selectedObject` remains legacy-compatible and still applies the "
-                "observing-source Moon-adjusted display policy, while the separate "
-                f"`NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}` path "
-                "can build an internal `detailObjectNsom` payload and has a default-on "
-                "readiness audit."
-            ),
-            "recommended_handling": (
-                "Review the 1.10.4 default-on readiness audit, then use a separate "
-                "switch commit if accepted."
-            ),
-            "blocks_current_default_on_surfaces": False,
-        },
         {
             "area": "Sky Map",
             "status": "legacy_display_order",
@@ -437,12 +430,12 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Verify this backend status audit before opening a new migration area.",
         },
         {
-            "step": "Review 1.10.4",
-            "summary": "Verify the Detail/Object NSOM default-on readiness audit.",
+            "step": "Review 1.10.5",
+            "summary": "Verify the Detail/Object NSOM default-on switch and rollback contract.",
         },
         {
-            "step": "1.10.5 Detail/Object default-on switch",
-            "summary": "Set `NSOM_DETAIL_OBJECT_ENABLED = True` if the readiness audit is accepted.",
+            "step": "1.10.6 Close Detail/Object NSOM migration",
+            "summary": "Document Detail/Object backend migration closure and remaining UI-only caveats.",
         },
         {
             "step": "Later UI explanation work",

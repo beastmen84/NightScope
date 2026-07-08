@@ -2,10 +2,11 @@
 
 ## Status
 
-NightScope 1.10.3 adds the first Detail/Object NSOM runtime path as an internal
-default-off backend path.
+NightScope 1.10.3 added the first Detail/Object NSOM runtime path as an
+internal default-off backend path. NightScope 1.10.5 enables that internal path
+by default.
 
-- Feature flag: `NSOM_DETAIL_OBJECT_ENABLED = False`.
+- Feature flag: `NSOM_DETAIL_OBJECT_ENABLED = True`.
 - Rollback path: `AppController(use_nsom_detail_object=False)`.
 - Runtime service: `astro_viewer/app/services/detail_nsom_runtime.py`.
 - Controller entry point: `_selected_object_nsom_payload()`.
@@ -58,6 +59,6 @@ The path is internal only and default-off. It does not change:
 
 NightScope 1.10.4 adds
 `docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md` and classifies this
-path as ready for a separate default-on switch. The flag remains
-`NSOM_DETAIL_OBJECT_ENABLED = False` until that switch commit is explicitly
-made.
+path as ready for a separate default-on switch. NightScope 1.10.5 performs that
+switch. The next step is to review the switch and close the Detail/Object NSOM
+backend migration documentation.

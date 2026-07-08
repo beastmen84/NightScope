@@ -614,6 +614,12 @@ commit. It verifies explicit rollback, separate internal payload semantics,
 unchanged `selectedObject`, no QML exposure, no report runtime wiring and
 metadata-only SessionViability/RecommendationConfidence. Visible Detail page
 NSOM explanations remain a later UI/design step.
+`1.10.5` performs that switch by setting
+`NSOM_DETAIL_OBJECT_ENABLED = True`. The default Detail/Object backend path can
+now build the separate internal NSOM payload, but the public QML contract is
+unchanged: `selectedObject` still carries legacy/base compatibility display
+data, no Detail NSOM property is exposed, and rollback remains
+`AppController(use_nsom_detail_object=False)`.
 
 ## Dependency Flow
 

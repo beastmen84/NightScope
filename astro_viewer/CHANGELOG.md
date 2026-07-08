@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.10.5 - 2026-07-08
+
+- Abilitata di default la path interna Detail/Object NSOM impostando
+  `NSOM_DETAIL_OBJECT_ENABLED = True`.
+- Preservato il rollback esplicito
+  `AppController(use_nsom_detail_object=False)`.
+- Confermato che la default path costruisce solo il payload interno separato
+  `detailObjectNsom`; `selectedObject` e la pagina QML restano invariati.
+- Aggiornati readiness audit e audit backend: Detail/Object e' ora una
+  superficie backend default-on chiusa, con UI/spiegazioni visibili ancora fuori
+  scope.
+- Nessun cambio a Home, Best Object, Planner, Sky Compass, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.10.4 - 2026-07-08
 
 - Aggiunto l'audit developer-only di readiness default-on per Detail/Object

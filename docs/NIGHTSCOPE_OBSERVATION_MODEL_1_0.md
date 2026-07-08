@@ -1103,6 +1103,14 @@ constructor rollback through `AppController(use_nsom_detail_object=False)`, and
 keep `SessionViability` plus `RecommendationConfidence` outside the Detail score
 path. Visible Detail explanations remain future UX work.
 
+Implementation note for 1.10.5:
+The Detail/Object internal runtime path is now default-on with
+`NSOM_DETAIL_OBJECT_ENABLED = True`. This does not expose NSOM fields in QML and
+does not change `selectedObject`; it only makes the separate backend
+`detailObjectNsom` payload path the default internal state. Rollback remains
+`AppController(use_nsom_detail_object=False)`. `SessionViability` and
+`RecommendationConfidence` continue to be metadata-only for Detail/Object.
+
 Examples:
 
 - binocular-only profile;

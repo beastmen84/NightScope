@@ -30,7 +30,7 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
-NSOM_DETAIL_OBJECT_ENABLED = False
+NSOM_DETAIL_OBJECT_ENABLED = True
 
 DETAIL_SOURCE_OBSERVING = "observing"
 DETAIL_SOURCE_CATALOGUE = "catalogue"

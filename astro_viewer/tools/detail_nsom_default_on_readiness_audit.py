@@ -75,7 +75,7 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
             "ready_for_default_on_switch": ready,
             "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
             "default_flag_currently_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
-            "default_flag_remains_off_for_this_commit": NSOM_DETAIL_OBJECT_ENABLED is False,
+            "default_flag_enabled_by_this_commit": NSOM_DETAIL_OBJECT_ENABLED is True,
             "requires_separate_flag_change": NSOM_DETAIL_OBJECT_ENABLED is False,
             "runtime_behaviour_changed_by_this_audit": False,
             "explicit_legacy_rollback": "AppController(use_nsom_detail_object=False)",
@@ -120,11 +120,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit checks whether the existing default-off "
-            "Detail/Object NSOM runtime path is ready for a later default-on switch. "
-            "It does not change `NSOM_DETAIL_OBJECT_ENABLED`, `selectedObject`, QML, "
-            "Home, Best Object, Planner, Sky Compass, logging, network access or "
-            "runtime file writes."
+            "This developer-only audit checks whether the Detail/Object NSOM "
+            "default-on switch is safe to keep. It reports the current "
+            "`NSOM_DETAIL_OBJECT_ENABLED` flag, rollback path and payload policy "
+            "without changing `selectedObject`, QML, Home, Best Object, Planner, "
+            "Sky Compass, logging, network access or runtime file writes."
         ),
         "",
         "## Readiness Verdict",
@@ -133,7 +133,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Ready for default-on switch: `{readiness['ready_for_default_on_switch']}`.",
         f"- Current default flag: `{readiness['default_flag']}`.",
         f"- Default flag currently enabled: `{readiness['default_flag_currently_enabled']}`.",
-        f"- Default flag remains off for this commit: `{readiness['default_flag_remains_off_for_this_commit']}`.",
+        f"- Default flag enabled by this commit: `{readiness['default_flag_enabled_by_this_commit']}`.",
         f"- Requires separate flag change: `{readiness['requires_separate_flag_change']}`.",
         f"- Runtime behaviour changed by this audit: `{readiness['runtime_behaviour_changed_by_this_audit']}`.",
         f"- Explicit legacy rollback: `{readiness['explicit_legacy_rollback']}`.",
@@ -245,10 +245,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Step",
             "",
-            (
-                "Review this audit, then use a separate switch commit to set "
-                "`NSOM_DETAIL_OBJECT_ENABLED = True` if the default-on decision is accepted."
-            ),
+            "Review the switch and keep `AppController(use_nsom_detail_object=False)` as rollback.",
             "",
         ]
     )
@@ -484,7 +481,7 @@ def _readiness_checks(
     safety: dict[str, object],
 ) -> dict[str, object]:
     return {
-        "default_flag_remains_off": NSOM_DETAIL_OBJECT_ENABLED is False,
+        "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
         "default_off_runtime_path_exists": default_off_audit["readiness"]["runtime_path_exists"] is True,
         "default_off_readiness_has_no_blockers": default_off_audit["blockers"] == [],
         "constructor_rollback_present": runtime["constructor"]["rollback_parameter_present"] is True,
@@ -519,7 +516,7 @@ def _readiness_checks(
 
 def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
     names = {
-        "default_flag_remains_off": "detail-default-flag-changed-prematurely",
+        "default_flag_enabled": "detail-default-flag-not-enabled",
         "default_off_runtime_path_exists": "detail-runtime-path-missing",
         "default_off_readiness_has_no_blockers": "detail-default-off-readiness-blocker",
         "constructor_rollback_present": "detail-rollback-missing",
@@ -549,9 +546,9 @@ def _non_blocking_risks() -> tuple[str, ...]:
 def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
-            "The default-off Detail/Object runtime path has rollback, preserves "
-            "`selectedObject`, keeps session/confidence metadata-only and has no QML "
-            "or report runtime wiring."
+            "The Detail/Object NSOM default-on switch is active with rollback, "
+            "preserves `selectedObject`, keeps session/confidence metadata-only "
+            "and has no QML or report runtime wiring."
         )
     return "One or more default-on readiness checks need review before changing the flag."
 

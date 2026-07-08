@@ -34,24 +34,24 @@ def test_detail_nsom_default_on_readiness_audit_is_deterministic_strict_json_and
     }
 
 
-def test_detail_nsom_default_on_readiness_verdict_requires_separate_flag_change() -> None:
+def test_detail_nsom_default_on_readiness_verdict_confirms_default_on_enabled() -> None:
     data = generate_default_on_readiness_audit_data()
 
     assert data["readiness"] == {
-        "verdict": "ready_for_detail_object_nsom_default_on_switch",
+        "verdict": "detail_object_nsom_default_on_enabled",
         "ready_for_default_on_switch": True,
-        "default_flag": "NSOM_DETAIL_OBJECT_ENABLED = False",
-        "default_flag_currently_enabled": False,
-        "default_flag_remains_off_for_this_commit": True,
-        "requires_separate_flag_change": True,
+        "default_flag": "NSOM_DETAIL_OBJECT_ENABLED = True",
+        "default_flag_currently_enabled": True,
+        "default_flag_enabled_by_this_commit": True,
+        "requires_separate_flag_change": False,
         "runtime_behaviour_changed_by_this_audit": False,
         "explicit_legacy_rollback": "AppController(use_nsom_detail_object=False)",
         "explicit_nsom_path": "AppController(use_nsom_detail_object=True)",
-        "recommended_switch_change": "set NSOM_DETAIL_OBJECT_ENABLED = True",
+        "recommended_switch_change": "already enabled",
         "reason": (
-            "The default-off Detail/Object runtime path has rollback, preserves "
-            "`selectedObject`, keeps session/confidence metadata-only and has no QML "
-            "or report runtime wiring."
+            "The Detail/Object NSOM default-on switch is active with rollback, "
+            "preserves `selectedObject`, keeps session/confidence metadata-only "
+            "and has no QML or report runtime wiring."
         ),
     }
     assert data["blockers"] == []
@@ -152,6 +152,6 @@ def test_detail_nsom_default_on_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Detail/Object NSOM Default-On Readiness Audit" in text
-    assert "ready_for_detail_object_nsom_default_on_switch" in text
-    assert "NSOM_DETAIL_OBJECT_ENABLED = False" in text
+    assert "detail_object_nsom_default_on_enabled" in text
+    assert "NSOM_DETAIL_OBJECT_ENABLED = True" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

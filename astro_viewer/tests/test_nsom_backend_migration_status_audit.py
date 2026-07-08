@@ -63,6 +63,8 @@ def test_audit_confirms_default_on_surfaces_and_rollbacks() -> None:
         "AppController(use_nsom_advanced_observing=False)"
     )
     assert surfaces["Sky Compass"]["rollback"] == "AppController(use_nsom_sky_compass=False)"
+    assert surfaces["Detail/Object internal payload"]["default_flag"] == "NSOM_DETAIL_OBJECT_ENABLED = True"
+    assert surfaces["Detail/Object internal payload"]["rollback"] == "AppController(use_nsom_detail_object=False)"
     assert all(surface["confidence_score_neutral"] is True for surface in surfaces.values())
 
 
@@ -72,15 +74,12 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
 
     assert data["checks"]["remaining_surfaces_are_non_blocking"] is True
     assert set(remaining) == {
-        "Detail / selected object",
         "Sky Map",
         "Equipment recommendations",
         "ObservationConditions prepared-object cache",
         "Notifications",
         "Catalogue / raw object score",
     }
-    assert remaining["Detail / selected object"]["status"] == "ready_for_default_on_switch"
-    assert "NSOM_DETAIL_OBJECT_ENABLED = False" in remaining["Detail / selected object"]["why_it_remains"]
     assert remaining["Sky Map"]["status"] == "legacy_display_order"
     assert remaining["Equipment recommendations"]["status"] == "legacy_practical_setup_scoring"
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
@@ -93,11 +92,11 @@ def test_audit_recommends_detail_object_runtime_review_as_next_backend_step() ->
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.10.4 Detail/Object NSOM default-on readiness audit"
+        "Review 1.10.5, then close Detail/Object NSOM backend migration"
     )
     assert sequence[:2] == [
         "Review 1.9.7",
-        "Review 1.10.4",
+        "Review 1.10.5",
     ]
 
 
@@ -125,5 +124,5 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Review 1.10.4 Detail/Object NSOM default-on readiness audit" in text
+    assert "Review 1.10.5, then close Detail/Object NSOM backend migration" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

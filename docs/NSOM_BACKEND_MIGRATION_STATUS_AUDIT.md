@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit reviews the current NSOM backend migration state after the Planner, Home `recommendedDeepSky`, Best Object, Advanced Observing backend and Sky Compass default-on steps. It does not change runtime behaviour, QML, scoring, logging, network access or runtime file writes.
+This developer-only audit reviews the current NSOM backend migration state after the Planner, Home `recommendedDeepSky`, Best Object, Advanced Observing backend, Sky Compass and Detail/Object default-on steps. It does not change runtime behaviour, QML, scoring, logging, network access or runtime file writes.
 
 ## Readiness Verdict
 
@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.10.4 Detail/Object NSOM default-on readiness audit.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend and Sky Compass have default-on NSOM paths with explicit rollback. Detail/Object now has a default-off internal NSOM payload path that is ready for a separate default-on switch review before any UI-facing explanation changes.
+- Recommended next step: Review 1.10.5, then close Detail/Object NSOM backend migration.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces outside the completed Detail/Object backend path.
 
 ## Audit Blockers
 
@@ -27,12 +27,12 @@ This developer-only audit reviews the current NSOM backend migration state after
 | Best Object | `default_on_closed` | `NSOM_BEST_OBJECT_ENABLED = True` | `AppController(use_nsom_best_object=False)` | Home-specific ObservationOpportunity selection |
 | Advanced Observing backend | `default_on_closed_backend_only` | `NSOM_ADVANCED_OBSERVING_ENABLED = True` | `AppController(use_nsom_advanced_observing=False)` | category ObservableTargetValue projection |
 | Sky Compass | `default_on_closed` | `NSOM_SKY_COMPASS_ENABLED = True` | `AppController(use_nsom_sky_compass=False)` | ObservableTargetValue based direction policy |
+| Detail/Object internal payload | `default_on_closed_backend_only` | `NSOM_DETAIL_OBJECT_ENABLED = True` | `AppController(use_nsom_detail_object=False)` | separate internal Detail/Object payload |
 
 ## Remaining Legacy Or Hybrid Surfaces
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Detail / selected object | `ready_for_default_on_switch` | `selectedObject` remains legacy-compatible and still applies the observing-source Moon-adjusted display policy, while the separate `NSOM_DETAIL_OBJECT_ENABLED = False` path can build an internal `detailObjectNsom` payload and has a default-on readiness audit. | Review the 1.10.4 default-on readiness audit, then use a separate switch commit if accepted. |
 | Sky Map | `legacy_display_order` | `SkyMapService` groups visible targets and sorts each direction by prepared `CelestialObject.score`. | Review after Detail because it shares the same display-score contract. |
 | Equipment recommendations | `legacy_practical_setup_scoring` | `EquipmentService` still ranks eyepiece/Barlow candidates with its own practical configuration score. | Compare against ObserverCapability/Q_target before any runtime replacement. |
 | ObservationConditions prepared-object cache | `hybrid_conditioned_objects` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths. | Defer broad cleanup until an ObservationSnapshot/read-model boundary exists. |
@@ -43,7 +43,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.10.4` |
+| `version` | `1.10.5` |
 | `source_reports_present` | `[True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
@@ -64,10 +64,10 @@ This developer-only audit reviews the current NSOM backend migration state after
 ## Recommended Sequence
 
 - `Review 1.9.7`: Verify this backend status audit before opening a new migration area.
-- `Review 1.10.4`: Verify the Detail/Object NSOM default-on readiness audit.
-- `1.10.5 Detail/Object default-on switch`: Set `NSOM_DETAIL_OBJECT_ENABLED = True` if the readiness audit is accepted.
+- `Review 1.10.5`: Verify the Detail/Object NSOM default-on switch and rollback contract.
+- `1.10.6 Close Detail/Object NSOM migration`: Document Detail/Object backend migration closure and remaining UI-only caveats.
 - `Later UI explanation work`: Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.
 
 ## Conclusion
 
-The backend NSOM migration is closed for the already migrated recommendation surfaces. Detail/Object now has a default-on readiness audit for its internal NSOM payload path; the next useful backend step is a separate switch commit if accepted, while visible UI explanation work remains separate.
+The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. The next useful step is to close the Detail/Object backend migration in documentation, while visible UI explanation work remains separate.

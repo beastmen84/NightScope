@@ -21,8 +21,8 @@ from astro_viewer.app.services.observation_conditions_service import Observation
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_detail_object_nsom_flag_is_default_off() -> None:
-    assert NSOM_DETAIL_OBJECT_ENABLED is False
+def test_detail_object_nsom_flag_is_default_on() -> None:
+    assert NSOM_DETAIL_OBJECT_ENABLED is True
     assert AppController.__init__.__kwdefaults__["use_nsom_detail_object"] is NSOM_DETAIL_OBJECT_ENABLED
 
 
@@ -52,7 +52,7 @@ def test_detail_object_nsom_runtime_payload_is_strict_json_internal_and_score_ne
     assert payload["metadata"] == {
         "internalOnly": True,
         "runtimePath": True,
-        "defaultFlagEnabled": False,
+        "defaultFlagEnabled": True,
         "qmlExposure": False,
         "selectedObjectPayloadChanged": False,
         "selectedObjectFieldsAdded": False,
@@ -77,6 +77,19 @@ def test_controller_flag_off_preserves_selected_object_and_returns_no_internal_p
     assert payload == {}
     assert after == before
     assert "observableTargetValue" not in after
+    assert "detailObjectNsom" not in after
+
+
+def test_controller_default_flag_builds_internal_payload_without_changing_selected_object_shape() -> None:
+    controller = _controller(enabled=NSOM_DETAIL_OBJECT_ENABLED, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
+    before = AppController.selectedObject.fget(controller)
+
+    payload = controller._selected_object_nsom_payload()
+    after = AppController.selectedObject.fget(controller)
+
+    assert payload["objectId"] == controller._selected_object.id
+    assert payload["metadata"]["defaultFlagEnabled"] is True
+    assert after == before
     assert "detailObjectNsom" not in after
 
 

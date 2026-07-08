@@ -22,7 +22,7 @@ REPORT_IMPORT_MARKERS = (
 )
 
 RUNTIME_SERVICE_MARKERS = (
-    "NSOM_DETAIL_OBJECT_ENABLED = False",
+    "NSOM_DETAIL_OBJECT_ENABLED = True",
     "DetailObjectNsomRuntimeService",
     "schemaVersion\": \"detail-object-nsom-runtime-v1",
 )
@@ -83,7 +83,11 @@ def generate_readiness_audit_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "default_off_detail_nsom_runtime_path_available"
+                "default_on_detail_nsom_runtime_path_enabled"
+                if ready
+                and runtime_path["runtime_path_exists"]
+                and runtime_path["default_flag_enabled"]
+                else "default_off_detail_nsom_runtime_path_available"
                 if ready and runtime_path["runtime_path_exists"]
                 else "ready_for_default_off_detail_nsom_path"
                 if ready
@@ -94,7 +98,10 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_audit": False,
             "ready_for_visible_ui": False,
             "recommended_next_step": (
-                "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
+                "review 1.10.5, then close Detail/Object NSOM backend migration"
+                if runtime_path["runtime_path_exists"]
+                and runtime_path["default_flag_enabled"]
+                else "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
                 if runtime_path["runtime_path_exists"]
                 else "1.10.3 default-off Detail/Object NSOM runtime path"
                 if ready
@@ -368,7 +375,13 @@ def _runtime_path_review(static_checks: dict[str, object]) -> dict[str, object]:
         and set(RUNTIME_CONTROLLER_MARKERS) <= controller_markers
     )
     return {
-        "status": "available_default_off" if runtime_path_exists else "not_implemented",
+        "status": (
+            "available_default_on"
+            if runtime_path_exists and NSOM_DETAIL_OBJECT_ENABLED
+            else "available_default_off"
+            if runtime_path_exists
+            else "not_implemented"
+        ),
         "runtime_path_exists": runtime_path_exists,
         "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
         "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,

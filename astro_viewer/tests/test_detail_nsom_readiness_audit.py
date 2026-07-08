@@ -38,13 +38,13 @@ def test_detail_nsom_readiness_audit_is_deterministic_strict_json_and_developer_
 def test_detail_nsom_readiness_is_ready_after_policy_contract() -> None:
     data = generate_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "default_off_detail_nsom_runtime_path_available"
+    assert data["readiness"]["verdict"] == "default_on_detail_nsom_runtime_path_enabled"
     assert data["readiness"]["ready_for_default_off_path"] is True
     assert data["readiness"]["runtime_path_exists"] is True
     assert data["readiness"]["ready_for_visible_ui"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
+        "review 1.10.5, then close Detail/Object NSOM backend migration"
     )
     assert data["blockers"] == []
     assert data["policy_contract_summary"] == {
@@ -107,10 +107,10 @@ def test_runtime_path_review_detects_default_off_internal_path() -> None:
     runtime = data["runtime_path_review"]
 
     assert runtime == {
-        "status": "available_default_off",
+        "status": "available_default_on",
         "runtime_path_exists": True,
-        "default_flag": "NSOM_DETAIL_OBJECT_ENABLED = False",
-        "default_flag_enabled": False,
+        "default_flag": "NSOM_DETAIL_OBJECT_ENABLED = True",
+        "default_flag_enabled": True,
         "rollback": "AppController(use_nsom_detail_object=False)",
         "controller_rollback_parameter_present": True,
         "internal_payload_method_present": True,
@@ -151,7 +151,7 @@ def test_detail_nsom_readiness_audit_has_no_runtime_or_qml_wiring() -> None:
     assert {
         item["marker"] for item in data["static_wiring_checks"]["runtime_service_matches"]
     } >= {
-        "NSOM_DETAIL_OBJECT_ENABLED = False",
+        "NSOM_DETAIL_OBJECT_ENABLED = True",
         "DetailObjectNsomRuntimeService",
         'schemaVersion": "detail-object-nsom-runtime-v1',
     }
@@ -164,6 +164,6 @@ def test_checked_in_detail_nsom_readiness_audit_report_matches_renderer() -> Non
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Detail/Object NSOM Readiness Audit" in text
-    assert "default_off_detail_nsom_runtime_path_available" in text
+    assert "default_on_detail_nsom_runtime_path_enabled" in text
     assert "DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
