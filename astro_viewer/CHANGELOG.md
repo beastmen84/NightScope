@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.10.3 - 2026-07-08
+
+- Aggiunta la path runtime interna Detail/Object NSOM default-off:
+  `astro_viewer/app/services/detail_nsom_runtime.py`.
+- Aggiunto il flag `NSOM_DETAIL_OBJECT_ENABLED = False` e il rollback esplicito
+  `AppController(use_nsom_detail_object=False)`.
+- Il controller puo' costruire un payload interno separato tramite
+  `_selected_object_nsom_payload()` quando il flag e' forzato on, ma non espone
+  nuove property QML e non modifica `selectedObject`.
+- Il payload interno contiene `IntrinsicTargetQuality`,
+  `ObservationEnvironment`, `EffectiveObservability`, `ObservableTargetValue`,
+  `PracticalTargetValue`, `SessionViability` e `RecommendationConfidence`;
+  sessione e confidence restano metadata-only.
+- Aggiornati readiness audit e audit backend: Detail/Object ora ha una path
+  interna default-off disponibile; UI visibile e default-on restano step
+  successivi.
+- Nessun cambio a QML/UI, Home, Best Object, Planner, Sky Compass, logging,
+  rete o scritture runtime.
+
 ## NightScope 1.10.2 - 2026-07-08
 
 - Aggiunto il contratto developer-only Detail/Object NSOM:

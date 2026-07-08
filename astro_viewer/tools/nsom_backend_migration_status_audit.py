@@ -6,6 +6,7 @@ from pathlib import Path
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.services.advanced_observing_nsom_service import NSOM_ADVANCED_OBSERVING_ENABLED
 from astro_viewer.app.services.best_object_nsom_ranking import NSOM_BEST_OBJECT_ENABLED
+from astro_viewer.app.services.detail_nsom_runtime import NSOM_DETAIL_OBJECT_ENABLED
 from astro_viewer.app.services.home_nsom_ranking import NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED
 from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING_ENABLED, NightPlannerService
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
@@ -70,12 +71,13 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_to_start_next_backend_area": not blockers,
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "recommended_next_step": "1.10.0 Detail/Object NSOM comparison layer",
+            "recommended_next_step": "Review 1.10.3 Detail/Object NSOM default-off runtime path",
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend and Sky Compass have default-on NSOM paths with explicit "
-                "rollback. Remaining items are legacy or hybrid surfaces that need "
-                "comparison/readiness work before any UI-facing explanation changes."
+                "rollback. Detail/Object now has a default-off internal NSOM payload "
+                "path and still needs review/default-on readiness before any UI-facing "
+                "explanation changes."
             ),
         },
         "blockers": blockers,
@@ -213,10 +215,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM migration is closed for the already migrated "
-                "recommendation surfaces. The next useful backend step is a "
-                "Detail/Object comparison layer, because selected-object detail "
-                "still projects legacy conditioned `CelestialObject` score fields "
-                "and explanation semantics into the UI contract."
+                "recommendation surfaces. Detail/Object now has a default-off "
+                "internal NSOM payload path; the next useful backend step is a "
+                "review/default-on readiness audit, while visible UI explanation "
+                "work remains separate."
             ),
             "",
         ]
@@ -300,12 +302,17 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Detail / selected object",
-            "status": "legacy_conditioned_presentation",
+            "status": "default_off_internal_nsom_path",
             "why_it_remains": (
-                "`selectedObject` still projects prepared `CelestialObject` fields "
-                "and applies the legacy Moon adjustment for observing-source detail."
+                "`selectedObject` remains legacy-compatible and still applies the "
+                "observing-source Moon-adjusted display policy, while the separate "
+                f"`NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}` path "
+                "can build an internal `detailObjectNsom` payload."
             ),
-            "recommended_handling": "Start with a developer-only Detail/Object NSOM comparison layer.",
+            "recommended_handling": (
+                "Review the 1.10.3 default-off runtime path, then run a Detail/Object "
+                "default-on readiness audit before changing the default flag."
+            ),
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -428,15 +435,12 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Verify this backend status audit before opening a new migration area.",
         },
         {
-            "step": "1.10.0 Detail/Object NSOM comparison layer",
-            "summary": (
-                "Compare selected-object/detail legacy conditioned score and NSOM "
-                "ObservableTargetValue/PracticalTargetValue without UI changes."
-            ),
+            "step": "Review 1.10.3",
+            "summary": "Verify the default-off Detail/Object NSOM runtime path and rollback contract.",
         },
         {
-            "step": "1.10.x Detail/Object readiness and default-off path",
-            "summary": "Only after comparison evidence, add a rollbackable default-off detail path if useful.",
+            "step": "1.10.4 Detail/Object default-on readiness audit",
+            "summary": "Audit whether the internal payload path is safe to enable by default.",
         },
         {
             "step": "Later UI explanation work",

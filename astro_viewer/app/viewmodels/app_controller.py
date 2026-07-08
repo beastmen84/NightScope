@@ -59,6 +59,10 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
     NSOM_BEST_OBJECT_ENABLED,
 )
+from astro_viewer.app.services.detail_nsom_runtime import (
+    DetailObjectNsomRuntimeService,
+    NSOM_DETAIL_OBJECT_ENABLED,
+)
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
     NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
@@ -144,10 +148,12 @@ class AppController(QObject):
         use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
         use_nsom_advanced_observing: bool = NSOM_ADVANCED_OBSERVING_ENABLED,
         use_nsom_sky_compass: bool = NSOM_SKY_COMPASS_ENABLED,
+        use_nsom_detail_object: bool = NSOM_DETAIL_OBJECT_ENABLED,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
         advanced_observing_nsom_service: AdvancedObservingNsomService | None = None,
         sky_compass_nsom_direction_service: SkyCompassNsomDirectionService | None = None,
+        detail_object_nsom_runtime_service: DetailObjectNsomRuntimeService | None = None,
     ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
@@ -243,6 +249,10 @@ class AppController(QObject):
         self._use_nsom_sky_compass = use_nsom_sky_compass
         self._sky_compass_nsom_direction_service = (
             sky_compass_nsom_direction_service or SkyCompassNsomDirectionService()
+        )
+        self._use_nsom_detail_object = use_nsom_detail_object
+        self._detail_object_nsom_runtime_service = (
+            detail_object_nsom_runtime_service or DetailObjectNsomRuntimeService()
         )
         self._notification_service = NotificationService()
         self._refresh_manager = RefreshManager()
@@ -688,6 +698,20 @@ class AppController(QObject):
         if self._selected_object_source == CATALOGUE_SOURCE:
             return self._object_to_qml(self._selected_object)
         return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
+
+    def _selected_object_nsom_payload(self) -> dict[str, object]:
+        if not getattr(self, "_use_nsom_detail_object", False):
+            return {}
+        if not self._selected_object or not self._weather_summary or not self._sky_quality:
+            return {}
+        return self._detail_object_nsom_runtime_service.payload(
+            self._selected_object,
+            source=self._selected_object_source or OBSERVING_SOURCE,
+            weather=self._weather_summary,
+            sky_quality=self._sky_quality,
+            telescope=self._current_telescope(),
+            moon=self._moon,
+        ).to_dict()
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:

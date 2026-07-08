@@ -595,6 +595,16 @@ compatibility data, not NSOM rationale, and reserves a separate future internal
 payload named `detailObjectNsom`. The readiness audit now reports
 `ready_for_default_off_detail_nsom_path`, but no runtime path, QML field,
 visible UI, logging, network access or runtime file write is added.
+`1.10.3` implements that runtime path as an internal default-off service:
+`astro_viewer/app/services/detail_nsom_runtime.py`. The feature flag is
+`NSOM_DETAIL_OBJECT_ENABLED = False`, with controller rollback through
+`AppController(use_nsom_detail_object=False)`. When forced on, the controller
+can build a separate internal payload through `_selected_object_nsom_payload()`;
+it does not add a QML `@Property`, does not add NSOM fields to `selectedObject`,
+and does not change Home, Best Object, Planner, Sky Compass, logging, network
+access or runtime file writes. The Detail payload includes Observable and
+Practical target values, while SessionViability and RecommendationConfidence
+remain metadata-only.
 
 ## Dependency Flow
 

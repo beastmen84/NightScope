@@ -78,22 +78,25 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "Notifications",
         "Catalogue / raw object score",
     }
-    assert remaining["Detail / selected object"]["status"] == "legacy_conditioned_presentation"
+    assert remaining["Detail / selected object"]["status"] == "default_off_internal_nsom_path"
+    assert "NSOM_DETAIL_OBJECT_ENABLED = False" in remaining["Detail / selected object"]["why_it_remains"]
     assert remaining["Sky Map"]["status"] == "legacy_display_order"
     assert remaining["Equipment recommendations"]["status"] == "legacy_practical_setup_scoring"
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
-def test_audit_recommends_detail_object_comparison_as_next_backend_step() -> None:
+def test_audit_recommends_detail_object_runtime_review_as_next_backend_step() -> None:
     data = generate_backend_migration_status_audit_data()
     sequence = [item["step"] for item in data["recommended_sequence"]]
 
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
-    assert data["readiness"]["recommended_next_step"] == "1.10.0 Detail/Object NSOM comparison layer"
+    assert data["readiness"]["recommended_next_step"] == (
+        "Review 1.10.3 Detail/Object NSOM default-off runtime path"
+    )
     assert sequence[:2] == [
         "Review 1.9.7",
-        "1.10.0 Detail/Object NSOM comparison layer",
+        "Review 1.10.3",
     ]
 
 
@@ -121,5 +124,5 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "1.10.0 Detail/Object NSOM comparison layer" in text
+    assert "Review 1.10.3 Detail/Object NSOM default-off runtime path" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

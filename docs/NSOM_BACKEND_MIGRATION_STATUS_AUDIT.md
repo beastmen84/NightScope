@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: 1.10.0 Detail/Object NSOM comparison layer.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend and Sky Compass have default-on NSOM paths with explicit rollback. Remaining items are legacy or hybrid surfaces that need comparison/readiness work before any UI-facing explanation changes.
+- Recommended next step: Review 1.10.3 Detail/Object NSOM default-off runtime path.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend and Sky Compass have default-on NSOM paths with explicit rollback. Detail/Object now has a default-off internal NSOM payload path and still needs review/default-on readiness before any UI-facing explanation changes.
 
 ## Audit Blockers
 
@@ -32,7 +32,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Detail / selected object | `legacy_conditioned_presentation` | `selectedObject` still projects prepared `CelestialObject` fields and applies the legacy Moon adjustment for observing-source detail. | Start with a developer-only Detail/Object NSOM comparison layer. |
+| Detail / selected object | `default_off_internal_nsom_path` | `selectedObject` remains legacy-compatible and still applies the observing-source Moon-adjusted display policy, while the separate `NSOM_DETAIL_OBJECT_ENABLED = False` path can build an internal `detailObjectNsom` payload. | Review the 1.10.3 default-off runtime path, then run a Detail/Object default-on readiness audit before changing the default flag. |
 | Sky Map | `legacy_display_order` | `SkyMapService` groups visible targets and sorts each direction by prepared `CelestialObject.score`. | Review after Detail because it shares the same display-score contract. |
 | Equipment recommendations | `legacy_practical_setup_scoring` | `EquipmentService` still ranks eyepiece/Barlow candidates with its own practical configuration score. | Compare against ObserverCapability/Q_target before any runtime replacement. |
 | ObservationConditions prepared-object cache | `hybrid_conditioned_objects` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths. | Defer broad cleanup until an ObservationSnapshot/read-model boundary exists. |
@@ -43,7 +43,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.10.2` |
+| `version` | `1.10.3` |
 | `source_reports_present` | `[True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
@@ -64,10 +64,10 @@ This developer-only audit reviews the current NSOM backend migration state after
 ## Recommended Sequence
 
 - `Review 1.9.7`: Verify this backend status audit before opening a new migration area.
-- `1.10.0 Detail/Object NSOM comparison layer`: Compare selected-object/detail legacy conditioned score and NSOM ObservableTargetValue/PracticalTargetValue without UI changes.
-- `1.10.x Detail/Object readiness and default-off path`: Only after comparison evidence, add a rollbackable default-off detail path if useful.
+- `Review 1.10.3`: Verify the default-off Detail/Object NSOM runtime path and rollback contract.
+- `1.10.4 Detail/Object default-on readiness audit`: Audit whether the internal payload path is safe to enable by default.
 - `Later UI explanation work`: Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.
 
 ## Conclusion
 
-The backend NSOM migration is closed for the already migrated recommendation surfaces. The next useful backend step is a Detail/Object comparison layer, because selected-object detail still projects legacy conditioned `CelestialObject` score fields and explanation semantics into the UI contract.
+The backend NSOM migration is closed for the already migrated recommendation surfaces. Detail/Object now has a default-off internal NSOM payload path; the next useful backend step is a review/default-on readiness audit, while visible UI explanation work remains separate.

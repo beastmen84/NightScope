@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
+from astro_viewer.app.services.detail_nsom_runtime import NSOM_DETAIL_OBJECT_ENABLED
 from astro_viewer.tools.detail_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -18,6 +19,18 @@ READINESS_AUDIT_PATH = Path("docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md")
 REPORT_IMPORT_MARKERS = (
     "detail_nsom_readiness_audit",
     "DETAIL_OBJECT_NSOM_READINESS_AUDIT",
+)
+
+RUNTIME_SERVICE_MARKERS = (
+    "NSOM_DETAIL_OBJECT_ENABLED = False",
+    "DetailObjectNsomRuntimeService",
+    "schemaVersion\": \"detail-object-nsom-runtime-v1",
+)
+
+RUNTIME_CONTROLLER_MARKERS = (
+    "use_nsom_detail_object",
+    "_selected_object_nsom_payload",
+    "DetailObjectNsomRuntimeService",
 )
 
 QML_MARKERS = (
@@ -38,6 +51,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
     comparison = generate_report_data()
     contract = generate_policy_contract_data()
     static_checks = _static_wiring_checks(Path(__file__).parents[2])
+    runtime_path = _runtime_path_review(static_checks)
     source_policy = _source_policy_review(comparison, contract)
     display = _display_score_semantics(comparison, contract)
     payload = _payload_contract_review(contract)
@@ -69,16 +83,20 @@ def generate_readiness_audit_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "ready_for_default_off_detail_nsom_path"
+                "default_off_detail_nsom_runtime_path_available"
+                if ready and runtime_path["runtime_path_exists"]
+                else "ready_for_default_off_detail_nsom_path"
                 if ready
                 else "not_ready_for_default_off_detail_nsom_path"
             ),
             "ready_for_default_off_path": ready,
-            "runtime_path_exists": False,
+            "runtime_path_exists": runtime_path["runtime_path_exists"],
             "runtime_behaviour_changed_by_this_audit": False,
             "ready_for_visible_ui": False,
             "recommended_next_step": (
-                "1.10.3 default-off Detail/Object NSOM runtime path"
+                "review 1.10.3, then 1.10.4 Detail/Object default-on readiness audit"
+                if runtime_path["runtime_path_exists"]
+                else "1.10.3 default-off Detail/Object NSOM runtime path"
                 if ready
                 else "resolve Detail/Object source/display policy contract blockers"
             ),
@@ -89,6 +107,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
         "display_score_semantics": display,
         "payload_contract_review": payload,
         "confidence_review": confidence,
+        "runtime_path_review": runtime_path,
         "runtime_safety": runtime_safety,
         "static_wiring_checks": static_checks,
         "comparison_summary": comparison["summary"],
@@ -111,6 +130,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     display = audit["display_score_semantics"]
     payload = audit["payload_contract_review"]
     confidence = audit["confidence_review"]
+    runtime_path = audit["runtime_path_review"]
     contract_summary = audit["policy_contract_summary"]
 
     lines = [
@@ -181,6 +201,18 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Score factor: `{confidence['score_factor']}`.",
             f"- Score effect: `{confidence['score_effect']}`.",
             "",
+            "## Runtime Path Review",
+            "",
+            f"- Status: `{runtime_path['status']}`.",
+            f"- Runtime path exists: `{runtime_path['runtime_path_exists']}`.",
+            f"- Default flag: `{runtime_path['default_flag']}`.",
+            f"- Default flag enabled: `{runtime_path['default_flag_enabled']}`.",
+            f"- Rollback: `{runtime_path['rollback']}`.",
+            f"- Controller rollback parameter present: `{runtime_path['controller_rollback_parameter_present']}`.",
+            f"- Internal payload method present: `{runtime_path['internal_payload_method_present']}`.",
+            f"- QML exposure approved: `{runtime_path['qml_exposure_approved']}`.",
+            f"- SelectedObject payload changed: `{runtime_path['selected_object_payload_changed']}`.",
+            "",
             "## Policy Contract Summary",
             "",
             f"- Contract report: `{audit['metadata']['policy_contract_report']}`.",
@@ -203,8 +235,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review the Detail/Object policy contract.",
-            "2. Add a default-off Detail/Object NSOM runtime path with explicit rollback.",
+            "1. Review the default-off Detail/Object NSOM runtime path.",
+            "2. Run a Detail/Object default-on readiness audit before changing the default flag.",
             "3. Keep visible NSOM explanation UI as a later design step.",
             "",
         ]
@@ -324,6 +356,32 @@ def _runtime_safety(
     }
 
 
+def _runtime_path_review(static_checks: dict[str, object]) -> dict[str, object]:
+    service_markers = {
+        item["marker"] for item in static_checks["runtime_service_matches"]
+    }
+    controller_markers = {
+        item["marker"] for item in static_checks["controller_detail_runtime_matches"]
+    }
+    runtime_path_exists = (
+        set(RUNTIME_SERVICE_MARKERS) <= service_markers
+        and set(RUNTIME_CONTROLLER_MARKERS) <= controller_markers
+    )
+    return {
+        "status": "available_default_off" if runtime_path_exists else "not_implemented",
+        "runtime_path_exists": runtime_path_exists,
+        "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
+        "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
+        "rollback": "AppController(use_nsom_detail_object=False)",
+        "controller_rollback_parameter_present": "use_nsom_detail_object" in controller_markers,
+        "internal_payload_method_present": "_selected_object_nsom_payload" in controller_markers,
+        "service_present": "DetailObjectNsomRuntimeService" in service_markers,
+        "qml_exposure_approved": False,
+        "selected_object_payload_changed": False,
+        "report_runtime_wiring": False,
+    }
+
+
 def _default_off_blockers(
     *,
     source_policy: dict[str, object],
@@ -354,6 +412,16 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
             app_root / "viewmodels",
             ("*.py",),
             RUNTIME_DETAIL_MARKERS,
+        ),
+        "controller_detail_runtime_matches": _scan_files(
+            app_root / "viewmodels",
+            ("*.py",),
+            RUNTIME_CONTROLLER_MARKERS,
+        ),
+        "runtime_service_matches": _scan_files(
+            app_root / "services",
+            ("detail_nsom_runtime.py",),
+            RUNTIME_SERVICE_MARKERS,
         ),
         "runtime_report_import_matches": _scan_files(
             app_root,

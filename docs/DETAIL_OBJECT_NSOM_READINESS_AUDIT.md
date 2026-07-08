@@ -6,12 +6,12 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 
 ## Readiness Verdict
 
-- Verdict: `ready_for_default_off_detail_nsom_path`.
+- Verdict: `default_off_detail_nsom_runtime_path_available`.
 - Ready for default-off path: `True`.
-- Runtime path exists: `False`.
+- Runtime path exists: `True`.
 - Ready for visible UI: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: 1.10.3 default-off Detail/Object NSOM runtime path.
+- Recommended next step: review 1.10.3, then 1.10.4 Detail/Object default-on readiness audit.
 - Reason: Detail source policy, displayed score semantics, separate payload contract, confidence neutrality and runtime safety are all documented.
 
 ## Default-Off Blockers
@@ -53,6 +53,18 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 - Score factor: `False`.
 - Score effect: `0.0`.
 
+## Runtime Path Review
+
+- Status: `available_default_off`.
+- Runtime path exists: `True`.
+- Default flag: `NSOM_DETAIL_OBJECT_ENABLED = False`.
+- Default flag enabled: `False`.
+- Rollback: `AppController(use_nsom_detail_object=False)`.
+- Controller rollback parameter present: `True`.
+- Internal payload method present: `True`.
+- QML exposure approved: `False`.
+- SelectedObject payload changed: `False`.
+
 ## Policy Contract Summary
 
 - Contract report: `docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md`.
@@ -81,6 +93,6 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 
 ## Recommended Next Steps
 
-1. Review the Detail/Object policy contract.
-2. Add a default-off Detail/Object NSOM runtime path with explicit rollback.
+1. Review the default-off Detail/Object NSOM runtime path.
+2. Run a Detail/Object default-on readiness audit before changing the default flag.
 3. Keep visible NSOM explanation UI as a later design step.

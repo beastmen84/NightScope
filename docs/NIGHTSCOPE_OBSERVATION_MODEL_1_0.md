@@ -1079,6 +1079,20 @@ separate internal `detailObjectNsom` payload, but must not add NSOM fields to
 `ready_for_default_off_detail_nsom_path`; visible UI remains a later design
 step.
 
+Implementation note for 1.10.3:
+`astro_viewer/app/services/detail_nsom_runtime.py` adds the first Detail/Object
+runtime path as an internal default-off NSOM consumer. The flag is
+`NSOM_DETAIL_OBJECT_ENABLED = False`; the controller rollback path is
+`AppController(use_nsom_detail_object=False)`. When enabled explicitly, the
+controller builds a separate internal payload through
+`_selected_object_nsom_payload()` and keeps `selectedObject` unchanged. The
+payload projects `IntrinsicTargetQuality`, `ObservationEnvironment`,
+`EffectiveObservability`, `ObservableTargetValue` and `PracticalTargetValue`.
+`SessionViability` and `RecommendationConfidence` remain parallel metadata;
+`ObservationOpportunity` is intentionally not used for Detail/Object. No QML
+property, visible UI, Home, Best Object, Planner, Sky Compass, logging, network
+access or runtime file write is introduced.
+
 Examples:
 
 - binocular-only profile;

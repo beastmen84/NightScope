@@ -475,6 +475,15 @@ Lo step `1.10.2` aggiunge il contratto policy/display Detail/Object in
 payload NSOM deve essere separato (`detailObjectNsom`) e che la prima runtime
 path deve restare default-off, senza aggiungere campi NSOM a `selectedObject` e
 senza UI/QML visibile.
+Lo step `1.10.3` implementa quella path runtime interna default-off con
+`astro_viewer/app/services/detail_nsom_runtime.py` e
+`NSOM_DETAIL_OBJECT_ENABLED = False`. Il rollback esplicito e'
+`AppController(use_nsom_detail_object=False)`. Se forzata on, la path costruisce
+solo un payload interno separato tramite `_selected_object_nsom_payload()`;
+`selectedObject`, payload QML, Home, Best Object, Planner, Sky Compass,
+logging, rete e scritture runtime restano invariati. Il payload contiene valori
+NSOM Detail/Object separati, ma `SessionViability` e
+`RecommendationConfidence` restano metadata-only e non modificano score.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
