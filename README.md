@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.10.0`.
+Versione corrente: `1.10.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -461,6 +461,13 @@ Detail legacy effettivo con `ObservableTargetValue`, `PracticalTargetValue`,
 `SessionViability` e `RecommendationConfidence` paralleli. Non cambia
 `selectedObject`, UI/QML, Home, Best Object, Planner, Sky Compass, logging, rete
 o scritture runtime.
+Lo step `1.10.1` aggiunge il readiness audit developer-only
+`docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md`. Il verdetto e'
+`not_ready_for_default_off_detail_nsom_path`: prima di qualunque path runtime
+Detail NSOM servono una decisione esplicita sulla differenza tra Detail
+osservativo e Detail catalogo, una semantica del punteggio visualizzato e un
+contratto payload/display. Confidence resta metadata-only e non ci sono cambi a
+runtime o QML.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

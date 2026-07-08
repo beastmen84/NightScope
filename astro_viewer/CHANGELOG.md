@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.10.1 - 2026-07-08
+
+- Aggiunto il readiness audit developer-only per Detail/Object NSOM:
+  `docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/detail_nsom_readiness_audit.py`.
+- Il verdetto e' `not_ready_for_default_off_detail_nsom_path`: un futuro path
+  runtime deve attendere policy esplicite per source split osservativo/catalogo,
+  semantica dello score visualizzato e contratto payload/display.
+- Confermato che `RecommendationConfidence` resta metadata-only con score
+  effect zero.
+- Verificata assenza di wiring in controller/QML, logging automatico, rete,
+  scritture runtime e cambi a `selectedObject`, Home, Best Object, Planner o
+  Sky Compass.
+
 ## NightScope 1.10.0 - 2026-07-08
 
 - Avviata la migrazione Detail/Object con un confronto NSOM developer-only:

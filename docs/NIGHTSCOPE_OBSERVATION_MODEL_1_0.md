@@ -1057,6 +1057,16 @@ catalogue Detail displays the raw selected object. No runtime Detail payload,
 QML field, score formula, Planner/Home/Best Object/Sky Compass path, logging,
 network access or runtime file write is changed.
 
+Implementation note for 1.10.1:
+`docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md` records that Detail/Object is not
+ready for a default-off NSOM runtime path yet. The blockers are policy and
+contractual, not mathematical: observing Detail and catalogue Detail currently
+have different legacy display-score semantics; visible `score` is compatibility
+data and is not monotonic with NSOM values; and no separate Detail NSOM
+payload/display contract exists. `RecommendationConfidence` is accepted as
+metadata-only. Runtime Detail, QML, Home, Best Object, Planner, Sky Compass,
+logging, network access and runtime file writes remain unchanged.
+
 Examples:
 
 - binocular-only profile;

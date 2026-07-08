@@ -576,6 +576,15 @@ and `PracticalTargetValue` are computed separately, while `SessionViability`
 and `RecommendationConfidence` remain metadata. The helper is not imported by
 runtime controller/QML and does not alter Home, Best Object, Planner, Sky
 Compass, logging, network access or runtime file writes.
+`1.10.1` adds the developer-only readiness audit in
+`docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md`, generated only by
+`astro_viewer/tools/detail_nsom_readiness_audit.py`. The verdict is
+`not_ready_for_default_off_detail_nsom_path`: the comparison evidence is useful,
+but a runtime Detail NSOM path should wait until source-specific Detail policy,
+displayed score semantics and a payload/display contract are explicitly
+decided. The audit keeps `RecommendationConfidence` metadata-only and verifies
+that no controller/QML/report runtime wiring, logging, network access or
+runtime file write is added.
 
 ## Dependency Flow
 
