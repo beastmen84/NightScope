@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import (
@@ -26,7 +28,7 @@ class ObserverCapabilityProjection:
     target_class: NsomTargetClass | str | None
     summary_for_planning: float
     q_target: float
-    target_class_weighting_profile: dict[str, float]
+    target_class_weighting_profile: Mapping[str, float]
     derivation: str = "configuration_derived_adapter"
 
 
@@ -152,7 +154,9 @@ def project_observer_capability_profile(
         target_class=target_class,
         summary_for_planning=observer_capability.summary_for_planning(),
         q_target=project_observer_capability_for_target(observer_capability, target_class),
-        target_class_weighting_profile=dict(observer_capability_weight_profile_for_target(target_class)),
+        target_class_weighting_profile=MappingProxyType(
+            dict(observer_capability_weight_profile_for_target(target_class))
+        ),
     )
 
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## NightScope 1.12.2b - 2026-07-08
+
+- Indurita la projection Equipment condivisa `ObserverCapability/Q_target`: il
+  profilo di pesi target-specific ora e' metadata immutabile invece di un
+  dizionario mutabile.
+- Aggiunto un test di regressione che prova l'immutabilita' del profilo pesi e
+  la compatibilita' con JSON strict.
+- Nessun cambio a scoring, Equipment runtime, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, QML, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.12.2 - 2026-07-08
 
 - Estratto l'adapter condiviso `ObserverCapability/Q_target` in

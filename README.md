@@ -531,6 +531,10 @@ Lo step `1.12.2` estrae quell'adapter in
 Equipment ora riusa la stessa proiezione `ObserverCapability/Q_target` invece
 di una formula privata del report. `EquipmentService.suggest_for_profile(...)`
 resta invariato e non viene aggiunto nessun flag o campo QML.
+Lo step `1.12.2b` indurisce la projection estratta: il profilo di pesi
+target-specific viene esposto come metadata immutabile e resta serializzabile
+in JSON strict. Non cambia nessuno score runtime e non viene aggiunto wiring
+QML/report automatico.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -1168,6 +1168,12 @@ This is still backend/internal infrastructure: `EquipmentService` remains the
 runtime setup recommender, no default-off Equipment replacement path is added,
 and QML receives no NSOM equipment fields.
 
+Implementation note for 1.12.2b:
+the extracted `ObserverCapabilityProjection` keeps target-class weighting
+metadata immutable while preserving strict JSON projection. The hardening is
+limited to DTO integrity; it does not change observer formulas, Q_target,
+PracticalTargetValue, runtime Equipment ranking, QML or report runtime wiring.
+
 Examples:
 
 - binocular-only profile;

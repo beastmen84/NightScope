@@ -656,6 +656,10 @@ leaving Equipment recommendations and QML payloads unchanged.
 now consumes the shared `ObserverCapability`/`Q_target` projection instead of
 owning report-private capability math. `EquipmentService.suggest_for_profile(...)`
 and all QML payloads remain unchanged.
+`1.12.2b` hardens the extracted projection so target-class weighting metadata is
+immutable while still projecting to strict JSON. This does not change Equipment
+runtime ranking, Planner, Home, Best Object, Advanced Observing, Sky Compass,
+Detail/Object, QML, logging, network behaviour or runtime file writes.
 
 ## Dependency Flow
 

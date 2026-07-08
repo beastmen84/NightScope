@@ -60,6 +60,16 @@ def test_q_target_projection_is_target_specific_but_flat_summary_is_shared() -> 
     json.dumps(nsom_to_json_compatible(planet), sort_keys=True, allow_nan=False)
 
 
+def test_projection_weight_profile_is_immutable() -> None:
+    capability = build_observer_capability_from_configuration(_telescope_configuration())
+    projection = project_observer_capability_profile(capability, NsomTargetClass.PLANET)
+
+    with pytest.raises(TypeError):
+        projection.target_class_weighting_profile["resolution"] = 0.0
+
+    json.dumps(nsom_to_json_compatible(projection), sort_keys=True, allow_nan=False)
+
+
 def test_adapter_projection_matches_equipment_comparison_rows() -> None:
     target = _target("m51", "Galassia", observation_type="General")
     telescopes = [_medium_scope()]
