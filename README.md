@@ -514,6 +514,12 @@ controller. Sky Compass resta la superficie direzionale supportata; non viene
 aggiunto nessun campo QML e nessun ranking NSOM cambia. Gli audit backend ora
 registrano Sky Map come `removed_dead_legacy`; il prossimo backend NSOM reale
 consigliato e' Equipment/ObserverCapability.
+Lo step `1.12.0` aggiunge il confronto developer-only
+`docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md`: la formula corrente di
+`EquipmentService` viene confrontata con `ObserverCapability`, `Q_target` e
+`PracticalTargetValue` NSOM. La raccomandazione Equipment runtime non cambia e
+non viene esposto nessun campo QML; il prossimo passo e' review 1.12.0 e poi
+policy/readiness prima di decidere un eventuale path NSOM default-off.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

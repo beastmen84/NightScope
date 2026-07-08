@@ -9,8 +9,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.11.1, then start Equipment/ObserverCapability NSOM work as the next active backend area.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target.
+- Recommended next step: Review 1.12.0, then decide Equipment NSOM policy readiness.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a developer-only ObserverCapability/Q_target comparison report.
 
 ## Classification Policy
 
@@ -51,7 +51,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations. | Migrate through ObserverCapability/Q_target in a dedicated Equipment step. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares them with ObserverCapability/Q_target. | Review ObserverCapability/Q_target evidence, then run an Equipment policy/readiness step before any runtime replacement. |
 | ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths. | Defer cleanup until an ObservationSnapshot/read-model boundary exists. |
 | Notifications | `active_legacy_or_hybrid` | Notifications consume legacy-compatible best object, plan and advanced-score payloads. | Define notification-specific NSOM semantics before replacement. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -74,8 +74,9 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 - `Review 1.11.1`: Confirm the Sky Map controller/property/service path is removed cleanly.
 - `Rollback cleanup series`: After dead code is removed, decide whether internal legacy rollback constructor flags are still useful in an undistributed app.
-- `Equipment/ObserverCapability migration`: Treat active Equipment recommendations as the next real backend NSOM area, not Sky Map.
+- `Review 1.12.0`: Confirm the Equipment/ObserverCapability comparison report is accurate and runtime Equipment behaviour is unchanged.
+- `1.12.1 Equipment NSOM policy readiness`: Decide whether Equipment gets a default-off NSOM path or stays a practical setup helper.
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. The next useful backend NSOM area is Equipment/ObserverCapability, while temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Equipment now has a developer-only ObserverCapability/Q_target comparison report; the next useful backend step is policy readiness, while temporary rollback cleanup remains a separate policy decision.

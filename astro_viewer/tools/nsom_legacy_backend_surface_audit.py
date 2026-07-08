@@ -62,14 +62,14 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "verdict": "legacy_backend_surface_cleanup_complete",
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "recommended_next_step": (
-                "Review 1.11.1, then start Equipment/ObserverCapability NSOM "
-                "work as the next active backend area."
+                "Review 1.12.0, then decide Equipment NSOM policy readiness."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
                 "`controller.skyMap`. The 1.11.1 cleanup removes the controller "
                 "property, `_sky_map` storage, recomputation and `SkyMapService`, "
-                "so Sky Map is no longer a backend migration target."
+                "so Sky Map is no longer a backend migration target. Equipment now "
+                "has a developer-only ObserverCapability/Q_target comparison report."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -128,10 +128,17 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 ),
             },
             {
-                "step": "Equipment/ObserverCapability migration",
+                "step": "Review 1.12.0",
                 "summary": (
-                    "Treat active Equipment recommendations as the next real backend "
-                    "NSOM area, not Sky Map."
+                    "Confirm the Equipment/ObserverCapability comparison report is "
+                    "accurate and runtime Equipment behaviour is unchanged."
+                ),
+            },
+            {
+                "step": "1.12.1 Equipment NSOM policy readiness",
+                "summary": (
+                    "Decide whether Equipment gets a default-off NSOM path or stays "
+                    "a practical setup helper."
                 ),
             },
         ),
@@ -292,8 +299,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Sky Map has been removed from the backend runtime surface instead "
-                "of being migrated to NSOM. The next useful backend NSOM area is "
-                "Equipment/ObserverCapability, while temporary rollback cleanup "
+                "of being migrated to NSOM. Equipment now has a developer-only "
+                "ObserverCapability/Q_target comparison report; the next useful "
+                "backend step is policy readiness, while temporary rollback cleanup "
                 "remains a separate policy decision."
             ),
             "",
@@ -436,8 +444,15 @@ def _active_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
         {
             "surface": "Equipment recommendations",
             "classification": "active_legacy_or_hybrid",
-            "why_active": "`EquipmentService` still computes practical setup recommendations.",
-            "recommended_handling": "Migrate through ObserverCapability/Q_target in a dedicated Equipment step.",
+            "why_active": (
+                "`EquipmentService` still computes practical setup recommendations; "
+                "`docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares them with "
+                "ObserverCapability/Q_target."
+            ),
+            "recommended_handling": (
+                "Review ObserverCapability/Q_target evidence, then run an Equipment "
+                "policy/readiness step before any runtime replacement."
+            ),
         },
         {
             "surface": "ObservationConditions prepared-object cache",

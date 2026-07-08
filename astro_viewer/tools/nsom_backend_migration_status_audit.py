@@ -24,6 +24,7 @@ SOURCE_REPORTS = (
     Path("docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md"),
     Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md"),
+    Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -75,15 +76,15 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.11.1 Sky Map removal, then start Equipment/ObserverCapability "
-                "NSOM work"
+                "Review 1.12.0 Equipment/ObserverCapability comparison, then decide "
+                "Equipment NSOM policy readiness"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
-                "hybrid surfaces; Sky Map has been removed as dead legacy rather "
-                "than migrated to NSOM."
+                "hybrid surfaces; Sky Map has been removed as dead legacy and "
+                "Equipment now has a developer-only NSOM comparison report."
             ),
         },
         "blockers": blockers,
@@ -222,9 +223,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             (
                 "The backend NSOM migration is closed for the already migrated "
                 "recommendation surfaces and Detail/Object. Sky Map has been removed "
-                "as dead legacy rather than migrated to NSOM. The next useful backend "
-                "step is Equipment/ObserverCapability comparison, while visible UI "
-                "explanation work remains separate."
+                "as dead legacy rather than migrated to NSOM. Equipment now has a "
+                "developer-only ObserverCapability/Q_target comparison layer; the "
+                "next useful backend step is policy readiness for that surface, "
+                "while visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -319,12 +321,17 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Equipment recommendations",
-            "status": "legacy_practical_setup_scoring",
+            "status": "comparison_layer_available",
             "why_it_remains": (
-                "`EquipmentService` still ranks eyepiece/Barlow candidates with its "
-                "own practical configuration score."
+                "`EquipmentService` still ranks eyepiece/Barlow/binocular candidates "
+                "with its own practical configuration score, but "
+                "`docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares that score "
+                "with ObserverCapability/Q_target."
             ),
-            "recommended_handling": "Compare against ObserverCapability/Q_target before any runtime replacement.",
+            "recommended_handling": (
+                "Review the comparison evidence, then add a policy/readiness step "
+                "before any default-off runtime replacement."
+            ),
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -441,6 +448,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.12.0 Equipment/ObserverCapability NSOM comparison",
             "summary": "Start the next active backend NSOM area with Equipment recommendation comparison.",
+        },
+        {
+            "step": "Review 1.12.0",
+            "summary": "Confirm the comparison report is accurate and no runtime Equipment behaviour changed.",
+        },
+        {
+            "step": "1.12.1 Equipment NSOM policy readiness",
+            "summary": "Decide whether Equipment should get a default-off NSOM path or stay a practical setup helper.",
         },
         {
             "step": "Later UI explanation work",

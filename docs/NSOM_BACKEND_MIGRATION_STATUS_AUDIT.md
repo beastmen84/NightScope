@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.11.1 Sky Map removal, then start Equipment/ObserverCapability NSOM work.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map has been removed as dead legacy rather than migrated to NSOM.
+- Recommended next step: Review 1.12.0 Equipment/ObserverCapability comparison, then decide Equipment NSOM policy readiness.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map has been removed as dead legacy and Equipment now has a developer-only NSOM comparison report.
 
 ## Audit Blockers
 
@@ -33,7 +33,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `legacy_practical_setup_scoring` | `EquipmentService` still ranks eyepiece/Barlow candidates with its own practical configuration score. | Compare against ObserverCapability/Q_target before any runtime replacement. |
+| Equipment recommendations | `comparison_layer_available` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score, but `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares that score with ObserverCapability/Q_target. | Review the comparison evidence, then add a policy/readiness step before any default-off runtime replacement. |
 | ObservationConditions prepared-object cache | `hybrid_conditioned_objects` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths. | Defer broad cleanup until an ObservationSnapshot/read-model boundary exists. |
 | Notifications | `legacy_compatible_consumer_contract` | `NotificationService` consumes legacy-compatible best object, plan and advanced-score payloads rather than NSOM explanations. | Leave stable until notification-specific NSOM semantics are defined. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -42,8 +42,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.11.1` |
-| `source_reports_present` | `[True, True, True, True, True, True, True, True]` |
+| `version` | `1.12.0` |
+| `source_reports_present` | `[True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
 
@@ -67,8 +67,10 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `1.11.0 Legacy backend surface audit`: Classify remaining legacy paths as dead code, temporary rollback or payload compatibility.
 - `Review 1.11.1`: Confirm the Sky Map controller/property/service path is removed cleanly.
 - `1.12.0 Equipment/ObserverCapability NSOM comparison`: Start the next active backend NSOM area with Equipment recommendation comparison.
+- `Review 1.12.0`: Confirm the comparison report is accurate and no runtime Equipment behaviour changed.
+- `1.12.1 Equipment NSOM policy readiness`: Decide whether Equipment should get a default-off NSOM path or stay a practical setup helper.
 - `Later UI explanation work`: Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.
 
 ## Conclusion
 
-The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. The next useful backend step is Equipment/ObserverCapability comparison, while visible UI explanation work remains separate.
+The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. Equipment now has a developer-only ObserverCapability/Q_target comparison layer; the next useful backend step is policy readiness for that surface, while visible UI explanation work remains separate.

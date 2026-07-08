@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.12.0 - 2026-07-08
+
+- Aggiunto `EquipmentNsomComparisonService`, helper developer-only che confronta
+  la formula corrente di `EquipmentService` con `ObserverCapability`,
+  `Q_target` e `PracticalTargetValue` NSOM.
+- Generato `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` con scenari deterministici
+  per pianeti, ammassi aperti, galassie, seeing, inquinamento luminoso,
+  binocoli e telescopi.
+- Esplicitato che la formula legacy Equipment miscela target traits, sky
+  quality, seeing e praticita' di setup in uno score unico, mentre NSOM tiene
+  `ObservableTargetValue` separato da `ObserverCapability`.
+- Aggiornati gli audit backend per registrare Equipment come
+  `comparison_layer_available`; il prossimo step consigliato e' una review
+  1.12.0 seguita da policy/readiness Equipment.
+- Nessun cambio a raccomandazioni Equipment runtime, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.11.1 - 2026-07-08
 
 - Rimosso il path backend Sky Map morto:

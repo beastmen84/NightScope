@@ -639,6 +639,12 @@ still need separate policy work.
 Sky Compass remains the supported directional Home surface, with unchanged QML
 payload semantics and no ranking/scoring changes. The next active backend NSOM
 area is Equipment/ObserverCapability.
+`1.12.0` adds the developer-only Equipment/ObserverCapability comparison layer
+and `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md`. The report compares the current
+`EquipmentService` component score with NSOM `ObserverCapability`, target-class
+`Q_target` and `PracticalTargetValue`, while keeping runtime Equipment
+recommendations unchanged and adding no QML exposure. The next step is review
+and policy/readiness before any default-off Equipment NSOM path is considered.
 
 ## Dependency Flow
 

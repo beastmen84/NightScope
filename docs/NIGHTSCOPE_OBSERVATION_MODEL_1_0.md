@@ -1138,6 +1138,17 @@ Planner, Home recommendation, Best Object, Advanced Observing, Detail/Object or
 QML payload behaviour changes in this cleanup. The next active backend NSOM area
 is Equipment/ObserverCapability.
 
+Implementation note for 1.12.0:
+`docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` adds a developer-only comparison
+between the current `EquipmentService` setup score and NSOM
+`ObserverCapability`, target-specific `Q_target` and `PracticalTargetValue`.
+The report shows where the legacy formula mixes target traits, sky quality,
+seeing and setup handling in one equipment score. NSOM keeps
+`ObservableTargetValue` separate from observer capability; confidence remains
+metadata-only. Runtime Equipment recommendations, QML payloads and other
+recommendation surfaces are unchanged. The next step is review and
+policy/readiness before any default-off Equipment NSOM path.
+
 Examples:
 
 - binocular-only profile;
