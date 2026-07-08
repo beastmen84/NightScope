@@ -565,6 +565,17 @@ conditioned-object cache, Notification and catalogue-score work is classified
 as non-blocking follow-up. The audit recommends starting the next backend area
 with a Detail/Object NSOM comparison layer and does not change runtime
 behaviour, QML, scoring, logging, network access or runtime file writes.
+`1.10.0` starts that Detail/Object migration with
+`DetailObjectNsomComparisonService` and the developer-only static report
+`docs/DETAIL_OBJECT_NSOM_COMPARISON_REPORT.md`. The helper compares the current
+selected-object Detail display policy with NSOM projections without changing
+`AppController.selectedObject`. Observing-source Detail is represented as the
+current `_moon_adjusted_object()` replacement policy; catalogue Detail is
+represented as raw selected-object presentation. NSOM `ObservableTargetValue`
+and `PracticalTargetValue` are computed separately, while `SessionViability`
+and `RecommendationConfidence` remain metadata. The helper is not imported by
+runtime controller/QML and does not alter Home, Best Object, Planner, Sky
+Compass, logging, network access or runtime file writes.
 
 ## Dependency Flow
 

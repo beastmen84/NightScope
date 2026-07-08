@@ -1045,6 +1045,18 @@ step is a Detail/Object NSOM comparison layer. This audit is developer-only and
 does not change score formulas, QML, runtime logging, network access or runtime
 file writes.
 
+Implementation note for 1.10.0:
+`DetailObjectNsomComparisonService` starts the Detail/Object NSOM migration as
+a comparison layer only. It compares current selected-object Detail semantics
+against NSOM `IntrinsicTargetQuality`, `ObservationEnvironment`,
+`EffectiveObservability`, `ObservableTargetValue`, `ObserverCapability`,
+`PracticalTargetValue`, `SessionViability` metadata and
+`RecommendationConfidence` metadata. The comparison records that observing
+Detail still displays a moon-adjusted legacy replacement object, while
+catalogue Detail displays the raw selected object. No runtime Detail payload,
+QML field, score formula, Planner/Home/Best Object/Sky Compass path, logging,
+network access or runtime file write is changed.
+
 Examples:
 
 - binocular-only profile;

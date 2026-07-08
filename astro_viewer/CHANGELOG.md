@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.10.0 - 2026-07-08
+
+- Avviata la migrazione Detail/Object con un confronto NSOM developer-only:
+  `astro_viewer/app/services/detail_nsom_comparison.py`.
+- Aggiunto il report esplicito
+  `docs/DETAIL_OBJECT_NSOM_COMPARISON_REPORT.md`, generato dal tool
+  `astro_viewer/tools/detail_nsom_comparison_report.py`.
+- Il confronto distingue il Detail osservativo, che oggi mostra una copia
+  legacy moon-adjusted, dal Detail catalogo, che mantiene lo score raw.
+- Esposti in parallelo `ObservableTargetValue`, `PracticalTargetValue`,
+  `SessionViability` e `RecommendationConfidence` senza usarli nel payload
+  runtime.
+- Aggiunti test per JSON stretto, source policy osservativo/catalogo,
+  sessione metadata-only, equipment su solo `PracticalTargetValue`, confidence
+  score-neutral e assenza di wiring runtime/QML.
+- Nessun cambio a `selectedObject`, QML/UI, Home, Best Object, Planner, Sky
+  Compass, logging, rete o scritture runtime.
+
 ## NightScope 1.9.7 - 2026-07-08
 
 - Aggiunto l'audit complessivo developer-only dello stato NSOM backend:

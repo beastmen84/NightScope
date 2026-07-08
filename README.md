@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.9.7`.
+Versione corrente: `1.10.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -454,6 +454,13 @@ come residui non bloccanti Detail/selected object, Sky Map, Equipment
 recommendations, cache di oggetti condizionati, Notifications e score raw di
 catalogo. Il prossimo step consigliato e' un confronto NSOM Detail/Object,
 senza UI o scoring change.
+Lo step `1.10.0` avvia quel confronto Detail/Object con
+`DetailObjectNsomComparisonService` e il report developer-only
+`docs/DETAIL_OBJECT_NSOM_COMPARISON_REPORT.md`. Il layer confronta il payload
+Detail legacy effettivo con `ObservableTargetValue`, `PracticalTargetValue`,
+`SessionViability` e `RecommendationConfidence` paralleli. Non cambia
+`selectedObject`, UI/QML, Home, Best Object, Planner, Sky Compass, logging, rete
+o scritture runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
