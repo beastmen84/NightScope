@@ -94,7 +94,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_audit": False,
             "ready_for_visible_ui": False,
             "recommended_next_step": (
-                "review 1.10.3, then 1.10.4 Detail/Object default-on readiness audit"
+                "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
                 if runtime_path["runtime_path_exists"]
                 else "1.10.3 default-off Detail/Object NSOM runtime path"
                 if ready
@@ -236,7 +236,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Steps",
             "",
             "1. Review the default-off Detail/Object NSOM runtime path.",
-            "2. Run a Detail/Object default-on readiness audit before changing the default flag.",
+            "2. Review the Detail/Object default-on readiness audit before changing the default flag.",
             "3. Keep visible NSOM explanation UI as a later design step.",
             "",
         ]

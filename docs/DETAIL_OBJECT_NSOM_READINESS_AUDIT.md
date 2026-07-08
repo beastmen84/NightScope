@@ -11,7 +11,7 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 - Runtime path exists: `True`.
 - Ready for visible UI: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: review 1.10.3, then 1.10.4 Detail/Object default-on readiness audit.
+- Recommended next step: review 1.10.4, then 1.10.5 Detail/Object default-on switch.
 - Reason: Detail source policy, displayed score semantics, separate payload contract, confidence neutrality and runtime safety are all documented.
 
 ## Default-Off Blockers
@@ -94,5 +94,5 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 ## Recommended Next Steps
 
 1. Review the default-off Detail/Object NSOM runtime path.
-2. Run a Detail/Object default-on readiness audit before changing the default flag.
+2. Review the Detail/Object default-on readiness audit before changing the default flag.
 3. Keep visible NSOM explanation UI as a later design step.

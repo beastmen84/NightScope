@@ -605,6 +605,15 @@ and does not change Home, Best Object, Planner, Sky Compass, logging, network
 access or runtime file writes. The Detail payload includes Observable and
 Practical target values, while SessionViability and RecommendationConfidence
 remain metadata-only.
+`1.10.4` adds
+`docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md`, generated only by
+`astro_viewer/tools/detail_nsom_default_on_readiness_audit.py`. The audit
+concludes that the internal Detail/Object path is ready for a separate
+default-on switch, while keeping `NSOM_DETAIL_OBJECT_ENABLED = False` for this
+commit. It verifies explicit rollback, separate internal payload semantics,
+unchanged `selectedObject`, no QML exposure, no report runtime wiring and
+metadata-only SessionViability/RecommendationConfidence. Visible Detail page
+NSOM explanations remain a later UI/design step.
 
 ## Dependency Flow
 

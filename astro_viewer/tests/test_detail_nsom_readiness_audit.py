@@ -44,7 +44,7 @@ def test_detail_nsom_readiness_is_ready_after_policy_contract() -> None:
     assert data["readiness"]["ready_for_visible_ui"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "review 1.10.3, then 1.10.4 Detail/Object default-on readiness audit"
+        "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
     )
     assert data["blockers"] == []
     assert data["policy_contract_summary"] == {

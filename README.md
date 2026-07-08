@@ -484,6 +484,12 @@ solo un payload interno separato tramite `_selected_object_nsom_payload()`;
 logging, rete e scritture runtime restano invariati. Il payload contiene valori
 NSOM Detail/Object separati, ma `SessionViability` e
 `RecommendationConfidence` restano metadata-only e non modificano score.
+Lo step `1.10.4` aggiunge
+`docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md`: l'audit conclude che
+la path Detail/Object NSOM e' pronta per uno switch default-on separato, ma
+mantiene `NSOM_DETAIL_OBJECT_ENABLED = False` in questo commit. Il prossimo
+passo, dopo review, puo' essere una commit limitata allo switch del flag; la UI
+visibile e le spiegazioni NSOM in pagina Detail restano fuori scope.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

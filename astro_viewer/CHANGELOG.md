@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.10.4 - 2026-07-08
+
+- Aggiunto l'audit developer-only di readiness default-on per Detail/Object
+  NSOM: `docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/detail_nsom_default_on_readiness_audit.py`.
+- Confermato che la path runtime Detail/Object NSOM e' pronta per uno switch
+  default-on separato, ma `NSOM_DETAIL_OBJECT_ENABLED` resta `False` in questo
+  commit.
+- Verificati rollback `AppController(use_nsom_detail_object=False)`, payload
+  interno separato, `selectedObject` invariato, assenza di campi NSOM in QML e
+  neutralita' di `SessionViability` / `RecommendationConfidence`.
+- Aggiornati readiness audit e audit backend complessivo: il prossimo step puo'
+  essere una commit di switch default-on se la review accetta la readiness.
+- Nessun cambio a runtime default, UI/QML, Home, Best Object, Planner, Sky
+  Compass, logging, rete o scritture runtime.
+
 ## NightScope 1.10.3 - 2026-07-08
 
 - Aggiunta la path runtime interna Detail/Object NSOM default-off:

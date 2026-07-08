@@ -37,6 +37,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/BEST_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
+            "docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
         ],
     }
 
@@ -78,7 +79,7 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "Notifications",
         "Catalogue / raw object score",
     }
-    assert remaining["Detail / selected object"]["status"] == "default_off_internal_nsom_path"
+    assert remaining["Detail / selected object"]["status"] == "ready_for_default_on_switch"
     assert "NSOM_DETAIL_OBJECT_ENABLED = False" in remaining["Detail / selected object"]["why_it_remains"]
     assert remaining["Sky Map"]["status"] == "legacy_display_order"
     assert remaining["Equipment recommendations"]["status"] == "legacy_practical_setup_scoring"
@@ -92,11 +93,11 @@ def test_audit_recommends_detail_object_runtime_review_as_next_backend_step() ->
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.10.3 Detail/Object NSOM default-off runtime path"
+        "Review 1.10.4 Detail/Object NSOM default-on readiness audit"
     )
     assert sequence[:2] == [
         "Review 1.9.7",
-        "Review 1.10.3",
+        "Review 1.10.4",
     ]
 
 
@@ -124,5 +125,5 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Review 1.10.3 Detail/Object NSOM default-off runtime path" in text
+    assert "Review 1.10.4 Detail/Object NSOM default-on readiness audit" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

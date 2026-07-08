@@ -56,5 +56,8 @@ The path is internal only and default-off. It does not change:
 
 ## Next Step
 
-Review 1.10.3, then run a Detail/Object default-on readiness audit before
-changing the default flag.
+NightScope 1.10.4 adds
+`docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md` and classifies this
+path as ready for a separate default-on switch. The flag remains
+`NSOM_DETAIL_OBJECT_ENABLED = False` until that switch commit is explicitly
+made.

@@ -1093,6 +1093,16 @@ payload projects `IntrinsicTargetQuality`, `ObservationEnvironment`,
 property, visible UI, Home, Best Object, Planner, Sky Compass, logging, network
 access or runtime file write is introduced.
 
+Implementation note for 1.10.4:
+`docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md` records the default-on
+readiness decision for the Detail/Object internal runtime path. The audit keeps
+`NSOM_DETAIL_OBJECT_ENABLED = False` and recommends a later switch commit if
+accepted. It verifies that enabling the path would still preserve
+`selectedObject`, keep the NSOM payload separate, avoid QML exposure, preserve
+constructor rollback through `AppController(use_nsom_detail_object=False)`, and
+keep `SessionViability` plus `RecommendationConfidence` outside the Detail score
+path. Visible Detail explanations remain future UX work.
+
 Examples:
 
 - binocular-only profile;

@@ -21,6 +21,7 @@ SOURCE_REPORTS = (
     Path("docs/BEST_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
+    Path("docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -71,13 +72,13 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_to_start_next_backend_area": not blockers,
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "recommended_next_step": "Review 1.10.3 Detail/Object NSOM default-off runtime path",
+            "recommended_next_step": "Review 1.10.4 Detail/Object NSOM default-on readiness audit",
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend and Sky Compass have default-on NSOM paths with explicit "
                 "rollback. Detail/Object now has a default-off internal NSOM payload "
-                "path and still needs review/default-on readiness before any UI-facing "
-                "explanation changes."
+                "path that is ready for a separate default-on switch review before "
+                "any UI-facing explanation changes."
             ),
         },
         "blockers": blockers,
@@ -215,10 +216,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM migration is closed for the already migrated "
-                "recommendation surfaces. Detail/Object now has a default-off "
-                "internal NSOM payload path; the next useful backend step is a "
-                "review/default-on readiness audit, while visible UI explanation "
-                "work remains separate."
+                "recommendation surfaces. Detail/Object now has a default-on "
+                "readiness audit for its internal NSOM payload path; the next useful "
+                "backend step is a separate switch commit if accepted, while visible "
+                "UI explanation work remains separate."
             ),
             "",
         ]
@@ -302,16 +303,17 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Detail / selected object",
-            "status": "default_off_internal_nsom_path",
+            "status": "ready_for_default_on_switch",
             "why_it_remains": (
                 "`selectedObject` remains legacy-compatible and still applies the "
                 "observing-source Moon-adjusted display policy, while the separate "
                 f"`NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}` path "
-                "can build an internal `detailObjectNsom` payload."
+                "can build an internal `detailObjectNsom` payload and has a default-on "
+                "readiness audit."
             ),
             "recommended_handling": (
-                "Review the 1.10.3 default-off runtime path, then run a Detail/Object "
-                "default-on readiness audit before changing the default flag."
+                "Review the 1.10.4 default-on readiness audit, then use a separate "
+                "switch commit if accepted."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -435,12 +437,12 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Verify this backend status audit before opening a new migration area.",
         },
         {
-            "step": "Review 1.10.3",
-            "summary": "Verify the default-off Detail/Object NSOM runtime path and rollback contract.",
+            "step": "Review 1.10.4",
+            "summary": "Verify the Detail/Object NSOM default-on readiness audit.",
         },
         {
-            "step": "1.10.4 Detail/Object default-on readiness audit",
-            "summary": "Audit whether the internal payload path is safe to enable by default.",
+            "step": "1.10.5 Detail/Object default-on switch",
+            "summary": "Set `NSOM_DETAIL_OBJECT_ENABLED = True` if the readiness audit is accepted.",
         },
         {
             "step": "Later UI explanation work",
