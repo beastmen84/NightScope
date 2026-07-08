@@ -1067,6 +1067,18 @@ payload/display contract exists. `RecommendationConfidence` is accepted as
 metadata-only. Runtime Detail, QML, Home, Best Object, Planner, Sky Compass,
 logging, network access and runtime file writes remain unchanged.
 
+Implementation note for 1.10.2:
+`docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md` resolves those Detail/Object policy
+blockers without adding runtime code. The contract keeps source-specific legacy
+display semantics in `selectedObject`: observing Detail keeps the moon-adjusted
+compatibility display score, catalogue Detail keeps the raw catalogue display
+score, and `selectedObject.score` is explicitly legacy/base compatibility data
+rather than NSOM rationale. A future default-off runtime path may build a
+separate internal `detailObjectNsom` payload, but must not add NSOM fields to
+`selectedObject` in the first runtime path. The updated readiness audit is
+`ready_for_default_off_detail_nsom_path`; visible UI remains a later design
+step.
+
 Examples:
 
 - binocular-only profile;

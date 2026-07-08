@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.10.2 - 2026-07-08
+
+- Aggiunto il contratto developer-only Detail/Object NSOM:
+  `docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md`.
+- Aggiunto il tool esplicito
+  `astro_viewer/tools/detail_nsom_policy_contract.py`.
+- Risolti i blocker policy del readiness audit: source split osservativo/catalogo,
+  semantica dello score visualizzato e payload/display contract.
+- Aggiornato `docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md` a
+  `ready_for_default_off_detail_nsom_path`; il prossimo step puo' essere un
+  path runtime Detail/Object NSOM default-off con rollback esplicito.
+- Documentato che `selectedObject.score` resta compatibility data legacy/base e
+  che il futuro payload NSOM deve restare separato (`detailObjectNsom`) senza
+  aggiungere campi a `selectedObject` nel primo path runtime.
+- Nessun cambio a `selectedObject`, QML/UI, Home, Best Object, Planner, Sky
+  Compass, logging, rete o scritture runtime.
+
 ## NightScope 1.10.1 - 2026-07-08
 
 - Aggiunto il readiness audit developer-only per Detail/Object NSOM:

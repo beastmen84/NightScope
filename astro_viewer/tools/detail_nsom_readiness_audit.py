@@ -7,6 +7,10 @@ from astro_viewer.tools.detail_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
 )
+from astro_viewer.tools.detail_nsom_policy_contract import (
+    POLICY_CONTRACT_PATH,
+    generate_policy_contract_data,
+)
 
 
 READINESS_AUDIT_PATH = Path("docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md")
@@ -32,10 +36,11 @@ RUNTIME_DETAIL_MARKERS = (
 
 def generate_readiness_audit_data() -> dict[str, object]:
     comparison = generate_report_data()
+    contract = generate_policy_contract_data()
     static_checks = _static_wiring_checks(Path(__file__).parents[2])
-    source_policy = _source_policy_review(comparison)
-    display = _display_score_semantics(comparison)
-    payload = _payload_contract_review()
+    source_policy = _source_policy_review(comparison, contract)
+    display = _display_score_semantics(comparison, contract)
+    payload = _payload_contract_review(contract)
     confidence = _confidence_review(comparison)
     runtime_safety = _runtime_safety(comparison, static_checks)
     blockers = _default_off_blockers(
@@ -59,6 +64,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "planner_changed": False,
             "sky_compass_changed": False,
             "source_report": str(COMPARISON_REPORT_PATH).replace("\\", "/"),
+            "policy_contract_report": str(POLICY_CONTRACT_PATH).replace("\\", "/"),
             "audit_report_path": str(READINESS_AUDIT_PATH).replace("\\", "/"),
         },
         "readiness": {
@@ -72,9 +78,9 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_audit": False,
             "ready_for_visible_ui": False,
             "recommended_next_step": (
-                "1.10.2 Detail/Object source and display policy contract"
-                if not ready
-                else "implement a default-off Detail/Object NSOM path behind explicit rollback"
+                "1.10.3 default-off Detail/Object NSOM runtime path"
+                if ready
+                else "resolve Detail/Object source/display policy contract blockers"
             ),
             "reason": _readiness_reason(ready),
         },
@@ -86,6 +92,14 @@ def generate_readiness_audit_data() -> dict[str, object]:
         "runtime_safety": runtime_safety,
         "static_wiring_checks": static_checks,
         "comparison_summary": comparison["summary"],
+        "policy_contract_summary": {
+            "verdict": contract["readiness"]["verdict"],
+            "ready_for_default_off_path_after_contract": contract["readiness"][
+                "ready_for_default_off_path_after_contract"
+            ],
+            "default_off_blockers": contract["default_off_blockers"],
+            "schema_version": contract["payload_contract_example"]["schemaVersion"],
+        },
     }
     return nsom_to_json_compatible(audit_data)
 
@@ -97,6 +111,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     display = audit["display_score_semantics"]
     payload = audit["payload_contract_review"]
     confidence = audit["confidence_review"]
+    contract_summary = audit["policy_contract_summary"]
 
     lines = [
         "# Detail/Object NSOM Readiness Audit",
@@ -140,7 +155,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Observing display score: `{source['observing_bright_moon_display_score']}`.",
             f"- Catalogue display score: `{source['catalogue_bright_moon_display_score']}`.",
             f"- Comparable observable values: `{source['comparable_observable_values']}`.",
-            f"- Decision needed: {source['decision_needed']}",
+            f"- Decision: {source['decision']}",
             "",
             "## Displayed Score Semantics",
             "",
@@ -148,7 +163,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Blocks default-off path: `{display['blocks_default_off_path']}`.",
             f"- Keep legacy displayed score for compatibility: `{display['keep_legacy_displayed_score_for_compatibility']}`.",
             f"- Score monotonic with NSOM values: `{display['score_monotonic_with_nsom_values']}`.",
-            f"- Decision needed: {display['decision_needed']}",
+            f"- Decision: {display['decision']}",
             "",
             "## Payload Contract Review",
             "",
@@ -156,7 +171,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Blocks default-off path: `{payload['blocks_default_off_path']}`.",
             f"- Existing payload should remain unchanged: `{payload['preserve_existing_selected_object_payload']}`.",
             f"- Add NSOM fields now: `{payload['add_nsom_fields_now']}`.",
-            f"- Decision needed: {payload['decision_needed']}",
+            f"- Future internal payload: `{payload['future_internal_payload']}`.",
+            f"- Decision: {payload['decision']}",
             "",
             "## Confidence Review",
             "",
@@ -164,6 +180,14 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Blocks default-off path: `{confidence['blocks_default_off_path']}`.",
             f"- Score factor: `{confidence['score_factor']}`.",
             f"- Score effect: `{confidence['score_effect']}`.",
+            "",
+            "## Policy Contract Summary",
+            "",
+            f"- Contract report: `{audit['metadata']['policy_contract_report']}`.",
+            f"- Contract verdict: `{contract_summary['verdict']}`.",
+            f"- Ready after contract: `{contract_summary['ready_for_default_off_path_after_contract']}`.",
+            f"- Contract blockers: `{contract_summary['default_off_blockers']}`.",
+            f"- Schema version: `{contract_summary['schema_version']}`.",
             "",
             "## Runtime Safety",
             "",
@@ -179,8 +203,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review and decide the Detail source policy explicitly.",
-            "2. Define a payload/display contract before adding any default-off runtime path.",
+            "1. Review the Detail/Object policy contract.",
+            "2. Add a default-off Detail/Object NSOM runtime path with explicit rollback.",
             "3. Keep visible NSOM explanation UI as a later design step.",
             "",
         ]
@@ -195,37 +219,40 @@ def write_markdown_report(path: Path = READINESS_AUDIT_PATH) -> Path:
     return path
 
 
-def _source_policy_review(comparison: dict[str, object]) -> dict[str, object]:
+def _source_policy_review(
+    comparison: dict[str, object],
+    contract: dict[str, object],
+) -> dict[str, object]:
     observing = _scenario(comparison, "D01_observing_bright_moon")
     catalogue = _scenario(comparison, "D02_catalogue_bright_moon")
     observing_legacy = observing["legacy"]["selected_object_detail"]
     catalogue_legacy = catalogue["legacy"]["selected_object_detail"]
+    contract_decision = _decision(contract, "source_specific_detail_policy")
     observable_equal = (
         float(observing["nsom"]["observable_target_value"]["value"])
         == float(catalogue["nsom"]["observable_target_value"]["value"])
     )
     return {
-        "status": "needs_policy_decision",
-        "blocks_default_off_path": True,
+        "status": contract_decision["status"],
+        "blocks_default_off_path": contract_decision["blocks_default_off_path"],
         "observing_source_policy": observing_legacy["policy"],
         "catalogue_source_policy": catalogue_legacy["policy"],
         "observing_bright_moon_display_score": observing_legacy["display_score"],
         "catalogue_bright_moon_display_score": catalogue_legacy["display_score"],
         "comparable_observable_values": observable_equal,
-        "decision_needed": (
-            "Decide whether a future Detail NSOM path preserves source-specific "
-            "legacy display score semantics, or introduces a separate NSOM "
-            "explanation/rationale payload while leaving `selectedObject.score` "
-            "as compatibility data."
-        ),
+        "decision": contract_decision["summary"],
     }
 
 
-def _display_score_semantics(comparison: dict[str, object]) -> dict[str, object]:
+def _display_score_semantics(
+    comparison: dict[str, object],
+    contract: dict[str, object],
+) -> dict[str, object]:
     observing = _scenario(comparison, "D01_observing_bright_moon")
     catalogue = _scenario(comparison, "D02_catalogue_bright_moon")
     observing_legacy = observing["legacy"]["selected_object_detail"]
     catalogue_legacy = catalogue["legacy"]["selected_object_detail"]
+    contract_decision = _decision(contract, "displayed_score_compatibility")
     score_monotonic = (
         float(observing_legacy["display_score"]) == float(catalogue_legacy["display_score"])
         if float(observing["nsom"]["observable_target_value"]["value"])
@@ -233,33 +260,29 @@ def _display_score_semantics(comparison: dict[str, object]) -> dict[str, object]
         else False
     )
     return {
-        "status": "needs_contract",
-        "blocks_default_off_path": True,
+        "status": contract_decision["status"],
+        "blocks_default_off_path": contract_decision["blocks_default_off_path"],
         "keep_legacy_displayed_score_for_compatibility": True,
         "score_monotonic_with_nsom_values": score_monotonic,
         "observing_display_score": observing_legacy["display_score"],
         "catalogue_display_score": catalogue_legacy["display_score"],
         "observing_observable_value": observing["nsom"]["observable_target_value"]["value"],
         "catalogue_observable_value": catalogue["nsom"]["observable_target_value"]["value"],
-        "decision_needed": (
-            "Document that visible `score` remains legacy/base compatibility data, "
-            "then define any future NSOM rationale fields separately."
-        ),
+        "decision": contract_decision["summary"],
     }
 
 
-def _payload_contract_review() -> dict[str, object]:
+def _payload_contract_review(contract: dict[str, object]) -> dict[str, object]:
+    contract_decision = _decision(contract, "separate_nsom_payload")
+    payload = contract["payload_contract_example"]
     return {
-        "status": "not_defined",
-        "blocks_default_off_path": True,
-        "preserve_existing_selected_object_payload": True,
-        "add_nsom_fields_now": False,
-        "qml_payload_shape_change_allowed": False,
-        "decision_needed": (
-            "Define a future internal payload contract before runtime code starts "
-            "building Detail NSOM data. The first runtime path should preserve "
-            "`selectedObject` keys and keep NSOM fields private or separately named."
-        ),
+        "status": contract_decision["status"],
+        "blocks_default_off_path": contract_decision["blocks_default_off_path"],
+        "preserve_existing_selected_object_payload": payload["selectedObjectCompatibility"]["preserveKeys"],
+        "add_nsom_fields_now": payload["selectedObjectCompatibility"]["addNsomFields"],
+        "qml_payload_shape_change_allowed": payload["visibleQmlExposureApproved"],
+        "future_internal_payload": payload["futureInternalPayload"],
+        "decision": contract_decision["summary"],
     }
 
 
@@ -375,11 +398,15 @@ def _scenario(data: dict[str, object], scenario_id: str) -> dict[str, object]:
     return next(scenario for scenario in data["scenarios"] if scenario["scenario_id"] == scenario_id)
 
 
+def _decision(data: dict[str, object], decision_id: str) -> dict[str, object]:
+    return next(decision for decision in data["contract_decisions"] if decision["decision_id"] == decision_id)
+
+
 def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
-            "Detail source policy, displayed score semantics, payload contract, "
-            "confidence neutrality and runtime safety are all documented."
+            "Detail source policy, displayed score semantics, separate payload "
+            "contract, confidence neutrality and runtime safety are all documented."
         )
     return (
         "Detail has source-specific legacy display semantics and no defined NSOM "

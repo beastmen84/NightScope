@@ -30,39 +30,42 @@ def test_detail_nsom_readiness_audit_is_deterministic_strict_json_and_developer_
         "planner_changed": False,
         "sky_compass_changed": False,
         "source_report": "docs/DETAIL_OBJECT_NSOM_COMPARISON_REPORT.md",
+        "policy_contract_report": "docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md",
         "audit_report_path": "docs/DETAIL_OBJECT_NSOM_READINESS_AUDIT.md",
     }
 
 
-def test_detail_nsom_readiness_blocks_default_off_path_until_policy_contract_exists() -> None:
+def test_detail_nsom_readiness_is_ready_after_policy_contract() -> None:
     data = generate_readiness_audit_data()
 
-    assert data["readiness"]["verdict"] == "not_ready_for_default_off_detail_nsom_path"
-    assert data["readiness"]["ready_for_default_off_path"] is False
+    assert data["readiness"]["verdict"] == "ready_for_default_off_detail_nsom_path"
+    assert data["readiness"]["ready_for_default_off_path"] is True
     assert data["readiness"]["runtime_path_exists"] is False
     assert data["readiness"]["ready_for_visible_ui"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "1.10.2 Detail/Object source and display policy contract"
+        "1.10.3 default-off Detail/Object NSOM runtime path"
     )
-    assert data["blockers"] == [
-        "detail-source-policy-unresolved",
-        "detail-displayed-score-semantics-unresolved",
-        "detail-payload-contract-not-defined",
-    ]
+    assert data["blockers"] == []
+    assert data["policy_contract_summary"] == {
+        "verdict": "detail_object_nsom_policy_contract_defined",
+        "ready_for_default_off_path_after_contract": True,
+        "default_off_blockers": [],
+        "schema_version": "detail-object-nsom-policy-v1",
+    }
 
 
 def test_source_policy_review_captures_observing_and_catalogue_semantic_split() -> None:
     data = generate_readiness_audit_data()
     policy = data["source_policy_review"]
 
-    assert policy["status"] == "needs_policy_decision"
-    assert policy["blocks_default_off_path"] is True
+    assert policy["status"] == "accepted"
+    assert policy["blocks_default_off_path"] is False
     assert policy["observing_source_policy"] == "observing_detail_moon_adjusted_copy"
     assert policy["catalogue_source_policy"] == "catalogue_detail_raw_object"
     assert policy["observing_bright_moon_display_score"] < policy["catalogue_bright_moon_display_score"]
     assert policy["comparable_observable_values"] is True
-    assert "source-specific legacy display score semantics" in policy["decision_needed"]
+    assert "source-specific legacy Detail display semantics" in policy["decision"]
 
 
 def test_displayed_score_and_payload_contract_are_explicit_blockers() -> None:
@@ -70,18 +73,19 @@ def test_displayed_score_and_payload_contract_are_explicit_blockers() -> None:
     display = data["display_score_semantics"]
     payload = data["payload_contract_review"]
 
-    assert display["status"] == "needs_contract"
-    assert display["blocks_default_off_path"] is True
+    assert display["status"] == "accepted"
+    assert display["blocks_default_off_path"] is False
     assert display["keep_legacy_displayed_score_for_compatibility"] is True
     assert display["score_monotonic_with_nsom_values"] is False
     assert display["observing_observable_value"] == display["catalogue_observable_value"]
     assert display["observing_display_score"] != display["catalogue_display_score"]
 
-    assert payload["status"] == "not_defined"
-    assert payload["blocks_default_off_path"] is True
+    assert payload["status"] == "accepted"
+    assert payload["blocks_default_off_path"] is False
     assert payload["preserve_existing_selected_object_payload"] is True
     assert payload["add_nsom_fields_now"] is False
     assert payload["qml_payload_shape_change_allowed"] is False
+    assert payload["future_internal_payload"] == "detailObjectNsom"
 
 
 def test_confidence_is_accepted_as_metadata_only() -> None:
@@ -127,6 +131,6 @@ def test_checked_in_detail_nsom_readiness_audit_report_matches_renderer() -> Non
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Detail/Object NSOM Readiness Audit" in text
-    assert "not_ready_for_default_off_detail_nsom_path" in text
-    assert "detail-source-policy-unresolved" in text
+    assert "ready_for_default_off_detail_nsom_path" in text
+    assert "DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

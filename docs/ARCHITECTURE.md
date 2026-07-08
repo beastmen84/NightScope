@@ -585,6 +585,16 @@ displayed score semantics and a payload/display contract are explicitly
 decided. The audit keeps `RecommendationConfidence` metadata-only and verifies
 that no controller/QML/report runtime wiring, logging, network access or
 runtime file write is added.
+`1.10.2` adds that source/display policy contract in
+`docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md`, generated only by
+`astro_viewer/tools/detail_nsom_policy_contract.py`. The contract accepts the
+existing source split: observing Detail keeps the legacy moon-adjusted
+compatibility display score, while catalogue Detail keeps the raw catalogue
+compatibility score. It also defines `selectedObject.score` as legacy/base
+compatibility data, not NSOM rationale, and reserves a separate future internal
+payload named `detailObjectNsom`. The readiness audit now reports
+`ready_for_default_off_detail_nsom_path`, but no runtime path, QML field,
+visible UI, logging, network access or runtime file write is added.
 
 ## Dependency Flow
 

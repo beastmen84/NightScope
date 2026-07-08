@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.10.1`.
+Versione corrente: `1.10.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -468,6 +468,13 @@ Detail NSOM servono una decisione esplicita sulla differenza tra Detail
 osservativo e Detail catalogo, una semantica del punteggio visualizzato e un
 contratto payload/display. Confidence resta metadata-only e non ci sono cambi a
 runtime o QML.
+Lo step `1.10.2` aggiunge il contratto policy/display Detail/Object in
+`docs/DETAIL_OBJECT_NSOM_POLICY_CONTRACT.md` e aggiorna il readiness audit a
+`ready_for_default_off_detail_nsom_path`. La policy stabilisce che
+`selectedObject.score` resta compatibility data legacy/base, che il futuro
+payload NSOM deve essere separato (`detailObjectNsom`) e che la prima runtime
+path deve restare default-off, senza aggiungere campi NSOM a `selectedObject` e
+senza UI/QML visibile.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
