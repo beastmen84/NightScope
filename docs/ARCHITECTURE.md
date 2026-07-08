@@ -634,6 +634,11 @@ of the dead Sky Map controller/property/service path after review, not an NSOM
 comparison layer. The audit also distinguishes temporary internal rollback
 flags, payload/UI compatibility fields and active legacy/hybrid surfaces that
 still need separate policy work.
+`1.11.1` removes that dead Sky Map path: `SkyMapService`,
+`AppController.skyMap`, `_sky_map` storage and Sky Map recomputation are gone.
+Sky Compass remains the supported directional Home surface, with unchanged QML
+payload semantics and no ranking/scoring changes. The next active backend NSOM
+area is Equipment/ObserverCapability.
 
 ## Dependency Flow
 
@@ -749,7 +754,6 @@ Services hold business logic:
   It does not own Planner score aggregation, equipment recommendations,
   best-object selection, OpenAQ or NASA AOD behavior.
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
-- `SkyMapService`: compact sky-map DTO generation.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services.

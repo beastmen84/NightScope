@@ -65,5 +65,6 @@ switch. NightScope 1.10.6 closes the backend migration in
 
 NightScope 1.11.0 supersedes the earlier Sky Map follow-up recommendation with
 `docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md`: Sky Map is classified as dead
-legacy controller work, not as an NSOM migration target. Visible Detail page
-NSOM explanations remain separate UI/design work.
+legacy controller work, not as an NSOM migration target. NightScope 1.11.1
+removes that path from the backend controller and service layer. Visible Detail
+page NSOM explanations remain separate UI/design work.

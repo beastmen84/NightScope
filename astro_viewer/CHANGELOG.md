@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.11.1 - 2026-07-08
+
+- Rimosso il path backend Sky Map morto:
+  `SkyMapService`, `AppController.skyMap`, lo storage `_sky_map` e i ricalcoli
+  `_sky_map_service.map_targets(...)`.
+- Aggiornati i test che stubavano Sky Map solo come dipendenza accessoria del
+  controller.
+- Aggiornati `docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md` e
+  `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md`: Sky Map e' ora
+  `removed_dead_legacy`, non piu' una superficie residua o un target NSOM.
+- Il prossimo backend NSOM reale diventa Equipment/ObserverCapability, mentre
+  cleanup dei rollback interni e UI explanation restano decisioni separate.
+- Nessun cambio a QML/UI, Planner, Home recommendedDeepSky, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, scoring NSOM, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.11.0 - 2026-07-08
 
 - Aggiunto l'audit developer-only delle superfici backend legacy:

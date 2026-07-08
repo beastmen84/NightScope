@@ -6,24 +6,25 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 ## Verdict
 
-- Verdict: `legacy_backend_surface_audit_complete`.
-- Sky Map migration recommendation: `do_not_migrate_dead_legacy_surface`.
+- Verdict: `legacy_backend_surface_cleanup_complete`.
+- Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.11.0, then remove the dead Sky Map controller/property path in 1.11.1 if the audit is accepted.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`, while the controller still computes `_sky_map`. This makes Sky Map a dead legacy runtime computation rather than a backend NSOM migration target.
+- Recommended next step: Review 1.11.1, then start Equipment/ObserverCapability NSOM work as the next active backend area.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target.
 
 ## Classification Policy
 
+- `removed_dead_legacy`: Formerly computed legacy code whose current QML/runtime consumer is absent and whose controller/service path has been removed.
 - `dead_legacy`: Code still present or computed, but no longer consumed by current QML/runtime presentation.
 - `temporary_rollback`: Explicit old path retained only as internal rollback after a default-on NSOM migration.
 - `payload_compatibility`: Legacy/base fields still needed to keep existing QML payloads stable until a separate UI/presentation step.
 - `active_legacy_or_hybrid`: Code still actively used and requiring a separate NSOM policy or read-model migration before removal.
 
-## Dead Legacy Surfaces
+## Removed Dead Legacy Surfaces
 
 | Surface | Classification | Evidence | Recommended handling |
 | --- | --- | --- | --- |
-| Sky Map | `dead_legacy` | HomePage.qml consumes `controller.skyCompass`, not `controller.skyMap`.<br>`AppController` still exposes `skyMap` and recomputes `_sky_map`.<br>`SkyMapService` sorts visible targets by legacy `CelestialObject.score`. | Remove the controller/property/service path after review; do not build a Sky Map NSOM migration for dead legacy code. |
+| Sky Map | `removed_dead_legacy` | HomePage.qml consumes `controller.skyCompass`, not `controller.skyMap`.<br>`AppController.skyMap`, `_sky_map` storage and recomputation are absent.<br>`SkyMapService` has been removed. | Keep removed; do not rebuild a Sky Map NSOM migration unless a real consumer is reintroduced through a separate product decision. |
 
 ## Temporary Rollback Surfaces
 
@@ -60,8 +61,9 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 | Check | Result |
 | --- | --- |
 | `sky_map_qml_consumers_absent` | `True` |
-| `sky_map_controller_computation_present` | `True` |
-| `sky_map_is_dead_legacy_not_nsom_target` | `True` |
+| `sky_map_controller_computation_absent` | `True` |
+| `sky_map_service_file_absent` | `True` |
+| `sky_map_removed_not_nsom_target` | `True` |
 | `temporary_rollbacks_are_internal` | `True` |
 | `payload_compatibility_not_rank_source` | `True` |
 | `runtime_report_imports_absent` | `True` |
@@ -70,11 +72,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 ## Recommended Sequence
 
-- `Review 1.11.0`: Confirm Sky Map is dead legacy rather than a surface to migrate to NSOM.
-- `1.11.1 Remove dead Sky Map legacy path`: Remove `SkyMapService`, `AppController.skyMap`, `_sky_map` storage and controller recomputation if no hidden consumer is found.
+- `Review 1.11.1`: Confirm the Sky Map controller/property/service path is removed cleanly.
 - `Rollback cleanup series`: After dead code is removed, decide whether internal legacy rollback constructor flags are still useful in an undistributed app.
 - `Equipment/ObserverCapability migration`: Treat active Equipment recommendations as the next real backend NSOM area, not Sky Map.
 
 ## Conclusion
 
-Sky Map should not receive an NSOM comparison layer unless a hidden consumer is found. The current evidence shows it is dead legacy controller work left behind after Sky Compass replaced the old Home map. The next useful step is a focused removal commit, followed by a separate decision on temporary rollback cleanup.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. The next useful backend NSOM area is Equipment/ObserverCapability, while temporary rollback cleanup remains a separate policy decision.

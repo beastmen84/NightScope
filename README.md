@@ -508,6 +508,12 @@ piu' un target di migrazione NSOM; il prossimo step consigliato e' rimuovere il
 path Sky Map morto dopo review. L'audit distingue anche rollback interni
 temporanei, campi payload/UI di compatibilita' e superfici legacy/hybrid ancora
 attive come Equipment, Notifications e cache ObservationConditions.
+Lo step `1.11.1` esegue quel cleanup: rimuove `SkyMapService`,
+`AppController.skyMap`, lo storage `_sky_map` e i ricalcoli Sky Map dal
+controller. Sky Compass resta la superficie direzionale supportata; non viene
+aggiunto nessun campo QML e nessun ranking NSOM cambia. Gli audit backend ora
+registrano Sky Map come `removed_dead_legacy`; il prossimo backend NSOM reale
+consigliato e' Equipment/ObserverCapability.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

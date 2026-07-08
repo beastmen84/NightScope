@@ -244,8 +244,6 @@ def test_app_controller_recalculate_outputs_uses_forced_nsom_best_object_path() 
     )
     controller._night_planner_service = Mock()
     controller._night_planner_service.plan.return_value = []
-    controller._sky_map_service = Mock()
-    controller._sky_map_service.map_targets.return_value = []
     controller._refresh_sky_compass = Mock()
     controller._notification_service = Mock()
     controller._notification_service.notifications.return_value = []

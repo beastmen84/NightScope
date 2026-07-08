@@ -54,26 +54,30 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "report_path": str(REPORT_PATH).replace("\\", "/"),
             "purpose": (
                 "Classify remaining legacy backend surfaces after the NSOM "
-                "default-on recommendation migrations, so dead code can be "
-                "removed instead of migrated."
+                "default-on recommendation migrations, and verify that dead "
+                "legacy code removed in cleanup commits stays removed."
             ),
         },
         "readiness": {
-            "verdict": "legacy_backend_surface_audit_complete",
-            "sky_map_migration_recommendation": "do_not_migrate_dead_legacy_surface",
+            "verdict": "legacy_backend_surface_cleanup_complete",
+            "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "recommended_next_step": (
-                "Review 1.11.0, then remove the dead Sky Map controller/property "
-                "path in 1.11.1 if the audit is accepted."
+                "Review 1.11.1, then start Equipment/ObserverCapability NSOM "
+                "work as the next active backend area."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
-                "`controller.skyMap`, while the controller still computes `_sky_map`. "
-                "This makes Sky Map a dead legacy runtime computation rather than "
-                "a backend NSOM migration target."
+                "`controller.skyMap`. The 1.11.1 cleanup removes the controller "
+                "property, `_sky_map` storage, recomputation and `SkyMapService`, "
+                "so Sky Map is no longer a backend migration target."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
         "classification_policy": {
+            "removed_dead_legacy": (
+                "Formerly computed legacy code whose current QML/runtime consumer "
+                "is absent and whose controller/service path has been removed."
+            ),
             "dead_legacy": (
                 "Code still present or computed, but no longer consumed by current "
                 "QML/runtime presentation."
@@ -98,8 +102,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
         "static_checks": static_checks,
         "checks": {
             "sky_map_qml_consumers_absent": sky_map_state["qml_consumed"] is False,
-            "sky_map_controller_computation_present": sky_map_state["controller_computation_present"] is True,
-            "sky_map_is_dead_legacy_not_nsom_target": sky_map_state["classification"] == "dead_legacy",
+            "sky_map_controller_computation_absent": sky_map_state["controller_computation_present"] is False,
+            "sky_map_service_file_absent": sky_map_state["service_file_present"] is False,
+            "sky_map_removed_not_nsom_target": sky_map_state["classification"] == "removed_dead_legacy",
             "temporary_rollbacks_are_internal": all(
                 item["public_compatibility_contract"] is False for item in temporary_rollbacks
             ),
@@ -112,15 +117,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
         },
         "recommended_sequence": (
             {
-                "step": "Review 1.11.0",
-                "summary": "Confirm Sky Map is dead legacy rather than a surface to migrate to NSOM.",
-            },
-            {
-                "step": "1.11.1 Remove dead Sky Map legacy path",
-                "summary": (
-                    "Remove `SkyMapService`, `AppController.skyMap`, `_sky_map` "
-                    "storage and controller recomputation if no hidden consumer is found."
-                ),
+                "step": "Review 1.11.1",
+                "summary": "Confirm the Sky Map controller/property/service path is removed cleanly.",
             },
             {
                 "step": "Rollback cleanup series",
@@ -174,7 +172,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     lines.extend(
         [
             "",
-            "## Dead Legacy Surfaces",
+            "## Removed Dead Legacy Surfaces",
             "",
             "| Surface | Classification | Evidence | Recommended handling |",
             "| --- | --- | --- | --- |",
@@ -293,11 +291,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "Sky Map should not receive an NSOM comparison layer unless a hidden "
-                "consumer is found. The current evidence shows it is dead legacy "
-                "controller work left behind after Sky Compass replaced the old "
-                "Home map. The next useful step is a focused removal commit, followed "
-                "by a separate decision on temporary rollback cleanup."
+                "Sky Map has been removed from the backend runtime surface instead "
+                "of being migrated to NSOM. The next useful backend NSOM area is "
+                "Equipment/ObserverCapability, while temporary rollback cleanup "
+                "remains a separate policy decision."
             ),
             "",
         ]
@@ -319,21 +316,23 @@ def _sky_map_state(root: Path) -> dict[str, object]:
         ("app_controller.py",),
         SKY_MAP_CONTROLLER_MARKERS,
     )
+    service_file = root / "astro_viewer" / "app" / "services" / "sky_map_service.py"
     return {
         "surface": "Sky Map",
-        "classification": "dead_legacy",
+        "classification": "removed_dead_legacy",
         "qml_consumed": qml_matches != (),
         "qml_consumer_matches": qml_matches,
         "controller_computation_present": controller_matches != (),
         "controller_matches": controller_matches,
+        "service_file_present": service_file.exists(),
         "evidence": (
             "HomePage.qml consumes `controller.skyCompass`, not `controller.skyMap`.",
-            "`AppController` still exposes `skyMap` and recomputes `_sky_map`.",
-            "`SkyMapService` sorts visible targets by legacy `CelestialObject.score`.",
+            "`AppController.skyMap`, `_sky_map` storage and recomputation are absent.",
+            "`SkyMapService` has been removed.",
         ),
         "recommended_handling": (
-            "Remove the controller/property/service path after review; do not build "
-            "a Sky Map NSOM migration for dead legacy code."
+            "Keep removed; do not rebuild a Sky Map NSOM migration unless a real "
+            "consumer is reintroduced through a separate product decision."
         ),
         "blocks_current_nsom_surfaces": False,
     }

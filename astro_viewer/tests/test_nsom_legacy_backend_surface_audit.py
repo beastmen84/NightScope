@@ -26,20 +26,24 @@ def test_legacy_backend_surface_audit_is_deterministic_strict_json_and_developer
     assert first["metadata"]["runtime_behaviour_changed_by_this_audit"] is False
 
 
-def test_sky_map_is_classified_as_dead_legacy_not_nsom_migration_target() -> None:
+def test_sky_map_removed_dead_legacy_path_stays_out_of_runtime() -> None:
     data = generate_legacy_backend_surface_audit_data()
     sky_map = data["dead_legacy_surfaces"][0]
 
     assert sky_map["surface"] == "Sky Map"
-    assert sky_map["classification"] == "dead_legacy"
+    assert sky_map["classification"] == "removed_dead_legacy"
     assert sky_map["qml_consumed"] is False
     assert sky_map["qml_consumer_matches"] == []
-    assert sky_map["controller_computation_present"] is True
-    assert data["checks"]["sky_map_is_dead_legacy_not_nsom_target"] is True
+    assert sky_map["controller_computation_present"] is False
+    assert sky_map["controller_matches"] == []
+    assert sky_map["service_file_present"] is False
+    assert data["checks"]["sky_map_removed_not_nsom_target"] is True
+    assert data["checks"]["sky_map_controller_computation_absent"] is True
+    assert data["checks"]["sky_map_service_file_absent"] is True
     assert data["readiness"]["sky_map_migration_recommendation"] == (
-        "do_not_migrate_dead_legacy_surface"
+        "removed_dead_legacy_surface"
     )
-    assert "Remove" in sky_map["recommended_handling"]
+    assert "Keep removed" in sky_map["recommended_handling"]
 
 
 def test_temporary_rollbacks_are_internal_not_public_compatibility_contracts() -> None:
@@ -104,6 +108,6 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Legacy Backend Surface Audit" in text
-    assert "do_not_migrate_dead_legacy_surface" in text
-    assert "1.11.1 Remove dead Sky Map legacy path" in text
+    assert "removed_dead_legacy_surface" in text
+    assert "Review 1.11.1" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

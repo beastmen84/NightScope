@@ -330,7 +330,6 @@ def _controller(
         "Alt-az",
     )
     controller._night_planner_service = _PlannerSpy()
-    controller._sky_map_service = SimpleNamespace(map_targets=lambda _objects: [])
     controller._refresh_sky_compass = lambda: None
     controller._notification_service = _NotificationSpy()
     controller._refresh_nsom_diagnostics = lambda: None
@@ -339,7 +338,6 @@ def _controller(
     controller._advanced_observing_nsom_presentation = None
     controller._best_object = None
     controller._night_plan = []
-    controller._sky_map = []
     controller._notifications = []
     return controller
 

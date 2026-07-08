@@ -1130,6 +1130,14 @@ flags remain internal safety nets, while payload compatibility fields such as
 visible `score` values are presentation contracts until a separate UI/design
 step replaces them.
 
+Implementation note for 1.11.1:
+the dead Sky Map path is removed rather than migrated. `SkyMapService`,
+`AppController.skyMap`, `_sky_map` storage and Sky Map recomputation are gone.
+Sky Compass remains the supported directional Home surface. No NSOM scoring,
+Planner, Home recommendation, Best Object, Advanced Observing, Detail/Object or
+QML payload behaviour changes in this cleanup. The next active backend NSOM area
+is Equipment/ObserverCapability.
+
 Examples:
 
 - binocular-only profile;

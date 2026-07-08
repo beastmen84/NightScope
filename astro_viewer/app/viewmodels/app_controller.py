@@ -92,7 +92,6 @@ from astro_viewer.app.services.sky_compass_nsom_ranking import (
     NSOM_SKY_COMPASS_ENABLED,
     SkyCompassNsomDirectionService,
 )
-from astro_viewer.app.services.sky_map_service import SkyMapService
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
 
 
@@ -244,7 +243,6 @@ class AppController(QObject):
             home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
         )
         self._night_planner_service = NightPlannerService()
-        self._sky_map_service = SkyMapService()
         self._sky_compass_service = SkyCompassService()
         self._use_nsom_sky_compass = use_nsom_sky_compass
         self._sky_compass_nsom_direction_service = (
@@ -284,7 +282,6 @@ class AppController(QObject):
         self._advanced_observing_nsom_scores = None
         self._advanced_observing_nsom_presentation = None
         self._night_plan = []
-        self._sky_map = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
         self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
@@ -678,10 +675,6 @@ class AppController(QObject):
     @Property("QVariant", notify=dataChanged)
     def nightPlan(self) -> list[dict]:
         return [item.to_qml() for item in self._night_plan]
-
-    @Property("QVariant", notify=dataChanged)
-    def skyMap(self) -> list[dict]:
-        return self._sky_map
 
     @Property("QVariant", notify=skyCompassChanged)
     def skyCompass(self) -> dict:
@@ -1747,7 +1740,6 @@ class AppController(QObject):
         self._advanced_observing_nsom_presentation = None
         self._best_object = None
         self._night_plan = []
-        self._sky_map = []
         self._sky_compass_candidate_snapshot = []
         self._set_sky_compass(SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass."))
         self._notifications = []
@@ -1967,7 +1959,6 @@ class AppController(QObject):
             self._current_telescope(),
             self._moon,
         )
-        self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
         self._refresh_sky_compass()
         self._notifications = self._notification_service.notifications(
             self._best_object,
@@ -2825,13 +2816,11 @@ class AppController(QObject):
         elif self._weather_summary:
             self._best_object = self._select_best_object(planning_objects)
             self._night_plan = []
-            self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
             self._refresh_sky_compass()
             self._notifications = []
         else:
             self._best_object = None
             self._night_plan = []
-            self._sky_map = self._sky_map_service.map_targets(self._visible_planets + self._deep_sky)
             self._refresh_sky_compass()
             self._notifications = []
         if selected_id:

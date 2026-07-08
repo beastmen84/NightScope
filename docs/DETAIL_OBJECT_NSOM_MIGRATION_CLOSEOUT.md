@@ -63,3 +63,7 @@ the next backend NSOM area. It is classified as dead legacy controller work:
 Home QML consumes Sky Compass, not `controller.skyMap`, while the controller
 still computes `_sky_map`. The next step is a focused removal commit after
 review, not a Sky Map NSOM comparison layer.
+
+NightScope 1.11.1 completes that removal: `SkyMapService`,
+`AppController.skyMap`, `_sky_map` storage and Sky Map recomputation are gone.
+The next active backend NSOM area is Equipment/ObserverCapability.
