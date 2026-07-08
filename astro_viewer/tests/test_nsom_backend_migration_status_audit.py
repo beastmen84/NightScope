@@ -38,6 +38,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
+            "docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md",
         ],
     }
 
@@ -85,19 +86,20 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
-def test_audit_recommends_detail_object_runtime_review_as_next_backend_step() -> None:
+def test_audit_recommends_sky_map_as_next_backend_step_after_detail_closeout() -> None:
     data = generate_backend_migration_status_audit_data()
     sequence = [item["step"] for item in data["recommended_sequence"]]
 
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.10.5, then close Detail/Object NSOM backend migration"
+        "Review 1.10.6, then start Sky Map NSOM comparison"
     )
     assert sequence[:2] == [
         "Review 1.9.7",
-        "Review 1.10.5",
+        "Review 1.10.6",
     ]
+    assert sequence[2] == "1.11.0 Sky Map NSOM comparison layer"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -124,5 +126,5 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Review 1.10.5, then close Detail/Object NSOM backend migration" in text
+    assert "Review 1.10.6, then start Sky Map NSOM comparison" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

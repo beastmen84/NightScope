@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.10.6 - 2026-07-08
+
+- Chiusa la migrazione backend Detail/Object NSOM come stato documentato in
+  `docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`.
+- Confermato che `NSOM_DETAIL_OBJECT_ENABLED = True` resta il default e che il
+  rollback e' `AppController(use_nsom_detail_object=False)`.
+- Documentato che `selectedObject` resta il payload QML compatibile e che il
+  payload NSOM Detail/Object resta interno/separato.
+- Aggiornato l'audit backend complessivo: Detail/Object non e' piu' una
+  superficie da chiudere; il prossimo backend step consigliato e' Sky Map NSOM
+  comparison.
+- Nessun cambio a runtime, QML/UI, Home, Best Object, Planner, Sky Compass,
+  logging, rete o scritture runtime.
+
 ## NightScope 1.10.5 - 2026-07-08
 
 - Abilitata di default la path interna Detail/Object NSOM impostando

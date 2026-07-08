@@ -495,6 +495,11 @@ La default path Detail/Object ora costruisce il payload interno NSOM separato
 quando richiesto dal backend, ma `selectedObject`, QML/UI e lo score visibile
 restano compatibili con il comportamento legacy. Il rollback resta
 `AppController(use_nsom_detail_object=False)`.
+Lo step `1.10.6` chiude la migrazione backend Detail/Object NSOM in
+`docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`. Detail/Object e' ora una
+superficie backend default-on con rollback esplicito; la UI visibile resta
+immutata e ogni spiegazione NSOM in pagina Detail rimane un futuro step
+separato. Il prossimo backend step consigliato e' Sky Map NSOM comparison.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

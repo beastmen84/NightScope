@@ -22,6 +22,7 @@ SOURCE_REPORTS = (
     Path("docs/ADVANCED_OBSERVING_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
+    Path("docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -72,12 +73,12 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_to_start_next_backend_area": not blockers,
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "recommended_next_step": "Review 1.10.5, then close Detail/Object NSOM backend migration",
+            "recommended_next_step": "Review 1.10.6, then start Sky Map NSOM comparison",
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
-                "hybrid surfaces outside the completed Detail/Object backend path."
+                "hybrid surfaces; Sky Map is the next backend surface to review."
             ),
         },
         "blockers": blockers,
@@ -215,9 +216,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM migration is closed for the already migrated "
-                "recommendation surfaces and Detail/Object. The next useful step is "
-                "to close the Detail/Object backend migration in documentation, while "
-                "visible UI explanation work remains separate."
+                "recommendation surfaces and Detail/Object. The next useful backend "
+                "step is a Sky Map NSOM comparison, while visible UI explanation work "
+                "remains separate."
             ),
             "",
         ]
@@ -317,7 +318,7 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
                 "`SkyMapService` groups visible targets and sorts each direction by "
                 "prepared `CelestialObject.score`."
             ),
-            "recommended_handling": "Review after Detail because it shares the same display-score contract.",
+            "recommended_handling": "Start with a developer-only Sky Map NSOM comparison layer.",
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -430,12 +431,12 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Verify this backend status audit before opening a new migration area.",
         },
         {
-            "step": "Review 1.10.5",
-            "summary": "Verify the Detail/Object NSOM default-on switch and rollback contract.",
+            "step": "Review 1.10.6",
+            "summary": "Verify Detail/Object NSOM migration closeout documentation.",
         },
         {
-            "step": "1.10.6 Close Detail/Object NSOM migration",
-            "summary": "Document Detail/Object backend migration closure and remaining UI-only caveats.",
+            "step": "1.11.0 Sky Map NSOM comparison layer",
+            "summary": "Compare Sky Map legacy direction grouping/order with NSOM values without UI changes.",
         },
         {
             "step": "Later UI explanation work",

@@ -55,10 +55,13 @@ The path is internal only and default-off. It does not change:
 - network access;
 - runtime file writes.
 
-## Next Step
+## Closeout
 
 NightScope 1.10.4 adds
 `docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md` and classifies this
 path as ready for a separate default-on switch. NightScope 1.10.5 performs that
-switch. The next step is to review the switch and close the Detail/Object NSOM
-backend migration documentation.
+switch. NightScope 1.10.6 closes the backend migration in
+`docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`.
+
+The next backend NSOM area is Sky Map. Visible Detail page NSOM explanations
+remain separate UI/design work.

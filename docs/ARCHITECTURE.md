@@ -620,6 +620,11 @@ now build the separate internal NSOM payload, but the public QML contract is
 unchanged: `selectedObject` still carries legacy/base compatibility display
 data, no Detail NSOM property is exposed, and rollback remains
 `AppController(use_nsom_detail_object=False)`.
+`1.10.6` closes the backend Detail/Object NSOM migration in
+`docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`. Detail/Object is now a
+default-on backend NSOM surface with explicit rollback and unchanged visible
+Detail page payload. Future visible NSOM rationale/copy for the Detail page is
+separate UI/design work. The next backend NSOM area is Sky Map.
 
 ## Dependency Flow
 

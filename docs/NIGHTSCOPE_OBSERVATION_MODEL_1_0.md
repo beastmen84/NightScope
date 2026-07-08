@@ -1111,6 +1111,14 @@ does not change `selectedObject`; it only makes the separate backend
 `AppController(use_nsom_detail_object=False)`. `SessionViability` and
 `RecommendationConfidence` continue to be metadata-only for Detail/Object.
 
+Implementation note for 1.10.6:
+the backend Detail/Object NSOM migration is closed. Detail/Object now has a
+default-on internal NSOM payload path, explicit rollback, unchanged
+`selectedObject` semantics and no QML exposure. The visible Detail page still
+uses the legacy/base compatibility display score, and any future visible NSOM
+rationale belongs to a separate UI/design step. The next backend NSOM review
+area is Sky Map.
+
 Examples:
 
 - binocular-only profile;
