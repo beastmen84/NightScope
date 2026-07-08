@@ -499,7 +499,15 @@ Lo step `1.10.6` chiude la migrazione backend Detail/Object NSOM in
 `docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`. Detail/Object e' ora una
 superficie backend default-on con rollback esplicito; la UI visibile resta
 immutata e ogni spiegazione NSOM in pagina Detail rimane un futuro step
-separato. Il prossimo backend step consigliato e' Sky Map NSOM comparison.
+separato.
+Lo step `1.11.0` aggiunge
+`docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md`: l'audit riclassifica Sky Map come
+`dead_legacy`, perche' Home QML consuma Sky Compass e non `controller.skyMap`,
+mentre il controller calcola ancora `_sky_map`. Di conseguenza Sky Map non e'
+piu' un target di migrazione NSOM; il prossimo step consigliato e' rimuovere il
+path Sky Map morto dopo review. L'audit distingue anche rollback interni
+temporanei, campi payload/UI di compatibilita' e superfici legacy/hybrid ancora
+attive come Equipment, Notifications e cache ObservationConditions.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

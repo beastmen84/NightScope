@@ -1116,8 +1116,19 @@ the backend Detail/Object NSOM migration is closed. Detail/Object now has a
 default-on internal NSOM payload path, explicit rollback, unchanged
 `selectedObject` semantics and no QML exposure. The visible Detail page still
 uses the legacy/base compatibility display score, and any future visible NSOM
-rationale belongs to a separate UI/design step. The next backend NSOM review
-area is Sky Map.
+rationale belongs to a separate UI/design step.
+
+Implementation note for 1.11.0:
+the legacy backend surface audit in
+`docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md` clarifies that not every remaining
+legacy path should become an NSOM migration. Sky Map is classified as
+`dead_legacy`: Home QML consumes Sky Compass and no longer consumes
+`controller.skyMap`, while `AppController` still computes `_sky_map`. The NSOM
+direction is therefore to remove that dead controller/property/service path
+after review, not to build a Sky Map NSOM comparison layer. Temporary rollback
+flags remain internal safety nets, while payload compatibility fields such as
+visible `score` values are presentation contracts until a separate UI/design
+step replaces them.
 
 Examples:
 

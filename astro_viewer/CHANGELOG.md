@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.11.0 - 2026-07-08
+
+- Aggiunto l'audit developer-only delle superfici backend legacy:
+  `docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md`.
+- Riclassificata Sky Map come `dead_legacy`: la Home QML usa Sky Compass e non
+  consuma piu' `controller.skyMap`, mentre il controller calcola ancora
+  `_sky_map`.
+- Interrotta la raccomandazione di creare una Sky Map NSOM comparison layer:
+  il prossimo step consigliato e' rimuovere il path Sky Map morto dopo review.
+- Classificati i rollback NSOM esistenti come safety net interne temporanee,
+  non come contratti pubblici da preservare indefinitamente.
+- Distinti i campi di compatibilita' payload/UI dagli score decisionali NSOM e
+  dalle superfici legacy ancora attive.
+- Aggiornato `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` per riflettere la
+  nuova direzione di cleanup.
+- Nessun cambio a runtime, QML/UI, scoring, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.10.6 - 2026-07-08
 
 - Chiusa la migrazione backend Detail/Object NSOM come stato documentato in
@@ -11,6 +30,8 @@
 - Aggiornato l'audit backend complessivo: Detail/Object non e' piu' una
   superficie da chiudere; il prossimo backend step consigliato e' Sky Map NSOM
   comparison.
+- Nota successiva: questa raccomandazione e' stata superata dall'audit 1.11.0,
+  che classifica Sky Map come legacy morto da rimuovere, non da migrare.
 - Nessun cambio a runtime, QML/UI, Home, Best Object, Planner, Sky Compass,
   logging, rete o scritture runtime.
 

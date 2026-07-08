@@ -23,6 +23,7 @@ SOURCE_REPORTS = (
     Path("docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md"),
     Path("docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md"),
+    Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -73,12 +74,16 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_to_start_next_backend_area": not blockers,
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "recommended_next_step": "Review 1.10.6, then start Sky Map NSOM comparison",
+            "recommended_next_step": (
+                "Review 1.11.0 legacy backend surface audit, then remove the "
+                "dead Sky Map path if accepted"
+            ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
-                "hybrid surfaces; Sky Map is the next backend surface to review."
+                "hybrid surfaces; Sky Map is now classified as dead legacy controller "
+                "work rather than an NSOM migration target."
             ),
         },
         "blockers": blockers,
@@ -216,9 +221,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM migration is closed for the already migrated "
-                "recommendation surfaces and Detail/Object. The next useful backend "
-                "step is a Sky Map NSOM comparison, while visible UI explanation work "
-                "remains separate."
+                "recommendation surfaces and Detail/Object. Sky Map is no longer a "
+                "useful NSOM migration target unless a hidden consumer is found; the "
+                "next useful backend step is dead-code removal, while visible UI "
+                "explanation work remains separate."
             ),
             "",
         ]
@@ -313,12 +319,17 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Sky Map",
-            "status": "legacy_display_order",
+            "status": "dead_legacy_controller_computation",
             "why_it_remains": (
-                "`SkyMapService` groups visible targets and sorts each direction by "
-                "prepared `CelestialObject.score`."
+                "`SkyMapService` still groups visible targets and `AppController` "
+                "still computes `_sky_map`, but Home QML no longer consumes "
+                "`controller.skyMap` after Sky Compass replaced the old map card."
             ),
-            "recommended_handling": "Start with a developer-only Sky Map NSOM comparison layer.",
+            "recommended_handling": (
+                "Remove the dead controller/property/service path after review; do "
+                "not build a Sky Map NSOM comparison layer unless a hidden consumer "
+                "is found."
+            ),
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -435,8 +446,16 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Verify Detail/Object NSOM migration closeout documentation.",
         },
         {
-            "step": "1.11.0 Sky Map NSOM comparison layer",
-            "summary": "Compare Sky Map legacy direction grouping/order with NSOM values without UI changes.",
+            "step": "1.11.0 Legacy backend surface audit",
+            "summary": "Classify remaining legacy paths as dead code, temporary rollback or payload compatibility.",
+        },
+        {
+            "step": "Review 1.11.0",
+            "summary": "Confirm Sky Map is dead legacy rather than a surface to migrate to NSOM.",
+        },
+        {
+            "step": "1.11.1 Remove dead Sky Map legacy path",
+            "summary": "Remove Sky Map controller/property/service code if no hidden consumer is found.",
         },
         {
             "step": "Later UI explanation work",

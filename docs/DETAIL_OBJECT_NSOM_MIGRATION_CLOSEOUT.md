@@ -58,5 +58,8 @@ The visible Detail page still shows legacy/base compatibility score semantics.
 That is intentional for this backend migration. Any visible NSOM explanation,
 score rationale or UI copy should be handled in a separate UI/design step.
 
-The next backend NSOM area is Sky Map, because it still groups visible targets
-and sorts directions from prepared `CelestialObject.score` compatibility data.
+After the 1.11.0 legacy backend surface audit, Sky Map is no longer treated as
+the next backend NSOM area. It is classified as dead legacy controller work:
+Home QML consumes Sky Compass, not `controller.skyMap`, while the controller
+still computes `_sky_map`. The next step is a focused removal commit after
+review, not a Sky Map NSOM comparison layer.

@@ -624,7 +624,16 @@ data, no Detail NSOM property is exposed, and rollback remains
 `docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`. Detail/Object is now a
 default-on backend NSOM surface with explicit rollback and unchanged visible
 Detail page payload. Future visible NSOM rationale/copy for the Detail page is
-separate UI/design work. The next backend NSOM area is Sky Map.
+separate UI/design work.
+`1.11.0` adds the developer-only legacy backend surface audit in
+`docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md`. The audit reclassifies Sky Map as
+dead legacy rather than a backend NSOM migration target: Home QML consumes
+Sky Compass and no longer consumes `controller.skyMap`, while `AppController`
+still computes `_sky_map`. The next backend step is therefore focused removal
+of the dead Sky Map controller/property/service path after review, not an NSOM
+comparison layer. The audit also distinguishes temporary internal rollback
+flags, payload/UI compatibility fields and active legacy/hybrid surfaces that
+still need separate policy work.
 
 ## Dependency Flow
 

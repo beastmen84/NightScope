@@ -39,6 +39,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/SKY_COMPASS_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/DETAIL_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md",
             "docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md",
+            "docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md",
         ],
     }
 
@@ -81,25 +82,30 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "Notifications",
         "Catalogue / raw object score",
     }
-    assert remaining["Sky Map"]["status"] == "legacy_display_order"
+    assert remaining["Sky Map"]["status"] == "dead_legacy_controller_computation"
+    assert "do not build a Sky Map NSOM comparison layer" in remaining["Sky Map"][
+        "recommended_handling"
+    ]
     assert remaining["Equipment recommendations"]["status"] == "legacy_practical_setup_scoring"
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
-def test_audit_recommends_sky_map_as_next_backend_step_after_detail_closeout() -> None:
+def test_audit_recommends_sky_map_removal_after_legacy_surface_audit() -> None:
     data = generate_backend_migration_status_audit_data()
     sequence = [item["step"] for item in data["recommended_sequence"]]
 
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.10.6, then start Sky Map NSOM comparison"
+        "Review 1.11.0 legacy backend surface audit, then remove the dead Sky Map path if accepted"
     )
-    assert sequence[:2] == [
+    assert sequence[:3] == [
         "Review 1.9.7",
         "Review 1.10.6",
+        "1.11.0 Legacy backend surface audit",
     ]
-    assert sequence[2] == "1.11.0 Sky Map NSOM comparison layer"
+    assert sequence[3] == "Review 1.11.0"
+    assert sequence[4] == "1.11.1 Remove dead Sky Map legacy path"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -126,5 +132,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Review 1.10.6, then start Sky Map NSOM comparison" in text
+    assert "Review 1.11.0 legacy backend surface audit" in text
+    assert "do not build a Sky Map NSOM comparison layer" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

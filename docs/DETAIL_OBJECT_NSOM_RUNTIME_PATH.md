@@ -63,5 +63,7 @@ path as ready for a separate default-on switch. NightScope 1.10.5 performs that
 switch. NightScope 1.10.6 closes the backend migration in
 `docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`.
 
-The next backend NSOM area is Sky Map. Visible Detail page NSOM explanations
-remain separate UI/design work.
+NightScope 1.11.0 supersedes the earlier Sky Map follow-up recommendation with
+`docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md`: Sky Map is classified as dead
+legacy controller work, not as an NSOM migration target. Visible Detail page
+NSOM explanations remain separate UI/design work.
