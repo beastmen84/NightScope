@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.12.1 - 2026-07-08
+
+- Aggiunto `docs/EQUIPMENT_NSOM_POLICY_READINESS.md`, audit developer-only che
+  decide la policy Equipment/ObserverCapability dopo il confronto 1.12.0.
+- Deciso che `EquipmentService.suggest_for_profile(...)` resta per ora il
+  runtime setup helper per oculari, Barlow, binocoli, fallback e payload
+  `setupOptions`; non viene aggiunto un path NSOM default-off Equipment.
+- Registrato che `Q_target` e `ObserverCapability` sono pronti come prossimo
+  adapter/read-model condiviso, ma non sostituiscono da soli lo score di setup
+  o la presentazione Equipment.
+- Documentati i confini: sky quality e seeing non devono modificare
+  `ObserverCapability`; `RecommendationConfidence` resta metadata-only.
+- Aggiornati gli audit backend: il prossimo step consigliato e' estrarre un
+  adapter `ObserverCapability/Q_target` condiviso, senza cambiare le
+  raccomandazioni Equipment runtime.
+- Nessun cambio a QML/UI, Equipment runtime, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.12.0 - 2026-07-08
 
 - Aggiunto `EquipmentNsomComparisonService`, helper developer-only che confronta

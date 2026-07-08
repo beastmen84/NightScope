@@ -41,6 +41,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md",
             "docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md",
             "docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md",
+            "docs/EQUIPMENT_NSOM_POLICY_READINESS.md",
         ],
     }
 
@@ -82,8 +83,9 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "Notifications",
         "Catalogue / raw object score",
     }
-    assert remaining["Equipment recommendations"]["status"] == "comparison_layer_available"
-    assert "ObserverCapability/Q_target" in remaining["Equipment recommendations"]["why_it_remains"]
+    assert remaining["Equipment recommendations"]["status"] == "policy_ready_adapter_next"
+    assert "EQUIPMENT_NSOM_POLICY_READINESS.md" in remaining["Equipment recommendations"]["why_it_remains"]
+    assert "ObserverCapability/Q_target adapter" in remaining["Equipment recommendations"]["recommended_handling"]
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
@@ -94,9 +96,11 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.12.0 Equipment/ObserverCapability comparison, then decide "
-        "Equipment NSOM policy readiness"
+        "Review 1.12.1 Equipment policy readiness, then extract a shared "
+        "ObserverCapability/Q_target adapter"
     )
+    assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
+    assert data["checks"]["equipment_policy_ready_for_adapter_step"] is True
     assert sequence[:3] == [
         "Review 1.9.7",
         "Review 1.10.6",
@@ -106,6 +110,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[4] == "1.12.0 Equipment/ObserverCapability NSOM comparison"
     assert sequence[5] == "Review 1.12.0"
     assert sequence[6] == "1.12.1 Equipment NSOM policy readiness"
+    assert sequence[7] == "Review 1.12.1"
+    assert sequence[8] == "1.12.2 ObserverCapability adapter extraction"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -132,6 +138,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Review 1.12.0 Equipment/ObserverCapability comparison" in text
-    assert "EQUIPMENT_NSOM_COMPARISON_REPORT.md" in text
+    assert "Review 1.12.1 Equipment policy readiness" in text
+    assert "EQUIPMENT_NSOM_POLICY_READINESS.md" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

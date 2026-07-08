@@ -645,6 +645,12 @@ and `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md`. The report compares the current
 `Q_target` and `PracticalTargetValue`, while keeping runtime Equipment
 recommendations unchanged and adding no QML exposure. The next step is review
 and policy/readiness before any default-off Equipment NSOM path is considered.
+`1.12.1` records that policy in
+`docs/EQUIPMENT_NSOM_POLICY_READINESS.md`: `EquipmentService` remains the runtime
+setup helper for eyepieces, Barlow, binoculars, fallbacks and `setupOptions`.
+No default-off Equipment replacement path is added. The next backend step is to
+extract a shared `ObserverCapability`/`Q_target` adapter or read model while
+leaving Equipment recommendations and QML payloads unchanged.
 
 ## Dependency Flow
 

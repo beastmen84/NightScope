@@ -11,6 +11,7 @@ from astro_viewer.app.services.home_nsom_ranking import NSOM_HOME_RECOMMENDED_DE
 from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING_ENABLED, NightPlannerService
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tools.equipment_nsom_policy_readiness import generate_policy_readiness_data
 
 
 REPORT_PATH = Path("docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md")
@@ -25,6 +26,7 @@ SOURCE_REPORTS = (
     Path("docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md"),
     Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md"),
     Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
+    Path("docs/EQUIPMENT_NSOM_POLICY_READINESS.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -44,9 +46,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     root = Path(__file__).parents[2]
     default_on_surfaces = _default_on_surfaces()
     remaining_surfaces = _remaining_legacy_or_hybrid_surfaces()
+    equipment_policy = generate_policy_readiness_data()
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
-    checks = _checks(default_on_surfaces, remaining_surfaces, static_checks, documentation)
+    checks = _checks(default_on_surfaces, remaining_surfaces, static_checks, documentation, equipment_policy)
     blockers = _blockers(checks)
 
     data = {
@@ -76,21 +79,24 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.12.0 Equipment/ObserverCapability comparison, then decide "
-                "Equipment NSOM policy readiness"
+                "Review 1.12.1 Equipment policy readiness, then extract a shared "
+                "ObserverCapability/Q_target adapter"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
                 "hybrid surfaces; Sky Map has been removed as dead legacy and "
-                "Equipment now has a developer-only NSOM comparison report."
+                "Equipment now has a developer-only policy decision to keep runtime "
+                "setup recommendations unchanged while extracting ObserverCapability "
+                "as a separate backend step."
             ),
         },
         "blockers": blockers,
         "default_on_surfaces": default_on_surfaces,
         "remaining_non_blocking_items": remaining_surfaces,
         "documentation_state": documentation,
+        "equipment_policy": equipment_policy["readiness"],
         "static_wiring_checks": static_checks,
         "checks": checks,
         "recommended_sequence": _recommended_sequence(),
@@ -224,9 +230,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "The backend NSOM migration is closed for the already migrated "
                 "recommendation surfaces and Detail/Object. Sky Map has been removed "
                 "as dead legacy rather than migrated to NSOM. Equipment now has a "
-                "developer-only ObserverCapability/Q_target comparison layer; the "
-                "next useful backend step is policy readiness for that surface, "
-                "while visible UI explanation work remains separate."
+                "developer-only policy decision: keep the runtime setup recommender "
+                "unchanged and extract ObserverCapability/Q_target as a shared "
+                "backend adapter next. Visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -321,16 +327,16 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Equipment recommendations",
-            "status": "comparison_layer_available",
+            "status": "policy_ready_adapter_next",
             "why_it_remains": (
                 "`EquipmentService` still ranks eyepiece/Barlow/binocular candidates "
-                "with its own practical configuration score, but "
-                "`docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares that score "
-                "with ObserverCapability/Q_target."
+                "with its own practical configuration score. "
+                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps that runtime path "
+                "as the setup helper and defers any default-off replacement."
             ),
             "recommended_handling": (
-                "Review the comparison evidence, then add a policy/readiness step "
-                "before any default-off runtime replacement."
+                "Extract a shared ObserverCapability/Q_target adapter or read model "
+                "before considering any runtime replacement."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -381,6 +387,7 @@ def _checks(
     remaining_surfaces: tuple[dict[str, object], ...],
     static_checks: dict[str, object],
     documentation: dict[str, object],
+    equipment_policy: dict[str, object],
 ) -> dict[str, object]:
     return {
         "all_default_flags_enabled": all(surface["default_flag_enabled"] is True for surface in default_on_surfaces),
@@ -393,6 +400,10 @@ def _checks(
         "remaining_surfaces_are_non_blocking": all(
             item["blocks_current_default_on_surfaces"] is False for item in remaining_surfaces
         ),
+        "equipment_policy_ready_for_adapter_step": equipment_policy["readiness"][
+            "ready_for_observer_capability_adapter_step"
+        ]
+        is True,
         "source_reports_present": all(documentation["source_reports_present"]),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
@@ -407,6 +418,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "all_rollback_paths_present": "nsom-rollback-path-missing",
         "confidence_score_neutral_across_default_on_surfaces": "nsom-confidence-score-effect",
         "source_reports_present": "nsom-source-report-missing",
+        "equipment_policy_ready_for_adapter_step": "equipment-policy-adapter-step-not-ready",
         "runtime_report_imports_absent": "nsom-audit-runtime-wiring",
         "qml_exposure_absent": "nsom-audit-qml-exposure",
         "runtime_behaviour_unchanged_by_audit": "nsom-audit-runtime-change",
@@ -456,6 +468,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.12.1 Equipment NSOM policy readiness",
             "summary": "Decide whether Equipment should get a default-off NSOM path or stay a practical setup helper.",
+        },
+        {
+            "step": "Review 1.12.1",
+            "summary": "Confirm the Equipment policy decision defers runtime replacement and preserves behaviour.",
+        },
+        {
+            "step": "1.12.2 ObserverCapability adapter extraction",
+            "summary": "Extract a shared ObserverCapability/Q_target adapter while leaving EquipmentService runtime output unchanged.",
         },
         {
             "step": "Later UI explanation work",

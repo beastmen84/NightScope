@@ -1149,6 +1149,16 @@ metadata-only. Runtime Equipment recommendations, QML payloads and other
 recommendation surfaces are unchanged. The next step is review and
 policy/readiness before any default-off Equipment NSOM path.
 
+Implementation note for 1.12.1:
+`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` records that Equipment is not ready
+for a default-off NSOM runtime replacement and should not be treated as another
+target-ranking surface. `EquipmentService.suggest_for_profile(...)` remains the
+runtime setup helper for eyepieces, Barlow, binoculars, naked-eye/no-eyepiece
+fallbacks and `setupOptions`. The NSOM-owned next step is to extract a shared
+`ObserverCapability`/`Q_target` adapter or read model. Sky quality and seeing
+must stay behind explicit environment/setup-stability boundaries; confidence
+remains metadata-only.
+
 Examples:
 
 - binocular-only profile;

@@ -9,8 +9,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.12.0, then decide Equipment NSOM policy readiness.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a developer-only ObserverCapability/Q_target comparison report.
+- Recommended next step: Review 1.12.1, then extract a shared ObserverCapability/Q_target adapter.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a developer-only policy decision to keep the runtime setup helper unchanged and extract ObserverCapability separately.
 
 ## Classification Policy
 
@@ -51,7 +51,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md` now compares them with ObserverCapability/Q_target. | Review ObserverCapability/Q_target evidence, then run an Equipment policy/readiness step before any runtime replacement. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps that runtime path as the setup helper and defers default-off replacement. | Extract shared ObserverCapability/Q_target projection before any runtime replacement. |
 | ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths. | Defer cleanup until an ObservationSnapshot/read-model boundary exists. |
 | Notifications | `active_legacy_or_hybrid` | Notifications consume legacy-compatible best object, plan and advanced-score payloads. | Define notification-specific NSOM semantics before replacement. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -76,7 +76,9 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `Rollback cleanup series`: After dead code is removed, decide whether internal legacy rollback constructor flags are still useful in an undistributed app.
 - `Review 1.12.0`: Confirm the Equipment/ObserverCapability comparison report is accurate and runtime Equipment behaviour is unchanged.
 - `1.12.1 Equipment NSOM policy readiness`: Decide whether Equipment gets a default-off NSOM path or stays a practical setup helper.
+- `Review 1.12.1`: Confirm the policy defers runtime replacement and preserves EquipmentService behaviour.
+- `1.12.2 ObserverCapability adapter extraction`: Extract reusable ObserverCapability/Q_target projection without changing Equipment recommendations.
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Equipment now has a developer-only ObserverCapability/Q_target comparison report; the next useful backend step is policy readiness, while temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Equipment now has a developer-only policy decision to keep runtime setup recommendations unchanged; the next useful backend step is ObserverCapability/Q_target adapter extraction, while temporary rollback cleanup remains a separate policy decision.

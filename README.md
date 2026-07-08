@@ -520,6 +520,12 @@ Lo step `1.12.0` aggiunge il confronto developer-only
 `PracticalTargetValue` NSOM. La raccomandazione Equipment runtime non cambia e
 non viene esposto nessun campo QML; il prossimo passo e' review 1.12.0 e poi
 policy/readiness prima di decidere un eventuale path NSOM default-off.
+Lo step `1.12.1` chiude quella decisione in
+`docs/EQUIPMENT_NSOM_POLICY_READINESS.md`: `EquipmentService` resta il setup
+helper runtime per oculari, Barlow, binocoli, fallback e `setupOptions`; non si
+aggiunge un path NSOM default-off Equipment. Il prossimo passo backend e'
+estrarre un adapter/read-model condiviso `ObserverCapability/Q_target` senza
+cambiare le raccomandazioni runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
