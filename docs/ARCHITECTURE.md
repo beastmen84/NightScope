@@ -766,6 +766,14 @@ ranking, selection score, payload shape, QML, logging, network or runtime
 file-write behaviour changes. The next safe step is to review the boundary and
 then decide, via policy audit, whether Equipment needs a default-off NSOM setup
 path at all.
+`1.13.4` adds `docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md` and closes
+that decision: Equipment should not gain a default-off NSOM replacement path
+now. `EquipmentService` remains a setup-local service that chooses eyepiece,
+zoom position, Barlow, binocular and fallback payloads. `ObserverCapability`,
+`Q_target` and the setup-score component read-model remain NSOM boundaries and
+metadata, not a runtime replacement. No ranking, selection score, payload, QML,
+logging, network or runtime file-write behaviour changes; the next step is the
+Equipment migration closeout.
 
 ## Dependency Flow
 

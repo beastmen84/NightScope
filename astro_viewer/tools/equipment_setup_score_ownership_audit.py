@@ -71,8 +71,8 @@ def generate_equipment_setup_score_ownership_audit_data() -> dict[str, object]:
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.3, then audit whether Equipment needs a default-off "
-                "NSOM setup path or should remain setup-local."
+                "Review 1.13.4, then close the Equipment backend NSOM migration "
+                "as setup-local with NSOM boundaries."
             ),
             "reason": (
                 "EquipmentService setup score is useful and deterministic, but its "
@@ -114,17 +114,13 @@ def generate_equipment_setup_score_ownership_audit_data() -> dict[str, object]:
                 ),
             },
             {
-                "step": "Review 1.13.3",
-                "summary": (
-                    "Confirm the component boundary preserves EquipmentService "
-                    "score parity and remains internal."
-                ),
+                "step": "Review 1.13.4",
+                "summary": "Confirm Equipment should remain setup-local with NSOM boundaries.",
             },
             {
-                "step": "1.13.4 Equipment default-off path policy audit",
+                "step": "1.13.5 Equipment NSOM migration closeout",
                 "summary": (
-                    "Decide whether Equipment needs a default-off NSOM setup path "
-                    "or should remain a setup-local recommendation service."
+                    "Close Equipment as an NSOM-bounded setup service."
                 ),
             },
         ),
@@ -298,8 +294,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             (
                 "EquipmentService should not be replaced by Q_target or by a raw "
                 "NSOM target-value score. The setup-score component boundary is "
-                "now explicit; only after review and a policy audit should a "
-                "default-off replacement path be considered."
+                "now explicit, and the default-off path policy keeps Equipment "
+                "setup-local."
             ),
             "",
         ]

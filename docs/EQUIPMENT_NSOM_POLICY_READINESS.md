@@ -12,7 +12,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 - ObserverCapability adapter extracted: `True`.
 - Runtime behaviour changed by this review: `False`.
 - Explicit legacy default: EquipmentService.suggest_for_profile(...) remains unchanged.
-- Recommended next change: Review the 1.13.3 Equipment setup-score component boundary, then audit whether a default-off NSOM setup path is warranted.
+- Recommended next change: Review the 1.13.4 Equipment default-off path policy audit, then close Equipment as setup-local with NSOM boundaries.
 - Reason: EquipmentService is still the concrete setup presenter and fallback owner. The comparison is sufficient to extract ObserverCapability/Q_target, but a default-off runtime replacement should wait for payload and environment boundaries.
 
 ## Default-Off Runtime Replacement Blockers
@@ -94,4 +94,4 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 
 ## Recommended Next Step
 
-Review the `1.13.3` Equipment setup-score component boundary. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender until a default-off path policy audit is accepted.
+Review the `1.13.4` Equipment default-off path policy audit. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender and close Equipment as setup-local if accepted.

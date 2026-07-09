@@ -11,7 +11,7 @@ This developer-only report verifies that EquipmentService setup scoring now expo
 - Component read-model present: `True`.
 - Default-off Equipment path recommended now: `False`.
 - Runtime behaviour changed by boundary: `False`.
-- Recommended next step: Review 1.13.3, then audit whether Equipment needs a default-off NSOM setup path or should remain a setup-local recommendation service.
+- Recommended next step: Review 1.13.4, then close the Equipment backend NSOM migration as setup-local with NSOM boundaries.
 - Reason: Equipment setup scoring now has an immutable component read-model with parity against the current EquipmentService score. This makes ownership visible but does not yet define a replacement policy.
 
 ## Read-Model Boundary
@@ -64,8 +64,8 @@ This developer-only report verifies that EquipmentService setup scoring now expo
 
 ## Recommended Sequence
 
-- `Review 1.13.3`: Confirm the component boundary preserves EquipmentService score parity and remains internal.
-- `1.13.4 Equipment default-off path policy audit`: Decide whether Equipment should gain an NSOM default-off setup path or remain a setup-local service with NSOM metadata.
+- `Review 1.13.4`: Confirm Equipment should remain setup-local with NSOM boundaries.
+- `1.13.5 Equipment NSOM migration closeout`: Close Equipment as an NSOM-bounded setup service and return to overall backend migration planning.
 
 ## Conclusion
 

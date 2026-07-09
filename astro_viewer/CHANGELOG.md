@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.13.4 - 2026-07-09
+
+- Aggiunto `docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md`, audit
+  developer-only sulla necessita' di un path Equipment NSOM default-off.
+- Decisione policy: non aggiungere ora un replacement path Equipment; mantenere
+  `EquipmentService` come servizio setup-local con boundary NSOM espliciti.
+- Motivazione: `Q_target` e `PracticalTargetValue` non sostituiscono scelta
+  oculare, posizione zoom, Barlow, binocolo, fallback e compatibilita' payload.
+- Aggiornati gli audit backend/legacy: Equipment passa a
+  `equipment_default_off_path_policy_set_setup_local`; il prossimo step e'
+  review 1.13.4 e closeout 1.13.5 della migrazione Equipment.
+- Nessun cambio a ranking Equipment, selection score, Planner, Home, Best
+  Object, Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete
+  o scritture runtime.
+
 ## NightScope 1.13.3 - 2026-07-09
 
 - Introdotto `EquipmentSetupScoreReadModel`, boundary immutabile dei componenti

@@ -58,8 +58,8 @@ def generate_policy_readiness_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_review": False,
             "explicit_legacy_default": "EquipmentService.suggest_for_profile(...) remains unchanged",
             "recommended_next_change": (
-                "Review the 1.13.3 Equipment setup-score component boundary, then "
-                "audit whether a default-off NSOM setup path is warranted."
+                "Review the 1.13.4 Equipment default-off path policy audit, then "
+                "close Equipment as setup-local with NSOM boundaries."
             ),
             "reason": _readiness_reason(ready_for_default_off),
         },
@@ -202,9 +202,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review the `1.13.3` Equipment setup-score component boundary. "
+                "Review the `1.13.4` Equipment default-off path policy audit. "
                 "Keep `EquipmentService.suggest_for_profile(...)` as the runtime "
-                "setup recommender until a default-off path policy audit is accepted."
+                "setup recommender and close Equipment as setup-local if accepted."
             ),
             "",
         ]

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.3`.
+Versione corrente: `1.13.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -633,6 +633,13 @@ breakdown legacy, quindi la diagnostica non duplica piu' la formula. Nessun
 ranking, payload QML, score di selection o raccomandazione runtime cambia; il
 prossimo step e' una review del boundary e poi un audit policy per decidere se
 serve davvero un path Equipment NSOM default-off.
+Lo step `1.13.4` aggiunge
+`docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md` e chiude la decisione:
+non viene introdotto un path Equipment NSOM default-off. `EquipmentService`
+resta un servizio setup-local che sceglie oculare, posizione zoom, Barlow,
+binocolo e fallback payload; `ObserverCapability`, `Q_target` e il read-model
+componenti restano boundary/metadata NSOM. Nessun comportamento runtime cambia;
+il prossimo step consigliato e' il closeout Equipment `1.13.5`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

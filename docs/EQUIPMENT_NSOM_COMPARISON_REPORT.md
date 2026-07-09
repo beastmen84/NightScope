@@ -78,5 +78,5 @@ The matrix covers 5 deterministic scenarios and 34 candidate rows.
 ## Recommended Next Steps
 
 1. Review the shared ObserverCapability/Q_target adapter extraction.
-2. Review the 1.13.3 setup-score component boundary.
-3. Audit whether Equipment needs a default-off NSOM setup path or should remain setup-local with NSOM metadata.
+2. Review the 1.13.4 default-off path policy audit.
+3. Close Equipment as setup-local with NSOM boundaries if the policy audit is accepted.

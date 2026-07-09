@@ -27,6 +27,9 @@ from astro_viewer.tools.equipment_setup_score_ownership_audit import (
 from astro_viewer.tools.equipment_setup_score_component_boundary_report import (
     generate_equipment_setup_score_component_boundary_data,
 )
+from astro_viewer.tools.equipment_nsom_default_off_path_policy_audit import (
+    generate_equipment_default_off_path_policy_audit_data,
+)
 
 
 REPORT_PATH = Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md")
@@ -60,6 +63,7 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     equipment_presenter_contract_state = generate_equipment_presenter_contract_audit_data()["readiness"]
     equipment_score_ownership_state = generate_equipment_setup_score_ownership_audit_data()["readiness"]
     equipment_score_boundary_state = generate_equipment_setup_score_component_boundary_data()["readiness"]
+    equipment_default_off_policy_state = generate_equipment_default_off_path_policy_audit_data()["readiness"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
     active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(
@@ -68,6 +72,7 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
         equipment_presenter_contract_state,
         equipment_score_ownership_state,
         equipment_score_boundary_state,
+        equipment_default_off_policy_state,
     )
     static_checks = _static_checks(root)
 
@@ -92,8 +97,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review 1.13.3, then audit whether Equipment needs a default-off "
-                "NSOM setup path or should remain setup-local."
+                "Review 1.13.4, then close the Equipment backend NSOM migration "
+                "as setup-local with NSOM boundaries."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -112,7 +117,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "display-live-geometry split adapter. The ObservationConditions "
                 "consumer reroute series is closed. Equipment now has a setup "
                 "read-model boundary, score ownership audit and component score "
-                "read-model, but still uses the existing runtime helper."
+                "read-model. The default-off path policy keeps Equipment setup-local, "
+                "so it still uses the existing runtime helper."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -339,6 +345,14 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "should remain a setup-local recommendation service."
             ),
         },
+        {
+            "step": "Review 1.13.4",
+            "summary": "Confirm Equipment should remain setup-local with NSOM boundaries.",
+        },
+        {
+            "step": "1.13.5 Equipment NSOM migration closeout",
+            "summary": "Close Equipment as an NSOM-bounded setup service.",
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -505,9 +519,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "closed consumer reroute; it remains active compatibility code. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "plus a setup read-model boundary, score ownership audit and "
-                "setup-score component boundary while runtime setup recommendations "
-                "remain unchanged. Temporary rollback cleanup remains a separate "
-                "policy decision."
+                "setup-score component boundary. The 1.13.4 policy keeps it "
+                "setup-local and does not add a default-off replacement path; "
+                "runtime setup recommendations remain unchanged. Temporary rollback "
+                "cleanup remains a separate policy decision."
             ),
             "",
         ]
@@ -650,6 +665,7 @@ def _active_legacy_or_hybrid_surfaces(
     equipment_presenter_contract_state: dict[str, object],
     equipment_score_ownership_state: dict[str, object],
     equipment_score_boundary_state: dict[str, object],
+    equipment_default_off_policy_state: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     return (
         {
@@ -662,14 +678,17 @@ def _active_legacy_or_hybrid_surfaces(
                 "`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the "
                 "setup score components and "
                 "`docs/EQUIPMENT_SETUP_SCORE_COMPONENT_BOUNDARY.md` verifies the "
-                "component read-model parity before runtime replacement. "
+                "component read-model parity. "
+                "`docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md` rejects a "
+                "default-off replacement path for now and keeps Equipment setup-local. "
                 f"Contract status: `{equipment_presenter_contract_state['verdict']}`. "
                 f"Score ownership status: `{equipment_score_ownership_state['verdict']}`. "
-                f"Component boundary status: `{equipment_score_boundary_state['verdict']}`."
+                f"Component boundary status: `{equipment_score_boundary_state['verdict']}`. "
+                f"Default-off policy status: `{equipment_default_off_policy_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.13.3 component boundary, then audit whether Equipment "
-                "needs a default-off NSOM setup path or should remain setup-local."
+                "Review the 1.13.4 policy audit, then close Equipment as a "
+                "setup-local service with NSOM boundaries."
             ),
         },
         {

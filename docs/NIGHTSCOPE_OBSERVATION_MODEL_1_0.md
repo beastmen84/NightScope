@@ -1304,6 +1304,18 @@ a default-off Equipment replacement path and does not move setup scoring into
 `RecommendationConfidence`. No runtime ranking, QML payload, logging, network
 call or runtime write is changed.
 
+Implementation note for 1.13.4:
+`docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md` records the policy
+decision for Equipment. Equipment does not get a default-off NSOM replacement
+path now because setup recommendation is not a target ranking surface:
+`EquipmentService` owns concrete eyepiece, zoom-position, Barlow, binocular and
+fallback-payload choices for a selected target. `ObserverCapability`, `Q_target`
+and `PracticalTargetValue` can describe observer capability and practical value
+metadata, but they do not replace setup-row selection. Equipment therefore
+remains setup-local with explicit NSOM ownership, presenter and component
+boundaries. No runtime scoring, payload, QML, logging, network call or runtime
+write is changed.
+
 Examples:
 
 - binocular-only profile;

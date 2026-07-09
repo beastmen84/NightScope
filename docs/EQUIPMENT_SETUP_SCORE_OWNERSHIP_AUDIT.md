@@ -11,7 +11,7 @@ This developer-only audit classifies the current EquipmentService setup-score co
 - Score component boundary recommended: `True`.
 - Default-off Equipment path recommended now: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.3, then audit whether Equipment needs a default-off NSOM setup path or should remain setup-local.
+- Recommended next step: Review 1.13.4, then close the Equipment backend NSOM migration as setup-local with NSOM boundaries.
 - Reason: EquipmentService setup score is useful and deterministic, but its single scalar mixes target traits, observer configuration, seeing, sky quality and presentation practicality. The 1.13.3 component read-model makes that boundary explicit; replacement still needs a separate policy audit.
 
 ## Current Formula
@@ -86,9 +86,9 @@ This developer-only audit classifies the current EquipmentService setup-score co
 
 - `Review 1.13.2`: Confirm setup-score ownership is classified correctly and does not imply score tuning.
 - `1.13.3 Equipment setup-score component boundary`: Extract a runtime-neutral setup-score component read-model with parity tests before any replacement path.
-- `Review 1.13.3`: Confirm the component boundary preserves EquipmentService score parity and remains internal.
-- `1.13.4 Equipment default-off path policy audit`: Decide whether Equipment needs a default-off NSOM setup path or should remain a setup-local recommendation service.
+- `Review 1.13.4`: Confirm Equipment should remain setup-local with NSOM boundaries.
+- `1.13.5 Equipment NSOM migration closeout`: Close Equipment as an NSOM-bounded setup service.
 
 ## Conclusion
 
-EquipmentService should not be replaced by Q_target or by a raw NSOM target-value score. The setup-score component boundary is now explicit; only after review and a policy audit should a default-off replacement path be considered.
+EquipmentService should not be replaced by Q_target or by a raw NSOM target-value score. The setup-score component boundary is now explicit, and the default-off path policy keeps Equipment setup-local.

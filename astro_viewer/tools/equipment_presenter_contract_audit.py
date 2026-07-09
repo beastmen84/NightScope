@@ -112,8 +112,8 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.3, then audit whether Equipment needs a default-off "
-                "NSOM setup path or should remain setup-local."
+                "Review 1.13.4, then close the Equipment backend NSOM migration "
+                "as setup-local with NSOM boundaries."
             ),
             "reason": (
                 "Equipment is an active setup-presentation helper. The existing "
@@ -136,16 +136,13 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
             {
-                "step": "Review 1.13.3",
-                "summary": (
-                    "Confirm the Equipment setup-score component boundary preserves parity."
-                ),
+                "step": "Review 1.13.4",
+                "summary": "Confirm Equipment should remain setup-local with NSOM boundaries.",
             },
             {
-                "step": "1.13.4 Equipment default-off path policy audit",
+                "step": "1.13.5 Equipment NSOM migration closeout",
                 "summary": (
-                    "Decide whether Equipment needs a default-off NSOM setup path "
-                    "or should remain a setup-local recommendation service."
+                    "Close Equipment as an NSOM-bounded setup service."
                 ),
             },
         ),

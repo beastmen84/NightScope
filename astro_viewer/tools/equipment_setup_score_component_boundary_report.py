@@ -61,8 +61,8 @@ def generate_equipment_setup_score_component_boundary_data() -> dict[str, object
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_boundary": False,
             "recommended_next_step": (
-                "Review 1.13.3, then audit whether Equipment needs a default-off "
-                "NSOM setup path or should remain a setup-local recommendation service."
+                "Review 1.13.4, then close the Equipment backend NSOM migration "
+                "as setup-local with NSOM boundaries."
             ),
             "reason": (
                 "Equipment setup scoring now has an immutable component read-model "
@@ -87,17 +87,16 @@ def generate_equipment_setup_score_component_boundary_data() -> dict[str, object
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
             {
-                "step": "Review 1.13.3",
+                "step": "Review 1.13.4",
                 "summary": (
-                    "Confirm the component boundary preserves EquipmentService "
-                    "score parity and remains internal."
+                    "Confirm Equipment should remain setup-local with NSOM boundaries."
                 ),
             },
             {
-                "step": "1.13.4 Equipment default-off path policy audit",
+                "step": "1.13.5 Equipment NSOM migration closeout",
                 "summary": (
-                    "Decide whether Equipment should gain an NSOM default-off "
-                    "setup path or remain a setup-local service with NSOM metadata."
+                    "Close Equipment as an NSOM-bounded setup service and return to "
+                    "overall backend migration planning."
                 ),
             },
         ),
