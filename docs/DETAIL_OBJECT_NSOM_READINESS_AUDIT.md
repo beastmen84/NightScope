@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the Detail/Object comparison evidence is ready for a default-off runtime path. It does not change `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network behaviour or runtime file writes.
+This developer-only audit checks whether the Detail/Object comparison evidence has a safe internal runtime path. It does not change `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network behaviour or runtime file writes.
 
 ## Readiness Verdict
 
@@ -11,7 +11,7 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 - Runtime path exists: `True`.
 - Ready for visible UI: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: review 1.10.5, then close Detail/Object NSOM backend migration.
+- Recommended next step: review 1.13.8 rollback cleanup, then keep visible Detail/Object NSOM UI separate.
 - Reason: Detail source policy, displayed score semantics, separate payload contract, confidence neutrality and runtime safety are all documented.
 
 ## Default-Off Blockers
@@ -59,8 +59,8 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 - Runtime path exists: `True`.
 - Default flag: `NSOM_DETAIL_OBJECT_ENABLED = True`.
 - Default flag enabled: `True`.
-- Rollback: `AppController(use_nsom_detail_object=False)`.
-- Controller rollback parameter present: `True`.
+- Rollback: `removed: AppController(use_nsom_detail_object=False)`.
+- Controller rollback parameter present: `False`.
 - Internal payload method present: `True`.
 - QML exposure approved: `False`.
 - SelectedObject payload changed: `False`.
@@ -93,6 +93,6 @@ This developer-only audit checks whether the Detail/Object comparison evidence i
 
 ## Recommended Next Steps
 
-1. Review the default-off Detail/Object NSOM runtime path.
-2. Review the Detail/Object default-on readiness audit before changing the default flag.
+1. Review the 1.13.8 rollback cleanup.
+2. Keep Detail/Object NSOM runtime data internal.
 3. Keep visible NSOM explanation UI as a later design step.

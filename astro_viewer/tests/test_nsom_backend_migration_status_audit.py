@@ -56,7 +56,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
     }
 
 
-def test_audit_confirms_default_on_surfaces_and_rollbacks() -> None:
+def test_audit_confirms_default_on_surfaces_and_removed_rollbacks() -> None:
     data = generate_backend_migration_status_audit_data()
     surfaces = {surface["surface"]: surface for surface in data["default_on_surfaces"]}
 
@@ -65,20 +65,31 @@ def test_audit_confirms_default_on_surfaces_and_rollbacks() -> None:
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["blockers"] == []
     assert data["checks"]["all_default_flags_enabled"] is True
-    assert data["checks"]["all_rollback_paths_present"] is True
+    assert data["checks"]["all_internal_rollback_paths_removed"] is True
+    assert data["checks"]["all_rollback_records_mark_removed"] is True
 
     assert surfaces["Planner"]["default_flag"] == "NSOM_PLANNER_SCORING_ENABLED = True"
-    assert surfaces["Planner"]["rollback"] == "NightPlannerService(use_nsom_planner_scoring=False)"
+    assert surfaces["Planner"]["rollback"] == "removed: NightPlannerService(use_nsom_planner_scoring=False)"
+    assert surfaces["Planner"]["rollback_parameter_present"] is False
     assert surfaces["Home recommendedDeepSky"]["rollback"] == (
-        "AppController(use_nsom_home_recommended_deep_sky=False)"
+        "removed: AppController(use_nsom_home_recommended_deep_sky=False)"
     )
-    assert surfaces["Best Object"]["rollback"] == "AppController(use_nsom_best_object=False)"
+    assert surfaces["Home recommendedDeepSky"]["rollback_parameter_present"] is False
+    assert surfaces["Best Object"]["rollback"] == "removed: AppController(use_nsom_best_object=False)"
+    assert surfaces["Best Object"]["rollback_parameter_present"] is False
     assert surfaces["Advanced Observing backend"]["rollback"] == (
-        "AppController(use_nsom_advanced_observing=False)"
+        "removed: AppController(use_nsom_advanced_observing=False)"
     )
-    assert surfaces["Sky Compass"]["rollback"] == "AppController(use_nsom_sky_compass=False)"
+    assert surfaces["Advanced Observing backend"]["rollback_parameter_present"] is False
+    assert surfaces["Sky Compass"]["rollback"] == "removed: AppController(use_nsom_sky_compass=False)"
+    assert surfaces["Sky Compass"]["rollback_parameter_present"] is False
     assert surfaces["Detail/Object internal payload"]["default_flag"] == "NSOM_DETAIL_OBJECT_ENABLED = True"
-    assert surfaces["Detail/Object internal payload"]["rollback"] == "AppController(use_nsom_detail_object=False)"
+    assert surfaces["Detail/Object internal payload"]["rollback"] == "removed: AppController(use_nsom_detail_object=False)"
+    assert surfaces["Detail/Object internal payload"]["rollback_parameter_present"] is False
+    assert all(
+        surface["rollback_status"] == "removed_internal_runtime_rollback"
+        for surface in surfaces.values()
+    )
     assert all(surface["confidence_score_neutral"] is True for surface in surfaces.values())
 
 
@@ -130,8 +141,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.7, then remove internal legacy rollback paths in a "
-        "focused implementation step"
+        "Review 1.13.8, then proceed to visible explanation planning or "
+        "Universe/catalogue policy work"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True

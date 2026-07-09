@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from inspect import signature
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.services.best_object_nsom_ranking import NSOM_BEST_OBJECT_ENABLED
+from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tools.best_object_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -52,8 +54,8 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_path_exists": True,
             "default_flag": f"NSOM_BEST_OBJECT_ENABLED = {NSOM_BEST_OBJECT_ENABLED}",
             "runtime_behaviour_changed_by_default": NSOM_BEST_OBJECT_ENABLED is True,
-            "explicit_nsom_opt_in": "AppController(use_nsom_best_object=True)",
-            "explicit_legacy_rollback": "AppController(use_nsom_best_object=False)",
+            "explicit_nsom_opt_in": "default AppController()",
+            "explicit_legacy_rollback": "removed: AppController(use_nsom_best_object=False)",
             "recommendation": _readiness_recommendation(ready),
             "reason": _readiness_reason(ready),
         },
@@ -84,8 +86,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit checked whether Best Object was ready for a "
             "default-off NSOM runtime path after the comparison report. The path "
-            "exists and remains available through explicit constructor control; "
-            "the current default flag is reported below. The path does not change "
+            "exists and is now default-on; the temporary constructor rollback was "
+            "removed in 1.13.8. The current default flag is reported below. The path does not change "
             "recommendedDeepSky, Planner, Sky Compass, QML, logging, network "
             "behaviour or runtime file writes."
         ),
@@ -188,9 +190,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review the default-off Best Object NSOM path before any default-on readiness audit.",
-            "2. Verify blocked-session, invisible-target and missing-sky-quality policy in the runtime selector.",
-            "3. Preserve legacy Best Object as explicit rollback until a separate default-on switch is reviewed.",
+            "1. Keep the Best Object NSOM backend path default-on.",
+            "2. Keep blocked-session, invisible-target and missing-sky-quality policy documented.",
+            "3. Treat visible Best Object explanation UI as a separate design step.",
             "",
         ]
     )
@@ -304,9 +306,10 @@ def _runtime_safety(
 ) -> dict[str, object]:
     metadata = comparison["metadata"]
     return {
-        "best_object_nsom_runtime_path_available": True,
-        "current_default_flag_enabled": NSOM_BEST_OBJECT_ENABLED is True,
-        "legacy_rollback_available": True,
+            "best_object_nsom_runtime_path_available": True,
+            "current_default_flag_enabled": NSOM_BEST_OBJECT_ENABLED is True,
+            "legacy_rollback_removed": "use_nsom_best_object"
+            not in signature(AppController.__init__).parameters,
         "comparison_tooling_developer_only": metadata["developer_only"] is True,
         "comparison_tooling_has_no_runtime_writes": metadata["runtime_writes"] is False,
         "comparison_tooling_has_no_automatic_logging": metadata["automatic_logging"] is False,
@@ -392,7 +395,7 @@ def _readiness_reason(ready: bool) -> str:
         return (
             "Best Object non-actionable policy, displayed score semantics and "
             "runtime safety were validated behind an internal Best Object NSOM "
-            "path. Legacy rollback remains explicit through the constructor."
+            "path. The temporary constructor rollback was removed in 1.13.8."
         )
     return (
         "Best Object still needs non-actionable session policy and displayed score "
@@ -404,7 +407,7 @@ def _readiness_recommendation(ready: bool) -> str:
     if not ready:
         return "resolve_policy_and_display_semantics_before_runtime_path"
     if NSOM_BEST_OBJECT_ENABLED:
-        return "default_off_path_validated_and_rollback_preserved"
+        return "default_on_path_validated_and_runtime_rollback_removed"
     return "review_default_off_best_object_nsom_path_before_default_on_readiness"
 
 

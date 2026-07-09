@@ -81,8 +81,8 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_SKY_COMPASS_ENABLED is True,
             "requires_separate_flag_change": NSOM_SKY_COMPASS_ENABLED is False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "explicit_legacy_rollback": "AppController(use_nsom_sky_compass=False)",
-            "explicit_nsom_path": "AppController(use_nsom_sky_compass=True)",
+            "explicit_legacy_rollback": "removed: AppController(use_nsom_sky_compass=False)",
+            "explicit_nsom_path": "default AppController()",
             "recommended_switch_change": (
                 "already enabled"
                 if NSOM_SKY_COMPASS_ENABLED
@@ -155,19 +155,18 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "| Policy | Evidence |",
             "| --- | --- |",
             (
-                "| Flag off | "
-                f"Direction `{runtime['flag_off_legacy']['direction']}`, equals legacy "
-                f"`{runtime['flag_off_legacy']['equals_legacy']}`. |"
+                "| Runtime default | "
+                f"Legacy top `{runtime['default_nsom']['legacy_direction']}`, NSOM top "
+                f"`{runtime['default_nsom']['nsom_direction']}`. |"
             ),
             (
-                "| Flag on | "
-                f"Legacy top `{runtime['flag_on_nsom']['legacy_direction']}`, NSOM top "
-                f"`{runtime['flag_on_nsom']['nsom_direction']}`. |"
+                "| Default service | "
+                f"Matches direct NSOM service `{runtime['default_nsom']['matches_direct_service']}`. |"
             ),
             (
                 "| Rollback | "
-                f"`{rollback['constructor_rollback']}` preserves legacy "
-                f"`{rollback['legacy_path_preserved']}`. |"
+                f"`{rollback['constructor_rollback']}` removed "
+                f"`{rollback['runtime_rollback_removed']}`. |"
             ),
             (
                 "| Fallback | "
@@ -213,6 +212,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Blocks default-on switch: `{fallback['blocks_default_on_switch']}`.",
             f"- Constructor rollback: `{rollback['constructor_rollback']}`.",
             f"- Legacy path preserved: `{rollback['legacy_path_preserved']}`.",
+            f"- Runtime rollback removed: `{rollback['runtime_rollback_removed']}`.",
             "",
             "## Runtime Safety",
             "",
@@ -240,9 +240,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The Sky Compass NSOM backend migration is closed in the base "
-                "documentation. Keep `AppController(use_nsom_sky_compass=False)` "
-                "as rollback and treat any visible explanation UI as a separate "
-                "design step."
+                "documentation. Keep runtime rollback removed and treat any "
+                "visible explanation UI as a separate design step."
             ),
             "",
         ]
@@ -274,17 +273,14 @@ def _runtime_policy_evidence() -> dict[str, object]:
         has_location=True,
     )
 
-    flag_off = _controller(use_nsom_sky_compass=False, sky_quality=sky_quality)
-    flag_on = _controller(use_nsom_sky_compass=True, sky_quality=sky_quality)
-    missing_quality = _controller(use_nsom_sky_compass=True, sky_quality=None)
+    default_controller = _controller(sky_quality=sky_quality)
+    missing_quality = _controller(sky_quality=None)
     failing = _controller(
-        use_nsom_sky_compass=True,
         sky_quality=sky_quality,
         nsom_service=_FailingSkyCompassNsomService(),
     )
 
-    flag_off_payload = flag_off._select_sky_compass_payload(list(targets), has_location=True, caution_text="")
-    flag_on_payload = flag_on._select_sky_compass_payload(list(targets), has_location=True, caution_text="")
+    default_payload = default_controller._select_sky_compass_payload(list(targets), has_location=True, caution_text="")
     missing_quality_payload = missing_quality._select_sky_compass_payload(
         list(targets),
         has_location=True,
@@ -298,15 +294,18 @@ def _runtime_policy_evidence() -> dict[str, object]:
     compass_parameters = tuple(signature(SkyCompassNsomDirectionService.compass).parameters)
 
     return {
-        "flag_off_legacy": {
-            "direction": flag_off_payload["direction"],
-            "equals_legacy": flag_off_payload == legacy_payload,
+        "removed_rollback": {
+            "former_constructor": "AppController(use_nsom_sky_compass=False)",
+            "parameter_present": "use_nsom_sky_compass"
+            in signature(AppController.__init__).parameters,
+            "runtime_rollback_removed": "use_nsom_sky_compass"
+            not in signature(AppController.__init__).parameters,
         },
-        "flag_on_nsom": {
+        "default_nsom": {
             "legacy_direction": legacy_payload["direction"],
-            "nsom_direction": flag_on_payload["direction"],
-            "matches_direct_service": flag_on_payload == nsom_payload,
-            "direction_changes_in_high_light_pollution": flag_on_payload["direction"] != legacy_payload["direction"],
+            "nsom_direction": default_payload["direction"],
+            "matches_direct_service": default_payload == nsom_payload,
+            "direction_changes_in_high_light_pollution": default_payload["direction"] != legacy_payload["direction"],
         },
         "fallback": {
             "missing_sky_quality_equals_legacy": missing_quality_payload == legacy_payload,
@@ -348,9 +347,9 @@ def _readiness_checks(
         "default_off_policy_ready": policy["readiness"]["ready_for_default_off_path"] is True,
         "default_flag_enabled_for_switch": NSOM_SKY_COMPASS_ENABLED is True,
         "default_on_switch_complete": NSOM_SKY_COMPASS_ENABLED is True,
-        "legacy_rollback_available": runtime["flag_off_legacy"]["equals_legacy"] is True,
-        "flag_on_uses_nsom_path": runtime["flag_on_nsom"]["matches_direct_service"] is True,
-        "high_light_pollution_direction_changes_as_expected": runtime["flag_on_nsom"][
+        "constructor_rollback_removed": runtime["removed_rollback"]["runtime_rollback_removed"] is True,
+        "default_uses_nsom_path": runtime["default_nsom"]["matches_direct_service"] is True,
+        "high_light_pollution_direction_changes_as_expected": runtime["default_nsom"][
             "direction_changes_in_high_light_pollution"
         ]
         is True,
@@ -404,8 +403,8 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "default_off_policy_ready": "sky-compass-default-off-policy-not-ready",
         "default_flag_enabled_for_switch": "sky-compass-flag-not-default-on",
         "default_on_switch_complete": "sky-compass-default-on-switch-incomplete",
-        "legacy_rollback_available": "sky-compass-legacy-rollback-missing",
-        "flag_on_uses_nsom_path": "sky-compass-flag-on-not-nsom",
+        "constructor_rollback_removed": "sky-compass-rollback-still-present",
+        "default_uses_nsom_path": "sky-compass-default-not-nsom",
         "high_light_pollution_direction_changes_as_expected": "sky-compass-nsom-behaviour-not-observable",
         "payload_shape_unchanged": "sky-compass-payload-shape-change",
         "no_nsom_fields_in_payload": "sky-compass-nsom-fields-in-payload",
@@ -425,8 +424,8 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
 
 
 def _display_score_semantics(runtime: dict[str, object]) -> dict[str, object]:
-    legacy_top = runtime["flag_on_nsom"]["legacy_direction"]
-    nsom_top = runtime["flag_on_nsom"]["nsom_direction"]
+    legacy_top = runtime["default_nsom"]["legacy_direction"]
+    nsom_top = runtime["default_nsom"]["nsom_direction"]
     return {
         "status": "accepted_non_blocking_for_default_on",
         "keep_legacy_base_score_for_payload_compatibility": True,
@@ -459,8 +458,10 @@ def _fallback_policy(runtime: dict[str, object]) -> dict[str, object]:
 
 def _rollback_policy(runtime: dict[str, object]) -> dict[str, object]:
     return {
-        "constructor_rollback": "AppController(use_nsom_sky_compass=False)",
-        "legacy_path_preserved": runtime["flag_off_legacy"]["equals_legacy"] is True,
+        "constructor_rollback": "removed: AppController(use_nsom_sky_compass=False)",
+        "legacy_path_preserved": False,
+        "rollback_parameter_present": runtime["removed_rollback"]["parameter_present"],
+        "runtime_rollback_removed": runtime["removed_rollback"]["runtime_rollback_removed"],
         "blocks_default_on_switch": False,
     }
 
@@ -519,12 +520,10 @@ def _scan_files(
 
 def _controller(
     *,
-    use_nsom_sky_compass: bool,
     sky_quality: SkyQuality | None,
     nsom_service: object | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_sky_compass = use_nsom_sky_compass
     controller._sky_quality = sky_quality
     controller._moon = _moon(20)
     controller._sky_compass_service = SkyCompassService()
@@ -634,12 +633,13 @@ def _readiness_reason(ready: bool) -> str:
     if ready:
         if NSOM_SKY_COMPASS_ENABLED:
             return (
-                "The Sky Compass NSOM default-on switch is active with explicit "
-                "rollback, legacy fallback, unchanged payload shape, documented "
+                "The Sky Compass NSOM default-on switch is active with runtime "
+                "rollback removed, legacy fallback, unchanged payload shape, documented "
                 "non-blocking risks and no QML/report runtime wiring."
             )
         return (
-            "The default-off Sky Compass NSOM path has explicit rollback, legacy "
+            "The historical default-off Sky Compass NSOM path had explicit rollback; "
+            "1.13.8 removed that runtime rollback. Legacy "
             "fallback, unchanged payload shape, documented non-blocking risks and "
             "no QML/report runtime wiring. Default-on can be a separate flag-only "
             "switch after review."

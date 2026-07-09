@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from inspect import signature
 from pathlib import Path
 from unittest.mock import patch
 
@@ -29,14 +30,7 @@ from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringSer
 from astro_viewer.app.services.planner_scoring_service import PlannerScoringService
 
 
-def test_legacy_planner_path_still_works_when_forced_off() -> None:
-    class FailingNsomService:
-        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def score(self, opportunity: ObservationOpportunity) -> float:
-            raise AssertionError("NSOM planner path should stay disabled.")
-
+def test_legacy_planner_constructor_rollback_is_removed() -> None:
     objects = _planner_fixture_objects()
     weather = _weather(85)
     scores = _scores()
@@ -45,18 +39,8 @@ def test_legacy_planner_path_still_works_when_forced_off() -> None:
     moon = _moon(10)
 
     assert NSOM_PLANNER_SCORING_ENABLED is True
-    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
-        objects,
-        weather,
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
+    assert "use_nsom_planner_scoring" not in signature(NightPlannerService.__init__).parameters
+    plan = NightPlannerService().plan(
         objects,
         weather,
         scores,
@@ -65,7 +49,7 @@ def test_legacy_planner_path_still_works_when_forced_off() -> None:
         moon,
     )
 
-    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
+    assert plan
 
 
 def test_default_planner_path_uses_observation_opportunity_ranking() -> None:

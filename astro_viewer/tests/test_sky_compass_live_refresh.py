@@ -251,7 +251,6 @@ def _controller(candidates: list[CelestialObject]) -> tuple[AppController, _Posi
     controller._astronomy_engine = engine
     controller._refresh_manager = RefreshManager()
     controller._sky_compass_service = SkyCompassService()
-    controller._use_nsom_sky_compass = False
     controller._sky_quality = None
     controller._moon = None
     controller._sky_compass_nsom_direction_service = SkyCompassNsomDirectionService()

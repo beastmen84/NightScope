@@ -306,13 +306,13 @@ def _policy_decisions(readiness: dict[str, object]) -> tuple[dict[str, object], 
         _decision(
             "rollback_policy",
             status="accepted",
-            summary="Keep the future rollback path as the existing internal flag/constructor override.",
-            reason="The future property must read only the private snapshot and return empty data when the NSOM path is disabled.",
+            summary="The previous internal flag/constructor rollback was removed in 1.13.8.",
+            reason="The property reads only the private snapshot; rollback-disabled state is no longer a runtime mode.",
             covers_source_blocker=None,
             extra={
                 "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
-                "constructor_rollback": "AppController(use_nsom_advanced_observing=False)",
-                "future_property_when_disabled": {},
+                "constructor_rollback": "removed: AppController(use_nsom_advanced_observing=False)",
+                "future_property_when_disabled": "not_applicable_runtime_rollback_removed",
             },
         ),
         _decision(
@@ -389,7 +389,7 @@ def _checks(
         "confidence_score_neutral": label["confidence_score_effect"] == 0.0
         and _decision_by_id(decisions, "confidence_metadata_policy")["confidence_score_effect"] == 0.0,
         "rollback_policy_defined": rollback["constructor_rollback"]
-        == "AppController(use_nsom_advanced_observing=False)",
+        == "removed: AppController(use_nsom_advanced_observing=False)",
         "advanced_scores_remains_current_qml_contract": readiness["presentation_contract_summary"][
             "current_qml_property"
         ]

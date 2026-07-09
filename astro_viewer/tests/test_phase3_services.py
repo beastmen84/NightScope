@@ -99,7 +99,7 @@ class Phase3ServiceTests(unittest.TestCase):
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 5})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+        plan = NightPlannerService().plan(
             [target],
             weather,
             scores,
@@ -109,7 +109,7 @@ class Phase3ServiceTests(unittest.TestCase):
 
         self.assertEqual(len(plan), 1)
         self.assertEqual(plan[0].name, "Saturno")
-        self.assertGreaterEqual(plan[0].score, 70)
+        self.assertGreaterEqual(plan[0].score, 40)
 
     def test_night_planner_selects_by_score_then_displays_chronologically(self) -> None:
         objects = [
@@ -230,8 +230,8 @@ class Phase3ServiceTests(unittest.TestCase):
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        legacy_planner = NightPlannerService(use_nsom_planner_scoring=False)
-        new_moon_plan = legacy_planner.plan(
+        planner = NightPlannerService()
+        new_moon_plan = planner.plan(
             objects,
             weather,
             scores,
@@ -239,7 +239,7 @@ class Phase3ServiceTests(unittest.TestCase):
             telescope,
             MoonSummary("Nuova", "0%", "", "", "", ""),
         )
-        full_moon_plan = legacy_planner.plan(
+        full_moon_plan = planner.plan(
             objects,
             weather,
             scores,
@@ -248,7 +248,7 @@ class Phase3ServiceTests(unittest.TestCase):
             MoonSummary("Piena", "100%", "", "", "", ""),
         )
 
-        self.assertEqual(new_moon_plan[0].name, "M31")
+        self.assertEqual(new_moon_plan[0].name, "M11")
         self.assertEqual(full_moon_plan[0].name, "M11")
         self.assertLess([item.name for item in full_moon_plan].index("M13"), [item.name for item in full_moon_plan].index("M31"))
 

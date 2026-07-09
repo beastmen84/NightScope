@@ -23,13 +23,9 @@ class NightPlannerService:
 
     def __init__(
         self,
-        scoring_service: PlannerScoringService | None = None,
         *,
-        use_nsom_planner_scoring: bool = NSOM_PLANNER_SCORING_ENABLED,
         nsom_scoring_service: PlannerNsomScoringService | None = None,
     ) -> None:
-        self._scoring_service = scoring_service or PlannerScoringService()
-        self._use_nsom_planner_scoring = use_nsom_planner_scoring
         self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
     def plan(
@@ -98,12 +94,6 @@ class NightPlannerService:
         moon: MoonSummary | None,
         blocking_status: WeatherBlockingStatus,
     ) -> list[tuple[CelestialObject, float]]:
-        if not self._use_nsom_planner_scoring:
-            return [
-                (item, self._scoring_service.score(item, weather, scores, sky_quality, telescope, moon))
-                for item in visible
-            ]
-
         opportunities = [
             (
                 item,

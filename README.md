@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.7`.
+Versione corrente: `1.13.8`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -189,12 +189,13 @@ log restino tooling non collegato a runtime, QML, logging automatico, rete o
 scritture file runtime. Lo step `1.5.7` non abilita NSOM Planner.
 Lo step `1.5.8` abilita Planner NSOM di default impostando
 `NSOM_PLANNER_SCORING_ENABLED = True`. La modifica runtime e' limitata al
-default del flag: il rollback legacy resta esplicito tramite
-`NightPlannerService(use_nsom_planner_scoring=False)`, senza QML, logging
+default del flag: il rollback legacy mantenuto in quello step viene rimosso in
+`1.13.8`, senza QML, logging
 automatico, rete, scritture file runtime o wiring dei report developer-only.
 Lo step `1.5.9` chiude la migrazione Planner NSOM: il Planner NSOM e' il path
-default supportato, mentre il Planner legacy resta disponibile soltanto come
-rollback esplicito interno con `NightPlannerService(use_nsom_planner_scoring=False)`.
+default supportato. Il rollback esplicito interno mantenuto allora viene
+rimosso in `1.13.8`; il confronto legacy resta developer-only tramite report e
+`PlannerScoringService`.
 Non cambia scoring rispetto a `1.5.8`, non aggiunge QML/UI e non collega report
 al runtime. Restano documentati come deferred non bloccanti
 `medium-equipment-q-target-review-band` e
@@ -203,8 +204,8 @@ futura, non blocker della migrazione Planner.
 Lo step `1.6.5` chiude la migrazione Home `recommendedDeepSky`: la lista Home
 di cielo profondo usa ora di default l'ordinamento NSOM `ObservableTargetValue`,
 costruito da `IntrinsicTargetQuality`, `ObservationEnvironment` ed
-`EffectiveObservability`. Il rollback interno resta esplicito con
-`AppController(use_nsom_home_recommended_deep_sky=False)`. Best Object, Sky
+`EffectiveObservability`. Il rollback interno mantenuto allora viene rimosso in
+`1.13.8`. Best Object, Sky
 Compass, QML/UI, payload e report runtime restano invariati. La Home continua a
 mostrare lo score legacy/base per compatibilita', quindi lo score visibile puo'
 non essere monotono rispetto all'ordine NSOM. Se manca la sky quality runtime,
@@ -232,8 +233,8 @@ forzato con `AppController(use_nsom_best_object=True)`, Best Object valuta
 `ObservationOpportunity` con policy Home-specific: `PracticalTargetValue`
 deriva da `ObservableTargetValue` e `Q_target`, `SessionViability` gestisce la
 non-actionability delle sessioni bloccate e `RecommendationConfidence` resta
-metadato senza effetto sullo score. Il rollback legacy e' esplicito con
-`AppController(use_nsom_best_object=False)`. Il payload QML resta invariato,
+metadato senza effetto sullo score. Il rollback legacy esplicito introdotto in
+quello step viene rimosso in `1.13.8`. Il payload QML resta invariato,
 lo score mostrato resta legacy/base per compatibilita' e, se manca la sky
 quality runtime, il controller usa ancora il path legacy.
 Lo step `1.7.3` risolve le policy Best Object per target non azionabili:
@@ -247,12 +248,12 @@ QML/report runtime wiring e score-neutrality della confidence.
 Lo step `1.7.5` abilita Best Object NSOM di default con
 `NSOM_BEST_OBJECT_ENABLED = True`. La selezione Best Object usa ora
 `ObservationOpportunity` con policy Home-specific quando meteo e sky quality
-runtime sono disponibili; il rollback legacy resta esplicito con
-`AppController(use_nsom_best_object=False)`. Non vengono aggiunti campi QML,
+runtime sono disponibili; il rollback legacy esplicito mantenuto allora viene
+rimosso in `1.13.8`. Non vengono aggiunti campi QML,
 logging, rete, scritture runtime o collegamenti ai report.
 Lo step `1.7.6` chiude la migrazione Best Object NSOM come stato documentato:
-Best Object e' default-on su NSOM, il path legacy resta solo rollback interno e
-fallback quando manca la sky quality. Il payload QML resta invariato e lo score
+Best Object e' default-on su NSOM. Il rollback interno mantenuto allora viene
+rimosso in `1.13.8`; resta il fallback quando manca la sky quality. Il payload QML resta invariato e lo score
 mostrato resta legacy/base per compatibilita', quindi puo' non essere monotono
 rispetto alla selezione NSOM.
 Lo step `1.8.0` avvia la migrazione dei punteggi osservativi avanzati con un
@@ -383,15 +384,15 @@ Lo step `1.8.17` abilita Advanced Observing NSOM di default impostando
 interno parallelo `_advanced_observing_nsom_scores` e la presentazione read-only
 `advancedObservingNsom`; il payload visibile `advancedScores` resta legacy per
 compatibilita' con le card Home, Planner e NotificationService. Il rollback
-interno resta esplicito con `AppController(use_nsom_advanced_observing=False)`.
+interno mantenuto allora viene rimosso in `1.13.8`.
 Non vengono aggiunti UI visibile, logging, rete, scritture runtime o wiring dei
 report developer-only.
 Lo step `1.8.18` chiude la migrazione Advanced Observing NSOM come stato
 backend default-on documentato. Advanced Observing NSOM e' ora calcolato di
 default come proiezione interna/parallela; `advancedScores` resta il contratto
 legacy-compatible visibile e consumer-safe, mentre `advancedObservingNsom` resta
-una property read-only separata non usata dalla UI visibile. Il rollback resta
-`AppController(use_nsom_advanced_observing=False)`. UI visibile,
+una property read-only separata non usata dalla UI visibile. Il rollback
+runtime mantenuto allora viene rimosso in `1.13.8`. UI visibile,
 copy/localizzazione e sostituzione futura degli score legacy restano lavori
 separati, non blocker della migrazione backend.
 Lo step `1.9.0` avvia la migrazione Sky Compass con un comparison layer
@@ -436,14 +437,14 @@ deve essere un commit separato che imposta solo
 `NSOM_SKY_COMPASS_ENABLED = True`.
 Lo step `1.9.5` abilita Sky Compass NSOM di default impostando
 `NSOM_SKY_COMPASS_ENABLED = True`. Il default del controller usa ora
-`SkyCompassNsomDirectionService` quando sky quality e' disponibile, mantenendo
-rollback esplicito `AppController(use_nsom_sky_compass=False)` e fallback
-legacy quando manca sky quality o il path NSOM fallisce. Il payload
+`SkyCompassNsomDirectionService` quando sky quality e' disponibile. Il rollback
+esplicito mantenuto allora viene rimosso in `1.13.8`; resta il fallback legacy
+quando manca sky quality o il path NSOM fallisce. Il payload
 `skyCompass` resta invariato e non espone campi NSOM; nessuna modifica QML/UI,
 logging, rete, scrittura runtime o report runtime wiring viene introdotta.
 Lo step `1.9.6` chiude la migrazione Sky Compass NSOM come stato documentato:
-Sky Compass e' default-on su NSOM `ObservableTargetValue`, il path legacy resta
-solo rollback interno/fallback e il payload QML resta compatibile. Il campo
+Sky Compass e' default-on su NSOM `ObservableTargetValue`; il path legacy resta
+solo fallback dati/errore dopo `1.13.8` e il payload QML resta compatibile. Il campo
 `score` nei target Sky Compass continua a essere il valore legacy/base mostrato
 per compatibilita' e non una spiegazione NSOM della direzione.
 Lo step `1.9.7` aggiunge l'audit complessivo developer-only dello stato NSOM
@@ -477,8 +478,8 @@ path deve restare default-off, senza aggiungere campi NSOM a `selectedObject` e
 senza UI/QML visibile.
 Lo step `1.10.3` implementa quella path runtime interna default-off con
 `astro_viewer/app/services/detail_nsom_runtime.py` e
-`NSOM_DETAIL_OBJECT_ENABLED = False`. Il rollback esplicito e'
-`AppController(use_nsom_detail_object=False)`. Se forzata on, la path costruisce
+`NSOM_DETAIL_OBJECT_ENABLED = False`. Il rollback esplicito mantenuto in questa
+fase viene rimosso in `1.13.8`. Se forzata on, la path costruisce
 solo un payload interno separato tramite `_selected_object_nsom_payload()`;
 `selectedObject`, payload QML, Home, Best Object, Planner, Sky Compass,
 logging, rete e scritture runtime restano invariati. Il payload contiene valori
@@ -493,11 +494,12 @@ visibile e le spiegazioni NSOM in pagina Detail restano fuori scope.
 Lo step `1.10.5` esegue quello switch: `NSOM_DETAIL_OBJECT_ENABLED = True`.
 La default path Detail/Object ora costruisce il payload interno NSOM separato
 quando richiesto dal backend, ma `selectedObject`, QML/UI e lo score visibile
-restano compatibili con il comportamento legacy. Il rollback resta
-`AppController(use_nsom_detail_object=False)`.
+restano compatibili con il comportamento legacy. Il rollback runtime mantenuto
+allora viene rimosso in `1.13.8`.
 Lo step `1.10.6` chiude la migrazione backend Detail/Object NSOM in
 `docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md`. Detail/Object e' ora una
-superficie backend default-on con rollback esplicito; la UI visibile resta
+superficie backend default-on; il rollback esplicito mantenuto allora viene
+rimosso in `1.13.8` e la UI visibile resta
 immutata e ogni spiegazione NSOM in pagina Detail rimane un futuro step
 separato.
 Lo step `1.11.0` aggiunge
@@ -570,14 +572,13 @@ Lo step `1.12.8` applica quel reroute solo a Home `recommendedDeepSky`: il
 ranking NSOM legge `ObservationConditionedTargetReadModel.nsom_target_input`,
 mentre il payload QML continua a usare
 `ObservationConditionedTargetReadModel.qml_display_target`. Il rollback
-`AppController(use_nsom_home_recommended_deep_sky=False)` e il fallback con sky
-quality mancante restano legacy moon-adjusted. Best Object e Sky Compass non
+runtime mantenuto allora viene rimosso in `1.13.8`; il fallback con sky
+quality mancante resta legacy moon-adjusted. Best Object e Sky Compass non
 sono ancora reroutati.
 Lo step `1.12.9` applica lo stesso boundary a Best Object: il servizio NSOM
 riceve candidati raw dal read-model e il controller rimappa l'oggetto scelto al
-display target compatibile. Il rollback
-`AppController(use_nsom_best_object=False)` e il fallback senza sky quality
-restano invariati. Sky Compass resta l'unico consumer ObservationConditions
+display target compatibile. Il rollback runtime mantenuto allora viene rimosso
+in `1.13.8`; il fallback senza sky quality resta invariato. Sky Compass resta l'unico consumer ObservationConditions
 ancora da valutare per un eventuale reroute raw-target.
 Lo step `1.12.10` aggiunge
 `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`: la policy conferma che Sky
@@ -659,6 +660,15 @@ la policy per i rollback legacy interni rimasti: poiche' l'app non e'
 distribuita e le superfici backend NSOM sono chiuse, i rollback interni devono
 essere rimossi in un prossimo step focalizzato. Questo commit non rimuove ancora
 flag o branch runtime; aggiorna solo audit, report e documentazione.
+Lo step `1.13.8` implementa quella policy: i parametri di rollback runtime
+interni `AppController(use_nsom_...=False)` e
+`NightPlannerService(use_nsom_planner_scoring=False)` sono rimossi. Planner,
+Home `recommendedDeepSky`, Best Object, Advanced Observing backend, Sky Compass
+e Detail/Object internal payload usano ora i rispettivi path NSOM default-on
+senza selettore legacy interno. Restano solo fallback tecnici per input mancanti
+o failure servizio dove gia' previsti, ad esempio sky quality mancante; non sono
+rollback configurabili. Nessuna UI/QML, logging, rete o scrittura runtime viene
+aggiunta.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

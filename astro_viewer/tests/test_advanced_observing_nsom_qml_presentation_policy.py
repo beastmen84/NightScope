@@ -123,9 +123,11 @@ def test_qml_policy_rollback_and_remaining_items_are_explicit() -> None:
     decisions = {decision["decision_id"]: decision for decision in data["policy_decisions"]}
 
     assert decisions["rollback_policy"]["constructor_rollback"] == (
-        "AppController(use_nsom_advanced_observing=False)"
+        "removed: AppController(use_nsom_advanced_observing=False)"
     )
-    assert decisions["rollback_policy"]["future_property_when_disabled"] == {}
+    assert decisions["rollback_policy"]["future_property_when_disabled"] == (
+        "not_applicable_runtime_rollback_removed"
+    )
     assert data["remaining_items_before_runtime_qml_exposure"] == [
         "advanced-observing-visible-ui-design-not-approved",
     ]

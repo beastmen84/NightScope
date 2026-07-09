@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checked whether Best Object was ready for a default-off NSOM runtime path after the comparison report. The path exists and remains available through explicit constructor control; the current default flag is reported below. The path does not change recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
+This developer-only audit checked whether Best Object was ready for a default-off NSOM runtime path after the comparison report. The path exists and is now default-on; the temporary constructor rollback was removed in 1.13.8. The current default flag is reported below. The path does not change recommendedDeepSky, Planner, Sky Compass, QML, logging, network behaviour or runtime file writes.
 
 ## Readiness Verdict
 
@@ -11,10 +11,10 @@ This developer-only audit checked whether Best Object was ready for a default-of
 - Runtime path exists: `True`.
 - Default flag: `NSOM_BEST_OBJECT_ENABLED = True`.
 - Runtime behaviour changed by default: `True`.
-- Explicit NSOM opt-in: `AppController(use_nsom_best_object=True)`.
-- Explicit legacy rollback: `AppController(use_nsom_best_object=False)`.
-- Recommendation: `default_off_path_validated_and_rollback_preserved`.
-- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety were validated behind an internal Best Object NSOM path. Legacy rollback remains explicit through the constructor.
+- Explicit NSOM opt-in: `default AppController()`.
+- Explicit legacy rollback: `removed: AppController(use_nsom_best_object=False)`.
+- Recommendation: `default_on_path_validated_and_runtime_rollback_removed`.
+- Reason: Best Object non-actionable policy, displayed score semantics and runtime safety were validated behind an internal Best Object NSOM path. The temporary constructor rollback was removed in 1.13.8.
 
 ## Default-Off Blockers
 
@@ -61,7 +61,7 @@ This developer-only audit checked whether Best Object was ready for a default-of
 | --- | --- |
 | `best_object_nsom_runtime_path_available` | `True` |
 | `current_default_flag_enabled` | `True` |
-| `legacy_rollback_available` | `True` |
+| `legacy_rollback_removed` | `True` |
 | `comparison_tooling_developer_only` | `True` |
 | `comparison_tooling_has_no_runtime_writes` | `True` |
 | `comparison_tooling_has_no_automatic_logging` | `True` |
@@ -76,6 +76,6 @@ This developer-only audit checked whether Best Object was ready for a default-of
 
 ## Recommended Next Steps
 
-1. Review the default-off Best Object NSOM path before any default-on readiness audit.
-2. Verify blocked-session, invisible-target and missing-sky-quality policy in the runtime selector.
-3. Preserve legacy Best Object as explicit rollback until a separate default-on switch is reviewed.
+1. Keep the Best Object NSOM backend path default-on.
+2. Keep blocked-session, invisible-target and missing-sky-quality policy documented.
+3. Treat visible Best Object explanation UI as a separate design step.

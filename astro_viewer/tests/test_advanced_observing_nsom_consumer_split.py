@@ -14,8 +14,8 @@ from astro_viewer.app.services.advanced_observing_service import AdvancedObservi
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_consumer_split_keeps_public_advanced_scores_legacy_when_nsom_forced_on() -> None:
-    controller = _controller(enabled=True)
+def test_consumer_split_keeps_public_advanced_scores_legacy() -> None:
+    controller = _controller()
     expected_legacy = _legacy_scores(controller)
     expected_nsom = _nsom_scores(controller)
 
@@ -38,7 +38,8 @@ def test_consumer_split_keeps_public_advanced_scores_legacy_when_nsom_forced_on(
 
 
 def test_default_flag_keeps_public_advanced_scores_legacy_and_computes_parallel_nsom() -> None:
-    controller = _controller(enabled=NSOM_ADVANCED_OBSERVING_ENABLED)
+    assert NSOM_ADVANCED_OBSERVING_ENABLED is True
+    controller = _controller()
     expected_legacy = _legacy_scores(controller)
     expected_nsom = _nsom_scores(controller)
 
@@ -49,8 +50,8 @@ def test_default_flag_keeps_public_advanced_scores_legacy_and_computes_parallel_
     assert controller._advanced_observing_nsom_scores != controller._advanced_scores
 
 
-def test_planner_receives_legacy_scores_when_nsom_forced_on() -> None:
-    controller = _controller(enabled=True)
+def test_planner_receives_legacy_scores_when_parallel_nsom_is_computed() -> None:
+    controller = _controller()
     planner = _PlannerSpy()
     controller._night_planner_service = planner
     expected_legacy = _legacy_scores(controller)
@@ -63,7 +64,7 @@ def test_planner_receives_legacy_scores_when_nsom_forced_on() -> None:
 
 
 def test_notifications_backend_path_is_absent_from_consumer_split_runtime() -> None:
-    controller = _controller(enabled=True)
+    controller = _controller()
 
     controller._recalculate_observing_outputs()
 
@@ -72,17 +73,17 @@ def test_notifications_backend_path_is_absent_from_consumer_split_runtime() -> N
     assert not hasattr(controller, "_advanced_scores_for_notifications")
 
 
-def test_flag_off_does_not_compute_parallel_nsom_advanced_scores() -> None:
-    controller = _controller(enabled=False)
+def test_internal_rollback_removed_so_parallel_nsom_advanced_scores_are_computed() -> None:
+    controller = _controller()
 
     controller._recalculate_observing_outputs()
 
     assert controller._advanced_scores == _legacy_scores(controller)
-    assert controller._advanced_observing_nsom_scores is None
+    assert controller._advanced_observing_nsom_scores == _nsom_scores(controller)
 
 
 def test_consumer_split_methods_are_legacy_compatible() -> None:
-    controller = _controller(enabled=True)
+    controller = _controller()
     controller._advanced_scores = _legacy_scores(controller)
     controller._advanced_observing_nsom_scores = _nsom_scores(controller)
 
@@ -101,14 +102,12 @@ class _PlannerSpy:
 
 def _controller(
     *,
-    enabled: bool,
     weather: WeatherSummary | None = None,
     seeing: SeeingTransparency | None = None,
     sky_quality: SkyQuality | None = None,
     moon: MoonSummary | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_advanced_observing = enabled
     controller._advanced_observing_service = AdvancedObservingService()
     controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
     controller._weather_summary = weather or _weather(90)

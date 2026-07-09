@@ -44,7 +44,7 @@ def test_detail_nsom_readiness_is_ready_after_policy_contract() -> None:
     assert data["readiness"]["ready_for_visible_ui"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "review 1.10.5, then close Detail/Object NSOM backend migration"
+        "review 1.13.8 rollback cleanup, then keep visible Detail/Object NSOM UI separate"
     )
     assert data["blockers"] == []
     assert data["policy_contract_summary"] == {
@@ -111,8 +111,8 @@ def test_runtime_path_review_detects_default_off_internal_path() -> None:
         "runtime_path_exists": True,
         "default_flag": "NSOM_DETAIL_OBJECT_ENABLED = True",
         "default_flag_enabled": True,
-        "rollback": "AppController(use_nsom_detail_object=False)",
-        "controller_rollback_parameter_present": True,
+        "rollback": "removed: AppController(use_nsom_detail_object=False)",
+        "controller_rollback_parameter_present": False,
         "internal_payload_method_present": True,
         "service_present": True,
         "qml_exposure_approved": False,
@@ -144,7 +144,6 @@ def test_detail_nsom_readiness_audit_has_no_runtime_or_qml_wiring() -> None:
     assert {
         item["marker"] for item in data["static_wiring_checks"]["controller_detail_runtime_matches"]
     } >= {
-        "use_nsom_detail_object",
         "_selected_object_nsom_payload",
         "DetailObjectNsomRuntimeService",
     }

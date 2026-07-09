@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from inspect import signature
 from pathlib import Path
 
 import pytest
@@ -351,17 +352,7 @@ def test_confidence_explanation_is_trust_metadata_not_score_reduction() -> None:
     assert not _has_owner(low_explanation, "confidence", section="main_positive_factors")
 
 
-def test_flag_off_runtime_planner_remains_unchanged_with_explanation_service_present() -> None:
-    class FailingNsomService:
-        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def score(self, opportunity):  # noqa: ANN001
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def explain_opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM explanations should stay off the runtime Planner path.")
-
+def test_runtime_planner_has_no_flag_off_constructor_rollback_with_explanation_service_present() -> None:
     objects = _representative_targets()
     weather = _weather(85)
     scores = _scores()
@@ -370,18 +361,8 @@ def test_flag_off_runtime_planner_remains_unchanged_with_explanation_service_pre
     moon = _moon(10)
 
     assert NSOM_PLANNER_SCORING_ENABLED is True
-    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
-        objects,
-        weather,
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
+    assert "use_nsom_planner_scoring" not in signature(NightPlannerService.__init__).parameters
+    plan = NightPlannerService().plan(
         objects,
         weather,
         scores,
@@ -390,7 +371,7 @@ def test_flag_off_runtime_planner_remains_unchanged_with_explanation_service_pre
         moon,
     )
 
-    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
+    assert _plan_summary(plan)
 
 
 def test_comparison_helper_is_not_exposed_to_qml() -> None:

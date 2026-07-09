@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import replace
+from inspect import signature
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -16,6 +17,7 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
     NSOM_BEST_OBJECT_ENABLED,
     BestObjectNsomSelectionService,
 )
+from astro_viewer.app.services.advanced_observing_nsom_service import AdvancedObservingNsomService
 from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -23,7 +25,7 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 
 def test_best_object_nsom_flag_is_default_on() -> None:
     assert NSOM_BEST_OBJECT_ENABLED is True
-    assert AppController.__init__.__kwdefaults__["use_nsom_best_object"] is NSOM_BEST_OBJECT_ENABLED
+    assert "use_nsom_best_object" not in signature(AppController.__init__).parameters
 
 
 def test_best_object_nsom_service_ranks_by_observation_opportunity() -> None:
@@ -179,16 +181,16 @@ def test_best_object_nsom_does_not_mutate_runtime_objects() -> None:
     assert targets == before
 
 
-def test_app_controller_forced_legacy_rollback_preserves_best_object_order() -> None:
-    controller = _controller(use_nsom_best_object=False)
+def test_app_controller_runtime_uses_nsom_without_constructor_rollback() -> None:
+    controller = _controller()
 
     selected = controller._select_best_object(_targets())
 
-    assert selected.id == "jupiter"
+    assert selected.id == "galaxy"
 
 
 def test_app_controller_default_flag_uses_nsom_best_object_path() -> None:
-    controller = _controller(use_nsom_best_object=NSOM_BEST_OBJECT_ENABLED)
+    controller = _controller()
 
     selected = controller._select_best_object(_targets())
 
@@ -196,7 +198,7 @@ def test_app_controller_default_flag_uses_nsom_best_object_path() -> None:
 
 
 def test_app_controller_forced_nsom_path_selects_nsom_best_object() -> None:
-    controller = _controller(use_nsom_best_object=True)
+    controller = _controller()
 
     selected = controller._select_best_object(_targets())
 
@@ -204,7 +206,7 @@ def test_app_controller_forced_nsom_path_selects_nsom_best_object() -> None:
 
 
 def test_app_controller_nsom_path_scores_raw_read_model_targets_and_returns_display_target() -> None:
-    controller = _controller(use_nsom_best_object=True)
+    controller = _controller()
     raw_low = _target("raw_low", "Galaxy", 30, difficulty="Media")
     raw_high = _target("raw_high", "Open Cluster", 90, difficulty="Facile")
     display_low = replace(raw_low, score=99, condition_flags=("light_pollution",))
@@ -230,8 +232,8 @@ def test_app_controller_nsom_path_scores_raw_read_model_targets_and_returns_disp
     assert selected.score == 10
 
 
-def test_app_controller_forced_nsom_path_falls_back_without_sky_quality() -> None:
-    controller = _controller(use_nsom_best_object=True)
+def test_app_controller_nsom_path_falls_back_without_sky_quality() -> None:
+    controller = _controller()
     controller._sky_quality = None
 
     selected = controller._select_best_object(_targets())
@@ -239,8 +241,8 @@ def test_app_controller_forced_nsom_path_falls_back_without_sky_quality() -> Non
     assert selected.id == "jupiter"
 
 
-def test_app_controller_forced_nsom_blocked_session_returns_no_best_object() -> None:
-    controller = _controller(use_nsom_best_object=True)
+def test_app_controller_nsom_blocked_session_returns_no_best_object() -> None:
+    controller = _controller()
     controller._weather_summary = _weather(10, cloud_cover=95, precipitation_probability=80)
 
     selected = controller._select_best_object(_targets())
@@ -248,8 +250,8 @@ def test_app_controller_forced_nsom_blocked_session_returns_no_best_object() -> 
     assert selected is None
 
 
-def test_app_controller_recalculate_outputs_uses_forced_nsom_best_object_path() -> None:
-    controller = _controller(use_nsom_best_object=True)
+def test_app_controller_recalculate_outputs_uses_nsom_best_object_path() -> None:
+    controller = _controller()
     controller._visible_planets = [_targets()[0]]
     controller._deep_sky = _targets()[1:]
     controller._home_visible_objects = lambda objects: list(objects)
@@ -264,6 +266,7 @@ def test_app_controller_recalculate_outputs_uses_forced_nsom_best_object_path() 
         "Fixture",
     )
     controller._advanced_observing_service = Mock()
+    controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
     controller._advanced_observing_service.scores.return_value = AdvancedObservingScores(
         planetary_score=80,
         deep_sky_score=80,
@@ -287,7 +290,7 @@ def test_app_controller_recalculate_outputs_uses_forced_nsom_best_object_path() 
 
 
 def test_best_object_qml_payload_shape_stays_legacy_compatible() -> None:
-    controller = _controller(use_nsom_best_object=True)
+    controller = _controller()
     selected = controller._select_best_object(_targets())
     controller._best_object = selected
 
@@ -324,9 +327,8 @@ def test_best_object_nsom_runtime_path_has_no_qml_or_report_wiring() -> None:
     assert "nsom:planner_observer_capability" not in ranking_service
 
 
-def _controller(*, use_nsom_best_object: bool) -> AppController:
+def _controller() -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_best_object = use_nsom_best_object
     controller._best_object_nsom_selection_service = BestObjectNsomSelectionService()
     controller._score_service = ObservingScoreService()
     controller._weather_summary = _weather(90)

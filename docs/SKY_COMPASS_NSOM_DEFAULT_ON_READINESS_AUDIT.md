@@ -12,10 +12,10 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 - Default flag currently enabled: `True`.
 - Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Explicit legacy rollback: `AppController(use_nsom_sky_compass=False)`.
-- Explicit NSOM path: `AppController(use_nsom_sky_compass=True)`.
+- Explicit legacy rollback: `removed: AppController(use_nsom_sky_compass=False)`.
+- Explicit NSOM path: `default AppController()`.
 - Recommended switch change: `already enabled`.
-- Reason: The Sky Compass NSOM default-on switch is active with explicit rollback, legacy fallback, unchanged payload shape, documented non-blocking risks and no QML/report runtime wiring.
+- Reason: The Sky Compass NSOM default-on switch is active with runtime rollback removed, legacy fallback, unchanged payload shape, documented non-blocking risks and no QML/report runtime wiring.
 
 ## Default-On Blockers
 
@@ -25,9 +25,9 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 
 | Policy | Evidence |
 | --- | --- |
-| Flag off | Direction `Sud`, equals legacy `True`. |
-| Flag on | Legacy top `Sud`, NSOM top `Nord-Est`. |
-| Rollback | `AppController(use_nsom_sky_compass=False)` preserves legacy `True`. |
+| Runtime default | Legacy top `Sud`, NSOM top `Nord-Est`. |
+| Default service | Matches direct NSOM service `True`. |
+| Rollback | `removed: AppController(use_nsom_sky_compass=False)` removed `True`. |
 | Fallback | Missing sky quality fallback `True`, service failure fallback `True`. |
 | Payload | Payload keys unchanged `True`, target keys unchanged `True`, NSOM fields exposed `False`. |
 | Ownership | Observable base `True`, PracticalTargetValue used `False`, confidence parameter `False`. |
@@ -48,8 +48,9 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 - Service failure fallback: `True`.
 - Fallback target: legacy SkyCompassService.compass(...)
 - Blocks default-on switch: `False`.
-- Constructor rollback: `AppController(use_nsom_sky_compass=False)`.
-- Legacy path preserved: `True`.
+- Constructor rollback: `removed: AppController(use_nsom_sky_compass=False)`.
+- Legacy path preserved: `False`.
+- Runtime rollback removed: `True`.
 
 ## Runtime Safety
 
@@ -80,4 +81,4 @@ This developer-only audit checks whether the existing default-off Sky Compass NS
 
 ## Recommended Next Step
 
-The Sky Compass NSOM backend migration is closed in the base documentation. Keep `AppController(use_nsom_sky_compass=False)` as rollback and treat any visible explanation UI as a separate design step.
+The Sky Compass NSOM backend migration is closed in the base documentation. Keep runtime rollback removed and treat any visible explanation UI as a separate design step.

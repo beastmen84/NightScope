@@ -104,8 +104,8 @@ def test_presentation_projection_sanitizes_non_finite_score_values() -> None:
     assert payload["confidence"]["value"] is None
 
 
-def test_controller_flag_off_does_not_project_advanced_observing_nsom_presentation() -> None:
-    controller = _controller(enabled=False)
+def test_controller_runtime_projects_advanced_observing_nsom_presentation() -> None:
+    controller = _controller()
 
     controller._recalculate_observing_outputs()
 
@@ -115,13 +115,18 @@ def test_controller_flag_off_does_not_project_advanced_observing_nsom_presentati
         controller._sky_quality,
         controller._moon,
     )
-    assert controller._advanced_observing_nsom_scores is None
-    assert controller._advanced_observing_nsom_presentation is None
-    assert controller._advanced_observing_nsom_payload() == {}
+    assert controller._advanced_observing_nsom_scores == _nsom_scores(
+        controller._weather_summary,
+        controller._seeing_transparency,
+        controller._sky_quality,
+        controller._moon,
+    )
+    assert controller._advanced_observing_nsom_presentation is not None
+    assert controller._advanced_observing_nsom_payload() == controller._advanced_observing_nsom_presentation
 
 
-def test_controller_forced_on_projects_presentation_without_changing_advanced_scores() -> None:
-    controller = _controller(enabled=True)
+def test_controller_projects_presentation_without_changing_advanced_scores() -> None:
+    controller = _controller()
     expected_legacy = _legacy_scores(
         controller._weather_summary,
         controller._seeing_transparency,
@@ -155,7 +160,8 @@ def test_controller_forced_on_projects_presentation_without_changing_advanced_sc
 
 
 def test_controller_default_path_projects_presentation_without_changing_advanced_scores() -> None:
-    controller = _controller(enabled=NSOM_ADVANCED_OBSERVING_ENABLED)
+    assert NSOM_ADVANCED_OBSERVING_ENABLED is True
+    controller = _controller()
     expected_legacy = _legacy_scores(
         controller._weather_summary,
         controller._seeing_transparency,
@@ -185,7 +191,6 @@ def test_controller_default_path_projects_presentation_without_changing_advanced
 
 def test_presentation_session_metadata_matches_monitor_session_state() -> None:
     controller = _controller(
-        enabled=True,
         weather=_weather(10, cloud_cover=88, precipitation_probability=80),
         weather_hours=(
             _weather_hour("02:00", cloud_cover=88, precipitation_probability=80),
@@ -201,7 +206,7 @@ def test_presentation_session_metadata_matches_monitor_session_state() -> None:
 
 
 def test_presentation_projection_does_not_feed_planner_and_notifications_are_absent() -> None:
-    controller = _controller(enabled=True)
+    controller = _controller()
     planner = _PlannerSpy()
     controller._night_planner_service = planner
 
@@ -228,7 +233,7 @@ def test_presentation_projection_has_read_only_qml_property_but_no_visible_qml_u
 
 
 def test_advanced_observing_nsom_property_reads_defensive_copy_without_recomputing() -> None:
-    controller = _controller(enabled=True)
+    controller = _controller()
     sentinel = {
         "schemaVersion": "sentinel",
         "enabled": True,
@@ -288,12 +293,10 @@ class _PlannerSpy:
 
 def _controller(
     *,
-    enabled: bool,
     weather: WeatherSummary | None = None,
     weather_hours: tuple[WeatherHour, ...] = (),
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_advanced_observing = enabled
     controller._advanced_observing_service = AdvancedObservingService()
     controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
     controller._weather_summary = weather or _weather(90)

@@ -35,7 +35,6 @@ from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlo
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.advanced_observing_nsom_service import (
     AdvancedObservingNsomService,
-    NSOM_ADVANCED_OBSERVING_ENABLED,
 )
 from astro_viewer.app.services.advanced_observing_nsom_presentation import (
     build_advanced_observing_nsom_presentation,
@@ -58,15 +57,12 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAodResult
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
-    NSOM_BEST_OBJECT_ENABLED,
 )
 from astro_viewer.app.services.detail_nsom_runtime import (
     DetailObjectNsomRuntimeService,
-    NSOM_DETAIL_OBJECT_ENABLED,
 )
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
-    NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
@@ -93,7 +89,6 @@ from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshMa
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.services.sky_compass_nsom_ranking import (
-    NSOM_SKY_COMPASS_ENABLED,
     SkyCompassNsomDirectionService,
 )
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
@@ -147,11 +142,6 @@ class AppController(QObject):
         base_dir: Path,
         database_path: Path,
         *,
-        use_nsom_best_object: bool = NSOM_BEST_OBJECT_ENABLED,
-        use_nsom_home_recommended_deep_sky: bool = NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
-        use_nsom_advanced_observing: bool = NSOM_ADVANCED_OBSERVING_ENABLED,
-        use_nsom_sky_compass: bool = NSOM_SKY_COMPASS_ENABLED,
-        use_nsom_detail_object: bool = NSOM_DETAIL_OBJECT_ENABLED,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
         advanced_observing_nsom_service: AdvancedObservingNsomService | None = None,
@@ -234,27 +224,22 @@ class AppController(QObject):
         )
         self._seeing_service = SeeingTransparencyService()
         self._advanced_observing_service = AdvancedObservingService()
-        self._use_nsom_advanced_observing = use_nsom_advanced_observing
         self._advanced_observing_nsom_service = (
             advanced_observing_nsom_service or AdvancedObservingNsomService()
         )
         self._conditions_service = ObservationConditionsService()
         self._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
-        self._use_nsom_best_object = use_nsom_best_object
         self._best_object_nsom_selection_service = (
             best_object_nsom_selection_service or BestObjectNsomSelectionService()
         )
-        self._use_nsom_home_recommended_deep_sky = use_nsom_home_recommended_deep_sky
         self._home_recommended_deep_sky_nsom_ranking_service = (
             home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
         )
         self._night_planner_service = NightPlannerService()
         self._sky_compass_service = SkyCompassService()
-        self._use_nsom_sky_compass = use_nsom_sky_compass
         self._sky_compass_nsom_direction_service = (
             sky_compass_nsom_direction_service or SkyCompassNsomDirectionService()
         )
-        self._use_nsom_detail_object = use_nsom_detail_object
         self._detail_object_nsom_runtime_service = (
             detail_object_nsom_runtime_service or DetailObjectNsomRuntimeService()
         )
@@ -697,8 +682,6 @@ class AppController(QObject):
         return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
 
     def _selected_object_nsom_payload(self) -> dict[str, object]:
-        if not getattr(self, "_use_nsom_detail_object", False):
-            return {}
         if not self._selected_object or not self._weather_summary or not self._sky_quality:
             return {}
         return self._detail_object_nsom_runtime_service.payload(
@@ -1980,8 +1963,6 @@ class AppController(QObject):
         )
 
     def _select_advanced_observing_nsom_scores(self) -> AdvancedObservingScores | None:
-        if not getattr(self, "_use_nsom_advanced_observing", False):
-            return None
         return self._advanced_observing_nsom_service.scores(
             self._weather_summary,
             self._seeing_transparency,
@@ -1990,8 +1971,6 @@ class AppController(QObject):
         )
 
     def _select_advanced_observing_nsom_presentation(self) -> dict[str, object] | None:
-        if not getattr(self, "_use_nsom_advanced_observing", False):
-            return None
         return build_advanced_observing_nsom_presentation(
             self._advanced_observing_nsom_scores,
             self._advanced_scores,
@@ -2012,7 +1991,7 @@ class AppController(QObject):
     def _select_best_object(self, planning_objects: list[CelestialObject]) -> CelestialObject | None:
         if not self._weather_summary:
             return None
-        if not self._use_nsom_best_object or not self._sky_quality:
+        if not self._sky_quality:
             return self._score_service.best_object(planning_objects, self._weather_summary)
         candidate_read_models = self._best_object_read_models(planning_objects)
         selected_raw_target = self._best_object_nsom_selection_service.best_object(
@@ -2504,7 +2483,7 @@ class AppController(QObject):
         has_location: bool,
         caution_text: str,
     ) -> dict:
-        if getattr(self, "_use_nsom_sky_compass", False) and self._sky_quality:
+        if self._sky_quality:
             try:
                 return self._sky_compass_nsom_direction_service.compass(
                     candidates,
@@ -3666,18 +3645,6 @@ class AppController(QObject):
     ) -> tuple[ObservationConditionedTargetReadModel, ...]:
         raw_targets_by_id = self._conditioned_raw_targets_by_id()
         builder = self._conditions_read_model_builder_instance()
-        if not getattr(self, "_use_nsom_home_recommended_deep_sky", False):
-            conditioned = self._conditions_service.condition_targets(
-                objects,
-                self._build_observation_condition_inputs(include_sky_quality=False),
-                apply_moon=True,
-            )
-            ranked = sorted(conditioned, key=lambda item: item.target.score, reverse=True)
-            return builder.from_conditioned_targets(
-                ranked,
-                source="home_recommended_deep_sky_legacy_moon_adjusted",
-                raw_targets_by_id=raw_targets_by_id,
-            )
         sky_quality = getattr(self, "_sky_quality", None)
         if sky_quality is None:
             conditioned = self._conditions_service.condition_targets(

@@ -40,7 +40,7 @@ def test_best_object_default_on_readiness_verdict_requires_separate_flag_change(
     assert data["readiness"]["default_flag_currently_enabled"] is True
     assert data["readiness"]["requires_separate_flag_change"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
-    assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_best_object=False)"
+    assert data["readiness"]["explicit_legacy_rollback"] == "removed: AppController(use_nsom_best_object=False)"
     assert data["readiness"]["recommended_switch_change"] == "already enabled"
     assert data["blockers"] == []
     assert data["checks"]["default_flag_enabled_for_switch"] is True
@@ -91,8 +91,10 @@ def test_default_on_audit_documents_display_fallback_and_rollback_as_non_blockin
     assert data["display_score_semantics"]["score_monotonic_with_nsom_order"] is False
     assert data["missing_sky_quality_policy"]["fallback_present"] is True
     assert data["missing_sky_quality_policy"]["blocks_default_on_switch"] is False
-    assert data["rollback_policy"]["constructor_rollback"] == "AppController(use_nsom_best_object=False)"
-    assert data["rollback_policy"]["legacy_path_preserved"] is True
+    assert data["rollback_policy"]["constructor_rollback"] == "removed: AppController(use_nsom_best_object=False)"
+    assert data["rollback_policy"]["legacy_path_preserved"] is False
+    assert data["rollback_policy"]["rollback_parameter_present"] is False
+    assert data["rollback_policy"]["runtime_rollback_removed"] is True
     assert data["rollback_policy"]["blocks_default_on_switch"] is False
 
 

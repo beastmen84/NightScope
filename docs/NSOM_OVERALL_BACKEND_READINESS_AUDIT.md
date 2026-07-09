@@ -11,11 +11,11 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 - Equipment closed setup-local: `True`.
 - Dead legacy removed: `True`.
 - Runtime behaviour changed by this audit: `False`.
-- Safe to start rollback cleanup policy: `True`.
+- Rollback cleanup completed: `True`.
 - Safe to start visible UI/explanation design: `True`.
 - Visible UI/explanation recommended now: `False`.
-- Recommended next step: Review 1.13.7, then remove internal legacy rollback paths in a focused implementation step.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are closed on NSOM default-on paths; Equipment is closed as a setup-local NSOM-bounded service; Sky Map and Notifications are removed dead legacy. Remaining items are internal rollback flags, payload compatibility fields and Universe/catalogue input semantics, none of which block the closed backend recommendation surfaces. The 1.13.7 rollback policy audit recommends removing the internal rollback paths next.
+- Recommended next step: Review 1.13.8, then proceed to visible explanation planning or Universe/catalogue policy work.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are closed on NSOM default-on paths; Equipment is closed as a setup-local NSOM-bounded service; Sky Map and Notifications are removed dead legacy. Internal runtime rollback constructor parameters were removed in 1.13.8. Remaining items are payload compatibility fields and Universe/catalogue input semantics, neither of which blocks the closed backend recommendation surfaces.
 
 ## Closed Backend Surfaces
 
@@ -36,7 +36,6 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 
 | Item | Classification | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Internal legacy rollback flags | `cleanup_policy_pending` | Planner, Home, Best Object, Advanced Observing, Sky Compass and Detail/Object still expose explicit internal rollback constructor flags. | Review the 1.13.7 policy, then remove these internal rollback paths before visible UI/explanation work. |
 | Legacy/base payload compatibility fields | `presentation_compatibility` | Existing QML payloads still contain score-shaped compatibility fields even when NSOM owns ranking. | Keep until a separate UI/presentation design decides what to show. |
 | ObservationConditions prepared-object cache | `observation_conditions_consumer_reroute_closed` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split, and the 1.12.11 runtime step implements it. The 1.12.12 closeout records the consumer reroute series as complete. | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -45,8 +44,8 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 
 | Decision | Priority | Status | Reason |
 | --- | --- | --- | --- |
-| `rollback_cleanup_policy` | `1` | `policy_set_remove_internal_rollbacks` | 6 internal rollback surfaces remain. The 1.13.7 policy audit recommends removing them before adding visible UI rationale. |
-| `visible_ui_explanation_policy` | `2` | `deferred_until_backend_cleanup_policy` | Backend NSOM is ready for planning visible explanations, but score display semantics should be designed separately from this audit. |
+| `rollback_cleanup_closeout` | `1` | `implemented_internal_rollbacks_removed` | 1.13.8 removed the internal runtime rollback constructor parameters; fallback policies now reflect missing inputs or service failures, not selectable legacy ranking paths. |
+| `visible_ui_explanation_policy` | `2` | `available_after_backend_cleanup` | Backend NSOM is ready for planning visible explanations, but score display semantics should be designed separately from this audit. |
 | `payload_score_semantics` | `3` | `presentation_followup` | 5 payload compatibility surfaces still carry legacy/base score fields for QML compatibility. |
 | `catalogue_universe_score_boundary` | `4` | `future_backend_audit` | Treat as Universe/read-model work, not as a ranking hotfix. |
 
@@ -58,7 +57,7 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 | `source_reports_present` | `True` |
 | `all_default_on_backend_surfaces_closed` | `True` |
 | `all_default_flags_enabled` | `True` |
-| `all_rollback_paths_present` | `True` |
+| `all_internal_rollback_paths_removed` | `True` |
 | `equipment_closed_setup_local` | `True` |
 | `equipment_runtime_unchanged` | `True` |
 | `legacy_surface_cleanup_complete` | `True` |
@@ -77,9 +76,10 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 ## Recommended Sequence
 
 - `Review 1.13.6`: Confirm the overall backend readiness audit is accurate.
-- `Review 1.13.7`: Confirm rollback cleanup policy before deleting runtime branches.
-- `1.13.8 Remove internal legacy rollback paths`: Remove internal rollback flags and legacy branches in a focused commit.
-- `Visible UI/explanation planning`: Start only after rollback cleanup is implemented, because the backend NSOM recommendation surfaces are already closed.
+- `Review 1.13.7`: Confirmed rollback cleanup policy before 1.13.8 removed runtime branches.
+- `1.13.8 Remove internal legacy rollback paths`: Completed: internal rollback flags and runtime legacy branches were removed.
+- `Review 1.13.8`: Confirm rollback cleanup left QML payloads and fallback policies stable.
+- `Visible UI/explanation or Universe/catalogue planning`: Choose the next non-runtime-cleanup NSOM area after the backend recommendation surfaces and rollback cleanup are closed.
 
 ## Conclusion
 

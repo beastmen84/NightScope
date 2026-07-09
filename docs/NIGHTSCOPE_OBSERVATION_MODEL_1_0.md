@@ -12,8 +12,10 @@ architectural review.
 
 Current production code does not fully implement NSOM 1.0 yet, but Planner,
 Home `recommendedDeepSky`, Best Object, Sky Compass and the Advanced Observing
-backend now have default-on NSOM consumers or projections with explicit
-internal rollback paths. `AdvancedObservingService` still keeps
+backend now have default-on NSOM consumers or projections. As of 1.13.8, their
+internal runtime rollback constructor paths have been removed; rollback is via a
+reviewed code revert, while missing-input fallbacks remain data-safety policies.
+`AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
 `advancedObservingNsom` property and is not consumed by visible QML. Sky
@@ -630,13 +632,13 @@ Implementation note for 1.5.8: Planner NSOM is enabled by default by setting
 `NSOM_PLANNER_SCORING_ENABLED = True`. This is a switch of the existing
 Planner consumer path, not a mathematical model change: NSOM formulas,
 `Q_target`, `RecommendationConfidence`, report tooling, QML exposure, network
-behaviour, logging and runtime file writes are unchanged. The legacy Planner
-scoring path remains callable as an explicit rollback with
-`NightPlannerService(use_nsom_planner_scoring=False)`.
+behaviour, logging and runtime file writes are unchanged. That step kept a
+legacy Planner rollback; `1.13.8` later removed the runtime constructor rollback.
 
 Implementation note for 1.5.9: the NSOM Planner migration is closed. NSOM
-Planner is now the default Planner path, and legacy Planner is retained only as
-an explicit rollback through `NightPlannerService(use_nsom_planner_scoring=False)`.
+Planner is now the default Planner path. The explicit rollback retained at this
+stage was removed by `1.13.8`; legacy formula comparison remains developer-only
+through `PlannerScoringService` and report tooling.
 This step does not change scoring, NSOM formulas, `Q_target`,
 `RecommendationConfidence`, QML exposure, report runtime wiring, logging,
 network behaviour or runtime file writes beyond the already-enabled `1.5.8`
@@ -654,8 +656,8 @@ order, owned by the Universe/Sky side of the model:
 and `ObservableTargetValue`. Home intentionally does not use
 `PracticalTargetValue`, `ObserverCapability`, `SessionViability`,
 `RecommendationConfidence` or `ObservationOpportunity` for this list. The
-legacy Home order remains available only as an explicit internal rollback with
-`AppController(use_nsom_home_recommended_deep_sky=False)`. If sky quality is
+legacy Home order was temporarily available as an explicit internal rollback;
+`1.13.8` removed that runtime constructor path. If sky quality is
 missing, Home still falls back to the legacy moon-adjusted path because
 `ObservationEnvironment` cannot be built from current sky inputs. The QML
 payload remains unchanged and no NSOM fields are exposed. Displayed Home scores
@@ -692,9 +694,8 @@ tool remains explicit developer tooling and is not a runtime input.
 Implementation note for 1.7.2: Best Object now has an internal default-off NSOM
 runtime path in `BestObjectNsomSelectionService`, guarded by
 `NSOM_BEST_OBJECT_ENABLED = False`. The controller default still preserves the
-legacy formula; rollback remains explicit with
-`AppController(use_nsom_best_object=False)`, and the experimental path can be
-forced with `AppController(use_nsom_best_object=True)`. The path builds
+legacy formula; the temporary runtime constructor controls from this stage were
+removed in `1.13.8`. The path builds
 Home-owned `ObservableTargetValue`, projects telescope-aware
 `ObserverCapability` through target-specific `Q_target`, derives
 `PracticalTargetValue`, and ranks by `ObservationOpportunity` with a compact
@@ -721,9 +722,8 @@ writes or report runtime wiring.
 Implementation note for 1.7.5: Best Object NSOM is enabled by default via
 `NSOM_BEST_OBJECT_ENABLED = True`. Runtime selection uses
 `BestObjectNsomSelectionService` when weather and sky quality inputs are
-available. Legacy Best Object remains available only as explicit rollback with
-`AppController(use_nsom_best_object=False)` and as fallback when sky quality is
-missing.
+available. The explicit runtime rollback retained at switch time was removed in
+`1.13.8`; the missing-sky-quality fallback remains.
 
 Implementation note for 1.7.6: the Best Object NSOM migration is closed as a
 documented default-on path. Best Object now uses Home-specific
@@ -927,7 +927,7 @@ projection only: `NSOM_ADVANCED_OBSERVING_ENABLED = True`. The default
 controller path computes the parallel NSOM category snapshot and read-only
 presentation data, but keeps `advancedScores` legacy-compatible for visible Home
 cards, Planner transparency input and NotificationService thresholds. The
-rollback remains `AppController(use_nsom_advanced_observing=False)`.
+rollback retained at switch time was removed in `1.13.8`.
 SessionViability and RecommendationConfidence remain metadata outside category
 values; no visible QML consumer, scoring replacement, report runtime wiring,
 logging, network call or runtime file write is introduced by the switch.
@@ -938,8 +938,8 @@ has a default-on NSOM internal projection for category diagnostics and a
 read-only `advancedObservingNsom` surface, while the visible/consumer contract
 `advancedScores` intentionally remains legacy-compatible. This preserves Planner
 and NotificationService semantics and keeps visible Home cards unchanged. The
-legacy-compatible path remains available through
-`AppController(use_nsom_advanced_observing=False)`. Visible UI design,
+legacy-compatible path remains as the public `advancedScores` contract; the
+constructor rollback retained at switch time was removed in `1.13.8`. Visible UI design,
 copy/localization and any future replacement of legacy score display semantics
 are deferred non-blocking presentation work, not open backend migration
 blockers.
@@ -1015,8 +1015,8 @@ Sky Compass NSOM is now enabled by default with
 `SkyCompassNsomDirectionService` when sky quality exists, with
 `ObservableTargetValue.value` as candidate base and Night Plan membership, Best
 Object identity and target presence retained as presentation-policy boosts.
-Explicit rollback remains `AppController(use_nsom_sky_compass=False)`, and
-missing sky quality or NSOM service failure falls back to legacy
+The explicit runtime rollback retained at switch time was removed in `1.13.8`;
+missing sky quality or NSOM service failure still falls back to legacy
 `SkyCompassService`. `PracticalTargetValue`, `ObserverCapability`,
 `SessionViability`, weather/equipment inputs and `RecommendationConfidence`
 remain outside runtime Sky Compass direction scoring. The `skyCompass` payload
@@ -1028,7 +1028,7 @@ the Sky Compass NSOM migration is closed as a documented default-on backend
 path. Sky Compass now uses `ObservableTargetValue.value` as its default
 candidate base while preserving presentation-policy boosts for Night Plan
 membership, Best Object identity and target presence. Legacy
-`SkyCompassService` remains explicit rollback/fallback only. The visible
+`SkyCompassService` remains a data/error fallback only after `1.13.8`. The visible
 `skyCompass` payload remains legacy-compatible, displayed target `score`
 remains base display data rather than NSOM rationale, and no QML/UI explanation
 fields are introduced in this migration.
@@ -1037,7 +1037,8 @@ Implementation note for 1.9.7:
 `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` records the overall backend NSOM
 migration status after the Sky Compass close. Planner, Home
 `recommendedDeepSky`, Best Object, Advanced Observing backend and Sky Compass
-are default-on NSOM consumers/projections with explicit rollback paths.
+are default-on NSOM consumers/projections. Those explicit runtime rollback paths
+were removed later in `1.13.8`.
 Remaining Detail/selected-object, Sky Map, Equipment, conditioned-object cache,
 Notification and catalogue-score surfaces are non-blocking follow-up areas, not
 default-on blockers for the already migrated paths. The recommended next backend
@@ -1107,14 +1108,15 @@ Implementation note for 1.10.5:
 The Detail/Object internal runtime path is now default-on with
 `NSOM_DETAIL_OBJECT_ENABLED = True`. This does not expose NSOM fields in QML and
 does not change `selectedObject`; it only makes the separate backend
-`detailObjectNsom` payload path the default internal state. Rollback remains
-`AppController(use_nsom_detail_object=False)`. `SessionViability` and
+`detailObjectNsom` payload path the default internal state. The runtime rollback
+retained at switch time was removed in `1.13.8`. `SessionViability` and
 `RecommendationConfidence` continue to be metadata-only for Detail/Object.
 
 Implementation note for 1.10.6:
 the backend Detail/Object NSOM migration is closed. Detail/Object now has a
-default-on internal NSOM payload path, explicit rollback, unchanged
-`selectedObject` semantics and no QML exposure. The visible Detail page still
+default-on internal NSOM payload path, unchanged `selectedObject` semantics and
+no QML exposure. The explicit rollback retained at closeout was removed in
+`1.13.8`. The visible Detail page still
 uses the legacy/base compatibility display score, and any future visible NSOM
 rationale belongs to a separate UI/design step.
 
@@ -2196,7 +2198,8 @@ A future `ObserverCapabilityService` should own:
 ### Step 8: Home and Best Object integration
 
 - Status: Planner, Home `recommendedDeepSky` and Best Object have now moved to
-  staged default-on NSOM consumers with explicit rollback paths.
+  default-on NSOM consumers. Internal runtime rollback paths were removed in
+  `1.13.8`.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2229,10 +2232,11 @@ A future `ObserverCapabilityService` should own:
 
 ### Characterization tests
 
-- Legacy Planner output unchanged through explicit rollback.
-- Legacy Home/Detail output unchanged through explicit rollback/fallback.
-- Legacy Best Object unchanged through explicit rollback/fallback.
-- Current equipment recommendations unchanged with flags off.
+- Legacy formula comparisons remain developer-only where still useful.
+- Home/Detail/Best Object fallback behaviour remains limited to missing inputs
+  or explicit data-safety policies, not selectable rollback flags.
+- Current equipment recommendations remain unchanged because Equipment is
+  setup-local and has no replacement runtime flag.
 - Observable target value remains identical for two observers under the same sky.
 - Practical target value can differ for two observers under the same sky.
 - `ObserverCapability` can expose multiple dimensions without requiring a

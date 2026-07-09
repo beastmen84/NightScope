@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from inspect import signature
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,7 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 
 def test_detail_object_nsom_flag_is_default_on() -> None:
     assert NSOM_DETAIL_OBJECT_ENABLED is True
-    assert AppController.__init__.__kwdefaults__["use_nsom_detail_object"] is NSOM_DETAIL_OBJECT_ENABLED
+    assert "use_nsom_detail_object" not in signature(AppController.__init__).parameters
 
 
 def test_detail_object_nsom_runtime_payload_is_strict_json_internal_and_score_neutral() -> None:
@@ -67,21 +68,21 @@ def test_detail_object_nsom_runtime_payload_is_strict_json_internal_and_score_ne
     }
 
 
-def test_controller_flag_off_preserves_selected_object_and_returns_no_internal_payload() -> None:
-    controller = _controller(enabled=False, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
+def test_controller_runtime_builds_internal_payload_without_selected_object_shape_change() -> None:
+    controller = _controller(source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
     before = AppController.selectedObject.fget(controller)
 
     payload = controller._selected_object_nsom_payload()
     after = AppController.selectedObject.fget(controller)
 
-    assert payload == {}
+    assert payload["objectId"] == controller._selected_object.id
     assert after == before
     assert "observableTargetValue" not in after
     assert "detailObjectNsom" not in after
 
 
 def test_controller_default_flag_builds_internal_payload_without_changing_selected_object_shape() -> None:
-    controller = _controller(enabled=NSOM_DETAIL_OBJECT_ENABLED, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
+    controller = _controller(source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
     before = AppController.selectedObject.fget(controller)
 
     payload = controller._selected_object_nsom_payload()
@@ -94,7 +95,7 @@ def test_controller_default_flag_builds_internal_payload_without_changing_select
 
 
 def test_controller_forced_on_builds_internal_payload_without_changing_selected_object_shape() -> None:
-    controller = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
+    controller = _controller(source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
     before = AppController.selectedObject.fget(controller)
 
     payload = controller._selected_object_nsom_payload()
@@ -113,7 +114,7 @@ def test_controller_forced_on_builds_internal_payload_without_changing_selected_
 
 
 def test_controller_forced_on_preserves_catalogue_selected_object_policy() -> None:
-    controller = _controller(enabled=True, source=DETAIL_SOURCE_CATALOGUE, moon=_moon(95))
+    controller = _controller(source=DETAIL_SOURCE_CATALOGUE, moon=_moon(95))
     before = AppController.selectedObject.fget(controller)
 
     payload = controller._selected_object_nsom_payload()
@@ -127,12 +128,12 @@ def test_controller_forced_on_preserves_catalogue_selected_object_policy() -> No
 
 
 def test_missing_runtime_inputs_leave_detail_nsom_payload_empty() -> None:
-    controller = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING)
+    controller = _controller(source=DETAIL_SOURCE_OBSERVING)
 
     controller._sky_quality = None
     assert controller._selected_object_nsom_payload() == {}
 
-    controller = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING)
+    controller = _controller(source=DETAIL_SOURCE_OBSERVING)
     controller._weather_summary = None
     assert controller._selected_object_nsom_payload() == {}
 
@@ -238,14 +239,12 @@ def _runtime_payload(
 
 def _controller(
     *,
-    enabled: bool,
     source: str,
     weather: WeatherSummary | None = None,
     sky_quality: SkyQuality | None = None,
     moon: MoonSummary | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_detail_object = enabled
     controller._detail_object_nsom_runtime_service = DetailObjectNsomRuntimeService()
     controller._selected_object = _target("galaxy", "Galaxy", 88)
     controller._selected_object_source = source

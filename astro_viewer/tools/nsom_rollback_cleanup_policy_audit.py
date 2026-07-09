@@ -53,7 +53,7 @@ def generate_rollback_cleanup_policy_audit_data() -> dict[str, object]:
             "network": False,
             "qml_exposure": False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "rollback_flags_removed_by_this_audit": False,
+            "rollback_flags_removed_by_1_13_8": True,
             "planner_changed": False,
             "home_changed": False,
             "best_object_changed": False,
@@ -67,24 +67,24 @@ def generate_rollback_cleanup_policy_audit_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "rollback_cleanup_policy_set_remove_internal_rollbacks"
+                "rollback_cleanup_implemented_internal_rollbacks_removed"
                 if not blockers
                 else "rollback_cleanup_policy_needs_review"
             ),
-            "rollback_cleanup_recommended": not blockers,
-            "remove_rollbacks_in_this_audit": False,
-            "safe_to_implement_cleanup_next": not blockers,
+            "rollback_cleanup_recommended": False,
+            "rollback_cleanup_implemented": not blockers,
+            "safe_to_implement_cleanup_next": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "public_compatibility_required": False,
             "recommended_next_step": (
-                "Review 1.13.7, then remove internal legacy rollback paths in a "
-                "focused implementation step."
+                "Review 1.13.8, then proceed to visible explanation planning or "
+                "Universe/catalogue policy work."
             ),
             "reason": (
                 "All remaining rollback paths are internal constructor/service flags, "
                 "the app is not distributed, and the default-on NSOM backend surfaces "
-                "are closed. Keeping rollback branches now adds maintenance surface "
-                "without a public compatibility requirement."
+                "are closed. 1.13.8 removed those runtime rollback paths; Git history "
+                "is the rollback mechanism for a reviewed revert."
             ),
         },
         "rollback_surfaces": rollback_surfaces,
@@ -124,17 +124,17 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit decides the policy for remaining internal "
-            "legacy rollback paths after the backend NSOM migration closeouts. It "
-            "does not remove flags, change runtime behaviour, expose QML, log, "
-            "access the network or write files at runtime."
+            "This developer-only audit records the policy and closeout state for "
+            "internal legacy rollback paths after the backend NSOM migration "
+            "closeouts. It is not wired into runtime, QML, logging, network access "
+            "or runtime file writes."
         ),
         "",
         "## Verdict",
         "",
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Rollback cleanup recommended: `{readiness['rollback_cleanup_recommended']}`.",
-        f"- Remove rollbacks in this audit: `{readiness['remove_rollbacks_in_this_audit']}`.",
+        f"- Rollback cleanup implemented: `{readiness['rollback_cleanup_implemented']}`.",
         f"- Safe to implement cleanup next: `{readiness['safe_to_implement_cleanup_next']}`.",
         (
             "- Runtime behaviour changed by this audit: "
@@ -243,10 +243,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "The policy decision is to remove internal legacy rollback paths "
-                "in the next focused implementation step. This audit only records "
-                "that decision; it deliberately leaves runtime constructors, flags "
-                "and branches unchanged."
+                "The policy decision has been implemented by 1.13.8. Internal "
+                "runtime rollback constructor parameters are removed; explicit "
+                "developer reports can still compare legacy formulas where those "
+                "formulas are available."
             ),
             "",
         ]
@@ -271,10 +271,10 @@ def _rollback_surfaces(legacy: dict[str, object]) -> tuple[dict[str, object], ..
                 "rollback": item["rollback"],
                 "rollback_parameter_present": item["rollback_parameter_present"],
                 "public_compatibility_contract": item["public_compatibility_contract"],
-                "recommendation": "remove_internal_rollback_next",
+                "recommendation": "removed_internal_rollback",
                 "reason": (
-                    "The NSOM default path is closed and this rollback is internal, "
-                    "not a public compatibility contract."
+                    "The NSOM default path is closed and this internal rollback "
+                    "constructor path was removed by 1.13.8."
                 ),
             }
         )
@@ -288,11 +288,12 @@ def _policy_decisions(
     return (
         {
             "decision_id": "remove_internal_rollback_flags",
-            "status": "accepted_for_next_implementation",
+            "status": "implemented_in_1_13_8",
             "blocks_cleanup": False,
             "reason": (
-                f"{len(rollback_surfaces)} internal rollback surfaces remain and "
-                "all are recommended for removal in a focused follow-up."
+                f"{len(rollback_surfaces)} internal rollback surfaces are recorded "
+                "as removed. The runtime constructors no longer expose those "
+                "rollback parameters."
             ),
         },
         {
@@ -306,21 +307,20 @@ def _policy_decisions(
         },
         {
             "decision_id": "visible_ui_explanation_dependency",
-            "status": "cleanup_before_ui_explanation",
+            "status": "cleanup_completed_before_ui_explanation",
             "blocks_cleanup": False,
             "reason": (
-                "The overall backend audit recommends settling rollback cleanup "
-                "before visible UI/explanation work."
+                "Rollback cleanup is complete before visible UI/explanation work."
             ),
             "overall_verdict": overall["readiness"]["verdict"],
         },
         {
             "decision_id": "runtime_change_policy",
-            "status": "not_in_this_audit",
+            "status": "implemented_by_followup",
             "blocks_cleanup": False,
             "reason": (
-                "This audit records policy only. Runtime constructor and service "
-                "branch removal belongs to the next implementation step."
+                "The original audit recorded policy only; 1.13.8 performed the "
+                "runtime constructor and branch cleanup."
             ),
         },
     )
@@ -334,7 +334,7 @@ def _implementation_plan(
         {
             "phase": "1.13.8",
             "scope": (
-                "Remove rollback constructor parameters, default flag constants and "
+                "Completed removal of rollback constructor parameters and runtime "
                 f"legacy branches for: {surface_names}."
             ),
             "runtime_change_allowed_by_this_audit": False,
@@ -372,15 +372,15 @@ def _checks(
         == "overall_backend_nsom_ready_for_next_phase",
         "legacy_cleanup_complete": legacy["readiness"]["verdict"]
         == "legacy_backend_surface_cleanup_complete",
-        "rollback_surfaces_present": len(rollback_surfaces) > 0,
+        "rollback_surfaces_recorded": len(rollback_surfaces) > 0,
         "all_rollback_surfaces_internal": all(
             surface["public_compatibility_contract"] is False for surface in rollback_surfaces
         ),
-        "all_rollback_parameters_present_before_cleanup": all(
-            surface["rollback_parameter_present"] is True for surface in rollback_surfaces
+        "all_rollback_parameters_removed_after_cleanup": all(
+            surface["rollback_parameter_present"] is False for surface in rollback_surfaces
         ),
         "all_rollback_surfaces_recommended_for_removal": all(
-            surface["recommendation"] == "remove_internal_rollback_next"
+            surface["recommendation"] == "removed_internal_rollback"
             for surface in rollback_surfaces
         ),
         "policy_blocks_no_cleanup": all(
@@ -398,9 +398,9 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "source_reports_present": "rollback-policy-source-report-missing",
         "overall_backend_ready": "rollback-policy-overall-backend-not-ready",
         "legacy_cleanup_complete": "rollback-policy-legacy-cleanup-incomplete",
-        "rollback_surfaces_present": "rollback-policy-no-rollback-surfaces-found",
+        "rollback_surfaces_recorded": "rollback-policy-no-rollback-surfaces-found",
         "all_rollback_surfaces_internal": "rollback-policy-public-compatibility-risk",
-        "all_rollback_parameters_present_before_cleanup": "rollback-policy-rollback-state-drift",
+        "all_rollback_parameters_removed_after_cleanup": "rollback-policy-rollback-state-drift",
         "all_rollback_surfaces_recommended_for_removal": "rollback-policy-removal-not-recommended",
         "policy_blocks_no_cleanup": "rollback-policy-decision-blocker",
         "runtime_report_imports_absent": "rollback-policy-runtime-wiring",

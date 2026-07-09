@@ -94,7 +94,7 @@ def generate_runtime_review_data() -> dict[str, object]:
             ),
             "runtime_behaviour_changed_by_this_review": False,
             "explicit_nsom_opt_in": "AppController() / NSOM_ADVANCED_OBSERVING_ENABLED",
-            "explicit_legacy_default": "AppController(use_nsom_advanced_observing=False)",
+            "explicit_legacy_default": "removed: AppController(use_nsom_advanced_observing=False)",
             "recommended_next_change": (
                 "Keep Advanced Observing backend projection separate from visible "
                 "QML and Planner inputs; Notifications are no longer a runtime consumer."

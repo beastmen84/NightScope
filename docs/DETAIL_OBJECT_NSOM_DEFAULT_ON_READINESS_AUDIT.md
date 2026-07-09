@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the Detail/Object NSOM default-on switch is safe to keep. It reports the current `NSOM_DETAIL_OBJECT_ENABLED` flag, rollback path and payload policy without changing `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network access or runtime file writes.
+This developer-only audit checks whether the Detail/Object NSOM default-on switch is safe to keep. It reports the current `NSOM_DETAIL_OBJECT_ENABLED` flag, removed rollback path and payload policy without changing `selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, network access or runtime file writes.
 
 ## Readiness Verdict
 
@@ -13,10 +13,10 @@ This developer-only audit checks whether the Detail/Object NSOM default-on switc
 - Default flag enabled by this commit: `True`.
 - Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Explicit legacy rollback: `AppController(use_nsom_detail_object=False)`.
-- Explicit NSOM path: `AppController(use_nsom_detail_object=True)`.
+- Explicit legacy rollback: `removed: AppController(use_nsom_detail_object=False)`.
+- Explicit NSOM path: `default AppController()`.
 - Recommended switch change: `already enabled`.
-- Reason: The Detail/Object NSOM default-on switch is active with rollback, preserves `selectedObject`, keeps session/confidence metadata-only and has no QML or report runtime wiring.
+- Reason: The Detail/Object NSOM default-on switch is active with runtime rollback removed, preserves `selectedObject`, keeps session/confidence metadata-only and has no QML or report runtime wiring.
 
 ## Default-On Blockers
 
@@ -26,7 +26,7 @@ This developer-only audit checks whether the Detail/Object NSOM default-on switc
 
 | Policy | Evidence |
 | --- | --- |
-| Flag off | Payload empty `True`, `selectedObject` unchanged `True`. |
+| Runtime default | Observing payload exists `True`, catalogue payload exists `True`. |
 | Observing source | Policy `observing_detail_moon_adjusted_copy`, internal payload exists `True`, selected payload unchanged `True`. |
 | Catalogue source | Policy `catalogue_detail_raw_object`, internal payload exists `True`, selected payload unchanged `True`. |
 | Session | Blocked session value `0.0`, observable unchanged `True`, practical unchanged `True`. |
@@ -52,9 +52,9 @@ This developer-only audit checks whether the Detail/Object NSOM default-on switc
 
 ## Rollback Policy
 
-- Constructor rollback: `AppController(use_nsom_detail_object=False)`.
-- Legacy path preserved: `True`.
-- NSOM path explicit: `AppController(use_nsom_detail_object=True)`.
+- Constructor rollback: `removed: AppController(use_nsom_detail_object=False)`.
+- Legacy path preserved: `False`.
+- NSOM path explicit: `default AppController()`.
 - Blocks default-on switch: `False`.
 
 ## Runtime Safety
@@ -83,4 +83,4 @@ This developer-only audit checks whether the Detail/Object NSOM default-on switc
 
 ## Recommended Next Step
 
-Review the switch and keep `AppController(use_nsom_detail_object=False)` as rollback.
+Review the rollback cleanup and keep visible Detail/Object NSOM UI as a separate design step.

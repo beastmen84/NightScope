@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from inspect import signature
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import RecommendationConfidence
@@ -18,14 +19,11 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 
 def test_advanced_observing_nsom_flag_is_default_on() -> None:
     assert NSOM_ADVANCED_OBSERVING_ENABLED is True
-    assert (
-        AppController.__init__.__kwdefaults__["use_nsom_advanced_observing"]
-        is NSOM_ADVANCED_OBSERVING_ENABLED
-    )
+    assert "use_nsom_advanced_observing" not in signature(AppController.__init__).parameters
 
 
-def test_flag_off_preserves_legacy_advanced_scores() -> None:
-    controller = _controller(enabled=False)
+def test_public_advanced_scores_remain_legacy_compatible_while_internal_nsom_is_available() -> None:
+    controller = _controller()
     expected = AdvancedObservingService().scores(
         controller._weather_summary,
         controller._seeing_transparency,
@@ -36,12 +34,11 @@ def test_flag_off_preserves_legacy_advanced_scores() -> None:
     scores = controller._select_advanced_observing_scores()
 
     assert scores == expected
-    assert controller._select_advanced_observing_nsom_scores() is None
+    assert controller._select_advanced_observing_nsom_scores() is not None
 
 
 def test_default_path_keeps_advanced_scores_legacy_and_computes_internal_nsom_scores() -> None:
     controller = _controller(
-        enabled=NSOM_ADVANCED_OBSERVING_ENABLED,
         weather=_weather(90),
         seeing=_seeing(seeing_score=86, transparency_score=84),
         sky_quality=_sky_quality(9, radiance=120.0),
@@ -70,7 +67,6 @@ def test_default_path_keeps_advanced_scores_legacy_and_computes_internal_nsom_sc
 
 def test_forced_on_keeps_advanced_scores_legacy_and_computes_internal_nsom_scores() -> None:
     controller = _controller(
-        enabled=True,
         weather=_weather(90),
         seeing=_seeing(seeing_score=86, transparency_score=84),
         sky_quality=_sky_quality(9, radiance=120.0),
@@ -211,14 +207,12 @@ def test_nsom_advanced_observing_runtime_path_has_no_qml_or_report_wiring() -> N
 
 def _controller(
     *,
-    enabled: bool,
     weather: WeatherSummary | None = None,
     seeing: SeeingTransparency | None = None,
     sky_quality: SkyQuality | None = None,
     moon: MoonSummary | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_advanced_observing = enabled
     controller._advanced_observing_service = AdvancedObservingService()
     controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
     controller._weather_summary = weather or _weather(90)

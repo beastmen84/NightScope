@@ -32,7 +32,7 @@ This developer-only policy closes the 1.8.12 presentation-design gap for the Adv
 | `score_label_semantics` | `accepted_policy` | `advanced-observing-score-label-semantics` | `False` | Label category values as NSOM diagnostics, not legacy actionability scores. |
 | `confidence_metadata_policy` | `accepted` | `advanced-observing-score-label-semantics` | `False` | Display confidence only as data-trust metadata if a future UI uses it. |
 | `visual_placement_policy` | `accepted_policy` | `advanced-observing-visible-ui-copy` | `False` | Any future visible UI belongs in a separate diagnostic area, not inside legacy score cards. |
-| `rollback_policy` | `accepted` | `None` | `False` | Keep the future rollback path as the existing internal flag/constructor override. |
+| `rollback_policy` | `accepted` | `None` | `False` | The previous internal flag/constructor rollback was removed in 1.13.8. |
 | `source_blockers_addressed_at_policy_level` | `verified` | `None` | `False` | The 1.8.12 blocker categories now have explicit policy decisions or implementation. |
 
 ## Future Property Lifecycle

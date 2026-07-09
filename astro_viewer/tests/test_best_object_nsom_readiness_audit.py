@@ -38,9 +38,9 @@ def test_best_object_readiness_accepts_policy_before_default_off_path() -> None:
     assert data["readiness"]["runtime_path_exists"] is True
     assert data["readiness"]["default_flag"] == "NSOM_BEST_OBJECT_ENABLED = True"
     assert data["readiness"]["runtime_behaviour_changed_by_default"] is True
-    assert data["readiness"]["explicit_nsom_opt_in"] == "AppController(use_nsom_best_object=True)"
-    assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_best_object=False)"
-    assert data["readiness"]["recommendation"] == "default_off_path_validated_and_rollback_preserved"
+    assert data["readiness"]["explicit_nsom_opt_in"] == "default AppController()"
+    assert data["readiness"]["explicit_legacy_rollback"] == "removed: AppController(use_nsom_best_object=False)"
+    assert data["readiness"]["recommendation"] == "default_on_path_validated_and_runtime_rollback_removed"
     assert data["blockers"] == []
 
 
@@ -106,7 +106,7 @@ def test_best_object_readiness_audit_has_no_runtime_or_qml_wiring() -> None:
     assert data["runtime_safety"] == {
         "best_object_nsom_runtime_path_available": True,
         "current_default_flag_enabled": True,
-        "legacy_rollback_available": True,
+        "legacy_rollback_removed": True,
         "comparison_tooling_developer_only": True,
         "comparison_tooling_has_no_runtime_writes": True,
         "comparison_tooling_has_no_automatic_logging": True,

@@ -28,7 +28,6 @@ RUNTIME_SERVICE_MARKERS = (
 )
 
 RUNTIME_CONTROLLER_MARKERS = (
-    "use_nsom_detail_object",
     "_selected_object_nsom_payload",
     "DetailObjectNsomRuntimeService",
 )
@@ -98,7 +97,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_audit": False,
             "ready_for_visible_ui": False,
             "recommended_next_step": (
-                "review 1.10.5, then close Detail/Object NSOM backend migration"
+                "review 1.13.8 rollback cleanup, then keep visible Detail/Object NSOM UI separate"
                 if runtime_path["runtime_path_exists"]
                 and runtime_path["default_flag_enabled"]
                 else "review 1.10.4, then 1.10.5 Detail/Object default-on switch"
@@ -147,7 +146,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether the Detail/Object comparison "
-            "evidence is ready for a default-off runtime path. It does not change "
+            "evidence has a safe internal runtime path. It does not change "
             "`selectedObject`, QML, Home, Best Object, Planner, Sky Compass, logging, "
             "network behaviour or runtime file writes."
         ),
@@ -242,8 +241,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Steps",
             "",
-            "1. Review the default-off Detail/Object NSOM runtime path.",
-            "2. Review the Detail/Object default-on readiness audit before changing the default flag.",
+            "1. Review the 1.13.8 rollback cleanup.",
+            "2. Keep Detail/Object NSOM runtime data internal.",
             "3. Keep visible NSOM explanation UI as a later design step.",
             "",
         ]
@@ -385,7 +384,7 @@ def _runtime_path_review(static_checks: dict[str, object]) -> dict[str, object]:
         "runtime_path_exists": runtime_path_exists,
         "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
         "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
-        "rollback": "AppController(use_nsom_detail_object=False)",
+        "rollback": "removed: AppController(use_nsom_detail_object=False)",
         "controller_rollback_parameter_present": "use_nsom_detail_object" in controller_markers,
         "internal_payload_method_present": "_selected_object_nsom_payload" in controller_markers,
         "service_present": "DetailObjectNsomRuntimeService" in service_markers,

@@ -65,7 +65,7 @@ def test_notifications_are_dead_legacy_not_active_nsom_migration_target() -> Non
     )
 
 
-def test_temporary_rollbacks_are_internal_not_public_compatibility_contracts() -> None:
+def test_internal_rollbacks_are_removed_not_public_compatibility_contracts() -> None:
     data = generate_legacy_backend_surface_audit_data()
     rollbacks = {item["surface"]: item for item in data["temporary_rollback_surfaces"]}
 
@@ -78,8 +78,10 @@ def test_temporary_rollbacks_are_internal_not_public_compatibility_contracts() -
         "Detail/Object internal payload",
     }
     assert all(item["public_compatibility_contract"] is False for item in rollbacks.values())
-    assert all(item["rollback_parameter_present"] is True for item in rollbacks.values())
+    assert all(item["rollback_parameter_present"] is False for item in rollbacks.values())
+    assert all(str(item["rollback"]).startswith("removed: ") for item in rollbacks.values())
     assert data["checks"]["temporary_rollbacks_are_internal"] is True
+    assert data["checks"]["internal_rollback_parameters_removed"] is True
 
 
 def test_payload_compatibility_fields_are_not_treated_as_ranking_authority() -> None:

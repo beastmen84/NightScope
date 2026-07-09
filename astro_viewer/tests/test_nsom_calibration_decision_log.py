@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from inspect import signature
 from pathlib import Path
 
 import pytest
@@ -159,14 +160,7 @@ def test_decision_log_generation_is_not_wired_into_runtime_or_qml() -> None:
     assert "nsom_calibration_decision_log" not in runtime_text
 
 
-def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() -> None:
-    class FailingNsomService:
-        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def score(self, opportunity):  # noqa: ANN001
-            raise AssertionError("NSOM planner path should stay disabled.")
-
+def test_runtime_planner_rollback_parameter_removed_with_decision_log_present() -> None:
     objects = [
         _target("planet", "Pianeta", 84, magnitude="-1.7", best_time="21:00"),
         _target("galaxy", "Galaxy", 83, magnitude="8.5", best_time="21:30"),
@@ -177,18 +171,8 @@ def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
-        objects,
-        weather,
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
+    assert "use_nsom_planner_scoring" not in signature(NightPlannerService.__init__).parameters
+    plan = NightPlannerService().plan(
         objects,
         weather,
         scores,
@@ -197,17 +181,10 @@ def test_flag_off_runtime_planner_remains_unchanged_with_decision_log_present() 
         moon,
     )
 
-    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
+    assert _plan_summary(plan)
 
 
-def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() -> None:
-    class FailingNsomService:
-        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def score(self, opportunity):  # noqa: ANN001
-            raise AssertionError("NSOM planner path should stay disabled.")
-
+def test_non_actionable_policy_metadata_keeps_blocked_runtime_empty_without_rollback() -> None:
     objects = [
         _target(
             "missing",
@@ -233,7 +210,7 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+    plan = NightPlannerService().plan(
         objects,
         weather,
         scores,
@@ -241,29 +218,7 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
         telescope,
         moon,
     )
-    flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
-        objects,
-        weather,
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    blocked_legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
-        objects,
-        _weather(10, cloud_cover=90, precipitation=80),
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    blocked_flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
+    blocked_plan = NightPlannerService().plan(
         objects,
         _weather(10, cloud_cover=90, precipitation=80),
         scores,
@@ -272,8 +227,8 @@ def test_non_actionable_policy_metadata_does_not_change_legacy_planner_output() 
         moon,
     )
 
-    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
-    assert blocked_flag_off_plan == blocked_legacy_plan == []
+    assert _plan_summary(plan)
+    assert blocked_plan == []
 
 
 def test_checked_in_decision_log_report_exists() -> None:

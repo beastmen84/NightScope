@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the existing default-off Best Object NSOM path is safe after the default-on switch. It reports the current `NSOM_BEST_OBJECT_ENABLED` flag, rollback path and policy state without exposing QML fields, writing runtime files, logging automatically, calling the network, changing recommendedDeepSky, Planner or Sky Compass.
+This developer-only audit checks whether the existing default-off Best Object NSOM path is safe after the default-on switch. It reports the current `NSOM_BEST_OBJECT_ENABLED` flag, removed rollback path and policy state without exposing QML fields, writing runtime files, logging automatically, calling the network, changing recommendedDeepSky, Planner or Sky Compass.
 
 ## Readiness Verdict
 
@@ -12,10 +12,10 @@ This developer-only audit checks whether the existing default-off Best Object NS
 - Default flag currently enabled: `True`.
 - Requires separate flag change: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Explicit legacy rollback: `AppController(use_nsom_best_object=False)`.
-- Explicit NSOM path: `AppController(use_nsom_best_object=True)`.
+- Explicit legacy rollback: `removed: AppController(use_nsom_best_object=False)`.
+- Explicit NSOM path: `default AppController()`.
 - Recommended switch change: `already enabled`.
-- Reason: The default-off runtime path, non-actionable policies, confidence neutrality, rollback path, missing-sky fallback and developer-only safety checks remain valid with the Best Object NSOM flag enabled by default.
+- Reason: The default-off runtime path, non-actionable policies, confidence neutrality, removed rollback path, missing-sky fallback and developer-only safety checks remain valid with the Best Object NSOM flag enabled by default.
 
 ## Default-On Blockers
 
@@ -58,8 +58,9 @@ This developer-only audit checks whether the existing default-off Best Object NS
 
 ## Rollback Policy
 
-- Constructor rollback: `AppController(use_nsom_best_object=False)`.
-- Legacy path preserved: `True`.
+- Constructor rollback: `removed: AppController(use_nsom_best_object=False)`.
+- Legacy path preserved: `False`.
+- Runtime rollback removed: `True`.
 - Blocks default-on switch: `False`.
 
 ## Runtime Safety
@@ -90,4 +91,4 @@ This developer-only audit checks whether the existing default-off Best Object NS
 
 ## Recommended Next Step
 
-Review the default-on switch, then close the Best Object NSOM migration in documentation while keeping `AppController(use_nsom_best_object=False)` as rollback.
+Review the default-on switch, then close the Best Object NSOM migration in documentation while keeping visible score explanation as a separate UI step.

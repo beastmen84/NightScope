@@ -12,7 +12,7 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 - Forced-on path safe to keep: `True`.
 - Runtime behaviour changed by this review: `False`.
 - Explicit opt-in: `AppController() / NSOM_ADVANCED_OBSERVING_ENABLED`.
-- Legacy default: `AppController(use_nsom_advanced_observing=False)`.
+- Legacy default: `removed: AppController(use_nsom_advanced_observing=False)`.
 - Recommended next change: Keep Advanced Observing backend projection separate from visible QML and Planner inputs; Notifications are no longer a runtime consumer.
 
 ## Default-On Blockers

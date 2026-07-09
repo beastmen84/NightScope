@@ -39,7 +39,7 @@ def test_overall_backend_readiness_confirms_closed_backend_surfaces() -> None:
     assert data["blockers"] == []
     assert data["checks"]["all_default_on_backend_surfaces_closed"] is True
     assert data["checks"]["all_default_flags_enabled"] is True
-    assert data["checks"]["all_rollback_paths_present"] is True
+    assert data["checks"]["all_internal_rollback_paths_removed"] is True
     assert data["checks"]["equipment_closed_setup_local"] is True
     assert data["checks"]["legacy_surface_cleanup_complete"] is True
 
@@ -65,14 +65,10 @@ def test_overall_backend_readiness_classifies_remaining_items_as_non_blocking() 
     remaining = {item["item"]: item for item in data["remaining_non_blocking_items"]}
 
     assert set(remaining) == {
-        "Internal legacy rollback flags",
         "Legacy/base payload compatibility fields",
         "ObservationConditions prepared-object cache",
         "Catalogue / raw object score",
     }
-    assert remaining["Internal legacy rollback flags"]["classification"] == (
-        "cleanup_policy_pending"
-    )
     assert remaining["Legacy/base payload compatibility fields"]["classification"] == (
         "presentation_compatibility"
     )
@@ -86,24 +82,24 @@ def test_overall_backend_readiness_classifies_remaining_items_as_non_blocking() 
     assert data["checks"]["remaining_items_non_blocking"] is True
 
 
-def test_overall_backend_readiness_recommends_rollback_cleanup_before_ui_explanations() -> None:
+def test_overall_backend_readiness_records_rollback_cleanup_before_ui_explanations() -> None:
     data = generate_overall_backend_readiness_audit_data()
     decisions = {decision["decision_id"]: decision for decision in data["next_phase_decisions"]}
     sequence = [item["step"] for item in data["recommended_sequence"]]
 
-    assert data["readiness"]["safe_to_start_rollback_cleanup_policy"] is True
+    assert data["readiness"]["rollback_cleanup_completed"] is True
     assert data["readiness"]["safe_to_start_visible_ui_explanation_design"] is True
     assert data["readiness"]["visible_ui_explanation_recommended_now"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.7, then remove internal legacy rollback paths in a "
-        "focused implementation step."
+        "Review 1.13.8, then proceed to visible explanation planning or "
+        "Universe/catalogue policy work."
     )
-    assert decisions["rollback_cleanup_policy"]["status"] == (
-        "policy_set_remove_internal_rollbacks"
+    assert decisions["rollback_cleanup_closeout"]["status"] == (
+        "implemented_internal_rollbacks_removed"
     )
-    assert decisions["rollback_cleanup_policy"]["priority"] == 1
+    assert decisions["rollback_cleanup_closeout"]["priority"] == 1
     assert decisions["visible_ui_explanation_policy"]["status"] == (
-        "deferred_until_backend_cleanup_policy"
+        "available_after_backend_cleanup"
     )
     assert decisions["payload_score_semantics"]["status"] == "presentation_followup"
     assert decisions["catalogue_universe_score_boundary"]["status"] == "future_backend_audit"
@@ -115,7 +111,8 @@ def test_overall_backend_readiness_recommends_rollback_cleanup_before_ui_explana
         "Review 1.13.6",
         "Review 1.13.7",
         "1.13.8 Remove internal legacy rollback paths",
-        "Visible UI/explanation planning",
+        "Review 1.13.8",
+        "Visible UI/explanation or Universe/catalogue planning",
     ]
 
 
@@ -138,5 +135,5 @@ def test_checked_in_overall_backend_readiness_audit_report_matches_renderer() ->
     assert "overall_backend_nsom_ready_for_next_phase" in text
     assert "Review 1.13.7" in text
     assert "1.13.8 Remove internal legacy rollback paths" in text
-    assert "Visible UI/explanation planning" in text
+    assert "Visible UI/explanation or Universe/catalogue planning" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.13.8 - 2026-07-09
+
+- Rimossi i rollback runtime interni per Planner, Home `recommendedDeepSky`,
+  Best Object, Advanced Observing backend, Sky Compass e Detail/Object internal
+  payload.
+- `AppController` non accetta piu' i parametri `use_nsom_*`; `NightPlannerService`
+  non accetta piu' `use_nsom_planner_scoring`.
+- I path NSOM default-on restano l'unica selezione runtime per le superfici gia'
+  migrate; i fallback tecnici per sky quality mancante o failure del servizio
+  Sky Compass restano fallback dati, non rollback configurabili.
+- Aggiornati audit/report backend, legacy, overall e rollback cleanup per
+  registrare la rimozione e mantenere traccia storica dei rollback rimossi.
+- Nessuna esposizione QML/UI, logging, rete o scrittura runtime aggiunta.
+
 ## NightScope 1.13.7 - 2026-07-09
 
 - Aggiunto `docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md`, audit

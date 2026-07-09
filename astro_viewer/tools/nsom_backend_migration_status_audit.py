@@ -138,13 +138,14 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.7, then remove internal legacy rollback paths in a "
-                "focused implementation step"
+                "Review 1.13.8, then proceed to visible explanation planning or "
+                "Universe/catalogue policy work"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
-                "with explicit rollback. Remaining items are non-blocking legacy or "
+                "and their internal runtime rollback constructor parameters have "
+                "been removed. Remaining items are non-blocking legacy or "
                 "hybrid surfaces; Sky Map and Notifications have been removed as "
                 "dead legacy. ObservationConditions is active hybrid runtime code "
                 "and now has a read-model boundary that separates raw and display "
@@ -163,8 +164,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "Equipment as an NSOM-bounded setup-local service. The 1.13.6 "
                 "overall backend readiness audit classifies the remaining work as "
                 "non-blocking rollback, presentation or Catalogue/Universe policy. "
-                "The 1.13.7 rollback cleanup policy recommends removing internal "
-                "legacy rollback paths next."
+                "The 1.13.7 rollback cleanup policy recommended removing internal "
+                "legacy rollback paths; 1.13.8 removed those runtime constructor "
+                "parameters."
             ),
         },
         "blockers": blockers,
@@ -228,7 +230,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Default-On NSOM Surfaces",
             "",
-            "| Surface | Status | Default flag | Rollback | NSOM role |",
+            "| Surface | Status | Default flag | Rollback cleanup | NSOM role |",
             "| --- | --- | --- | --- | --- |",
         ]
     )
@@ -240,7 +242,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                     surface["surface"],
                     f"`{surface['status']}`",
                     f"`{surface['default_flag']}`",
-                    f"`{surface['rollback']}`",
+                    f"`{surface['rollback_status']}`",
                     surface["nsom_role"],
                 )
             )
@@ -352,7 +354,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "The 1.13.6 overall backend readiness audit classifies the "
                 "remaining work as non-blocking rollback, presentation or "
                 "Catalogue/Universe policy. The 1.13.7 rollback cleanup policy "
-                "recommends removing internal rollback paths next. "
+                "recommended removing internal rollback paths; 1.13.8 removed "
+                "the runtime constructor rollback parameters. "
                 "Visible UI explanation work remains separate."
             ),
             "",
@@ -377,7 +380,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "status": "default_on_closed",
             "default_flag": f"NSOM_PLANNER_SCORING_ENABLED = {NSOM_PLANNER_SCORING_ENABLED}",
             "default_flag_enabled": NSOM_PLANNER_SCORING_ENABLED is True,
-            "rollback": "NightPlannerService(use_nsom_planner_scoring=False)",
+            "rollback": "removed: NightPlannerService(use_nsom_planner_scoring=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_planner_scoring" in planner_parameters,
             "nsom_role": "ObservationOpportunity ranking",
             "confidence_score_neutral": True,
@@ -391,7 +395,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
                 f"{NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED}"
             ),
             "default_flag_enabled": NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED is True,
-            "rollback": "AppController(use_nsom_home_recommended_deep_sky=False)",
+            "rollback": "removed: AppController(use_nsom_home_recommended_deep_sky=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_home_recommended_deep_sky" in controller_parameters,
             "nsom_role": "ObservableTargetValue ordering",
             "confidence_score_neutral": True,
@@ -402,7 +407,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "status": "default_on_closed",
             "default_flag": f"NSOM_BEST_OBJECT_ENABLED = {NSOM_BEST_OBJECT_ENABLED}",
             "default_flag_enabled": NSOM_BEST_OBJECT_ENABLED is True,
-            "rollback": "AppController(use_nsom_best_object=False)",
+            "rollback": "removed: AppController(use_nsom_best_object=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_best_object" in controller_parameters,
             "nsom_role": "Home-specific ObservationOpportunity selection",
             "confidence_score_neutral": True,
@@ -413,7 +419,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "status": "default_on_closed_backend_only",
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
             "default_flag_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
-            "rollback": "AppController(use_nsom_advanced_observing=False)",
+            "rollback": "removed: AppController(use_nsom_advanced_observing=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_advanced_observing" in controller_parameters,
             "nsom_role": "category ObservableTargetValue projection",
             "confidence_score_neutral": True,
@@ -424,7 +431,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "status": "default_on_closed",
             "default_flag": f"NSOM_SKY_COMPASS_ENABLED = {NSOM_SKY_COMPASS_ENABLED}",
             "default_flag_enabled": NSOM_SKY_COMPASS_ENABLED is True,
-            "rollback": "AppController(use_nsom_sky_compass=False)",
+            "rollback": "removed: AppController(use_nsom_sky_compass=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_sky_compass" in controller_parameters,
             "nsom_role": "ObservableTargetValue based direction policy",
             "confidence_score_neutral": True,
@@ -435,7 +443,8 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
             "status": "default_on_closed_backend_only",
             "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
             "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
-            "rollback": "AppController(use_nsom_detail_object=False)",
+            "rollback": "removed: AppController(use_nsom_detail_object=False)",
+            "rollback_status": "removed_internal_runtime_rollback",
             "rollback_parameter_present": "use_nsom_detail_object" in controller_parameters,
             "nsom_role": "separate internal Detail/Object payload",
             "confidence_score_neutral": True,
@@ -484,13 +493,13 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "backend migration for the current setup-local scope. "
                 "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
                 "remaining backend work as non-blocking policy or presentation cleanup. "
-                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` recommends removing "
-                "internal rollback paths in the next implementation step."
+                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` records that "
+                "1.13.8 removed internal runtime rollback constructor paths."
             ),
             "recommended_handling": (
-                "Keep Equipment as a setup-local service; review the 1.13.7 "
-                "rollback cleanup policy, then remove internal rollback paths "
-                "before visible UI/explanation work."
+                "Keep Equipment as a setup-local service; rollback cleanup is "
+                "complete, so visible UI/explanation or Universe/catalogue policy "
+                "can be considered separately."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -552,8 +561,12 @@ def _checks(
 ) -> dict[str, object]:
     return {
         "all_default_flags_enabled": all(surface["default_flag_enabled"] is True for surface in default_on_surfaces),
-        "all_rollback_paths_present": all(
-            surface["rollback_parameter_present"] is True for surface in default_on_surfaces
+        "all_internal_rollback_paths_removed": all(
+            surface["rollback_parameter_present"] is False for surface in default_on_surfaces
+        ),
+        "all_rollback_records_mark_removed": all(
+            surface["rollback_status"] == "removed_internal_runtime_rollback"
+            for surface in default_on_surfaces
         ),
         "confidence_score_neutral_across_default_on_surfaces": all(
             surface["confidence_score_neutral"] is True for surface in default_on_surfaces
@@ -636,7 +649,8 @@ def _checks(
 def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
     names = {
         "all_default_flags_enabled": "nsom-default-on-flag-missing",
-        "all_rollback_paths_present": "nsom-rollback-path-missing",
+        "all_internal_rollback_paths_removed": "nsom-internal-rollback-path-still-present",
+        "all_rollback_records_mark_removed": "nsom-rollback-record-not-removed",
         "confidence_score_neutral_across_default_on_surfaces": "nsom-confidence-score-effect",
         "source_reports_present": "nsom-source-report-missing",
         "equipment_policy_ready_for_adapter_step": "equipment-policy-adapter-step-not-ready",
@@ -882,7 +896,7 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         },
         {
             "step": "Review 1.13.7",
-            "summary": "Confirm rollback cleanup policy before deleting runtime branches.",
+            "summary": "Confirmed rollback cleanup policy before 1.13.8 removed runtime branches.",
         },
         {
             "step": "1.13.8 Remove internal legacy rollback paths",

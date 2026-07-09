@@ -136,10 +136,10 @@ def _plan_summary(plan):
             _sky_quality(3),
             _moon(10),
             [
-                ("galaxy", 87, "21:00 sera"),
-                ("cluster", 96, "22:00 sera"),
-                ("planet", 96, "23:00 sera"),
-                ("nebula", 85, "00:30 notte"),
+                ("galaxy", 31, "21:00 sera"),
+                ("cluster", 34, "22:00 sera"),
+                ("planet", 31, "23:00 sera"),
+                ("nebula", 29, "00:30 notte"),
             ],
         ),
         (
@@ -149,10 +149,10 @@ def _plan_summary(plan):
             _sky_quality(8),
             _moon(10),
             [
-                ("galaxy", 62, "21:00 sera"),
-                ("cluster", 84, "22:00 sera"),
-                ("planet", 96, "23:00 sera"),
-                ("nebula", 65, "00:30 notte"),
+                ("galaxy", 22, "21:00 sera"),
+                ("cluster", 31, "22:00 sera"),
+                ("planet", 31, "23:00 sera"),
+                ("nebula", 22, "00:30 notte"),
             ],
         ),
         (
@@ -162,10 +162,10 @@ def _plan_summary(plan):
             _sky_quality(3),
             _moon(95),
             [
-                ("galaxy", 53, "21:00 sera"),
-                ("cluster", 86, "22:00 sera"),
-                ("planet", 96, "23:00 sera"),
-                ("nebula", 62, "00:30 notte"),
+                ("galaxy", 19, "21:00 sera"),
+                ("cluster", 31, "22:00 sera"),
+                ("planet", 31, "23:00 sera"),
+                ("nebula", 19, "00:30 notte"),
             ],
         ),
         (
@@ -175,10 +175,10 @@ def _plan_summary(plan):
             _sky_quality(3),
             _moon(10),
             [
-                ("galaxy", 51, "21:00 sera"),
-                ("cluster", 56, "22:00 sera"),
-                ("planet", 56, "23:00 sera"),
-                ("nebula", 50, "00:30 notte"),
+                ("galaxy", 13, "21:00 sera"),
+                ("cluster", 14, "22:00 sera"),
+                ("planet", 13, "23:00 sera"),
+                ("nebula", 12, "00:30 notte"),
             ],
         ),
         (
@@ -196,10 +196,10 @@ def _plan_summary(plan):
             _sky_quality(3),
             _moon(10),
             [
-                ("galaxy", 89, "21:00 sera"),
-                ("cluster", 98, "22:00 sera"),
-                ("planet", 100, "23:00 sera"),
-                ("nebula", 87, "00:30 notte"),
+                ("galaxy", 33, "21:00 sera"),
+                ("cluster", 37, "22:00 sera"),
+                ("planet", 35, "23:00 sera"),
+                ("nebula", 31, "00:30 notte"),
             ],
         ),
         (
@@ -209,10 +209,10 @@ def _plan_summary(plan):
             _sky_quality(3),
             _moon(10),
             [
-                ("galaxy", 73, "21:00 sera"),
-                ("cluster", 80, "22:00 sera"),
-                ("planet", 82, "23:00 sera"),
-                ("nebula", 71, "00:30 notte"),
+                ("galaxy", 16, "21:00 sera"),
+                ("cluster", 17, "22:00 sera"),
+                ("planet", 17, "23:00 sera"),
+                ("nebula", 15, "00:30 notte"),
             ],
         ),
     ],
@@ -226,7 +226,7 @@ def test_planner_output_current_conditions_matrix_is_characterized(
     expected,
 ):
     del name
-    plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
+    plan = NightPlannerService().plan(
         _planner_fixture_objects(),
         weather=weather,
         scores=scores,
@@ -446,8 +446,8 @@ def test_planner_scoring_service_matches_night_planner_wrapper():
     )
 
 
-def test_night_planner_reuses_injected_scoring_service_and_scores_visible_targets_once():
-    class RecordingScoringService:
+def test_night_planner_reuses_injected_nsom_service_and_scores_visible_targets_once():
+    class RecordingNsomService:
         def __init__(self):
             self.calls = []
             self.values = {
@@ -457,17 +457,17 @@ def test_night_planner_reuses_injected_scoring_service_and_scores_visible_target
                 "nebula": 72.6,
             }
 
-        def score(self, item, weather, scores, sky_quality, telescope, moon=None):
-            del weather, scores, sky_quality, telescope, moon
+        def opportunity(self, item, **kwargs):
+            del kwargs
             self.calls.append(item.id)
-            return self.values[item.id]
+            return item.id
 
-    scoring_service = RecordingScoringService()
+        def score(self, opportunity):
+            return self.values[opportunity]
 
-    plan = NightPlannerService(
-        scoring_service,
-        use_nsom_planner_scoring=False,
-    ).plan(
+    nsom_service = RecordingNsomService()
+
+    plan = NightPlannerService(nsom_scoring_service=nsom_service).plan(
         _planner_fixture_objects(),
         _weather(85),
         _scores(),
@@ -476,7 +476,7 @@ def test_night_planner_reuses_injected_scoring_service_and_scores_visible_target
         _moon(10),
     )
 
-    assert scoring_service.calls == ["galaxy", "cluster", "planet", "nebula"]
+    assert nsom_service.calls == ["galaxy", "cluster", "planet", "nebula"]
     assert _plan_summary(plan) == [
         ("galaxy", 90, "21:00 sera"),
         ("cluster", 81, "22:00 sera"),

@@ -78,8 +78,8 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
             "default_flag_enabled_by_this_commit": NSOM_DETAIL_OBJECT_ENABLED is True,
             "requires_separate_flag_change": NSOM_DETAIL_OBJECT_ENABLED is False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "explicit_legacy_rollback": "AppController(use_nsom_detail_object=False)",
-            "explicit_nsom_path": "AppController(use_nsom_detail_object=True)",
+            "explicit_legacy_rollback": "removed: AppController(use_nsom_detail_object=False)",
+            "explicit_nsom_path": "default AppController()",
             "recommended_switch_change": (
                 "already enabled"
                 if NSOM_DETAIL_OBJECT_ENABLED
@@ -122,7 +122,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit checks whether the Detail/Object NSOM "
             "default-on switch is safe to keep. It reports the current "
-            "`NSOM_DETAIL_OBJECT_ENABLED` flag, rollback path and payload policy "
+            "`NSOM_DETAIL_OBJECT_ENABLED` flag, removed rollback path and payload policy "
             "without changing `selectedObject`, QML, Home, Best Object, Planner, "
             "Sky Compass, logging, network access or runtime file writes."
         ),
@@ -159,9 +159,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "| Policy | Evidence |",
             "| --- | --- |",
             (
-                "| Flag off | "
-                f"Payload empty `{runtime['flag_off']['internal_payload_empty']}`, "
-                f"`selectedObject` unchanged `{runtime['flag_off']['selected_object_unchanged']}`. |"
+                "| Runtime default | "
+                f"Observing payload exists `{observing['internal_payload_present']}`, "
+                f"catalogue payload exists `{catalogue['internal_payload_present']}`. |"
             ),
             (
                 "| Observing source | "
@@ -245,7 +245,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Recommended Next Step",
             "",
-            "Review the switch and keep `AppController(use_nsom_detail_object=False)` as rollback.",
+            "Review the rollback cleanup and keep visible Detail/Object NSOM UI as a separate design step.",
             "",
         ]
     )
@@ -260,24 +260,19 @@ def write_markdown_report(path: Path = DEFAULT_ON_READINESS_AUDIT_PATH) -> Path:
 
 
 def _runtime_policy_evidence() -> dict[str, object]:
-    observing_off = _controller(enabled=False, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
-    selected_off_before = AppController.selectedObject.fget(observing_off)
-    off_payload = observing_off._selected_object_nsom_payload()
-    selected_off_after = AppController.selectedObject.fget(observing_off)
-
-    observing_on = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
+    observing_on = _controller(source=DETAIL_SOURCE_OBSERVING, moon=_moon(95))
     observing_before = AppController.selectedObject.fget(observing_on)
     observing_payload = observing_on._selected_object_nsom_payload()
     observing_after = AppController.selectedObject.fget(observing_on)
 
-    catalogue_on = _controller(enabled=True, source=DETAIL_SOURCE_CATALOGUE, moon=_moon(95))
+    catalogue_on = _controller(source=DETAIL_SOURCE_CATALOGUE, moon=_moon(95))
     catalogue_before = AppController.selectedObject.fget(catalogue_on)
     catalogue_payload = catalogue_on._selected_object_nsom_payload()
     catalogue_after = AppController.selectedObject.fget(catalogue_on)
 
-    missing_sky = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING)
+    missing_sky = _controller(source=DETAIL_SOURCE_OBSERVING)
     missing_sky._sky_quality = None
-    missing_weather = _controller(enabled=True, source=DETAIL_SOURCE_OBSERVING)
+    missing_weather = _controller(source=DETAIL_SOURCE_OBSERVING)
     missing_weather._weather_summary = None
 
     service = DetailObjectNsomRuntimeService()
@@ -328,11 +323,6 @@ def _runtime_policy_evidence() -> dict[str, object]:
     ).to_dict()
 
     return {
-        "flag_off": {
-            "internal_payload_empty": off_payload == {},
-            "selected_object_unchanged": selected_off_after == selected_off_before,
-            "selected_object_keys": tuple(sorted(selected_off_after)),
-        },
         "observing_source": {
             "internal_payload_present": observing_payload != {},
             "schema_version": observing_payload.get("schemaVersion"),
@@ -382,8 +372,9 @@ def _runtime_policy_evidence() -> dict[str, object]:
         "constructor": {
             "rollback_parameter_present": "use_nsom_detail_object"
             in signature(AppController.__init__).parameters,
-            "default_kwarg_is_flag": AppController.__init__.__kwdefaults__["use_nsom_detail_object"]
-            is NSOM_DETAIL_OBJECT_ENABLED,
+            "default_kwarg_is_flag": False,
+            "runtime_rollback_removed": "use_nsom_detail_object"
+            not in signature(AppController.__init__).parameters,
         },
     }
 
@@ -430,18 +421,14 @@ def _missing_input_policy(runtime: dict[str, object]) -> dict[str, object]:
 
 def _rollback_policy(runtime: dict[str, object]) -> dict[str, object]:
     constructor = runtime["constructor"]
-    preserved = runtime["flag_off"]["internal_payload_empty"] is True
     return {
-        "constructor_rollback": "AppController(use_nsom_detail_object=False)",
-        "legacy_path_preserved": preserved,
+        "constructor_rollback": "removed: AppController(use_nsom_detail_object=False)",
+        "legacy_path_preserved": False,
         "rollback_parameter_present": constructor["rollback_parameter_present"],
         "default_kwarg_is_flag": constructor["default_kwarg_is_flag"],
-        "nsom_path_explicit": "AppController(use_nsom_detail_object=True)",
-        "blocks_default_on_switch": not (
-            preserved
-            and constructor["rollback_parameter_present"] is True
-            and constructor["default_kwarg_is_flag"] is True
-        ),
+        "runtime_rollback_removed": constructor["runtime_rollback_removed"],
+        "nsom_path_explicit": "default AppController()",
+        "blocks_default_on_switch": False,
     }
 
 
@@ -458,8 +445,7 @@ def _runtime_safety(
         "qml_exposure_absent": static_checks["qml_matches"] == (),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "selected_object_payload_preserved": (
-            runtime["flag_off"]["selected_object_unchanged"] is True
-            and runtime["observing_source"]["selected_object_unchanged"] is True
+            runtime["observing_source"]["selected_object_unchanged"] is True
             and runtime["catalogue_source"]["selected_object_unchanged"] is True
         ),
         "nsom_fields_absent_from_selected_object": (
@@ -484,10 +470,8 @@ def _readiness_checks(
         "default_flag_enabled": NSOM_DETAIL_OBJECT_ENABLED is True,
         "default_off_runtime_path_exists": default_off_audit["readiness"]["runtime_path_exists"] is True,
         "default_off_readiness_has_no_blockers": default_off_audit["blockers"] == [],
-        "constructor_rollback_present": runtime["constructor"]["rollback_parameter_present"] is True,
-        "constructor_default_uses_flag": runtime["constructor"]["default_kwarg_is_flag"] is True,
-        "flag_off_preserves_legacy_payload": runtime["flag_off"]["internal_payload_empty"] is True,
-        "forced_on_builds_internal_payload": (
+        "constructor_rollback_removed": runtime["constructor"]["runtime_rollback_removed"] is True,
+        "default_builds_internal_payload": (
             runtime["observing_source"]["internal_payload_present"] is True
             and runtime["catalogue_source"]["internal_payload_present"] is True
         ),
@@ -519,10 +503,8 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "default_flag_enabled": "detail-default-flag-not-enabled",
         "default_off_runtime_path_exists": "detail-runtime-path-missing",
         "default_off_readiness_has_no_blockers": "detail-default-off-readiness-blocker",
-        "constructor_rollback_present": "detail-rollback-missing",
-        "constructor_default_uses_flag": "detail-constructor-default-not-flagged",
-        "flag_off_preserves_legacy_payload": "detail-flag-off-payload-change",
-        "forced_on_builds_internal_payload": "detail-forced-on-payload-missing",
+        "constructor_rollback_removed": "detail-rollback-still-present",
+        "default_builds_internal_payload": "detail-default-payload-missing",
         "selected_object_payload_preserved": "detail-selected-object-payload-change",
         "no_nsom_fields_in_selected_object": "detail-selected-object-nsom-field-exposure",
         "session_metadata_only": "detail-session-score-effect",
@@ -546,7 +528,7 @@ def _non_blocking_risks() -> tuple[str, ...]:
 def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
-            "The Detail/Object NSOM default-on switch is active with rollback, "
+            "The Detail/Object NSOM default-on switch is active with runtime rollback removed, "
             "preserves `selectedObject`, keeps session/confidence metadata-only "
             "and has no QML or report runtime wiring."
         )
@@ -598,14 +580,12 @@ def _scan_files(
 
 def _controller(
     *,
-    enabled: bool,
     source: str,
     weather: WeatherSummary | None = None,
     sky_quality: SkyQuality | None = None,
     moon: MoonSummary | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_detail_object = enabled
     controller._detail_object_nsom_runtime_service = DetailObjectNsomRuntimeService()
     controller._selected_object = _target("galaxy", "Galaxy", 88)
     controller._selected_object_source = source

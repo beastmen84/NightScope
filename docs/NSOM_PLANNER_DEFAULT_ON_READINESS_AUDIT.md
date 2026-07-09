@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether the NSOM Planner default-on switch is safe to keep while preserving an explicit legacy rollback path. It does not tune weights, remove legacy Planner scoring, write runtime files, log automatically, perform network work or expose QML.
+This developer-only audit checks whether the NSOM Planner default-on switch is safe to keep after the 1.13.8 runtime rollback cleanup. It does not tune weights, remove legacy Planner scoring, write runtime files, log automatically, perform network work or expose QML.
 
 ## Readiness Verdict
 
@@ -10,8 +10,8 @@ This developer-only audit checks whether the NSOM Planner default-on switch is s
 - Default-on readiness satisfied: `True`.
 - Default-on switch completed: `True`.
 - Ready to enable in this commit: `True`.
-- Recommendation: `keep_default_on_with_explicit_rollback`.
-- Reason: No calibration or policy blockers remain; accepted/deferred decisions are documented; deferred items are non-blocking; the runtime flag is default-on; the explicit legacy rollback path remains available; developer-only report tooling remains unwired.
+- Recommendation: `keep_default_on_with_runtime_rollback_removed`.
+- Reason: No calibration or policy blockers remain; accepted/deferred decisions are documented; deferred items are non-blocking; the runtime flag is default-on; the former explicit legacy rollback path was removed in 1.13.8; developer-only report tooling remains unwired.
 
 ## Blocking Checks
 
@@ -42,7 +42,8 @@ This developer-only audit checks whether the NSOM Planner default-on switch is s
 | Check | Result |
 | --- | --- |
 | `flag_default_on` | `True` |
-| `legacy_planner_explicit_rollback_available` | `True` |
+| `legacy_planner_explicit_rollback_available` | `False` |
+| `legacy_planner_runtime_rollback_removed` | `True` |
 | `qml_exposure_absent` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `tooling_developer_only` | `True` |
@@ -63,7 +64,7 @@ This developer-only audit checks whether the NSOM Planner default-on switch is s
 
 - The default-on switch intentionally changes Planner ranking and needs runtime acceptance review.
 - Deferred review items should remain visible after enabling so they do not become hidden calibration debt.
-- The explicit rollback path should be preserved until NSOM Planner has enough runtime evidence.
+- The explicit runtime rollback path was removed in 1.13.8; future reversions should be handled by code review.
 
 ## Source Reports
 
@@ -73,4 +74,4 @@ This developer-only audit checks whether the NSOM Planner default-on switch is s
 
 ## Final Recommendation
 
-Keep the default-on switch only while this audit remains green and `NightPlannerService(use_nsom_planner_scoring=False)` continues to provide an explicit legacy rollback path.
+Keep the default-on switch only while this audit remains green and legacy Planner formula comparison remains developer-only. As of 1.13.8, the runtime constructor rollback path is removed.

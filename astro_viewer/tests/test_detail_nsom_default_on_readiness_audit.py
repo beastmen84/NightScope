@@ -45,11 +45,11 @@ def test_detail_nsom_default_on_readiness_verdict_confirms_default_on_enabled() 
         "default_flag_enabled_by_this_commit": True,
         "requires_separate_flag_change": False,
         "runtime_behaviour_changed_by_this_audit": False,
-        "explicit_legacy_rollback": "AppController(use_nsom_detail_object=False)",
-        "explicit_nsom_path": "AppController(use_nsom_detail_object=True)",
+        "explicit_legacy_rollback": "removed: AppController(use_nsom_detail_object=False)",
+        "explicit_nsom_path": "default AppController()",
         "recommended_switch_change": "already enabled",
         "reason": (
-            "The Detail/Object NSOM default-on switch is active with rollback, "
+            "The Detail/Object NSOM default-on switch is active with runtime rollback removed, "
             "preserves `selectedObject`, keeps session/confidence metadata-only "
             "and has no QML or report runtime wiring."
         ),
@@ -62,8 +62,7 @@ def test_detail_nsom_default_on_runtime_policy_preserves_selected_object() -> No
     data = generate_default_on_readiness_audit_data()
     runtime = data["runtime_policy_evidence"]
 
-    assert runtime["flag_off"]["internal_payload_empty"] is True
-    assert runtime["flag_off"]["selected_object_unchanged"] is True
+    assert runtime["constructor"]["runtime_rollback_removed"] is True
 
     observing = runtime["observing_source"]
     assert observing["schema_version"] == "detail-object-nsom-runtime-v1"
@@ -117,10 +116,11 @@ def test_detail_nsom_default_on_missing_input_and_display_policies_are_non_block
     assert display["score_monotonic_with_nsom_payload"] is False
     assert display["blocks_default_on_switch"] is False
 
-    assert rollback["constructor_rollback"] == "AppController(use_nsom_detail_object=False)"
-    assert rollback["legacy_path_preserved"] is True
-    assert rollback["rollback_parameter_present"] is True
-    assert rollback["default_kwarg_is_flag"] is True
+    assert rollback["constructor_rollback"] == "removed: AppController(use_nsom_detail_object=False)"
+    assert rollback["legacy_path_preserved"] is False
+    assert rollback["rollback_parameter_present"] is False
+    assert rollback["default_kwarg_is_flag"] is False
+    assert rollback["runtime_rollback_removed"] is True
     assert rollback["blocks_default_on_switch"] is False
 
 

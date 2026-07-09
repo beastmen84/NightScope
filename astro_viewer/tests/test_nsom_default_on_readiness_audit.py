@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from inspect import signature
 from pathlib import Path
 
 from astro_viewer.app.models.equipment import Telescope
@@ -38,7 +39,7 @@ def test_readiness_verdict_confirms_default_on_with_rollback() -> None:
     assert data["readiness"]["ready_for_default_on_switch_pr"] is True
     assert data["readiness"]["default_on_switch_completed"] is True
     assert data["readiness"]["ready_to_enable_in_this_commit"] is True
-    assert data["readiness"]["recommendation"] == "keep_default_on_with_explicit_rollback"
+    assert data["readiness"]["recommendation"] == "keep_default_on_with_runtime_rollback_removed"
     assert NSOM_PLANNER_SCORING_ENABLED is True
 
 
@@ -81,7 +82,8 @@ def test_runtime_safety_checks_remain_green() -> None:
 
     assert data["runtime_safety"] == {
         "flag_default_on": True,
-        "legacy_planner_explicit_rollback_available": True,
+        "legacy_planner_explicit_rollback_available": False,
+        "legacy_planner_runtime_rollback_removed": True,
         "qml_exposure_absent": True,
         "runtime_report_imports_absent": True,
         "tooling_developer_only": True,
@@ -123,14 +125,7 @@ def test_readiness_report_generation_is_not_wired_into_runtime_or_qml() -> None:
     )
 
 
-def test_flag_off_runtime_planner_remains_legacy_with_readiness_audit_present() -> None:
-    class FailingNsomService:
-        def opportunity(self, *args, **kwargs):  # noqa: ANN002, ANN003
-            raise AssertionError("NSOM planner path should stay disabled.")
-
-        def score(self, opportunity):  # noqa: ANN001
-            raise AssertionError("NSOM planner path should stay disabled.")
-
+def test_runtime_planner_rollback_parameter_is_removed_with_readiness_audit_present() -> None:
     objects = [
         _target("planet", "Pianeta", 84, magnitude="-1.7", best_time="21:00"),
         _target("galaxy", "Galaxy", 83, magnitude="8.5", best_time="21:30"),
@@ -142,18 +137,8 @@ def test_flag_off_runtime_planner_remains_legacy_with_readiness_audit_present() 
     telescope = _telescope()
     moon = _moon(10)
 
-    legacy_plan = NightPlannerService(use_nsom_planner_scoring=False).plan(
-        objects,
-        weather,
-        scores,
-        sky_quality,
-        telescope,
-        moon,
-    )
-    flag_off_plan = NightPlannerService(
-        use_nsom_planner_scoring=False,
-        nsom_scoring_service=FailingNsomService(),
-    ).plan(
+    assert "use_nsom_planner_scoring" not in signature(NightPlannerService.__init__).parameters
+    plan = NightPlannerService().plan(
         objects,
         weather,
         scores,
@@ -162,7 +147,7 @@ def test_flag_off_runtime_planner_remains_legacy_with_readiness_audit_present() 
         moon,
     )
 
-    assert _plan_summary(flag_off_plan) == _plan_summary(legacy_plan)
+    assert _plan_summary(plan)
 
 
 def test_checked_in_readiness_audit_report_exists() -> None:

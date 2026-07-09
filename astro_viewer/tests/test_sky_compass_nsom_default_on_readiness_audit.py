@@ -43,25 +43,25 @@ def test_sky_compass_default_on_readiness_verdict_records_enabled_flag() -> None
     assert data["readiness"]["default_flag_currently_enabled"] is True
     assert data["readiness"]["requires_separate_flag_change"] is False
     assert data["readiness"]["runtime_behaviour_changed_by_this_audit"] is False
-    assert data["readiness"]["explicit_legacy_rollback"] == "AppController(use_nsom_sky_compass=False)"
+    assert data["readiness"]["explicit_legacy_rollback"] == "removed: AppController(use_nsom_sky_compass=False)"
     assert data["readiness"]["recommended_switch_change"] == "already enabled"
     assert data["blockers"] == []
     assert data["checks"]["default_flag_enabled_for_switch"] is True
     assert data["checks"]["default_on_switch_complete"] is True
 
 
-def test_audit_proves_flag_off_legacy_and_flag_on_nsom_paths() -> None:
+def test_audit_proves_default_nsom_path_and_removed_rollback() -> None:
     data = generate_default_on_readiness_audit_data()
     runtime = data["runtime_policy_evidence"]
 
-    assert data["checks"]["legacy_rollback_available"] is True
-    assert data["checks"]["flag_on_uses_nsom_path"] is True
+    assert data["checks"]["constructor_rollback_removed"] is True
+    assert data["checks"]["default_uses_nsom_path"] is True
     assert data["checks"]["high_light_pollution_direction_changes_as_expected"] is True
-    assert runtime["flag_off_legacy"]["direction"] == "Sud"
-    assert runtime["flag_off_legacy"]["equals_legacy"] is True
-    assert runtime["flag_on_nsom"]["legacy_direction"] == "Sud"
-    assert runtime["flag_on_nsom"]["nsom_direction"] == "Nord-Est"
-    assert runtime["flag_on_nsom"]["matches_direct_service"] is True
+    assert runtime["removed_rollback"]["parameter_present"] is False
+    assert runtime["removed_rollback"]["runtime_rollback_removed"] is True
+    assert runtime["default_nsom"]["legacy_direction"] == "Sud"
+    assert runtime["default_nsom"]["nsom_direction"] == "Nord-Est"
+    assert runtime["default_nsom"]["matches_direct_service"] is True
 
 
 def test_audit_preserves_payload_shape_and_display_score_semantics() -> None:
@@ -103,8 +103,10 @@ def test_audit_accepts_fallback_and_rollback_without_runtime_mutation() -> None:
     assert data["fallback_policy"]["missing_sky_quality_fallback_present"] is True
     assert data["fallback_policy"]["service_failure_fallback_present"] is True
     assert data["fallback_policy"]["blocks_default_on_switch"] is False
-    assert data["rollback_policy"]["constructor_rollback"] == "AppController(use_nsom_sky_compass=False)"
-    assert data["rollback_policy"]["legacy_path_preserved"] is True
+    assert data["rollback_policy"]["constructor_rollback"] == "removed: AppController(use_nsom_sky_compass=False)"
+    assert data["rollback_policy"]["legacy_path_preserved"] is False
+    assert data["rollback_policy"]["rollback_parameter_present"] is False
+    assert data["rollback_policy"]["runtime_rollback_removed"] is True
     assert data["runtime_policy_evidence"]["mutation"]["runtime_objects_mutated"] is False
     assert data["checks"]["runtime_objects_not_mutated"] is True
 

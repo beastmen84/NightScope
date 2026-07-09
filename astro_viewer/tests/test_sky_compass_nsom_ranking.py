@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from copy import deepcopy
 from dataclasses import replace
+from inspect import signature
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -21,13 +22,13 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 
 def test_sky_compass_nsom_flag_is_default_on() -> None:
     assert NSOM_SKY_COMPASS_ENABLED is True
-    assert AppController.__init__.__kwdefaults__["use_nsom_sky_compass"] is True
+    assert "use_nsom_sky_compass" not in signature(AppController.__init__).parameters
 
 
-def test_flag_off_legacy_direction_and_payload_are_unchanged() -> None:
+def test_missing_sky_quality_legacy_direction_and_payload_are_unchanged() -> None:
     targets = _targets()
     legacy = _legacy_compass(targets)
-    controller = _controller(use_nsom_sky_compass=False, sky_quality=_sky_quality(9, radiance=120.0))
+    controller = _controller(sky_quality=None)
 
     result = controller._select_sky_compass_payload(targets, has_location=True, caution_text="Fixture caution")
 
@@ -114,17 +115,17 @@ def test_service_uses_observable_target_map_without_changing_payload_geometry() 
     }
 
 
-def test_controller_default_uses_nsom_and_forced_rollback_uses_legacy() -> None:
+def test_controller_default_uses_nsom_and_missing_sky_falls_back_to_legacy() -> None:
     targets = _targets()
-    enabled = _controller(use_nsom_sky_compass=NSOM_SKY_COMPASS_ENABLED, sky_quality=_sky_quality(9, radiance=120.0))
-    disabled = _controller(use_nsom_sky_compass=False, sky_quality=_sky_quality(9, radiance=120.0))
+    enabled = _controller(sky_quality=_sky_quality(9, radiance=120.0))
+    missing_quality = _controller(sky_quality=None)
 
     enabled_result = enabled._select_sky_compass_payload(targets, has_location=True, caution_text="")
-    disabled_result = disabled._select_sky_compass_payload(targets, has_location=True, caution_text="")
+    fallback_result = missing_quality._select_sky_compass_payload(targets, has_location=True, caution_text="")
 
     assert enabled_result["direction"] == "Nord-Est"
-    assert disabled_result == _legacy_compass(targets)
-    assert disabled_result["direction"] == "Sud"
+    assert fallback_result == _legacy_compass(targets)
+    assert fallback_result["direction"] == "Sud"
 
 
 def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_geometry() -> None:
@@ -139,7 +140,6 @@ def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_
         condition_flags=("light_pollution",),
     )
     controller = _controller(
-        use_nsom_sky_compass=True,
         sky_quality=_sky_quality(9, radiance=120.0),
         nsom_service=Mock(return_value={"available": True}),
     )
@@ -169,11 +169,10 @@ def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_
 def test_missing_sky_quality_and_service_failure_fall_back_to_legacy_without_logging_or_shape_change() -> None:
     targets = _targets()
     legacy = _legacy_compass(targets)
-    missing_quality = _controller(use_nsom_sky_compass=True, sky_quality=None)
+    missing_quality = _controller(sky_quality=None)
     failing_service = Mock()
     failing_service.compass.side_effect = RuntimeError("fixture")
     failing = _controller(
-        use_nsom_sky_compass=True,
         sky_quality=_sky_quality(9, radiance=120.0),
         nsom_service=failing_service,
     )
@@ -224,12 +223,10 @@ def test_nsom_sky_compass_runtime_path_is_not_exposed_to_qml_or_report_wiring() 
 
 def _controller(
     *,
-    use_nsom_sky_compass: bool,
     sky_quality: SkyQuality | None,
     nsom_service: object | None = None,
 ) -> AppController:
     controller = AppController.__new__(AppController)
-    controller._use_nsom_sky_compass = use_nsom_sky_compass
     controller._sky_quality = sky_quality
     controller._moon = _moon(20)
     controller._sky_compass_service = SkyCompassService()

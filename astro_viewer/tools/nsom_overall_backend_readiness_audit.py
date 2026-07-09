@@ -89,22 +89,22 @@ def generate_overall_backend_readiness_audit_data() -> dict[str, object]:
             "equipment_closed_setup_local": checks["equipment_closed_setup_local"],
             "dead_legacy_removed": checks["dead_legacy_removed"],
             "runtime_behaviour_changed_by_this_audit": False,
-            "safe_to_start_rollback_cleanup_policy": not blockers,
+            "rollback_cleanup_completed": checks["all_internal_rollback_paths_removed"],
             "safe_to_start_visible_ui_explanation_design": not blockers,
             "visible_ui_explanation_recommended_now": False,
             "recommended_next_step": (
-                "Review 1.13.7, then remove internal legacy rollback paths in a "
-                "focused implementation step."
+                "Review 1.13.8, then proceed to visible explanation planning or "
+                "Universe/catalogue policy work."
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object are closed on NSOM default-on "
                 "paths; Equipment is closed as a setup-local NSOM-bounded service; "
-                "Sky Map and Notifications are removed dead legacy. Remaining items "
-                "are internal rollback flags, payload compatibility fields and "
-                "Universe/catalogue input semantics, none of which block the closed "
-                "backend recommendation surfaces. The 1.13.7 rollback policy audit "
-                "recommends removing the internal rollback paths next."
+                "Sky Map and Notifications are removed dead legacy. Internal "
+                "runtime rollback constructor parameters were removed in 1.13.8. "
+                "Remaining items are payload compatibility fields and "
+                "Universe/catalogue input semantics, neither of which blocks the "
+                "closed backend recommendation surfaces."
             ),
         },
         "closed_backend_surfaces": closed_surfaces,
@@ -118,19 +118,23 @@ def generate_overall_backend_readiness_audit_data() -> dict[str, object]:
                 "step": "Review 1.13.6",
                 "summary": "Confirm the overall backend readiness audit is accurate.",
             },
-            {
-                "step": "Review 1.13.7",
-                "summary": "Confirm rollback cleanup policy before deleting runtime branches.",
-            },
+        {
+            "step": "Review 1.13.7",
+            "summary": "Confirmed rollback cleanup policy before 1.13.8 removed runtime branches.",
+        },
             {
                 "step": "1.13.8 Remove internal legacy rollback paths",
-                "summary": "Remove internal rollback flags and legacy branches in a focused commit.",
+                "summary": "Completed: internal rollback flags and runtime legacy branches were removed.",
             },
             {
-                "step": "Visible UI/explanation planning",
+                "step": "Review 1.13.8",
+                "summary": "Confirm rollback cleanup left QML payloads and fallback policies stable.",
+            },
+            {
+                "step": "Visible UI/explanation or Universe/catalogue planning",
                 "summary": (
-                    "Start only after rollback cleanup is implemented, because "
-                    "the backend NSOM recommendation surfaces are already closed."
+                    "Choose the next non-runtime-cleanup NSOM area after the "
+                    "backend recommendation surfaces and rollback cleanup are closed."
                 ),
             },
         ),
@@ -167,8 +171,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"`{readiness['runtime_behaviour_changed_by_this_audit']}`."
         ),
         (
-            "- Safe to start rollback cleanup policy: "
-            f"`{readiness['safe_to_start_rollback_cleanup_policy']}`."
+            "- Rollback cleanup completed: "
+            f"`{readiness['rollback_cleanup_completed']}`."
         ),
         (
             "- Safe to start visible UI/explanation design: "
@@ -357,20 +361,6 @@ def _remaining_non_blocking_items(
     backend: dict[str, object],
     legacy: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
-    temporary_rollbacks = {
-        "item": "Internal legacy rollback flags",
-        "classification": "cleanup_policy_pending",
-        "why_it_remains": (
-            "Planner, Home, Best Object, Advanced Observing, Sky Compass and "
-            "Detail/Object still expose explicit internal rollback constructor flags."
-        ),
-        "recommended_handling": (
-            "Review the 1.13.7 policy, then remove these internal rollback paths "
-            "before visible UI/explanation work."
-        ),
-        "blocks_backend_readiness": False,
-        "source_count": len(legacy["temporary_rollback_surfaces"]),
-    }
     payload_compatibility = {
         "item": "Legacy/base payload compatibility fields",
         "classification": "presentation_compatibility",
@@ -410,31 +400,30 @@ def _remaining_non_blocking_items(
         "blocks_backend_readiness": observation_cache["blocks_current_default_on_surfaces"],
         "source_count": 1,
     }
-    return (temporary_rollbacks, payload_compatibility, observation, catalogue)
+    return (payload_compatibility, observation, catalogue)
 
 
 def _next_phase_decisions(
     remaining_items: tuple[dict[str, object], ...],
 ) -> tuple[dict[str, object], ...]:
-    rollback_item = next(item for item in remaining_items if item["item"] == "Internal legacy rollback flags")
     payload_item = next(item for item in remaining_items if item["item"] == "Legacy/base payload compatibility fields")
     catalogue_item = next(item for item in remaining_items if item["item"] == "Catalogue / raw object score")
     return (
         {
-            "decision_id": "rollback_cleanup_policy",
+            "decision_id": "rollback_cleanup_closeout",
             "priority": 1,
-            "status": "policy_set_remove_internal_rollbacks",
+            "status": "implemented_internal_rollbacks_removed",
             "reason": (
-                f"{rollback_item['source_count']} internal rollback surfaces remain. "
-                "The 1.13.7 policy audit recommends removing them before adding "
-                "visible UI rationale."
+                "1.13.8 removed the internal runtime rollback constructor "
+                "parameters; fallback policies now reflect missing inputs or "
+                "service failures, not selectable legacy ranking paths."
             ),
             "runtime_change_allowed_by_this_audit": False,
         },
         {
             "decision_id": "visible_ui_explanation_policy",
             "priority": 2,
-            "status": "deferred_until_backend_cleanup_policy",
+            "status": "available_after_backend_cleanup",
             "reason": (
                 "Backend NSOM is ready for planning visible explanations, but score "
                 "display semantics should be designed separately from this audit."
@@ -483,7 +472,10 @@ def _checks(
         ]
         is True,
         "all_default_flags_enabled": backend["checks"]["all_default_flags_enabled"] is True,
-        "all_rollback_paths_present": backend["checks"]["all_rollback_paths_present"] is True,
+        "all_internal_rollback_paths_removed": backend["checks"][
+            "all_internal_rollback_paths_removed"
+        ]
+        is True,
         "equipment_closed_setup_local": equipment["readiness"]["verdict"]
         == "equipment_nsom_migration_closed_setup_local",
         "equipment_runtime_unchanged": equipment["readiness"][
@@ -514,7 +506,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "source_reports_present": "overall-backend-source-report-missing",
         "all_default_on_backend_surfaces_closed": "overall-backend-default-on-surface-open",
         "all_default_flags_enabled": "overall-backend-default-flag-disabled",
-        "all_rollback_paths_present": "overall-backend-rollback-path-missing",
+        "all_internal_rollback_paths_removed": "overall-backend-internal-rollback-still-present",
         "equipment_closed_setup_local": "overall-backend-equipment-not-closed",
         "equipment_runtime_unchanged": "overall-backend-equipment-runtime-change",
         "legacy_surface_cleanup_complete": "overall-backend-legacy-cleanup-incomplete",

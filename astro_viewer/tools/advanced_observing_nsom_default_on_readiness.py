@@ -76,12 +76,12 @@ def generate_default_on_readiness_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "requires_separate_flag_change": NSOM_ADVANCED_OBSERVING_ENABLED is False,
             "default_on_switch_completed": NSOM_ADVANCED_OBSERVING_ENABLED is True,
-            "explicit_rollback": "AppController(use_nsom_advanced_observing=False)",
+            "explicit_rollback": "removed: AppController(use_nsom_advanced_observing=False)",
             "runtime_default_changed_by_switch": NSOM_ADVANCED_OBSERVING_ENABLED is True,
             "visible_runtime_behaviour_changed": False,
             "recommended_next_change": (
-                "keep the backend default-on switch, use explicit rollback for legacy "
-                "diagnostics when needed, and review visible UI separately"
+                "keep the backend default-on switch, keep runtime rollback removed, "
+                "and review visible UI separately"
                 if not blockers
                 else "resolve default-on blockers before changing the flag"
             ),
@@ -217,7 +217,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Keep the backend default-on switch narrow: preserve "
-                "`AppController(use_nsom_advanced_observing=False)` as rollback, keep "
+                "runtime rollback removal, keep "
                 "`advancedScores` and visible QML unchanged, and review any visible "
                 "Advanced Observing NSOM UI separately."
             ),
@@ -245,7 +245,7 @@ def _default_on_decisions(
             "backend_projection_default_on",
             status="enabled",
             summary="Default-on is active for the internal Advanced Observing NSOM projection.",
-            reason="The projection is separate from `advancedScores` and has an explicit rollback constructor.",
+            reason="The projection is separate from `advancedScores`; the temporary rollback constructor was removed in 1.13.8.",
             blocks_backend_default_on=False,
             blocks_visible_ui=False,
         ),

@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 from copy import deepcopy
 from dataclasses import replace
+from inspect import signature
 from pathlib import Path
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -21,15 +22,11 @@ def test_home_nsom_recommended_deep_sky_flag_defaults_on() -> None:
 
 
 def test_controller_constructor_default_uses_current_home_nsom_flag() -> None:
-    defaults = AppController.__init__.__kwdefaults__
-
-    assert defaults is not None
-    assert defaults["use_nsom_home_recommended_deep_sky"] is NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED
+    assert "use_nsom_home_recommended_deep_sky" not in signature(AppController.__init__).parameters
 
 
 def test_default_path_uses_nsom_observable_target_value_order() -> None:
     controller = _controller(
-        enabled=NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
         sky_quality=_sky_quality(9, radiance=120.0),
         moon=_moon(20),
     )
@@ -44,18 +41,18 @@ def test_default_path_uses_nsom_observable_target_value_order() -> None:
     ]
 
 
-def test_flag_off_preserves_legacy_recommended_deep_sky_order() -> None:
-    controller = _controller(enabled=False, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+def test_no_constructor_rollback_parameter_remains_for_home_recommended_deep_sky() -> None:
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
     expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
 
     controller._refresh_conditioned_observing_candidates()
 
-    assert _ids(controller._conditioned_deep_sky) == _ids(expected)
-    assert controller._conditioned_deep_sky == expected
+    assert _ids(controller._conditioned_deep_sky) != _ids(expected)
+    assert "use_nsom_home_recommended_deep_sky" not in signature(AppController.__init__).parameters
 
 
 def test_missing_sky_quality_falls_back_to_legacy_moon_adjusted_order() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
     controller._sky_quality = None
     expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
 
@@ -66,7 +63,7 @@ def test_missing_sky_quality_falls_back_to_legacy_moon_adjusted_order() -> None:
 
 
 def test_flag_on_uses_observable_target_value_order_under_high_light_pollution() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
 
     controller._refresh_conditioned_observing_candidates()
 
@@ -79,7 +76,7 @@ def test_flag_on_uses_observable_target_value_order_under_high_light_pollution()
 
 
 def test_default_path_ranks_raw_read_model_targets_and_returns_display_targets() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
     raw_low = _target("raw_low", "Galaxy", 30)
     raw_high = _target("raw_high", "Open Cluster", 90)
     display_low = replace(raw_low, score=99, condition_flags=("light_pollution",))
@@ -108,7 +105,7 @@ def test_default_path_ranks_raw_read_model_targets_and_returns_display_targets()
 
 
 def test_flag_on_does_not_mutate_original_celestial_objects() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
     original = deepcopy(controller._deep_sky)
 
     controller._refresh_conditioned_observing_candidates()
@@ -118,7 +115,7 @@ def test_flag_on_does_not_mutate_original_celestial_objects() -> None:
 
 
 def test_weather_does_not_change_home_observable_order() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(4), moon=_moon(20))
+    controller = _controller(sky_quality=_sky_quality(4), moon=_moon(20))
     controller._weather_summary = _weather(85)
     controller._refresh_conditioned_observing_candidates()
     good_order = _ids(controller._conditioned_deep_sky)
@@ -130,7 +127,7 @@ def test_weather_does_not_change_home_observable_order() -> None:
 
 
 def test_equipment_does_not_change_home_observable_order() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(4), moon=_moon(20))
+    controller = _controller(sky_quality=_sky_quality(4), moon=_moon(20))
     controller._current_telescope = lambda: object()
     controller._refresh_conditioned_observing_candidates()
     first_order = _ids(controller._conditioned_deep_sky)
@@ -159,7 +156,7 @@ def test_practical_session_opportunity_and_confidence_are_not_home_ranking_input
 
 
 def test_best_object_and_sky_compass_are_unchanged_by_home_ranking_refresh() -> None:
-    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
     best_object = _target("best", "Spiral galaxy", 91)
     sky_compass = {"available": True, "items": [{"id": "stable"}]}
     controller._best_object = best_object
@@ -172,8 +169,9 @@ def test_best_object_and_sky_compass_are_unchanged_by_home_ranking_refresh() -> 
 
 
 def test_qml_payload_shape_remains_compatible() -> None:
-    legacy = _controller(enabled=False, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
-    nsom = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    legacy = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    legacy._sky_quality = None
+    nsom = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
 
     legacy._refresh_conditioned_observing_candidates()
     nsom._refresh_conditioned_observing_candidates()
@@ -187,8 +185,9 @@ def test_qml_payload_shape_remains_compatible() -> None:
 
 
 def test_recommended_deep_sky_property_preserves_payload_shape_and_scores() -> None:
-    legacy = _controller(enabled=False, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
-    nsom = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    legacy = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    legacy._sky_quality = None
+    nsom = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
 
     legacy_payload = _recommended_deep_sky_payload(legacy)
     nsom_payload = _recommended_deep_sky_payload(nsom)
@@ -219,8 +218,9 @@ def test_recommended_deep_sky_property_preserves_payload_shape_and_scores() -> N
         assert "practicalTargetValue" not in nsom_item
 
 
-def test_flag_off_recommended_deep_sky_property_payload_is_unchanged() -> None:
-    controller = _controller(enabled=False, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+def test_missing_sky_quality_recommended_deep_sky_property_payload_uses_fallback() -> None:
+    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    controller._sky_quality = None
 
     payload = _recommended_deep_sky_payload(controller)
     direct = [controller._object_to_qml(item) for item in controller._moon_adjusted_objects(controller._deep_sky)]
@@ -255,10 +255,9 @@ def test_no_home_nsom_ranking_qml_exposure_or_report_runtime_wiring() -> None:
     assert "HOME_NSOM_COMPARISON_REPORT" not in controller_text
 
 
-def _controller(*, enabled: bool, sky_quality: SkyQuality, moon: MoonSummary) -> AppController:
+def _controller(*, sky_quality: SkyQuality, moon: MoonSummary) -> AppController:
     controller = AppController.__new__(AppController)
     controller._conditions_service = ObservationConditionsService()
-    controller._use_nsom_home_recommended_deep_sky = enabled
     controller._home_recommended_deep_sky_nsom_ranking_service = HomeRecommendedDeepSkyNsomRankingService()
     controller._moon = moon
     controller._sky_quality = sky_quality

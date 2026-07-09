@@ -102,8 +102,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review 1.13.7, then remove internal legacy rollback paths in a "
-                "focused implementation step."
+                "Review 1.13.8, then proceed to the next NSOM presentation or "
+                "Universe/catalogue policy step."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -128,7 +128,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "setup-local scope. The 1.13.6 overall backend readiness audit "
                 "classifies the remaining work as non-blocking rollback, "
                 "presentation or Catalogue/Universe policy. The 1.13.7 rollback "
-                "cleanup policy recommends removing internal legacy rollback paths next."
+                "cleanup policy recommended removing internal rollback paths; "
+                "1.13.8 removed the runtime constructor rollback parameters."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -142,8 +143,12 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "QML/runtime presentation."
             ),
             "temporary_rollback": (
-                "Explicit old path retained only as internal rollback after a "
-                "default-on NSOM migration."
+                "Historical explicit old path retained only as internal rollback "
+                "after a default-on NSOM migration."
+            ),
+            "removed_internal_rollback": (
+                "Rollback constructor/service path removed after the backend NSOM "
+                "surface was closed and reviewed."
             ),
             "payload_compatibility": (
                 "Legacy/base fields still needed to keep existing QML payloads "
@@ -156,6 +161,7 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
         },
         "dead_legacy_surfaces": (sky_map_state, notification_state),
         "temporary_rollback_surfaces": temporary_rollbacks,
+        "removed_rollback_surfaces": temporary_rollbacks,
         "payload_compatibility_surfaces": payload_compatibility,
         "active_legacy_or_hybrid_surfaces": active_legacy_or_hybrid,
         "static_checks": static_checks,
@@ -172,6 +178,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "temporary_rollbacks_are_internal": all(
                 item["public_compatibility_contract"] is False for item in temporary_rollbacks
             ),
+            "internal_rollback_parameters_removed": all(
+                item["rollback_parameter_present"] is False for item in temporary_rollbacks
+            ),
             "payload_compatibility_not_rank_source": all(
                 item["ranking_authority"] == "NSOM or separate active service" for item in payload_compatibility
             ),
@@ -187,8 +196,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             {
                 "step": "Rollback cleanup series",
                 "summary": (
-                    "After dead code is removed, decide whether internal legacy "
-                    "rollback constructor flags are still useful in an undistributed app."
+                    "Completed in 1.13.8: internal legacy rollback constructor "
+                    "parameters were removed."
                 ),
             },
             {
@@ -461,9 +470,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     lines.extend(
         [
             "",
-            "## Temporary Rollback Surfaces",
+            "## Removed Internal Rollback Surfaces",
             "",
-            "| Surface | Default flag | Rollback | Public compatibility contract | Recommended handling |",
+            "| Surface | Default flag | Removed rollback | Public compatibility contract | Recommended handling |",
             "| --- | --- | --- | --- | --- |",
         ]
     )
@@ -569,9 +578,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "closeout marks the Equipment backend NSOM migration closed for "
                 "the current setup-local scope. The 1.13.6 overall backend "
                 "readiness audit classifies the remaining work as non-blocking "
-                "rollback, presentation or Catalogue/Universe policy. The 1.13.7 "
-                "rollback cleanup policy recommends removing internal rollback "
-                "paths next."
+                "presentation or Catalogue/Universe policy. The 1.13.7 rollback "
+                "cleanup policy recommended removing internal rollback paths; "
+                "1.13.8 removed the runtime constructor rollback parameters."
             ),
             "",
         ]
@@ -622,10 +631,10 @@ def _temporary_rollbacks() -> tuple[dict[str, object], ...]:
         {
             "surface": "Planner",
             "default_flag": f"NSOM_PLANNER_SCORING_ENABLED = {NSOM_PLANNER_SCORING_ENABLED}",
-            "rollback": "NightPlannerService(use_nsom_planner_scoring=False)",
+            "rollback": "removed: NightPlannerService(use_nsom_planner_scoring=False)",
             "rollback_parameter_present": "use_nsom_planner_scoring" in planner_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep only until the rollback cleanup series is explicitly accepted.",
+            "recommended_handling": "Keep removed; use Git history for rollback if a reviewed revert is needed.",
         },
         {
             "surface": "Home recommendedDeepSky",
@@ -633,42 +642,42 @@ def _temporary_rollbacks() -> tuple[dict[str, object], ...]:
                 "NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED = "
                 f"{NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED}"
             ),
-            "rollback": "AppController(use_nsom_home_recommended_deep_sky=False)",
+            "rollback": "removed: AppController(use_nsom_home_recommended_deep_sky=False)",
             "rollback_parameter_present": "use_nsom_home_recommended_deep_sky" in controller_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep only until the rollback cleanup series is explicitly accepted.",
+            "recommended_handling": "Keep removed; missing sky quality remains a data fallback, not a rollback flag.",
         },
         {
             "surface": "Best Object",
             "default_flag": f"NSOM_BEST_OBJECT_ENABLED = {NSOM_BEST_OBJECT_ENABLED}",
-            "rollback": "AppController(use_nsom_best_object=False)",
+            "rollback": "removed: AppController(use_nsom_best_object=False)",
             "rollback_parameter_present": "use_nsom_best_object" in controller_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep only until the rollback cleanup series is explicitly accepted.",
+            "recommended_handling": "Keep removed; missing sky quality remains a data fallback, not a rollback flag.",
         },
         {
             "surface": "Advanced Observing backend",
             "default_flag": f"NSOM_ADVANCED_OBSERVING_ENABLED = {NSOM_ADVANCED_OBSERVING_ENABLED}",
-            "rollback": "AppController(use_nsom_advanced_observing=False)",
+            "rollback": "removed: AppController(use_nsom_advanced_observing=False)",
             "rollback_parameter_present": "use_nsom_advanced_observing" in controller_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep until Advanced Observing visible presentation policy is settled.",
+            "recommended_handling": "Keep removed; visible presentation policy remains separate from runtime rollback.",
         },
         {
             "surface": "Sky Compass",
             "default_flag": f"NSOM_SKY_COMPASS_ENABLED = {NSOM_SKY_COMPASS_ENABLED}",
-            "rollback": "AppController(use_nsom_sky_compass=False)",
+            "rollback": "removed: AppController(use_nsom_sky_compass=False)",
             "rollback_parameter_present": "use_nsom_sky_compass" in controller_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep only until the rollback cleanup series is explicitly accepted.",
+            "recommended_handling": "Keep removed; missing sky quality and service failure remain technical fallbacks.",
         },
         {
             "surface": "Detail/Object internal payload",
             "default_flag": f"NSOM_DETAIL_OBJECT_ENABLED = {NSOM_DETAIL_OBJECT_ENABLED}",
-            "rollback": "AppController(use_nsom_detail_object=False)",
+            "rollback": "removed: AppController(use_nsom_detail_object=False)",
             "rollback_parameter_present": "use_nsom_detail_object" in controller_parameters,
             "public_compatibility_contract": False,
-            "recommended_handling": "Keep until visible Detail presentation policy is settled.",
+            "recommended_handling": "Keep removed; Detail visible presentation policy remains separate.",
         },
     )
 
@@ -736,8 +745,8 @@ def _active_legacy_or_hybrid_surfaces(
                 "an NSOM-bounded setup-local service. "
                 "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
                 "remaining backend work as non-blocking policy or presentation cleanup. "
-                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` recommends removing "
-                "internal rollback paths in the next implementation step. "
+                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` records that "
+                "1.13.8 removed internal runtime rollback constructor paths. "
                 f"Contract status: `{equipment_presenter_contract_state['verdict']}`. "
                 f"Score ownership status: `{equipment_score_ownership_state['verdict']}`. "
                 f"Component boundary status: `{equipment_score_boundary_state['verdict']}`. "
@@ -745,9 +754,9 @@ def _active_legacy_or_hybrid_surfaces(
                 f"Closeout status: `{equipment_closeout_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Keep Equipment as a setup-local service; review the 1.13.7 "
-                "rollback cleanup policy, then remove internal rollback paths "
-                "before visible UI/explanation work."
+                "Keep Equipment as a setup-local service; rollback cleanup is "
+                "complete, so visible UI/explanation or Universe/catalogue policy "
+                "can be considered separately."
             ),
         },
         {

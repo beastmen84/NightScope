@@ -74,7 +74,7 @@ def generate_readiness_audit_data() -> dict[str, object]:
             "default_on_switch_completed": NSOM_PLANNER_SCORING_ENABLED is True,
             "ready_to_enable_in_this_commit": ready,
             "recommendation": (
-                "keep_default_on_with_explicit_rollback"
+                "keep_default_on_with_runtime_rollback_removed"
                 if ready
                 else "resolve_readiness_blockers_before_keeping_default_on"
             ),
@@ -106,7 +106,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             "This developer-only audit checks whether the NSOM Planner default-on "
-            "switch is safe to keep while preserving an explicit legacy rollback path. "
+            "switch is safe to keep after the 1.13.8 runtime rollback cleanup. "
             "It does not tune weights, remove legacy Planner scoring, "
             "write runtime files, log automatically, perform network work or expose QML."
         ),
@@ -214,8 +214,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Keep the default-on switch only while this audit remains green and "
-                "`NightPlannerService(use_nsom_planner_scoring=False)` continues to "
-                "provide an explicit legacy rollback path."
+                "legacy Planner formula comparison remains developer-only. As of "
+                "1.13.8, the runtime constructor rollback path is removed."
             ),
             "",
         ]
@@ -372,7 +372,8 @@ def _runtime_safety(
 ) -> dict[str, object]:
     return {
         "flag_default_on": NSOM_PLANNER_SCORING_ENABLED is True,
-        "legacy_planner_explicit_rollback_available": True,
+        "legacy_planner_explicit_rollback_available": False,
+        "legacy_planner_runtime_rollback_removed": True,
         "qml_exposure_absent": static_checks["qml_matches"] == (),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "tooling_developer_only": all(
@@ -407,7 +408,12 @@ def _is_ready(
         and decision_summary["accepted_decisions_documented"] is True
         and decision_summary["deferred_decisions_documented"] is True
         and decision_summary["deferred_non_blocking"] is True
-        and all(value is True for value in runtime_safety.values())
+        and runtime_safety["legacy_planner_explicit_rollback_available"] is False
+        and all(
+            value is True
+            for key, value in runtime_safety.items()
+            if key != "legacy_planner_explicit_rollback_available"
+        )
     )
 
 
@@ -416,7 +422,7 @@ def _readiness_reason(ready: bool) -> str:
         return (
             "No calibration or policy blockers remain; accepted/deferred decisions "
             "are documented; deferred items are non-blocking; the runtime flag is "
-            "default-on; the explicit legacy rollback path remains available; "
+            "default-on; the former explicit legacy rollback path was removed in 1.13.8; "
             "developer-only report tooling remains unwired."
         )
     return (
@@ -429,7 +435,7 @@ def _risks_before_switch() -> tuple[str, ...]:
     return (
         "The default-on switch intentionally changes Planner ranking and needs runtime acceptance review.",
         "Deferred review items should remain visible after enabling so they do not become hidden calibration debt.",
-        "The explicit rollback path should be preserved until NSOM Planner has enough runtime evidence.",
+        "The explicit runtime rollback path was removed in 1.13.8; future reversions should be handled by code review.",
     )
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from inspect import signature
 from pathlib import Path
 
 from astro_viewer.app.models.equipment import Telescope
@@ -21,6 +22,7 @@ from astro_viewer.tools.best_object_nsom_readiness_audit import (
     READINESS_AUDIT_PATH as DEFAULT_OFF_READINESS_AUDIT_PATH,
     generate_readiness_audit_data,
 )
+from astro_viewer.app.viewmodels.app_controller import AppController
 
 DEFAULT_ON_READINESS_AUDIT_PATH = Path("docs/BEST_OBJECT_NSOM_DEFAULT_ON_READINESS_AUDIT.md")
 
@@ -69,8 +71,8 @@ def generate_default_on_readiness_audit_data() -> dict[str, object]:
             "default_flag_currently_enabled": NSOM_BEST_OBJECT_ENABLED is True,
             "requires_separate_flag_change": NSOM_BEST_OBJECT_ENABLED is False,
             "runtime_behaviour_changed_by_this_audit": False,
-            "explicit_legacy_rollback": "AppController(use_nsom_best_object=False)",
-            "explicit_nsom_path": "AppController(use_nsom_best_object=True)",
+            "explicit_legacy_rollback": "removed: AppController(use_nsom_best_object=False)",
+            "explicit_nsom_path": "default AppController()",
             "recommended_switch_change": (
                 "already enabled"
                 if NSOM_BEST_OBJECT_ENABLED
@@ -109,7 +111,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit checks whether the existing default-off Best Object "
             "NSOM path is safe after the default-on switch. It reports the current "
-            "`NSOM_BEST_OBJECT_ENABLED` flag, rollback path and policy state without "
+            "`NSOM_BEST_OBJECT_ENABLED` flag, removed rollback path and policy state without "
             "exposing QML fields, writing runtime files, logging automatically, calling the network, changing "
             "recommendedDeepSky, Planner or Sky Compass."
         ),
@@ -195,6 +197,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             f"- Constructor rollback: `{rollback['constructor_rollback']}`.",
             f"- Legacy path preserved: `{rollback['legacy_path_preserved']}`.",
+            f"- Runtime rollback removed: `{rollback['runtime_rollback_removed']}`.",
             f"- Blocks default-on switch: `{rollback['blocks_default_on_switch']}`.",
             "",
             "## Runtime Safety",
@@ -223,8 +226,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Review the default-on switch, then close the Best Object NSOM migration "
-                "in documentation while keeping `AppController(use_nsom_best_object=False)` "
-                "as rollback."
+                "in documentation while keeping visible score explanation as a separate UI step."
             ),
             "",
         ]
@@ -388,11 +390,14 @@ def _missing_sky_quality_policy(static_checks: dict[str, object]) -> dict[str, o
 
 
 def _rollback_policy() -> dict[str, object]:
+    parameter_present = "use_nsom_best_object" in signature(AppController.__init__).parameters
     return {
-        "constructor_rollback": "AppController(use_nsom_best_object=False)",
-        "legacy_path_preserved": True,
+        "constructor_rollback": "removed: AppController(use_nsom_best_object=False)",
+        "legacy_path_preserved": False,
+        "rollback_parameter_present": parameter_present,
+        "runtime_rollback_removed": not parameter_present,
         "blocks_default_on_switch": False,
-        "reason": "The constructor override can force the legacy Best Object path after the flag changes.",
+        "reason": "The constructor override was removed in 1.13.8; missing sky quality remains a data fallback.",
     }
 
 
@@ -455,7 +460,7 @@ def _readiness_checks(
         "missing_sky_quality_fallback_documented": missing_sky["fallback_present"] is True
         and missing_sky["blocks_default_on_switch"] is False,
         "displayed_score_semantics_non_blocking": display["blocks_default_on_switch"] is False,
-        "constructor_rollback_available": rollback["legacy_path_preserved"] is True
+        "constructor_rollback_removed": rollback["runtime_rollback_removed"] is True
         and rollback["blocks_default_on_switch"] is False,
         "confidence_score_neutral": confidence["scores_equal"] is True
         and confidence["confidence_values_differ"] is True
@@ -473,7 +478,7 @@ def _default_on_blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "invisible_targets_non_actionable": "best-object-invisible-target-policy",
         "missing_sky_quality_fallback_documented": "best-object-missing-sky-quality-policy",
         "displayed_score_semantics_non_blocking": "best-object-displayed-score-semantics",
-        "constructor_rollback_available": "best-object-legacy-rollback",
+        "constructor_rollback_removed": "best-object-rollback-still-present",
         "confidence_score_neutral": "best-object-confidence-neutrality",
         "runtime_safety_clean": "best-object-runtime-safety",
     }
@@ -530,8 +535,8 @@ def _readiness_reason(ready: bool) -> str:
     if ready:
         return (
             "The default-off runtime path, non-actionable policies, confidence neutrality, "
-            "rollback path, missing-sky fallback and developer-only safety checks remain "
-            "valid with the Best Object NSOM flag enabled by default."
+            "removed rollback path, missing-sky fallback and developer-only safety checks "
+            "remain valid with the Best Object NSOM flag enabled by default."
         )
     return "One or more Best Object default-on policy or runtime-safety checks still blocks the switch."
 

@@ -14,10 +14,10 @@ This developer-only audit checks whether Advanced Observing NSOM can be kept ena
 - Default flag currently enabled: `True`.
 - Requires separate flag change: `False`.
 - Default-on switch completed: `True`.
-- Explicit rollback: `AppController(use_nsom_advanced_observing=False)`.
+- Explicit rollback: `removed: AppController(use_nsom_advanced_observing=False)`.
 - Runtime default changed by switch: `True`.
 - Visible runtime behaviour changed: `False`.
-- Recommended next change: keep the backend default-on switch, use explicit rollback for legacy diagnostics when needed, and review visible UI separately.
+- Recommended next change: keep the backend default-on switch, keep runtime rollback removed, and review visible UI separately.
 
 ## Default-On Blockers
 
@@ -84,4 +84,4 @@ This developer-only audit checks whether Advanced Observing NSOM can be kept ena
 
 ## Recommended Next Step
 
-Keep the backend default-on switch narrow: preserve `AppController(use_nsom_advanced_observing=False)` as rollback, keep `advancedScores` and visible QML unchanged, and review any visible Advanced Observing NSOM UI separately.
+Keep the backend default-on switch narrow: preserve runtime rollback removal, keep `advancedScores` and visible QML unchanged, and review any visible Advanced Observing NSOM UI separately.
