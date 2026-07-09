@@ -9,6 +9,11 @@ from astro_viewer.app.models.recommendation_candidate import RecommendationCandi
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
+from astro_viewer.app.services.equipment_setup_score_read_model import (
+    EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS,
+    EquipmentSetupScoreReadModel,
+    EquipmentSetupScoreReadModelBuilder,
+)
 
 
 class EquipmentService:
@@ -16,6 +21,7 @@ class EquipmentService:
 
     def __init__(self, presenter: RecommendationPresenter | None = None) -> None:
         self._presenter = presenter or RecommendationPresenter()
+        self._setup_score_read_model_builder = EquipmentSetupScoreReadModelBuilder()
 
     def naked_eye_telescope(self) -> Telescope:
         return Telescope(self.NAKED_EYE_ID, "Occhio nudo", 0, 0, "Occhio nudo", "nessuna")
@@ -601,14 +607,60 @@ class EquipmentService:
         sky_quality: SkyQuality | None,
         multiplier: float = 1.0,
     ) -> float:
-        score = 0.0
-        score += self._angular_scale_score(traits, configuration, profile, 24.0)
-        score += self._magnification_score(configuration.magnification, profile, 24.0)
-        score += self._exit_pupil_score(configuration.exit_pupil_mm, profile, 16.0)
-        score += self._light_gathering_score(traits, configuration, sky_quality, 16.0)
-        score += self._seeing_compatibility_score(configuration.magnification, profile, 10.0)
-        score += self._handling_score(configuration, profile, multiplier, 10.0)
-        return max(0.0, min(100.0, score))
+        return self._configuration_score_read_model(
+            traits,
+            configuration,
+            profile,
+            sky_quality,
+            multiplier,
+        ).score
+
+    def _configuration_score_read_model(
+        self,
+        traits: TargetObservationTraits,
+        configuration: ObservationConfiguration,
+        profile: dict,
+        sky_quality: SkyQuality | None,
+        multiplier: float = 1.0,
+    ) -> EquipmentSetupScoreReadModel:
+        weights = EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS
+        return self._setup_score_read_model_builder.from_component_values(
+            {
+                "angular_scale": self._angular_scale_score(
+                    traits,
+                    configuration,
+                    profile,
+                    weights["angular_scale"],
+                ),
+                "magnification": self._magnification_score(
+                    configuration.magnification,
+                    profile,
+                    weights["magnification"],
+                ),
+                "exit_pupil": self._exit_pupil_score(
+                    configuration.exit_pupil_mm,
+                    profile,
+                    weights["exit_pupil"],
+                ),
+                "light_gathering": self._light_gathering_score(
+                    traits,
+                    configuration,
+                    sky_quality,
+                    weights["light_gathering"],
+                ),
+                "seeing_compatibility": self._seeing_compatibility_score(
+                    configuration.magnification,
+                    profile,
+                    weights["seeing_compatibility"],
+                ),
+                "handling": self._handling_score(
+                    configuration,
+                    profile,
+                    multiplier,
+                    weights["handling"],
+                ),
+            }
+        )
 
     def _angular_scale_score(
         self,

@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.13.3 - 2026-07-09
+
+- Introdotto `EquipmentSetupScoreReadModel`, boundary immutabile dei componenti
+  reali di `EquipmentService._configuration_score`.
+- `EquipmentService._configuration_score(...)` ora somma gli stessi componenti
+  tramite il read-model e restituisce lo stesso score finale clampato 0-100.
+- `EquipmentNsomComparisonService` usa il read-model per il breakdown legacy,
+  eliminando la duplicazione diagnostica della formula.
+- Aggiunto `docs/EQUIPMENT_SETUP_SCORE_COMPONENT_BOUNDARY.md`, report
+  developer-only con parity check su score e componenti.
+- Aggiornati gli audit backend/legacy: Equipment passa a
+  `equipment_setup_score_component_boundary_introduced`; il prossimo step e'
+  una review 1.13.3 seguita da audit policy su un eventuale path Equipment
+  default-off.
+- Nessun cambio a ranking Equipment, selection score, Planner, Home, Best
+  Object, Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete
+  o scritture runtime.
+
 ## NightScope 1.13.2 - 2026-07-09
 
 - Aggiunto `docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md`, audit

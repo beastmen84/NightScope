@@ -13,7 +13,7 @@ This developer-only audit defines the presenter contract that must exist before 
 - Runtime read-model boundary present: `True`.
 - Default-off Equipment path recommended now: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.2, then extract an Equipment setup-score component read-model if runtime parity can be preserved.
+- Recommended next step: Review 1.13.3, then audit whether Equipment needs a default-off NSOM setup path or should remain setup-local.
 - Reason: Equipment is an active setup-presentation helper. The existing runtime payload owns eyepiece, Barlow, binocular, fallback and setupOptions fields that Q_target does not replace. A runtime-neutral setup read-model boundary now preserves that payload before AppController projects it to CelestialObject fields. NSOM can own ObserverCapability/Q_target and future PracticalTargetValue metadata, but EquipmentService scoring is not ready for replacement.
 
 ## Presenter Contract
@@ -80,8 +80,8 @@ This developer-only audit defines the presenter contract that must exist before 
 
 ## Recommended Sequence
 
-- `Review 1.13.2`: Confirm the Equipment setup-score ownership audit before extracting components.
-- `1.13.3 Equipment setup-score component boundary`: Extract a runtime-neutral setup-score component read-model with strict parity tests.
+- `Review 1.13.3`: Confirm the Equipment setup-score component boundary preserves parity.
+- `1.13.4 Equipment default-off path policy audit`: Decide whether Equipment needs a default-off NSOM setup path or should remain a setup-local recommendation service.
 
 ## Conclusion
 

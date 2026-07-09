@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.2, then extract an Equipment setup-score component read-model if runtime parity can be preserved.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary and score ownership audit; runtime setup recommendations remain unchanged.
+- Recommended next step: Review 1.13.3, then audit whether Equipment needs a default-off NSOM setup path or should remain a setup-local recommendation service.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary and score ownership audit. Its setup-score components are now exposed through a runtime-neutral read-model with parity checks; runtime setup recommendations remain unchanged.
 
 ## Audit Blockers
 
@@ -33,7 +33,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `equipment_setup_score_ownership_audited` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection, and `docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the current score components and confirms they still need a parity component boundary before replacement. | Review the 1.13.2 ownership audit, then extract a runtime-neutral setup-score component read-model if parity can be preserved. |
+| Equipment recommendations | `equipment_setup_score_component_boundary_introduced` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection, and `docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the current score components. `docs/EQUIPMENT_SETUP_SCORE_COMPONENT_BOUNDARY.md` verifies the new immutable component read-model and parity against current EquipmentService scores. | Review the 1.13.3 component boundary, then audit whether Equipment needs a default-off NSOM setup path or should remain setup-local. |
 | ObservationConditions prepared-object cache | `observation_conditions_consumer_reroute_closed` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split, and the 1.12.11 runtime step implements it. The 1.12.12 closeout records the consumer reroute series as complete. | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
@@ -62,8 +62,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.13.2` |
-| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
+| `version` | `1.13.3` |
+| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
 
@@ -117,7 +117,9 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `1.13.2 Equipment setup score ownership audit`: Audit EquipmentService setup-score components before any scoring replacement or default-off path.
 - `Review 1.13.2`: Confirm the setup-score ownership audit before extracting components.
 - `1.13.3 Equipment setup-score component boundary`: Extract a runtime-neutral setup-score component read-model with strict parity tests.
+- `Review 1.13.3`: Confirm the Equipment setup-score component boundary preserves parity.
+- `1.13.4 Equipment default-off path policy audit`: Decide whether Equipment needs a default-off NSOM setup path or should remain a setup-local recommendation service.
 
 ## Conclusion
 
-The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. Notifications are now removed dead legacy, not an NSOM migration surface. ObservationConditions is active hybrid runtime code and now has an internal read-model boundary separating raw and display target data plus a consumer reroute policy; runtime rerouting remains a separate reviewed implementation step. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. Visible UI explanation work remains separate.
+The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. Notifications are now removed dead legacy, not an NSOM migration surface. ObservationConditions is active hybrid runtime code and now has an internal read-model boundary separating raw and display target data plus a consumer reroute policy; runtime rerouting remains a separate reviewed implementation step. Equipment now has a shared ObserverCapability/Q_target adapter, setup read-model boundary, score ownership audit and setup-score component boundary while runtime setup recommendations remain unchanged. Visible UI explanation work remains separate.

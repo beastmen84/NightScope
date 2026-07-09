@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.2`.
+Versione corrente: `1.13.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -624,6 +624,15 @@ praticita' di presentazione. Non e' `ObservableTargetValue`,
 `PracticalTargetValue`, `Q_target` o `RecommendationConfidence`; il prossimo
 step consigliato e' estrarre un read-model dei componenti dello score con parity
 test stretti, senza cambiare il ranking runtime.
+Lo step `1.13.3` introduce quel boundary in
+`astro_viewer/app/services/equipment_setup_score_read_model.py`.
+`EquipmentService._configuration_score(...)` costruisce ora un
+`EquipmentSetupScoreReadModel` con i componenti reali dello score e restituisce
+lo stesso totale clampato 0-100. Il confronto Equipment usa il read-model per il
+breakdown legacy, quindi la diagnostica non duplica piu' la formula. Nessun
+ranking, payload QML, score di selection o raccomandazione runtime cambia; il
+prossimo step e' una review del boundary e poi un audit policy per decidere se
+serve davvero un path Equipment NSOM default-off.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -109,7 +109,10 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     assert active["Equipment recommendations"]["classification"] == "active_legacy_or_hybrid"
     assert "observer_capability_adapter.py" in active["Equipment recommendations"]["why_active"]
     assert "equipment_setup_score_ownership_audited" in active["Equipment recommendations"]["why_active"]
-    assert "setup-score component read-model" in active[
+    assert "equipment_setup_score_component_boundary_introduced" in active[
+        "Equipment recommendations"
+    ]["why_active"]
+    assert "default-off NSOM setup path" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
     assert "observation_conditions_consumer_reroute_closed" in active[
@@ -162,4 +165,6 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.13.2 Equipment setup score ownership audit" in text
     assert "Review 1.13.2" in text
     assert "1.13.3 Equipment setup-score component boundary" in text
+    assert "Review 1.13.3" in text
+    assert "1.13.4 Equipment default-off path policy audit" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

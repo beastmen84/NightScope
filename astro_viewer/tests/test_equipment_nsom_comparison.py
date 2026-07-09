@@ -41,6 +41,9 @@ def test_legacy_component_sum_matches_equipment_service_score() -> None:
         legacy = row["legacy"]
         assert legacy["component_sum"] == pytest.approx(legacy["score"])
         assert sum(legacy["components"].values()) == pytest.approx(legacy["score"])
+        assert legacy["score_read_model"]["score"] == pytest.approx(legacy["score"])
+        assert legacy["score_read_model"]["component_values"] == legacy["components"]
+        assert legacy["score_read_model"]["formula_source"] == "EquipmentService._configuration_score"
         assert "q_target:not_part_of_equipment_service_formula" in legacy["unavailable_components"]
         assert legacy["ownership_mixing"]["target_traits"]["mixed_into_equipment_score"] is True
         assert legacy["ownership_mixing"]["observer_configuration"]["mixed_into_equipment_score"] is True

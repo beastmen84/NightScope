@@ -112,8 +112,8 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.2, then extract an Equipment setup-score component "
-                "read-model if runtime parity can be preserved."
+                "Review 1.13.3, then audit whether Equipment needs a default-off "
+                "NSOM setup path or should remain setup-local."
             ),
             "reason": (
                 "Equipment is an active setup-presentation helper. The existing "
@@ -136,17 +136,16 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
             {
-                "step": "Review 1.13.2",
+                "step": "Review 1.13.3",
                 "summary": (
-                    "Confirm the Equipment setup-score ownership audit before "
-                    "extracting components."
+                    "Confirm the Equipment setup-score component boundary preserves parity."
                 ),
             },
             {
-                "step": "1.13.3 Equipment setup-score component boundary",
+                "step": "1.13.4 Equipment default-off path policy audit",
                 "summary": (
-                    "Extract a runtime-neutral setup-score component read-model "
-                    "with strict parity tests."
+                    "Decide whether Equipment needs a default-off NSOM setup path "
+                    "or should remain a setup-local recommendation service."
                 ),
             },
         ),

@@ -4,6 +4,12 @@ import json
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
+from astro_viewer.app.services.equipment_setup_score_read_model import (
+    EQUIPMENT_SETUP_SCORE_COMPONENT_METADATA,
+    EQUIPMENT_SETUP_SCORE_COMPONENT_ORDER,
+    EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS,
+    EQUIPMENT_SETUP_SCORE_FORMULA,
+)
 from astro_viewer.tools.equipment_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -23,14 +29,7 @@ REPORT_IMPORT_MARKERS = (
 
 QML_MARKERS = REPORT_IMPORT_MARKERS
 
-COMPONENT_WEIGHTS = {
-    "angular_scale": 24.0,
-    "magnification": 24.0,
-    "exit_pupil": 16.0,
-    "light_gathering": 16.0,
-    "seeing_compatibility": 10.0,
-    "handling": 10.0,
-}
+COMPONENT_WEIGHTS = dict(EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS)
 
 
 def generate_equipment_setup_score_ownership_audit_data() -> dict[str, object]:
@@ -72,25 +71,24 @@ def generate_equipment_setup_score_ownership_audit_data() -> dict[str, object]:
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.2, then extract an Equipment setup-score component "
-                "read-model if runtime parity can be preserved."
+                "Review 1.13.3, then audit whether Equipment needs a default-off "
+                "NSOM setup path or should remain setup-local."
             ),
             "reason": (
                 "EquipmentService setup score is useful and deterministic, but its "
                 "single scalar mixes target traits, observer configuration, seeing, "
-                "sky quality and presentation practicality. The next safe work is a "
-                "component read-model/parity boundary, not a scoring replacement."
+                "sky quality and presentation practicality. The 1.13.3 component "
+                "read-model makes that boundary explicit; replacement still needs "
+                "a separate policy audit."
             ),
         },
         "formula": {
             "name": "EquipmentService._configuration_score",
-            "formula": (
-                "angular_scale + magnification + exit_pupil + light_gathering + "
-                "seeing_compatibility + handling"
-            ),
+            "formula": EQUIPMENT_SETUP_SCORE_FORMULA,
             "component_weights": COMPONENT_WEIGHTS,
             "total_weight": sum(COMPONENT_WEIGHTS.values()),
             "source": "astro_viewer/app/services/equipment_service.py",
+            "component_boundary": "EquipmentSetupScoreReadModel",
         },
         "component_policies": component_policies,
         "component_statistics": _component_statistics(rows),
@@ -113,6 +111,20 @@ def generate_equipment_setup_score_ownership_audit_data() -> dict[str, object]:
                 "summary": (
                     "Extract a runtime-neutral setup-score component read-model "
                     "with parity tests before any replacement path."
+                ),
+            },
+            {
+                "step": "Review 1.13.3",
+                "summary": (
+                    "Confirm the component boundary preserves EquipmentService "
+                    "score parity and remains internal."
+                ),
+            },
+            {
+                "step": "1.13.4 Equipment default-off path policy audit",
+                "summary": (
+                    "Decide whether Equipment needs a default-off NSOM setup path "
+                    "or should remain a setup-local recommendation service."
                 ),
             },
         ),
@@ -285,9 +297,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "EquipmentService should not be replaced by Q_target or by a raw "
-                "NSOM target-value score. The next safe backend step is a "
-                "runtime-neutral setup-score component boundary with parity tests; "
-                "only after that should a default-off replacement path be considered."
+                "NSOM target-value score. The setup-score component boundary is "
+                "now explicit; only after review and a policy audit should a "
+                "default-off replacement path be considered."
             ),
             "",
         ]
@@ -303,56 +315,22 @@ def write_markdown_report(path: Path = REPORT_PATH) -> Path:
 
 
 def _component_policies() -> tuple[dict[str, object], ...]:
-    return (
+    return tuple(
         _component_policy(
-            "angular_scale",
-            current_inputs=("target apparent size", "true field", "target profile mode"),
-            nsom_layers=("universe", "observer", "presentation/setup"),
-            replacement_policy=(
-                "Keep as setup compatibility; do not fold into ObservableTargetValue."
+            component,
+            current_inputs=tuple(
+                str(item)
+                for item in EQUIPMENT_SETUP_SCORE_COMPONENT_METADATA[component]["current_inputs"]
             ),
-        ),
-        _component_policy(
-            "magnification",
-            current_inputs=("configuration magnification", "target profile idealMag"),
-            nsom_layers=("observer", "presentation/setup"),
-            replacement_policy=(
-                "Keep as setup compatibility; Q_target may reference capability but "
-                "must not replace focal-position selection."
+            nsom_layers=tuple(
+                str(item)
+                for item in EQUIPMENT_SETUP_SCORE_COMPONENT_METADATA[component]["nsom_layers"]
             ),
-        ),
-        _component_policy(
-            "exit_pupil",
-            current_inputs=("configuration exit pupil", "target profile idealExit", "sky-adjusted profile"),
-            nsom_layers=("observer", "sky", "presentation/setup"),
-            replacement_policy=(
-                "Requires explicit setup context because sky quality can alter ideal exit pupil."
+            replacement_policy=str(
+                EQUIPMENT_SETUP_SCORE_COMPONENT_METADATA[component]["replacement_policy"]
             ),
-        ),
-        _component_policy(
-            "light_gathering",
-            current_inputs=("aperture/objective", "target magnitude", "surface brightness proxy", "sky quality"),
-            nsom_layers=("universe", "observer", "sky"),
-            replacement_policy=(
-                "Split before replacement; target faintness and sky quality cannot be hidden inside observer capability."
-            ),
-        ),
-        _component_policy(
-            "seeing_compatibility",
-            current_inputs=("configuration magnification", "seeing-limited maxUsefulMag"),
-            nsom_layers=("sky", "session", "observer", "presentation/setup"),
-            replacement_policy=(
-                "Keep separate from ObserverCapability until seeing/session ownership is explicit."
-            ),
-        ),
-        _component_policy(
-            "handling",
-            current_inputs=("Barlow multiplier", "binocular stabilization", "target profile barlowFriendly"),
-            nsom_layers=("observer", "presentation/setup"),
-            replacement_policy=(
-                "Presentation/practical setup factor; not target physics and not RecommendationConfidence."
-            ),
-        ),
+        )
+        for component in EQUIPMENT_SETUP_SCORE_COMPONENT_ORDER
     )
 
 

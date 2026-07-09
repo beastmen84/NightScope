@@ -71,11 +71,12 @@ The matrix covers 5 deterministic scenarios and 34 candidate rows.
 - Legacy EquipmentService exposes a useful component sum, but mixes target traits, sky quality, seeing and setup handling in one score.
 - NSOM Q_target is configuration-derived and target-class-specific; it stays outside ObservableTargetValue.
 - ObserverCapability/Q_target projection is now shared adapter logic, not private report-only code.
+- Legacy component values now come from EquipmentSetupScoreReadModel instead of report-private duplication.
 - RecommendationConfidence is present only as metadata and has zero score effect.
 - Equipment remains an active backend area; the shared adapter supports diagnostics/read models, not a runtime setup switch.
 
 ## Recommended Next Steps
 
 1. Review the shared ObserverCapability/Q_target adapter extraction.
-2. Review the 1.13.2 setup-score ownership audit.
-3. Extract a setup-score component read-model only with strict parity tests.
+2. Review the 1.13.3 setup-score component boundary.
+3. Audit whether Equipment needs a default-off NSOM setup path or should remain setup-local with NSOM metadata.

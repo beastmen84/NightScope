@@ -756,6 +756,16 @@ presentation-local practicality. It is not a direct `ObservableTargetValue`,
 No Equipment recommendation, ranking, QML, logging, network or runtime
 file-write behaviour changes; the next safe step is a component read-model with
 strict parity tests.
+`1.13.3` introduces that component boundary in
+`astro_viewer/app/services/equipment_setup_score_read_model.py`.
+`EquipmentService._configuration_score(...)` now builds an
+`EquipmentSetupScoreReadModel` from the real component values and returns the
+same clamped 0-100 score. `EquipmentNsomComparisonService` reads the legacy
+breakdown from that read-model instead of duplicating the formula. No Equipment
+ranking, selection score, payload shape, QML, logging, network or runtime
+file-write behaviour changes. The next safe step is to review the boundary and
+then decide, via policy audit, whether Equipment needs a default-off NSOM setup
+path at all.
 
 ## Dependency Flow
 

@@ -120,5 +120,5 @@ def test_checked_in_equipment_setup_score_ownership_report_matches_renderer() ->
     assert "# Equipment Setup Score Ownership Audit" in text
     assert "equipment_setup_score_ownership_audited" in text
     assert "EquipmentService._configuration_score" in text
-    assert "runtime-neutral setup-score component boundary" in text
+    assert "setup-score component boundary is now explicit" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

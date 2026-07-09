@@ -18,6 +18,11 @@ from astro_viewer.app.models.recommendation_candidate import RecommendationCandi
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.equipment_setup_score_read_model import (
+    EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS,
+    EQUIPMENT_SETUP_SCORE_FORMULA,
+    EquipmentSetupScoreReadModel,
+)
 from astro_viewer.app.services.home_nsom_observable import build_home_observation_environment
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_intrinsic_target_quality,
@@ -104,19 +109,10 @@ class EquipmentNsomComparisonService:
             {
                 "target": _target_projection(target, intrinsic),
                 "legacy_formula": {
-                    "name": "EquipmentService",
-                    "formula": (
-                        "angular_scale + magnification + exit_pupil + "
-                        "light_gathering + seeing_compatibility + handling"
-                    ),
-                    "component_weights": {
-                        "angular_scale": 24.0,
-                        "magnification": 24.0,
-                        "exit_pupil": 16.0,
-                        "light_gathering": 16.0,
-                        "seeing_compatibility": 10.0,
-                        "handling": 10.0,
-                    },
+                    "name": "EquipmentService._configuration_score",
+                    "formula": EQUIPMENT_SETUP_SCORE_FORMULA,
+                    "component_weights": dict(EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS),
+                    "component_read_model": "EquipmentSetupScoreReadModel",
                     "recommended_candidate_id": (
                         recommended.configuration.configuration_id if recommended else None
                     ),
@@ -240,15 +236,14 @@ class EquipmentNsomComparisonService:
     ) -> dict[str, object]:
         traits = TargetObservationTraits.from_object(target)
         profile = self._legacy_profile(candidate, target, traits, seeing=seeing, sky_quality=sky_quality)
-        components = self._legacy_component_breakdown(candidate, traits, profile, sky_quality)
+        score_read_model = self._legacy_score_read_model(candidate, traits, profile, sky_quality)
+        components = score_read_model.component_values()
         return {
             "score": candidate.score,
-            "formula": (
-                "angular_scale + magnification + exit_pupil + light_gathering + "
-                "seeing_compatibility + handling"
-            ),
+            "formula": score_read_model.formula,
+            "score_read_model": score_read_model.to_dict(),
             "components": components,
-            "component_sum": sum(float(value) for value in components.values()),
+            "component_sum": score_read_model.unclamped_score,
             "target_profile": profile,
             "available_components": tuple(components),
             "unavailable_components": (
@@ -297,50 +292,21 @@ class EquipmentNsomComparisonService:
             return self._equipment_service._target_profile(target, telescope, seeing, sky_quality)
         return {}
 
-    def _legacy_component_breakdown(
+    def _legacy_score_read_model(
         self,
         candidate: RecommendationCandidate,
         traits: TargetObservationTraits,
         profile: dict[str, object],
         sky_quality: SkyQuality,
-    ) -> dict[str, float]:
+    ) -> EquipmentSetupScoreReadModel:
         configuration = candidate.configuration
-        multiplier = candidate.multiplier
-        return {
-            "angular_scale": self._equipment_service._angular_scale_score(
-                traits,
-                configuration,
-                profile,
-                24.0,
-            ),
-            "magnification": self._equipment_service._magnification_score(
-                configuration.magnification,
-                profile,
-                24.0,
-            ),
-            "exit_pupil": self._equipment_service._exit_pupil_score(
-                configuration.exit_pupil_mm,
-                profile,
-                16.0,
-            ),
-            "light_gathering": self._equipment_service._light_gathering_score(
-                traits,
-                configuration,
-                sky_quality,
-                16.0,
-            ),
-            "seeing_compatibility": self._equipment_service._seeing_compatibility_score(
-                configuration.magnification,
-                profile,
-                10.0,
-            ),
-            "handling": self._equipment_service._handling_score(
-                configuration,
-                profile,
-                multiplier,
-                10.0,
-            ),
-        }
+        return self._equipment_service._configuration_score_read_model(
+            traits,
+            configuration,
+            profile,
+            sky_quality,
+            candidate.multiplier,
+        )
 
 def _nsom_projection(
     intrinsic: IntrinsicTargetQuality,

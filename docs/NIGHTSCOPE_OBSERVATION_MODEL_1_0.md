@@ -1291,6 +1291,19 @@ practicality, so it cannot be replaced directly by `ObservableTargetValue`,
 ranking, payload, QML, logging, network call or runtime write is changed; the
 next safe Equipment step is a component read-model with strict parity tests.
 
+Implementation note for 1.13.3:
+`EquipmentSetupScoreReadModel` and `EquipmentSetupScoreReadModelBuilder` expose
+the real `EquipmentService._configuration_score` components as an immutable
+internal boundary. The service still owns the setup score and still returns the
+same clamped scalar; the read-model makes `angular_scale`, `magnification`,
+`exit_pupil`, `light_gathering`, `seeing_compatibility` and `handling` explicit
+for audits and comparison tooling. `EquipmentNsomComparisonService` now consumes
+this boundary instead of recomputing component breakdowns privately. This is not
+a default-off Equipment replacement path and does not move setup scoring into
+`ObservableTargetValue`, `PracticalTargetValue`, `Q_target` or
+`RecommendationConfidence`. No runtime ranking, QML payload, logging, network
+call or runtime write is changed.
+
 Examples:
 
 - binocular-only profile;
