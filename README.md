@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.4`.
+Versione corrente: `1.14.5`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -719,6 +719,12 @@ fuori finestra e geometria mancante; l'effetto resta confinato al componente
 Sky `lunar_sky_background`. La metadata `moon_geometry_confidence` ora indica
 la disponibilita' reale di `MoonGeometryConditionInput`, ma resta fuori dalla
 formula dello score.
+Lo step `1.14.5` aggiunge
+`docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`, audit developer-only
+che classifica la geometria lunare Planner come pronta per uno switch default-on
+separato. Lo switch non e' ancora abilitato: il default runtime resta
+illumination-only e `NightPlannerService` usa la geometria lunare solo con
+opt-in esplicito del servizio NSOM.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

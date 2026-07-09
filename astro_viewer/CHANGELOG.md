@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.14.5 - 2026-07-09
+
+- Aggiunto `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`, audit
+  developer-only per decidere se il path Planner Moon geometry e' pronto per
+  uno switch default-on separato.
+- L'audit usa i dati del report 1.14.4 e classifica come accettati i guardrail:
+  deep-sky peggiora con Luna alta/vicina, migliora quando la Luna e' lontana o
+  fuori finestra, pianeti/Luna restano protetti, geometria mancante conserva il
+  baseline illuminazione-only.
+- Confermato che l'effetto resta nel boundary Sky
+  `ObservationEnvironment.lunar_sky_background` e che
+  `RecommendationConfidence` resta metadata score-neutral.
+- Il default runtime resta off: `NightPlannerService` non usa ancora la
+  geometria lunare senza uno switch esplicito successivo.
+- Nessun cambio a Planner ranking di default, Home, Best Object, Sky Compass,
+  QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.14.4 - 2026-07-09
 
 - Aggiunto `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`, report

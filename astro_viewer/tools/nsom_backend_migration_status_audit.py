@@ -60,6 +60,7 @@ SOURCE_REPORTS = (
     Path("docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md"),
     Path("docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md"),
     Path("docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md"),
+    Path("docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -139,8 +140,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the Moon geometry Planner calibration report, then decide "
-                "whether Moon geometry needs tuning/default-on work before AOD/OpenAQ"
+                "Review the Moon geometry Planner default-on readiness audit, then "
+                "implement the narrow switch if accepted"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -167,8 +168,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "non-blocking rollback, presentation or Catalogue/Universe policy. "
                 "The 1.13.7 rollback cleanup policy recommended removing internal "
                 "legacy rollback paths; 1.13.8 removed those runtime constructor "
-                "parameters. The current 1.14.x backend focus is local Moon geometry "
-                "calibration before provider-backed AOD/OpenAQ scoring."
+                "parameters. The current 1.14.x backend focus is closing local Moon "
+                "geometry before provider-backed AOD/OpenAQ scoring."
             ),
         },
         "blockers": blockers,

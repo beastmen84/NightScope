@@ -197,8 +197,9 @@ def generate_local_input_moon_geometry_readiness_data() -> dict[str, object]:
             "blocks_current_default_on_surfaces": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md before "
-                "any default-on Moon geometry or AOD/OpenAQ scoring work."
+                "Review docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md, "
+                "then implement a narrow Planner Moon geometry default-on switch "
+                "if accepted."
             ),
             "reason": (
                 "Location plus local ephemeris data now computes Moon altitude, "
@@ -698,6 +699,20 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Confirm calibration evidence, confidence metadata semantics and "
                 "whether Moon geometry needs tuning before default-on."
+            ),
+        },
+        {
+            "step": "1.14.5 Moon geometry Planner default-on readiness",
+            "summary": (
+                "Classify the calibration evidence and decide whether a narrow "
+                "Planner Moon geometry default-on switch is ready."
+            ),
+        },
+        {
+            "step": "Review 1.14.5",
+            "summary": (
+                "Confirm default-on readiness, default-off runtime state and "
+                "non-blocking risks before changing the switch."
             ),
         },
         {

@@ -862,6 +862,12 @@ effect remains confined to the Sky-owned `lunar_sky_background` component.
 Planner `moon_geometry_confidence` now tracks actual `MoonGeometryConditionInput`
 availability instead of generic `MoonSummary` availability, but confidence
 remains outside the scoring formula.
+`1.14.5` adds
+`docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`, a developer-only
+readiness audit for a future default-on switch. It accepts the 1.14.4
+calibration guardrails, confirms that `NightPlannerService` remains default-off
+for Moon geometry today, and recommends a separate narrow switch if the audit is
+accepted.
 
 ## Dependency Flow
 
