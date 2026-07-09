@@ -95,10 +95,12 @@ def test_overall_backend_readiness_recommends_rollback_cleanup_before_ui_explana
     assert data["readiness"]["safe_to_start_visible_ui_explanation_design"] is True
     assert data["readiness"]["visible_ui_explanation_recommended_now"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.6, then run a rollback cleanup policy audit before "
-        "any visible UI/explanation work."
+        "Review 1.13.7, then remove internal legacy rollback paths in a "
+        "focused implementation step."
     )
-    assert decisions["rollback_cleanup_policy"]["status"] == "recommended_next"
+    assert decisions["rollback_cleanup_policy"]["status"] == (
+        "policy_set_remove_internal_rollbacks"
+    )
     assert decisions["rollback_cleanup_policy"]["priority"] == 1
     assert decisions["visible_ui_explanation_policy"]["status"] == (
         "deferred_until_backend_cleanup_policy"
@@ -111,7 +113,8 @@ def test_overall_backend_readiness_recommends_rollback_cleanup_before_ui_explana
     )
     assert sequence == [
         "Review 1.13.6",
-        "1.13.7 Rollback cleanup policy audit",
+        "Review 1.13.7",
+        "1.13.8 Remove internal legacy rollback paths",
         "Visible UI/explanation planning",
     ]
 
@@ -133,6 +136,7 @@ def test_checked_in_overall_backend_readiness_audit_report_matches_renderer() ->
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Overall Backend Readiness Audit" in text
     assert "overall_backend_nsom_ready_for_next_phase" in text
-    assert "1.13.7 Rollback cleanup policy audit" in text
+    assert "Review 1.13.7" in text
+    assert "1.13.8 Remove internal legacy rollback paths" in text
     assert "Visible UI/explanation planning" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

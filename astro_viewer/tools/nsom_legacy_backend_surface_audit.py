@@ -102,8 +102,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review 1.13.6, then run a rollback cleanup policy audit before "
-                "any visible UI/explanation work."
+                "Review 1.13.7, then remove internal legacy rollback paths in a "
+                "focused implementation step."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -127,7 +127,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "marks the Equipment backend NSOM migration closed for the current "
                 "setup-local scope. The 1.13.6 overall backend readiness audit "
                 "classifies the remaining work as non-blocking rollback, "
-                "presentation or Catalogue/Universe policy."
+                "presentation or Catalogue/Universe policy. The 1.13.7 rollback "
+                "cleanup policy recommends removing internal legacy rollback paths next."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -388,6 +389,14 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "removed before visible UI/explanation work."
             ),
         },
+        {
+            "step": "Review 1.13.7",
+            "summary": "Confirm rollback cleanup policy before deleting runtime branches.",
+        },
+        {
+            "step": "1.13.8 Remove internal legacy rollback paths",
+            "summary": "Remove internal rollback flags and legacy branches in a focused commit.",
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -560,8 +569,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "closeout marks the Equipment backend NSOM migration closed for "
                 "the current setup-local scope. The 1.13.6 overall backend "
                 "readiness audit classifies the remaining work as non-blocking "
-                "rollback, presentation or Catalogue/Universe policy. Temporary "
-                "rollback cleanup remains a separate policy decision."
+                "rollback, presentation or Catalogue/Universe policy. The 1.13.7 "
+                "rollback cleanup policy recommends removing internal rollback "
+                "paths next."
             ),
             "",
         ]
@@ -726,6 +736,8 @@ def _active_legacy_or_hybrid_surfaces(
                 "an NSOM-bounded setup-local service. "
                 "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
                 "remaining backend work as non-blocking policy or presentation cleanup. "
+                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` recommends removing "
+                "internal rollback paths in the next implementation step. "
                 f"Contract status: `{equipment_presenter_contract_state['verdict']}`. "
                 f"Score ownership status: `{equipment_score_ownership_state['verdict']}`. "
                 f"Component boundary status: `{equipment_score_boundary_state['verdict']}`. "
@@ -733,9 +745,9 @@ def _active_legacy_or_hybrid_surfaces(
                 f"Closeout status: `{equipment_closeout_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Keep Equipment as a setup-local service; review the 1.13.6 "
-                "overall backend readiness audit, then run a rollback cleanup "
-                "policy audit before visible UI/explanation work."
+                "Keep Equipment as a setup-local service; review the 1.13.7 "
+                "rollback cleanup policy, then remove internal rollback paths "
+                "before visible UI/explanation work."
             ),
         },
         {

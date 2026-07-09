@@ -51,6 +51,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/EQUIPMENT_SETUP_SCORE_COMPONENT_BOUNDARY.md",
             "docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md",
             "docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md",
+            "docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md",
         ],
     }
 
@@ -129,8 +130,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.6, then run a rollback cleanup policy audit before "
-        "any visible UI/explanation work"
+        "Review 1.13.7, then remove internal legacy rollback paths in a "
+        "focused implementation step"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -216,6 +217,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[41] == "1.13.6 Overall backend readiness audit"
     assert sequence[42] == "Review 1.13.6"
     assert sequence[43] == "1.13.7 Rollback cleanup policy audit"
+    assert sequence[44] == "Review 1.13.7"
+    assert sequence[45] == "1.13.8 Remove internal legacy rollback paths"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -246,5 +249,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "observation_conditions_consumer_reroute_closed" in text
     assert "equipment_default_off_path_policy_set_setup_local" in text
     assert "equipment_nsom_migration_closed_setup_local" in text
+    assert "NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -14,8 +14,8 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 - Safe to start rollback cleanup policy: `True`.
 - Safe to start visible UI/explanation design: `True`.
 - Visible UI/explanation recommended now: `False`.
-- Recommended next step: Review 1.13.6, then run a rollback cleanup policy audit before any visible UI/explanation work.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are closed on NSOM default-on paths; Equipment is closed as a setup-local NSOM-bounded service; Sky Map and Notifications are removed dead legacy. Remaining items are internal rollback flags, payload compatibility fields and Universe/catalogue input semantics, none of which block the closed backend recommendation surfaces.
+- Recommended next step: Review 1.13.7, then remove internal legacy rollback paths in a focused implementation step.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are closed on NSOM default-on paths; Equipment is closed as a setup-local NSOM-bounded service; Sky Map and Notifications are removed dead legacy. Remaining items are internal rollback flags, payload compatibility fields and Universe/catalogue input semantics, none of which block the closed backend recommendation surfaces. The 1.13.7 rollback policy audit recommends removing the internal rollback paths next.
 
 ## Closed Backend Surfaces
 
@@ -36,7 +36,7 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 
 | Item | Classification | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Internal legacy rollback flags | `cleanup_policy_pending` | Planner, Home, Best Object, Advanced Observing, Sky Compass and Detail/Object still expose explicit internal rollback constructor flags. | Run a rollback cleanup policy audit before visible UI/explanation work. |
+| Internal legacy rollback flags | `cleanup_policy_pending` | Planner, Home, Best Object, Advanced Observing, Sky Compass and Detail/Object still expose explicit internal rollback constructor flags. | Review the 1.13.7 policy, then remove these internal rollback paths before visible UI/explanation work. |
 | Legacy/base payload compatibility fields | `presentation_compatibility` | Existing QML payloads still contain score-shaped compatibility fields even when NSOM owns ranking. | Keep until a separate UI/presentation design decides what to show. |
 | ObservationConditions prepared-object cache | `observation_conditions_consumer_reroute_closed` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split, and the 1.12.11 runtime step implements it. The 1.12.12 closeout records the consumer reroute series as complete. | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -45,7 +45,7 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 
 | Decision | Priority | Status | Reason |
 | --- | --- | --- | --- |
-| `rollback_cleanup_policy` | `1` | `recommended_next` | 6 internal rollback surfaces remain. Because the app is not distributed, decide whether keeping them is still useful before adding visible UI rationale. |
+| `rollback_cleanup_policy` | `1` | `policy_set_remove_internal_rollbacks` | 6 internal rollback surfaces remain. The 1.13.7 policy audit recommends removing them before adding visible UI rationale. |
 | `visible_ui_explanation_policy` | `2` | `deferred_until_backend_cleanup_policy` | Backend NSOM is ready for planning visible explanations, but score display semantics should be designed separately from this audit. |
 | `payload_score_semantics` | `3` | `presentation_followup` | 5 payload compatibility surfaces still carry legacy/base score fields for QML compatibility. |
 | `catalogue_universe_score_boundary` | `4` | `future_backend_audit` | Treat as Universe/read-model work, not as a ranking hotfix. |
@@ -77,9 +77,10 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 ## Recommended Sequence
 
 - `Review 1.13.6`: Confirm the overall backend readiness audit is accurate.
-- `1.13.7 Rollback cleanup policy audit`: Decide whether internal legacy rollback flags should be kept or removed now that the app is not distributed.
-- `Visible UI/explanation planning`: Start only after rollback cleanup policy is settled, because the backend NSOM recommendation surfaces are already closed.
+- `Review 1.13.7`: Confirm rollback cleanup policy before deleting runtime branches.
+- `1.13.8 Remove internal legacy rollback paths`: Remove internal rollback flags and legacy branches in a focused commit.
+- `Visible UI/explanation planning`: Start only after rollback cleanup is implemented, because the backend NSOM recommendation surfaces are already closed.
 
 ## Conclusion
 
-The backend NSOM recommendation migration is ready for the next phase. The next backend-safe step should be a rollback cleanup policy audit, because the application is not distributed and the internal legacy rollback flags now create more maintenance surface than product value. Visible UI/explanation work remains a separate design step.
+The backend NSOM recommendation migration is ready for the next phase. The rollback cleanup policy is now set: internal legacy rollback flags should be removed in a focused implementation step, because the application is not distributed and those branches now create more maintenance surface than product value. Visible UI/explanation work remains a separate design step.

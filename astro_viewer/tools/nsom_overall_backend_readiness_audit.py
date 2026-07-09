@@ -93,8 +93,8 @@ def generate_overall_backend_readiness_audit_data() -> dict[str, object]:
             "safe_to_start_visible_ui_explanation_design": not blockers,
             "visible_ui_explanation_recommended_now": False,
             "recommended_next_step": (
-                "Review 1.13.6, then run a rollback cleanup policy audit before "
-                "any visible UI/explanation work."
+                "Review 1.13.7, then remove internal legacy rollback paths in a "
+                "focused implementation step."
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -103,7 +103,8 @@ def generate_overall_backend_readiness_audit_data() -> dict[str, object]:
                 "Sky Map and Notifications are removed dead legacy. Remaining items "
                 "are internal rollback flags, payload compatibility fields and "
                 "Universe/catalogue input semantics, none of which block the closed "
-                "backend recommendation surfaces."
+                "backend recommendation surfaces. The 1.13.7 rollback policy audit "
+                "recommends removing the internal rollback paths next."
             ),
         },
         "closed_backend_surfaces": closed_surfaces,
@@ -118,16 +119,17 @@ def generate_overall_backend_readiness_audit_data() -> dict[str, object]:
                 "summary": "Confirm the overall backend readiness audit is accurate.",
             },
             {
-                "step": "1.13.7 Rollback cleanup policy audit",
-                "summary": (
-                    "Decide whether internal legacy rollback flags should be kept "
-                    "or removed now that the app is not distributed."
-                ),
+                "step": "Review 1.13.7",
+                "summary": "Confirm rollback cleanup policy before deleting runtime branches.",
+            },
+            {
+                "step": "1.13.8 Remove internal legacy rollback paths",
+                "summary": "Remove internal rollback flags and legacy branches in a focused commit.",
             },
             {
                 "step": "Visible UI/explanation planning",
                 "summary": (
-                    "Start only after rollback cleanup policy is settled, because "
+                    "Start only after rollback cleanup is implemented, because "
                     "the backend NSOM recommendation surfaces are already closed."
                 ),
             },
@@ -278,11 +280,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM recommendation migration is ready for the next "
-                "phase. The next backend-safe step should be a rollback cleanup "
-                "policy audit, because the application is not distributed and the "
-                "internal legacy rollback flags now create more maintenance surface "
-                "than product value. Visible UI/explanation work remains a separate "
-                "design step."
+                "phase. The rollback cleanup policy is now set: internal legacy "
+                "rollback flags should be removed in a focused implementation step, "
+                "because the application is not distributed and those branches now "
+                "create more maintenance surface than product value. Visible "
+                "UI/explanation work remains a separate design step."
             ),
             "",
         ]
@@ -363,7 +365,8 @@ def _remaining_non_blocking_items(
             "Detail/Object still expose explicit internal rollback constructor flags."
         ),
         "recommended_handling": (
-            "Run a rollback cleanup policy audit before visible UI/explanation work."
+            "Review the 1.13.7 policy, then remove these internal rollback paths "
+            "before visible UI/explanation work."
         ),
         "blocks_backend_readiness": False,
         "source_count": len(legacy["temporary_rollback_surfaces"]),
@@ -420,11 +423,11 @@ def _next_phase_decisions(
         {
             "decision_id": "rollback_cleanup_policy",
             "priority": 1,
-            "status": "recommended_next",
+            "status": "policy_set_remove_internal_rollbacks",
             "reason": (
                 f"{rollback_item['source_count']} internal rollback surfaces remain. "
-                "Because the app is not distributed, decide whether keeping them is "
-                "still useful before adding visible UI rationale."
+                "The 1.13.7 policy audit recommends removing them before adding "
+                "visible UI rationale."
             ),
             "runtime_change_allowed_by_this_audit": False,
         },

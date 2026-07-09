@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.6`.
+Versione corrente: `1.13.7`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -654,6 +654,11 @@ come rollback interni, payload compatibility, cache ObservationConditions e
 score raw catalogo/Universe, e raccomanda come prossimo step un audit policy
 per il cleanup dei rollback prima di qualunque lavoro UI/explanation visibile.
 Nessun comportamento runtime o QML cambia.
+Lo step `1.13.7` aggiunge `docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` e decide
+la policy per i rollback legacy interni rimasti: poiche' l'app non e'
+distribuita e le superfici backend NSOM sono chiuse, i rollback interni devono
+essere rimossi in un prossimo step focalizzato. Questo commit non rimuove ancora
+flag o branch runtime; aggiorna solo audit, report e documentazione.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

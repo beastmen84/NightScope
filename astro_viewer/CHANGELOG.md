@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.13.7 - 2026-07-09
+
+- Aggiunto `docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md`, audit
+  developer-only per decidere la policy dei rollback legacy interni rimasti dopo
+  i closeout backend NSOM.
+- Decisione policy: rimuovere in un prossimo step focalizzato i rollback
+  interni di Planner, Home `recommendedDeepSky`, Best Object, Advanced
+  Observing backend, Sky Compass e Detail/Object internal payload.
+- Motivazione: l'app non e' distribuita, i rollback sono interni e non un
+  contratto pubblico, mentre le superfici backend NSOM risultano chiuse.
+- Aggiornati gli audit backend/legacy/overall per indicare come prossimo step
+  la review `1.13.7` e poi la rimozione dei rollback interni in `1.13.8`.
+- Nessun flag viene rimosso in questo commit e nessun runtime, scoring, QML/UI,
+  logging, rete o scrittura runtime cambia.
+
 ## NightScope 1.13.6 - 2026-07-09
 
 - Aggiunto `docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md`, audit

@@ -58,6 +58,7 @@ SOURCE_REPORTS = (
     Path("docs/EQUIPMENT_SETUP_SCORE_COMPONENT_BOUNDARY.md"),
     Path("docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md"),
     Path("docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md"),
+    Path("docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -137,8 +138,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.6, then run a rollback cleanup policy audit before "
-                "any visible UI/explanation work"
+                "Review 1.13.7, then remove internal legacy rollback paths in a "
+                "focused implementation step"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -161,7 +162,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "recommendations remain unchanged. The 1.13.5 closeout closes "
                 "Equipment as an NSOM-bounded setup-local service. The 1.13.6 "
                 "overall backend readiness audit classifies the remaining work as "
-                "non-blocking rollback, presentation or Catalogue/Universe policy."
+                "non-blocking rollback, presentation or Catalogue/Universe policy. "
+                "The 1.13.7 rollback cleanup policy recommends removing internal "
+                "legacy rollback paths next."
             ),
         },
         "blockers": blockers,
@@ -348,7 +351,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "backend migration as closed for the current setup-local scope. "
                 "The 1.13.6 overall backend readiness audit classifies the "
                 "remaining work as non-blocking rollback, presentation or "
-                "Catalogue/Universe policy. "
+                "Catalogue/Universe policy. The 1.13.7 rollback cleanup policy "
+                "recommends removing internal rollback paths next. "
                 "Visible UI explanation work remains separate."
             ),
             "",
@@ -479,12 +483,14 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "`docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md` closes the Equipment "
                 "backend migration for the current setup-local scope. "
                 "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
-                "remaining backend work as non-blocking policy or presentation cleanup."
+                "remaining backend work as non-blocking policy or presentation cleanup. "
+                "`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` recommends removing "
+                "internal rollback paths in the next implementation step."
             ),
             "recommended_handling": (
-                "Keep Equipment as a setup-local service; review the 1.13.6 "
-                "overall backend readiness audit, then run a rollback cleanup "
-                "policy audit before visible UI/explanation work."
+                "Keep Equipment as a setup-local service; review the 1.13.7 "
+                "rollback cleanup policy, then remove internal rollback paths "
+                "before visible UI/explanation work."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -873,6 +879,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
                 "Decide whether internal legacy rollback flags should be kept or "
                 "removed before visible UI/explanation work."
             ),
+        },
+        {
+            "step": "Review 1.13.7",
+            "summary": "Confirm rollback cleanup policy before deleting runtime branches.",
+        },
+        {
+            "step": "1.13.8 Remove internal legacy rollback paths",
+            "summary": "Remove internal rollback flags and legacy branches in a focused commit.",
         },
     )
 

@@ -1337,6 +1337,16 @@ policy or presentation cleanup: internal rollback flags, compatibility score
 fields and future Catalogue/Universe score semantics. The audit does not change
 runtime scoring, QML, logging, network calls or runtime file writes.
 
+Implementation note for 1.13.7:
+`docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` sets the policy for internal legacy
+rollback paths. The remaining rollback flags are internal only, not a public
+compatibility contract, and the app is not distributed. The audit therefore
+recommends removing those rollback paths in the next focused implementation
+step for Planner, Home recommendedDeepSky, Best Object, Advanced Observing
+backend, Sky Compass and Detail/Object internal payload. The audit is
+developer-only and does not itself remove flags, change runtime scoring, expose
+QML, log, access the network or write runtime files.
+
 Examples:
 
 - binocular-only profile;

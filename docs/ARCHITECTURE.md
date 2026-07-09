@@ -792,6 +792,14 @@ non-blocking policy or presentation cleanup: internal rollback flags,
 legacy/base payload score fields and future Catalogue/Universe score semantics.
 No scoring, runtime path, QML, logging, network or runtime file-write behaviour
 changes.
+`1.13.7` adds `docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md` and sets the policy
+for the remaining internal rollback paths. Because the app is not distributed,
+and the backend NSOM surfaces are already closed, the rollback constructor flags
+and legacy branches for Planner, Home `recommendedDeepSky`, Best Object,
+Advanced Observing backend, Sky Compass and Detail/Object internal payload should
+be removed in the next focused implementation step. The 1.13.7 audit does not
+remove those flags or change runtime behaviour; it records the decision and
+required validation.
 
 ## Dependency Flow
 
