@@ -82,5 +82,6 @@ def test_checked_in_equipment_setup_score_component_boundary_report_matches_rend
     assert "# Equipment Setup Score Component Boundary" in text
     assert "equipment_setup_score_component_boundary_introduced" in text
     assert "EquipmentSetupScoreReadModel" in text
-    assert "Review 1.13.4" in text
+    assert "Review 1.13.5" in text
+    assert "Next backend NSOM area selection audit" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -87,5 +87,6 @@ def test_checked_in_equipment_default_off_path_policy_report_matches_renderer() 
     assert "# Equipment NSOM Default-Off Path Policy Audit" in text
     assert "equipment_default_off_path_policy_set_setup_local" in text
     assert "add_default_off_nsom_equipment_path" in text
-    assert "1.13.5 Equipment NSOM migration closeout" in text
+    assert "Review 1.13.5" in text
+    assert "Next backend NSOM area selection audit" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -13,7 +13,7 @@ This developer-only audit defines the presenter contract that must exist before 
 - Runtime read-model boundary present: `True`.
 - Default-off Equipment path recommended now: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.4, then close the Equipment backend NSOM migration as setup-local with NSOM boundaries.
+- Recommended next step: Review 1.13.5, then choose the next backend NSOM area or run an overall backend readiness audit.
 - Reason: Equipment is an active setup-presentation helper. The existing runtime payload owns eyepiece, Barlow, binocular, fallback and setupOptions fields that Q_target does not replace. A runtime-neutral setup read-model boundary now preserves that payload before AppController projects it to CelestialObject fields. NSOM can own ObserverCapability/Q_target and future PracticalTargetValue metadata, but EquipmentService scoring is not ready for replacement.
 
 ## Presenter Contract
@@ -80,8 +80,8 @@ This developer-only audit defines the presenter contract that must exist before 
 
 ## Recommended Sequence
 
-- `Review 1.13.4`: Confirm Equipment should remain setup-local with NSOM boundaries.
-- `1.13.5 Equipment NSOM migration closeout`: Close Equipment as an NSOM-bounded setup service.
+- `Review 1.13.5`: Confirm Equipment is closed setup-local and no runtime path changed.
+- `Next backend NSOM area selection audit`: Choose the next backend NSOM area or run an overall backend readiness audit before visible UI/explanation work.
 
 ## Conclusion
 

@@ -774,6 +774,14 @@ zoom position, Barlow, binocular and fallback payloads. `ObserverCapability`,
 metadata, not a runtime replacement. No ranking, selection score, payload, QML,
 logging, network or runtime file-write behaviour changes; the next step is the
 Equipment migration closeout.
+`1.13.5` adds `docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md` and records Equipment
+as closed for the current backend NSOM scope. The architectural decision is that
+Equipment remains a setup-local service, not a target-ranking surface:
+`EquipmentService.suggest_for_profile(...)` continues to own concrete setup-row
+selection, while ObserverCapability/Q_target, presenter, score ownership and
+score-component read-models remain explicit NSOM boundaries. No default-off
+Equipment runtime path is added and no runtime recommendation, payload, QML,
+logging, network or runtime file-write behaviour changes.
 
 ## Dependency Flow
 

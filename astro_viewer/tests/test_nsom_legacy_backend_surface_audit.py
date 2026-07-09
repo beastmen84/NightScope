@@ -115,6 +115,9 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     assert "equipment_default_off_path_policy_set_setup_local" in active[
         "Equipment recommendations"
     ]["why_active"]
+    assert "equipment_nsom_migration_closed_setup_local" in active[
+        "Equipment recommendations"
+    ]["why_active"]
     assert "setup-local service" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
@@ -172,4 +175,7 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.13.4 Equipment default-off path policy audit" in text
     assert "Review 1.13.4" in text
     assert "1.13.5 Equipment NSOM migration closeout" in text
+    assert "Review 1.13.5" in text
+    assert "Next backend NSOM area selection audit" in text
+    assert "equipment_nsom_migration_closed_setup_local" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

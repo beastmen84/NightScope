@@ -11,7 +11,7 @@ This developer-only audit classifies the current EquipmentService setup-score co
 - Score component boundary recommended: `True`.
 - Default-off Equipment path recommended now: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.4, then close the Equipment backend NSOM migration as setup-local with NSOM boundaries.
+- Recommended next step: Review 1.13.5, then choose the next backend NSOM area or run an overall backend readiness audit.
 - Reason: EquipmentService setup score is useful and deterministic, but its single scalar mixes target traits, observer configuration, seeing, sky quality and presentation practicality. The 1.13.3 component read-model makes that boundary explicit; replacement still needs a separate policy audit.
 
 ## Current Formula
@@ -86,8 +86,8 @@ This developer-only audit classifies the current EquipmentService setup-score co
 
 - `Review 1.13.2`: Confirm setup-score ownership is classified correctly and does not imply score tuning.
 - `1.13.3 Equipment setup-score component boundary`: Extract a runtime-neutral setup-score component read-model with parity tests before any replacement path.
-- `Review 1.13.4`: Confirm Equipment should remain setup-local with NSOM boundaries.
-- `1.13.5 Equipment NSOM migration closeout`: Close Equipment as an NSOM-bounded setup service.
+- `Review 1.13.5`: Confirm Equipment is closed setup-local and no runtime path changed.
+- `Next backend NSOM area selection audit`: Choose the next backend NSOM area or run an overall backend readiness audit before visible UI/explanation work.
 
 ## Conclusion
 

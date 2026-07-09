@@ -14,7 +14,7 @@ This developer-only audit decides whether Equipment should gain a default-off NS
 - Component boundary parity checked: `True`.
 - Blocks backend migration closeout: `False`.
 - Runtime behaviour changed by policy: `False`.
-- Recommended next step: Review 1.13.4, then close the Equipment backend NSOM migration as setup-local with NSOM boundaries.
+- Recommended next step: Review 1.13.5, then choose the next backend NSOM area or run an overall backend readiness audit.
 - Reason: EquipmentService recommends configurations for a selected target. Its setup score includes eyepiece, Barlow, binocular, seeing, sky quality and fallback semantics that Q_target and PracticalTargetValue do not replace. The NSOM boundary is now explicit, so a default-off replacement path would add complexity without a model requirement.
 
 ## Policy Options
@@ -68,8 +68,8 @@ This developer-only audit decides whether Equipment should gain a default-off NS
 
 ## Recommended Sequence
 
-- `Review 1.13.4`: Confirm Equipment should remain setup-local and that no default-off replacement path is needed now.
-- `1.13.5 Equipment NSOM migration closeout`: Close Equipment as an NSOM-bounded setup service and return to overall backend migration planning.
+- `Review 1.13.5`: Confirm Equipment is closed setup-local and no runtime path changed.
+- `Next backend NSOM area selection audit`: Choose the next backend NSOM area or run an overall backend readiness audit before visible UI/explanation work.
 
 ## Conclusion
 

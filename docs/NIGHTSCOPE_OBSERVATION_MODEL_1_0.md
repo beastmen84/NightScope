@@ -1316,6 +1316,16 @@ remains setup-local with explicit NSOM ownership, presenter and component
 boundaries. No runtime scoring, payload, QML, logging, network call or runtime
 write is changed.
 
+Implementation note for 1.13.5:
+`docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md` closes the Equipment backend NSOM
+migration for the current setup-local scope. The final policy is that Equipment
+does not need a default-off NSOM replacement path now: `EquipmentService` keeps
+owning concrete setup recommendation, while shared ObserverCapability/Q_target,
+presenter, setup-score ownership and component read-models make NSOM boundaries
+explicit for future explanation or UI work. This closeout changes no runtime
+score, setup recommendation, Planner/Home/Best Object/Advanced Observing/Sky
+Compass/Detail path, QML payload, logging, network call or runtime file write.
+
 Examples:
 
 - binocular-only profile;

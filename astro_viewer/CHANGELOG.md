@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.13.5 - 2026-07-09
+
+- Aggiunto `docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md`, closeout
+  developer-only della serie Equipment NSOM.
+- Marcata la migrazione Equipment come
+  `equipment_nsom_migration_closed_setup_local`: `EquipmentService` resta il
+  runtime setup recommender, mentre `ObserverCapability/Q_target`, presenter
+  boundary, score ownership e score component boundary restano confini NSOM
+  espliciti.
+- Aggiornati gli audit backend/legacy e i report Equipment per indicare che
+  non serve un path Equipment NSOM default-off ora; il prossimo passo e'
+  scegliere la prossima area backend NSOM o fare un audit complessivo.
+- Nessun cambio a ranking Equipment, selection score, Planner, Home, Best
+  Object, Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete
+  o scritture runtime.
+
 ## NightScope 1.13.4 - 2026-07-09
 
 - Aggiunto `docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md`, audit
