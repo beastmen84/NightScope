@@ -38,6 +38,11 @@ As of 1.14.3, Planner NSOM can consume Moon geometry behind the default-off
 `experimental_moon_geometry_scoring` flag. The only mathematical owner affected
 is Sky/`ObservationEnvironment.lunar_sky_background`; confidence remains
 metadata-only, and Home/Best Object/Sky Compass/visible QML stay unchanged.
+As of 1.14.4, `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` captures
+developer-only calibration evidence for that path. It verifies fixed
+Moon-geometry cases before any default-on decision and records that
+`moon_geometry_confidence` tracks actual geometry input availability, not score
+weight.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2216,6 +2221,11 @@ A future `ObserverCapabilityService` should own:
   geometry factor scales Moon-illumination severity inside
   `ObservationEnvironment.lunar_sky_background`; it does not mutate target,
   observer, session or confidence layers.
+- Status 1.14.4: calibration fixtures compare missing, set-before-window,
+  low-altitude-close, high-altitude-close and high-altitude-far Moon geometry
+  cases across representative target classes. The report is developer-only and
+  shows that the experimental effect remains in the lunar sky-background
+  component.
 
 ### Step 7: Advanced score cleanup
 
@@ -2253,6 +2263,10 @@ A future `ObserverCapabilityService` should own:
   current runtime recommendations are unchanged; future work should review and
   calibrate this before any default-on Moon geometry or provider-dependent
   aerosol scoring.
+- Status update for 1.14.4: Moon-geometry Planner calibration evidence is now
+  checked in at `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`. The confidence
+  metadata bug was corrected so Planner `moon_geometry_confidence` reflects
+  actual `MoonGeometryConditionInput` availability while remaining score-neutral.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

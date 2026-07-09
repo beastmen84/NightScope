@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.3`.
+Versione corrente: `1.14.4`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -711,6 +711,14 @@ alla 1.14.2, perche' `AppController` costruisce la mappa di geometria Planner
 solo se il servizio Planner dichiara esplicitamente il flag attivo. Nessun QML,
 Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment,
 logging, rete o scrittura runtime viene aggiunto.
+Lo step `1.14.4` aggiunge
+`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`, report developer-only per
+verificare la direzione matematica della geometria lunare prima di qualunque
+default-on. Il report mostra scenari con Luna vicina/lontana, alta/bassa,
+fuori finestra e geometria mancante; l'effetto resta confinato al componente
+Sky `lunar_sky_background`. La metadata `moon_geometry_confidence` ora indica
+la disponibilita' reale di `MoonGeometryConditionInput`, ma resta fuori dalla
+formula dello score.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

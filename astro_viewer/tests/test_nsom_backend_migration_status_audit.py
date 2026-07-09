@@ -52,6 +52,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/EQUIPMENT_NSOM_DEFAULT_OFF_PATH_POLICY_AUDIT.md",
             "docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md",
             "docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md",
+            "docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md",
         ],
     }
 
@@ -141,8 +142,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.8, then proceed to visible explanation planning or "
-        "Universe/catalogue policy work"
+        "Review the Moon geometry Planner calibration report, then decide "
+        "whether Moon geometry needs tuning/default-on work before AOD/OpenAQ"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True

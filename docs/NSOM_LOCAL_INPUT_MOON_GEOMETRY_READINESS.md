@@ -15,7 +15,7 @@ This developer-only audit separates NightScope input sources into local always-a
 - Requires provider before next step: `False`.
 - Blocks current default-on surfaces: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the default-off Planner Moon geometry scoring path, then run calibration fixtures before any default-on Moon geometry or AOD/OpenAQ scoring work.
+- Recommended next step: Review docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md before any default-on Moon geometry or AOD/OpenAQ scoring work.
 - Reason: Location plus local ephemeris data now computes Moon altitude, Moon-target separation and window overlap without weather, VIIRS, AOD or OpenAQ. Current default runtime scoring still uses Moon illumination only; the experimental Planner path can apply geometry to ObservationEnvironment.lunar_sky_background when experimental_moon_geometry_scoring is enabled.
 
 ## Data Source Taxonomy
@@ -129,6 +129,8 @@ This developer-only audit separates NightScope input sources into local always-a
 - `Review 1.14.2`: Confirm runtime Moon geometry diagnostics are physically sane, score-neutral and not wired into QML/runtime reports.
 - `1.14.3 Moon geometry scoring behind flag`: Use the diagnostics in Planner ObservationEnvironment behind experimental_moon_geometry_scoring; keep the flag default-off.
 - `Review 1.14.3`: Confirm default-off runtime behaviour, ownership boundaries and calibration risk before any Moon geometry default-on work.
+- `1.14.4 Moon geometry Planner calibration`: Add deterministic developer-only fixtures comparing the illumination-only Planner path with the experimental Moon geometry path before any default-on decision.
+- `Review 1.14.4`: Confirm calibration evidence, confidence metadata semantics and whether Moon geometry needs tuning before default-on.
 - `AOD/OpenAQ scoring readiness`: Only after Moon geometry, audit freshness, QA and double-counting before enabling provider-dependent aerosol scoring.
 
 ## Conclusion

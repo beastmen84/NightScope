@@ -854,6 +854,14 @@ runtime behaviour, and no report tooling is wired into runtime.
 builds the per-target Moon-geometry map only when the Planner service advertises
 that flag, so the default runtime path remains unchanged and no QML/UI exposure
 is added.
+`1.14.4` adds the developer-only
+`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` report. It compares the
+illumination-only Planner model with the default-off Moon-geometry model across
+fixed target classes and Moon geometry cases, and verifies that the experimental
+effect remains confined to the Sky-owned `lunar_sky_background` component.
+Planner `moon_geometry_confidence` now tracks actual `MoonGeometryConditionInput`
+availability instead of generic `MoonSummary` availability, but confidence
+remains outside the scoring formula.
 
 ## Dependency Flow
 

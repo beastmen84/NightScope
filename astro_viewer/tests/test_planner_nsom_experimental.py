@@ -247,7 +247,7 @@ def test_moon_geometry_scoring_protects_planets_from_lunar_background_penalty() 
     assert close_geometry.value == pytest.approx(no_geometry.value)
 
 
-def test_moon_geometry_scoring_changes_observable_not_observer_session_or_confidence() -> None:
+def test_moon_geometry_scoring_changes_observable_and_confidence_metadata_not_observer_session() -> None:
     target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
     service = PlannerNsomScoringService(
         feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)
@@ -282,7 +282,20 @@ def test_moon_geometry_scoring_changes_observable_not_observer_session_or_confid
     assert baseline_practical.observable_target_value.intrinsic_target == close_practical.observable_target_value.intrinsic_target
     assert baseline_practical.observer_capability == close_practical.observer_capability
     assert baseline.session == close_geometry.session
-    assert baseline.confidence == close_geometry.confidence
+    assert baseline.confidence is not None
+    assert close_geometry.confidence is not None
+    assert baseline.confidence.weather_confidence == close_geometry.confidence.weather_confidence
+    assert baseline.confidence.viirs_confidence == close_geometry.confidence.viirs_confidence
+    assert baseline.confidence.provider_fallback_confidence == close_geometry.confidence.provider_fallback_confidence
+    assert baseline.confidence.moon_geometry_confidence is None
+    assert close_geometry.confidence.moon_geometry_confidence == pytest.approx(1.0)
+    assert close_geometry.value == pytest.approx(
+        close_practical.value
+        * close_geometry.observing_window_quality
+        * close_geometry.chronology_fit
+        * close_geometry.session.value
+        * close_geometry.practical_constraints
+    )
     assert baseline_practical.observable_target_value.effective_observability.lunar_sky_background > (
         close_practical.observable_target_value.effective_observability.lunar_sky_background
     )

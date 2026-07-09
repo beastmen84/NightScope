@@ -81,6 +81,7 @@ class PlannerNsomScoringService:
             weather=weather,
             sky_quality=sky_quality,
             moon=moon,
+            moon_geometry_available=True if moon_geometry is not None else None,
             blocking_status=blocking_status,
             observing_window_quality=observing_window_quality,
             chronology_fit=chronology_fit,
@@ -194,6 +195,7 @@ class PlannerNsomScoringService:
         weather: WeatherSummary,
         sky_quality: SkyQuality,
         moon: MoonSummary | None = None,
+        moon_geometry_available: bool | None = None,
         blocking_status: WeatherBlockingStatus | None = None,
         observing_window_quality: float = 1.0,
         chronology_fit: float = 1.0,
@@ -205,6 +207,7 @@ class PlannerNsomScoringService:
             weather=weather,
             sky_quality=sky_quality,
             moon=moon,
+            moon_geometry_available=moon_geometry_available,
         )
         constraints = (
             self._planner_practical_constraints(item)
@@ -288,11 +291,12 @@ class PlannerNsomScoringService:
         weather: WeatherSummary,
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
+        moon_geometry_available: bool | None = None,
     ) -> RecommendationConfidence:
         return build_recommendation_confidence(
             weather_summary=weather,
             viirs_available=getattr(sky_quality, "viirs_radiance", None) is not None,
-            moon_geometry_available=moon is not None,
+            moon_geometry_available=moon_geometry_available,
             provider_fallback_used=getattr(sky_quality, "viirs_radiance", None) is None,
             notes=("nsom:planner_experimental",),
         )

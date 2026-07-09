@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.4 - 2026-07-09
+
+- Aggiunto `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`, report
+  developer-only per confrontare il Planner NSOM default con il path
+  sperimentale `experimental_moon_geometry_scoring=True`.
+- Coperti scenari deterministici per pianeta, Luna, galassia, nebulosa diffusa,
+  ammasso aperto e ammasso globulare con geometria mancante, Luna tramontata
+  prima della finestra, Luna bassa/vicina, Luna alta/vicina e Luna alta/lontana.
+- Confermato che l'effetto sperimentale resta confinato a
+  `ObservationEnvironment.lunar_sky_background`: ObserverCapability,
+  SessionViability, timing, practical constraints e confidence non entrano nel
+  percorso matematico dello score.
+- Corretta la metadata confidence del Planner: `moon_geometry_confidence`
+  indica la disponibilita' reale di `MoonGeometryConditionInput`, non la sola
+  presenza di `MoonSummary`.
+- Nessun cambio al default runtime, nessun QML/UI, nessun logging, rete o
+  scrittura runtime; il report resta tooling esplicito per sviluppatori.
+
 ## NightScope 1.14.3 - 2026-07-09
 
 - Aggiunto il path sperimentale/default-off per usare la geometria lunare nel

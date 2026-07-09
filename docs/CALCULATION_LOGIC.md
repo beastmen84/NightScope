@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.3`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.4`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -68,8 +68,11 @@ illumination severity used by `ObservationEnvironment.lunar_sky_background`.
 This affects `EffectiveObservability`, then `ObservableTargetValue`,
 `PracticalTargetValue` and `ObservationOpportunity` through the existing NSOM
 pipeline. It does not change `IntrinsicTargetQuality`, `ObserverCapability`,
-`SessionViability` or `RecommendationConfidence`, and the default runtime flag
-remains off.
+`SessionViability` or confidence as a score modifier, and the default runtime
+flag remains off. `RecommendationConfidence.moon_geometry_confidence` is
+metadata only and indicates whether real `MoonGeometryConditionInput` was
+available. Calibration evidence for this default-off path is tracked in
+`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`.
 
 ### Solar-System Objects
 
