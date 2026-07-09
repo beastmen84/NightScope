@@ -61,9 +61,10 @@ def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
     readiness = data["moon_readiness"]
     fields = {field["field"]: field for field in data["moon_geometry_field_inventory"]}
 
-    assert data["readiness"]["verdict"] == "local_input_moon_geometry_readiness_audited"
+    assert data["readiness"]["verdict"] == "local_input_moon_geometry_runtime_diagnostics_available"
     assert data["readiness"]["moon_geometry_scoring_enabled_now"] is False
     assert data["readiness"]["moon_geometry_ready_for_local_implementation"] is True
+    assert data["readiness"]["moon_geometry_runtime_diagnostics_available"] is True
     assert data["readiness"]["requires_provider_before_next_step"] is False
     assert data["blockers"] == []
 
@@ -88,9 +89,10 @@ def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
         "moon_visible_during_target_window",
         "moon_set_before_target_window",
     ):
-        assert fields[field_name]["status"] == "future_local_geometry_input"
+        assert fields[field_name]["status"] == "runtime_score_neutral_geometry_input"
+        assert "MoonGeometrySummary" in fields[field_name]["source_today"]
         assert fields[field_name]["absent_from_moon_summary"] is True
-        assert fields[field_name]["score_role_now"] == "score-neutral diagnostic/future factor"
+        assert "current score effect 0.0" in fields[field_name]["score_role_now"]
 
 
 def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
@@ -98,13 +100,13 @@ def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
     consumers = {consumer["consumer"]: consumer for consumer in data["current_moon_consumers"]}
 
     assert consumers["Planner NSOM"]["current_moon_input"] == "MoonSummary.illumination"
-    assert consumers["Planner NSOM"]["geometry_input"] == "not active"
+    assert consumers["Planner NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["Planner NSOM"]["score_status"] == (
         "active illumination-based lunar_sky_background"
     )
-    assert consumers["Home recommendedDeepSky NSOM"]["geometry_input"] == "not active"
-    assert consumers["Best Object NSOM"]["geometry_input"] == "not active"
-    assert consumers["Sky Compass NSOM"]["geometry_input"] == "not active"
+    assert consumers["Home recommendedDeepSky NSOM"]["geometry_input"] == "diagnostic export only"
+    assert consumers["Best Object NSOM"]["geometry_input"] == "diagnostic export only"
+    assert consumers["Sky Compass NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["ObservationConditions legacy compatibility"]["score_status"] == (
         "geometry modifier is neutral"
     )
@@ -124,7 +126,7 @@ def test_source_markers_and_safety_checks_are_clean() -> None:
     assert checks["viirs_source_distinguishes_fallback"] is True
     assert checks["aod_openaq_external_score_neutral"] is True
     assert checks["moon_summary_has_phase_illumination"] is True
-    assert checks["moon_geometry_fields_are_future_inputs"] is True
+    assert checks["moon_geometry_fields_are_runtime_diagnostics"] is True
     assert checks["moon_geometry_absent_from_moon_summary"] is True
     assert checks["moon_geometry_requires_no_provider"] is True
     assert checks["moon_geometry_modifier_still_neutral"] is True
@@ -136,7 +138,10 @@ def test_source_markers_and_safety_checks_are_clean() -> None:
     assert sources["Manual and automatic location inputs"]["all_markers_found"] is True
     assert sources["Skyfield Moon summary"]["all_markers_found"] is True
     assert sources["MoonSummary runtime DTO"]["all_markers_found"] is True
+    assert sources["MoonGeometrySummary runtime DTO"]["all_markers_found"] is True
+    assert sources["Skyfield Moon geometry diagnostics"]["all_markers_found"] is True
     assert sources["Moon geometry future condition input"]["all_markers_found"] is True
+    assert sources["NSOM runtime Moon geometry diagnostics"]["all_markers_found"] is True
     assert sources["AOD and OpenAQ neutral condition inputs"]["all_markers_found"] is True
     assert sources["Planner NSOM moon background"]["all_markers_found"] is True
     assert sources["Home NSOM moon background"]["all_markers_found"] is True
@@ -150,7 +155,7 @@ def test_checked_in_local_input_moon_geometry_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Local Input and Moon Geometry Readiness" in text
-    assert "local_input_moon_geometry_readiness_audited" in text
+    assert "local_input_moon_geometry_runtime_diagnostics_available" in text
     assert "moon_geometry_behind_experimental_flag" in text
     assert "nasa_aod" in text
     assert "openaq_particulate" in text

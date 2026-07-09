@@ -29,7 +29,12 @@ from astro_viewer.app.database.sky_quality_repository import SkyQualityRepositor
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.nsom import NsomDiagnosticSnapshot, NsomTargetDiagnostic
-from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import (
+    AstronomicalEvent,
+    CelestialObject,
+    MoonGeometrySummary,
+    MoonSummary,
+)
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
@@ -74,6 +79,7 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
 )
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
+    MoonGeometryConditionInput,
     ObservationConditionInputs,
     ObservationConditionsService,
     ParticulateConditionInput,
@@ -265,6 +271,7 @@ class AppController(QObject):
         self._base_solar_system_objects: list[CelestialObject] = []
         self._base_deep_sky: list[CelestialObject] = []
         self._moon = None
+        self._moon_geometry_condition_cache: dict[str, MoonGeometryConditionInput | None] = {}
         self._events = []
         self._weather_hours = []
         self._weather_summary = None
@@ -1699,6 +1706,7 @@ class AppController(QObject):
         self._conditioned_home_read_model = []
         self._deep_sky_pollution_read_model = []
         self._deep_sky_raw_condition_input_by_id = {}
+        self._moon_geometry_condition_cache = {}
         self._moon = MoonSummary(
             phase="n/d",
             illumination="n/d",
@@ -1745,6 +1753,7 @@ class AppController(QObject):
             RefreshReason.LOCATION_CHANGED,
             (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
         )
+        self._moon_geometry_condition_cache = {}
         try:
             self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
             self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
@@ -2038,18 +2047,21 @@ class AppController(QObject):
     def _refresh_nsom_diagnostics(self) -> None:
         notes = ["diagnostic_only", "score_neutral"]
         try:
+            self._moon_geometry_condition_cache = {}
+            candidate_targets = self._nsom_diagnostic_candidate_targets()
+            moon_geometry_available = self._nsom_moon_geometry_available(candidate_targets)
             confidence = build_recommendation_confidence(
                 weather_summary=self._weather_summary,
                 aod_result=self._nasa_aod_result,
                 local_atmosphere=self._local_atmosphere,
                 viirs_available=self._nsom_viirs_available(),
-                moon_geometry_available=None,
+                moon_geometry_available=moon_geometry_available,
                 provider_fallback_used=self._nsom_provider_fallback_used(),
                 today=datetime.now(self._zone()).date(),
                 notes=("runtime_snapshot", "diagnostic_only"),
             )
             diagnostics = []
-            for source, target in self._nsom_diagnostic_candidate_targets():
+            for source, target in candidate_targets:
                 try:
                     diagnostics.append(self._nsom_target_diagnostic(source, target, confidence))
                 except Exception:
@@ -2221,6 +2233,70 @@ class AppController(QObject):
             return True
         return bool(value)
 
+    def _nsom_moon_geometry_available(
+        self,
+        candidate_targets: list[tuple[str, object]] | None = None,
+    ) -> bool | None:
+        candidates = candidate_targets if candidate_targets is not None else self._nsom_diagnostic_candidate_targets()
+        if not candidates:
+            return None
+        for _source, target in candidates:
+            if self._moon_geometry_condition_input(target) is not None:
+                return True
+        return None
+
+    def _moon_geometry_condition_input(self, target: object | None = None) -> MoonGeometryConditionInput | None:
+        if target is None:
+            return None
+        geometry_target = self._moon_geometry_runtime_target(target)
+        if geometry_target is None:
+            return None
+        cache = getattr(self, "_moon_geometry_condition_cache", None)
+        if cache is None:
+            cache = {}
+            self._moon_geometry_condition_cache = cache
+        if geometry_target.id in cache:
+            return cache[geometry_target.id]
+        summary = self._moon_geometry_summary(geometry_target)
+        condition_input = self._moon_geometry_summary_to_condition_input(summary)
+        cache[geometry_target.id] = condition_input
+        return condition_input
+
+    def _moon_geometry_runtime_target(self, target: object) -> CelestialObject | None:
+        if isinstance(target, CelestialObject):
+            return target
+        object_id = self._nsom_runtime_target_text(target, "id", "object_id")
+        if not object_id:
+            return None
+        return self._nsom_prepared_object_by_id().get(object_id)
+
+    def _moon_geometry_summary(self, target: CelestialObject) -> MoonGeometrySummary | None:
+        location = getattr(self, "_location", None)
+        if location is None:
+            return None
+        method = getattr(getattr(self, "_astronomy_engine", None), "moon_geometry", None)
+        if not callable(method):
+            return None
+        try:
+            summary = method(location, target)
+        except Exception:
+            return None
+        return summary if isinstance(summary, MoonGeometrySummary) else None
+
+    @staticmethod
+    def _moon_geometry_summary_to_condition_input(
+        summary: MoonGeometrySummary | None,
+    ) -> MoonGeometryConditionInput | None:
+        if summary is None:
+            return None
+        return MoonGeometryConditionInput(
+            moon_altitude_deg=summary.moon_altitude_deg,
+            moon_target_separation_deg=summary.moon_target_separation_deg,
+            moon_above_horizon=summary.moon_above_horizon,
+            moon_visible_during_target_window=summary.moon_visible_during_target_window,
+            moon_set_before_target_window=summary.moon_set_before_target_window,
+        )
+
     def _nsom_viirs_available(self) -> bool | None:
         source_type = self._nsom_viirs_source_type()
         if source_type == "provider":
@@ -2282,7 +2358,7 @@ class AppController(QObject):
             ("viirs_available", self._nsom_viirs_available()),
             ("viirs_source_type", self._nsom_viirs_source_type()),
             ("sky_quality_source", getattr(sky_quality, "source", None)),
-            ("moon_geometry_available", None),
+            ("moon_geometry_available", self._nsom_moon_geometry_available()),
         ]
         return tuple((key, value) for key, value in fields if value not in (None, ""))
 
@@ -2323,6 +2399,20 @@ class AppController(QObject):
             value = self._nsom_runtime_target_value(target, name)
             if value not in (None, ""):
                 fields.append((name, value))
+        geometry = self._moon_geometry_condition_input(target)
+        if geometry is not None:
+            for name, value in (
+                ("moon_geometry_available", True),
+                ("moon_altitude_deg", geometry.moon_altitude_deg),
+                ("moon_target_separation_deg", geometry.moon_target_separation_deg),
+                ("moon_above_horizon", geometry.moon_above_horizon),
+                ("moon_visible_during_target_window", geometry.moon_visible_during_target_window),
+                ("moon_set_before_target_window", geometry.moon_set_before_target_window),
+                ("moon_geometry_future_factor", ObservationConditionsService.intended_moon_geometry_factor(geometry)),
+                ("moon_geometry_score_effect", 0.0),
+            ):
+                if value not in (None, ""):
+                    fields.append((name, value))
         return tuple(fields)
 
     def _export_nsom_diagnostics(self) -> dict[str, object]:
@@ -3712,12 +3802,14 @@ class AppController(QObject):
         *,
         include_moon: bool = True,
         include_sky_quality: bool = True,
+        target: object | None = None,
     ) -> ObservationConditionInputs:
         return ObservationConditionInputs(
             moon=self._moon if include_moon else None,
             sky_quality=self._sky_quality if include_sky_quality else None,
             aod=self._aod_condition_input(),
             particulate=self._particulate_condition_input(),
+            moon_geometry=self._moon_geometry_condition_input(target),
         )
 
     def _aod_condition_input(self) -> AodConditionInput | None:

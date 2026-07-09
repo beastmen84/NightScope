@@ -78,6 +78,22 @@ class MoonSummary:
 
 
 @dataclass(frozen=True)
+class MoonGeometrySummary:
+    """Local Moon-target geometry diagnostic; never a direct score modifier."""
+
+    object_id: str
+    moon_altitude_deg: float | None = None
+    moon_target_separation_deg: float | None = None
+    moon_above_horizon: bool | None = None
+    moon_visible_during_target_window: bool | None = None
+    moon_set_before_target_window: bool | None = None
+    sample_count: int = 0
+    sample_policy: str = "bounded_start_mid_best_end"
+    sampled_at: str = ""
+    sample_times: tuple[str, ...] = field(default_factory=tuple)
+
+
+@dataclass(frozen=True)
 class AstronomicalEvent:
     id: str
     title: str

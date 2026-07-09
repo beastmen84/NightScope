@@ -9,7 +9,12 @@ from astro_viewer.app.astronomy.catalog import (
     mock_moon,
     mock_planets,
 )
-from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import (
+    AstronomicalEvent,
+    CelestialObject,
+    MoonGeometrySummary,
+    MoonSummary,
+)
 
 
 @dataclass(frozen=True)
@@ -48,6 +53,9 @@ class AstronomyEngine(Protocol):
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         ...
 
+    def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
+        ...
+
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         ...
 
@@ -84,6 +92,9 @@ class MockAstronomyEngine:
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         return mock_moon()
 
+    def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
+        return None
+
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         return mock_events()
 
@@ -99,6 +110,9 @@ class SkyfieldAstropyEngine:
 
     def moon_summary(self, location: ObserverLocation) -> MoonSummary:
         raise NotImplementedError("Moon phase calculations will be added in a later iteration.")
+
+    def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
+        raise NotImplementedError("Moon geometry calculations will be added in a later iteration.")
 
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         raise NotImplementedError("Astronomical event generation will be added in a later iteration.")

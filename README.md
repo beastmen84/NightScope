@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.1`.
+Versione corrente: `1.14.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -694,6 +694,15 @@ blocco backend locale: altezza Luna, separazione Luna-target e overlap con la
 finestra osservativa richiedono solo location/tempo e non provider esterni.
 AOD/OpenAQ restano lavori successivi perche' richiedono freshness, qualita' e
 controllo double-counting.
+Lo step `1.14.2` implementa quella geometria lunare come diagnostica runtime
+locale e score-neutral: `SkyfieldAstronomyEngine.moon_geometry(...)` calcola
+altezza Luna, separazione Luna-target e overlap con la finestra target usando
+solo location, tempo locale ed effemeridi gia' disponibili. I campi entrano
+nella snapshot diagnostica NSOM e nei breakdown interni come
+`moon_geometry_future_factor`, ma l'effetto score corrente resta `0.0`.
+Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object,
+Equipment e QML/UI non cambiano comportamento; non vengono introdotti logging,
+rete o scritture runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

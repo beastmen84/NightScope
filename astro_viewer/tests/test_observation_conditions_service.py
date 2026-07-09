@@ -8,7 +8,7 @@ from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
@@ -532,6 +532,47 @@ def test_future_moon_geometry_modifier_is_neutral_with_feature_flag_off() -> Non
     assert flags.experimental_moon_geometry_scoring is False
     assert service.intended_moon_geometry_factor(geometry) > 1.0
     assert service.intended_moon_geometry_modifier(geometry, flags) == 0.0
+
+
+def test_app_controller_builds_local_moon_geometry_diagnostic_input_score_neutrally() -> None:
+    controller = AppController.__new__(AppController)
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    controller._moon = _moon("86%")
+    controller._sky_quality = None
+    controller._nasa_aod_result = NasaAodResult.no_location()
+    controller._local_atmosphere = LocalAtmosphere.not_configured()
+    controller._moon_geometry_condition_cache = {}
+    controller._astronomy_engine = _MoonGeometryEngine(
+        MoonGeometrySummary(
+            object_id="m31",
+            moon_altitude_deg=37.0,
+            moon_target_separation_deg=18.0,
+            moon_above_horizon=True,
+            moon_visible_during_target_window=True,
+            moon_set_before_target_window=False,
+            sample_count=3,
+            sampled_at="2026-07-09T22:00:00+00:00",
+            sample_times=("2026-07-09T18:00:00+00:00",),
+        )
+    )
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    inputs = controller._build_observation_condition_inputs(include_sky_quality=False, target=target)
+    conditioned = service.condition_target(target, inputs, apply_moon=True)
+
+    assert inputs.moon_geometry == MoonGeometryConditionInput(
+        moon_altitude_deg=37.0,
+        moon_target_separation_deg=18.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+        moon_set_before_target_window=False,
+    )
+    assert conditioned.breakdown.moon_geometry_factor > 1.0
+    assert conditioned.breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, controller._moon)
+    assert conditioned.breakdown.applied_components == ("moon",)
+    assert "moon_geometry:score_neutral" in conditioned.breakdown.diagnostic_notes
+    assert controller._astronomy_engine.calls == 1
 
 
 def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
@@ -1352,3 +1393,18 @@ def _surface_brightness_proxy(item: CelestialObject) -> float | None:
         return None
     size_arcmin = 20.0
     return magnitude + 2.5 * math.log10(max(size_arcmin * size_arcmin, 1.0))
+
+
+class _MoonGeometryEngine:
+    def __init__(self, summary: MoonGeometrySummary | None) -> None:
+        self._summary = summary
+        self.calls = 0
+
+    def moon_geometry(
+        self,
+        location: ObserverLocation,
+        target: CelestialObject,
+    ) -> MoonGeometrySummary | None:
+        del location, target
+        self.calls += 1
+        return self._summary

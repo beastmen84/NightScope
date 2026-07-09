@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.1`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.2`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -54,9 +54,12 @@ availability and ownership:
   They are currently display/diagnostic only and remain score-neutral until a
   later explicit NSOM aerosol step.
 
-Moon geometry is therefore the next local physical-model candidate: Moon
-altitude, Moon-target separation and Moon/window overlap require location and
-time, not weather, VIIRS, NASA AOD, OpenAQ or equipment.
+Moon geometry is now available as a local score-neutral diagnostic input. The
+runtime computes Moon altitude, Moon-target separation and Moon/window overlap
+from location, local time and ephemeris data, not from weather, VIIRS, NASA AOD,
+OpenAQ or equipment. Current recommendation scoring still uses the existing
+Moon illumination/background terms; the new geometry fields remain future NSOM
+scoring inputs with current score effect `0.0`.
 
 ### Solar-System Objects
 

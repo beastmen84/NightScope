@@ -14,7 +14,12 @@ from skyfield.api import Loader, Star, wgs84
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
 from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation
 from astro_viewer.app.database.messier_repository import MessierRepository
-from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import (
+    AstronomicalEvent,
+    CelestialObject,
+    MoonGeometrySummary,
+    MoonSummary,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -186,6 +191,35 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             return None
         return Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
 
+    def _geometry_target_body(self, target: CelestialObject):
+        body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
+        config = body_configs.get(target.id)
+        if config is not None:
+            return self._ephemeris[config.body_key]
+        return self._star_for_current_position(target)
+
+    @staticmethod
+    def _geometry_altitude_threshold(target: CelestialObject) -> float:
+        lower_type = target.object_type.lower()
+        if (
+            target.id
+            in {
+                "sun",
+                "moon",
+                "mercury",
+                "venus",
+                "mars",
+                "jupiter",
+                "saturn",
+                "uranus",
+                "neptune",
+            }
+            or "pianeta" in lower_type
+            or "planet" in lower_type
+        ):
+            return 8.0
+        return DEEP_SKY_USEFUL_ALTITUDE_DEG
+
     def catalogue_month_visibility(
         self,
         catalogue_objects: list[dict],
@@ -254,6 +288,79 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             best_note=self._moon_observing_note(illumination),
             image="resources/images/moon.svg",
             phase_angle=round(phase_angle, 1),
+        )
+
+    def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
+        """Compute bounded local Moon-target geometry diagnostics without scoring."""
+
+        target_body = self._geometry_target_body(target)
+        if target_body is None:
+            return None
+        now = self._now(location)
+        observer = self._observer(location)
+        moon_body = self._ephemeris["moon"]
+        start, end = self._night_window(now)
+        target_samples = self._sample_altitudes(
+            observer,
+            target_body,
+            start,
+            end,
+            step_minutes=30,
+        )
+        if not target_samples:
+            return None
+
+        threshold = self._geometry_altitude_threshold(target)
+        visible_target_samples = [
+            (sample_time, altitude)
+            for sample_time, altitude in target_samples
+            if altitude >= threshold
+        ]
+        meaningful_samples = visible_target_samples or target_samples
+        sample_times = self._bounded_moon_geometry_sample_times(meaningful_samples)
+        if not sample_times:
+            return None
+
+        moon_altitudes = dict(self._altitudes_for_samples(observer, moon_body, sample_times))
+        target_altitudes = dict(self._altitudes_for_samples(observer, target_body, sample_times))
+        separations = self._moon_target_separations(observer, moon_body, target_body, sample_times)
+        if not moon_altitudes or not separations:
+            return None
+
+        target_visible_times = [
+            sample_time
+            for sample_time in sample_times
+            if target_altitudes.get(sample_time, -90.0) >= threshold
+        ]
+        representative_times = target_visible_times or sample_times
+        moon_altitude = max(moon_altitudes[sample_time] for sample_time in representative_times)
+        moon_target_separation = min(separations[sample_time] for sample_time in representative_times)
+        moon_above_horizon = any(
+            moon_altitudes[sample_time] > 0.0 for sample_time in representative_times
+        )
+        moon_visible_during_target_window = any(
+            moon_altitudes[sample_time] > 0.0
+            and target_altitudes.get(sample_time, -90.0) >= threshold
+            for sample_time in sample_times
+        )
+        moon_set_before_target_window = self._moon_set_before_target_window(
+            observer,
+            moon_body,
+            start,
+            end,
+            visible_target_samples,
+        )
+
+        return MoonGeometrySummary(
+            object_id=target.id,
+            moon_altitude_deg=round(float(moon_altitude), 2),
+            moon_target_separation_deg=round(float(moon_target_separation), 2),
+            moon_above_horizon=moon_above_horizon,
+            moon_visible_during_target_window=moon_visible_during_target_window,
+            moon_set_before_target_window=moon_set_before_target_window,
+            sample_count=len(sample_times),
+            sampled_at=self._format_dt(max(representative_times, key=lambda sample: moon_altitudes[sample])),
+            sample_times=tuple(self._format_dt(sample_time) for sample_time in sample_times),
         )
 
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
@@ -462,6 +569,68 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
         altitudes, _, _ = observer.at(times).observe(body).apparent().altaz()
         return list(zip(samples, [float(value) for value in altitudes.degrees]))
+
+    def _moon_target_separations(
+        self,
+        observer,
+        moon_body,
+        target_body,
+        samples: list[datetime],
+    ) -> dict[datetime, float]:
+        separations: dict[datetime, float] = {}
+        for sample in samples:
+            skyfield_time = self._to_skyfield_time(sample)
+            moon_apparent = observer.at(skyfield_time).observe(moon_body).apparent()
+            target_apparent = observer.at(skyfield_time).observe(target_body).apparent()
+            separations[sample] = float(moon_apparent.separation_from(target_apparent).degrees)
+        return separations
+
+    @staticmethod
+    def _bounded_moon_geometry_sample_times(
+        samples: list[tuple[datetime, float]],
+    ) -> list[datetime]:
+        if not samples:
+            return []
+        ordered = sorted(samples, key=lambda item: item[0])
+        start_time = ordered[0][0]
+        end_time = ordered[-1][0]
+        best_time = max(ordered, key=lambda item: item[1])[0]
+        midpoint = start_time + (end_time - start_time) / 2
+        mid_time = min(ordered, key=lambda item: abs((item[0] - midpoint).total_seconds()))[0]
+        result: list[datetime] = []
+        for sample_time in (start_time, mid_time, best_time, end_time):
+            if sample_time not in result:
+                result.append(sample_time)
+        return result
+
+    def _moon_set_before_target_window(
+        self,
+        observer,
+        moon_body,
+        start: datetime,
+        end: datetime,
+        visible_target_samples: list[tuple[datetime, float]],
+    ) -> bool | None:
+        if not visible_target_samples:
+            return None
+        first_target_time = min(sample_time for sample_time, _altitude in visible_target_samples)
+        last_target_time = max(sample_time for sample_time, _altitude in visible_target_samples)
+        moon_samples = self._sample_altitudes(
+            observer,
+            moon_body,
+            start,
+            end,
+            step_minutes=30,
+        )
+        moon_above_before = any(
+            sample_time < first_target_time and altitude > 0.0
+            for sample_time, altitude in moon_samples
+        )
+        moon_above_during = any(
+            first_target_time <= sample_time <= last_target_time and altitude > 0.0
+            for sample_time, altitude in moon_samples
+        )
+        return moon_above_before and not moon_above_during
 
     def _month_dark_samples(
         self,

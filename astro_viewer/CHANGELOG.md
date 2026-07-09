@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.2 - 2026-07-09
+
+- Aggiunta `MoonGeometrySummary`, DTO runtime locale per diagnostica Luna-target:
+  altezza Luna, separazione angolare Luna-target, Luna sopra orizzonte, overlap
+  con la finestra target e policy di campionamento bounded start/mid/best/end.
+- Implementato `SkyfieldAstronomyEngine.moon_geometry(...)` usando location,
+  tempo locale ed effemeridi gia' disponibili; nessun provider esterno, meteo,
+  VIIRS, AOD o OpenAQ viene richiesto.
+- Collegata la geometria lunare alla snapshot diagnostica NSOM come metadata
+  score-neutral: `moon_geometry_available`, campi runtime target,
+  `moon_geometry_future_factor` e `moon_geometry_score_effect = 0.0`.
+- Mantenuto invariato lo scoring: `experimental_moon_geometry_scoring` resta
+  neutrale, Planner/Home/Best Object/Sky Compass/Detail/Equipment non cambiano
+  ranking o output QML.
+- Aggiornato il report developer-only
+  `docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md` da readiness futura a
+  diagnostica runtime disponibile, con marker statici e test JSON strict.
+
 ## NightScope 1.14.1 - 2026-07-09
 
 - Aggiunto `docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md`, audit

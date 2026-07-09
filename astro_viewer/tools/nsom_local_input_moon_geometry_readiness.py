@@ -56,6 +56,27 @@ SOURCE_MARKERS = (
         ),
     },
     {
+        "surface": "MoonGeometrySummary runtime DTO",
+        "path": Path("astro_viewer/app/models/observing.py"),
+        "markers": (
+            "class MoonGeometrySummary",
+            "moon_altitude_deg: float | None = None",
+            "moon_target_separation_deg: float | None = None",
+            'sample_policy: str = "bounded_start_mid_best_end"',
+        ),
+    },
+    {
+        "surface": "Skyfield Moon geometry diagnostics",
+        "path": Path("astro_viewer/app/astronomy/skyfield_engine.py"),
+        "markers": (
+            "def moon_geometry",
+            "MoonGeometrySummary(",
+            "def _moon_target_separations",
+            "def _bounded_moon_geometry_sample_times",
+            "def _moon_set_before_target_window",
+        ),
+    },
+    {
         "surface": "Moon geometry future condition input",
         "path": Path("astro_viewer/app/services/observation_conditions_service.py"),
         "markers": (
@@ -64,6 +85,16 @@ SOURCE_MARKERS = (
             "def intended_moon_geometry_factor",
             "def intended_moon_geometry_modifier",
             "moon_geometry:score_neutral",
+        ),
+    },
+    {
+        "surface": "NSOM runtime Moon geometry diagnostics",
+        "path": Path("astro_viewer/app/viewmodels/app_controller.py"),
+        "markers": (
+            "def _moon_geometry_condition_input",
+            "def _moon_geometry_summary",
+            "moon_geometry_available",
+            "moon_geometry_score_effect",
         ),
     },
     {
@@ -151,27 +182,29 @@ def generate_local_input_moon_geometry_readiness_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "local_input_moon_geometry_readiness_audited"
+                "local_input_moon_geometry_runtime_diagnostics_available"
                 if not blockers
                 else "local_input_moon_geometry_needs_review"
             ),
             "moon_geometry_scoring_enabled_now": False,
             "moon_geometry_ready_for_local_implementation": not blockers,
+            "moon_geometry_runtime_diagnostics_available": not blockers,
             "first_scoring_candidate": "moon_geometry_behind_experimental_flag",
             "requires_provider_before_next_step": False,
             "blocks_current_default_on_surfaces": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Implement Moon geometry calculation from local astronomy inputs "
-                "behind experimental_moon_geometry_scoring before any AOD/OpenAQ "
+                "Review the score-neutral Moon geometry diagnostics, then wire "
+                "Moon geometry into ObservationEnvironment behind "
+                "experimental_moon_geometry_scoring before any AOD/OpenAQ "
                 "scoring work."
             ),
             "reason": (
-                "Location plus local ephemeris data is sufficient to compute Moon "
-                "altitude, Moon-target separation and window overlap without "
-                "weather, VIIRS, AOD or OpenAQ. Current runtime scoring uses Moon "
-                "illumination only; geometry fields are already named but remain "
-                "diagnostic/future inputs."
+                "Location plus local ephemeris data now computes Moon altitude, "
+                "Moon-target separation and window overlap without weather, "
+                "VIIRS, AOD or OpenAQ. Current runtime scoring still uses Moon "
+                "illumination only; geometry is exported as score-neutral "
+                "diagnostic metadata and future scoring input."
             ),
         },
         "data_source_taxonomy": taxonomy,
@@ -199,8 +232,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit separates NightScope input sources into "
             "local always-available astronomy, local optional equipment and "
-            "external optional providers. It confirms that Moon geometry is the "
-            "right next backend NSOM step because it can be computed from the "
+            "external optional providers. It confirms that Moon geometry is now "
+            "available as a score-neutral runtime diagnostic computed from the "
             "active location and local astronomy engine without network, weather, "
             "VIIRS, AOD or OpenAQ. No runtime scoring, ranking, QML, logging, "
             "network or runtime file-write behaviour changes."
@@ -213,6 +246,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "- Moon geometry ready for local implementation: "
             f"`{readiness['moon_geometry_ready_for_local_implementation']}`."
+        ),
+        (
+            "- Moon geometry runtime diagnostics available: "
+            f"`{readiness['moon_geometry_runtime_diagnostics_available']}`."
         ),
         f"- First scoring candidate: `{readiness['first_scoring_candidate']}`.",
         f"- Requires provider before next step: `{readiness['requires_provider_before_next_step']}`.",
@@ -362,12 +399,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "The backend NSOM consumer migration is closed for current "
-                "recommendation surfaces, but the physical model should now move "
-                "into local Moon geometry before provider-dependent aerosol work. "
-                "Moon altitude and Moon-target separation are deterministic once "
-                "location and time are known, so they should be implemented before "
-                "NASA AOD or OpenAQ scoring. AOD and OpenAQ remain optional "
-                "provider inputs with freshness and confidence semantics."
+                "recommendation surfaces, and the physical model now has "
+                "score-neutral local Moon geometry diagnostics. Moon altitude and "
+                "Moon-target separation are deterministic once location and time "
+                "are known, so the next step is scoring behind an experimental "
+                "flag before NASA AOD or OpenAQ scoring. AOD and OpenAQ remain "
+                "optional provider inputs with freshness and confidence semantics."
             ),
             "",
         ]
@@ -451,7 +488,7 @@ def _data_source_taxonomy() -> tuple[dict[str, object], ...]:
 
 
 def _moon_geometry_field_inventory(root: Path) -> tuple[dict[str, object], ...]:
-    moon_summary_text = _read_text(root / "astro_viewer/app/models/observing.py")
+    moon_summary_text = _moon_summary_text(root)
     return (
         {
             "field": "moon_phase",
@@ -476,42 +513,42 @@ def _moon_geometry_field_inventory(root: Path) -> tuple[dict[str, object], ...]:
         },
         {
             "field": "moon_altitude_deg",
-            "status": "future_local_geometry_input",
-            "source_today": "MoonGeometryConditionInput only; absent from MoonSummary",
-            "required_implementation": "compute sampled Moon altitude from local ephemeris and location",
-            "score_role_now": "score-neutral diagnostic/future factor",
+            "status": "runtime_score_neutral_geometry_input",
+            "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary",
+            "required_implementation": "implemented from sampled Moon altitude and local ephemeris",
+            "score_role_now": "score-neutral diagnostic/future factor; current score effect 0.0",
             "absent_from_moon_summary": "moon_altitude_deg" not in moon_summary_text,
         },
         {
             "field": "moon_target_separation_deg",
-            "status": "future_local_geometry_input",
-            "source_today": "MoonGeometryConditionInput only; absent from MoonSummary",
-            "required_implementation": "compute angular Moon-target separation at bounded window samples",
-            "score_role_now": "score-neutral diagnostic/future factor",
+            "status": "runtime_score_neutral_geometry_input",
+            "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary",
+            "required_implementation": "implemented as angular Moon-target separation at bounded window samples",
+            "score_role_now": "score-neutral diagnostic/future factor; current score effect 0.0",
             "absent_from_moon_summary": "moon_target_separation_deg" not in moon_summary_text,
         },
         {
             "field": "moon_above_horizon",
-            "status": "future_local_geometry_input",
-            "source_today": "MoonGeometryConditionInput only; derivable from sampled altitude",
-            "required_implementation": "derive from Moon altitude samples, not from display strings",
-            "score_role_now": "score-neutral diagnostic/future factor",
+            "status": "runtime_score_neutral_geometry_input",
+            "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; derived from sampled altitude",
+            "required_implementation": "implemented from Moon altitude samples, not from display strings",
+            "score_role_now": "score-neutral diagnostic/future factor; current score effect 0.0",
             "absent_from_moon_summary": "moon_above_horizon" not in moon_summary_text,
         },
         {
             "field": "moon_visible_during_target_window",
-            "status": "future_local_geometry_input",
-            "source_today": "MoonGeometryConditionInput only",
-            "required_implementation": "compare Moon samples with target observing window samples",
-            "score_role_now": "score-neutral diagnostic/future factor",
+            "status": "runtime_score_neutral_geometry_input",
+            "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput",
+            "required_implementation": "implemented by comparing Moon samples with target window samples",
+            "score_role_now": "score-neutral diagnostic/future factor; current score effect 0.0",
             "absent_from_moon_summary": "moon_visible_during_target_window" not in moon_summary_text,
         },
         {
             "field": "moon_set_before_target_window",
-            "status": "future_local_geometry_input",
-            "source_today": "MoonGeometryConditionInput only",
-            "required_implementation": "derive from sampled Moon geometry relative to target window",
-            "score_role_now": "score-neutral diagnostic/future factor",
+            "status": "runtime_score_neutral_geometry_input",
+            "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput",
+            "required_implementation": "implemented from sampled Moon geometry relative to target window",
+            "score_role_now": "score-neutral diagnostic/future factor; current score effect 0.0",
             "absent_from_moon_summary": "moon_set_before_target_window" not in moon_summary_text,
         },
     )
@@ -522,28 +559,28 @@ def _current_moon_consumers() -> tuple[dict[str, object], ...]:
         {
             "consumer": "Planner NSOM",
             "current_moon_input": "MoonSummary.illumination",
-            "geometry_input": "not active",
+            "geometry_input": "diagnostic export only",
             "score_status": "active illumination-based lunar_sky_background",
-            "notes": "Moon altitude and separation are not part of ObservationOpportunity yet.",
+            "notes": "Moon altitude and separation are not part of ObservationOpportunity scoring yet.",
         },
         {
             "consumer": "Home recommendedDeepSky NSOM",
             "current_moon_input": "MoonSummary.illumination",
-            "geometry_input": "not active",
+            "geometry_input": "diagnostic export only",
             "score_status": "active illumination-based ObservableTargetValue background",
             "notes": "Home intentionally excludes session/weather/equipment from ObservableTargetValue.",
         },
         {
             "consumer": "Best Object NSOM",
             "current_moon_input": "MoonSummary.illumination through Home observable adapter",
-            "geometry_input": "not active",
+            "geometry_input": "diagnostic export only",
             "score_status": "active through ObservableTargetValue and Opportunity",
             "notes": "SessionViability remains separate from target and sky physics.",
         },
         {
             "consumer": "Sky Compass NSOM",
             "current_moon_input": "MoonSummary.illumination through Home observable adapter",
-            "geometry_input": "not active",
+            "geometry_input": "diagnostic export only",
             "score_status": "active as candidate base only",
             "notes": "Direction policy remains presentation/context outside target physics.",
         },
@@ -580,7 +617,7 @@ def _moon_readiness() -> dict[str, object]:
         "requires_nasa_aod": False,
         "requires_openaq": False,
         "requires_equipment_profile": False,
-        "calculation_layer": "SkyfieldAstronomyEngine or dedicated local MoonGeometry adapter",
+        "calculation_layer": "SkyfieldAstronomyEngine.moon_geometry",
         "nsom_owner": "Sky / ObservationEnvironment",
         "first_consumer": "Planner before Home",
         "sampling_policy": "bounded start/mid/best/end samples",
@@ -611,8 +648,15 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.14.2 Moon geometry diagnostics runtime",
             "summary": (
-                "Compute Moon altitude, Moon-target separation and Moon/window "
-                "overlap from local astronomy samples, still score-neutral."
+                "Computed Moon altitude, Moon-target separation and Moon/window "
+                "overlap from local astronomy samples; still score-neutral."
+            ),
+        },
+        {
+            "step": "Review 1.14.2",
+            "summary": (
+                "Confirm runtime Moon geometry diagnostics are physically sane, "
+                "score-neutral and not wired into QML/runtime reports."
             ),
         },
         {
@@ -675,8 +719,8 @@ def _checks(
             moon_field_by_id[field]["status"] == "active_current"
             for field in ("moon_phase", "moon_illumination", "moon_phase_angle")
         ),
-        "moon_geometry_fields_are_future_inputs": all(
-            moon_field_by_id[field]["status"] == "future_local_geometry_input"
+        "moon_geometry_fields_are_runtime_diagnostics": all(
+            moon_field_by_id[field]["status"] == "runtime_score_neutral_geometry_input"
             for field in MOON_GEOMETRY_FIELD_MARKERS
         ),
         "moon_geometry_absent_from_moon_summary": all(
@@ -707,7 +751,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "viirs_source_distinguishes_fallback": "viirs-fallback-boundary-missing",
         "aod_openaq_external_score_neutral": "aod-openaq-score-neutral-boundary-missing",
         "moon_summary_has_phase_illumination": "moon-summary-active-fields-missing",
-        "moon_geometry_fields_are_future_inputs": "moon-geometry-fields-not-future",
+        "moon_geometry_fields_are_runtime_diagnostics": "moon-geometry-fields-not-runtime-diagnostics",
         "moon_geometry_absent_from_moon_summary": "moon-geometry-already-in-moon-summary",
         "moon_geometry_requires_no_provider": "moon-geometry-provider-dependency",
         "moon_geometry_modifier_still_neutral": "moon-geometry-modifier-not-neutral",
@@ -798,6 +842,15 @@ def _read_text(path: Path) -> str:
     if not path.exists():
         return ""
     return path.read_text(encoding="utf-8")
+
+
+def _moon_summary_text(root: Path) -> str:
+    text = _read_text(root / "astro_viewer/app/models/observing.py")
+    _before, marker, tail = text.partition("class MoonSummary")
+    if not marker:
+        return ""
+    block, _next_marker, _after = tail.partition("class MoonGeometrySummary")
+    return marker + block
 
 
 if __name__ == "__main__":

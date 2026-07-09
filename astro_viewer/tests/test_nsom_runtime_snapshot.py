@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
-from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary
 from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
@@ -131,6 +131,50 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         confidence_inputs = dict(controller._nsom_diagnostic_snapshot.confidence_inputs)
         self.assertTrue(confidence_inputs["viirs_available"])
         self.assertEqual(confidence_inputs["viirs_source_type"], "provider")
+
+    def test_refresh_nsom_diagnostics_exports_local_moon_geometry_score_neutrally(self) -> None:
+        home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)
+        controller = _controller([home_target], [_plan_item("messier-M13", "M13", score=82)], best_object=home_target)
+        controller._astronomy_engine = _MoonGeometryEngine(
+            MoonGeometrySummary(
+                object_id="messier-M13",
+                moon_altitude_deg=41.5,
+                moon_target_separation_deg=72.25,
+                moon_above_horizon=True,
+                moon_visible_during_target_window=True,
+                moon_set_before_target_window=False,
+                sample_count=4,
+                sampled_at="2026-07-09T22:00:00+00:00",
+                sample_times=(
+                    "2026-07-09T18:00:00+00:00",
+                    "2026-07-09T21:00:00+00:00",
+                    "2026-07-09T22:00:00+00:00",
+                    "2026-07-10T02:00:00+00:00",
+                ),
+            )
+        )
+        before = deepcopy(home_target)
+
+        controller._refresh_nsom_diagnostics()
+        exported = controller._export_nsom_diagnostics()
+
+        json.dumps(exported, allow_nan=False)
+        self.assertEqual(home_target, before)
+        self.assertEqual(controller._nsom_diagnostic_snapshot.confidence.moon_geometry_confidence, 1.0)
+        confidence_inputs = dict(controller._nsom_diagnostic_snapshot.confidence_inputs)
+        self.assertTrue(confidence_inputs["moon_geometry_available"])
+        home_export = next(target for target in exported["targets"] if target["source"] == "home")
+        home_runtime_fields = dict(home_export["runtimeFields"])
+        self.assertTrue(home_runtime_fields["moon_geometry_available"])
+        self.assertEqual(home_runtime_fields["moon_altitude_deg"], 41.5)
+        self.assertEqual(home_runtime_fields["moon_target_separation_deg"], 72.25)
+        self.assertEqual(home_runtime_fields["moon_above_horizon"], True)
+        self.assertEqual(home_runtime_fields["moon_visible_during_target_window"], True)
+        self.assertEqual(home_runtime_fields["moon_set_before_target_window"], False)
+        self.assertEqual(home_runtime_fields["moon_geometry_score_effect"], 0.0)
+        self.assertEqual(home_export["runtimeFields"]["score"], 82)
+        self.assertEqual(home_export["observableTargetValue"]["value"], 82.0)
+        self.assertEqual(controller._astronomy_engine.calls, 1)
 
     def test_export_nsom_diagnostics_is_strict_json_compatible(self) -> None:
         home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)
@@ -303,6 +347,7 @@ def _controller(
     controller._local_atmosphere = LocalAtmosphere.not_configured()
     controller._sky_quality = None
     controller._moon = None
+    controller._moon_geometry_condition_cache = {}
     controller._seeing_transparency = None
     controller._object_descriptions = {}
     return controller
@@ -357,6 +402,21 @@ def _weather_summary() -> WeatherSummary:
         temperature_c=18.0,
         alert="",
     )
+
+
+class _MoonGeometryEngine:
+    def __init__(self, summary: MoonGeometrySummary | None) -> None:
+        self._summary = summary
+        self.calls = 0
+
+    def moon_geometry(
+        self,
+        location: ObserverLocation,
+        target: CelestialObject,
+    ) -> MoonGeometrySummary | None:
+        del location, target
+        self.calls += 1
+        return self._summary
 
 
 if __name__ == "__main__":

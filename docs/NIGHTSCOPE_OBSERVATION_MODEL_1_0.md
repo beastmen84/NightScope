@@ -29,6 +29,11 @@ astronomy is the minimum deterministic backend input, equipment is local and
 optional, while weather, VIIRS, NASA AOD and OpenAQ are optional provider
 inputs. Moon geometry is the next local NSOM target because Moon altitude,
 Moon-target separation and target-window overlap do not require provider data.
+As of 1.14.2, `SkyfieldAstronomyEngine.moon_geometry(...)` computes those Moon
+geometry diagnostics locally and exposes them through the internal NSOM
+diagnostic snapshot as score-neutral metadata. They do not yet modify
+ObservationEnvironment, ObservableTargetValue, ObservationOpportunity or any
+visible recommendation score.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2195,6 +2200,9 @@ A future `ObserverCapabilityService` should own:
 
 - Compute Moon altitude/separation at start/mid/best/end samples.
 - Keep diagnostic-only until stable.
+- Status 1.14.2: implemented as local runtime diagnostics through
+  `MoonGeometrySummary` and `MoonGeometryConditionInput`; current score effect
+  remains `0.0`.
 
 ### Step 6: Moon-aware Planner scoring
 
@@ -2228,6 +2236,10 @@ A future `ObserverCapabilityService` should own:
   Moon-target separation, above-horizon state and target-window overlap remain
   local score-neutral readiness inputs for the next backend step. NASA AOD and
   OpenAQ remain provider-dependent and should follow Moon geometry work.
+- Status update for 1.14.2: Moon altitude, Moon-target separation,
+  above-horizon state and target-window overlap are now computed from local
+  ephemeris samples and exported in NSOM diagnostics. They remain score-neutral
+  and are not consumed by Planner/Home/Best Object/Sky Compass scoring yet.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

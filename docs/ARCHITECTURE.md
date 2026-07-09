@@ -839,6 +839,13 @@ and local ephemeris data without weather, VIIRS, NASA AOD or OpenAQ. Current
 runtime scoring still uses Moon illumination/background only; the geometry
 fields remain score-neutral readiness inputs until a later explicit scoring
 step.
+`1.14.2` implements the local Moon-geometry diagnostic boundary. `MoonGeometrySummary`
+is produced by `SkyfieldAstronomyEngine.moon_geometry(...)` from the active
+location, local time and ephemeris data, then adapted by `AppController` into
+`MoonGeometryConditionInput` for NSOM diagnostic snapshots and neutral condition
+breakdowns. This remains score-neutral: Planner, Home, Best Object, Advanced
+Observing, Sky Compass, Detail/Object, Equipment and QML keep their existing
+runtime behaviour, and no report tooling is wired into runtime.
 
 ## Dependency Flow
 
