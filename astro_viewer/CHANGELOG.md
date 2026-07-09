@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.12.11 - 2026-07-09
+
+- Implementato il runtime split adapter Sky Compass definito in 1.12.10.
+- Il ramo NSOM Sky Compass calcola `ObservableTargetValue` usando oggetti
+  compositi con target physics raw dal read-model e geometria display/live
+  corrente.
+- Direzione, visibilita', horizon/current position, score payload e campi QML
+  restano sui target display/live; non vengono esposti campi NSOM a QML.
+- Aggiornati gli audit ObservationConditions/backend/legacy: Home
+  recommendedDeepSky, Best Object e Sky Compass risultano reroutati sui boundary
+  raw/display corretti.
+- Conservati fallback legacy senza sky quality e fallback su errore servizio;
+  nessun cambio a Planner, Home, Best Object, Equipment, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.12.10 - 2026-07-09
 
 - Aggiunto `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`, report

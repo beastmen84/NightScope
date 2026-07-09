@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -13,6 +14,7 @@ from astro_viewer.app.services.sky_compass_nsom_ranking import (
     NSOM_SKY_COMPASS_ENABLED,
     SkyCompassNsomDirectionService,
 )
+from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -86,6 +88,32 @@ def test_flag_on_preserves_plan_and_best_object_context_boosts() -> None:
     assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
 
 
+def test_service_uses_observable_target_map_without_changing_payload_geometry() -> None:
+    display_south = _object("galaxy", "Galaxy", "Galaxy", "Sud", 10, magnitude="8.2")
+    display_north = _object("cluster", "Cluster", "Open Cluster", "Nord", 20, magnitude="5.0")
+    raw_south = replace(display_south, score=96, max_altitude="80 gradi")
+
+    result = SkyCompassNsomDirectionService().compass(
+        [display_south, display_north],
+        [],
+        None,
+        sky_quality=_sky_quality(2, radiance=1.0),
+        moon=_moon(10),
+        has_location=True,
+        observable_objects_by_id={"galaxy": raw_south},
+    )
+
+    assert result["direction"] == "Sud"
+    assert result["primaryTargets"][0] == {
+        "id": "galaxy",
+        "name": "Galaxy",
+        "type": "Galaxy",
+        "score": 10,
+        "inPlan": False,
+        "isBest": False,
+    }
+
+
 def test_controller_default_uses_nsom_and_forced_rollback_uses_legacy() -> None:
     targets = _targets()
     enabled = _controller(use_nsom_sky_compass=NSOM_SKY_COMPASS_ENABLED, sky_quality=_sky_quality(9, radiance=120.0))
@@ -97,6 +125,45 @@ def test_controller_default_uses_nsom_and_forced_rollback_uses_legacy() -> None:
     assert enabled_result["direction"] == "Nord-Est"
     assert disabled_result == _legacy_compass(targets)
     assert disabled_result["direction"] == "Sud"
+
+
+def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_geometry() -> None:
+    raw = _object("galaxy", "Galaxy", "Galaxy", "Sud", 90, magnitude="8.2")
+    display = replace(
+        raw,
+        score=12,
+        direction="Nord-Est",
+        max_altitude="18 gradi",
+        current_altitude="17 gradi",
+        current_azimuth="45 gradi",
+        condition_flags=("light_pollution",),
+    )
+    controller = _controller(
+        use_nsom_sky_compass=True,
+        sky_quality=_sky_quality(9, radiance=120.0),
+        nsom_service=Mock(return_value={"available": True}),
+    )
+    controller._deep_sky_raw_condition_input_by_id = {raw.id: raw}
+    controller._conditioned_home_read_model = list(
+        ObservationConditionsReadModelBuilder().from_display_targets(
+            [display],
+            source="test_sky_compass_read_model",
+            raw_targets_by_id=controller._deep_sky_raw_condition_input_by_id,
+        )
+    )
+    controller._sky_compass_nsom_direction_service.compass.return_value = {"available": True}
+
+    result = controller._select_sky_compass_payload([display], has_location=True, caution_text="")
+
+    assert result == {"available": True}
+    kwargs = controller._sky_compass_nsom_direction_service.compass.call_args.kwargs
+    observable = kwargs["observable_objects_by_id"]["galaxy"]
+    assert observable.score == 90
+    assert observable.direction == "Nord-Est"
+    assert observable.max_altitude == "18 gradi"
+    assert observable.current_altitude == "17 gradi"
+    assert observable.current_azimuth == "45 gradi"
+    assert controller._sky_compass_nsom_direction_service.compass.call_args.args[0] == [display]
 
 
 def test_missing_sky_quality_and_service_failure_fall_back_to_legacy_without_logging_or_shape_change() -> None:

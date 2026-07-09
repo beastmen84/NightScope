@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -49,13 +50,21 @@ class SkyCompassNsomDirectionService:
         moon: MoonSummary | None,
         has_location: bool,
         caution_text: str = "",
+        observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
     ) -> dict:
         if not has_location:
             return self._legacy_service.empty("no_location", "Configura una località per usare Sky Compass.")
 
         plan_ids = {item.object_id for item in night_plan}
         best_id = best_object.id if best_object else ""
-        targets = self._targets(objects, plan_ids, best_id, sky_quality=sky_quality, moon=moon)
+        targets = self._targets(
+            objects,
+            plan_ids,
+            best_id,
+            sky_quality=sky_quality,
+            moon=moon,
+            observable_objects_by_id=observable_objects_by_id,
+        )
         if not targets:
             return self._legacy_service.empty("no_targets", "Nessun target consigliato al momento.")
 
@@ -107,8 +116,10 @@ class SkyCompassNsomDirectionService:
         *,
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
+        observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
     ) -> list[SkyCompassNsomTarget]:
         targets: list[SkyCompassNsomTarget] = []
+        observable_objects = observable_objects_by_id or {}
         seen_ids = set()
         for item in objects:
             if item.id in seen_ids or not item.visible:
@@ -116,7 +127,8 @@ class SkyCompassNsomDirectionService:
             direction = SkyCompassService.normalize_direction(item.direction)
             if not direction:
                 continue
-            observable = build_home_observable_target_value(item, sky_quality=sky_quality, moon=moon)
+            observable_item = observable_objects.get(item.id, item)
+            observable = build_home_observable_target_value(observable_item, sky_quality=sky_quality, moon=moon)
             in_plan = item.id in plan_ids
             is_best = item.id == best_id
             direction_score = (

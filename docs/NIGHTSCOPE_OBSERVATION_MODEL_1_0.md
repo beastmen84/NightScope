@@ -1240,6 +1240,14 @@ target for direction grouping, visibility, horizon/current position and QML
 payload, and target-id context for Night Plan / Best Object boosts. This step
 does not change Sky Compass runtime behaviour.
 
+Implementation note for 1.12.11:
+Sky Compass now implements the split source policy. The runtime builds internal
+observable targets by combining raw read-model target physics with current
+display/live geometry before constructing `ObservableTargetValue`; direction
+grouping and QML payload still use the display/live candidates. This completes
+the Home, Best Object and Sky Compass consumer reroute over the
+ObservationConditions raw/display boundary.
+
 Examples:
 
 - binocular-only profile;

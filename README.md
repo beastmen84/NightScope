@@ -586,6 +586,12 @@ deve usare target physics raw da `nsom_target_input`, mentre direzione,
 visibilita', horizon/current position e payload devono restare sul target
 display/live. Il runtime Sky Compass non cambia in questo step; il prossimo
 lavoro e' un adapter split se la policy viene accettata.
+Lo step `1.12.11` implementa quello split adapter nel runtime Sky Compass:
+il servizio NSOM riceve una mappa di oggetti observable compositi, costruiti con
+target physics raw e geometria display/live corrente. Il payload QML continua a
+usare i target display/live, e i fallback senza sky quality o su errore servizio
+restano legacy. Home, Best Object e Sky Compass risultano ora reroutati sui
+boundary raw/display ObservationConditions.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

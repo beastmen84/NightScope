@@ -2,15 +2,15 @@
 
 ## Executive Summary
 
-This developer-only policy defines how Sky Compass should consume the ObservationConditions read model in a later runtime step. It does not change Sky Compass runtime behaviour, QML, logging, network access or runtime file writes.
+This developer-only policy records how Sky Compass consumes the ObservationConditions read model after the 1.12.11 runtime adapter. It does not expose QML, log automatically, call the network or write runtime files.
 
 ## Verdict
 
-- Verdict: `sky_compass_read_model_policy_defined_runtime_pending`.
-- Runtime reroute ready for next step: `True`.
-- Runtime changed by this step: `False`.
-- Recommended next step: Review this policy, then implement a Sky Compass read-model adapter that uses raw target physics for ObservableTargetValue and display/live targets for geometry and payload compatibility.
-- Reason: Sky Compass is a direction/presentation surface. Replacing the candidate with the raw target would avoid display-score reuse, but it could also drop display/live direction, visibility and current-position data. The safe policy is a split adapter.
+- Verdict: `sky_compass_read_model_reroute_implemented`.
+- Runtime reroute ready for next step: `False`.
+- Runtime changed by this step: `True`.
+- Recommended next step: Review the 1.12.11 Sky Compass read-model adapter, then close the ObservationConditions consumer reroute series if accepted.
+- Reason: Sky Compass now uses a split adapter: raw target physics feeds ObservableTargetValue, while display/live targets keep direction, visibility, current-position and payload ownership.
 
 ## Policy Decisions
 
@@ -49,7 +49,9 @@ This developer-only policy defines how Sky Compass should consume the Observatio
 | `missing_read_model_fallback_defined` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `qml_report_exposure_absent` | `True` |
-| `runtime_behaviour_unchanged_by_policy` | `True` |
+| `runtime_split_adapter_present` | `True` |
+| `nsom_service_accepts_observable_target_map` | `True` |
+| `runtime_behaviour_changed_by_adapter` | `True` |
 
 ## Static Wiring
 
@@ -57,14 +59,16 @@ This developer-only policy defines how Sky Compass should consume the Observatio
 - QML report exposure: `[]`.
 - Current runtime uses conditioned/display candidates: `True`.
 - Live refresh updates current candidate geometry: `True`.
-- Current NSOM service computes observable from candidate object: `True`.
+- Runtime split adapter present: `True`.
+- NSOM service accepts observable target map: `True`.
 
 ## Recommended Sequence
 
 - `Review 1.12.9`: Confirm Best Object raw-target scoring and display target return.
 - `1.12.10 Sky Compass read-model reroute policy`: Define raw target physics vs display/live geometry ownership before runtime changes.
-- `1.12.11 Sky Compass read-model reroute`: Implement the policy if review accepts the split adapter.
+- `1.12.11 Sky Compass read-model reroute`: Implement the split adapter and keep QML payload compatibility.
+- `Review 1.12.11`: Confirm the adapter uses raw physics and display/live geometry correctly.
 
 ## Conclusion
 
-Sky Compass should not be rerouted by passing only raw targets to the existing service. The next runtime step should introduce a small adapter that joins raw NSOM target input with display/live geometry and payload data by target id.
+Sky Compass now avoids passing only raw targets to the existing direction surface. The runtime adapter joins raw NSOM target input with display/live geometry and payload data by target id.

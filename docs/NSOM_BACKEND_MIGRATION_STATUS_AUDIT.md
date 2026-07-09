@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the 1.12.10 Sky Compass read-model reroute policy, then implement the split adapter if accepted.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now has a read-model split policy and remains a separate behaviour-reviewed runtime reroute. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged.
+- Recommended next step: Review the 1.12.11 Sky Compass split adapter, then close the ObservationConditions consumer reroute series if accepted.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged.
 
 ## Audit Blockers
 
@@ -34,7 +34,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
 | Equipment recommendations | `observer_adapter_extracted` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps runtime setup recommendations unchanged. | Keep deferred while the ObservationConditions consumer reroute policy is reviewed; revisit Equipment presenter contract work after the raw-target consumer migration is stable. |
-| ObservationConditions prepared-object cache | `sky_compass_read_model_policy_defined_runtime_pending` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split between raw target physics and display/live geometry. | Review the 1.12.10 Sky Compass policy, then implement the read-model split adapter if accepted. |
+| ObservationConditions prepared-object cache | `observation_conditions_consumers_rerouted` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split, and the 1.12.11 runtime step implements it. | Review the 1.12.11 Sky Compass adapter, then close the ObservationConditions consumer reroute series if accepted. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Removed Dead Legacy
@@ -53,16 +53,16 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 ## ObservationConditions Consumer Reroute Audit
 
-- Verdict: `sky_compass_read_model_policy_defined_runtime_pending`.
-- Runtime reroute recommended now: `True`.
+- Verdict: `observation_conditions_consumers_rerouted`.
+- Runtime reroute recommended now: `False`.
 - Safe to change runtime in this step: `False`.
-- Recommended next step: Review the 1.12.10 Sky Compass read-model reroute policy, then implement the split adapter if accepted.
+- Recommended next step: Review the 1.12.11 Sky Compass split adapter, then close the ObservationConditions consumer reroute series if accepted.
 
 ## Documentation State
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.12.10` |
+| `version` | `1.12.11` |
 | `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
@@ -106,6 +106,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `Review 1.12.9`: Confirm Best Object payload compatibility and decide whether Sky Compass should reroute.
 - `1.12.10 Sky Compass read-model reroute policy`: Define raw target physics vs display/live geometry ownership before runtime changes.
 - `Review 1.12.10`: Confirm the Sky Compass split policy before implementing the runtime adapter.
+- `1.12.11 Sky Compass read-model reroute`: Use raw target physics for Sky Compass ObservableTargetValue and display/live geometry for payload.
+- `Review 1.12.11`: Confirm the final ObservationConditions consumer reroute before closeout.
 - `Later UI explanation work`: Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.
 
 ## Conclusion

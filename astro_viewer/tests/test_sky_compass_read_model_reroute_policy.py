@@ -26,7 +26,7 @@ def test_sky_compass_read_model_policy_is_deterministic_strict_json_and_develope
         "network": False,
         "qml_exposure": False,
         "runtime_behaviour_changed_by_this_policy": False,
-        "sky_compass_runtime_changed": False,
+        "sky_compass_runtime_changed": True,
         "planner_changed": False,
         "home_changed": False,
         "best_object_changed": False,
@@ -39,8 +39,8 @@ def test_policy_splits_raw_observable_from_display_live_geometry_and_payload() -
     decisions = {item["boundary"]: item for item in data["policy_decisions"]}
     fixture = data["fixture"]
 
-    assert data["readiness"]["verdict"] == "sky_compass_read_model_policy_defined_runtime_pending"
-    assert data["readiness"]["runtime_changed_by_this_step"] is False
+    assert data["readiness"]["verdict"] == "sky_compass_read_model_reroute_implemented"
+    assert data["readiness"]["runtime_changed_by_this_step"] is True
     assert fixture["raw_observable_value"] > fixture["display_observable_value"]
     assert fixture["live_display_target"]["direction"] == "Sud-Ovest"
     assert fixture["policy_projection"]["observable_source"] == "read_model.nsom_target_input"
@@ -68,13 +68,15 @@ def test_policy_has_no_runtime_qml_wiring_and_current_runtime_remains_unchanged(
 
     assert data["checks"]["runtime_report_imports_absent"] is True
     assert data["checks"]["qml_report_exposure_absent"] is True
-    assert data["checks"]["runtime_behaviour_unchanged_by_policy"] is True
+    assert data["checks"]["runtime_split_adapter_present"] is True
+    assert data["checks"]["nsom_service_accepts_observable_target_map"] is True
+    assert data["checks"]["runtime_behaviour_changed_by_adapter"] is True
     assert data["static_wiring_checks"]["runtime_report_import_matches"] == []
     assert data["static_wiring_checks"]["qml_report_exposure_matches"] == []
     assert data["static_wiring_checks"]["sky_compass_uses_conditioned_display_candidates_now"] is True
     assert data["static_wiring_checks"]["live_refresh_updates_current_candidate_geometry"] is True
-    assert data["static_wiring_checks"]["nsom_service_uses_candidate_object_for_observable_now"] is True
-    assert data["static_wiring_checks"]["controller_has_no_sky_compass_read_model_adapter_yet"] is True
+    assert data["static_wiring_checks"]["sky_compass_split_adapter_present"] is True
+    assert data["static_wiring_checks"]["nsom_service_accepts_observable_target_map"] is True
 
 
 def test_checked_in_sky_compass_read_model_policy_report_matches_renderer() -> None:
@@ -83,7 +85,7 @@ def test_checked_in_sky_compass_read_model_policy_report_matches_renderer() -> N
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Sky Compass Read-Model Reroute Policy" in text
-    assert "sky_compass_read_model_policy_defined_runtime_pending" in text
+    assert "sky_compass_read_model_reroute_implemented" in text
     assert "current display/live target" in text
     assert "read_model.nsom_target_input" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

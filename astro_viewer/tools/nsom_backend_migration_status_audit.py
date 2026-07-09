@@ -96,8 +96,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the 1.12.10 Sky Compass read-model reroute policy, then "
-                "implement the split adapter if accepted"
+                "Review the 1.12.11 Sky Compass split adapter, then close the "
+                "ObservationConditions consumer reroute series if accepted"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -109,8 +109,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "targets plus a consumer reroute policy audit. Home recommendedDeepSky "
                 "now consumes the raw read-model target for NSOM ranking; Best Object "
                 "now scores raw read-model targets and returns display payload targets; "
-                "Sky Compass now has a read-model split policy and remains a separate "
-                "behaviour-reviewed runtime reroute. "
+                "Sky Compass now uses the read-model split adapter for raw target "
+                "physics plus display/live geometry. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -415,12 +415,12 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "to raw inputs, and the 1.12.8 runtime step applies that policy to "
                 "Home recommendedDeepSky. The 1.12.9 runtime step applies the same "
                 "raw-score/display-payload split to Best Object. The 1.12.10 policy "
-                "defines the remaining Sky Compass split between raw target physics "
-                "and display/live geometry."
+                "defines the remaining Sky Compass split, and the 1.12.11 runtime "
+                "step implements it."
             ),
             "recommended_handling": (
-                "Review the 1.12.10 Sky Compass policy, then implement the "
-                "read-model split adapter if accepted."
+                "Review the 1.12.11 Sky Compass adapter, then close the "
+                "ObservationConditions consumer reroute series if accepted."
             ),
             "read_model_boundary_status": observation_readiness["verdict"],
             "blocks_current_default_on_surfaces": False,
@@ -606,6 +606,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.12.10",
             "summary": "Confirm the Sky Compass split policy before implementing the runtime adapter.",
+        },
+        {
+            "step": "1.12.11 Sky Compass read-model reroute",
+            "summary": "Use raw target physics for Sky Compass ObservableTargetValue and display/live geometry for payload.",
+        },
+        {
+            "step": "Review 1.12.11",
+            "summary": "Confirm the final ObservationConditions consumer reroute before closeout.",
         },
         {
             "step": "Later UI explanation work",

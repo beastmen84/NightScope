@@ -33,12 +33,12 @@ def test_consumer_reroute_audit_is_deterministic_strict_json_and_developer_only(
     }
 
 
-def test_consumer_reroute_audit_tracks_home_runtime_reroute_and_pending_consumers() -> None:
+def test_consumer_reroute_audit_tracks_all_runtime_consumer_reroutes() -> None:
     data = generate_observation_conditions_consumer_reroute_audit_data()
     policies = {item["consumer"]: item for item in data["consumer_policies"]}
 
-    assert data["readiness"]["verdict"] == "sky_compass_read_model_policy_defined_runtime_pending"
-    assert data["readiness"]["runtime_reroute_recommended_now"] is True
+    assert data["readiness"]["verdict"] == "observation_conditions_consumers_rerouted"
+    assert data["readiness"]["runtime_reroute_recommended_now"] is False
     assert data["readiness"]["safe_to_change_runtime_in_this_step"] is False
     assert data["checks"]["runtime_behaviour_unchanged_by_audit"] is True
 
@@ -49,7 +49,7 @@ def test_consumer_reroute_audit_tracks_home_runtime_reroute_and_pending_consumer
     assert policies["Best Object"]["current_runtime_input"] == "read_model.nsom_target_input for scoring"
     assert policies["Best Object"]["payload_target"] == "read_model.qml_display_target when selected"
     assert policies["Best Object"]["status"] == "runtime_rerouted_to_raw_read_model_target"
-    assert policies["Sky Compass"]["status"] == "read_model_reroute_policy_defined_runtime_pending"
+    assert policies["Sky Compass"]["status"] == "runtime_rerouted_to_split_read_model_adapter"
     assert policies["Sky Compass"]["payload_target"] == (
         "read_model.qml_display_target or current live display target"
     )
@@ -57,7 +57,8 @@ def test_consumer_reroute_audit_tracks_home_runtime_reroute_and_pending_consumer
     assert data["checks"]["home_runtime_payload_uses_display_target"] is True
     assert data["checks"]["best_object_runtime_reroute_uses_raw_read_model_targets"] is True
     assert data["checks"]["best_object_runtime_returns_display_target"] is True
-    assert data["checks"]["sky_compass_policy_defined_runtime_pending"] is True
+    assert data["checks"]["sky_compass_runtime_split_adapter_present"] is True
+    assert data["checks"]["sky_compass_runtime_status_rerouted"] is True
     assert data["checks"]["sky_compass_policy_report_present"] is True
 
 
@@ -98,7 +99,7 @@ def test_checked_in_consumer_reroute_audit_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# ObservationConditions Consumer Reroute Audit" in text
-    assert "sky_compass_read_model_policy_defined_runtime_pending" in text
+    assert "observation_conditions_consumers_rerouted" in text
     assert "Home recommendedDeepSky" in text
     assert "Best Object" in text
     assert "Sky Compass" in text

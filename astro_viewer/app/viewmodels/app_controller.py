@@ -2512,6 +2512,7 @@ class AppController(QObject):
                     moon=self._moon,
                     has_location=has_location,
                     caution_text=caution_text,
+                    observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
                 )
             except Exception:
                 pass
@@ -2553,6 +2554,44 @@ class AppController(QObject):
         if self._best_object and self._best_object.id not in seen_ids:
             candidates.append(self._best_object)
         return candidates
+
+    def _sky_compass_observable_targets_by_id(
+        self,
+        candidates: list[CelestialObject],
+    ) -> dict[str, CelestialObject]:
+        read_models = {
+            model.object_id: model
+            for model in getattr(self, "_conditioned_home_read_model", [])
+        }
+        raw_targets_by_id = self._conditioned_raw_targets_by_id()
+        observable_targets = {}
+        for display_target in candidates:
+            model = read_models.get(display_target.id)
+            raw_target = model.nsom_target_input if model else raw_targets_by_id.get(display_target.id, display_target)
+            observable_targets[display_target.id] = self._sky_compass_observable_target(
+                raw_target,
+                display_target,
+            )
+        return observable_targets
+
+    @staticmethod
+    def _sky_compass_observable_target(
+        raw_target: CelestialObject,
+        display_target: CelestialObject,
+    ) -> CelestialObject:
+        return replace(
+            raw_target,
+            direction=display_target.direction,
+            visible=display_target.visible,
+            max_altitude=display_target.max_altitude,
+            azimuth=display_target.azimuth,
+            current_altitude=display_target.current_altitude,
+            current_azimuth=display_target.current_azimuth,
+            time_above_horizon=display_target.time_above_horizon,
+            rise_time=display_target.rise_time,
+            set_time=display_target.set_time,
+            culmination_time=display_target.culmination_time,
+        )
 
     def _sky_compass_caution_text(self) -> str:
         if not self._weather_summary or self._observing_session_decision().state == "recommended":

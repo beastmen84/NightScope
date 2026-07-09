@@ -713,6 +713,13 @@ grouping, visibility, horizon/current position and payload fields remain owned
 by the display/live target. Night Plan and Best Object boosts remain
 presentation/context policy outside target physics. No runtime Sky Compass path
 is changed in this policy step.
+`1.12.11` implements that split adapter in the default Sky Compass NSOM path.
+`AppController` now builds per-target observable objects from raw read-model
+target physics plus current display/live geometry, and passes them to
+`SkyCompassNsomDirectionService` through an internal `observable_objects_by_id`
+map. Sky Compass payload fields still come from display/live candidates, and
+the missing-sky-quality and service-error fallbacks still use the legacy Sky
+Compass service.
 
 ## Dependency Flow
 
