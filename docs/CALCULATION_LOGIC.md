@@ -113,6 +113,12 @@ ObservationConditions read model keeps raw target input separate from
 conditioned display score so Moon/light-pollution presentation adjustments do
 not become intrinsic target physics.
 
+As of `1.14.0`, a runtime `UniverseTargetProfile` is intentionally deferred.
+The future contract is documented, but the current calculation path keeps
+`IntrinsicTargetQuality` as the Universe DTO until provenance, multi-catalogue
+imports, intrinsic calibration or visible score explanation require a separate
+profile.
+
 ### Limitations
 
 Implemented:

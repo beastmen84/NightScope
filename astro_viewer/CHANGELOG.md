@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.14.0 - 2026-07-09
+
+- Aggiunto `docs/NSOM_UNIVERSE_TARGET_PROFILE_POLICY.md`, report
+  developer-only che decide se introdurre ora un `UniverseTargetProfile`
+  runtime dopo l'audit raw score 1.13.9.
+- Decisione: non introdurre ora un nuovo DTO runtime. `IntrinsicTargetQuality`
+  e l'adapter corrente restano il boundary Universe interno; un
+  `UniverseTargetProfile` verra' considerato solo quando servono provenance
+  esplicita, nuovi cataloghi, calibrazione intrinseca o spiegazioni visibili.
+- Definito il contratto futuro del profilo Universe: `object_id`,
+  `target_class`, `intrinsic_score_seed`, `score_provenance`,
+  `geometry_summary`, `magnitude_and_size` e separazione dei campi score
+  presentation-only.
+- Confermati come non attivi i criteri di ingresso per implementarlo:
+  calibrazione intrinseca, sorgenti catalogo multiple, explanation UI,
+  rimozione dei payload score compatibili e modello surface-brightness.
+- Nessun cambio a runtime, scoring, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.13.9 - 2026-07-09
 
 - Aggiunto `docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`, audit

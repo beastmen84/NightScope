@@ -19,6 +19,10 @@ As of 1.13.9, the remaining raw catalogue/prepared-object score boundary is
 documented in `docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`:
 `CelestialObject.score` is an interim Universe/IntrinsicTargetQuality seed and
 payload compatibility field, not a final NSOM score to tune directly.
+As of 1.14.0, `docs/NSOM_UNIVERSE_TARGET_PROFILE_POLICY.md` documents the
+decision to defer a runtime `UniverseTargetProfile` until concrete provenance,
+catalogue-import, intrinsic-calibration or visible-explanation requirements
+exist.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2209,6 +2213,10 @@ A future `ObserverCapabilityService` should own:
   Universe/IntrinsicTargetQuality seed and payload compatibility field; explicit
   catalogue provenance or a future `UniverseTargetProfile` is non-blocking
   backend policy work, not a scoring hotfix.
+- Status update for 1.14.0: the `UniverseTargetProfile` policy is documented and
+  deferred. `IntrinsicTargetQuality` remains the current Universe DTO, while a
+  future profile contract is reserved for provenance, multi-catalogue imports,
+  intrinsic calibration or visible score explanation.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

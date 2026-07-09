@@ -820,6 +820,15 @@ ObservationConditions raw/display read-model boundary remains the protection
 against display-conditioned scores becoming intrinsic target input. Future
 UniverseTargetProfile/provenance work is non-blocking and separate from visible
 score explanation design.
+`1.14.0` adds
+`docs/NSOM_UNIVERSE_TARGET_PROFILE_POLICY.md` and decides not to introduce a
+runtime `UniverseTargetProfile` yet. `IntrinsicTargetQuality` remains the
+current internal Universe DTO, with diagnostic source fields carrying the
+available prepared-object context. The future profile contract is documented for
+object identity, target class, score seed, provenance, geometry, magnitude/size
+and presentation-only score projection, but implementation waits for concrete
+provenance, catalogue-import, intrinsic-calibration or visible-explanation
+requirements.
 
 ## Dependency Flow
 
