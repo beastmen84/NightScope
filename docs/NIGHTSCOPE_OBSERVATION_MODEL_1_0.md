@@ -51,6 +51,11 @@ As of 1.14.6, Planner NSOM uses Moon geometry by default through the
 Planner-specific `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED` switch. The
 generic condition feature flag remains default-off so non-Planner consumers and
 provider-backed AOD/OpenAQ scoring remain separate.
+As of 1.14.7, `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` records that
+provider-backed aerosol inputs are not ready for scoring. Fresh NASA AOD is
+characterized as the primary future aerosol-column source and OpenAQ PM2.5/PM10
+as fallback/context, but formal AOD QA/uncertainty, OpenAQ locality and
+double-counting policies must be accepted before any default-off scoring path.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2212,6 +2217,10 @@ A future `ObserverCapabilityService` should own:
 - AOD primary, PM fallback/correction.
 - Verify no AOD/PM contribution enters transparency score or advanced score at
   the same time.
+- Status 1.14.7: `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` documents
+  freshness, AOD-primary/PM-fallback precedence, target sensitivity and
+  score-neutrality. Scoring remains blocked by AOD QA/uncertainty, OpenAQ
+  locality/representativeness and double-counting policy.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2240,6 +2249,8 @@ A future `ObserverCapabilityService` should own:
 - Status 1.14.6: the narrow Planner-specific switch is enabled by default.
   Rollback remains explicit through injecting a `PlannerNsomScoringService` with
   `experimental_moon_geometry_scoring=False`; AOD/OpenAQ remain deferred.
+- Status 1.14.7: AOD/OpenAQ readiness is documented separately and remains
+  blocked from scoring pending provider-quality and double-counting policy.
 
 ### Step 7: Advanced score cleanup
 
@@ -2289,6 +2300,10 @@ A future `ObserverCapabilityService` should own:
   `True`, making Planner lunar sky-background geometry-aware by default. The
   global `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring`
   default remains `False`.
+- Status update for 1.14.7: `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` records
+  that provider-backed aerosol scoring is not ready. AOD/PM freshness and target
+  sensitivity are characterized, but `experimental_aerosol_scoring` remains
+  default-off and aerosol modifiers remain `0.0`.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2398,16 +2413,12 @@ Do not enable AOD/OpenAQ scoring in production yet.
 
 The safe next step is:
 
-1. keep feature flags default off;
-2. formalize `EffectiveObservability`, `ObservableTargetValue`,
-   multidimensional `ObserverCapability`, `PracticalTargetValue`,
-   `ObservationOpportunity`, `SessionViability` and `RecommendationConfidence`
-   as separate mathematical concepts;
-3. add formal mathematical constants and regression fixtures;
-4. implement Planner-only experimental scoring behind a flag;
-5. compare output against current Planner for many scenarios;
-6. only then decide whether the new model should replace the current layered
-   scores.
+1. keep `experimental_aerosol_scoring` default off;
+2. harden formal AOD QA/uncertainty policy;
+3. harden OpenAQ station locality and representativeness policy;
+4. define double-counting rules with VIIRS sky background, weather transparency
+   and Moon geometry;
+5. only after those policies, consider a default-off scoring experiment.
 
 This preserves NightScope's current stable behavior while moving toward a
 single explainable mathematical system where each physical phenomenon has one

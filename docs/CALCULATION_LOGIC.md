@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.6`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.7`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -52,7 +52,9 @@ availability and ownership:
   remain distinguishable in confidence and source notes.
 - NASA AOD and OpenAQ particulate data are optional external provider inputs.
   They are currently display/diagnostic only and remain score-neutral until a
-  later explicit NSOM aerosol step.
+  later explicit NSOM aerosol step. `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`
+  records that they are not ready for scoring until AOD QA/uncertainty,
+  OpenAQ locality and double-counting policy are hardened.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -74,6 +76,13 @@ is metadata only and indicates whether real `MoonGeometryConditionInput` was
 available. Calibration and switch-state evidence are tracked in
 `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` and
 `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`.
+
+NASA AOD/OpenAQ scoring remains disabled after the 1.14.7 readiness audit.
+`ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
+`False`, and `ObservationConditionsService.intended_aerosol_modifier(...)`
+returns `0.0` for all current inputs. Fresh AOD is characterized as the primary
+future aerosol-column source, while OpenAQ PM2.5/PM10 is fallback/context when
+AOD is unavailable or historical. This characterization is metadata only.
 
 ### Solar-System Objects
 
@@ -401,7 +410,9 @@ owned by `PlannerScoringService`.
 NASA AOD and OpenAQ particulate data, including freshness categories. These
 fields currently stay neutral: AOD and PM modifiers remain zero and do not feed
 Planner ranking, Home scores, Recommendation Engine, Sky Compass, seeing or
-transparency scores.
+transparency scores. The 1.14.7 readiness audit keeps them blocked from scoring
+until formal AOD QA/uncertainty, OpenAQ locality and double-counting policies
+are accepted.
 
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
@@ -624,6 +635,10 @@ Current limitations:
   native dependency behavior should remain monitored.
 - AOD is a column aerosol/transparency proxy, not the same concept as OpenAQ
   ground-level PM2.5/PM10 measurements.
+- `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` classifies this provider work as
+  not ready for scoring yet. Freshness and target sensitivity are characterized,
+  but formula enablement is blocked by AOD QA/uncertainty, OpenAQ locality and
+  double-counting policy.
 
 ## Refresh Chain
 

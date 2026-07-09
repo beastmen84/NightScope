@@ -61,6 +61,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT.md"),
     Path("docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md"),
     Path("docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md"),
+    Path("docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -140,8 +141,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the narrow Planner Moon geometry default-on switch, then "
-                "start AOD/OpenAQ scoring readiness if accepted"
+                "Harden AOD/OpenAQ provider-quality and double-counting policy "
+                "before any default-off aerosol scoring path"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -169,8 +170,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "The 1.13.7 rollback cleanup policy recommended removing internal "
                 "legacy rollback paths; 1.13.8 removed those runtime constructor "
                 "parameters. Planner Moon geometry is now default-on through a "
-                "narrow Planner-specific switch; provider-backed AOD/OpenAQ "
-                "scoring remains the next readiness area."
+                "narrow Planner-specific switch. Provider-backed AOD/OpenAQ "
+                "readiness is documented and remains blocked from scoring pending "
+                "AOD QA/uncertainty, OpenAQ locality and double-counting policy."
             ),
         },
         "blockers": blockers,
@@ -360,7 +362,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "Catalogue/Universe policy. The 1.13.7 rollback cleanup policy "
                 "recommended removing internal rollback paths; 1.13.8 removed "
                 "the runtime constructor rollback parameters. "
-                "Visible UI explanation work remains separate."
+                "Planner Moon geometry is default-on, while AOD/OpenAQ scoring "
+                "remains blocked by explicit provider-quality and double-counting "
+                "policy decisions. Visible UI explanation work remains separate."
             ),
             "",
         ]

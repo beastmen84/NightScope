@@ -873,6 +873,13 @@ accepted.
 `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
 remains `False`, so the change is Planner-specific and does not enable
 ObservationConditions modifiers, AOD/OpenAQ or other consumers.
+`1.14.7` adds `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`, a developer-only
+readiness audit for provider-backed aerosol inputs. The architecture decision is
+that NASA AOD and OpenAQ remain Sky/Confidence diagnostics only until formal AOD
+QA/uncertainty, OpenAQ locality/representativeness and double-counting policies
+with VIIRS sky background, weather transparency and Moon geometry are accepted.
+`ObservationConditionFeatureFlags.experimental_aerosol_scoring` remains
+default-off and the current aerosol modifier remains `0.0`.
 
 ## Dependency Flow
 
@@ -979,7 +986,10 @@ Services hold business logic:
   omitted from diagnostic inputs; fresh/recent NASA AOD is included
   diagnostically only. OpenAQ data is included diagnostically when the
   `LocalAtmosphere` result has usable data, including stale-but-present readings,
-  and omitted when historical, failed, unavailable or unconfigured. These inputs
+  and omitted when historical, failed, unavailable or unconfigured. The 1.14.7
+  readiness audit documents fresh AOD as the future primary aerosol-column source
+  and OpenAQ PM as fallback/context, but still blocks scoring until provider
+  quality and double-counting policy are hardened. These inputs
   are not exposed to QML and do not affect Planner, Home, equipment, weather,
   seeing/transparency, advanced scores or Sky Compass.
   Deep-sky light-pollution conditioning marks targets with an internal condition
@@ -1276,8 +1286,9 @@ For future changes:
 - When changing Moon or light-pollution logic, verify Home/Detail conditioned
   objects and Planner ranking separately for galaxies, nebulae, globular
   clusters and open clusters.
-- Before enabling new AOD/OpenAQ, Moon-geometry or transparency scoring, use
-  `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md` as the mathematical ownership and
-  double-counting reference.
+- Before enabling new AOD/OpenAQ or transparency scoring, use
+  `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md` and
+  `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` as the mathematical ownership,
+  provider-quality and double-counting references.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.

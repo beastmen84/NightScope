@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.7 - 2026-07-09
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`, audit
+  developer-only per valutare se NASA AOD e OpenAQ PM2.5/PM10 sono pronti a
+  entrare nello scoring NSOM.
+- Confermato che AOD/OpenAQ restano score-neutral: `experimental_aerosol_scoring`
+  resta `False` di default e `intended_aerosol_modifier(...)` produce ancora
+  `0.0` anche con flag sperimentale forzato.
+- Documentate freshness e source precedence: AOD fresco/recent/stale e' il
+  candidato primario di aerosol column, OpenAQ PM e' fallback/context quando
+  AOD non e' utile o e' storico.
+- Bloccata ogni abilitazione scoring finche' non vengono risolti formalmente
+  AOD QA/uncertainty, rappresentativita' locale OpenAQ e double-counting con
+  VIIRS sky background, meteo/transparency e geometria lunare.
+- Nessun cambio runtime, QML/UI, logging, rete o scrittura runtime; Planner,
+  Home, Best Object, Advanced Observing, Sky Compass, Detail/Object ed
+  Equipment non cambiano.
+
 ## NightScope 1.14.6 - 2026-07-09
 
 - Abilitata di default la geometria lunare nel Planner NSOM tramite
