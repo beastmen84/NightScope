@@ -11,8 +11,7 @@ Home is rendered by `HomePage.qml`, but Home data is owned by `AppController`.
 The QML page has no data-refresh timer of its own. It binds directly to
 controller properties and reacts to Qt notify signals:
 
-- `dataChanged` for astronomy objects, Moon, events, best object, plan, sky map
-  and notifications;
+- `dataChanged` for astronomy objects, Moon, events, best object and plan;
 - `skyCompassChanged` for the Sky Compass DTO, including its 60-second live
   positional refresh;
 - `weatherChanged` for weather, observing quality, seeing, sky quality,
@@ -37,8 +36,7 @@ The main refresh entry point is `_refresh_all()`:
    no-location context.
 2. If a valid location exists, `_refresh_astronomy()` runs first.
 3. `_refresh_weather_and_conditions()` then computes weather, sky quality,
-   seeing, equipment-aware objects, scores, plan, sky map, Sky Compass and
-   notifications.
+   seeing, equipment-aware objects, scores, plan and Sky Compass.
 4. If no valid location exists, `_refresh_no_location_context()` clears
    location-dependent objects and exposes placeholder summaries.
 
@@ -119,8 +117,8 @@ No `Timer` exists in `HomePage.qml`. The manual "Aggiorna" action is on
   downloaded granules are temporary.
 - Controller memory state: base solar-system objects, base deep-sky objects,
   enriched objects, weather hours, Moon, events, sky quality,
-  seeing/transparency, advanced scores, night plan, sky map, notifications and
-  selected object.
+  seeing/transparency, advanced scores, night plan, Sky Compass and selected
+  object.
 - Catalogue visibility caches are separate from Home. They should not be used
   as a Home/Sky Compass cache.
 
@@ -211,7 +209,6 @@ Recommended shape:
   recommendation reasons and setup suggestions.
 - `compass`: guidance DTO for Sky Compass with winning direction, practical
   reasons, prioritized targets, alternatives and stable object ids.
-- `notifications`: Home notification DTOs.
 - `validity`: per-domain timestamps or dirty flags such as `weather_at`,
   `astronomy_at`, `equipment_at`, `sky_quality_at`.
 

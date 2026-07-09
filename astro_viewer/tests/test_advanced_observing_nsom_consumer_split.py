@@ -11,7 +11,6 @@ from astro_viewer.app.services.advanced_observing_nsom_service import (
     AdvancedObservingNsomService,
 )
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
-from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -50,45 +49,27 @@ def test_default_flag_keeps_public_advanced_scores_legacy_and_computes_parallel_
     assert controller._advanced_observing_nsom_scores != controller._advanced_scores
 
 
-def test_planner_and_notifications_receive_legacy_scores_when_nsom_forced_on() -> None:
+def test_planner_receives_legacy_scores_when_nsom_forced_on() -> None:
     controller = _controller(enabled=True)
     planner = _PlannerSpy()
-    notifications = _NotificationSpy()
     controller._night_planner_service = planner
-    controller._notification_service = notifications
     expected_legacy = _legacy_scores(controller)
     expected_nsom = _nsom_scores(controller)
 
     controller._recalculate_observing_outputs()
 
     assert planner.received_scores == expected_legacy
-    assert notifications.received_scores == expected_legacy
     assert planner.received_scores != expected_nsom
-    assert notifications.received_scores != expected_nsom
 
 
-def test_notification_split_prevents_favourable_blocked_session_titles() -> None:
-    controller = _controller(
-        enabled=True,
-        weather=_weather(10, cloud_cover=95, precipitation_probability=80),
-        seeing=_seeing(seeing_score=86, transparency_score=84),
-        sky_quality=_sky_quality(2, radiance=1.0),
-        moon=_moon(10),
-    )
-    controller._notification_service = NotificationService()
-    nsom_scores = _nsom_scores(controller)
-    nsom_titles_without_split = {
-        item.title
-        for item in NotificationService().notifications(None, [], [], nsom_scores, controller._moon)
-    }
+def test_notifications_backend_path_is_absent_from_consumer_split_runtime() -> None:
+    controller = _controller(enabled=True)
 
     controller._recalculate_observing_outputs()
 
-    titles = {item.title for item in controller._notifications}
-    assert "Condizioni planetarie favorevoli" in nsom_titles_without_split
-    assert "Finestra cielo profondo utile" in nsom_titles_without_split
-    assert "Condizioni planetarie favorevoli" not in titles
-    assert "Finestra cielo profondo utile" not in titles
+    assert not hasattr(controller, "_notification_service")
+    assert not hasattr(controller, "_notifications")
+    assert not hasattr(controller, "_advanced_scores_for_notifications")
 
 
 def test_flag_off_does_not_compute_parallel_nsom_advanced_scores() -> None:
@@ -106,9 +87,7 @@ def test_consumer_split_methods_are_legacy_compatible() -> None:
     controller._advanced_observing_nsom_scores = _nsom_scores(controller)
 
     assert controller._advanced_scores_for_planner() == controller._advanced_scores
-    assert controller._advanced_scores_for_notifications() == controller._advanced_scores
     assert controller._advanced_scores_for_planner() != controller._advanced_observing_nsom_scores
-    assert controller._advanced_scores_for_notifications() != controller._advanced_observing_nsom_scores
 
 
 class _PlannerSpy:
@@ -116,15 +95,6 @@ class _PlannerSpy:
         self.received_scores: AdvancedObservingScores | None = None
 
     def plan(self, _objects, _weather, scores, _sky_quality, _telescope, _moon):
-        self.received_scores = scores
-        return []
-
-
-class _NotificationSpy:
-    def __init__(self) -> None:
-        self.received_scores: AdvancedObservingScores | None = None
-
-    def notifications(self, _best_object, _plan, _events, scores, _moon):
         self.received_scores = scores
         return []
 
@@ -165,13 +135,11 @@ def _controller(
     )
     controller._night_planner_service = _PlannerSpy()
     controller._refresh_sky_compass = lambda: None
-    controller._notification_service = _NotificationSpy()
     controller._refresh_nsom_diagnostics = lambda: None
     controller._advanced_scores = None
     controller._advanced_observing_nsom_scores = None
     controller._best_object = None
     controller._night_plan = []
-    controller._notifications = []
     return controller
 
 

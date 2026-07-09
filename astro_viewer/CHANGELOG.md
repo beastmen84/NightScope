@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.12.4 - 2026-07-09
+
+- Rimosso il path backend Notifications ormai non consumato dalla Home:
+  `NotificationService`, `AppController.notifications`, lo storage runtime e il
+  DTO `Notification`.
+- Aggiornati test e audit Advanced Observing per trattare Notifications come
+  dead legacy rimosso, non come consumer da proteggere con input legacy.
+- Rigenerati gli audit `NOTIFICATIONS_DEAD_LEGACY_AUDIT`,
+  `NSOM_LEGACY_BACKEND_SURFACE_AUDIT` e
+  `NSOM_BACKEND_MIGRATION_STATUS_AUDIT`.
+- Nessun cambio a Planner, Home recommendedDeepSky, Best Object, Advanced
+  Observing visible payload, Sky Compass, QML, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.12.3 - 2026-07-09
 
 - Aggiunto `docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md`, audit developer-only che

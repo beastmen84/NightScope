@@ -94,8 +94,8 @@ def test_runtime_review_surfaces_downstream_advanced_score_consumers() -> None:
         "qml_reads_advanced_scores": True,
         "controller_passes_advanced_scores_to_planner": True,
         "planner_consumes_advanced_scores": True,
-        "controller_passes_advanced_scores_to_notifications": True,
-        "notifications_consume_advanced_scores": True,
+        "controller_passes_advanced_scores_to_notifications": False,
+        "notifications_consume_advanced_scores": False,
     }
     assert data["checks"]["downstream_consumers_share_advanced_scores"] is True
     assert "advanced-observing-downstream-consumer-policy" in data["default_on_blockers"]

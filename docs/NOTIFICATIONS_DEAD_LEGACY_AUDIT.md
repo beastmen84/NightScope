@@ -6,37 +6,37 @@ This developer-only audit checks whether the legacy Notifications backend still 
 
 ## Verdict
 
-- Classification: `dead_legacy_pending_removal`.
+- Classification: `removed_dead_legacy`.
 - QML consumed: `False`.
-- Controller runtime present: `True`.
-- Service file present: `True`.
-- Model DTO present: `True`.
+- Controller runtime present: `False`.
+- Service file present: `False`.
+- Model DTO present: `False`.
 - Not an NSOM migration target: `True`.
-- Recommended handling: Remove NotificationService, AppController.notifications, runtime recomputation and DTO/test leftovers.
+- Recommended handling: Keep removed; do not rebuild unless a visible product requirement reintroduces notifications.
 
 ## Evidence
 
 - No QML files consume `controller.notifications` or equivalent notification models.
-- AppController still exposes/computes notifications.
-- `NotificationService` and the `Notification` DTO are still present.
+- AppController no longer exposes or computes a notifications property.
+- `NotificationService` and the `Notification` DTO are absent.
 
 ## Static Matches
 
 | Area | Matches |
 | --- | --- |
 | QML consumers | `[]` |
-| AppController runtime | `[{'path': 'app_controller.py', 'line': 71, 'marker': 'from astro_viewer.app.services.notification_service import NotificationService'}, {'path': 'app_controller.py', 'line': 255, 'marker': 'self._notification_service = NotificationService()'}, {'path': 'app_controller.py', 'line': 292, 'marker': 'self._notifications'}, {'path': 'app_controller.py', 'line': 684, 'marker': 'def notifications('}, {'path': 'app_controller.py', 'line': 685, 'marker': 'self._notifications'}, {'path': 'app_controller.py', 'line': 1745, 'marker': 'self._notifications'}, {'path': 'app_controller.py', 'line': 1963, 'marker': 'self._notifications'}, {'path': 'app_controller.py', 'line': 1963, 'marker': 'self._notification_service.notifications('}, {'path': 'app_controller.py', 'line': 2820, 'marker': 'self._notifications'}, {'path': 'app_controller.py', 'line': 2825, 'marker': 'self._notifications'}]` |
-| NotificationService | `[{'path': 'notification_service.py', 'line': 7, 'marker': 'class NotificationService'}, {'path': 'notification_service.py', 'line': 10, 'marker': 'def notifications('}]` |
-| Notification DTO | `[{'path': 'sky.py', 'line': 113, 'marker': 'class Notification'}]` |
+| AppController runtime | `[]` |
+| NotificationService | `[]` |
+| Notification DTO | `[]` |
 
 ## Safety Checks
 
 | Check | Result |
 | --- | --- |
 | `qml_consumers_absent` | `True` |
-| `runtime_path_present` | `True` |
-| `dead_legacy_pending_removal` | `True` |
-| `removed_dead_legacy` | `False` |
+| `runtime_path_present` | `False` |
+| `dead_legacy_pending_removal` | `False` |
+| `removed_dead_legacy` | `True` |
 | `not_a_nsom_migration_target` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `qml_report_exposure_absent` | `True` |
@@ -44,8 +44,7 @@ This developer-only audit checks whether the legacy Notifications backend still 
 
 ## Recommended Sequence
 
-- `1.12.3 Notifications dead legacy audit`: Classify Notifications as dead legacy because no QML/Home consumer remains.
-- `1.12.4 Remove dead Notifications backend path`: Remove AppController notifications, NotificationService and leftover DTO/tests.
+- `Review notification removal`: Confirm the dead Notifications backend/property/service path is absent.
 - `Next backend area decision`: Continue with ObservationConditions read-model cleanup or Equipment presenter contract work.
 
 ## Conclusion

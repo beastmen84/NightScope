@@ -116,7 +116,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "kept enabled by default as a backend/internal projection. It records "
             "the backend switch state, does not replace `advancedScores`, does not "
             "render visible QML UI, does not tune scores, does not change Planner, "
-            "NotificationService, Home Best Object or Sky Compass, and does not log "
+            "Home Best Object or Sky Compass, and does not log "
             "automatically, call the network or write runtime files."
         ),
         "",
@@ -261,7 +261,7 @@ def _default_on_decisions(
             "advanced_scores_replacement",
             status="out_of_scope",
             summary="Do not replace `advancedScores` in this switch.",
-            reason="Planner, NotificationService and existing Home cards keep the legacy-compatible payload.",
+            reason="Planner and existing Home cards keep the legacy-compatible payload; Notifications are removed.",
             blocks_backend_default_on=False,
             blocks_visible_ui=False,
         ),
@@ -284,9 +284,11 @@ def _default_on_decisions(
         _decision(
             "consumer_split",
             status="accepted",
-            summary="Planner and notifications keep legacy-compatible `advancedScores` inputs.",
-            reason="The NSOM projection remains parallel and is not a Planner or notification threshold.",
-            blocks_backend_default_on=not bool(static_checks["planner_notification_legacy_consumer_split"]),
+            summary="Planner keeps legacy-compatible `advancedScores` input; Notifications are absent.",
+            reason="The NSOM projection remains parallel and is not a Planner threshold or notification input.",
+            blocks_backend_default_on=not bool(
+                static_checks["planner_legacy_consumer_input_and_notifications_absent"]
+            ),
             blocks_visible_ui=False,
         ),
         _decision(
@@ -369,7 +371,9 @@ def _checks(
             and policy["checks"]["advanced_scores_remains_current_qml_contract"] is True
         ),
         "advanced_scores_not_replaced": contract["checks"]["contract_does_not_replace_advanced_scores"] is True,
-        "planner_notifications_keep_legacy_inputs": static_checks["planner_notification_legacy_consumer_split"] is True,
+        "planner_keeps_legacy_input_and_notifications_absent": (
+            static_checks["planner_legacy_consumer_input_and_notifications_absent"] is True
+        ),
         "confidence_metadata_only": contract["checks"]["session_and_confidence_are_metadata"] is True
         and policy["checks"]["confidence_score_neutral"] is True,
         "report_tooling_developer_only": static_checks["runtime_report_import_matches"] == (),
@@ -408,7 +412,7 @@ def _default_on_blockers(
         "visible_qml_usage_absent": "advanced-observing-visible-qml-usage",
         "advanced_scores_remains_current_qml_contract": "advanced-observing-current-qml-contract-regressed",
         "advanced_scores_not_replaced": "advanced-observing-advanced-scores-replaced",
-        "planner_notifications_keep_legacy_inputs": "advanced-observing-consumer-split-regressed",
+        "planner_keeps_legacy_input_and_notifications_absent": "advanced-observing-consumer-split-regressed",
         "confidence_metadata_only": "advanced-observing-confidence-not-neutral",
         "report_tooling_developer_only": "advanced-observing-report-runtime-wiring",
         "required_decisions_recorded": "advanced-observing-default-on-decisions-incomplete",
@@ -451,8 +455,9 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
         "controller_public_property_present": "def advancedObservingNsom" in controller_text,
         "property_defensive_copy_present": "deepcopy(self._advanced_observing_nsom_presentation)" in controller_text,
         "new_nsom_signal_absent": "advancedObservingNsomChanged" not in controller_text,
-        "planner_notification_legacy_consumer_split": "_advanced_scores_for_planner()" in controller_text
-        and "_advanced_scores_for_notifications()" in controller_text
+        "planner_legacy_consumer_input_and_notifications_absent": "_advanced_scores_for_planner()" in controller_text
+        and "_advanced_scores_for_notifications" not in controller_text
+        and "_notification_service" not in controller_text
         and "_advanced_observing_nsom_scores" in controller_text
         and "_advanced_scores = self._select_advanced_observing_scores()" in controller_text,
     }

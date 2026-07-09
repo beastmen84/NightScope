@@ -96,8 +96,8 @@ def generate_runtime_review_data() -> dict[str, object]:
             "explicit_nsom_opt_in": "AppController() / NSOM_ADVANCED_OBSERVING_ENABLED",
             "explicit_legacy_default": "AppController(use_nsom_advanced_observing=False)",
             "recommended_next_change": (
-                "Add an Advanced Observing default-on readiness audit only after "
-                "Planner/notification use of advancedScores has an explicit policy."
+                "Keep Advanced Observing backend projection separate from visible "
+                "QML and Planner inputs; Notifications are no longer a runtime consumer."
             ),
         },
         "default_on_blockers": blockers,
@@ -199,8 +199,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"| QML Home advanced scores | `{downstream['qml_reads_advanced_scores']}` |",
             f"| AppController passes advanced scores to Planner | `{downstream['controller_passes_advanced_scores_to_planner']}` |",
             f"| Planner consumes advanced scores | `{downstream['planner_consumes_advanced_scores']}` |",
-            f"| AppController passes advanced scores to notifications | `{downstream['controller_passes_advanced_scores_to_notifications']}` |",
-            f"| NotificationService consumes advanced scores | `{downstream['notifications_consume_advanced_scores']}` |",
+            f"| AppController passes advanced scores to Notifications | `{downstream['controller_passes_advanced_scores_to_notifications']}` |",
+            f"| NotificationService present and consumes advanced scores | `{downstream['notifications_consume_advanced_scores']}` |",
             "",
             "## Default-On Risks",
             "",
@@ -227,10 +227,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Implement `1.8.6` as an Advanced Observing default-on readiness "
-                "audit only after deciding how Planner and notifications should "
-                "consume, ignore or receive a legacy-compatible copy of "
-                "`advancedScores`."
+                "Keep Advanced Observing NSOM as a backend projection unless a "
+                "separate UI step replaces or explains the visible `advancedScores` "
+                "contract. Planner must keep an explicit input policy; Notifications "
+                "are removed dead legacy."
             ),
             "",
         ]
@@ -331,7 +331,11 @@ def _review_checks(
         "observer_capability_not_used": all(
             scenario["observer_capability_used"] is False for scenario in scenarios
         ),
-        "downstream_consumers_share_advanced_scores": all(downstream.values()),
+        "downstream_consumers_share_advanced_scores": (
+            downstream["qml_reads_advanced_scores"] is True
+            and downstream["controller_passes_advanced_scores_to_planner"] is True
+            and downstream["planner_consumes_advanced_scores"] is True
+        ),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
     }
@@ -376,7 +380,7 @@ def _summary(scenarios: tuple[dict[str, object], ...]) -> dict[str, object]:
             _check_line("ObserverCapability is not used by Advanced Observing 1.8.x", checks["observer_capability_not_used"]),
         ),
         "default_on_risks": (
-            "Forced-on `advancedScores` are shared with Planner and NotificationService, so default-on would affect more than the Home advanced-score cards.",
+            "Forced-on `advancedScores` are shared with Planner, so default-on would affect more than the Home advanced-score cards. NotificationService has been removed as dead legacy.",
             "Blocked sessions keep NSOM category values high/physical while legacy caps scores; UI copy needs an explicit session/actionability treatment before default-on.",
             "Displayed score labels still use the legacy scalar field shape; users could read NSOM category values as direct legacy-quality equivalents.",
         ),
@@ -390,9 +394,8 @@ def _downstream_consumer_evidence(root: Path) -> dict[str, object]:
     planner = (root / "astro_viewer" / "app" / "services" / "planner_nsom_service.py").read_text(
         encoding="utf-8"
     )
-    notifications = (root / "astro_viewer" / "app" / "services" / "notification_service.py").read_text(
-        encoding="utf-8"
-    )
+    notifications_path = root / "astro_viewer" / "app" / "services" / "notification_service.py"
+    notifications = notifications_path.read_text(encoding="utf-8") if notifications_path.exists() else ""
     qml = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (root / "astro_viewer" / "app" / "ui").rglob("*.qml")
@@ -405,7 +408,8 @@ def _downstream_consumer_evidence(root: Path) -> dict[str, object]:
         and "scores.deep_sky_score" in planner,
         "controller_passes_advanced_scores_to_notifications": "_notification_service.notifications" in app_controller
         and "_advanced_scores" in app_controller,
-        "notifications_consume_advanced_scores": "scores.planetary_score" in notifications
+        "notifications_consume_advanced_scores": notifications_path.exists()
+        and "scores.planetary_score" in notifications
         and "scores.deep_sky_score" in notifications,
     }
 

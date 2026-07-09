@@ -247,7 +247,7 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
 
         self.assertIn("self._refresh_nsom_diagnostics()", source)
         self.assertLess(
-            source.index("self._notification_service.notifications("),
+            source.index("self._refresh_sky_compass()"),
             source.index("self._refresh_nsom_diagnostics()"),
         )
 

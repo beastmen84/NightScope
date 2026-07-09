@@ -30,21 +30,21 @@ def test_notifications_dead_legacy_audit_is_deterministic_strict_json_and_develo
     }
 
 
-def test_notifications_are_dead_legacy_pending_removal_before_cleanup() -> None:
+def test_notifications_dead_legacy_backend_path_has_been_removed() -> None:
     data = generate_notifications_dead_legacy_audit_data()
     surface = data["notification_surface"]
 
     assert surface["surface"] == "Notifications"
-    assert surface["classification"] == "dead_legacy_pending_removal"
+    assert surface["classification"] == "removed_dead_legacy"
     assert surface["qml_consumed"] is False
     assert surface["qml_consumer_matches"] == []
-    assert surface["controller_runtime_present"] is True
-    assert surface["service_file_present"] is True
-    assert surface["model_dto_present"] is True
+    assert surface["controller_runtime_present"] is False
+    assert surface["service_file_present"] is False
+    assert surface["model_dto_present"] is False
     assert surface["not_a_nsom_migration_target"] is True
     assert data["checks"]["qml_consumers_absent"] is True
-    assert data["checks"]["dead_legacy_pending_removal"] is True
-    assert data["checks"]["removed_dead_legacy"] is False
+    assert data["checks"]["dead_legacy_pending_removal"] is False
+    assert data["checks"]["removed_dead_legacy"] is True
 
 
 def test_notifications_dead_legacy_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -63,6 +63,6 @@ def test_checked_in_notifications_dead_legacy_audit_report_matches_renderer() ->
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Notifications Dead Legacy Audit" in text
-    assert "dead_legacy_pending_removal" in text
+    assert "removed_dead_legacy" in text
     assert "not as a backend NSOM migration surface" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

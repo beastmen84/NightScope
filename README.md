@@ -540,6 +540,11 @@ conferma che Notifications non ha piu' consumer QML/Home e lo riclassifica come
 `dead_legacy_pending_removal`, quindi non e' una superficie da migrare a NSOM.
 Il prossimo cleanup puo' rimuovere `NotificationService`,
 `AppController.notifications` e il DTO collegato senza cambiare UI visibile.
+Lo step `1.12.4` esegue quel cleanup: il backend Notifications, la property
+Qt, lo storage runtime e il DTO sono rimossi. Gli audit ora classificano
+Notifications come `removed_dead_legacy`; il prossimo backend step puo'
+concentrarsi su ObservationConditions/read-model o sul contratto presenter
+Equipment, senza mantenere un path notifiche non usato.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

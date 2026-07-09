@@ -1181,6 +1181,13 @@ as dead legacy pending removal. Current QML/Home no longer consumes
 rather than migrated to NSOM. This audit does not change runtime behaviour; the
 removal belongs to a separate cleanup commit.
 
+Implementation note for 1.12.4:
+the Notifications cleanup removes `NotificationService`,
+`AppController.notifications`, runtime notification storage/recomputation and
+the `Notification` DTO. This is not an NSOM migration and does not change any
+score or visible QML payload; it removes a dead Home-era backend path so future
+NSOM work can focus on active backend surfaces.
+
 Examples:
 
 - binocular-only profile;

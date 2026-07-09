@@ -13,7 +13,7 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 - Runtime behaviour changed by this review: `False`.
 - Explicit opt-in: `AppController() / NSOM_ADVANCED_OBSERVING_ENABLED`.
 - Legacy default: `AppController(use_nsom_advanced_observing=False)`.
-- Recommended next change: Add an Advanced Observing default-on readiness audit only after Planner/notification use of advancedScores has an explicit policy.
+- Recommended next change: Keep Advanced Observing backend projection separate from visible QML and Planner inputs; Notifications are no longer a runtime consumer.
 
 ## Default-On Blockers
 
@@ -52,12 +52,12 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 | QML Home advanced scores | `True` |
 | AppController passes advanced scores to Planner | `True` |
 | Planner consumes advanced scores | `True` |
-| AppController passes advanced scores to notifications | `True` |
-| NotificationService consumes advanced scores | `True` |
+| AppController passes advanced scores to Notifications | `False` |
+| NotificationService present and consumes advanced scores | `False` |
 
 ## Default-On Risks
 
-- Forced-on `advancedScores` are shared with Planner and NotificationService, so default-on would affect more than the Home advanced-score cards.
+- Forced-on `advancedScores` are shared with Planner, so default-on would affect more than the Home advanced-score cards. NotificationService has been removed as dead legacy.
 - Blocked sessions keep NSOM category values high/physical while legacy caps scores; UI copy needs an explicit session/actionability treatment before default-on.
 - Displayed score labels still use the legacy scalar field shape; users could read NSOM category values as direct legacy-quality equivalents.
 
@@ -75,4 +75,4 @@ This developer-only report reviews the default-off Advanced Observing NSOM runti
 
 ## Recommended Next Step
 
-Implement `1.8.6` as an Advanced Observing default-on readiness audit only after deciding how Planner and notifications should consume, ignore or receive a legacy-compatible copy of `advancedScores`.
+Keep Advanced Observing NSOM as a backend projection unless a separate UI step replaces or explains the visible `advancedScores` contract. Planner must keep an explicit input policy; Notifications are removed dead legacy.

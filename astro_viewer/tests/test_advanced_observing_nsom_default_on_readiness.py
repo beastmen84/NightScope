@@ -68,7 +68,7 @@ def test_default_on_decisions_keep_advanced_scores_legacy_and_confidence_metadat
     assert decisions["confidence_metadata"]["score_effect"] == 0.0
     assert data["checks"]["advanced_scores_remains_current_qml_contract"] is True
     assert data["checks"]["advanced_scores_not_replaced"] is True
-    assert data["checks"]["planner_notifications_keep_legacy_inputs"] is True
+    assert data["checks"]["planner_keeps_legacy_input_and_notifications_absent"] is True
     assert data["checks"]["confidence_metadata_only"] is True
     assert data["checks"]["default_flag_enabled_for_switch"] is True
 

@@ -81,12 +81,10 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
     assert set(remaining) == {
         "Equipment recommendations",
         "ObservationConditions prepared-object cache",
-        "Notifications",
         "Catalogue / raw object score",
     }
     assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
-    assert remaining["Notifications"]["status"] == "dead_legacy_pending_removal"
-    assert "Remove as dead legacy" in remaining["Notifications"]["recommended_handling"]
+    assert data["notification_audit"]["classification"] == "removed_dead_legacy"
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
     assert "ObservationConditions" in remaining["Equipment recommendations"]["recommended_handling"]
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
@@ -99,8 +97,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Remove the dead Notifications backend path, then decide the next "
-        "backend area"
+        "Choose the next backend area: ObservationConditions read-model "
+        "cleanup or Equipment presenter contract work"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -147,7 +145,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Remove the dead Notifications backend path" in text
+    assert "Choose the next backend area" in text
     assert "observer_adapter_extracted" in text
-    assert "dead_legacy_pending_removal" in text
+    assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

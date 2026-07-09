@@ -63,7 +63,7 @@ def test_downstream_policy_records_required_consumer_decisions() -> None:
     }
     assert decisions["shared_advanced_scores_contract"]["status"] == "implemented_legacy_contract_preserved"
     assert decisions["planner_consumer_policy"]["status"] == "resolved_by_legacy_consumer_input"
-    assert decisions["notification_consumer_policy"]["status"] == "resolved_by_legacy_consumer_input"
+    assert decisions["notification_consumer_policy"]["status"] == "removed_dead_legacy_consumer"
     assert decisions["planner_consumer_policy"]["blocks_default_on"] is False
     assert decisions["notification_consumer_policy"]["blocks_default_on"] is False
     assert decisions["qml_display_policy"]["blocks_default_on"] is True
@@ -79,7 +79,7 @@ def test_downstream_policy_records_required_consumer_decisions() -> None:
     assert "advanced-observing-default-flag-still-off" not in data["default_on_blockers"]
 
 
-def test_notification_policy_evidence_shows_blocked_session_risk() -> None:
+def test_notification_policy_evidence_shows_backend_removed() -> None:
     data = generate_downstream_policy_data()
     evidence = data["notification_evidence"]
 
@@ -88,13 +88,15 @@ def test_notification_policy_evidence_shows_blocked_session_risk() -> None:
     assert evidence["legacy_blocked_titles"] == []
     assert evidence["nsom_blocked_scores"]["planetary_score"] >= 76
     assert evidence["nsom_blocked_scores"]["deep_sky_score"] >= 76
-    assert "Condizioni planetarie favorevoli" in evidence["nsom_blocked_titles"]
-    assert "Finestra cielo profondo utile" in evidence["nsom_blocked_titles"]
-    assert evidence["nsom_triggers_favourable_under_blocked_session"] is True
+    assert evidence["notification_backend_present"] is False
+    assert evidence["notification_score_path_absent"] is True
+    assert evidence["nsom_blocked_titles"] == []
+    assert evidence["nsom_triggers_favourable_under_blocked_session"] is False
     assert evidence["consumer_split_blocked_titles"] == []
-    assert evidence["consumer_split_prevents_favourable_blocked_notifications"] is True
-    assert data["checks"]["notification_blocked_session_risk_visible"] is True
-    assert data["checks"]["consumer_split_prevents_notification_risk"] is True
+    assert evidence["removed_backend_prevents_favourable_blocked_notifications"] is True
+    assert data["checks"]["notification_backend_removed"] is True
+    assert data["checks"]["notification_score_path_absent"] is True
+    assert data["checks"]["removed_backend_prevents_notification_risk"] is True
 
 
 def test_planner_policy_evidence_shows_advanced_score_factor_risk() -> None:
@@ -134,5 +136,5 @@ def test_checked_in_advanced_observing_downstream_policy_report_exists() -> None
     assert "# Advanced Observing NSOM Downstream Policy" in text
     assert "consumer_split_resolved_but_qml_policy_blocks_default_on" in text
     assert "advanced-observing-qml-display-policy" in text
-    assert "resolved_by_legacy_consumer_input" in text
+    assert "removed_dead_legacy_consumer" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

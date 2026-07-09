@@ -48,7 +48,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     root = Path(__file__).parents[2]
     default_on_surfaces = _default_on_surfaces()
     notification_audit = generate_notifications_dead_legacy_audit_data()
-    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(notification_audit)
+    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces()
     equipment_policy = generate_policy_readiness_data()
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
@@ -82,15 +82,15 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Remove the dead Notifications backend path, then decide the next "
-                "backend area"
+                "Choose the next backend area: ObservationConditions read-model "
+                "cleanup or Equipment presenter contract work"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
-                "hybrid surfaces; Sky Map has been removed as dead legacy and "
-                "Notifications are dead legacy pending removal. "
+                "hybrid surfaces; Sky Map and Notifications have been removed as "
+                "dead legacy. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -191,8 +191,16 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             + " |"
         )
 
+    notification = audit["notification_audit"]
     lines.extend(
         [
+            "",
+            "## Removed Dead Legacy",
+            "",
+            f"- Notifications classification: `{notification['classification']}`.",
+            f"- Notifications controller runtime present: `{notification['controller_runtime_present']}`.",
+            f"- Notifications service file present: `{notification['service_file_present']}`.",
+            f"- Notifications model DTO present: `{notification['model_dto_present']}`.",
             "",
             "## Documentation State",
             "",
@@ -233,8 +241,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             (
                 "The backend NSOM migration is closed for the already migrated "
                 "recommendation surfaces and Detail/Object. Sky Map has been removed "
-                "as dead legacy rather than migrated to NSOM. Notifications are "
-                "dead legacy pending removal, not an NSOM migration surface. "
+                "as dead legacy rather than migrated to NSOM. Notifications are now "
+                "removed dead legacy, not an NSOM migration surface. "
                 "Equipment now has a "
                 "shared ObserverCapability/Q_target adapter while runtime setup "
                 "recommendations remain unchanged. The next backend step should be "
@@ -329,8 +337,7 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
     )
 
 
-def _remaining_legacy_or_hybrid_surfaces(notification_audit: dict[str, object]) -> tuple[dict[str, object], ...]:
-    notification_surface = notification_audit["notification_surface"]
+def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
     return (
         {
             "area": "Equipment recommendations",
@@ -357,16 +364,6 @@ def _remaining_legacy_or_hybrid_surfaces(notification_audit: dict[str, object]) 
                 "copies for moon and light-pollution presentation/fallback paths."
             ),
             "recommended_handling": "Defer broad cleanup until an ObservationSnapshot/read-model boundary exists.",
-            "blocks_current_default_on_surfaces": False,
-        },
-        {
-            "area": "Notifications",
-            "status": notification_surface["classification"],
-            "why_it_remains": (
-                "No QML/Home consumer remains, but AppController/NotificationService "
-                "runtime code is still present."
-            ),
-            "recommended_handling": "Remove as dead legacy; do not migrate to NSOM.",
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -501,7 +498,7 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         },
         {
             "step": "1.12.4 Remove dead Notifications backend path",
-            "summary": "Remove AppController notifications, NotificationService and leftover DTO/tests.",
+            "summary": "Confirm AppController notifications, NotificationService and leftover DTO/tests are removed.",
         },
         {
             "step": "Next backend area decision",

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit checks whether Advanced Observing NSOM can be kept enabled by default as a backend/internal projection. It records the backend switch state, does not replace `advancedScores`, does not render visible QML UI, does not tune scores, does not change Planner, NotificationService, Home Best Object or Sky Compass, and does not log automatically, call the network or write runtime files.
+This developer-only audit checks whether Advanced Observing NSOM can be kept enabled by default as a backend/internal projection. It records the backend switch state, does not replace `advancedScores`, does not render visible QML UI, does not tune scores, does not change Planner, Home Best Object or Sky Compass, and does not log automatically, call the network or write runtime files.
 
 ## Readiness Verdict
 
@@ -38,7 +38,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be kept ena
 | `advanced_scores_replacement` | `out_of_scope` | `False` | `False` | Do not replace `advancedScores` in this switch. |
 | `read_only_property_safety` | `accepted` | `False` | `False` | The `advancedObservingNsom` property is read-only and defensive-copy hardened. |
 | `qml_visibility` | `accepted_no_visible_usage` | `False` | `False` | No visible QML reads `controller.advancedObservingNsom`. |
-| `consumer_split` | `accepted` | `False` | `False` | Planner and notifications keep legacy-compatible `advancedScores` inputs. |
+| `consumer_split` | `accepted` | `False` | `False` | Planner keeps legacy-compatible `advancedScores` input; Notifications are absent. |
 | `confidence_metadata` | `accepted` | `False` | `False` | RecommendationConfidence remains metadata-only. |
 | `report_tooling` | `developer_only` | `False` | `False` | Comparison/readiness reports remain explicit developer tooling. |
 | `source_reports` | `accepted` | `False` | `False` | Readiness builds on the presentation contract, QML exposure and QML policy reports. |
@@ -54,7 +54,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be kept ena
 | `visible_qml_usage_absent` | `True` |
 | `advanced_scores_remains_current_qml_contract` | `True` |
 | `advanced_scores_not_replaced` | `True` |
-| `planner_notifications_keep_legacy_inputs` | `True` |
+| `planner_keeps_legacy_input_and_notifications_absent` | `True` |
 | `confidence_metadata_only` | `True` |
 | `report_tooling_developer_only` | `True` |
 | `no_runtime_file_logging_network` | `True` |
@@ -72,7 +72,7 @@ This developer-only audit checks whether Advanced Observing NSOM can be kept ena
 | `controller_public_property_present` | `True` |
 | `property_defensive_copy_present` | `True` |
 | `new_nsom_signal_absent` | `True` |
-| `planner_notification_legacy_consumer_split` | `True` |
+| `planner_legacy_consumer_input_and_notifications_absent` | `True` |
 
 ## Source Summary
 

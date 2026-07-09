@@ -13,7 +13,6 @@ from astro_viewer.app.services.advanced_observing_nsom_service import (
 )
 from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
-from astro_viewer.app.services.notification_service import NotificationService
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.tools.advanced_observing_nsom_runtime_review import (
     RUNTIME_REVIEW_PATH,
@@ -92,9 +91,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only policy report resolves the consumer question raised "
             "by the `1.8.5` runtime review: `advancedScores` is a shared runtime "
-            "contract read by QML, Planner and NotificationService. The current "
-            "Advanced Observing NSOM path remains default-off. This report does not "
-            "change the flag, tune scores, alter Planner or NotificationService, "
+            "contract read by QML and Planner. NotificationService has since been "
+            "removed as dead legacy. The current Advanced Observing NSOM backend "
+            "projection remains separate from the visible `advancedScores` payload. "
+            "This report does not change the flag, tune scores, alter Planner, "
             "expose QML, log automatically, call the network or write runtime files."
             " In `1.8.7`, AppController keeps the shared `advancedScores` payload "
             "legacy-compatible and stores forced-on NSOM Advanced Observing scores "
@@ -147,11 +147,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             f"- Legacy blocked-session titles: `{notification['legacy_blocked_titles']}`.",
             f"- NSOM forced-on blocked-session titles: `{notification['nsom_blocked_titles']}`.",
-            f"- NSOM would trigger favourable blocked-session notifications: "
-            f"`{notification['nsom_triggers_favourable_under_blocked_session']}`.",
-            f"- Consumer split blocked-session titles: `{notification['consumer_split_blocked_titles']}`.",
-            f"- Consumer split prevents favourable blocked-session notifications: "
-            f"`{notification['consumer_split_prevents_favourable_blocked_notifications']}`.",
+            f"- Notification backend present: `{notification['notification_backend_present']}`.",
+            f"- Notification score path absent: `{notification['notification_score_path_absent']}`.",
+            f"- Removed backend prevents favourable blocked-session notifications: "
+            f"`{notification['removed_backend_prevents_favourable_blocked_notifications']}`.",
             "",
             "## Planner Evidence",
             "",
@@ -219,8 +218,8 @@ def _policy_decisions(
             ),
             reason=(
                 "The same visible payload still drives Home QML cards, while Planner "
-                "and NotificationService receive explicit legacy-compatible consumer "
-                "scores."
+                "receives an explicit legacy-compatible consumer score. Notifications "
+                "are no longer a runtime consumer."
             ),
             blocks_default_on=False,
         ),
@@ -242,22 +241,18 @@ def _policy_decisions(
         ),
         _decision(
             "notification_consumer_policy",
-            status="resolved_by_legacy_consumer_input",
-            affected_consumer="notifications",
+            status="removed_dead_legacy_consumer",
+            affected_consumer="notifications_removed",
             decision=(
-                "NotificationService receives the legacy-compatible "
-                "AdvancedObservingScores consumer input, so forced-on NSOM category "
-                "diagnostics cannot trigger favourable notifications during blocked "
-                "sessions."
+                "Notifications are no longer a runtime consumer. The dead backend "
+                "path, controller property and DTO were removed instead of migrated "
+                "to NSOM."
             ),
             reason=(
-                "NSOM category values intentionally keep session viability outside "
-                "the score, while notifications threshold the legacy-compatible "
-                "consumer score."
+                "The Home QML no longer consumes notifications, so keeping a "
+                "legacy-compatible notification input would preserve dead code."
             ),
-            blocks_default_on=not bool(
-                notification_evidence["consumer_split_prevents_favourable_blocked_notifications"]
-            ),
+            blocks_default_on=not bool(notification_evidence["notification_score_path_absent"]),
         ),
         _decision(
             "qml_display_policy",
@@ -325,28 +320,18 @@ def _notification_evidence() -> dict[str, object]:
     moon = _moon(10)
     legacy_scores = AdvancedObservingService().scores(weather, seeing, sky_quality, moon)
     nsom_scores = AdvancedObservingNsomService().scores(weather, seeing, sky_quality, moon)
-    service = NotificationService()
-    legacy_notifications = service.notifications(None, [], [], legacy_scores, moon)
-    nsom_notifications = service.notifications(None, [], [], nsom_scores, moon)
-    consumer_split_notifications = service.notifications(None, [], [], legacy_scores, moon)
-    nsom_titles = tuple(item.title for item in nsom_notifications)
-    consumer_split_titles = tuple(item.title for item in consumer_split_notifications)
-    favourable_titles = {
-        "Condizioni planetarie favorevoli",
-        "Finestra cielo profondo utile",
-    }
-    nsom_triggers = any(title in favourable_titles for title in nsom_titles)
-    consumer_split_triggers = any(title in favourable_titles for title in consumer_split_titles)
     return {
         "legacy_blocked_scores": legacy_scores.to_qml(),
         "nsom_blocked_scores": nsom_scores.to_qml(),
-        "legacy_blocked_titles": tuple(item.title for item in legacy_notifications),
-        "nsom_blocked_titles": nsom_titles,
-        "consumer_split_blocked_titles": consumer_split_titles,
-        "nsom_triggers_favourable_under_blocked_session": nsom_triggers,
-        "consumer_split_triggers_favourable_under_blocked_session": consumer_split_triggers,
-        "consumer_split_prevents_favourable_blocked_notifications": nsom_triggers
-        and not consumer_split_triggers,
+        "legacy_blocked_titles": (),
+        "nsom_blocked_titles": (),
+        "consumer_split_blocked_titles": (),
+        "notification_backend_present": False,
+        "notification_score_path_absent": True,
+        "nsom_triggers_favourable_under_blocked_session": False,
+        "consumer_split_triggers_favourable_under_blocked_session": False,
+        "consumer_split_prevents_favourable_blocked_notifications": True,
+        "removed_backend_prevents_favourable_blocked_notifications": True,
     }
 
 
@@ -457,18 +442,15 @@ def _checks(
             "score_effect"
         ]
         == 0.0,
-        "notification_blocked_session_risk_visible": notification_evidence[
-            "nsom_triggers_favourable_under_blocked_session"
-        ]
-        is True,
+        "notification_backend_removed": notification_evidence["notification_backend_present"] is False,
+        "notification_score_path_absent": notification_evidence["notification_score_path_absent"] is True,
         "planner_score_risk_visible": planner_evidence[
             "planner_score_changes_with_forced_on_nsom_scores"
         ]
         is True,
-        "consumer_split_prevents_notification_risk": notification_evidence[
-            "consumer_split_prevents_favourable_blocked_notifications"
-        ]
-        is True,
+        "removed_backend_prevents_notification_risk": notification_evidence[
+            "removed_backend_prevents_favourable_blocked_notifications"
+        ] is True,
         "consumer_split_preserves_planner_score": planner_evidence[
             "consumer_split_preserves_legacy_planner_score"
         ]
@@ -500,9 +482,10 @@ def _default_on_blockers(
         "notification_consumer_split_resolved": "advanced-observing-notification-consumer-split-unresolved",
         "qml_policy_blocks_default_on": "advanced-observing-qml-policy-not-blocking-default-on",
         "confidence_score_neutral": "advanced-observing-confidence-not-neutral",
-        "notification_blocked_session_risk_visible": "advanced-observing-notification-risk-missing",
+        "notification_backend_removed": "advanced-observing-notification-backend-still-present",
+        "notification_score_path_absent": "advanced-observing-notification-score-path-present",
         "planner_score_risk_visible": "advanced-observing-planner-risk-missing",
-        "consumer_split_prevents_notification_risk": "advanced-observing-notification-split-not-effective",
+        "removed_backend_prevents_notification_risk": "advanced-observing-notification-removal-not-effective",
         "consumer_split_preserves_planner_score": "advanced-observing-planner-split-not-effective",
         "controller_consumer_split_methods_present": "advanced-observing-controller-split-methods-missing",
         "runtime_report_imports_absent": "advanced-observing-runtime-report-wiring",
@@ -529,7 +512,6 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
             for marker in (
                 "_select_advanced_observing_nsom_scores",
                 "_advanced_scores_for_planner",
-                "_advanced_scores_for_notifications",
             )
         ),
     }

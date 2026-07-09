@@ -107,16 +107,3 @@ class NightPlanItem:
         data["timeLabel"] = self.time_label
         data["objectId"] = self.object_id
         return data
-
-
-@dataclass(frozen=True)
-class Notification:
-    title: str
-    message: str
-    trigger_time: str
-    priority: int
-
-    def to_qml(self) -> dict:
-        data = asdict(self)
-        data["triggerTime"] = self.trigger_time
-        return data

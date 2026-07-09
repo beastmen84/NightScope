@@ -65,7 +65,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "notifications_migration_recommendation": notification_state["classification"],
             "recommended_next_step": (
-                "Remove the dead Notifications backend path, then decide the next backend area."
+                "Decide the next backend area: ObservationConditions read-model cleanup "
+                "or Equipment presenter contract work."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -73,9 +74,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "property, `_sky_map` storage, recomputation and `SkyMapService`, "
                 "so Sky Map is no longer a backend migration target. Equipment now "
                 "has a shared ObserverCapability/Q_target adapter while the runtime "
-                "setup helper remains unchanged. The QML Home page also no longer "
-                "consumes notifications, so the remaining NotificationService path "
-                "is dead legacy pending removal."
+                "setup helper remains unchanged. The QML Home page no longer consumes "
+                "notifications, and the 1.12.4 cleanup removes the controller "
+                "property, runtime recomputation, `NotificationService` and DTO."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -113,8 +114,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "sky_map_removed_not_nsom_target": sky_map_state["classification"] == "removed_dead_legacy",
             "notifications_qml_consumers_absent": notification_state["qml_consumed"] is False,
             "notifications_not_nsom_target": notification_state["not_a_nsom_migration_target"] is True,
-            "notifications_dead_legacy_pending_removal": (
-                notification_state["classification"] == "dead_legacy_pending_removal"
+            "notifications_removed_dead_legacy": (
+                notification_state["classification"] == "removed_dead_legacy"
             ),
             "temporary_rollbacks_are_internal": all(
                 item["public_compatibility_contract"] is False for item in temporary_rollbacks
@@ -183,8 +184,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             {
                 "step": "1.12.4 Remove dead Notifications backend path",
                 "summary": (
-                    "Remove AppController notifications, NotificationService and "
-                    "leftover DTO/tests."
+                    "Confirm AppController notifications, NotificationService and "
+                    "leftover DTO/tests are removed."
                 ),
             },
             {

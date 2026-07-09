@@ -1081,8 +1081,6 @@ class Phase6RealDataTests(unittest.TestCase):
             planner = Mock()
             planner.plan.return_value = []
             controller._night_planner_service = planner
-            controller._notification_service = Mock()
-            controller._notification_service.notifications.return_value = []
             controller._weather_summary = WeatherSummary("Buono", 80, "", 10, 0, 5, 55, 18.0, "")
             controller._sky_quality = SkyQuality(4, 6.1, 20.8, "test", "Rural Sky")
 

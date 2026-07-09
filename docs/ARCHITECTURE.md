@@ -14,7 +14,7 @@ NightScope is organized around a small desktop application package:
   object is `AppController`.
 - `astro_viewer/app/services`: business services for astronomy, weather,
   observing quality, planning, equipment recommendations, light pollution,
-  NASA/OpenAQ data providers, seeing/transparency, notifications and logging.
+  NASA/OpenAQ data providers, seeing/transparency and logging.
 - `astro_viewer/app/astronomy`: astronomy engine protocol, mock fallback,
   Skyfield-based engine and coordinate parsing helpers.
 - `astro_viewer/app/database`: SQLite bootstrap, migrations, repositories and
@@ -666,6 +666,11 @@ QML/Home UI no longer consumes `controller.notifications`, while the old
 `NotificationService`, controller property and DTO still exist. Notifications
 are therefore classified as `dead_legacy_pending_removal`, not as an NSOM
 migration surface. No runtime behaviour changes in this audit step.
+`1.12.4` removes that dead backend path: `NotificationService`,
+`AppController.notifications`, runtime notification storage/recomputation and
+the `Notification` DTO are gone. Notifications are now classified as
+`removed_dead_legacy`; future work should not rebuild them unless a visible
+product requirement reintroduces notifications.
 
 ## Dependency Flow
 
@@ -720,7 +725,7 @@ Important pages:
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
 - sky quality, seeing/transparency and advanced scores,
-- night plan, sky map, Sky Compass and notifications,
+- night plan and Sky Compass,
 - generic catalogue object dictionaries and catalogue filter state,
 - selected object and detail dictionaries,
 - calendar event setup text and object-detail target mapping,
@@ -733,7 +738,7 @@ It also coordinates:
 - weather refresh,
 - VIIRS refresh,
 - profile/equipment refresh,
-- recomputation of best object, plan, sky map, Sky Compass, notifications and
+- recomputation of best object, plan, Sky Compass and
   selected detail.
 
 ### Services
@@ -784,7 +789,6 @@ Services hold business logic:
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services.
-- `NotificationService`: dashboard notifications from current conditions.
 - `LocationService`: Windows, IP and manual location providers.
 
 ### Repositories
@@ -1017,8 +1021,7 @@ In-memory controller caches:
 - seeing/transparency,
 - advanced scores,
 - night plan,
-- sky map,
-- notifications,
+- Sky Compass,
 - selected-object dictionary.
 
 These are invalidated by controller refresh methods, not by a standalone cache

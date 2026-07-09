@@ -8,10 +8,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
-- Notifications migration recommendation: `dead_legacy_pending_removal`.
+- Notifications migration recommendation: `removed_dead_legacy`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Remove the dead Notifications backend path, then decide the next backend area.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page also no longer consumes notifications, so the remaining NotificationService path is dead legacy pending removal.
+- Recommended next step: Decide the next backend area: ObservationConditions read-model cleanup or Equipment presenter contract work.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO.
 
 ## Classification Policy
 
@@ -26,7 +26,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 | Surface | Classification | Evidence | Recommended handling |
 | --- | --- | --- | --- |
 | Sky Map | `removed_dead_legacy` | HomePage.qml consumes `controller.skyCompass`, not `controller.skyMap`.<br>`AppController.skyMap`, `_sky_map` storage and recomputation are absent.<br>`SkyMapService` has been removed. | Keep removed; do not rebuild a Sky Map NSOM migration unless a real consumer is reintroduced through a separate product decision. |
-| Notifications | `dead_legacy_pending_removal` | No QML files consume `controller.notifications` or equivalent notification models.<br>AppController still exposes/computes notifications.<br>`NotificationService` and the `Notification` DTO are still present. | Remove NotificationService, AppController.notifications, runtime recomputation and DTO/test leftovers. |
+| Notifications | `removed_dead_legacy` | No QML files consume `controller.notifications` or equivalent notification models.<br>AppController no longer exposes or computes a notifications property.<br>`NotificationService` and the `Notification` DTO are absent. | Keep removed; do not rebuild unless a visible product requirement reintroduces notifications. |
 
 ## Temporary Rollback Surfaces
 
@@ -67,7 +67,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 | `sky_map_removed_not_nsom_target` | `True` |
 | `notifications_qml_consumers_absent` | `True` |
 | `notifications_not_nsom_target` | `True` |
-| `notifications_dead_legacy_pending_removal` | `True` |
+| `notifications_removed_dead_legacy` | `True` |
 | `temporary_rollbacks_are_internal` | `True` |
 | `payload_compatibility_not_rank_source` | `True` |
 | `runtime_report_imports_absent` | `True` |
@@ -84,7 +84,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `1.12.2 ObserverCapability adapter extraction`: Extract reusable ObserverCapability/Q_target projection without changing Equipment recommendations.
 - `Review 1.12.2`: Confirm the adapter extraction preserved Equipment comparison values and runtime behaviour.
 - `1.12.3 Notifications dead legacy audit`: Classify Notifications as dead legacy because no QML/Home consumer remains.
-- `1.12.4 Remove dead Notifications backend path`: Remove AppController notifications, NotificationService and leftover DTO/tests.
+- `1.12.4 Remove dead Notifications backend path`: Confirm AppController notifications, NotificationService and leftover DTO/tests are removed.
 - `Next backend area decision`: Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.
 
 ## Conclusion

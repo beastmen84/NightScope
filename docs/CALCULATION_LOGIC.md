@@ -588,7 +588,6 @@ Weather changes trigger:
 - best object,
 - plan,
 - sky map,
-- notifications,
 - selected object detail refresh.
 
 Location changes trigger:

@@ -200,20 +200,18 @@ def test_presentation_session_metadata_matches_monitor_session_state() -> None:
     assert controller._observing_session_decision().state == "monitor"
 
 
-def test_presentation_projection_does_not_feed_planner_or_notifications() -> None:
+def test_presentation_projection_does_not_feed_planner_and_notifications_are_absent() -> None:
     controller = _controller(enabled=True)
     planner = _PlannerSpy()
-    notifications = _NotificationSpy()
     controller._night_planner_service = planner
-    controller._notification_service = notifications
 
     controller._recalculate_observing_outputs()
 
     assert controller._advanced_observing_nsom_presentation is not None
     assert planner.received_scores == controller._advanced_scores
-    assert notifications.received_scores == controller._advanced_scores
     assert planner.received_scores != controller._advanced_observing_nsom_scores
-    assert notifications.received_scores != controller._advanced_observing_nsom_scores
+    assert not hasattr(controller, "_notification_service")
+    assert not hasattr(controller, "_notifications")
 
 
 def test_presentation_projection_has_read_only_qml_property_but_no_visible_qml_usage() -> None:
@@ -288,15 +286,6 @@ class _PlannerSpy:
         return NightPlannerService.weather_blocking_status(weather)
 
 
-class _NotificationSpy:
-    def __init__(self) -> None:
-        self.received_scores: AdvancedObservingScores | None = None
-
-    def notifications(self, _best_object, _plan, _events, scores, _moon):
-        self.received_scores = scores
-        return []
-
-
 def _controller(
     *,
     enabled: bool,
@@ -331,14 +320,12 @@ def _controller(
     )
     controller._night_planner_service = _PlannerSpy()
     controller._refresh_sky_compass = lambda: None
-    controller._notification_service = _NotificationSpy()
     controller._refresh_nsom_diagnostics = lambda: None
     controller._advanced_scores = None
     controller._advanced_observing_nsom_scores = None
     controller._advanced_observing_nsom_presentation = None
     controller._best_object = None
     controller._night_plan = []
-    controller._notifications = []
     return controller
 
 
