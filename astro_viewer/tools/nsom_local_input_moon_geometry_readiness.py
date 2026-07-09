@@ -237,11 +237,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "This developer-only audit separates NightScope input sources into "
             "local always-available astronomy, local optional equipment and "
             "external optional providers. It confirms that Moon geometry is "
-            "available as a runtime diagnostic and as a default-off Planner NSOM "
-            "scoring input computed from the active location and local astronomy "
-            "engine without network, weather, VIIRS, AOD or OpenAQ. No default "
-            "runtime scoring, ranking, QML, logging, network or runtime "
-            "file-write behaviour changes."
+            "available as a runtime diagnostic and as the default-on Planner "
+            "NSOM geometry input computed from the active location and local "
+            "astronomy engine without network, weather, VIIRS, AOD or OpenAQ. "
+            "Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, "
+            "Equipment, QML, logging, network and runtime file-write behaviour "
+            "remain unchanged by this audit."
         ),
         "",
         "## Verdict",
@@ -409,12 +410,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             (
                 "The backend NSOM consumer migration is closed for current "
                 "recommendation surfaces, and the physical model now has "
-                "local Moon geometry diagnostics plus a default-off Planner NSOM "
-                "scoring path. Moon altitude and Moon-target separation are "
-                "deterministic once location and time are known, so the next step "
-                "is review and calibration before any default-on Moon geometry, "
-                "NASA AOD or OpenAQ scoring. AOD and OpenAQ remain optional "
-                "provider inputs with freshness and confidence semantics."
+                "local Moon geometry diagnostics plus a default-on Planner NSOM "
+                "geometry-aware lunar sky-background path. Moon altitude and "
+                "Moon-target separation are deterministic once location and time "
+                "are known. The next backend scoring-readiness work should move "
+                "to provider-dependent NASA AOD and OpenAQ only after reviewing "
+                "the narrow Planner Moon geometry default-on switch."
             ),
             "",
         ]
@@ -714,6 +715,21 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Confirm default-on readiness, default-off runtime state and "
                 "non-blocking risks before changing the switch."
+            ),
+        },
+        {
+            "step": "1.14.6 Moon geometry Planner default-on",
+            "summary": (
+                "Enable the narrow Planner-specific switch while keeping the "
+                "generic condition feature flag default-off and preserving an "
+                "explicit injected-service rollback path."
+            ),
+        },
+        {
+            "step": "Review 1.14.6",
+            "summary": (
+                "Confirm Planner-only runtime impact, rollback safety, report "
+                "accuracy and no QML/logging/network/runtime file-write wiring."
             ),
         },
         {

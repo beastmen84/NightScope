@@ -159,4 +159,8 @@ def test_checked_in_local_input_moon_geometry_report_matches_renderer() -> None:
     assert "moon_geometry_planner_default_on" in text
     assert "nasa_aod" in text
     assert "openaq_particulate" in text
+    assert "default-off Planner NSOM scoring input" not in text
+    assert "No default runtime scoring" not in text
+    assert "default-off Planner NSOM scoring path" not in text
+    assert "Review 1.14.6" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit separates NightScope input sources into local always-available astronomy, local optional equipment and external optional providers. It confirms that Moon geometry is available as a runtime diagnostic and as a default-off Planner NSOM scoring input computed from the active location and local astronomy engine without network, weather, VIIRS, AOD or OpenAQ. No default runtime scoring, ranking, QML, logging, network or runtime file-write behaviour changes.
+This developer-only audit separates NightScope input sources into local always-available astronomy, local optional equipment and external optional providers. It confirms that Moon geometry is available as a runtime diagnostic and as the default-on Planner NSOM geometry input computed from the active location and local astronomy engine without network, weather, VIIRS, AOD or OpenAQ. Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment, QML, logging, network and runtime file-write behaviour remain unchanged by this audit.
 
 ## Verdict
 
@@ -133,8 +133,10 @@ This developer-only audit separates NightScope input sources into local always-a
 - `Review 1.14.4`: Confirm calibration evidence, confidence metadata semantics and whether Moon geometry needs tuning before default-on.
 - `1.14.5 Moon geometry Planner default-on readiness`: Classify the calibration evidence and decide whether a narrow Planner Moon geometry default-on switch is ready.
 - `Review 1.14.5`: Confirm default-on readiness, default-off runtime state and non-blocking risks before changing the switch.
+- `1.14.6 Moon geometry Planner default-on`: Enable the narrow Planner-specific switch while keeping the generic condition feature flag default-off and preserving an explicit injected-service rollback path.
+- `Review 1.14.6`: Confirm Planner-only runtime impact, rollback safety, report accuracy and no QML/logging/network/runtime file-write wiring.
 - `AOD/OpenAQ scoring readiness`: Only after Moon geometry, audit freshness, QA and double-counting before enabling provider-dependent aerosol scoring.
 
 ## Conclusion
 
-The backend NSOM consumer migration is closed for current recommendation surfaces, and the physical model now has local Moon geometry diagnostics plus a default-off Planner NSOM scoring path. Moon altitude and Moon-target separation are deterministic once location and time are known, so the next step is review and calibration before any default-on Moon geometry, NASA AOD or OpenAQ scoring. AOD and OpenAQ remain optional provider inputs with freshness and confidence semantics.
+The backend NSOM consumer migration is closed for current recommendation surfaces, and the physical model now has local Moon geometry diagnostics plus a default-on Planner NSOM geometry-aware lunar sky-background path. Moon altitude and Moon-target separation are deterministic once location and time are known. The next backend scoring-readiness work should move to provider-dependent NASA AOD and OpenAQ only after reviewing the narrow Planner Moon geometry default-on switch.
