@@ -47,17 +47,31 @@ def test_presenter_contract_preserves_payload_and_setup_option_shape() -> None:
     fixture = data["fixture"]
     contract = data["presenter_contract"]
 
-    assert data["readiness"]["verdict"] == "equipment_presenter_contract_audited"
+    assert data["readiness"]["verdict"] == "equipment_setup_read_model_boundary_introduced"
+    assert data["readiness"]["presenter_contract_audited"] is True
     assert data["readiness"]["runtime_replacement_ready"] is False
-    assert data["readiness"]["runtime_read_model_boundary_recommended"] is True
+    assert data["readiness"]["runtime_read_model_boundary_recommended"] is False
+    assert data["readiness"]["runtime_read_model_boundary_present"] is True
     assert fixture["suggestion_payload_keys"] == list(REQUIRED_PAYLOAD_KEYS)
     assert fixture["setup_option_keys"] == list(REQUIRED_SETUP_OPTION_KEYS)
     assert "Consigliato" in fixture["setup_option_roles"]
     assert fixture["fallback_payloads_are_known_subsets"] is True
+    assert fixture["read_model_payload_roundtrip_matches_service_output"] is True
+    assert set(fixture["read_model_celestial_projection_keys"]) == {
+        "recommended_setup",
+        "best_eyepiece",
+        "barlow",
+        "difficulty",
+        "recommended_setup_type",
+        "setup_options",
+        "equipment_explanation",
+    }
     assert "highMagnification" not in fixture["fallback_payload_key_variants"]["naked_eye"]
     assert contract["presentation_owned_output"] == "equipment_setup_payload_and_setupOptions"
     assert data["checks"]["payload_keys_preserved"] is True
     assert data["checks"]["setup_option_keys_preserved"] is True
+    assert data["checks"]["read_model_payload_roundtrip_preserves_service_output"] is True
+    assert data["checks"]["read_model_celestial_projection_preserves_contract"] is True
 
 
 def test_contract_decisions_keep_q_target_and_confidence_out_of_setup_score() -> None:
@@ -101,6 +115,7 @@ def test_presenter_contract_audit_has_no_runtime_or_qml_wiring() -> None:
     assert data["checks"]["runtime_report_imports_absent"] is True
     assert data["checks"]["qml_report_exposure_absent"] is True
     assert data["checks"]["controller_projection_fields_present"] is True
+    assert data["checks"]["setup_read_model_boundary_present"] is True
     assert data["checks"]["qml_payload_consumers_present"] is True
     assert data["static_wiring_checks"]["runtime_report_import_matches"] == []
     assert data["static_wiring_checks"]["qml_report_exposure_matches"] == []
@@ -112,6 +127,6 @@ def test_checked_in_equipment_presenter_contract_report_matches_renderer() -> No
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# Equipment NSOM Presenter Contract Audit" in text
-    assert "equipment_presenter_contract_audited" in text
-    assert "setup read-model/presenter boundary" in text
+    assert "equipment_setup_read_model_boundary_introduced" in text
+    assert "Read-model payload roundtrip matches service output" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

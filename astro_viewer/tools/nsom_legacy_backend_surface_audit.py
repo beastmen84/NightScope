@@ -82,8 +82,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Add a runtime-neutral Equipment setup read-model/presenter DTO "
-                "before any EquipmentService scoring replacement."
+                "Review 1.13.1, then audit EquipmentService setup-score ownership "
+                "before any scoring replacement."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -100,8 +100,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "ranking, and Best Object now scores raw read-model targets while "
                 "returning display targets. Sky Compass now uses a raw-target/"
                 "display-live-geometry split adapter. The ObservationConditions "
-                "consumer reroute series is closed. Equipment now has a presenter "
-                "contract audit but still uses the existing runtime helper."
+                "consumer reroute series is closed. Equipment now has a setup "
+                "read-model boundary but still uses the existing runtime helper."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -292,6 +292,20 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "while preserving current payload shape."
             ),
         },
+        {
+            "step": "Review 1.13.1",
+            "summary": (
+                "Confirm the Equipment setup read-model boundary preserves runtime "
+                "output and QML payload shape."
+            ),
+        },
+        {
+            "step": "1.13.2 Equipment setup score ownership audit",
+            "summary": (
+                "Audit EquipmentService setup-score components before any scoring "
+                "replacement or default-off path."
+            ),
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -455,10 +469,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "of being migrated to NSOM. Notifications are removed dead legacy "
                 "rather than a backend NSOM migration surface. ObservationConditions "
                 "is active hybrid runtime code with a read-model boundary and a "
-                "consumer reroute policy; runtime rerouting remains a separate "
-                "implementation step. "
+                "closed consumer reroute; it remains active compatibility code. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "and a presenter contract audit while runtime setup recommendations "
+                "and a setup read-model boundary while runtime setup recommendations "
                 "remain unchanged. Temporary rollback cleanup remains a separate "
                 "policy decision."
             ),
@@ -611,12 +624,13 @@ def _active_legacy_or_hybrid_surfaces(
                 "`observer_capability_adapter.py` now provides shared "
                 "ObserverCapability/Q_target projection while "
                 "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
-                "setup payload/read-model contract required before runtime replacement. "
+                "setup payload/read-model contract now used before runtime replacement. "
                 f"Contract status: `{equipment_presenter_contract_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Extract a runtime-neutral Equipment setup read-model/presenter DTO "
-                "while preserving current payload shape."
+                "Review the 1.13.1 read-model boundary, then audit setup-score "
+                "ownership for seeing, sky quality, target traits, fallback states "
+                "and presentation-local selectionScore."
             ),
         },
         {

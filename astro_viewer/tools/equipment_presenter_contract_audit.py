@@ -8,6 +8,7 @@ from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModelBuilder
 from astro_viewer.tools.equipment_nsom_comparison_report import (
     REPORT_PATH as COMPARISON_REPORT_PATH,
     generate_report_data,
@@ -103,21 +104,26 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
             "report_path": str(REPORT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "equipment_presenter_contract_audited",
+            "verdict": "equipment_setup_read_model_boundary_introduced",
+            "presenter_contract_audited": True,
             "runtime_replacement_ready": False,
-            "runtime_read_model_boundary_recommended": True,
+            "runtime_read_model_boundary_recommended": False,
+            "runtime_read_model_boundary_present": static_checks["setup_read_model_boundary_present"] is True,
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Add a runtime-neutral Equipment setup read-model/presenter DTO "
-                "before any EquipmentService scoring replacement."
+                "Review 1.13.1, then audit EquipmentService setup-score ownership "
+                "before any scoring replacement."
             ),
             "reason": (
                 "Equipment is an active setup-presentation helper. The existing "
                 "runtime payload owns eyepiece, Barlow, binocular, fallback and "
-                "setupOptions fields that Q_target does not replace. NSOM can own "
-                "ObserverCapability/Q_target and future PracticalTargetValue "
-                "metadata, but the presenter contract must be explicit first."
+                "setupOptions fields that Q_target does not replace. A "
+                "runtime-neutral setup read-model boundary now preserves that "
+                "payload before AppController projects it to CelestialObject fields. "
+                "NSOM can own ObserverCapability/Q_target and future "
+                "PracticalTargetValue metadata, but EquipmentService scoring is not "
+                "ready for replacement."
             ),
         },
         "blockers": blockers,
@@ -130,17 +136,18 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
             {
-                "step": "Review 1.13.0",
+                "step": "Review 1.13.1",
                 "summary": (
-                    "Confirm the Equipment presenter contract audit is accurate "
-                    "and developer-only."
+                    "Confirm the Equipment setup read-model boundary preserves "
+                    "runtime output and QML payload shape."
                 ),
             },
             {
-                "step": "1.13.1 Equipment setup read-model boundary",
+                "step": "1.13.2 Equipment setup score ownership audit",
                 "summary": (
-                    "Extract an internal setup presentation DTO/read-model while "
-                    "preserving EquipmentService output and QML payload shape."
+                    "Separate setup score components, sky/seeing inputs and "
+                    "presentation-owned fallback semantics before any scoring "
+                    "replacement."
                 ),
             },
         ),
@@ -169,10 +176,15 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Verdict",
         "",
         f"- Verdict: `{readiness['verdict']}`.",
+        f"- Presenter contract audited: `{readiness['presenter_contract_audited']}`.",
         f"- Runtime replacement ready: `{readiness['runtime_replacement_ready']}`.",
         (
             "- Runtime read-model boundary recommended: "
             f"`{readiness['runtime_read_model_boundary_recommended']}`."
+        ),
+        (
+            "- Runtime read-model boundary present: "
+            f"`{readiness['runtime_read_model_boundary_present']}`."
         ),
         (
             "- Default-off Equipment path recommended now: "
@@ -200,6 +212,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Setup option keys: `{fixture['setup_option_keys']}`.",
         f"- Setup option roles: `{fixture['setup_option_roles']}`.",
         f"- Fallback payloads are compatible subsets: `{fixture['fallback_payloads_are_known_subsets']}`.",
+        (
+            "- Read-model payload roundtrip matches service output: "
+            f"`{fixture['read_model_payload_roundtrip_matches_service_output']}`."
+        ),
+        f"- Read-model celestial projection keys: `{fixture['read_model_celestial_projection_keys']}`.",
         "",
         "## Contract Decisions",
         "",
@@ -245,6 +262,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 f"`{audit['static_wiring_checks']['controller_projection_fields_present']}`."
             ),
             (
+                "- AppController uses Equipment setup read-model boundary: "
+                f"`{audit['static_wiring_checks']['setup_read_model_boundary_present']}`."
+            ),
+            (
                 "- QML uses current Equipment payload fields: "
                 f"`{audit['static_wiring_checks']['qml_payload_consumers_present']}`."
             ),
@@ -263,9 +284,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Equipment should not be migrated by replacing its setup score with "
-                "Q_target. The next safe backend step is a runtime-neutral setup "
-                "read-model/presenter boundary that preserves the current payload "
-                "while making ObserverCapability/Q_target ownership explicit."
+                "Q_target. The setup read-model boundary now preserves the current "
+                "payload while making ObserverCapability/Q_target ownership explicit; "
+                "the next work is score-ownership review."
             ),
             "",
         ]
@@ -333,15 +354,16 @@ def _contract_decisions(fixture: dict[str, object]) -> tuple[dict[str, object], 
         ),
         _decision(
             "seeing_and_sky_boundary",
-            status="needs_read_model_boundary",
+            status="needs_score_ownership_audit",
             layer="sky",
             decision=(
-                "Seeing and sky quality need explicit setup-context fields before "
-                "Equipment scoring can be separated from legacy ownership mixing."
+                "Seeing and sky quality need explicit setup-score ownership review "
+                "before Equipment scoring can be separated from legacy mixing."
             ),
             reason=(
                 "Existing EquipmentService uses seeing and sky quality in setup score, "
-                "while NSOM keeps them outside ObserverCapability."
+                "while NSOM keeps them outside ObserverCapability. The setup read-model "
+                "boundary preserves the payload but does not yet split that score."
             ),
             blocks=True,
         ),
@@ -398,6 +420,7 @@ def _decision(
 
 def _presenter_fixture() -> dict[str, object]:
     service = EquipmentService()
+    builder = EquipmentSetupReadModelBuilder()
     target = _target()
     sky_quality = _sky_quality()
     seeing = _seeing()
@@ -430,6 +453,8 @@ def _presenter_fixture() -> dict[str, object]:
     )
     setup_options = suggestion.get("setupOptions", [])
     first_option = setup_options[0] if setup_options else {}
+    read_model = builder.from_suggestion(target, suggestion)
+    read_model_updates = read_model.to_celestial_object_updates()
     payload_keys = tuple(suggestion)
     setup_option_keys = tuple(first_option)
     return {
@@ -442,6 +467,11 @@ def _presenter_fixture() -> dict[str, object]:
         "recommended_setup_text": suggestion.get("setupText", ""),
         "recommended_equipment_type": suggestion.get("equipmentType", ""),
         "selection_score": suggestion.get("selectionScore", 0.0),
+        "read_model_payload_roundtrip_matches_service_output": (
+            read_model.to_equipment_service_payload() == suggestion
+        ),
+        "read_model_celestial_projection_keys": tuple(read_model_updates),
+        "read_model_recommended_setup_type": read_model.recommended_setup_type,
         "fallback_payloads_are_known_subsets": (
             set(naked_eye).issubset(REQUIRED_PAYLOAD_KEYS)
             and set(missing_eyepieces).issubset(REQUIRED_PAYLOAD_KEYS)
@@ -490,6 +520,21 @@ def _checks(
         "setup_option_keys_preserved": tuple(fixture["setup_option_keys"]) == REQUIRED_SETUP_OPTION_KEYS,
         "recommended_setup_option_present": "Consigliato" in tuple(fixture["setup_option_roles"]),
         "fallback_payloads_are_known_subsets": fixture["fallback_payloads_are_known_subsets"] is True,
+        "read_model_payload_roundtrip_preserves_service_output": (
+            fixture["read_model_payload_roundtrip_matches_service_output"] is True
+        ),
+        "read_model_celestial_projection_preserves_contract": set(
+            fixture["read_model_celestial_projection_keys"]
+        )
+        == {
+            "recommended_setup",
+            "best_eyepiece",
+            "barlow",
+            "difficulty",
+            "recommended_setup_type",
+            "setup_options",
+            "equipment_explanation",
+        },
         "q_target_reference_only": q_target["q_target_replaces_selection_score"] is False,
         "policy_runtime_replacement_deferred": policy["readiness"]["ready_for_default_off_path"] is False,
         "observer_capability_adapter_extracted": policy["readiness"]["observer_capability_adapter_extracted"] is True,
@@ -497,6 +542,7 @@ def _checks(
         "confidence_score_neutral": confidence["score_effect"] == 0.0
         and policy["comparison_evidence"]["confidence_score_effect"] == 0.0,
         "controller_projection_fields_present": static_checks["controller_projection_fields_present"] is True,
+        "setup_read_model_boundary_present": static_checks["setup_read_model_boundary_present"] is True,
         "qml_payload_consumers_present": static_checks["qml_payload_consumers_present"] is True,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_report_exposure_absent": static_checks["qml_report_exposure_matches"] == (),
@@ -520,12 +566,15 @@ def _blockers(
         "setup_option_keys_preserved": "equipment-presenter-setup-option-keys-missing",
         "recommended_setup_option_present": "equipment-presenter-recommended-option-missing",
         "fallback_payloads_are_known_subsets": "equipment-presenter-fallback-shape-drift",
+        "read_model_payload_roundtrip_preserves_service_output": "equipment-presenter-read-model-roundtrip-drift",
+        "read_model_celestial_projection_preserves_contract": "equipment-presenter-read-model-projection-drift",
         "q_target_reference_only": "equipment-presenter-q-target-replaces-setup-score",
         "policy_runtime_replacement_deferred": "equipment-presenter-runtime-replacement-not-deferred",
         "observer_capability_adapter_extracted": "equipment-presenter-observer-adapter-missing",
         "comparison_evidence_available": "equipment-presenter-comparison-evidence-missing",
         "confidence_score_neutral": "equipment-presenter-confidence-score-effect",
         "controller_projection_fields_present": "equipment-presenter-controller-projection-drift",
+        "setup_read_model_boundary_present": "equipment-presenter-read-model-boundary-missing",
         "qml_payload_consumers_present": "equipment-presenter-qml-payload-drift",
         "runtime_report_imports_absent": "equipment-presenter-runtime-wiring",
         "qml_report_exposure_absent": "equipment-presenter-qml-exposure",
@@ -543,6 +592,13 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
     controller = (root / "astro_viewer" / "app" / "viewmodels" / "app_controller.py").read_text(
         encoding="utf-8"
     )
+    setup_read_model = (
+        root
+        / "astro_viewer"
+        / "app"
+        / "services"
+        / "equipment_setup_read_model.py"
+    ).read_text(encoding="utf-8")
     home_qml = (root / "astro_viewer" / "app" / "ui" / "pages" / "HomePage.qml").read_text(
         encoding="utf-8"
     )
@@ -556,6 +612,11 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
         ),
         "controller_projection_fields_present": all(
             field in controller for field in CONTROLLER_PROJECTION_FIELDS
+        ),
+        "setup_read_model_boundary_present": (
+            "EquipmentSetupReadModelBuilder" in controller
+            and "_equipment_setup_read_model_builder.from_suggestion" in controller
+            and "EquipmentSetupReadModel" in setup_read_model
         ),
         "qml_payload_consumers_present": (
             "setupOptions" in home_qml

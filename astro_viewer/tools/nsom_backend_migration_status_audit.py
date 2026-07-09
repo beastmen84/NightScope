@@ -109,8 +109,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Add a runtime-neutral Equipment setup read-model/presenter DTO "
-                "before any EquipmentService scoring replacement"
+                "Review 1.13.1, then audit EquipmentService setup-score ownership "
+                "before any scoring replacement"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -126,8 +126,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "physics plus display/live geometry, closing the "
                 "ObservationConditions consumer reroute series. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "and a presenter contract audit; runtime setup recommendations "
-                "remain unchanged."
+                "plus a setup read-model/presenter boundary; runtime setup "
+                "recommendations remain unchanged."
             ),
         },
         "blockers": blockers,
@@ -413,12 +413,13 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "`observer_capability_adapter.py` now provides shared "
                 "ObserverCapability/Q_target projection, and "
                 "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
-                "payload/read-model boundary required before any scoring replacement."
+                "payload/read-model boundary now used by AppController before any "
+                "scoring replacement."
             ),
             "recommended_handling": (
-                "Extract a runtime-neutral Equipment setup read-model/presenter DTO "
-                "while preserving `EquipmentService.suggest_for_profile(...)` output "
-                "and QML payload shape."
+                "Review the 1.13.1 read-model boundary, then audit setup-score "
+                "ownership for seeing, sky quality, target traits, fallback states "
+                "and presentation-local selectionScore."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -494,9 +495,13 @@ def _checks(
         ]
         is True,
         "equipment_presenter_contract_audited": equipment_presenter_contract["readiness"][
-            "verdict"
+            "presenter_contract_audited"
         ]
-        == "equipment_presenter_contract_audited",
+        is True,
+        "equipment_setup_read_model_boundary_present": equipment_presenter_contract["readiness"][
+            "runtime_read_model_boundary_present"
+        ]
+        is True,
         "equipment_runtime_replacement_deferred": equipment_presenter_contract["readiness"][
             "runtime_replacement_ready"
         ]
@@ -518,6 +523,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "equipment_policy_ready_for_adapter_step": "equipment-policy-adapter-step-not-ready",
         "equipment_observer_adapter_extracted": "equipment-observer-adapter-not-extracted",
         "equipment_presenter_contract_audited": "equipment-presenter-contract-not-audited",
+        "equipment_setup_read_model_boundary_present": "equipment-setup-read-model-boundary-missing",
         "equipment_runtime_replacement_deferred": "equipment-runtime-replacement-not-deferred",
         "runtime_report_imports_absent": "nsom-audit-runtime-wiring",
         "qml_exposure_absent": "nsom-audit-qml-exposure",
@@ -675,6 +681,17 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Extract a runtime-neutral setup presentation DTO/read-model while "
                 "preserving current EquipmentService output."
+            ),
+        },
+        {
+            "step": "Review 1.13.1",
+            "summary": "Confirm the Equipment setup read-model boundary preserves runtime output.",
+        },
+        {
+            "step": "1.13.2 Equipment setup score ownership audit",
+            "summary": (
+                "Audit EquipmentService setup-score components before any scoring "
+                "replacement or default-off path."
             ),
         },
     )

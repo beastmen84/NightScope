@@ -735,6 +735,16 @@ continues to own the runtime setup recommendation; no Equipment ranking,
 payload, QML, logging, network or runtime file-write behaviour changes. The
 next safe backend step is a runtime-neutral Equipment setup read-model/presenter
 DTO before any scoring replacement.
+`1.13.1` introduces that runtime-neutral boundary in
+`astro_viewer/app/services/equipment_setup_read_model.py`. `EquipmentService`
+still computes the active setup recommendation and payload, but
+`AppController._apply_equipment(...)` now converts the suggestion through an
+immutable `EquipmentSetupReadModel` before projecting the existing
+`CelestialObject` fields. The boundary preserves `setupOptions`, fallback
+payloads, `selectionScore`, setup type and explanation semantics without adding
+QML fields or NSOM UI exposure. Equipment scoring replacement remains deferred
+until a setup-score ownership audit separates target traits, seeing, sky
+quality, fallback states and presentation-local selection score.
 
 ## Dependency Flow
 

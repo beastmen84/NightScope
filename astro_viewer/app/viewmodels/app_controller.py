@@ -46,6 +46,7 @@ from astro_viewer.app.services.earthdata_credentials import (
     EarthdataCredentialStore,
 )
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModelBuilder
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
@@ -220,6 +221,7 @@ class AppController(QObject):
             self._service_status = "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
+        self._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
         self._score_service = ObservingScoreService()
         self._light_pollution_service = LightPollutionService(
             self._sky_quality_repository,
@@ -3117,25 +3119,20 @@ class AppController(QObject):
                 self._sky_quality,
                 binoculars,
             )
+            setup_read_model = self._equipment_setup_read_model_builder.from_suggestion(item, suggestion)
             naked_eye_blocked = (
                 not telescopes
                 and not binoculars
-                and suggestion["setupText"].startswith("Serve almeno")
+                and setup_read_model.requires_optical_instrument
             )
-            setup_type = self._recommendation_setup_type(suggestion)
+            setup_updates = setup_read_model.to_celestial_object_updates()
             updated.append(
                 self._apply_object_content(
                     replace(
                         item,
                         visible=item.visible and not naked_eye_blocked,
                         score=max(0, item.score - 45) if naked_eye_blocked else item.score,
-                        recommended_setup=suggestion["setupText"],
-                        best_eyepiece=suggestion["bestEyepiece"],
-                        barlow=suggestion["barlow"],
-                        difficulty=suggestion["difficulty"],
-                        recommended_setup_type=setup_type,
-                        setup_options=suggestion.get("setupOptions", []),
-                        equipment_explanation=suggestion.get("explanation", ""),
+                        **setup_updates,
                     )
                 )
             )

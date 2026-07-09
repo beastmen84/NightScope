@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.0`.
+Versione corrente: `1.13.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -607,6 +607,13 @@ resta invariato, non viene aggiunto un path Equipment NSOM runtime e non viene
 esposto alcun campo QML. Il prossimo step backend consigliato e' un DTO/read-model
 presenter Equipment runtime-neutral che preservi payload e comportamento
 correnti.
+Lo step `1.13.1` introduce quel boundary in
+`astro_viewer/app/services/equipment_setup_read_model.py`: il runtime continua a
+usare `EquipmentService.suggest_for_profile(...)`, ma `AppController` proietta il
+payload attraverso un read-model immutabile prima di aggiornare i campi
+`CelestialObject` gia' esistenti. Il payload QML resta invariato, non vengono
+aggiunti campi NSOM alla UI e il prossimo lavoro consigliato e' una review dei
+componenti dello score/setup Equipment prima di qualunque replacement.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

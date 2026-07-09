@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.13.1 - 2026-07-09
+
+- Introdotto il boundary runtime-neutral
+  `astro_viewer/app/services/equipment_setup_read_model.py` per separare il
+  payload setup prodotto da `EquipmentService` dalla projection verso
+  `CelestialObject`.
+- `AppController._apply_equipment(...)` continua a chiamare
+  `EquipmentService.suggest_for_profile(...)`, ma ora passa dal read-model
+  immutabile prima di copiare `recommended_setup`, `setupOptions`,
+  `difficulty`, `barlow` ed explanation nei target display.
+- Il read-model preserva il payload EquipmentService, supporta fallback senza
+  inventare chiavi, resta JSON strict-compatible e non espone campi NSOM/QML.
+- Aggiornati gli audit Equipment/backend/legacy: Equipment passa a
+  `equipment_setup_read_model_boundary_introduced`; il replacement dello score
+  Equipment resta rinviato a una review di ownership dei componenti di setup.
+- Nessun cambio a ranking Equipment, selection score, Planner, Home, Best
+  Object, Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete
+  o scritture runtime.
+
 ## NightScope 1.13.0 - 2026-07-09
 
 - Aggiunto `docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md`, audit

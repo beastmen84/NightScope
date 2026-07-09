@@ -1266,6 +1266,19 @@ runtime Equipment ranking, Planner/Home/Best Object/Sky Compass path, logging,
 network call or runtime write is introduced. The next NSOM-safe backend step is
 a runtime-neutral Equipment setup read-model/presenter DTO.
 
+Implementation note for 1.13.1:
+`EquipmentSetupReadModel` and `EquipmentSetupReadModelBuilder` introduce the
+runtime-neutral Equipment setup boundary. The runtime still asks
+`EquipmentService.suggest_for_profile(...)` for the concrete setup
+recommendation; the new read-model preserves that payload and projects only the
+existing `CelestialObject` fields consumed by Home/Object Detail. This makes
+presentation ownership explicit without moving setup scoring into
+`ObserverCapability` or `Q_target`. No `ObservableTargetValue`,
+`PracticalTargetValue`, `SessionViability`, `RecommendationConfidence`, QML
+payload field, Planner/Home/Best Object/Sky Compass ranking or runtime write is
+changed. Future Equipment work should audit setup-score ownership before any
+replacement path.
+
 Examples:
 
 - binocular-only profile;
