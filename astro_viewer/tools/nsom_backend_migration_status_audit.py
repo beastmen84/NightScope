@@ -15,6 +15,9 @@ from astro_viewer.tools.equipment_nsom_policy_readiness import generate_policy_r
 from astro_viewer.tools.equipment_presenter_contract_audit import (
     generate_equipment_presenter_contract_audit_data,
 )
+from astro_viewer.tools.equipment_setup_score_ownership_audit import (
+    generate_equipment_setup_score_ownership_audit_data,
+)
 from astro_viewer.tools.observation_conditions_read_model_audit import (
     generate_observation_conditions_read_model_audit_data,
 )
@@ -42,6 +45,7 @@ SOURCE_REPORTS = (
     Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
     Path("docs/EQUIPMENT_NSOM_POLICY_READINESS.md"),
     Path("docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md"),
+    Path("docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -65,10 +69,12 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     observation_conditions_reroute_audit = generate_observation_conditions_consumer_reroute_audit_data()
     equipment_policy = generate_policy_readiness_data()
     equipment_presenter_contract = generate_equipment_presenter_contract_audit_data()
+    equipment_score_ownership = generate_equipment_setup_score_ownership_audit_data()
     remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(
         observation_conditions_audit,
         observation_conditions_reroute_audit,
         equipment_presenter_contract,
+        equipment_score_ownership,
     )
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
@@ -79,6 +85,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
         documentation,
         equipment_policy,
         equipment_presenter_contract,
+        equipment_score_ownership,
     )
     blockers = _blockers(checks)
 
@@ -109,8 +116,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.1, then audit EquipmentService setup-score ownership "
-                "before any scoring replacement"
+                "Review 1.13.2, then extract an Equipment setup-score component "
+                "read-model if runtime parity can be preserved"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -126,8 +133,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "physics plus display/live geometry, closing the "
                 "ObservationConditions consumer reroute series. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "plus a setup read-model/presenter boundary; runtime setup "
-                "recommendations remain unchanged."
+                "plus a setup read-model/presenter boundary and score ownership "
+                "audit; runtime setup recommendations remain unchanged."
             ),
         },
         "blockers": blockers,
@@ -136,6 +143,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
         "documentation_state": documentation,
         "equipment_policy": equipment_policy["readiness"],
         "equipment_presenter_contract": equipment_presenter_contract["readiness"],
+        "equipment_score_ownership": equipment_score_ownership["readiness"],
         "notification_audit": notification_audit["notification_surface"],
         "observation_conditions_audit": observation_conditions_audit["readiness"],
         "observation_conditions_consumer_reroute_audit": observation_conditions_reroute_audit["readiness"],
@@ -399,27 +407,27 @@ def _remaining_legacy_or_hybrid_surfaces(
     observation_conditions_audit: dict[str, object],
     observation_conditions_reroute_audit: dict[str, object],
     equipment_presenter_contract: dict[str, object],
+    equipment_score_ownership: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     observation_readiness = observation_conditions_audit["readiness"]
     reroute_readiness = observation_conditions_reroute_audit["readiness"]
-    equipment_contract_readiness = equipment_presenter_contract["readiness"]
+    equipment_score_readiness = equipment_score_ownership["readiness"]
     return (
         {
             "area": "Equipment recommendations",
-            "status": equipment_contract_readiness["verdict"],
+            "status": equipment_score_readiness["verdict"],
             "why_it_remains": (
                 "`EquipmentService` still ranks eyepiece/Barlow/binocular candidates "
                 "with its own practical configuration score. "
                 "`observer_capability_adapter.py` now provides shared "
                 "ObserverCapability/Q_target projection, and "
-                "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
-                "payload/read-model boundary now used by AppController before any "
-                "scoring replacement."
+                "`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the "
+                "current score components and confirms they still need a parity "
+                "component boundary before replacement."
             ),
             "recommended_handling": (
-                "Review the 1.13.1 read-model boundary, then audit setup-score "
-                "ownership for seeing, sky quality, target traits, fallback states "
-                "and presentation-local selectionScore."
+                "Review the 1.13.2 ownership audit, then extract a runtime-neutral "
+                "setup-score component read-model if parity can be preserved."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -474,6 +482,7 @@ def _checks(
     documentation: dict[str, object],
     equipment_policy: dict[str, object],
     equipment_presenter_contract: dict[str, object],
+    equipment_score_ownership: dict[str, object],
 ) -> dict[str, object]:
     return {
         "all_default_flags_enabled": all(surface["default_flag_enabled"] is True for surface in default_on_surfaces),
@@ -506,6 +515,14 @@ def _checks(
             "runtime_replacement_ready"
         ]
         is False,
+        "equipment_score_ownership_audited": equipment_score_ownership["readiness"][
+            "verdict"
+        ]
+        == "equipment_setup_score_ownership_audited",
+        "equipment_score_component_boundary_recommended": equipment_score_ownership["readiness"][
+            "score_component_boundary_recommended"
+        ]
+        is True,
         "source_reports_present": all(documentation["source_reports_present"]),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
@@ -525,6 +542,8 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "equipment_presenter_contract_audited": "equipment-presenter-contract-not-audited",
         "equipment_setup_read_model_boundary_present": "equipment-setup-read-model-boundary-missing",
         "equipment_runtime_replacement_deferred": "equipment-runtime-replacement-not-deferred",
+        "equipment_score_ownership_audited": "equipment-score-ownership-not-audited",
+        "equipment_score_component_boundary_recommended": "equipment-score-component-boundary-not-recommended",
         "runtime_report_imports_absent": "nsom-audit-runtime-wiring",
         "qml_exposure_absent": "nsom-audit-qml-exposure",
         "runtime_behaviour_unchanged_by_audit": "nsom-audit-runtime-change",
@@ -692,6 +711,17 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Audit EquipmentService setup-score components before any scoring "
                 "replacement or default-off path."
+            ),
+        },
+        {
+            "step": "Review 1.13.2",
+            "summary": "Confirm the setup-score ownership audit before extracting components.",
+        },
+        {
+            "step": "1.13.3 Equipment setup-score component boundary",
+            "summary": (
+                "Extract a runtime-neutral setup-score component read-model with "
+                "strict parity tests."
             ),
         },
     )

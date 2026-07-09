@@ -745,6 +745,17 @@ payloads, `selectionScore`, setup type and explanation semantics without adding
 QML fields or NSOM UI exposure. Equipment scoring replacement remains deferred
 until a setup-score ownership audit separates target traits, seeing, sky
 quality, fallback states and presentation-local selection score.
+`1.13.2` adds that developer-only setup-score ownership audit in
+`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md`. The audit maps the real
+`EquipmentService._configuration_score` components (`angular_scale`,
+`magnification`, `exit_pupil`, `light_gathering`, `seeing_compatibility` and
+`handling`) to NSOM ownership boundaries and confirms that the scalar setup
+score mixes target traits, observer setup, sky quality, seeing and
+presentation-local practicality. It is not a direct `ObservableTargetValue`,
+`PracticalTargetValue`, `Q_target` or `RecommendationConfidence` replacement.
+No Equipment recommendation, ranking, QML, logging, network or runtime
+file-write behaviour changes; the next safe step is a component read-model with
+strict parity tests.
 
 ## Dependency Flow
 

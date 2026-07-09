@@ -47,6 +47,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md",
             "docs/EQUIPMENT_NSOM_POLICY_READINESS.md",
             "docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md",
+            "docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md",
         ],
     }
 
@@ -87,7 +88,7 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "ObservationConditions prepared-object cache",
         "Catalogue / raw object score",
     }
-    assert remaining["Equipment recommendations"]["status"] == "equipment_setup_read_model_boundary_introduced"
+    assert remaining["Equipment recommendations"]["status"] == "equipment_setup_score_ownership_audited"
     assert remaining["ObservationConditions prepared-object cache"]["status"] == (
         "observation_conditions_consumer_reroute_closed"
     )
@@ -102,7 +103,7 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "observation_conditions_consumer_reroute_closed"
     )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
-    assert "setup-score ownership" in remaining["Equipment recommendations"]["recommended_handling"]
+    assert "setup-score component read-model" in remaining["Equipment recommendations"]["recommended_handling"]
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
@@ -113,8 +114,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.1, then audit EquipmentService setup-score ownership "
-        "before any scoring replacement"
+        "Review 1.13.2, then extract an Equipment setup-score component "
+        "read-model if runtime parity can be preserved"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -122,11 +123,15 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["equipment_presenter_contract"]["presenter_contract_audited"] is True
     assert data["equipment_presenter_contract"]["runtime_read_model_boundary_present"] is True
     assert data["equipment_presenter_contract"]["runtime_replacement_ready"] is False
+    assert data["equipment_score_ownership"]["verdict"] == "equipment_setup_score_ownership_audited"
+    assert data["equipment_score_ownership"]["score_component_boundary_recommended"] is True
     assert data["checks"]["equipment_policy_ready_for_adapter_step"] is True
     assert data["checks"]["equipment_observer_adapter_extracted"] is True
     assert data["checks"]["equipment_presenter_contract_audited"] is True
     assert data["checks"]["equipment_setup_read_model_boundary_present"] is True
     assert data["checks"]["equipment_runtime_replacement_deferred"] is True
+    assert data["checks"]["equipment_score_ownership_audited"] is True
+    assert data["checks"]["equipment_score_component_boundary_recommended"] is True
     assert sequence[:3] == [
         "Review 1.9.7",
         "Review 1.10.6",
@@ -162,6 +167,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[30] == "1.13.1 Equipment setup read-model boundary"
     assert sequence[31] == "Review 1.13.1"
     assert sequence[32] == "1.13.2 Equipment setup score ownership audit"
+    assert sequence[33] == "Review 1.13.2"
+    assert sequence[34] == "1.13.3 Equipment setup-score component boundary"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -190,6 +197,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "backend_nsom_default_on_surfaces_closed" in text
     assert "ObservationConditions Audit" in text
     assert "observation_conditions_consumer_reroute_closed" in text
-    assert "equipment_setup_read_model_boundary_introduced" in text
+    assert "equipment_setup_score_ownership_audited" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -12,7 +12,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 - ObserverCapability adapter extracted: `True`.
 - Runtime behaviour changed by this review: `False`.
 - Explicit legacy default: EquipmentService.suggest_for_profile(...) remains unchanged.
-- Recommended next change: Review the 1.13.1 Equipment setup read-model boundary, then audit EquipmentService setup-score ownership before any scoring replacement.
+- Recommended next change: Review the 1.13.2 Equipment setup-score ownership audit, then extract a component read-model only with strict parity tests.
 - Reason: EquipmentService is still the concrete setup presenter and fallback owner. The comparison is sufficient to extract ObserverCapability/Q_target, but a default-off runtime replacement should wait for payload and environment boundaries.
 
 ## Default-Off Runtime Replacement Blockers
@@ -94,4 +94,4 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 
 ## Recommended Next Step
 
-Review the `1.13.1` Equipment setup read-model boundary for output parity. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender until setup-score ownership is audited.
+Review the `1.13.2` Equipment setup-score ownership audit. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender until a component boundary has strict parity tests.

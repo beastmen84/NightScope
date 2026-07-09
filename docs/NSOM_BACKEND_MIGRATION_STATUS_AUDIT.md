@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.13.1, then audit EquipmentService setup-score ownership before any scoring replacement.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary; runtime setup recommendations remain unchanged.
+- Recommended next step: Review 1.13.2, then extract an Equipment setup-score component read-model if runtime parity can be preserved.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary and score ownership audit; runtime setup recommendations remain unchanged.
 
 ## Audit Blockers
 
@@ -33,7 +33,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `equipment_setup_read_model_boundary_introduced` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection, and `docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the payload/read-model boundary now used by AppController before any scoring replacement. | Review the 1.13.1 read-model boundary, then audit setup-score ownership for seeing, sky quality, target traits, fallback states and presentation-local selectionScore. |
+| Equipment recommendations | `equipment_setup_score_ownership_audited` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection, and `docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the current score components and confirms they still need a parity component boundary before replacement. | Review the 1.13.2 ownership audit, then extract a runtime-neutral setup-score component read-model if parity can be preserved. |
 | ObservationConditions prepared-object cache | `observation_conditions_consumer_reroute_closed` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.6 boundary preserves raw and display target fields separately, the 1.12.7 audit defines how consumers should reroute to raw inputs, and the 1.12.8 runtime step applies that policy to Home recommendedDeepSky. The 1.12.9 runtime step applies the same raw-score/display-payload split to Best Object. The 1.12.10 policy defines the remaining Sky Compass split, and the 1.12.11 runtime step implements it. The 1.12.12 closeout records the consumer reroute series as complete. | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
@@ -62,8 +62,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.13.1` |
-| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
+| `version` | `1.13.2` |
+| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
 
@@ -115,6 +115,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `1.13.1 Equipment setup read-model boundary`: Extract a runtime-neutral setup presentation DTO/read-model while preserving current EquipmentService output.
 - `Review 1.13.1`: Confirm the Equipment setup read-model boundary preserves runtime output.
 - `1.13.2 Equipment setup score ownership audit`: Audit EquipmentService setup-score components before any scoring replacement or default-off path.
+- `Review 1.13.2`: Confirm the setup-score ownership audit before extracting components.
+- `1.13.3 Equipment setup-score component boundary`: Extract a runtime-neutral setup-score component read-model with strict parity tests.
 
 ## Conclusion
 

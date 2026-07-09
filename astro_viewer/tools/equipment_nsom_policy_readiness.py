@@ -58,8 +58,8 @@ def generate_policy_readiness_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_review": False,
             "explicit_legacy_default": "EquipmentService.suggest_for_profile(...) remains unchanged",
             "recommended_next_change": (
-                "Review the 1.13.1 Equipment setup read-model boundary, then audit "
-                "EquipmentService setup-score ownership before any scoring replacement."
+                "Review the 1.13.2 Equipment setup-score ownership audit, then "
+                "extract a component read-model only with strict parity tests."
             ),
             "reason": _readiness_reason(ready_for_default_off),
         },
@@ -202,9 +202,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review the `1.13.1` Equipment setup read-model boundary for output "
-                "parity. Keep `EquipmentService.suggest_for_profile(...)` as the "
-                "runtime setup recommender until setup-score ownership is audited."
+                "Review the `1.13.2` Equipment setup-score ownership audit. Keep "
+                "`EquipmentService.suggest_for_profile(...)` as the runtime setup "
+                "recommender until a component boundary has strict parity tests."
             ),
             "",
         ]

@@ -188,8 +188,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Steps",
             "",
             "1. Review the shared ObserverCapability/Q_target adapter extraction.",
-            "2. Review the 1.13.1 setup read-model boundary for output parity.",
-            "3. Audit EquipmentService setup-score ownership before any scoring replacement.",
+            "2. Review the 1.13.2 setup-score ownership audit.",
+            "3. Extract a setup-score component read-model only with strict parity tests.",
             "",
         ]
     )

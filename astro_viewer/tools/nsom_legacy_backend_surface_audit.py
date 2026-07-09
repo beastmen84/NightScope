@@ -21,6 +21,9 @@ from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifica
 from astro_viewer.tools.equipment_presenter_contract_audit import (
     generate_equipment_presenter_contract_audit_data,
 )
+from astro_viewer.tools.equipment_setup_score_ownership_audit import (
+    generate_equipment_setup_score_ownership_audit_data,
+)
 
 
 REPORT_PATH = Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md")
@@ -52,12 +55,14 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     observation_conditions_state = generate_observation_conditions_read_model_audit_data()["readiness"]
     observation_conditions_reroute_state = generate_observation_conditions_consumer_reroute_audit_data()["readiness"]
     equipment_presenter_contract_state = generate_equipment_presenter_contract_audit_data()["readiness"]
+    equipment_score_ownership_state = generate_equipment_setup_score_ownership_audit_data()["readiness"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
     active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(
         observation_conditions_state,
         observation_conditions_reroute_state,
         equipment_presenter_contract_state,
+        equipment_score_ownership_state,
     )
     static_checks = _static_checks(root)
 
@@ -82,8 +87,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review 1.13.1, then audit EquipmentService setup-score ownership "
-                "before any scoring replacement."
+                "Review 1.13.2, then extract an Equipment setup-score component "
+                "read-model if runtime parity can be preserved."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -101,7 +106,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "returning display targets. Sky Compass now uses a raw-target/"
                 "display-live-geometry split adapter. The ObservationConditions "
                 "consumer reroute series is closed. Equipment now has a setup "
-                "read-model boundary but still uses the existing runtime helper."
+                "read-model boundary and score ownership audit but still uses the "
+                "existing runtime helper."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -306,6 +312,17 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "replacement or default-off path."
             ),
         },
+        {
+            "step": "Review 1.13.2",
+            "summary": "Confirm the setup-score ownership audit before extracting components.",
+        },
+        {
+            "step": "1.13.3 Equipment setup-score component boundary",
+            "summary": (
+                "Extract a runtime-neutral setup-score component read-model with "
+                "strict parity tests."
+            ),
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -471,9 +488,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "is active hybrid runtime code with a read-model boundary and a "
                 "closed consumer reroute; it remains active compatibility code. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "and a setup read-model boundary while runtime setup recommendations "
-                "remain unchanged. Temporary rollback cleanup remains a separate "
-                "policy decision."
+                "plus a setup read-model boundary and score ownership audit while "
+                "runtime setup recommendations remain unchanged. Temporary rollback "
+                "cleanup remains a separate policy decision."
             ),
             "",
         ]
@@ -614,6 +631,7 @@ def _active_legacy_or_hybrid_surfaces(
     observation_conditions_state: dict[str, object],
     observation_conditions_reroute_state: dict[str, object],
     equipment_presenter_contract_state: dict[str, object],
+    equipment_score_ownership_state: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     return (
         {
@@ -623,14 +641,14 @@ def _active_legacy_or_hybrid_surfaces(
                 "`EquipmentService` still computes practical setup recommendations; "
                 "`observer_capability_adapter.py` now provides shared "
                 "ObserverCapability/Q_target projection while "
-                "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
-                "setup payload/read-model contract now used before runtime replacement. "
-                f"Contract status: `{equipment_presenter_contract_state['verdict']}`."
+                "`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` classifies the "
+                "setup score components before runtime replacement. "
+                f"Contract status: `{equipment_presenter_contract_state['verdict']}`. "
+                f"Score ownership status: `{equipment_score_ownership_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.13.1 read-model boundary, then audit setup-score "
-                "ownership for seeing, sky quality, target traits, fallback states "
-                "and presentation-local selectionScore."
+                "Review the 1.13.2 ownership audit, then extract a runtime-neutral "
+                "setup-score component read-model if parity can be preserved."
             ),
         },
         {

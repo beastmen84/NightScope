@@ -1279,6 +1279,18 @@ payload field, Planner/Home/Best Object/Sky Compass ranking or runtime write is
 changed. Future Equipment work should audit setup-score ownership before any
 replacement path.
 
+Implementation note for 1.13.2:
+`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md` records the ownership audit for
+the real `EquipmentService._configuration_score` formula. The audit treats
+`angular_scale`, `magnification`, `exit_pupil`, `light_gathering`,
+`seeing_compatibility` and `handling` as setup-score components, not as a
+drop-in NSOM scalar. It confirms that the current Equipment score mixes target
+traits, observer configuration, sky quality, seeing and presentation-local
+practicality, so it cannot be replaced directly by `ObservableTargetValue`,
+`PracticalTargetValue`, `Q_target` or `RecommendationConfidence`. No runtime
+ranking, payload, QML, logging, network call or runtime write is changed; the
+next safe Equipment step is a component read-model with strict parity tests.
+
 Examples:
 
 - binocular-only profile;

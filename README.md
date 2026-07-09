@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.1`.
+Versione corrente: `1.13.2`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -614,6 +614,16 @@ payload attraverso un read-model immutabile prima di aggiornare i campi
 `CelestialObject` gia' esistenti. Il payload QML resta invariato, non vengono
 aggiunti campi NSOM alla UI e il prossimo lavoro consigliato e' una review dei
 componenti dello score/setup Equipment prima di qualunque replacement.
+Lo step `1.13.2` aggiunge
+`docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md`, audit developer-only della
+formula reale `EquipmentService._configuration_score`. L'audit classifica
+`angular_scale`, `magnification`, `exit_pupil`, `light_gathering`,
+`seeing_compatibility` e `handling` per ownership NSOM e conferma che lo score
+Equipment miscela target traits, setup osservatore, sky quality, seeing e
+praticita' di presentazione. Non e' `ObservableTargetValue`,
+`PracticalTargetValue`, `Q_target` o `RecommendationConfidence`; il prossimo
+step consigliato e' estrarre un read-model dei componenti dello score con parity
+test stretti, senza cambiare il ranking runtime.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

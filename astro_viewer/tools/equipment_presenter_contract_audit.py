@@ -112,8 +112,8 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
             "default_off_equipment_path_recommended_now": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.1, then audit EquipmentService setup-score ownership "
-                "before any scoring replacement."
+                "Review 1.13.2, then extract an Equipment setup-score component "
+                "read-model if runtime parity can be preserved."
             ),
             "reason": (
                 "Equipment is an active setup-presentation helper. The existing "
@@ -136,18 +136,17 @@ def generate_equipment_presenter_contract_audit_data() -> dict[str, object]:
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
             {
-                "step": "Review 1.13.1",
+                "step": "Review 1.13.2",
                 "summary": (
-                    "Confirm the Equipment setup read-model boundary preserves "
-                    "runtime output and QML payload shape."
+                    "Confirm the Equipment setup-score ownership audit before "
+                    "extracting components."
                 ),
             },
             {
-                "step": "1.13.2 Equipment setup score ownership audit",
+                "step": "1.13.3 Equipment setup-score component boundary",
                 "summary": (
-                    "Separate setup score components, sky/seeing inputs and "
-                    "presentation-owned fallback semantics before any scoring "
-                    "replacement."
+                    "Extract a runtime-neutral setup-score component read-model "
+                    "with strict parity tests."
                 ),
             },
         ),

@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.13.2 - 2026-07-09
+
+- Aggiunto `docs/EQUIPMENT_SETUP_SCORE_OWNERSHIP_AUDIT.md`, audit
+  developer-only della formula reale
+  `EquipmentService._configuration_score`.
+- L'audit classifica i componenti `angular_scale`, `magnification`,
+  `exit_pupil`, `light_gathering`, `seeing_compatibility` e `handling` per
+  ownership NSOM e policy di replacement.
+- Confermato che lo score Equipment miscela target traits, configurazione
+  osservatore, sky quality, seeing e praticita' di setup in uno score locale;
+  non e' `ObservableTargetValue`, `PracticalTargetValue`, `Q_target` o
+  `RecommendationConfidence`.
+- Aggiornati gli audit backend/legacy: Equipment passa a
+  `equipment_setup_score_ownership_audited`; il prossimo step consigliato e'
+  un read-model dei componenti dello score con parity test stretti.
+- Nessun cambio a scoring Equipment, ranking, selection score, Planner, Home,
+  Best Object, Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging,
+  rete o scritture runtime.
+
 ## NightScope 1.13.1 - 2026-07-09
 
 - Introdotto il boundary runtime-neutral
