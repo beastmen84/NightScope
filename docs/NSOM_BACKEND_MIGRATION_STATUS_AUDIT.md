@@ -62,7 +62,7 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.14.2` |
+| `version` | `1.14.3` |
 | `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |

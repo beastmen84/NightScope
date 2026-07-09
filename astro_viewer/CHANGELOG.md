@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.3 - 2026-07-09
+
+- Aggiunto il path sperimentale/default-off per usare la geometria lunare nel
+  Planner NSOM.
+- `PlannerNsomScoringService` accetta `MoonGeometryConditionInput` e, solo con
+  `experimental_moon_geometry_scoring=True`, usa il fattore geometrico nel
+  componente Sky `ObservationEnvironment.lunar_sky_background`.
+- `NightPlannerService` puo' ricevere una mappa opzionale
+  `moon_geometry_by_object_id`; `AppController` la costruisce solo se il
+  servizio Planner dichiara il flag attivo, quindi il runtime default non
+  aggiunge calcoli lunari al planning normale.
+- Pianeti e Luna restano protetti dai danni di background lunare tramite i
+  profili NSOM esistenti; `RecommendationConfidence` resta metadata e non entra
+  nello score.
+- Aggiornato `docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md` per distinguere
+  diagnostica runtime disponibile, path Planner sperimentale e default runtime
+  invariato.
+
 ## NightScope 1.14.2 - 2026-07-09
 
 - Aggiunta `MoonGeometrySummary`, DTO runtime locale per diagnostica Luna-target:

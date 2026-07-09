@@ -1952,6 +1952,12 @@ class AppController(QObject):
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
         self._best_object = self._select_best_object(planning_objects)
+        planner_moon_geometry = self._planner_moon_geometry_inputs(planning_objects)
+        planner_kwargs = (
+            {"moon_geometry_by_object_id": planner_moon_geometry}
+            if planner_moon_geometry is not None
+            else {}
+        )
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
@@ -1959,9 +1965,23 @@ class AppController(QObject):
             self._sky_quality,
             self._current_telescope(),
             self._moon,
+            **planner_kwargs,
         )
         self._refresh_sky_compass()
         self._refresh_nsom_diagnostics()
+
+    def _planner_moon_geometry_inputs(
+        self,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometryConditionInput] | None:
+        if not getattr(self._night_planner_service, "uses_moon_geometry_scoring", False):
+            return None
+        geometry_by_id: dict[str, MoonGeometryConditionInput] = {}
+        for target in targets:
+            geometry = self._moon_geometry_condition_input(target)
+            if geometry is not None:
+                geometry_by_id[target.id] = geometry
+        return geometry_by_id
 
     def _select_advanced_observing_scores(self) -> AdvancedObservingScores:
         return self._advanced_observing_service.scores(

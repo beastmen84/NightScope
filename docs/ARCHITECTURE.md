@@ -846,6 +846,14 @@ location, local time and ephemeris data, then adapted by `AppController` into
 breakdowns. This remains score-neutral: Planner, Home, Best Object, Advanced
 Observing, Sky Compass, Detail/Object, Equipment and QML keep their existing
 runtime behaviour, and no report tooling is wired into runtime.
+`1.14.3` adds the first default-off Planner use of that input. When
+`PlannerNsomScoringService` is constructed with
+`ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)`,
+`MoonGeometryConditionInput` modifies only the Sky-owned
+`ObservationEnvironment.lunar_sky_background` component. `AppController`
+builds the per-target Moon-geometry map only when the Planner service advertises
+that flag, so the default runtime path remains unchanged and no QML/UI exposure
+is added.
 
 ## Dependency Flow
 

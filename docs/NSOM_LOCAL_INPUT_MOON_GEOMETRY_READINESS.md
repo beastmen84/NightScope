@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit separates NightScope input sources into local always-available astronomy, local optional equipment and external optional providers. It confirms that Moon geometry is now available as a score-neutral runtime diagnostic computed from the active location and local astronomy engine without network, weather, VIIRS, AOD or OpenAQ. No runtime scoring, ranking, QML, logging, network or runtime file-write behaviour changes.
+This developer-only audit separates NightScope input sources into local always-available astronomy, local optional equipment and external optional providers. It confirms that Moon geometry is available as a runtime diagnostic and as a default-off Planner NSOM scoring input computed from the active location and local astronomy engine without network, weather, VIIRS, AOD or OpenAQ. No default runtime scoring, ranking, QML, logging, network or runtime file-write behaviour changes.
 
 ## Verdict
 
@@ -10,12 +10,13 @@ This developer-only audit separates NightScope input sources into local always-a
 - Moon geometry scoring enabled now: `False`.
 - Moon geometry ready for local implementation: `True`.
 - Moon geometry runtime diagnostics available: `True`.
+- Moon geometry Planner scoring path available: `True`.
 - First scoring candidate: `moon_geometry_behind_experimental_flag`.
 - Requires provider before next step: `False`.
 - Blocks current default-on surfaces: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the score-neutral Moon geometry diagnostics, then wire Moon geometry into ObservationEnvironment behind experimental_moon_geometry_scoring before any AOD/OpenAQ scoring work.
-- Reason: Location plus local ephemeris data now computes Moon altitude, Moon-target separation and window overlap without weather, VIIRS, AOD or OpenAQ. Current runtime scoring still uses Moon illumination only; geometry is exported as score-neutral diagnostic metadata and future scoring input.
+- Recommended next step: Review the default-off Planner Moon geometry scoring path, then run calibration fixtures before any default-on Moon geometry or AOD/OpenAQ scoring work.
+- Reason: Location plus local ephemeris data now computes Moon altitude, Moon-target separation and window overlap without weather, VIIRS, AOD or OpenAQ. Current default runtime scoring still uses Moon illumination only; the experimental Planner path can apply geometry to ObservationEnvironment.lunar_sky_background when experimental_moon_geometry_scoring is enabled.
 
 ## Data Source Taxonomy
 
@@ -36,17 +37,17 @@ This developer-only audit separates NightScope input sources into local always-a
 | `moon_phase` | `active_current` | MoonSummary.phase | already available | display and Moon context |
 | `moon_illumination` | `active_current` | MoonSummary.illumination | already available | active lunar_sky_background / existing Moon adjustment input |
 | `moon_phase_angle` | `active_current` | MoonSummary.phase_angle | already available | display/context only |
-| `moon_altitude_deg` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary | implemented from sampled Moon altitude and local ephemeris | score-neutral diagnostic/future factor; current score effect 0.0 |
-| `moon_target_separation_deg` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary | implemented as angular Moon-target separation at bounded window samples | score-neutral diagnostic/future factor; current score effect 0.0 |
-| `moon_above_horizon` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; derived from sampled altitude | implemented from Moon altitude samples, not from display strings | score-neutral diagnostic/future factor; current score effect 0.0 |
-| `moon_visible_during_target_window` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput | implemented by comparing Moon samples with target window samples | score-neutral diagnostic/future factor; current score effect 0.0 |
-| `moon_set_before_target_window` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput | implemented from sampled Moon geometry relative to target window | score-neutral diagnostic/future factor; current score effect 0.0 |
+| `moon_altitude_deg` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary | implemented from sampled Moon altitude and local ephemeris | default score-neutral; Planner flag can use it through lunar_sky_background |
+| `moon_target_separation_deg` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary | implemented as angular Moon-target separation at bounded window samples | default score-neutral; Planner flag can use it through lunar_sky_background |
+| `moon_above_horizon` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput; derived from sampled altitude | implemented from Moon altitude samples, not from display strings | default score-neutral; Planner flag can use it through lunar_sky_background |
+| `moon_visible_during_target_window` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput | implemented by comparing Moon samples with target window samples | default score-neutral; Planner flag can use it through lunar_sky_background |
+| `moon_set_before_target_window` | `runtime_score_neutral_geometry_input` | MoonGeometrySummary -> MoonGeometryConditionInput | implemented from sampled Moon geometry relative to target window | default score-neutral; Planner flag can use it through lunar_sky_background |
 
 ## Current Moon Consumers
 
 | Consumer | Current Moon input | Geometry input | Score status | Notes |
 | --- | --- | --- | --- | --- |
-| Planner NSOM | MoonSummary.illumination | diagnostic export only | active illumination-based lunar_sky_background | Moon altitude and separation are not part of ObservationOpportunity scoring yet. |
+| Planner NSOM | MoonSummary.illumination | default-off experimental scoring input | default active illumination-only lunar_sky_background; flag can apply geometry | Moon altitude and separation affect only ObservationEnvironment.lunar_sky_background when experimental_moon_geometry_scoring is enabled. |
 | Home recommendedDeepSky NSOM | MoonSummary.illumination | diagnostic export only | active illumination-based ObservableTargetValue background | Home intentionally excludes session/weather/equipment from ObservableTargetValue. |
 | Best Object NSOM | MoonSummary.illumination through Home observable adapter | diagnostic export only | active through ObservableTargetValue and Opportunity | SessionViability remains separate from target and sky physics. |
 | Sky Compass NSOM | MoonSummary.illumination through Home observable adapter | diagnostic export only | active as candidate base only | Direction policy remains presentation/context outside target physics. |
@@ -69,6 +70,10 @@ This developer-only audit separates NightScope input sources into local always-a
 | `first_consumer` | `Planner before Home` |
 | `sampling_policy` | `bounded start/mid/best/end samples` |
 | `confidence_policy` | `RecommendationConfidence metadata only` |
+| `planner_scoring_flag` | `experimental_moon_geometry_scoring` |
+| `planner_scoring_default` | `False` |
+| `moon_geometry_planner_scoring_path_available` | `True` |
+| `planner_scoring_owner` | `Sky / ObservationEnvironment.lunar_sky_background` |
 | `current_geometry_factor_example` | `0.65` |
 | `current_modifier_with_flag_off` | `0.0` |
 | `current_modifier_with_flag_on` | `0.0` |
@@ -105,6 +110,7 @@ This developer-only audit separates NightScope input sources into local always-a
 | `moon_geometry_absent_from_moon_summary` | `True` |
 | `moon_geometry_requires_no_provider` | `True` |
 | `moon_geometry_modifier_still_neutral` | `True` |
+| `moon_geometry_planner_scoring_path_available` | `True` |
 | `source_markers_all_found` | `True` |
 | `runtime_report_imports_absent` | `True` |
 | `qml_report_exposure_absent` | `True` |
@@ -121,9 +127,10 @@ This developer-only audit separates NightScope input sources into local always-a
 - `Review 1.14.1`: Confirm the source taxonomy and Moon geometry readiness before adding runtime calculations.
 - `1.14.2 Moon geometry diagnostics runtime`: Computed Moon altitude, Moon-target separation and Moon/window overlap from local astronomy samples; still score-neutral.
 - `Review 1.14.2`: Confirm runtime Moon geometry diagnostics are physically sane, score-neutral and not wired into QML/runtime reports.
-- `1.14.3 Moon geometry scoring behind flag`: Use the diagnostics in ObservationEnvironment behind experimental_moon_geometry_scoring, Planner first.
+- `1.14.3 Moon geometry scoring behind flag`: Use the diagnostics in Planner ObservationEnvironment behind experimental_moon_geometry_scoring; keep the flag default-off.
+- `Review 1.14.3`: Confirm default-off runtime behaviour, ownership boundaries and calibration risk before any Moon geometry default-on work.
 - `AOD/OpenAQ scoring readiness`: Only after Moon geometry, audit freshness, QA and double-counting before enabling provider-dependent aerosol scoring.
 
 ## Conclusion
 
-The backend NSOM consumer migration is closed for current recommendation surfaces, and the physical model now has score-neutral local Moon geometry diagnostics. Moon altitude and Moon-target separation are deterministic once location and time are known, so the next step is scoring behind an experimental flag before NASA AOD or OpenAQ scoring. AOD and OpenAQ remain optional provider inputs with freshness and confidence semantics.
+The backend NSOM consumer migration is closed for current recommendation surfaces, and the physical model now has local Moon geometry diagnostics plus a default-off Planner NSOM scoring path. Moon altitude and Moon-target separation are deterministic once location and time are known, so the next step is review and calibration before any default-on Moon geometry, NASA AOD or OpenAQ scoring. AOD and OpenAQ remain optional provider inputs with freshness and confidence semantics.

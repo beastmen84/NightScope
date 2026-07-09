@@ -65,6 +65,7 @@ def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
     assert data["readiness"]["moon_geometry_scoring_enabled_now"] is False
     assert data["readiness"]["moon_geometry_ready_for_local_implementation"] is True
     assert data["readiness"]["moon_geometry_runtime_diagnostics_available"] is True
+    assert data["readiness"]["moon_geometry_planner_scoring_path_available"] is True
     assert data["readiness"]["requires_provider_before_next_step"] is False
     assert data["blockers"] == []
 
@@ -92,7 +93,7 @@ def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
         assert fields[field_name]["status"] == "runtime_score_neutral_geometry_input"
         assert "MoonGeometrySummary" in fields[field_name]["source_today"]
         assert fields[field_name]["absent_from_moon_summary"] is True
-        assert "current score effect 0.0" in fields[field_name]["score_role_now"]
+        assert "Planner flag can use it" in fields[field_name]["score_role_now"]
 
 
 def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
@@ -100,10 +101,8 @@ def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
     consumers = {consumer["consumer"]: consumer for consumer in data["current_moon_consumers"]}
 
     assert consumers["Planner NSOM"]["current_moon_input"] == "MoonSummary.illumination"
-    assert consumers["Planner NSOM"]["geometry_input"] == "diagnostic export only"
-    assert consumers["Planner NSOM"]["score_status"] == (
-        "active illumination-based lunar_sky_background"
-    )
+    assert consumers["Planner NSOM"]["geometry_input"] == "default-off experimental scoring input"
+    assert "flag can apply geometry" in consumers["Planner NSOM"]["score_status"]
     assert consumers["Home recommendedDeepSky NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["Best Object NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["Sky Compass NSOM"]["geometry_input"] == "diagnostic export only"
@@ -130,6 +129,7 @@ def test_source_markers_and_safety_checks_are_clean() -> None:
     assert checks["moon_geometry_absent_from_moon_summary"] is True
     assert checks["moon_geometry_requires_no_provider"] is True
     assert checks["moon_geometry_modifier_still_neutral"] is True
+    assert checks["moon_geometry_planner_scoring_path_available"] is True
     assert checks["runtime_report_imports_absent"] is True
     assert checks["qml_report_exposure_absent"] is True
     assert checks["no_scoring_change"] is True

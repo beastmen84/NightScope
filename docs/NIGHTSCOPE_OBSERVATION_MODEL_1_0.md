@@ -34,6 +34,10 @@ geometry diagnostics locally and exposes them through the internal NSOM
 diagnostic snapshot as score-neutral metadata. They do not yet modify
 ObservationEnvironment, ObservableTargetValue, ObservationOpportunity or any
 visible recommendation score.
+As of 1.14.3, Planner NSOM can consume Moon geometry behind the default-off
+`experimental_moon_geometry_scoring` flag. The only mathematical owner affected
+is Sky/`ObservationEnvironment.lunar_sky_background`; confidence remains
+metadata-only, and Home/Best Object/Sky Compass/visible QML stay unchanged.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2208,6 +2212,10 @@ A future `ObserverCapabilityService` should own:
 
 - Enable Moon geometry behind `experimental_moon_geometry_scoring`.
 - Planner first, Home later.
+- Status 1.14.3: Planner support exists behind the default-off flag. The
+  geometry factor scales Moon-illumination severity inside
+  `ObservationEnvironment.lunar_sky_background`; it does not mutate target,
+  observer, session or confidence layers.
 
 ### Step 7: Advanced score cleanup
 
@@ -2240,6 +2248,11 @@ A future `ObserverCapabilityService` should own:
   above-horizon state and target-window overlap are now computed from local
   ephemeris samples and exported in NSOM diagnostics. They remain score-neutral
   and are not consumed by Planner/Home/Best Object/Sky Compass scoring yet.
+- Status update for 1.14.3: Planner NSOM can consume those Moon geometry fields
+  behind `experimental_moon_geometry_scoring`. The flag is default-off, so
+  current runtime recommendations are unchanged; future work should review and
+  calibrate this before any default-on Moon geometry or provider-dependent
+  aerosol scoring.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

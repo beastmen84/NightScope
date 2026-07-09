@@ -575,6 +575,58 @@ def test_app_controller_builds_local_moon_geometry_diagnostic_input_score_neutra
     assert controller._astronomy_engine.calls == 1
 
 
+def test_app_controller_skips_planner_moon_geometry_inputs_when_experimental_flag_is_off() -> None:
+    controller = AppController.__new__(AppController)
+    controller._night_planner_service = _PlannerFlagService(uses_moon_geometry_scoring=False)
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    controller._moon_geometry_condition_cache = {}
+    controller._astronomy_engine = _MoonGeometryEngine(
+        MoonGeometrySummary(
+            object_id="m31",
+            moon_altitude_deg=37.0,
+            moon_target_separation_deg=18.0,
+            moon_above_horizon=True,
+            moon_visible_during_target_window=True,
+            moon_set_before_target_window=False,
+        )
+    )
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    assert controller._planner_moon_geometry_inputs([target]) is None
+    assert controller._astronomy_engine.calls == 0
+
+
+def test_app_controller_builds_planner_moon_geometry_inputs_when_experimental_flag_is_on() -> None:
+    controller = AppController.__new__(AppController)
+    controller._night_planner_service = _PlannerFlagService(uses_moon_geometry_scoring=True)
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    controller._moon_geometry_condition_cache = {}
+    controller._astronomy_engine = _MoonGeometryEngine(
+        MoonGeometrySummary(
+            object_id="m31",
+            moon_altitude_deg=37.0,
+            moon_target_separation_deg=18.0,
+            moon_above_horizon=True,
+            moon_visible_during_target_window=True,
+            moon_set_before_target_window=False,
+        )
+    )
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    geometry_by_id = controller._planner_moon_geometry_inputs([target])
+
+    assert geometry_by_id == {
+        "m31": MoonGeometryConditionInput(
+            moon_altitude_deg=37.0,
+            moon_target_separation_deg=18.0,
+            moon_above_horizon=True,
+            moon_visible_during_target_window=True,
+            moon_set_before_target_window=False,
+        )
+    }
+    assert controller._astronomy_engine.calls == 1
+
+
 def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
     controller = AppController.__new__(AppController)
     controller._moon = _moon("42%")
@@ -1408,3 +1460,8 @@ class _MoonGeometryEngine:
         del location, target
         self.calls += 1
         return self._summary
+
+
+class _PlannerFlagService:
+    def __init__(self, *, uses_moon_geometry_scoring: bool) -> None:
+        self.uses_moon_geometry_scoring = uses_moon_geometry_scoring

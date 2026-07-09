@@ -21,6 +21,11 @@ from astro_viewer.app.models.nsom import (
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    ObservationConditionFeatureFlags,
+    ObservationConditionsService,
+)
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_intrinsic_target_quality,
     build_observation_environment,
@@ -36,6 +41,17 @@ from astro_viewer.app.services.observer_capability_adapter import build_observer
 class PlannerNsomScoringService:
     """Experimental Planner adapter that ranks first-class NSOM opportunities."""
 
+    def __init__(
+        self,
+        *,
+        feature_flags: ObservationConditionFeatureFlags | None = None,
+    ) -> None:
+        self._feature_flags = feature_flags or ObservationConditionFeatureFlags()
+
+    @property
+    def uses_moon_geometry_scoring(self) -> bool:
+        return self._feature_flags.experimental_moon_geometry_scoring
+
     def opportunity(
         self,
         item: CelestialObject,
@@ -45,6 +61,7 @@ class PlannerNsomScoringService:
         sky_quality: SkyQuality,
         telescope: Telescope,
         moon: MoonSummary | None = None,
+        moon_geometry: MoonGeometryConditionInput | None = None,
         blocking_status: WeatherBlockingStatus | None = None,
         observing_window_quality: float = 1.0,
         chronology_fit: float = 1.0,
@@ -56,6 +73,7 @@ class PlannerNsomScoringService:
             sky_quality=sky_quality,
             telescope=telescope,
             moon=moon,
+            moon_geometry=moon_geometry,
         )
         return self.opportunity_from_practical_target_value(
             item,
@@ -77,8 +95,15 @@ class PlannerNsomScoringService:
         sky_quality: SkyQuality,
         telescope: Telescope,
         moon: MoonSummary | None = None,
+        moon_geometry: MoonGeometryConditionInput | None = None,
     ) -> PracticalTargetValue:
-        effective = self.effective_observability(item, scores=scores, sky_quality=sky_quality, moon=moon)
+        effective = self.effective_observability(
+            item,
+            scores=scores,
+            sky_quality=sky_quality,
+            moon=moon,
+            moon_geometry=moon_geometry,
+        )
         intrinsic = build_intrinsic_target_quality(item)
         observable = ObservableTargetValue.from_intrinsic(
             intrinsic_target_quality=intrinsic,
@@ -120,11 +145,20 @@ class PlannerNsomScoringService:
         scores: AdvancedObservingScores,
         sky_quality: SkyQuality,
         moon: MoonSummary | None = None,
+        moon_geometry: MoonGeometryConditionInput | None = None,
     ) -> EffectiveObservability:
         runtime_environment = build_observation_environment(sky_quality=sky_quality)
         target_class = target_class_from_runtime_target(item)
         category_factor = self._category_factor(item, scores)
-        moon_background = _moon_background_factor(target_class, moon)
+        moon_geometry_factor = _moon_geometry_severity_factor(
+            moon_geometry,
+            self._feature_flags,
+        )
+        moon_background = _moon_background_factor(
+            target_class,
+            moon,
+            moon_geometry_factor=moon_geometry_factor,
+        )
         sky_background = _sky_background_factor(target_class, sky_quality)
         horizon_context = _horizon_context(item)
         environment = ObservationEnvironment.from_components(
@@ -142,6 +176,9 @@ class PlannerNsomScoringService:
                 *runtime_environment.notes,
                 f"target_class={target_class.value if target_class else 'unknown'}",
                 f"moon_background_factor={moon_background:.3f}",
+                f"moon_geometry_scoring_enabled={self.uses_moon_geometry_scoring}",
+                f"moon_geometry_factor={moon_geometry_factor:.3f}",
+                f"moon_geometry_input={'available' if moon_geometry is not None else 'missing'}",
                 f"sky_background_factor={sky_background:.3f}",
                 f"advanced_score_factor={category_factor:.3f}",
                 f"horizon_context={horizon_context:.3f}",
@@ -516,7 +553,12 @@ def _profile_for_target_class(target_class: NsomTargetClass | None):
     return NSOM_TARGET_CLASS_PROFILES.get(target_class)
 
 
-def _moon_background_factor(target_class: NsomTargetClass | None, moon: MoonSummary | None) -> float:
+def _moon_background_factor(
+    target_class: NsomTargetClass | None,
+    moon: MoonSummary | None,
+    *,
+    moon_geometry_factor: float = 1.0,
+) -> float:
     profile = _profile_for_target_class(target_class)
     if moon is None or profile is None:
         return 1.0
@@ -524,8 +566,17 @@ def _moon_background_factor(target_class: NsomTargetClass | None, moon: MoonSumm
     if max_influence <= 0.0:
         return 1.0
     illumination = _unit_from_percentage_text(getattr(moon, "illumination", ""))
-    severity = _clamp_unit((illumination - 0.2) / 0.8)
+    severity = _clamp_unit(((illumination - 0.2) / 0.8) * moon_geometry_factor)
     return _clamp_unit(1.0 - (severity * max_influence))
+
+
+def _moon_geometry_severity_factor(
+    moon_geometry: MoonGeometryConditionInput | None,
+    feature_flags: ObservationConditionFeatureFlags,
+) -> float:
+    if not feature_flags.experimental_moon_geometry_scoring:
+        return 1.0
+    return max(0.0, ObservationConditionsService.intended_moon_geometry_factor(moon_geometry))
 
 
 def _sky_background_factor(target_class: NsomTargetClass | None, sky_quality: SkyQuality) -> float:

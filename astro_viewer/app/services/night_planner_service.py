@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime, timedelta
 
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
-from astro_viewer.app.services.observation_conditions_service import TargetConditionBreakdown
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    TargetConditionBreakdown,
+)
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.planner_scoring_service import (
     PlannerConditionBreakdown,
@@ -28,6 +32,10 @@ class NightPlannerService:
     ) -> None:
         self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
+    @property
+    def uses_moon_geometry_scoring(self) -> bool:
+        return bool(getattr(self._nsom_scoring_service, "uses_moon_geometry_scoring", False))
+
     def plan(
         self,
         objects: list[CelestialObject],
@@ -36,6 +44,7 @@ class NightPlannerService:
         sky_quality: SkyQuality,
         telescope: Telescope,
         moon: MoonSummary | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
@@ -51,6 +60,7 @@ class NightPlannerService:
             sky_quality=sky_quality,
             telescope=telescope,
             moon=moon,
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
             blocking_status=blocking_status,
         )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
@@ -92,6 +102,7 @@ class NightPlannerService:
         sky_quality: SkyQuality,
         telescope: Telescope,
         moon: MoonSummary | None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
         blocking_status: WeatherBlockingStatus,
     ) -> list[tuple[CelestialObject, float]]:
         opportunities = [
@@ -104,6 +115,9 @@ class NightPlannerService:
                     sky_quality=sky_quality,
                     telescope=telescope,
                     moon=moon,
+                    moon_geometry=moon_geometry_by_object_id.get(item.id)
+                    if moon_geometry_by_object_id is not None
+                    else None,
                     blocking_status=blocking_status,
                     observing_window_quality=self._observing_window_quality(item),
                     chronology_fit=self._chronology_fit(item),

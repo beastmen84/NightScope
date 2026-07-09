@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.2`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.3`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -60,6 +60,16 @@ from location, local time and ephemeris data, not from weather, VIIRS, NASA AOD,
 OpenAQ or equipment. Current recommendation scoring still uses the existing
 Moon illumination/background terms; the new geometry fields remain future NSOM
 scoring inputs with current score effect `0.0`.
+
+Planner NSOM has a default-off experimental exception for calibration work:
+when `experimental_moon_geometry_scoring` is explicitly enabled on
+`PlannerNsomScoringService`, `MoonGeometryConditionInput` scales the Moon
+illumination severity used by `ObservationEnvironment.lunar_sky_background`.
+This affects `EffectiveObservability`, then `ObservableTargetValue`,
+`PracticalTargetValue` and `ObservationOpportunity` through the existing NSOM
+pipeline. It does not change `IntrinsicTargetQuality`, `ObserverCapability`,
+`SessionViability` or `RecommendationConfidence`, and the default runtime flag
+remains off.
 
 ### Solar-System Objects
 

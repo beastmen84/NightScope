@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.2`.
+Versione corrente: `1.14.3`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -703,6 +703,14 @@ nella snapshot diagnostica NSOM e nei breakdown interni come
 Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object,
 Equipment e QML/UI non cambiano comportamento; non vengono introdotti logging,
 rete o scritture runtime.
+Lo step `1.14.3` aggiunge il primo uso sperimentale della geometria lunare nel
+Planner NSOM, ancora default-off: quando `experimental_moon_geometry_scoring` e'
+attivo, il Planner puo' usare `MoonGeometryConditionInput` per modulare
+`ObservationEnvironment.lunar_sky_background`. Il path default resta identico
+alla 1.14.2, perche' `AppController` costruisce la mappa di geometria Planner
+solo se il servizio Planner dichiara esplicitamente il flag attivo. Nessun QML,
+Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment,
+logging, rete o scrittura runtime viene aggiunto.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

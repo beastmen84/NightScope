@@ -22,6 +22,10 @@ from astro_viewer.app.models.nsom import (
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    ObservationConditionFeatureFlags,
+)
 from astro_viewer.app.services.night_planner_service import (
     NSOM_PLANNER_SCORING_ENABLED,
     NightPlannerService,
@@ -97,6 +101,28 @@ def test_default_planner_path_uses_observation_opportunity_ranking() -> None:
     }
 
 
+def test_night_planner_forwards_moon_geometry_to_nsom_service_when_supplied() -> None:
+    objects = [
+        _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5"),
+        _target("cluster", "Open Cluster", 76, "Facile", "22:00", "5.0"),
+    ]
+    geometry = _close_moon_geometry()
+    nsom_service = RecordingMoonGeometryNsomService()
+
+    NightPlannerService(nsom_scoring_service=nsom_service).plan(
+        objects,
+        _weather(85),
+        _scores(),
+        _sky_quality(3),
+        _telescope(),
+        _moon(70),
+        moon_geometry_by_object_id={"galaxy": geometry},
+    )
+
+    assert nsom_service.received_moon_geometry["galaxy"] is geometry
+    assert nsom_service.received_moon_geometry["cluster"] is None
+
+
 def test_planner_nsom_service_builds_full_observation_opportunity_from_candidate() -> None:
     target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
     service = PlannerNsomScoringService()
@@ -126,6 +152,142 @@ def test_planner_nsom_service_builds_full_observation_opportunity_from_candidate
     assert opportunity.confidence.viirs_confidence == 1.0
     assert opportunity.context == ("planner", "nsom_experimental")
     assert opportunity.value == pytest.approx(service.score(opportunity))
+
+
+def test_moon_geometry_scoring_flag_is_default_off_and_score_neutral() -> None:
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    service = PlannerNsomScoringService()
+    geometry = _close_moon_geometry()
+
+    without_geometry = service.effective_observability(
+        target,
+        scores=_scores(deep_sky=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(95),
+    )
+    with_geometry = service.effective_observability(
+        target,
+        scores=_scores(deep_sky=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(95),
+        moon_geometry=geometry,
+    )
+
+    assert service.uses_moon_geometry_scoring is False
+    assert with_geometry.value == pytest.approx(without_geometry.value)
+    assert with_geometry.lunar_sky_background == pytest.approx(without_geometry.lunar_sky_background)
+    assert with_geometry.static_sky_background == pytest.approx(without_geometry.static_sky_background)
+    assert with_geometry.atmospheric_transparency == pytest.approx(without_geometry.atmospheric_transparency)
+    assert with_geometry.horizon_context == pytest.approx(without_geometry.horizon_context)
+    assert "moon_geometry_scoring_enabled=False" in with_geometry.notes
+
+
+def test_moon_geometry_scoring_flag_modifies_planner_lunar_sky_background_only() -> None:
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    service = PlannerNsomScoringService(
+        feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)
+    )
+
+    close_geometry = _close_moon_geometry()
+    far_geometry = MoonGeometryConditionInput(
+        moon_altitude_deg=55.0,
+        moon_target_separation_deg=125.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+        moon_set_before_target_window=False,
+    )
+    close = service.effective_observability(
+        target,
+        scores=_scores(deep_sky=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(70),
+        moon_geometry=close_geometry,
+    )
+    far = service.effective_observability(
+        target,
+        scores=_scores(deep_sky=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(70),
+        moon_geometry=far_geometry,
+    )
+
+    assert service.uses_moon_geometry_scoring is True
+    assert close.geometric_visibility == pytest.approx(far.geometric_visibility)
+    assert close.static_sky_background == pytest.approx(far.static_sky_background)
+    assert close.atmospheric_transparency == pytest.approx(far.atmospheric_transparency)
+    assert close.horizon_context == pytest.approx(far.horizon_context)
+    assert close.lunar_sky_background < far.lunar_sky_background
+    assert close.value < far.value
+    assert "moon_geometry_scoring_enabled=True" in close.notes
+    assert "moon_geometry_input=available" in close.notes
+
+
+def test_moon_geometry_scoring_protects_planets_from_lunar_background_penalty() -> None:
+    service = PlannerNsomScoringService(
+        feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)
+    )
+    planet = _target("planet", "Pianeta", 82, "Facile", "21:00", "-1.0")
+
+    no_geometry = service.effective_observability(
+        planet,
+        scores=_scores(planetary=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(95),
+    )
+    close_geometry = service.effective_observability(
+        planet,
+        scores=_scores(planetary=90),
+        sky_quality=_sky_quality(3, radiance=1),
+        moon=_moon(95),
+        moon_geometry=_close_moon_geometry(),
+    )
+
+    assert no_geometry.lunar_sky_background == pytest.approx(1.0)
+    assert close_geometry.lunar_sky_background == pytest.approx(1.0)
+    assert close_geometry.value == pytest.approx(no_geometry.value)
+
+
+def test_moon_geometry_scoring_changes_observable_not_observer_session_or_confidence() -> None:
+    target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
+    service = PlannerNsomScoringService(
+        feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)
+    )
+    weather = _weather(85)
+    sky_quality = _sky_quality(3, radiance=1)
+    telescope = _telescope()
+
+    baseline = service.opportunity(
+        target,
+        weather=weather,
+        scores=_scores(deep_sky=90),
+        sky_quality=sky_quality,
+        telescope=telescope,
+        moon=_moon(70),
+        blocking_status=NightPlannerService.weather_blocking_status(weather),
+    )
+    close_geometry = service.opportunity(
+        target,
+        weather=weather,
+        scores=_scores(deep_sky=90),
+        sky_quality=sky_quality,
+        telescope=telescope,
+        moon=_moon(70),
+        moon_geometry=_close_moon_geometry(),
+        blocking_status=NightPlannerService.weather_blocking_status(weather),
+    )
+
+    baseline_practical = baseline.practical_target_value
+    close_practical = close_geometry.practical_target_value
+
+    assert baseline_practical.observable_target_value.intrinsic_target == close_practical.observable_target_value.intrinsic_target
+    assert baseline_practical.observer_capability == close_practical.observer_capability
+    assert baseline.session == close_geometry.session
+    assert baseline.confidence == close_geometry.confidence
+    assert baseline_practical.observable_target_value.effective_observability.lunar_sky_background > (
+        close_practical.observable_target_value.effective_observability.lunar_sky_background
+    )
+    assert baseline_practical.observable_target_value.value > close_practical.observable_target_value.value
+    assert baseline.value > close_geometry.value
 
 
 def test_nsom_planner_does_not_use_legacy_condition_breakdown(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -391,6 +553,8 @@ def test_nsom_planner_has_no_qml_exposure() -> None:
     assert "use_nsom_planner_scoring" not in qml_text
     assert "NSOM_PLANNER_SCORING_ENABLED" not in qml_text
     assert "nsom_planner" not in qml_text.lower()
+    assert "experimental_moon_geometry_scoring" not in qml_text
+    assert "moon_geometry" not in qml_text.lower()
 
 
 class FixedNsomOpportunityService:
@@ -402,6 +566,21 @@ class FixedNsomOpportunityService:
         del kwargs
         self.calls.append(item.id)
         return _opportunity(self._values[item.id])
+
+    @staticmethod
+    def score(opportunity: ObservationOpportunity) -> float:
+        return opportunity.value
+
+
+class RecordingMoonGeometryNsomService:
+    uses_moon_geometry_scoring = True
+
+    def __init__(self) -> None:
+        self.received_moon_geometry: dict[str, MoonGeometryConditionInput | None] = {}
+
+    def opportunity(self, item, **kwargs) -> ObservationOpportunity:  # noqa: ANN001, ANN003
+        self.received_moon_geometry[item.id] = kwargs.get("moon_geometry")
+        return _opportunity(50.0)
 
     @staticmethod
     def score(opportunity: ObservationOpportunity) -> float:
@@ -514,6 +693,16 @@ def _moon(illumination: int) -> MoonSummary:
         best_note="Fixture",
         image="",
         phase_angle=0.0,
+    )
+
+
+def _close_moon_geometry() -> MoonGeometryConditionInput:
+    return MoonGeometryConditionInput(
+        moon_altitude_deg=55.0,
+        moon_target_separation_deg=12.0,
+        moon_above_horizon=True,
+        moon_visible_during_target_window=True,
+        moon_set_before_target_window=False,
     )
 
 
