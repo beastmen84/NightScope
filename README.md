@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.8`.
+Versione corrente: `1.13.9`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -669,6 +669,14 @@ senza selettore legacy interno. Restano solo fallback tecnici per input mancanti
 o failure servizio dove gia' previsti, ad esempio sky quality mancante; non sono
 rollback configurabili. Nessuna UI/QML, logging, rete o scrittura runtime viene
 aggiunta.
+Lo step `1.13.9` aggiunge
+`docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`, audit developer-only del
+confine tra score raw catalogo/prepared object, `CelestialObject.score` e
+`IntrinsicTargetQuality`. Lo score raw resta un seme Universe provvisorio e un
+campo di compatibilita' payload, non uno score NSOM finale da calibrare
+direttamente; la provenance esplicita del catalogo e la semantica visibile degli
+score restano lavori futuri non bloccanti. Nessun runtime, scoring, QML/UI,
+logging, rete o scrittura runtime cambia.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

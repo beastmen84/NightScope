@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.13.9 - 2026-07-09
+
+- Aggiunto `docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`, audit
+  developer-only del confine tra `CelestialObject.score`, catalogo/prepared
+  objects, `IntrinsicTargetQuality` e campi score di compatibilita' payload.
+- Classificato `CelestialObject.score` come seme Universe/IntrinsicTargetQuality
+  provvisorio e compatibile, non come score NSOM finale da calibrare
+  direttamente.
+- Confermata la separazione raw/display introdotta da ObservationConditions:
+  gli input NSOM usano il target raw, mentre lo score display resta
+  compatibilita' QML/presentazione.
+- Documentati i residui futuri non bloccanti: provenance esplicita del raw
+  score/catalogo, eventuale `UniverseTargetProfile` e semantica visibile degli
+  score.
+- Nessun cambio a runtime, scoring, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.13.8 - 2026-07-09
 
 - Rimossi i rollback runtime interni per Planner, Home `recommendedDeepSky`,

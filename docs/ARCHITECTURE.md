@@ -811,6 +811,15 @@ and service-failure fallbacks remain where they are data-safety policies, such a
 missing sky quality, but they are not internal rollback switches. The backend,
 legacy-surface, overall-readiness and rollback-cleanup reports are updated to
 record the removal.
+`1.13.9` adds
+`docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`, a developer-only audit of
+the remaining raw catalogue/prepared-object score boundary. It classifies
+`CelestialObject.score` as an interim Universe/IntrinsicTargetQuality seed and
+payload compatibility field, not as a final NSOM score to tune directly. The
+ObservationConditions raw/display read-model boundary remains the protection
+against display-conditioned scores becoming intrinsic target input. Future
+UniverseTargetProfile/provenance work is non-blocking and separate from visible
+score explanation design.
 
 ## Dependency Flow
 

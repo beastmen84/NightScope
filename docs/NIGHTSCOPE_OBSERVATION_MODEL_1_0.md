@@ -15,6 +15,10 @@ Home `recommendedDeepSky`, Best Object, Sky Compass and the Advanced Observing
 backend now have default-on NSOM consumers or projections. As of 1.13.8, their
 internal runtime rollback constructor paths have been removed; rollback is via a
 reviewed code revert, while missing-input fallbacks remain data-safety policies.
+As of 1.13.9, the remaining raw catalogue/prepared-object score boundary is
+documented in `docs/NSOM_UNIVERSE_CATALOGUE_SCORE_BOUNDARY_AUDIT.md`:
+`CelestialObject.score` is an interim Universe/IntrinsicTargetQuality seed and
+payload compatibility field, not a final NSOM score to tune directly.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2200,6 +2204,11 @@ A future `ObserverCapabilityService` should own:
 - Status: Planner, Home `recommendedDeepSky` and Best Object have now moved to
   default-on NSOM consumers. Internal runtime rollback paths were removed in
   `1.13.8`.
+- Status update for 1.13.9: the raw catalogue/prepared-object score boundary is
+  audited. `CelestialObject.score` remains an interim
+  Universe/IntrinsicTargetQuality seed and payload compatibility field; explicit
+  catalogue provenance or a future `UniverseTargetProfile` is non-blocking
+  backend policy work, not a scoring hotfix.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
