@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Choose the next backend area: ObservationConditions read-model cleanup or Equipment presenter contract work.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged.
+- Recommended next step: Review the ObservationConditions read-model audit, then implement the read-model boundary before further cleanup.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths with explicit rollback. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model audit showing that conditioned object scores can become NSOM intrinsic inputs. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged.
 
 ## Audit Blockers
 
@@ -33,8 +33,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Area | Status | Why it remains | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `observer_adapter_extracted` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps runtime setup recommendations unchanged. | Review the adapter extraction, then choose either ObservationConditions read-model cleanup or Equipment presenter contract work. |
-| ObservationConditions prepared-object cache | `hybrid_conditioned_objects` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths. | Defer broad cleanup until an ObservationSnapshot/read-model boundary exists. |
+| Equipment recommendations | `observer_adapter_extracted` | `EquipmentService` still ranks eyepiece/Barlow/binocular candidates with its own practical configuration score. `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps runtime setup recommendations unchanged. | Keep deferred while the ObservationConditions read-model boundary is implemented; revisit Equipment presenter contract work after that boundary is stable. |
+| ObservationConditions prepared-object cache | `read_model_boundary_required_before_cleanup` | `ObservationConditionsService` still creates conditioned object copies for moon and light-pollution presentation/fallback paths; the 1.12.5 audit shows those copies need an explicit read-model boundary before cleanup. | Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then introduce raw/display/conditioned read-model fields. |
 | Catalogue / raw object score | `upstream_legacy_input` | Catalogue and engine prepared scores remain the raw target input for several compatibility payloads. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Removed Dead Legacy
@@ -44,12 +44,19 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Notifications service file present: `False`.
 - Notifications model DTO present: `False`.
 
+## ObservationConditions Audit
+
+- Verdict: `read_model_boundary_required_before_cleanup`.
+- Runtime migration recommended now: `False`.
+- Safe to remove service: `False`.
+- Recommended next step: Review this audit, then introduce an ObservationConditions read-model boundary that separates raw target score, condition-adjusted display score and NSOM ObservableTargetValue inputs.
+
 ## Documentation State
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.12.4` |
-| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True]` |
+| `version` | `1.12.5` |
+| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
 
@@ -80,9 +87,11 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `Review 1.12.2`: Confirm adapter extraction preserved Equipment comparison values and runtime output.
 - `1.12.3 Notifications dead legacy audit`: Classify Notifications as dead legacy because no QML/Home consumer remains.
 - `1.12.4 Remove dead Notifications backend path`: Confirm AppController notifications, NotificationService and leftover DTO/tests are removed.
-- `Next backend area decision`: Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.
+- `1.12.5 ObservationConditions read-model audit`: Audit conditioned-object cache ownership and NSOM input risks.
+- `Review 1.12.5`: Confirm the audit before adding a read-model boundary.
+- `1.12.6 ObservationConditions read-model boundary`: Separate raw target input from condition-adjusted display compatibility fields.
 - `Later UI explanation work`: Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.
 
 ## Conclusion
 
-The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. Notifications are now removed dead legacy, not an NSOM migration surface. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. The next backend step should be chosen explicitly; visible UI explanation work remains separate.
+The backend NSOM migration is closed for the already migrated recommendation surfaces and Detail/Object. Sky Map has been removed as dead legacy rather than migrated to NSOM. Notifications are now removed dead legacy, not an NSOM migration surface. ObservationConditions is active hybrid runtime code and now has a read-model audit; the next implementation step is to separate raw target input from condition-adjusted display compatibility. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. Visible UI explanation work remains separate.

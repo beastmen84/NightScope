@@ -1188,6 +1188,15 @@ the `Notification` DTO. This is not an NSOM migration and does not change any
 score or visible QML payload; it removes a dead Home-era backend path so future
 NSOM work can focus on active backend surfaces.
 
+Implementation note for 1.12.5:
+`docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md` audits the active
+`ObservationConditionsService` boundary. The current service is not dead legacy:
+it creates condition-adjusted `CelestialObject` copies for display/fallback
+compatibility, while NSOM Home/Best Object/Sky Compass can compute observable
+values from those same objects. The next implementation step should introduce a
+read model that separates raw target score, condition-adjusted display score,
+condition diagnostics and NSOM-safe `ObservableTargetValue` input.
+
 Examples:
 
 - binocular-only profile;

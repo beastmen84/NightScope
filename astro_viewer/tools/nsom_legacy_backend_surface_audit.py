@@ -11,6 +11,9 @@ from astro_viewer.app.services.home_nsom_ranking import NSOM_HOME_RECOMMENDED_DE
 from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING_ENABLED, NightPlannerService
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tools.observation_conditions_read_model_audit import (
+    generate_observation_conditions_read_model_audit_data,
+)
 from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
 
 
@@ -40,9 +43,10 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     root = Path(__file__).parents[2]
     sky_map_state = _sky_map_state(root)
     notification_state = generate_notifications_dead_legacy_audit_data()["notification_surface"]
+    observation_conditions_state = generate_observation_conditions_read_model_audit_data()["readiness"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
-    active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces()
+    active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(observation_conditions_state)
     static_checks = _static_checks(root)
 
     data = {
@@ -64,9 +68,10 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "verdict": "legacy_backend_surface_cleanup_complete",
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "notifications_migration_recommendation": notification_state["classification"],
+            "observation_conditions_recommendation": observation_conditions_state["verdict"],
             "recommended_next_step": (
-                "Decide the next backend area: ObservationConditions read-model cleanup "
-                "or Equipment presenter contract work."
+                "Review the ObservationConditions read-model audit, then implement "
+                "the read-model boundary."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -76,7 +81,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "has a shared ObserverCapability/Q_target adapter while the runtime "
                 "setup helper remains unchanged. The QML Home page no longer consumes "
                 "notifications, and the 1.12.4 cleanup removes the controller "
-                "property, runtime recomputation, `NotificationService` and DTO."
+                "property, runtime recomputation, `NotificationService` and DTO. "
+                "ObservationConditions remains active runtime code and needs an "
+                "explicit read-model boundary before cleanup."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -189,10 +196,21 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 ),
             },
             {
-                "step": "Next backend area decision",
+                "step": "1.12.5 ObservationConditions read-model audit",
                 "summary": (
-                    "Choose between ObservationConditions read-model cleanup and "
-                    "Equipment presenter contract work."
+                    "Audit conditioned-object cache ownership and NSOM input risks."
+                ),
+            },
+            {
+                "step": "Review 1.12.5",
+                "summary": (
+                    "Confirm the ObservationConditions audit before adding a read-model boundary."
+                ),
+            },
+            {
+                "step": "1.12.6 ObservationConditions read-model boundary",
+                "summary": (
+                    "Separate raw target input from condition-adjusted display compatibility fields."
                 ),
             },
         ),
@@ -221,6 +239,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Sky Map migration recommendation: `{readiness['sky_map_migration_recommendation']}`.",
         f"- Notifications migration recommendation: `{readiness['notifications_migration_recommendation']}`.",
+        f"- ObservationConditions recommendation: `{readiness['observation_conditions_recommendation']}`.",
         f"- Runtime behaviour changed by this audit: `{readiness['runtime_behaviour_changed_by_this_audit']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         f"- Reason: {readiness['reason']}",
@@ -355,11 +374,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             (
                 "Sky Map has been removed from the backend runtime surface instead "
                 "of being migrated to NSOM. Notifications are removed dead legacy "
-                "rather than a backend NSOM migration surface. Equipment now has a shared "
-                "ObserverCapability/Q_target adapter while runtime setup "
-                "recommendations remain unchanged. The next backend area should be "
-                "chosen explicitly, while temporary rollback cleanup remains a "
-                "separate policy decision."
+                "rather than a backend NSOM migration surface. ObservationConditions "
+                "is active hybrid runtime code and needs a read-model boundary. "
+                "Equipment now has a shared ObserverCapability/Q_target adapter "
+                "while runtime setup recommendations remain unchanged. Temporary "
+                "rollback cleanup remains a separate policy decision."
             ),
             "",
         ]
@@ -496,7 +515,9 @@ def _payload_compatibility_surfaces() -> tuple[dict[str, object], ...]:
     )
 
 
-def _active_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
+def _active_legacy_or_hybrid_surfaces(
+    observation_conditions_state: dict[str, object],
+) -> tuple[dict[str, object], ...]:
     return (
         {
             "surface": "Equipment recommendations",
@@ -509,15 +530,23 @@ def _active_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
                 "helper unchanged."
             ),
             "recommended_handling": (
-                "Review the ObserverCapability/Q_target adapter extraction before "
-                "choosing the next backend area."
+                "Keep deferred while the ObservationConditions read-model boundary "
+                "is implemented; revisit Equipment presenter contract work after "
+                "that boundary is stable."
             ),
         },
         {
             "surface": "ObservationConditions prepared-object cache",
             "classification": "active_legacy_or_hybrid",
-            "why_active": "Conditioned object copies still feed fallback and compatibility presentation paths.",
-            "recommended_handling": "Defer cleanup until an ObservationSnapshot/read-model boundary exists.",
+            "why_active": (
+                "Conditioned object copies still feed fallback and compatibility "
+                "presentation paths; the 1.12.5 audit reports "
+                f"`{observation_conditions_state['verdict']}`."
+            ),
+            "recommended_handling": (
+                "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
+                "introduce raw/display/conditioned read-model fields."
+            ),
         },
         {
             "surface": "Catalogue / raw object score",

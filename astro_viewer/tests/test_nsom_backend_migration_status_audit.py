@@ -41,6 +41,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md",
             "docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md",
             "docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md",
+            "docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md",
             "docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md",
             "docs/EQUIPMENT_NSOM_POLICY_READINESS.md",
         ],
@@ -84,7 +85,16 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "Catalogue / raw object score",
     }
     assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
+    assert remaining["ObservationConditions prepared-object cache"]["status"] == (
+        "read_model_boundary_required_before_cleanup"
+    )
+    assert "OBSERVATION_CONDITIONS_READ_MODEL_AUDIT" in remaining[
+        "ObservationConditions prepared-object cache"
+    ]["recommended_handling"]
     assert data["notification_audit"]["classification"] == "removed_dead_legacy"
+    assert data["observation_conditions_audit"]["verdict"] == (
+        "read_model_boundary_required_before_cleanup"
+    )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
     assert "ObservationConditions" in remaining["Equipment recommendations"]["recommended_handling"]
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
@@ -97,8 +107,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Choose the next backend area: ObservationConditions read-model "
-        "cleanup or Equipment presenter contract work"
+        "Review the ObservationConditions read-model audit, then implement "
+        "the read-model boundary before further cleanup"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -118,7 +128,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[9] == "Review 1.12.2"
     assert sequence[10] == "1.12.3 Notifications dead legacy audit"
     assert sequence[11] == "1.12.4 Remove dead Notifications backend path"
-    assert sequence[12] == "Next backend area decision"
+    assert sequence[12] == "1.12.5 ObservationConditions read-model audit"
+    assert sequence[13] == "Review 1.12.5"
+    assert sequence[14] == "1.12.6 ObservationConditions read-model boundary"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -145,7 +157,8 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
-    assert "Choose the next backend area" in text
+    assert "ObservationConditions Audit" in text
+    assert "read_model_boundary_required_before_cleanup" in text
     assert "observer_adapter_extracted" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

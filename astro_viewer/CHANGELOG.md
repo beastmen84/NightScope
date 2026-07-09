@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.12.5 - 2026-07-09
+
+- Aggiunto `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, audit
+  developer-only del boundary `ObservationConditionsService`.
+- L'audit conferma che `ObservationConditionsService` e' runtime attivo, non
+  dead legacy: crea copie `CelestialObject` condizionate per compatibilita'
+  Home/Detail/Sky Compass e puo' alimentare path NSOM default-on.
+- Identificato il rischio architetturale
+  `observation-conditions-conditioned-score-as-nsom-intrinsic`: gli score gia'
+  condizionati possono diventare input `IntrinsicTargetQuality`/`ObservableTargetValue`.
+- Aggiornati gli audit backend per raccomandare come prossimo step un boundary
+  read-model che separi raw target, display score condizionato e input NSOM.
+- Nessun cambio runtime: nessuno scoring, QML, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, logging, rete o scrittura runtime modificati.
+
 ## NightScope 1.12.4 - 2026-07-09
 
 - Rimosso il path backend Notifications ormai non consumato dalla Home:

@@ -9,9 +9,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Notifications migration recommendation: `removed_dead_legacy`.
+- ObservationConditions recommendation: `read_model_boundary_required_before_cleanup`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Decide the next backend area: ObservationConditions read-model cleanup or Equipment presenter contract work.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO.
+- Recommended next step: Review the ObservationConditions read-model audit, then implement the read-model boundary.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and needs an explicit read-model boundary before cleanup.
 
 ## Classification Policy
 
@@ -53,8 +54,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Review the ObserverCapability/Q_target adapter extraction before choosing the next backend area. |
-| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths. | Defer cleanup until an ObservationSnapshot/read-model boundary exists. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the ObservationConditions read-model boundary is implemented; revisit Equipment presenter contract work after that boundary is stable. |
+| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.5 audit reports `read_model_boundary_required_before_cleanup`. | Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then introduce raw/display/conditioned read-model fields. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Safety Checks
@@ -85,8 +86,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `Review 1.12.2`: Confirm the adapter extraction preserved Equipment comparison values and runtime behaviour.
 - `1.12.3 Notifications dead legacy audit`: Classify Notifications as dead legacy because no QML/Home consumer remains.
 - `1.12.4 Remove dead Notifications backend path`: Confirm AppController notifications, NotificationService and leftover DTO/tests are removed.
-- `Next backend area decision`: Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.
+- `1.12.5 ObservationConditions read-model audit`: Audit conditioned-object cache ownership and NSOM input risks.
+- `Review 1.12.5`: Confirm the ObservationConditions audit before adding a read-model boundary.
+- `1.12.6 ObservationConditions read-model boundary`: Separate raw target input from condition-adjusted display compatibility fields.
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are removed dead legacy rather than a backend NSOM migration surface. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. The next backend area should be chosen explicitly, while temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are removed dead legacy rather than a backend NSOM migration surface. ObservationConditions is active hybrid runtime code and needs a read-model boundary. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. Temporary rollback cleanup remains a separate policy decision.

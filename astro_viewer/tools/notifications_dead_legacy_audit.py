@@ -228,8 +228,12 @@ def _recommended_sequence(classification: str) -> tuple[dict[str, object], ...]:
                 "summary": "Confirm the dead Notifications backend/property/service path is absent.",
             },
             {
-                "step": "Next backend area decision",
-                "summary": "Continue with ObservationConditions read-model cleanup or Equipment presenter contract work.",
+                "step": "1.12.5 ObservationConditions read-model audit",
+                "summary": "Audit the active ObservationConditions read-model boundary after dead legacy cleanup.",
+            },
+            {
+                "step": "1.12.6 ObservationConditions read-model boundary",
+                "summary": "Separate raw target input from condition-adjusted display compatibility fields.",
             },
         )
     return (
@@ -242,8 +246,8 @@ def _recommended_sequence(classification: str) -> tuple[dict[str, object], ...]:
             "summary": "Remove AppController notifications, NotificationService and leftover DTO/tests.",
         },
         {
-            "step": "Next backend area decision",
-            "summary": "Continue with ObservationConditions read-model cleanup or Equipment presenter contract work.",
+            "step": "1.12.5 ObservationConditions read-model audit",
+            "summary": "Audit the active ObservationConditions read-model boundary after dead legacy cleanup.",
         },
     )
 

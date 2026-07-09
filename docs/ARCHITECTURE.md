@@ -671,6 +671,13 @@ migration surface. No runtime behaviour changes in this audit step.
 the `Notification` DTO are gone. Notifications are now classified as
 `removed_dead_legacy`; future work should not rebuild them unless a visible
 product requirement reintroduces notifications.
+`1.12.5` adds `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`. The audit
+confirms that `ObservationConditionsService` is still active hybrid runtime
+code: it creates condition-adjusted `CelestialObject` copies for display and
+fallback compatibility, and those copies can become inputs to default-on NSOM
+observable calculations. No runtime behavior changes in this audit step; the
+next implementation step should introduce an explicit raw/display/NSOM
+read-model boundary.
 
 ## Dependency Flow
 

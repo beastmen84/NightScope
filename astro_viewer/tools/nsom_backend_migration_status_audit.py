@@ -12,6 +12,9 @@ from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
 from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tools.equipment_nsom_policy_readiness import generate_policy_readiness_data
+from astro_viewer.tools.observation_conditions_read_model_audit import (
+    generate_observation_conditions_read_model_audit_data,
+)
 from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
 
 
@@ -27,6 +30,7 @@ SOURCE_REPORTS = (
     Path("docs/DETAIL_OBJECT_NSOM_MIGRATION_CLOSEOUT.md"),
     Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md"),
     Path("docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md"),
+    Path("docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md"),
     Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
     Path("docs/EQUIPMENT_NSOM_POLICY_READINESS.md"),
 )
@@ -48,7 +52,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     root = Path(__file__).parents[2]
     default_on_surfaces = _default_on_surfaces()
     notification_audit = generate_notifications_dead_legacy_audit_data()
-    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces()
+    observation_conditions_audit = generate_observation_conditions_read_model_audit_data()
+    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(observation_conditions_audit)
     equipment_policy = generate_policy_readiness_data()
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
@@ -82,15 +87,17 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Choose the next backend area: ObservationConditions read-model "
-                "cleanup or Equipment presenter contract work"
+                "Review the ObservationConditions read-model audit, then implement "
+                "the read-model boundary before further cleanup"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
                 "backend, Sky Compass and Detail/Object have default-on NSOM paths "
                 "with explicit rollback. Remaining items are non-blocking legacy or "
                 "hybrid surfaces; Sky Map and Notifications have been removed as "
-                "dead legacy. "
+                "dead legacy. ObservationConditions is active hybrid runtime code "
+                "and now has a read-model audit showing that conditioned object "
+                "scores can become NSOM intrinsic inputs. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -101,6 +108,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
         "documentation_state": documentation,
         "equipment_policy": equipment_policy["readiness"],
         "notification_audit": notification_audit["notification_surface"],
+        "observation_conditions_audit": observation_conditions_audit["readiness"],
         "static_wiring_checks": static_checks,
         "checks": checks,
         "recommended_sequence": _recommended_sequence(),
@@ -192,6 +200,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         )
 
     notification = audit["notification_audit"]
+    observation = audit["observation_conditions_audit"]
     lines.extend(
         [
             "",
@@ -201,6 +210,13 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Notifications controller runtime present: `{notification['controller_runtime_present']}`.",
             f"- Notifications service file present: `{notification['service_file_present']}`.",
             f"- Notifications model DTO present: `{notification['model_dto_present']}`.",
+            "",
+            "## ObservationConditions Audit",
+            "",
+            f"- Verdict: `{observation['verdict']}`.",
+            f"- Runtime migration recommended now: `{observation['runtime_migration_recommended_now']}`.",
+            f"- Safe to remove service: `{observation['safe_to_remove_service']}`.",
+            f"- Recommended next step: {observation['recommended_next_step']}",
             "",
             "## Documentation State",
             "",
@@ -243,10 +259,13 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "recommendation surfaces and Detail/Object. Sky Map has been removed "
                 "as dead legacy rather than migrated to NSOM. Notifications are now "
                 "removed dead legacy, not an NSOM migration surface. "
+                "ObservationConditions is active hybrid runtime code and now has "
+                "a read-model audit; the next implementation step is to separate "
+                "raw target input from condition-adjusted display compatibility. "
                 "Equipment now has a "
                 "shared ObserverCapability/Q_target adapter while runtime setup "
-                "recommendations remain unchanged. The next backend step should be "
-                "chosen explicitly; visible UI explanation work remains separate."
+                "recommendations remain unchanged. Visible UI explanation work "
+                "remains separate."
             ),
             "",
         ]
@@ -337,7 +356,10 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
     )
 
 
-def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
+def _remaining_legacy_or_hybrid_surfaces(
+    observation_conditions_audit: dict[str, object],
+) -> tuple[dict[str, object], ...]:
+    observation_readiness = observation_conditions_audit["readiness"]
     return (
         {
             "area": "Equipment recommendations",
@@ -351,19 +373,25 @@ def _remaining_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
                 "recommendations unchanged."
             ),
             "recommended_handling": (
-                "Review the adapter extraction, then choose either ObservationConditions "
-                "read-model cleanup or Equipment presenter contract work."
+                "Keep deferred while the ObservationConditions read-model boundary "
+                "is implemented; revisit Equipment presenter contract work after "
+                "that boundary is stable."
             ),
             "blocks_current_default_on_surfaces": False,
         },
         {
             "area": "ObservationConditions prepared-object cache",
-            "status": "hybrid_conditioned_objects",
+            "status": observation_readiness["verdict"],
             "why_it_remains": (
                 "`ObservationConditionsService` still creates conditioned object "
-                "copies for moon and light-pollution presentation/fallback paths."
+                "copies for moon and light-pollution presentation/fallback paths; "
+                "the 1.12.5 audit shows those copies need an explicit read-model "
+                "boundary before cleanup."
             ),
-            "recommended_handling": "Defer broad cleanup until an ObservationSnapshot/read-model boundary exists.",
+            "recommended_handling": (
+                "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
+                "introduce raw/display/conditioned read-model fields."
+            ),
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -501,8 +529,16 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Confirm AppController notifications, NotificationService and leftover DTO/tests are removed.",
         },
         {
-            "step": "Next backend area decision",
-            "summary": "Choose between ObservationConditions read-model cleanup and Equipment presenter contract work.",
+            "step": "1.12.5 ObservationConditions read-model audit",
+            "summary": "Audit conditioned-object cache ownership and NSOM input risks.",
+        },
+        {
+            "step": "Review 1.12.5",
+            "summary": "Confirm the audit before adding a read-model boundary.",
+        },
+        {
+            "step": "1.12.6 ObservationConditions read-model boundary",
+            "summary": "Separate raw target input from condition-adjusted display compatibility fields.",
         },
         {
             "step": "Later UI explanation work",

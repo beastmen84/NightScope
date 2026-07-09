@@ -45,7 +45,8 @@ This developer-only audit checks whether the legacy Notifications backend still 
 ## Recommended Sequence
 
 - `Review notification removal`: Confirm the dead Notifications backend/property/service path is absent.
-- `Next backend area decision`: Continue with ObservationConditions read-model cleanup or Equipment presenter contract work.
+- `1.12.5 ObservationConditions read-model audit`: Audit the active ObservationConditions read-model boundary after dead legacy cleanup.
+- `1.12.6 ObservationConditions read-model boundary`: Separate raw target input from condition-adjusted display compatibility fields.
 
 ## Conclusion
 
