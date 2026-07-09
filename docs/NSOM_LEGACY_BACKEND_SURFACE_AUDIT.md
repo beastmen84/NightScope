@@ -46,7 +46,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 | Home recommendedDeepSky | `score` | Existing QML cards expect the field as display/base compatibility data. | NSOM or separate active service |
 | Best Object | `score` | The visible Best Object payload still shows legacy/base score semantics. | NSOM or separate active service |
 | Sky Compass | `target.score` | The compass payload shape is intentionally unchanged for QML. | NSOM or separate active service |
-| Advanced Observing | `advancedScores` | Home cards and Planner still consume the legacy-compatible scores; the old notification consumer is dead legacy pending removal. | NSOM or separate active service |
+| Advanced Observing | `advancedScores` | Home cards and Planner still consume the legacy-compatible scores; the old notification consumer has been removed as dead legacy. | NSOM or separate active service |
 | Detail/Object | `selectedObject.score` | Visible Detail QML still consumes selectedObject without NSOM fields. | NSOM or separate active service |
 
 ## Active Legacy Or Hybrid Surfaces
@@ -89,4 +89,4 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are dead legacy pending removal rather than a backend NSOM migration surface. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. The next backend area should be chosen explicitly, while temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are removed dead legacy rather than a backend NSOM migration surface. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. The next backend area should be chosen explicitly, while temporary rollback cleanup remains a separate policy decision.

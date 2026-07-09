@@ -354,8 +354,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Sky Map has been removed from the backend runtime surface instead "
-                "of being migrated to NSOM. Notifications are dead legacy pending "
-                "removal rather than a backend NSOM migration surface. Equipment now has a shared "
+                "of being migrated to NSOM. Notifications are removed dead legacy "
+                "rather than a backend NSOM migration surface. Equipment now has a shared "
                 "ObserverCapability/Q_target adapter while runtime setup "
                 "recommendations remain unchanged. The next backend area should be "
                 "chosen explicitly, while temporary rollback cleanup remains a "
@@ -484,7 +484,7 @@ def _payload_compatibility_surfaces() -> tuple[dict[str, object], ...]:
         {
             "surface": "Advanced Observing",
             "compatibility_field": "advancedScores",
-            "why_it_remains": "Home cards and Planner still consume the legacy-compatible scores; the old notification consumer is dead legacy pending removal.",
+            "why_it_remains": "Home cards and Planner still consume the legacy-compatible scores; the old notification consumer has been removed as dead legacy.",
             "ranking_authority": "NSOM or separate active service",
         },
         {

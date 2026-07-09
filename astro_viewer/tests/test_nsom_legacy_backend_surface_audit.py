@@ -134,5 +134,6 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.12.2 ObserverCapability adapter extraction" in text
     assert "1.12.3 Notifications dead legacy audit" in text
     assert "removed_dead_legacy" in text
+    assert "dead legacy pending removal" not in text
     assert "Next backend area decision" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
