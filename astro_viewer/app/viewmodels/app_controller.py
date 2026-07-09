@@ -3621,15 +3621,21 @@ class AppController(QObject):
                 source="home_recommended_deep_sky_missing_sky_quality_fallback",
                 raw_targets_by_id=raw_targets_by_id,
             )
-        ranked_targets = self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
+        candidate_read_models = builder.from_display_targets(
             objects,
+            source="home_recommended_deep_sky_nsom_raw_observable_order",
+            raw_targets_by_id=raw_targets_by_id,
+        )
+        ranked_nsom_targets = self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
+            [model.nsom_target_input for model in candidate_read_models],
             sky_quality=sky_quality,
             moon=getattr(self, "_moon", None),
         )
-        return builder.from_display_targets(
-            ranked_targets,
-            source="home_recommended_deep_sky_nsom_observable_order",
-            raw_targets_by_id=raw_targets_by_id,
+        models_by_raw_id = {model.nsom_target_input.id: model for model in candidate_read_models}
+        return tuple(
+            models_by_raw_id[target.id]
+            for target in ranked_nsom_targets
+            if target.id in models_by_raw_id
         )
 
     def _conditioned_deep_sky_candidates(self) -> list[CelestialObject]:

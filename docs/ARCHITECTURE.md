@@ -691,6 +691,12 @@ audit defines the consumer policy: NSOM math should read raw read-model targets,
 while QML-compatible Home/Best/Sky Compass payloads should keep conditioned
 display targets. No runtime consumer is rerouted in this step; the first
 recommended runtime implementation after review is Home `recommendedDeepSky`.
+`1.12.8` applies that policy to Home `recommendedDeepSky` only. The default
+Home NSOM path ranks from `ObservationConditionedTargetReadModel.nsom_target_input`
+and still returns `ObservationConditionedTargetReadModel.qml_display_target` to
+the existing QML payload. The rollback constructor parameter and missing-sky
+quality fallback continue to use the legacy moon-adjusted path. Best Object and
+Sky Compass remain separate consumer reroute work.
 
 ## Dependency Flow
 

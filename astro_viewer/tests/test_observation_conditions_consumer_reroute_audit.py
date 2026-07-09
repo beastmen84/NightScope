@@ -26,27 +26,30 @@ def test_consumer_reroute_audit_is_deterministic_strict_json_and_developer_only(
         "network": False,
         "qml_exposure": False,
         "runtime_behaviour_changed_by_this_audit": False,
-        "home_changed": False,
+        "home_changed": True,
         "best_object_changed": False,
         "sky_compass_changed": False,
         "report_path": "docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md",
     }
 
 
-def test_consumer_reroute_audit_defines_policy_without_runtime_change() -> None:
+def test_consumer_reroute_audit_tracks_home_runtime_reroute_and_pending_consumers() -> None:
     data = generate_observation_conditions_consumer_reroute_audit_data()
     policies = {item["consumer"]: item for item in data["consumer_policies"]}
 
-    assert data["readiness"]["verdict"] == "consumer_reroute_policy_defined_runtime_change_pending"
-    assert data["readiness"]["runtime_reroute_recommended_now"] is False
+    assert data["readiness"]["verdict"] == "home_recommended_deep_sky_rerouted_remaining_consumers_pending"
+    assert data["readiness"]["runtime_reroute_recommended_now"] is True
     assert data["readiness"]["safe_to_change_runtime_in_this_step"] is False
     assert data["checks"]["runtime_behaviour_unchanged_by_audit"] is True
 
     assert policies["Home recommendedDeepSky"]["candidate_raw_input"] == "read_model.nsom_target_input"
+    assert policies["Home recommendedDeepSky"]["current_runtime_input"] == "read_model.nsom_target_input"
     assert policies["Home recommendedDeepSky"]["payload_target"] == "read_model.qml_display_target"
-    assert policies["Home recommendedDeepSky"]["status"] == "ready_for_targeted_reroute_after_review"
+    assert policies["Home recommendedDeepSky"]["status"] == "runtime_rerouted_to_raw_read_model_target"
     assert policies["Best Object"]["status"] == "requires_selection_adapter_before_reroute"
     assert policies["Sky Compass"]["status"] == "requires_direction_delta_review_before_reroute"
+    assert data["checks"]["home_runtime_reroute_uses_raw_read_model_targets"] is True
+    assert data["checks"]["home_runtime_payload_uses_display_target"] is True
 
 
 def test_consumer_reroute_fixture_shows_raw_vs_display_observable_delta() -> None:
@@ -86,7 +89,7 @@ def test_checked_in_consumer_reroute_audit_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# ObservationConditions Consumer Reroute Audit" in text
-    assert "consumer_reroute_policy_defined_runtime_change_pending" in text
+    assert "home_recommended_deep_sky_rerouted_remaining_consumers_pending" in text
     assert "Home recommendedDeepSky" in text
     assert "Best Object" in text
     assert "Sky Compass" in text

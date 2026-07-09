@@ -566,6 +566,13 @@ direzione NSOM corretta e' calcolare dal target raw del read-model e mantenere
 il target display condizionato per payload/QML compatibili. Il runtime non e'
 ancora reroutato; il primo step consigliato dopo review e' Home
 recommendedDeepSky.
+Lo step `1.12.8` applica quel reroute solo a Home `recommendedDeepSky`: il
+ranking NSOM legge `ObservationConditionedTargetReadModel.nsom_target_input`,
+mentre il payload QML continua a usare
+`ObservationConditionedTargetReadModel.qml_display_target`. Il rollback
+`AppController(use_nsom_home_recommended_deep_sky=False)` e il fallback con sky
+quality mancante restano legacy moon-adjusted. Best Object e Sky Compass non
+sono ancora reroutati.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

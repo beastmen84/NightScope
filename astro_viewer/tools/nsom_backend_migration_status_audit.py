@@ -95,9 +95,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the 1.12.7 ObservationConditions consumer reroute audit, "
-                "then implement raw-target consumption one consumer at a time, "
-                "starting with Home recommendedDeepSky"
+                "Review the 1.12.8 Home recommendedDeepSky raw-target reroute, "
+                "then implement the next ObservationConditions consumer reroute, "
+                "starting with Best Object if accepted"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -106,8 +106,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "hybrid surfaces; Sky Map and Notifications have been removed as "
                 "dead legacy. ObservationConditions is active hybrid runtime code "
                 "and now has a read-model boundary that separates raw and display "
-                "targets plus a consumer reroute policy audit. Runtime rerouting "
-                "remains a separate behaviour-reviewed implementation. "
+                "targets plus a consumer reroute policy audit. Home recommendedDeepSky "
+                "now consumes the raw read-model target for NSOM ranking; Best Object "
+                "and Sky Compass remain separate behaviour-reviewed reroutes. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -408,13 +409,13 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "`ObservationConditionsService` still creates conditioned object "
                 "copies for moon and light-pollution presentation/fallback paths; "
                 "the 1.12.6 boundary preserves raw and display target fields "
-                "separately, and the 1.12.7 audit defines how consumers should "
-                "reroute to raw inputs."
+                "separately, the 1.12.7 audit defines how consumers should reroute "
+                "to raw inputs, and the 1.12.8 runtime step applies that policy to "
+                "Home recommendedDeepSky."
             ),
             "recommended_handling": (
-                "Review `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`, "
-                "then implement raw-target consumption one consumer at a time, "
-                "starting with Home recommendedDeepSky."
+                "Review the 1.12.8 Home reroute, then choose the next read-model "
+                "consumer migration, starting with Best Object if accepted."
             ),
             "read_model_boundary_status": observation_readiness["verdict"],
             "blocks_current_default_on_surfaces": False,
@@ -576,6 +577,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.12.7",
             "summary": "Choose the first consumer reroute implementation, starting with Home if accepted.",
+        },
+        {
+            "step": "1.12.8 Home recommendedDeepSky raw-target reroute",
+            "summary": "Rank Home recommendedDeepSky NSOM candidates from read-model raw targets.",
+        },
+        {
+            "step": "Review 1.12.8",
+            "summary": "Confirm Home payload compatibility and choose the next consumer reroute.",
         },
         {
             "step": "Later UI explanation work",

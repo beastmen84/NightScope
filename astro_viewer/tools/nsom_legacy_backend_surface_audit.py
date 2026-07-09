@@ -77,8 +77,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review the 1.12.7 ObservationConditions consumer reroute audit, "
-                "then implement the first raw-target consumer reroute."
+                "Review the 1.12.8 Home recommendedDeepSky raw-target reroute, "
+                "then implement the next ObservationConditions consumer reroute."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -90,8 +90,10 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "notifications, and the 1.12.4 cleanup removes the controller "
                 "property, runtime recomputation, `NotificationService` and DTO. "
                 "ObservationConditions remains active runtime code and now has an "
-                "explicit read-model boundary plus consumer reroute policy; runtime "
-                "rerouting remains separate."
+                "explicit read-model boundary plus consumer reroute policy. Home "
+                "recommendedDeepSky now uses the raw read-model target for NSOM "
+                "ranking, while Best Object and Sky Compass remain separate "
+                "consumer reroutes."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -228,11 +230,18 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 ),
             },
             {
-                "step": "1.12.7 ObservationConditions consumer reroute audit",
-                "summary": (
-                    "Define raw-target consumer policy for Home, Best Object and Sky Compass."
-                ),
-            },
+            "step": "1.12.7 ObservationConditions consumer reroute audit",
+            "summary": (
+                "Define raw-target consumer policy for Home, Best Object and Sky Compass."
+            ),
+        },
+        {
+            "step": "1.12.8 Home recommendedDeepSky raw-target reroute",
+            "summary": (
+                "Use raw read-model targets for Home recommendedDeepSky NSOM ranking "
+                "while preserving display payload targets."
+            ),
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -565,13 +574,12 @@ def _active_legacy_or_hybrid_surfaces(
                 "Conditioned object copies still feed fallback and compatibility "
                 "presentation paths; the 1.12.6 boundary reports "
                 f"`{observation_conditions_state['verdict']}` and the 1.12.7 "
-                "consumer audit reports "
+                "consumer audit now reports "
                 f"`{observation_conditions_reroute_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`, "
-                "then implement raw-target consumption one consumer at a time, "
-                "starting with Home recommendedDeepSky."
+                "Review the 1.12.8 Home reroute, then implement raw-target "
+                "consumption one consumer at a time for Best Object and Sky Compass."
             ),
         },
         {

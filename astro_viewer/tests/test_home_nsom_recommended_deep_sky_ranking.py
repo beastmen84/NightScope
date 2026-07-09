@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -75,6 +76,35 @@ def test_flag_on_uses_observable_target_value_order_under_high_light_pollution()
         "diffuse_nebula",
         "galaxy",
     ]
+
+
+def test_default_path_ranks_raw_read_model_targets_and_returns_display_targets() -> None:
+    controller = _controller(enabled=True, sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    raw_low = _target("raw_low", "Galaxy", 30)
+    raw_high = _target("raw_high", "Open Cluster", 90)
+    display_low = replace(raw_low, score=99, condition_flags=("light_pollution",))
+    display_high = replace(raw_high, score=10, condition_flags=("light_pollution",))
+    ranking = _CapturingRawScoreRankingService()
+    controller._home_recommended_deep_sky_nsom_ranking_service = ranking
+    controller._deep_sky_raw_condition_input_by_id = {
+        raw_low.id: raw_low,
+        raw_high.id: raw_high,
+    }
+    controller._deep_sky = [display_low, display_high]
+
+    controller._refresh_conditioned_observing_candidates()
+
+    assert ranking.candidates == [raw_low, raw_high]
+    assert controller._conditioned_deep_sky == [display_high, display_low]
+    assert [model.nsom_target_input for model in controller._conditioned_deep_sky_read_model] == [
+        raw_high,
+        raw_low,
+    ]
+    assert [model.qml_display_target for model in controller._conditioned_deep_sky_read_model] == [
+        display_high,
+        display_low,
+    ]
+    assert [item.score for item in controller._conditioned_deep_sky] == [10, 99]
 
 
 def test_flag_on_does_not_mutate_original_celestial_objects() -> None:
@@ -329,3 +359,18 @@ def _weather(
         temperature_c=12,
         alert="",
     )
+
+
+class _CapturingRawScoreRankingService:
+    def __init__(self) -> None:
+        self.candidates: list[CelestialObject] = []
+
+    def rank_by_observable_target_value(
+        self,
+        candidates: list[CelestialObject],
+        *,
+        sky_quality: SkyQuality,
+        moon: MoonSummary | None,
+    ) -> list[CelestialObject]:
+        self.candidates = list(candidates)
+        return sorted(self.candidates, key=lambda item: item.score, reverse=True)

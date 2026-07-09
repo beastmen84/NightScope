@@ -111,14 +111,12 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     assert "ObservationConditions consumer reroute policy" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
-    assert "consumer_reroute_policy_defined_runtime_change_pending" in active[
+    assert "home_recommended_deep_sky_rerouted_remaining_consumers_pending" in active[
         "ObservationConditions prepared-object cache"
     ]["why_active"]
-    assert "OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT" in active[
-        "ObservationConditions prepared-object cache"
-    ]["recommended_handling"]
+    assert "Best Object" in active["ObservationConditions prepared-object cache"]["recommended_handling"]
     assert data["readiness"]["observation_conditions_recommendation"] == (
-        "consumer_reroute_policy_defined_runtime_change_pending"
+        "home_recommended_deep_sky_rerouted_remaining_consumers_pending"
     )
 
 
@@ -145,9 +143,10 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.12.2 ObserverCapability adapter extraction" in text
     assert "1.12.3 Notifications dead legacy audit" in text
     assert "1.12.5 ObservationConditions read-model audit" in text
-    assert "consumer_reroute_policy_defined_runtime_change_pending" in text
+    assert "home_recommended_deep_sky_rerouted_remaining_consumers_pending" in text
     assert "removed_dead_legacy" in text
     assert "dead legacy pending removal" not in text
     assert "1.12.6 ObservationConditions read-model boundary" in text
     assert "1.12.7 ObservationConditions consumer reroute audit" in text
+    assert "1.12.8 Home recommendedDeepSky raw-target reroute" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

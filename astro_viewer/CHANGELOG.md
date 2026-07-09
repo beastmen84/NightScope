@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.12.8 - 2026-07-09
+
+- Reroutato il ramo runtime Home `recommendedDeepSky` NSOM: il ranking ora usa
+  `ObservationConditionedTargetReadModel.nsom_target_input`, cioe' il target raw
+  preservato dal boundary ObservationConditions.
+- Il payload QML continua a ricevere
+  `ObservationConditionedTargetReadModel.qml_display_target`, quindi chiavi,
+  score display/base e compatibilita' UI restano invariati.
+- Il fallback con sky quality mancante e il rollback
+  `AppController(use_nsom_home_recommended_deep_sky=False)` restano sul path
+  legacy moon-adjusted.
+- Best Object, Sky Compass, Planner, Equipment, QML, logging, rete e scritture
+  runtime non sono stati modificati.
+- Rigenerati gli audit `OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT`,
+  `NSOM_BACKEND_MIGRATION_STATUS_AUDIT` e
+  `NSOM_LEGACY_BACKEND_SURFACE_AUDIT`: Home risulta completato, Best Object e
+  Sky Compass restano i consumer ObservationConditions da valutare.
+
 ## NightScope 1.12.7 - 2026-07-09
 
 - Aggiunto `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`,

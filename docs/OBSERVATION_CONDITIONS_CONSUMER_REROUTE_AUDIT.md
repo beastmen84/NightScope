@@ -2,22 +2,22 @@
 
 ## Executive Summary
 
-This developer-only audit reviews whether NSOM consumers should use the raw target side of the ObservationConditions read model. It does not change runtime behaviour, QML, scoring, logging, network access or runtime file writes.
+This developer-only audit reviews whether NSOM consumers should use the raw target side of the ObservationConditions read model. Home recommendedDeepSky has now been rerouted; Best Object and Sky Compass remain pending. The audit itself does not change runtime behaviour, QML, scoring, logging, network access or runtime file writes.
 
 ## Verdict
 
-- Verdict: `consumer_reroute_policy_defined_runtime_change_pending`.
-- Runtime reroute recommended now: `False`.
+- Verdict: `home_recommended_deep_sky_rerouted_remaining_consumers_pending`.
+- Runtime reroute recommended now: `True`.
 - Safe to change runtime in this step: `False`.
 - Safe to keep current runtime temporarily: `True`.
-- Recommended next step: Review this audit, then implement read-model-aware raw target consumption one consumer at a time, starting with Home recommendedDeepSky.
-- Reason: The read-model boundary exposes raw target inputs and conditioned display targets separately. Rerouting Home, Best Object or Sky Compass to raw inputs is NSOM-correct, but it can change ranking or selected objects, so it must be a separate behaviour-reviewed runtime step.
+- Recommended next step: Review the 1.12.8 Home recommendedDeepSky raw-target reroute, then choose the next read-model-aware consumer migration, starting with Best Object if accepted.
+- Reason: The read-model boundary exposes raw target inputs and conditioned display targets separately. Home recommendedDeepSky now ranks the NSOM path from read_model.nsom_target_input while returning read_model.qml_display_target for payload compatibility. Best Object and Sky Compass still require separate behaviour-reviewed consumer reroutes.
 
 ## Consumer Policies
 
 | Consumer | Current input | Candidate input | Payload target | Status |
 | --- | --- | --- | --- | --- |
-| Home recommendedDeepSky | conditioned display target | read_model.nsom_target_input | read_model.qml_display_target | `ready_for_targeted_reroute_after_review` |
+| Home recommendedDeepSky | read_model.nsom_target_input | read_model.nsom_target_input | read_model.qml_display_target | `runtime_rerouted_to_raw_read_model_target` |
 | Best Object | planning object from conditioned deep-sky cache | read_model.nsom_target_input for scoring | read_model.qml_display_target when selected | `requires_selection_adapter_before_reroute` |
 | Sky Compass | conditioned display target for direction scoring | read_model.nsom_target_input for observable contribution | read_model.qml_display_target | `requires_direction_delta_review_before_reroute` |
 
@@ -43,6 +43,8 @@ This developer-only audit reviews whether NSOM consumers should use the raw targ
 | `raw_observable_differs_from_display_for_conditioned_targets` | `True` |
 | `solar_system_targets_are_not_conditioned` | `True` |
 | `home_policy_preserves_qml_display_target` | `True` |
+| `home_runtime_reroute_uses_raw_read_model_targets` | `True` |
+| `home_runtime_payload_uses_display_target` | `True` |
 | `best_object_policy_requires_display_return_adapter` | `True` |
 | `sky_compass_policy_keeps_display_payload` | `True` |
 | `runtime_report_imports_absent` | `True` |
@@ -59,7 +61,8 @@ This developer-only audit reviews whether NSOM consumers should use the raw targ
 - `Review 1.12.6`: Confirm the read-model boundary preserves raw and display target fields without runtime behaviour changes.
 - `1.12.7 ObservationConditions consumer reroute audit`: Define the consumer policy before changing Home, Best Object or Sky Compass runtime inputs.
 - `Review 1.12.7`: Confirm raw-target reroute policy and choose the first runtime consumer migration.
+- `1.12.8 Home recommendedDeepSky raw-target reroute`: Rank Home recommendedDeepSky NSOM candidates from the raw read-model target while preserving display payload targets.
 
 ## Conclusion
 
-The NSOM-correct direction is to score Home, Best Object and Sky Compass from raw read-model targets while preserving conditioned display targets for compatibility payloads. Because this can change ranking and selected objects, the runtime reroute should be implemented in a separate reviewed commit, starting with Home recommendedDeepSky.
+The NSOM-correct direction is to score Home, Best Object and Sky Compass from raw read-model targets while preserving conditioned display targets for compatibility payloads. Home recommendedDeepSky now follows this policy. Best Object and Sky Compass should be rerouted in separate reviewed commits because each can change selected objects or direction ranking.

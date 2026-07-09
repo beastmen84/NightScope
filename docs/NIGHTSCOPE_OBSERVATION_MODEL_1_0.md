@@ -1213,6 +1213,15 @@ existing Home/Best/Sky Compass payload compatibility should continue to display
 `ObservationConditionedTargetReadModel.qml_display_target`. Runtime rerouting is
 intentionally deferred to a separate behaviour-reviewed commit.
 
+Implementation note for 1.12.8:
+Home `recommendedDeepSky` now follows the read-model ownership boundary in the
+default NSOM path. Its `ObservableTargetValue` ranking is computed from
+`ObservationConditionedTargetReadModel.nsom_target_input`, avoiding reuse of
+condition-adjusted display score as NSOM target physics. The Home QML payload is
+still built from `ObservationConditionedTargetReadModel.qml_display_target`, so
+visible fields and display/base score compatibility are preserved. Best Object
+and Sky Compass are not rerouted in this step.
+
 Examples:
 
 - binocular-only profile;
