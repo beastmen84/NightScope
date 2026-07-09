@@ -87,15 +87,15 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
     }
     assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
     assert remaining["ObservationConditions prepared-object cache"]["status"] == (
-        "home_recommended_deep_sky_rerouted_remaining_consumers_pending"
+        "home_and_best_object_rerouted_sky_compass_pending"
     )
-    assert "Best Object" in remaining["ObservationConditions prepared-object cache"]["recommended_handling"]
+    assert "Sky Compass" in remaining["ObservationConditions prepared-object cache"]["recommended_handling"]
     assert data["notification_audit"]["classification"] == "removed_dead_legacy"
     assert data["observation_conditions_audit"]["verdict"] == (
         "read_model_boundary_introduced_consumer_reroute_pending"
     )
     assert data["observation_conditions_consumer_reroute_audit"]["verdict"] == (
-        "home_recommended_deep_sky_rerouted_remaining_consumers_pending"
+        "home_and_best_object_rerouted_sky_compass_pending"
     )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
     assert "ObservationConditions" in remaining["Equipment recommendations"]["recommended_handling"]
@@ -109,9 +109,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review the 1.12.8 Home recommendedDeepSky raw-target reroute, "
-        "then implement the next ObservationConditions consumer reroute, "
-        "starting with Best Object if accepted"
+        "Review the 1.12.9 Best Object raw-target reroute, then decide "
+        "whether Sky Compass should consume read-model raw targets for "
+        "its observable contribution"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -139,6 +139,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[17] == "Review 1.12.7"
     assert sequence[18] == "1.12.8 Home recommendedDeepSky raw-target reroute"
     assert sequence[19] == "Review 1.12.8"
+    assert sequence[20] == "1.12.9 Best Object raw-target reroute"
+    assert sequence[21] == "Review 1.12.9"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -166,7 +168,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
     assert "ObservationConditions Audit" in text
-    assert "home_recommended_deep_sky_rerouted_remaining_consumers_pending" in text
+    assert "home_and_best_object_rerouted_sky_compass_pending" in text
     assert "observer_adapter_extracted" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

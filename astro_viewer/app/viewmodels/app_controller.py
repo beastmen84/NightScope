@@ -2012,12 +2012,46 @@ class AppController(QObject):
             return None
         if not self._use_nsom_best_object or not self._sky_quality:
             return self._score_service.best_object(planning_objects, self._weather_summary)
-        return self._best_object_nsom_selection_service.best_object(
-            planning_objects,
+        candidate_read_models = self._best_object_read_models(planning_objects)
+        selected_raw_target = self._best_object_nsom_selection_service.best_object(
+            [model.nsom_target_input for model in candidate_read_models],
             weather=self._weather_summary,
             sky_quality=self._sky_quality,
             telescope=self._current_telescope(),
             moon=self._moon,
+        )
+        if selected_raw_target is None:
+            return None
+        display_targets_by_raw_id = {
+            model.nsom_target_input.id: model.qml_display_target
+            for model in candidate_read_models
+        }
+        return display_targets_by_raw_id.get(selected_raw_target.id, selected_raw_target)
+
+    def _best_object_read_models(
+        self,
+        planning_objects: list[CelestialObject],
+    ) -> tuple[ObservationConditionedTargetReadModel, ...]:
+        existing_models = {
+            model.object_id: model
+            for model in getattr(self, "_conditioned_home_read_model", [])
+        }
+        missing_objects = [
+            item
+            for item in planning_objects
+            if item.id not in existing_models
+        ]
+        if missing_objects:
+            fallback_models = self._conditions_read_model_builder_instance().from_display_targets(
+                missing_objects,
+                source="best_object_nsom_raw_observable_order_fallback",
+                raw_targets_by_id=self._conditioned_raw_targets_by_id(),
+            )
+            existing_models.update({model.object_id: model for model in fallback_models})
+        return tuple(
+            existing_models[item.id]
+            for item in planning_objects
+            if item.id in existing_models
         )
 
     def _refresh_nsom_diagnostics(self) -> None:

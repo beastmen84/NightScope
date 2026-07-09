@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -15,6 +16,7 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
     NSOM_BEST_OBJECT_ENABLED,
     BestObjectNsomSelectionService,
 )
+from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -199,6 +201,33 @@ def test_app_controller_forced_nsom_path_selects_nsom_best_object() -> None:
     selected = controller._select_best_object(_targets())
 
     assert selected.id == "galaxy"
+
+
+def test_app_controller_nsom_path_scores_raw_read_model_targets_and_returns_display_target() -> None:
+    controller = _controller(use_nsom_best_object=True)
+    raw_low = _target("raw_low", "Galaxy", 30, difficulty="Media")
+    raw_high = _target("raw_high", "Open Cluster", 90, difficulty="Facile")
+    display_low = replace(raw_low, score=99, condition_flags=("light_pollution",))
+    display_high = replace(raw_high, score=10, condition_flags=("light_pollution",))
+    selection = _CapturingBestObjectSelectionService(selected_id="raw_high")
+    controller._best_object_nsom_selection_service = selection
+    controller._deep_sky_raw_condition_input_by_id = {
+        raw_low.id: raw_low,
+        raw_high.id: raw_high,
+    }
+    controller._conditioned_home_read_model = list(
+        ObservationConditionsReadModelBuilder().from_display_targets(
+            [display_low, display_high],
+            source="test_best_object_read_model",
+            raw_targets_by_id=controller._deep_sky_raw_condition_input_by_id,
+        )
+    )
+
+    selected = controller._select_best_object([display_low, display_high])
+
+    assert selection.candidates == [raw_low, raw_high]
+    assert selected is display_high
+    assert selected.score == 10
 
 
 def test_app_controller_forced_nsom_path_falls_back_without_sky_quality() -> None:
@@ -412,3 +441,21 @@ def _telescope(
         optical_type="Reflector",
         mount=mount,
     )
+
+
+class _CapturingBestObjectSelectionService:
+    def __init__(self, *, selected_id: str) -> None:
+        self.selected_id = selected_id
+        self.candidates: list[CelestialObject] = []
+
+    def best_object(
+        self,
+        candidates: list[CelestialObject],
+        *,
+        weather: WeatherSummary,
+        sky_quality: SkyQuality,
+        telescope: Telescope,
+        moon: MoonSummary | None,
+    ) -> CelestialObject | None:
+        self.candidates = list(candidates)
+        return next((item for item in self.candidates if item.id == self.selected_id), None)

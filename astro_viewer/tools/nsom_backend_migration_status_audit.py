@@ -95,9 +95,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the 1.12.8 Home recommendedDeepSky raw-target reroute, "
-                "then implement the next ObservationConditions consumer reroute, "
-                "starting with Best Object if accepted"
+                "Review the 1.12.9 Best Object raw-target reroute, then decide "
+                "whether Sky Compass should consume read-model raw targets for "
+                "its observable contribution"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -108,7 +108,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "and now has a read-model boundary that separates raw and display "
                 "targets plus a consumer reroute policy audit. Home recommendedDeepSky "
                 "now consumes the raw read-model target for NSOM ranking; Best Object "
-                "and Sky Compass remain separate behaviour-reviewed reroutes. "
+                "now scores raw read-model targets and returns display payload targets; "
+                "Sky Compass remains a separate behaviour-reviewed reroute. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -411,11 +412,13 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "the 1.12.6 boundary preserves raw and display target fields "
                 "separately, the 1.12.7 audit defines how consumers should reroute "
                 "to raw inputs, and the 1.12.8 runtime step applies that policy to "
-                "Home recommendedDeepSky."
+                "Home recommendedDeepSky. The 1.12.9 runtime step applies the same "
+                "raw-score/display-payload split to Best Object."
             ),
             "recommended_handling": (
-                "Review the 1.12.8 Home reroute, then choose the next read-model "
-                "consumer migration, starting with Best Object if accepted."
+                "Review the 1.12.9 Best Object reroute, then decide whether Sky "
+                "Compass should consume raw read-model targets for its observable "
+                "direction contribution."
             ),
             "read_model_boundary_status": observation_readiness["verdict"],
             "blocks_current_default_on_surfaces": False,
@@ -585,6 +588,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.12.8",
             "summary": "Confirm Home payload compatibility and choose the next consumer reroute.",
+        },
+        {
+            "step": "1.12.9 Best Object raw-target reroute",
+            "summary": "Score Best Object NSOM candidates from read-model raw targets.",
+        },
+        {
+            "step": "Review 1.12.9",
+            "summary": "Confirm Best Object payload compatibility and decide whether Sky Compass should reroute.",
         },
         {
             "step": "Later UI explanation work",

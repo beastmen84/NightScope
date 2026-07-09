@@ -573,6 +573,12 @@ mentre il payload QML continua a usare
 `AppController(use_nsom_home_recommended_deep_sky=False)` e il fallback con sky
 quality mancante restano legacy moon-adjusted. Best Object e Sky Compass non
 sono ancora reroutati.
+Lo step `1.12.9` applica lo stesso boundary a Best Object: il servizio NSOM
+riceve candidati raw dal read-model e il controller rimappa l'oggetto scelto al
+display target compatibile. Il rollback
+`AppController(use_nsom_best_object=False)` e il fallback senza sky quality
+restano invariati. Sky Compass resta l'unico consumer ObservationConditions
+ancora da valutare per un eventuale reroute raw-target.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

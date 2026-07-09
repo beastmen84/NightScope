@@ -697,6 +697,14 @@ and still returns `ObservationConditionedTargetReadModel.qml_display_target` to
 the existing QML payload. The rollback constructor parameter and missing-sky
 quality fallback continue to use the legacy moon-adjusted path. Best Object and
 Sky Compass remain separate consumer reroute work.
+`1.12.9` applies the same raw-score/display-payload split to Best Object. The
+default Best Object NSOM path scores candidates from
+`ObservationConditionedTargetReadModel.nsom_target_input`, then returns the
+selected `ObservationConditionedTargetReadModel.qml_display_target` so the QML
+payload shape and displayed score semantics remain compatible. The explicit
+rollback and missing-sky-quality fallback remain unchanged. Sky Compass remains
+the only ObservationConditions consumer still pending a raw-target reroute
+decision.
 
 ## Dependency Flow
 

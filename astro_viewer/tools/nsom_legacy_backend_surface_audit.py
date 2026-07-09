@@ -77,8 +77,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review the 1.12.8 Home recommendedDeepSky raw-target reroute, "
-                "then implement the next ObservationConditions consumer reroute."
+                "Review the 1.12.9 Best Object raw-target reroute, then decide "
+                "whether Sky Compass should consume raw read-model targets."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -92,8 +92,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "ObservationConditions remains active runtime code and now has an "
                 "explicit read-model boundary plus consumer reroute policy. Home "
                 "recommendedDeepSky now uses the raw read-model target for NSOM "
-                "ranking, while Best Object and Sky Compass remain separate "
-                "consumer reroutes."
+                "ranking, and Best Object now scores raw read-model targets while "
+                "returning display targets. Sky Compass remains a separate "
+                "consumer reroute."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -240,6 +241,13 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "summary": (
                 "Use raw read-model targets for Home recommendedDeepSky NSOM ranking "
                 "while preserving display payload targets."
+            ),
+        },
+        {
+            "step": "1.12.9 Best Object raw-target reroute",
+            "summary": (
+                "Use raw read-model targets for Best Object NSOM scoring while "
+                "returning the selected display payload target."
             ),
         },
         ),
@@ -578,8 +586,9 @@ def _active_legacy_or_hybrid_surfaces(
                 f"`{observation_conditions_reroute_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.12.8 Home reroute, then implement raw-target "
-                "consumption one consumer at a time for Best Object and Sky Compass."
+                "Review the 1.12.9 Best Object reroute, then decide whether Sky "
+                "Compass should consume raw read-model targets for observable "
+                "direction scoring."
             ),
         },
         {

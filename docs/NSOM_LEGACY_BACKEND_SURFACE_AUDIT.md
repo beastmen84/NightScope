@@ -9,10 +9,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Notifications migration recommendation: `removed_dead_legacy`.
-- ObservationConditions recommendation: `home_recommended_deep_sky_rerouted_remaining_consumers_pending`.
+- ObservationConditions recommendation: `home_and_best_object_rerouted_sky_compass_pending`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the 1.12.8 Home recommendedDeepSky raw-target reroute, then implement the next ObservationConditions consumer reroute.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and now has an explicit read-model boundary plus consumer reroute policy. Home recommendedDeepSky now uses the raw read-model target for NSOM ranking, while Best Object and Sky Compass remain separate consumer reroutes.
+- Recommended next step: Review the 1.12.9 Best Object raw-target reroute, then decide whether Sky Compass should consume raw read-model targets.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and now has an explicit read-model boundary plus consumer reroute policy. Home recommendedDeepSky now uses the raw read-model target for NSOM ranking, and Best Object now scores raw read-model targets while returning display targets. Sky Compass remains a separate consumer reroute.
 
 ## Classification Policy
 
@@ -55,7 +55,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
 | Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the ObservationConditions consumer reroute policy is reviewed; revisit Equipment presenter contract work after the raw-target consumer migration is stable. |
-| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.6 boundary reports `read_model_boundary_introduced_consumer_reroute_pending` and the 1.12.7 consumer audit now reports `home_recommended_deep_sky_rerouted_remaining_consumers_pending`. | Review the 1.12.8 Home reroute, then implement raw-target consumption one consumer at a time for Best Object and Sky Compass. |
+| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.6 boundary reports `read_model_boundary_introduced_consumer_reroute_pending` and the 1.12.7 consumer audit now reports `home_and_best_object_rerouted_sky_compass_pending`. | Review the 1.12.9 Best Object reroute, then decide whether Sky Compass should consume raw read-model targets for observable direction scoring. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Safety Checks
@@ -92,6 +92,7 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `Review 1.12.6`: Confirm read-model fidelity before rerouting runtime consumers.
 - `1.12.7 ObservationConditions consumer reroute audit`: Define raw-target consumer policy for Home, Best Object and Sky Compass.
 - `1.12.8 Home recommendedDeepSky raw-target reroute`: Use raw read-model targets for Home recommendedDeepSky NSOM ranking while preserving display payload targets.
+- `1.12.9 Best Object raw-target reroute`: Use raw read-model targets for Best Object NSOM scoring while returning the selected display payload target.
 
 ## Conclusion
 

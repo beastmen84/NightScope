@@ -1222,6 +1222,15 @@ still built from `ObservationConditionedTargetReadModel.qml_display_target`, so
 visible fields and display/base score compatibility are preserved. Best Object
 and Sky Compass are not rerouted in this step.
 
+Implementation note for 1.12.9:
+Best Object now follows the same ObservationConditions read-model boundary in
+the default NSOM path. `BestObjectNsomSelectionService` receives raw
+`nsom_target_input` candidates, so `ObservationOpportunity` is built from the
+Universe-owned target value rather than a condition-adjusted display score. The
+controller maps the selected raw target back to `qml_display_target` for the
+existing QML payload. Sky Compass remains the only ObservationConditions
+consumer pending a raw-target reroute decision.
+
 Examples:
 
 - binocular-only profile;
