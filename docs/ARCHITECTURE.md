@@ -829,6 +829,16 @@ object identity, target class, score seed, provenance, geometry, magnitude/size
 and presentation-only score projection, but implementation waits for concrete
 provenance, catalogue-import, intrinsic-calibration or visible-explanation
 requirements.
+`1.14.1` adds
+`docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md`, a developer-only audit that
+separates local always-available astronomy inputs from local optional equipment
+and external optional providers. The architecture decision is that Moon geometry
+is the next backend physical-model step because Moon altitude, Moon-target
+separation and Moon/window overlap can be computed from active location, time
+and local ephemeris data without weather, VIIRS, NASA AOD or OpenAQ. Current
+runtime scoring still uses Moon illumination/background only; the geometry
+fields remain score-neutral readiness inputs until a later explicit scoring
+step.
 
 ## Dependency Flow
 

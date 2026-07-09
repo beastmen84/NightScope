@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.14.1 - 2026-07-09
+
+- Aggiunto `docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md`, audit
+  developer-only che separa le fonti dati NSOM tra input locali sempre
+  disponibili dopo la location, input locali opzionali e provider esterni
+  opzionali.
+- Documentato che la location e le effemeridi locali bastano per calcolare
+  geometria Luna-target senza meteo, VIIRS, AOD, OpenAQ o profilo equip.
+- Mappati i campi Luna correnti: fase, illuminazione e phase angle sono gia'
+  disponibili; altezza Luna, separazione Luna-target, Luna sopra orizzonte e
+  overlap con la finestra target sono predisposti come input futuri
+  score-neutral.
+- Confermato che l'attuale scoring usa illuminazione lunare e background Luna,
+  mentre `experimental_moon_geometry_scoring`, AOD NASA e OpenAQ restano
+  neutrali rispetto allo score.
+- Nessun cambio a runtime, scoring, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.14.0 - 2026-07-09
 
 - Aggiunto `docs/NSOM_UNIVERSE_TARGET_PROFILE_POLICY.md`, report

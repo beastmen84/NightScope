@@ -31,6 +31,33 @@ Inputs:
 
 All object visibility is observer-dependent.
 
+### NSOM Input Availability Boundary
+
+As of `1.14.1`, NightScope keeps the backend recommendation inputs separated by
+availability and ownership:
+
+- Location is the minimum required input. It can come from manual coordinates,
+  Windows location or approximate online lookup. Once location exists, local
+  astronomy calculations can produce target positions, visibility and Moon
+  phase/illumination without provider data.
+- Equipment profile data is local and optional. If no profile is active, the
+  backend falls back to naked-eye/default observer assumptions before applying
+  `ObserverCapability` or `PracticalTargetValue` where those concepts are used.
+- Weather is an optional external provider input. When present, it belongs to
+  session viability and blocking policy. When absent, weather-dependent
+  conclusions should remain unknown or fallback-safe rather than changing target
+  physics.
+- VIIRS sky quality is optional/hybrid. A real `viirs_radiance` value can feed
+  sky-background calculations; local preprocessed/fallback sky-quality data must
+  remain distinguishable in confidence and source notes.
+- NASA AOD and OpenAQ particulate data are optional external provider inputs.
+  They are currently display/diagnostic only and remain score-neutral until a
+  later explicit NSOM aerosol step.
+
+Moon geometry is therefore the next local physical-model candidate: Moon
+altitude, Moon-target separation and Moon/window overlap require location and
+time, not weather, VIIRS, NASA AOD, OpenAQ or equipment.
+
 ### Solar-System Objects
 
 For Sun, Moon and planets, the engine computes:

@@ -23,6 +23,12 @@ As of 1.14.0, `docs/NSOM_UNIVERSE_TARGET_PROFILE_POLICY.md` documents the
 decision to defer a runtime `UniverseTargetProfile` until concrete provenance,
 catalogue-import, intrinsic-calibration or visible-explanation requirements
 exist.
+As of 1.14.1, `docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md` records the
+input-source taxonomy for the next physical-model work: location plus local
+astronomy is the minimum deterministic backend input, equipment is local and
+optional, while weather, VIIRS, NASA AOD and OpenAQ are optional provider
+inputs. Moon geometry is the next local NSOM target because Moon altitude,
+Moon-target separation and target-window overlap do not require provider data.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2217,6 +2223,11 @@ A future `ObserverCapabilityService` should own:
   deferred. `IntrinsicTargetQuality` remains the current Universe DTO, while a
   future profile contract is reserved for provenance, multi-catalogue imports,
   intrinsic calibration or visible score explanation.
+- Status update for 1.14.1: the local input and Moon geometry readiness audit is
+  documented. Moon illumination is active today, while Moon altitude,
+  Moon-target separation, above-horizon state and target-window overlap remain
+  local score-neutral readiness inputs for the next backend step. NASA AOD and
+  OpenAQ remain provider-dependent and should follow Moon geometry work.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

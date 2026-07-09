@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.0`.
+Versione corrente: `1.14.1`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -684,6 +684,16 @@ Lo step `1.14.0` aggiunge
 del profilo Universe e' documentato, ma l'implementazione resta rinviata finche'
 non servono provenance esplicita, nuovi cataloghi, calibrazione intrinseca o
 spiegazioni visibili. Nessun comportamento runtime o QML cambia.
+Lo step `1.14.1` aggiunge
+`docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md`, audit developer-only delle
+fonti dati NSOM. La distinzione operativa e': location ed effemeridi locali
+abilitano calcoli astronomici sempre disponibili, il profilo equip e' locale e
+opzionale con fallback a occhio nudo, mentre meteo, VIIRS, NASA AOD e OpenAQ
+sono provider opzionali. Il report identifica la geometria lunare come prossimo
+blocco backend locale: altezza Luna, separazione Luna-target e overlap con la
+finestra osservativa richiedono solo location/tempo e non provider esterni.
+AOD/OpenAQ restano lavori successivi perche' richiedono freshness, qualita' e
+controllo double-counting.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
