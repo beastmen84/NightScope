@@ -1228,8 +1228,8 @@ the default NSOM path. `BestObjectNsomSelectionService` receives raw
 `nsom_target_input` candidates, so `ObservationOpportunity` is built from the
 Universe-owned target value rather than a condition-adjusted display score. The
 controller maps the selected raw target back to `qml_display_target` for the
-existing QML payload. Sky Compass remains the only ObservationConditions
-consumer pending a raw-target reroute decision.
+existing QML payload. At that point Sky Compass remains the only
+ObservationConditions consumer pending a raw-target reroute decision.
 
 Implementation note for 1.12.10:
 `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md` defines the remaining Sky
@@ -1247,6 +1247,13 @@ display/live geometry before constructing `ObservableTargetValue`; direction
 grouping and QML payload still use the display/live candidates. This completes
 the Home, Best Object and Sky Compass consumer reroute over the
 ObservationConditions raw/display boundary.
+
+Implementation note for 1.12.12:
+The ObservationConditions consumer reroute series is closed. Home
+`recommendedDeepSky`, Best Object and Sky Compass now consume the raw side of
+the read-model for NSOM target physics while preserving display/live targets for
+compatibility payloads. The closeout changes only developer-facing status/docs;
+the next backend NSOM area is Equipment presenter contract work.
 
 Examples:
 

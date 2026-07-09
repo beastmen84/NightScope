@@ -41,6 +41,7 @@ def test_policy_splits_raw_observable_from_display_live_geometry_and_payload() -
 
     assert data["readiness"]["verdict"] == "sky_compass_read_model_reroute_implemented"
     assert data["readiness"]["runtime_changed_by_this_step"] is True
+    assert data["readiness"]["accepted_for_observation_conditions_closeout"] is True
     assert fixture["raw_observable_value"] > fixture["display_observable_value"]
     assert fixture["live_display_target"]["direction"] == "Sud-Ovest"
     assert fixture["policy_projection"]["observable_source"] == "read_model.nsom_target_input"

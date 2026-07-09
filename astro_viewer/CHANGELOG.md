@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.12.12 - 2026-07-09
+
+- Chiusa la serie ObservationConditions consumer reroute dopo la review dello
+  split adapter Sky Compass 1.12.11.
+- Gli audit ora registrano Home recommendedDeepSky, Best Object e Sky Compass
+  come consumer reroutati sui boundary raw/display corretti.
+- `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`,
+  `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`,
+  `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` e
+  `docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md` sono stati rigenerati dai tool
+  developer-only.
+- Il prossimo lavoro backend consigliato e' la review del presenter contract
+  Equipment, ora che la migrazione raw-target ObservationConditions e' stabile.
+- Nessun cambio a ranking, QML/UI, Planner, Home, Best Object, Sky Compass,
+  logging, rete o scritture runtime.
+
 ## NightScope 1.12.11 - 2026-07-09
 
 - Implementato il runtime split adapter Sky Compass definito in 1.12.10.

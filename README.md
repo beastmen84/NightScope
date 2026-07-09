@@ -592,6 +592,11 @@ target physics raw e geometria display/live corrente. Il payload QML continua a
 usare i target display/live, e i fallback senza sky quality o su errore servizio
 restano legacy. Home, Best Object e Sky Compass risultano ora reroutati sui
 boundary raw/display ObservationConditions.
+Lo step `1.12.12` chiude la serie ObservationConditions consumer reroute:
+gli audit developer-only registrano Home `recommendedDeepSky`, Best Object e
+Sky Compass come completati sul boundary raw/display, senza ulteriori cambi di
+ranking o payload. Il prossimo lavoro backend consigliato e' il presenter
+contract Equipment, non altro lavoro sulla cache ObservationConditions.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

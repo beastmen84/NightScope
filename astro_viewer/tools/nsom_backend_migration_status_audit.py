@@ -96,8 +96,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the 1.12.11 Sky Compass split adapter, then close the "
-                "ObservationConditions consumer reroute series if accepted"
+                "Start Equipment presenter contract review now that the "
+                "ObservationConditions consumer reroute series is closed"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -110,7 +110,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "now consumes the raw read-model target for NSOM ranking; Best Object "
                 "now scores raw read-model targets and returns display payload targets; "
                 "Sky Compass now uses the read-model split adapter for raw target "
-                "physics plus display/live geometry. "
+                "physics plus display/live geometry, closing the "
+                "ObservationConditions consumer reroute series. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -398,9 +399,8 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "recommendations unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the ObservationConditions consumer reroute "
-                "policy is reviewed; revisit Equipment presenter contract work "
-                "after the raw-target consumer migration is stable."
+                "Revisit Equipment presenter contract work now that the raw-target "
+                "consumer migration is closed."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -416,11 +416,12 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "Home recommendedDeepSky. The 1.12.9 runtime step applies the same "
                 "raw-score/display-payload split to Best Object. The 1.12.10 policy "
                 "defines the remaining Sky Compass split, and the 1.12.11 runtime "
-                "step implements it."
+                "step implements it. The 1.12.12 closeout records the consumer "
+                "reroute series as complete."
             ),
             "recommended_handling": (
-                "Review the 1.12.11 Sky Compass adapter, then close the "
-                "ObservationConditions consumer reroute series if accepted."
+                "Keep the read-model boundary as active compatibility code; no "
+                "ObservationConditions consumer reroute work remains open."
             ),
             "read_model_boundary_status": observation_readiness["verdict"],
             "blocks_current_default_on_surfaces": False,
@@ -616,8 +617,18 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": "Confirm the final ObservationConditions consumer reroute before closeout.",
         },
         {
-            "step": "Later UI explanation work",
-            "summary": "Expose NSOM rationale only in a dedicated UX step after backend semantics are stable.",
+            "step": "1.12.12 ObservationConditions consumer reroute closeout",
+            "summary": (
+                "Close the Home, Best Object and Sky Compass read-model consumer "
+                "reroute series and reopen Equipment presenter contract work."
+            ),
+        },
+        {
+            "step": "Next backend area: Equipment presenter contract",
+            "summary": (
+                "Decide how the shared ObserverCapability/Q_target adapter should "
+                "feed Equipment presentation without reviving legacy scoring."
+            ),
         },
     )
 

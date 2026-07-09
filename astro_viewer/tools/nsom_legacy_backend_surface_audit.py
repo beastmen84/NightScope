@@ -77,8 +77,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review the 1.12.11 Sky Compass split adapter, then close the "
-                "ObservationConditions consumer reroute series if accepted."
+                "Start Equipment presenter contract review now that the "
+                "ObservationConditions consumer reroute series is closed."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -94,7 +94,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "recommendedDeepSky now uses the raw read-model target for NSOM "
                 "ranking, and Best Object now scores raw read-model targets while "
                 "returning display targets. Sky Compass now uses a raw-target/"
-                "display-live-geometry split adapter."
+                "display-live-geometry split adapter. The ObservationConditions "
+                "consumer reroute series is closed."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -584,9 +585,8 @@ def _active_legacy_or_hybrid_surfaces(
                 "helper unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the ObservationConditions consumer reroute "
-                "policy is reviewed; revisit Equipment presenter contract work "
-                "after the raw-target consumer migration is stable."
+                "Revisit Equipment presenter contract work now that the raw-target "
+                "consumer migration is closed."
             ),
         },
         {
@@ -600,8 +600,8 @@ def _active_legacy_or_hybrid_surfaces(
                 f"`{observation_conditions_reroute_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.12.11 Sky Compass adapter, then close the "
-                "ObservationConditions consumer reroute series if accepted."
+                "Keep the read-model boundary as active compatibility code; no "
+                "ObservationConditions consumer reroute work remains open."
             ),
         },
         {

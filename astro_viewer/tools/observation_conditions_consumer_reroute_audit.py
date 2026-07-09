@@ -51,17 +51,18 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
             "runtime_behaviour_changed_by_this_audit": False,
             "home_changed": True,
             "best_object_changed": True,
-            "sky_compass_changed": False,
+            "sky_compass_changed": True,
             "report_path": str(REPORT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "observation_conditions_consumers_rerouted",
+            "verdict": "observation_conditions_consumer_reroute_closed",
             "runtime_reroute_recommended_now": False,
             "safe_to_change_runtime_in_this_step": False,
-            "safe_to_keep_current_runtime_temporarily": True,
+            "safe_to_keep_current_runtime_temporarily": False,
+            "consumer_reroute_series_closed": True,
             "recommended_next_step": (
-                "Review the 1.12.11 Sky Compass split adapter, then close the "
-                "ObservationConditions consumer reroute series if accepted."
+                "Start the next backend NSOM area from the Equipment presenter "
+                "contract now that ObservationConditions consumers are closed."
             ),
             "reason": (
                 "The read-model boundary exposes raw target inputs and conditioned "
@@ -71,7 +72,8 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
                 "Object now scores raw read-model candidates and returns the "
                 "selected display target. Sky Compass now uses a split adapter "
                 "that feeds raw target physics into ObservableTargetValue while "
-                "keeping display/live geometry and payload ownership."
+                "keeping display/live geometry and payload ownership. The "
+                "ObservationConditions consumer reroute series is closed."
             ),
         },
         "blockers": _blockers(checks),
@@ -135,6 +137,20 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
                     "display/live geometry."
                 ),
             },
+            {
+                "step": "Review 1.12.11",
+                "summary": (
+                    "Confirm the final Sky Compass split adapter before closing the "
+                    "ObservationConditions consumer reroute series."
+                ),
+            },
+            {
+                "step": "1.12.12 ObservationConditions consumer reroute closeout",
+                "summary": (
+                    "Record Home, Best Object and Sky Compass as rerouted to raw "
+                    "NSOM inputs with display payload compatibility preserved."
+                ),
+            },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -165,6 +181,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Runtime reroute recommended now: `{readiness['runtime_reroute_recommended_now']}`.",
         f"- Safe to change runtime in this step: `{readiness['safe_to_change_runtime_in_this_step']}`.",
         f"- Safe to keep current runtime temporarily: `{readiness['safe_to_keep_current_runtime_temporarily']}`.",
+        f"- Consumer reroute series closed: `{readiness['consumer_reroute_series_closed']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         f"- Reason: {readiness['reason']}",
         "",
@@ -254,7 +271,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "display targets for compatibility payloads. Home recommendedDeepSky "
                 "and Best Object now follow this policy. Sky Compass now uses a "
                 "split adapter that keeps display/live geometry separate from raw "
-                "ObservableTargetValue input."
+                "ObservableTargetValue input. No ObservationConditions consumer "
+                "reroute work remains open."
             ),
             "",
         ]

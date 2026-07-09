@@ -704,7 +704,7 @@ selected `ObservationConditionedTargetReadModel.qml_display_target` so the QML
 payload shape and displayed score semantics remain compatible. The explicit
 rollback and missing-sky-quality fallback remain unchanged. Sky Compass remains
 the only ObservationConditions consumer still pending a raw-target reroute
-decision.
+decision at that point in the migration sequence.
 `1.12.10` adds `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`. The policy
 states that Sky Compass must not be rerouted by passing only raw targets to the
 current service. `ObservableTargetValue` should read target physics from
@@ -720,6 +720,11 @@ target physics plus current display/live geometry, and passes them to
 map. Sky Compass payload fields still come from display/live candidates, and
 the missing-sky-quality and service-error fallbacks still use the legacy Sky
 Compass service.
+`1.12.12` closes the ObservationConditions consumer reroute series. Home
+`recommendedDeepSky`, Best Object and Sky Compass are now documented as routed
+through the raw/display read-model boundary. No ranking logic, payload shape or
+QML exposure changes in the closeout step; the next backend NSOM area is the
+Equipment presenter contract.
 
 ## Dependency Flow
 

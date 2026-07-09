@@ -52,14 +52,16 @@ def generate_sky_compass_read_model_reroute_policy_data() -> dict[str, object]:
             "verdict": "sky_compass_read_model_reroute_implemented",
             "runtime_reroute_ready_for_next_step": False,
             "runtime_changed_by_this_step": True,
+            "accepted_for_observation_conditions_closeout": True,
             "recommended_next_step": (
-                "Review the 1.12.11 Sky Compass read-model adapter, then close "
-                "the ObservationConditions consumer reroute series if accepted."
+                "Keep this policy as accepted evidence for the 1.12.12 "
+                "ObservationConditions consumer reroute closeout."
             ),
             "reason": (
                 "Sky Compass now uses a split adapter: raw target physics feeds "
                 "ObservableTargetValue, while display/live targets keep direction, "
-                "visibility, current-position and payload ownership."
+                "visibility, current-position and payload ownership. The adapter "
+                "is accepted for the ObservationConditions consumer closeout."
             ),
         },
         "policy_decisions": decisions,
@@ -82,6 +84,10 @@ def generate_sky_compass_read_model_reroute_policy_data() -> dict[str, object]:
             {
                 "step": "Review 1.12.11",
                 "summary": "Confirm the adapter uses raw physics and display/live geometry correctly.",
+            },
+            {
+                "step": "1.12.12 ObservationConditions consumer reroute closeout",
+                "summary": "Record the Sky Compass adapter as accepted closeout evidence.",
             },
         ),
     }
@@ -109,7 +115,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Runtime reroute ready for next step: `{readiness['runtime_reroute_ready_for_next_step']}`.",
-            f"- Runtime changed by this step: `{readiness['runtime_changed_by_this_step']}`.",
+        f"- Runtime changed by this step: `{readiness['runtime_changed_by_this_step']}`.",
+        f"- Accepted for ObservationConditions closeout: `{readiness['accepted_for_observation_conditions_closeout']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         f"- Reason: {readiness['reason']}",
         "",

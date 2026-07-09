@@ -9,8 +9,9 @@ This developer-only policy records how Sky Compass consumes the ObservationCondi
 - Verdict: `sky_compass_read_model_reroute_implemented`.
 - Runtime reroute ready for next step: `False`.
 - Runtime changed by this step: `True`.
-- Recommended next step: Review the 1.12.11 Sky Compass read-model adapter, then close the ObservationConditions consumer reroute series if accepted.
-- Reason: Sky Compass now uses a split adapter: raw target physics feeds ObservableTargetValue, while display/live targets keep direction, visibility, current-position and payload ownership.
+- Accepted for ObservationConditions closeout: `True`.
+- Recommended next step: Keep this policy as accepted evidence for the 1.12.12 ObservationConditions consumer reroute closeout.
+- Reason: Sky Compass now uses a split adapter: raw target physics feeds ObservableTargetValue, while display/live targets keep direction, visibility, current-position and payload ownership. The adapter is accepted for the ObservationConditions consumer closeout.
 
 ## Policy Decisions
 
@@ -68,6 +69,7 @@ This developer-only policy records how Sky Compass consumes the ObservationCondi
 - `1.12.10 Sky Compass read-model reroute policy`: Define raw target physics vs display/live geometry ownership before runtime changes.
 - `1.12.11 Sky Compass read-model reroute`: Implement the split adapter and keep QML payload compatibility.
 - `Review 1.12.11`: Confirm the adapter uses raw physics and display/live geometry correctly.
+- `1.12.12 ObservationConditions consumer reroute closeout`: Record the Sky Compass adapter as accepted closeout evidence.
 
 ## Conclusion
 

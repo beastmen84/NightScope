@@ -28,7 +28,7 @@ def test_consumer_reroute_audit_is_deterministic_strict_json_and_developer_only(
         "runtime_behaviour_changed_by_this_audit": False,
         "home_changed": True,
         "best_object_changed": True,
-        "sky_compass_changed": False,
+        "sky_compass_changed": True,
         "report_path": "docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md",
     }
 
@@ -37,9 +37,10 @@ def test_consumer_reroute_audit_tracks_all_runtime_consumer_reroutes() -> None:
     data = generate_observation_conditions_consumer_reroute_audit_data()
     policies = {item["consumer"]: item for item in data["consumer_policies"]}
 
-    assert data["readiness"]["verdict"] == "observation_conditions_consumers_rerouted"
+    assert data["readiness"]["verdict"] == "observation_conditions_consumer_reroute_closed"
     assert data["readiness"]["runtime_reroute_recommended_now"] is False
     assert data["readiness"]["safe_to_change_runtime_in_this_step"] is False
+    assert data["readiness"]["consumer_reroute_series_closed"] is True
     assert data["checks"]["runtime_behaviour_unchanged_by_audit"] is True
 
     assert policies["Home recommendedDeepSky"]["candidate_raw_input"] == "read_model.nsom_target_input"
@@ -99,7 +100,7 @@ def test_checked_in_consumer_reroute_audit_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# ObservationConditions Consumer Reroute Audit" in text
-    assert "observation_conditions_consumers_rerouted" in text
+    assert "observation_conditions_consumer_reroute_closed" in text
     assert "Home recommendedDeepSky" in text
     assert "Best Object" in text
     assert "Sky Compass" in text
