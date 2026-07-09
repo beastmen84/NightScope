@@ -129,8 +129,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.13.5, then choose the next backend NSOM area or run "
-        "an overall backend readiness audit"
+        "Review 1.13.6, then run a rollback cleanup policy audit before "
+        "any visible UI/explanation work"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -213,6 +213,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[38] == "1.13.5 Equipment NSOM migration closeout"
     assert sequence[39] == "Review 1.13.5"
     assert sequence[40] == "Next backend NSOM area selection audit"
+    assert sequence[41] == "1.13.6 Overall backend readiness audit"
+    assert sequence[42] == "Review 1.13.6"
+    assert sequence[43] == "1.13.7 Rollback cleanup policy audit"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:

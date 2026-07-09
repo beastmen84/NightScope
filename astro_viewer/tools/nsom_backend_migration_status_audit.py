@@ -137,8 +137,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.13.5, then choose the next backend NSOM area or run "
-                "an overall backend readiness audit"
+                "Review 1.13.6, then run a rollback cleanup policy audit before "
+                "any visible UI/explanation work"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -159,7 +159,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "runtime-neutral read-model with parity checks. The default-off "
                 "path policy audit keeps Equipment setup-local; runtime setup "
                 "recommendations remain unchanged. The 1.13.5 closeout closes "
-                "Equipment as an NSOM-bounded setup-local service."
+                "Equipment as an NSOM-bounded setup-local service. The 1.13.6 "
+                "overall backend readiness audit classifies the remaining work as "
+                "non-blocking rollback, presentation or Catalogue/Universe policy."
             ),
         },
         "blockers": blockers,
@@ -344,6 +346,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "a default-off replacement path; runtime setup recommendations "
                 "remain unchanged. The 1.13.5 closeout records the Equipment "
                 "backend migration as closed for the current setup-local scope. "
+                "The 1.13.6 overall backend readiness audit classifies the "
+                "remaining work as non-blocking rollback, presentation or "
+                "Catalogue/Universe policy. "
                 "Visible UI explanation work remains separate."
             ),
             "",
@@ -472,12 +477,14 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "default-off replacement path for now and keeps Equipment setup-local "
                 "with status `equipment_default_off_path_policy_set_setup_local`. "
                 "`docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md` closes the Equipment "
-                "backend migration for the current setup-local scope."
+                "backend migration for the current setup-local scope. "
+                "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
+                "remaining backend work as non-blocking policy or presentation cleanup."
             ),
             "recommended_handling": (
-                "Review the 1.13.5 closeout for this setup-local service, then "
-                "choose the next backend NSOM area or run an overall backend "
-                "readiness audit."
+                "Keep Equipment as a setup-local service; review the 1.13.6 "
+                "overall backend readiness audit, then run a rollback cleanup "
+                "policy audit before visible UI/explanation work."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -850,6 +857,21 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Choose the next backend NSOM area or run an overall backend "
                 "readiness audit before visible UI/explanation work."
+            ),
+        },
+        {
+            "step": "1.13.6 Overall backend readiness audit",
+            "summary": "Roll up the backend NSOM state after Equipment closeout.",
+        },
+        {
+            "step": "Review 1.13.6",
+            "summary": "Confirm the overall backend readiness audit is accurate.",
+        },
+        {
+            "step": "1.13.7 Rollback cleanup policy audit",
+            "summary": (
+                "Decide whether internal legacy rollback flags should be kept or "
+                "removed before visible UI/explanation work."
             ),
         },
     )

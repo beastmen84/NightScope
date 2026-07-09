@@ -1326,6 +1326,17 @@ explicit for future explanation or UI work. This closeout changes no runtime
 score, setup recommendation, Planner/Home/Best Object/Advanced Observing/Sky
 Compass/Detail path, QML payload, logging, network call or runtime file write.
 
+Implementation note for 1.13.6:
+`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` rolls up the backend NSOM state
+after Equipment closeout. The audit records the current recommendation surfaces
+as closed on NSOM or explicitly bounded by NSOM: Planner, Home
+recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass,
+Detail/Object, Equipment setup-local service, ObservationConditions read-model
+consumers, and removed dead legacy surfaces. Remaining work is non-blocking
+policy or presentation cleanup: internal rollback flags, compatibility score
+fields and future Catalogue/Universe score semantics. The audit does not change
+runtime scoring, QML, logging, network calls or runtime file writes.
+
 Examples:
 
 - binocular-only profile;

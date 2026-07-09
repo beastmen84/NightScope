@@ -782,6 +782,16 @@ selection, while ObserverCapability/Q_target, presenter, score ownership and
 score-component read-models remain explicit NSOM boundaries. No default-off
 Equipment runtime path is added and no runtime recommendation, payload, QML,
 logging, network or runtime file-write behaviour changes.
+`1.13.6` adds `docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md`, a developer-only
+roll-up after the Equipment closeout. It records Planner, Home
+`recommendedDeepSky`, Best Object, Advanced Observing backend, Sky Compass and
+Detail/Object as closed NSOM backend surfaces, Equipment as a closed setup-local
+NSOM-bounded service, ObservationConditions as a closed raw/display compatibility
+boundary, and Sky Map/Notifications as removed dead legacy. Remaining work is
+non-blocking policy or presentation cleanup: internal rollback flags,
+legacy/base payload score fields and future Catalogue/Universe score semantics.
+No scoring, runtime path, QML, logging, network or runtime file-write behaviour
+changes.
 
 ## Dependency Flow
 

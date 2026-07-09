@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.13.5`.
+Versione corrente: `1.13.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -647,6 +647,13 @@ servizio setup-local, non un target-ranking surface: il runtime continua a usare
 presenter boundary, ownership dello score e component boundary restano
 espliciti per NSOM. Non viene aggiunto nessun path Equipment default-off e non
 cambiano raccomandazioni, payload QML, logging, rete o scritture runtime.
+Lo step `1.13.6` aggiunge `docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md`,
+audit complessivo developer-only dopo il closeout Equipment. L'audit conferma
+le superfici backend NSOM gia' chiuse, classifica i residui non bloccanti
+come rollback interni, payload compatibility, cache ObservationConditions e
+score raw catalogo/Universe, e raccomanda come prossimo step un audit policy
+per il cleanup dei rollback prima di qualunque lavoro UI/explanation visibile.
+Nessun comportamento runtime o QML cambia.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

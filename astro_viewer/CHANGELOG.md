@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.13.6 - 2026-07-09
+
+- Aggiunto `docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md`, audit
+  developer-only complessivo dello stato NSOM backend dopo il closeout
+  Equipment.
+- L'audit conferma Planner, Home `recommendedDeepSky`, Best Object, Advanced
+  Observing backend, Sky Compass e Detail/Object come superfici NSOM chiuse,
+  Equipment come servizio setup-local NSOM-bounded, ObservationConditions come
+  boundary compatibile chiuso, e Sky Map/Notifications come legacy rimosso.
+- Classificati i residui non bloccanti: rollback legacy interni, campi payload
+  legacy/base per compatibilita' QML, cache ObservationConditions e score raw
+  catalogo/Universe.
+- Prossimo step consigliato: review 1.13.6 e audit policy per cleanup dei
+  rollback interni prima di qualunque lavoro UI/explanation visibile.
+- Nessun cambio a runtime, scoring, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.13.5 - 2026-07-09
 
 - Aggiunto `docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md`, closeout

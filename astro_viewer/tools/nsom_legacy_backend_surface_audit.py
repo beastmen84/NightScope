@@ -102,8 +102,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review 1.13.5, then choose the next backend NSOM area or run "
-                "an overall backend readiness audit."
+                "Review 1.13.6, then run a rollback cleanup policy audit before "
+                "any visible UI/explanation work."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -125,7 +125,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "read-model. The default-off path policy keeps Equipment setup-local, "
                 "so it still uses the existing runtime helper. The 1.13.5 closeout "
                 "marks the Equipment backend NSOM migration closed for the current "
-                "setup-local scope."
+                "setup-local scope. The 1.13.6 overall backend readiness audit "
+                "classifies the remaining work as non-blocking rollback, "
+                "presentation or Catalogue/Universe policy."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -371,6 +373,21 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "readiness audit before visible UI/explanation work."
             ),
         },
+        {
+            "step": "1.13.6 Overall backend readiness audit",
+            "summary": "Roll up the backend NSOM state after Equipment closeout.",
+        },
+        {
+            "step": "Review 1.13.6",
+            "summary": "Confirm the overall backend readiness audit is accurate.",
+        },
+        {
+            "step": "1.13.7 Rollback cleanup policy audit",
+            "summary": (
+                "Decide whether internal legacy rollback flags should be kept or "
+                "removed before visible UI/explanation work."
+            ),
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -541,8 +558,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "setup-local and does not add a default-off replacement path; "
                 "runtime setup recommendations remain unchanged. The 1.13.5 "
                 "closeout marks the Equipment backend NSOM migration closed for "
-                "the current setup-local scope. Temporary rollback cleanup remains "
-                "a separate policy decision."
+                "the current setup-local scope. The 1.13.6 overall backend "
+                "readiness audit classifies the remaining work as non-blocking "
+                "rollback, presentation or Catalogue/Universe policy. Temporary "
+                "rollback cleanup remains a separate policy decision."
             ),
             "",
         ]
@@ -705,6 +724,8 @@ def _active_legacy_or_hybrid_surfaces(
                 "with status `equipment_default_off_path_policy_set_setup_local`. "
                 "`docs/EQUIPMENT_NSOM_MIGRATION_CLOSEOUT.md` closes Equipment as "
                 "an NSOM-bounded setup-local service. "
+                "`docs/NSOM_OVERALL_BACKEND_READINESS_AUDIT.md` classifies the "
+                "remaining backend work as non-blocking policy or presentation cleanup. "
                 f"Contract status: `{equipment_presenter_contract_state['verdict']}`. "
                 f"Score ownership status: `{equipment_score_ownership_state['verdict']}`. "
                 f"Component boundary status: `{equipment_score_boundary_state['verdict']}`. "
@@ -712,9 +733,9 @@ def _active_legacy_or_hybrid_surfaces(
                 f"Closeout status: `{equipment_closeout_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.13.5 closeout for this setup-local service, then "
-                "choose the next backend NSOM area or run an overall backend "
-                "readiness audit."
+                "Keep Equipment as a setup-local service; review the 1.13.6 "
+                "overall backend readiness audit, then run a rollback cleanup "
+                "policy audit before visible UI/explanation work."
             ),
         },
         {
