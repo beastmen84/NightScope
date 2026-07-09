@@ -9,10 +9,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Notifications migration recommendation: `removed_dead_legacy`.
-- ObservationConditions recommendation: `read_model_boundary_introduced_consumer_reroute_pending`.
+- ObservationConditions recommendation: `consumer_reroute_policy_defined_runtime_change_pending`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the 1.12.6 ObservationConditions read-model boundary, then decide the NSOM consumer reroute policy.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and now has an explicit read-model boundary; consumer rerouting remains separate.
+- Recommended next step: Review the 1.12.7 ObservationConditions consumer reroute audit, then implement the first raw-target consumer reroute.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and now has an explicit read-model boundary plus consumer reroute policy; runtime rerouting remains separate.
 
 ## Classification Policy
 
@@ -54,8 +54,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the 1.12.6 ObservationConditions boundary is reviewed; revisit Equipment presenter contract work after the consumer-reroute decision is stable. |
-| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.6 audit reports `read_model_boundary_introduced_consumer_reroute_pending`. | Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then decide whether Home, Best Object and Sky Compass NSOM consumers should read raw read-model targets. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the ObservationConditions consumer reroute policy is reviewed; revisit Equipment presenter contract work after the raw-target consumer migration is stable. |
+| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.6 boundary reports `read_model_boundary_introduced_consumer_reroute_pending` and the 1.12.7 consumer audit reports `consumer_reroute_policy_defined_runtime_change_pending`. | Review `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`, then implement raw-target consumption one consumer at a time, starting with Home recommendedDeepSky. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Safety Checks
@@ -89,7 +89,9 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - `1.12.5 ObservationConditions read-model audit`: Audit conditioned-object cache ownership and NSOM input risks.
 - `Review 1.12.5`: Confirm the ObservationConditions audit before adding a read-model boundary.
 - `1.12.6 ObservationConditions read-model boundary`: Separate raw target input from condition-adjusted display compatibility fields.
+- `Review 1.12.6`: Confirm read-model fidelity before rerouting runtime consumers.
+- `1.12.7 ObservationConditions consumer reroute audit`: Define raw-target consumer policy for Home, Best Object and Sky Compass.
 
 ## Conclusion
 
-Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are removed dead legacy rather than a backend NSOM migration surface. ObservationConditions is active hybrid runtime code and needs a read-model boundary. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. Temporary rollback cleanup remains a separate policy decision.
+Sky Map has been removed from the backend runtime surface instead of being migrated to NSOM. Notifications are removed dead legacy rather than a backend NSOM migration surface. ObservationConditions is active hybrid runtime code with a read-model boundary and a consumer reroute policy; runtime rerouting remains a separate implementation step. Equipment now has a shared ObserverCapability/Q_target adapter while runtime setup recommendations remain unchanged. Temporary rollback cleanup remains a separate policy decision.

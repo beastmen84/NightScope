@@ -1205,6 +1205,14 @@ keeping the condition-adjusted `CelestialObject` as a display compatibility
 object. This commit does not reroute Home, Best Object or Sky Compass ranking;
 that remains a separate reviewed behaviour step.
 
+Implementation note for 1.12.7:
+`docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md` defines the consumer
+reroute policy for the ObservationConditions read model. NSOM-owned calculations
+should consume `ObservationConditionedTargetReadModel.nsom_target_input`, while
+existing Home/Best/Sky Compass payload compatibility should continue to display
+`ObservationConditionedTargetReadModel.qml_display_target`. Runtime rerouting is
+intentionally deferred to a separate behaviour-reviewed commit.
+
 Examples:
 
 - binocular-only profile;

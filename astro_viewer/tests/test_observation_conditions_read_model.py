@@ -127,6 +127,29 @@ def test_app_controller_conditioned_candidates_preserve_display_order_and_raw_ns
     assert [item.score for item in controller._conditioned_deep_sky] == [70, 55]
 
 
+def test_app_controller_home_read_model_preserves_deep_sky_breakdowns() -> None:
+    controller = AppController.__new__(AppController)
+    controller._conditions_service = ObservationConditionsService()
+    controller._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
+    controller._home_recommended_deep_sky_nsom_ranking_service = HomeRecommendedDeepSkyNsomRankingService()
+    controller._use_nsom_home_recommended_deep_sky = False
+    controller._sky_quality = _sky_quality(bortle=8, radiance=120.0)
+    controller._moon = _moon("92%")
+    controller._visible_planets = [_target("jupiter", "Jupiter", "Pianeta", 90, magnitude="-2.1")]
+    raw_galaxy = _target("m31", "M31", "Galaxy", 88, magnitude="8.8")
+    controller._deep_sky_raw_condition_input_by_id = {raw_galaxy.id: raw_galaxy}
+    controller._deep_sky = [raw_galaxy]
+
+    controller._refresh_conditioned_observing_candidates()
+
+    home_by_id = {model.object_id: model for model in controller._conditioned_home_read_model}
+    deep_by_id = {model.object_id: model for model in controller._conditioned_deep_sky_read_model}
+    assert home_by_id["m31"].condition_breakdown == deep_by_id["m31"].condition_breakdown
+    assert "moon" in home_by_id["m31"].condition_breakdown.applied_components
+    assert "read_model:display_only_projection" not in home_by_id["m31"].condition_breakdown.diagnostic_notes
+    assert home_by_id["jupiter"].source == "home_observing_candidates_planets"
+
+
 def test_observation_conditions_read_model_has_no_qml_property_exposure() -> None:
     source = inspect.getsource(AppController)
 

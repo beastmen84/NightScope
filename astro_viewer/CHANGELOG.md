@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.12.7 - 2026-07-09
+
+- Aggiunto `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`,
+  audit developer-only per la policy di reroute dei consumer NSOM
+  ObservationConditions.
+- Il report confronta `ObservableTargetValue` costruito dal target raw del
+  read-model contro il target display condizionato, evidenziando il doppio
+  conteggio potenziale su Home, Best Object e Sky Compass.
+- Definita la policy: i consumer NSOM dovrebbero calcolare dal raw target del
+  read-model e mantenere il display target condizionato per payload QML e
+  compatibilita' score.
+- Corretto un bug interno di fedelta' del read-model Home: la cache Home
+  aggregata ora conserva il breakdown deep-sky gia' calcolato invece di
+  ricostruirlo come `display_only_projection`.
+- Nessun reroute runtime ancora applicato: ranking, selezione Best Object, Sky
+  Compass, QML, logging, rete e scritture runtime restano invariati.
+
 ## NightScope 1.12.6 - 2026-07-09
 
 - Introdotto il read-model interno `ObservationConditionedTargetReadModel`

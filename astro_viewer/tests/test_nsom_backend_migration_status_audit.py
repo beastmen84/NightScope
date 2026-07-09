@@ -42,6 +42,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md",
             "docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md",
             "docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md",
+            "docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md",
             "docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md",
             "docs/EQUIPMENT_NSOM_POLICY_READINESS.md",
         ],
@@ -86,14 +87,17 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
     }
     assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
     assert remaining["ObservationConditions prepared-object cache"]["status"] == (
-        "read_model_boundary_introduced_consumer_reroute_pending"
+        "consumer_reroute_policy_defined_runtime_change_pending"
     )
-    assert "OBSERVATION_CONDITIONS_READ_MODEL_AUDIT" in remaining[
+    assert "OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT" in remaining[
         "ObservationConditions prepared-object cache"
     ]["recommended_handling"]
     assert data["notification_audit"]["classification"] == "removed_dead_legacy"
     assert data["observation_conditions_audit"]["verdict"] == (
         "read_model_boundary_introduced_consumer_reroute_pending"
+    )
+    assert data["observation_conditions_consumer_reroute_audit"]["verdict"] == (
+        "consumer_reroute_policy_defined_runtime_change_pending"
     )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
     assert "ObservationConditions" in remaining["Equipment recommendations"]["recommended_handling"]
@@ -107,9 +111,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review the 1.12.6 ObservationConditions read-model boundary, "
-        "then decide whether NSOM consumers should use the raw read-model "
-        "target in a separate behaviour-reviewed step"
+        "Review the 1.12.7 ObservationConditions consumer reroute audit, "
+        "then implement raw-target consumption one consumer at a time, "
+        "starting with Home recommendedDeepSky"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -132,6 +136,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[12] == "1.12.5 ObservationConditions read-model audit"
     assert sequence[13] == "Review 1.12.5"
     assert sequence[14] == "1.12.6 ObservationConditions read-model boundary"
+    assert sequence[15] == "Review 1.12.6"
+    assert sequence[16] == "1.12.7 ObservationConditions consumer reroute audit"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -159,7 +165,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
     assert "ObservationConditions Audit" in text
-    assert "read_model_boundary_introduced_consumer_reroute_pending" in text
+    assert "consumer_reroute_policy_defined_runtime_change_pending" in text
     assert "observer_adapter_extracted" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

@@ -14,6 +14,9 @@ from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tools.observation_conditions_read_model_audit import (
     generate_observation_conditions_read_model_audit_data,
 )
+from astro_viewer.tools.observation_conditions_consumer_reroute_audit import (
+    generate_observation_conditions_consumer_reroute_audit_data,
+)
 from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
 
 
@@ -44,9 +47,13 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     sky_map_state = _sky_map_state(root)
     notification_state = generate_notifications_dead_legacy_audit_data()["notification_surface"]
     observation_conditions_state = generate_observation_conditions_read_model_audit_data()["readiness"]
+    observation_conditions_reroute_state = generate_observation_conditions_consumer_reroute_audit_data()["readiness"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
-    active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(observation_conditions_state)
+    active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(
+        observation_conditions_state,
+        observation_conditions_reroute_state,
+    )
     static_checks = _static_checks(root)
 
     data = {
@@ -68,10 +75,10 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "verdict": "legacy_backend_surface_cleanup_complete",
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
             "notifications_migration_recommendation": notification_state["classification"],
-            "observation_conditions_recommendation": observation_conditions_state["verdict"],
+            "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review the 1.12.6 ObservationConditions read-model boundary, "
-                "then decide the NSOM consumer reroute policy."
+                "Review the 1.12.7 ObservationConditions consumer reroute audit, "
+                "then implement the first raw-target consumer reroute."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -83,7 +90,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "notifications, and the 1.12.4 cleanup removes the controller "
                 "property, runtime recomputation, `NotificationService` and DTO. "
                 "ObservationConditions remains active runtime code and now has an "
-                "explicit read-model boundary; consumer rerouting remains separate."
+                "explicit read-model boundary plus consumer reroute policy; runtime "
+                "rerouting remains separate."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -211,6 +219,18 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "step": "1.12.6 ObservationConditions read-model boundary",
                 "summary": (
                     "Separate raw target input from condition-adjusted display compatibility fields."
+                ),
+            },
+            {
+                "step": "Review 1.12.6",
+                "summary": (
+                    "Confirm read-model fidelity before rerouting runtime consumers."
+                ),
+            },
+            {
+                "step": "1.12.7 ObservationConditions consumer reroute audit",
+                "summary": (
+                    "Define raw-target consumer policy for Home, Best Object and Sky Compass."
                 ),
             },
         ),
@@ -375,7 +395,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "Sky Map has been removed from the backend runtime surface instead "
                 "of being migrated to NSOM. Notifications are removed dead legacy "
                 "rather than a backend NSOM migration surface. ObservationConditions "
-                "is active hybrid runtime code and needs a read-model boundary. "
+                "is active hybrid runtime code with a read-model boundary and a "
+                "consumer reroute policy; runtime rerouting remains a separate "
+                "implementation step. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged. Temporary "
                 "rollback cleanup remains a separate policy decision."
@@ -517,6 +539,7 @@ def _payload_compatibility_surfaces() -> tuple[dict[str, object], ...]:
 
 def _active_legacy_or_hybrid_surfaces(
     observation_conditions_state: dict[str, object],
+    observation_conditions_reroute_state: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     return (
         {
@@ -530,9 +553,9 @@ def _active_legacy_or_hybrid_surfaces(
                 "helper unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the 1.12.6 ObservationConditions boundary is "
-                "reviewed; revisit Equipment presenter contract work after the "
-                "consumer-reroute decision is stable."
+                "Keep deferred while the ObservationConditions consumer reroute "
+                "policy is reviewed; revisit Equipment presenter contract work "
+                "after the raw-target consumer migration is stable."
             ),
         },
         {
@@ -540,13 +563,15 @@ def _active_legacy_or_hybrid_surfaces(
             "classification": "active_legacy_or_hybrid",
             "why_active": (
                 "Conditioned object copies still feed fallback and compatibility "
-                "presentation paths; the 1.12.6 audit reports "
-                f"`{observation_conditions_state['verdict']}`."
+                "presentation paths; the 1.12.6 boundary reports "
+                f"`{observation_conditions_state['verdict']}` and the 1.12.7 "
+                "consumer audit reports "
+                f"`{observation_conditions_reroute_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
-                "decide whether Home, Best Object and Sky Compass NSOM consumers "
-                "should read raw read-model targets."
+                "Review `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`, "
+                "then implement raw-target consumption one consumer at a time, "
+                "starting with Home recommendedDeepSky."
             ),
         },
         {

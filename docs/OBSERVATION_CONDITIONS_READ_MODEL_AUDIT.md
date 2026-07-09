@@ -92,6 +92,7 @@ This developer-only audit reviews the active ObservationConditions runtime bound
 - `Review 1.12.5`: Confirm the ObservationConditions audit correctly identifies active consumers and read-model risks.
 - `1.12.6 ObservationConditions read-model boundary`: Introduce explicit raw/display/conditioned fields without changing visible ranking or QML payload shape.
 - `Review 1.12.6`: Verify NSOM consumers read raw target inputs while legacy display compatibility reads display fields.
+- `1.12.7 ObservationConditions consumer reroute audit`: Define raw-target consumer policy before changing Home, Best Object or Sky Compass runtime inputs.
 
 ## Conclusion
 

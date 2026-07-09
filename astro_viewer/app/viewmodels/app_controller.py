@@ -3573,13 +3573,15 @@ class AppController(QObject):
         ]
         self._conditioned_deep_sky = conditioned_deep_sky
         self._conditioned_deep_sky_read_model = list(conditioned_deep_sky_read_model)
-        self._conditioned_home_objects = self._home_visible_objects(self._visible_planets) + conditioned_deep_sky
-        self._conditioned_home_read_model = list(
-            self._conditions_read_model_builder_instance().from_display_targets(
-                self._conditioned_home_objects,
-                source="home_observing_candidates",
-                raw_targets_by_id=self._conditioned_raw_targets_by_id(),
-            )
+        visible_planets = self._home_visible_objects(self._visible_planets)
+        self._conditioned_home_objects = visible_planets + conditioned_deep_sky
+        visible_planet_read_model = self._conditions_read_model_builder_instance().from_display_targets(
+            visible_planets,
+            source="home_observing_candidates_planets",
+            raw_targets_by_id=self._conditioned_raw_targets_by_id(),
+        )
+        self._conditioned_home_read_model = list(visible_planet_read_model) + list(
+            conditioned_deep_sky_read_model
         )
 
     def _recommended_deep_sky_candidates(self, objects: list[CelestialObject]) -> list[CelestialObject]:

@@ -185,6 +185,13 @@ def generate_observation_conditions_read_model_audit_data() -> dict[str, object]
                     "display compatibility reads display fields."
                 ),
             },
+            {
+                "step": "1.12.7 ObservationConditions consumer reroute audit",
+                "summary": (
+                    "Define raw-target consumer policy before changing Home, Best "
+                    "Object or Sky Compass runtime inputs."
+                ),
+            },
         ),
     }
     return nsom_to_json_compatible(data)

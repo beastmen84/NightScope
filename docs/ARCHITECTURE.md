@@ -686,6 +686,11 @@ is added. Runtime ranking and selection remain unchanged in this commit. The
 remaining review item is whether Home, Best Object and Sky Compass NSOM
 consumers should be rerouted to the raw read-model target in a separate,
 behaviour-reviewed step.
+`1.12.7` adds `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`. The
+audit defines the consumer policy: NSOM math should read raw read-model targets,
+while QML-compatible Home/Best/Sky Compass payloads should keep conditioned
+display targets. No runtime consumer is rerouted in this step; the first
+recommended runtime implementation after review is Home `recommendedDeepSky`.
 
 ## Dependency Flow
 

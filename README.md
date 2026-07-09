@@ -559,6 +559,13 @@ immutati. Gli audit ora indicano
 `read_model_boundary_introduced_consumer_reroute_pending`: il prossimo lavoro e'
 una review mirata sul possibile reroute dei consumer NSOM verso l'input raw,
 non un cambio UI.
+Lo step `1.12.7` aggiunge
+`docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`: l'audit definisce la
+policy di reroute per Home recommendedDeepSky, Best Object e Sky Compass. La
+direzione NSOM corretta e' calcolare dal target raw del read-model e mantenere
+il target display condizionato per payload/QML compatibili. Il runtime non e'
+ancora reroutato; il primo step consigliato dopo review e' Home
+recommendedDeepSky.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

@@ -15,6 +15,9 @@ from astro_viewer.tools.equipment_nsom_policy_readiness import generate_policy_r
 from astro_viewer.tools.observation_conditions_read_model_audit import (
     generate_observation_conditions_read_model_audit_data,
 )
+from astro_viewer.tools.observation_conditions_consumer_reroute_audit import (
+    generate_observation_conditions_consumer_reroute_audit_data,
+)
 from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
 
 
@@ -31,6 +34,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md"),
     Path("docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md"),
     Path("docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md"),
+    Path("docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md"),
     Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
     Path("docs/EQUIPMENT_NSOM_POLICY_READINESS.md"),
 )
@@ -53,7 +57,11 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     default_on_surfaces = _default_on_surfaces()
     notification_audit = generate_notifications_dead_legacy_audit_data()
     observation_conditions_audit = generate_observation_conditions_read_model_audit_data()
-    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(observation_conditions_audit)
+    observation_conditions_reroute_audit = generate_observation_conditions_consumer_reroute_audit_data()
+    remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(
+        observation_conditions_audit,
+        observation_conditions_reroute_audit,
+    )
     equipment_policy = generate_policy_readiness_data()
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
@@ -87,9 +95,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the 1.12.6 ObservationConditions read-model boundary, "
-                "then decide whether NSOM consumers should use the raw read-model "
-                "target in a separate behaviour-reviewed step"
+                "Review the 1.12.7 ObservationConditions consumer reroute audit, "
+                "then implement raw-target consumption one consumer at a time, "
+                "starting with Home recommendedDeepSky"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -98,7 +106,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "hybrid surfaces; Sky Map and Notifications have been removed as "
                 "dead legacy. ObservationConditions is active hybrid runtime code "
                 "and now has a read-model boundary that separates raw and display "
-                "targets, while consumer rerouting remains a separate review. "
+                "targets plus a consumer reroute policy audit. Runtime rerouting "
+                "remains a separate behaviour-reviewed implementation. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -110,6 +119,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
         "equipment_policy": equipment_policy["readiness"],
         "notification_audit": notification_audit["notification_surface"],
         "observation_conditions_audit": observation_conditions_audit["readiness"],
+        "observation_conditions_consumer_reroute_audit": observation_conditions_reroute_audit["readiness"],
         "static_wiring_checks": static_checks,
         "checks": checks,
         "recommended_sequence": _recommended_sequence(),
@@ -202,6 +212,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
 
     notification = audit["notification_audit"]
     observation = audit["observation_conditions_audit"]
+    reroute = audit["observation_conditions_consumer_reroute_audit"]
     lines.extend(
         [
             "",
@@ -218,6 +229,13 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Runtime migration recommended now: `{observation['runtime_migration_recommended_now']}`.",
             f"- Safe to remove service: `{observation['safe_to_remove_service']}`.",
             f"- Recommended next step: {observation['recommended_next_step']}",
+            "",
+            "## ObservationConditions Consumer Reroute Audit",
+            "",
+            f"- Verdict: `{reroute['verdict']}`.",
+            f"- Runtime reroute recommended now: `{reroute['runtime_reroute_recommended_now']}`.",
+            f"- Safe to change runtime in this step: `{reroute['safe_to_change_runtime_in_this_step']}`.",
+            f"- Recommended next step: {reroute['recommended_next_step']}",
             "",
             "## Documentation State",
             "",
@@ -262,8 +280,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "removed dead legacy, not an NSOM migration surface. "
                 "ObservationConditions is active hybrid runtime code and now has "
                 "an internal read-model boundary separating raw and display target "
-                "data; consumer rerouting remains a separate reviewed behaviour "
-                "step. "
+                "data plus a consumer reroute policy; runtime rerouting remains a "
+                "separate reviewed implementation step. "
                 "Equipment now has a "
                 "shared ObserverCapability/Q_target adapter while runtime setup "
                 "recommendations remain unchanged. Visible UI explanation work "
@@ -360,8 +378,10 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
 
 def _remaining_legacy_or_hybrid_surfaces(
     observation_conditions_audit: dict[str, object],
+    observation_conditions_reroute_audit: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     observation_readiness = observation_conditions_audit["readiness"]
+    reroute_readiness = observation_conditions_reroute_audit["readiness"]
     return (
         {
             "area": "Equipment recommendations",
@@ -375,26 +395,28 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "recommendations unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the 1.12.6 ObservationConditions boundary is "
-                "reviewed; revisit Equipment presenter contract work after the "
-                "consumer-reroute decision is stable."
+                "Keep deferred while the ObservationConditions consumer reroute "
+                "policy is reviewed; revisit Equipment presenter contract work "
+                "after the raw-target consumer migration is stable."
             ),
             "blocks_current_default_on_surfaces": False,
         },
         {
             "area": "ObservationConditions prepared-object cache",
-            "status": observation_readiness["verdict"],
+            "status": reroute_readiness["verdict"],
             "why_it_remains": (
                 "`ObservationConditionsService` still creates conditioned object "
                 "copies for moon and light-pollution presentation/fallback paths; "
-                "the 1.12.6 boundary now preserves raw and display target fields "
-                "separately before any consumer reroute."
+                "the 1.12.6 boundary preserves raw and display target fields "
+                "separately, and the 1.12.7 audit defines how consumers should "
+                "reroute to raw inputs."
             ),
             "recommended_handling": (
-                "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
-                "decide whether Home, Best Object and Sky Compass NSOM consumers "
-                "should read raw read-model targets."
+                "Review `docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md`, "
+                "then implement raw-target consumption one consumer at a time, "
+                "starting with Home recommendedDeepSky."
             ),
+            "read_model_boundary_status": observation_readiness["verdict"],
             "blocks_current_default_on_surfaces": False,
         },
         {
@@ -542,6 +564,18 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.12.6 ObservationConditions read-model boundary",
             "summary": "Separate raw target input from condition-adjusted display compatibility fields.",
+        },
+        {
+            "step": "Review 1.12.6",
+            "summary": "Confirm the boundary preserves runtime behaviour and read-model fidelity.",
+        },
+        {
+            "step": "1.12.7 ObservationConditions consumer reroute audit",
+            "summary": "Define raw-target consumer policy before changing runtime inputs.",
+        },
+        {
+            "step": "Review 1.12.7",
+            "summary": "Choose the first consumer reroute implementation, starting with Home if accepted.",
         },
         {
             "step": "Later UI explanation work",
