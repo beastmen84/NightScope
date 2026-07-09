@@ -880,6 +880,14 @@ QA/uncertainty, OpenAQ locality/representativeness and double-counting policies
 with VIIRS sky background, weather transparency and Moon geometry are accepted.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` remains
 default-off and the current aerosol modifier remains `0.0`.
+`1.14.8` adds `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` and accepts
+those provider-quality policies as explicit internal gates for a future
+default-off experiment. AOD requires finite value, useful freshness,
+uncertainty within threshold, QA raw traceability and sufficient local-pixel
+support. OpenAQ PM requires local representativeness and is fallback/context
+only. AOD and PM are not additive, and VIIRS sky background, weather
+transparency and Moon geometry retain separate ownership. Scoring remains
+disabled.
 
 ## Dependency Flow
 
@@ -988,8 +996,8 @@ Services hold business logic:
   `LocalAtmosphere` result has usable data, including stale-but-present readings,
   and omitted when historical, failed, unavailable or unconfigured. The 1.14.7
   readiness audit documents fresh AOD as the future primary aerosol-column source
-  and OpenAQ PM as fallback/context, but still blocks scoring until provider
-  quality and double-counting policy are hardened. These inputs
+  and OpenAQ PM as fallback/context. The 1.14.8 policy hardens provider-quality
+  and double-counting gates for a future default-off experiment. These inputs
   are not exposed to QML and do not affect Planner, Home, equipment, weather,
   seeing/transparency, advanced scores or Sky Compass.
   Deep-sky light-pollution conditioning marks targets with an internal condition
@@ -1288,7 +1296,8 @@ For future changes:
   clusters and open clusters.
 - Before enabling new AOD/OpenAQ or transparency scoring, use
   `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md` and
-  `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` as the mathematical ownership,
-  provider-quality and double-counting references.
+  `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` plus
+  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` as the mathematical
+  ownership, provider-quality and double-counting references.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.

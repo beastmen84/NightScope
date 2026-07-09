@@ -663,6 +663,10 @@ def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
         provider="NASA Earthdata",
         product="VNP19A2.002",
         aod_550=0.173,
+        uncertainty=0.041,
+        qa_raw=1089,
+        method="local_neighborhood",
+        local_valid_pixel_count=7,
         acquisition_date=(datetime.now().date() - timedelta(days=5)).isoformat(),
     )
     controller._local_atmosphere = LocalAtmosphere(
@@ -675,6 +679,7 @@ def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
         source="Addis Ababa Central",
         freshness="Aggiornato 2 giorni fa",
         freshness_category="recent",
+        source_distance_km=1.6,
     )
 
     inputs = controller._build_observation_condition_inputs()
@@ -689,6 +694,10 @@ def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
         product="VNP19A2.002",
         status="cache_hit",
         age_days=5.0,
+        uncertainty=0.041,
+        qa_raw=1089,
+        method="local_neighborhood",
+        local_valid_pixel_count=7,
     )
     assert inputs.particulate == ParticulateConditionInput(
         available=True,
@@ -698,6 +707,7 @@ def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
         source="Addis Ababa Central",
         status="ok",
         age_days=2.0,
+        distance_km=1.6,
     )
 
 

@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.7`.
+Versione corrente: `1.14.8`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -739,6 +739,14 @@ ma blocca qualunque scoring finche' non sono definite policy formali per AOD
 QA/uncertainty, rappresentativita' locale OpenAQ e double-counting con VIIRS,
 meteo/transparency e geometria lunare. `experimental_aerosol_scoring` resta
 `False` e gli aerosol modifier restano `0.0`.
+Lo step `1.14.8` aggiunge
+`docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` e formalizza i gate
+provider-quality: AOD deve avere valore finito, freshness utile, uncertainty
+entro soglia, QA raw tracciabile e supporto pixel locale sufficiente; OpenAQ PM
+puo' essere solo fallback/context locale, con distanza entro 25 km per uso in un
+futuro esperimento. AOD e PM non sono additivi, mentre VIIRS sky background,
+meteo/transparency e geometria lunare restano proprietari separati. Lo scoring
+rimane disabilitato; il prossimo step possibile e' un path aerosol default-off.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

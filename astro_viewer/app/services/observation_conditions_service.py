@@ -20,6 +20,10 @@ class AodConditionInput:
     product: str = ""
     status: str = "unavailable"
     age_days: float | None = None
+    uncertainty: float | None = None
+    qa_raw: int | None = None
+    method: str = ""
+    local_valid_pixel_count: int | None = None
 
 
 @dataclass(frozen=True)
@@ -31,6 +35,7 @@ class ParticulateConditionInput:
     source: str = ""
     status: str = "unavailable"
     age_days: float | None = None
+    distance_km: float | None = None
 
 
 @dataclass(frozen=True)

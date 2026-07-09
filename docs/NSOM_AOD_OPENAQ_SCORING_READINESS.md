@@ -6,21 +6,21 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 ## Verdict
 
-- Verdict: `aod_openaq_scoring_blocked_pending_provider_quality_policy`.
+- Verdict: `aod_openaq_policy_hardened_ready_for_default_off_experiment`.
 - Experimental aerosol scoring default: `False`.
 - Current runtime score effect: `0.0`.
 - Ready for default-on: `False`.
-- Ready for default-off experiment: `False`.
+- Ready for default-off experiment: `True`.
 - Score formula implemented: `False`.
-- Recommended next step: Implement AOD/OpenAQ provider-quality policy hardening before any default-off scoring path.
-- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data with freshness and source precedence, but formal AOD QA/uncertainty policy and double-counting policy must be hardened before they can influence ObservationEnvironment.
+- Recommended next step: Review 1.14.8, then implement a default-off aerosol scoring experiment if the provider-quality policy is accepted.
+- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and double-counting now have explicit policy gates, but the scoring formula remains intentionally unimplemented and disabled.
 
 ## Provider Contracts
 
 | Provider | Source | Runtime role | Freshness policy | Scoring status | Blocker |
 | --- | --- | --- | --- | --- | --- |
-| `nasa_aod` | NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback | Weather page display plus diagnostic AodConditionInput | include current/stale inputs up to seven days; omit historical | score-neutral; modifier remains 0.0 | formal AOD_QA bit decoding and uncertainty policy before scoring |
-| `openaq_particulate` | OpenAQ PM2.5/PM10 nearest local stations | Weather page display plus diagnostic ParticulateConditionInput | current <=1 day, recent <=3 days, stale <=7 days, historical omitted | score-neutral; modifier remains 0.0 | station locality/representativeness and fallback policy before scoring |
+| `nasa_aod` | NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback | Weather page display plus diagnostic AodConditionInput | include current/stale inputs up to seven days; omit historical | policy-hardened and score-neutral; modifier remains 0.0 | none for default-off experiment; formula still not implemented |
+| `openaq_particulate` | OpenAQ PM2.5/PM10 nearest local stations | Weather page display plus diagnostic ParticulateConditionInput | current <=1 day, recent <=3 days, stale <=7 days, historical omitted | policy-hardened fallback/context and score-neutral; modifier remains 0.0 | none for default-off experiment; formula still not implemented |
 
 ## Freshness Policy
 
@@ -75,10 +75,10 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 | Decision | Status | Blocks scoring | Affected layer | Reason |
 | --- | --- | --- | --- | --- |
-| `aod_qa_policy` | `needs_policy_before_scoring` | `True` | Sky / ObservationEnvironment | Formal AOD_QA bit decoding and uncertainty thresholds are required before score use. |
+| `aod_qa_policy` | `accepted_for_default_off_experiment` | `False` | Sky / ObservationEnvironment | AOD requires finite value, freshness, QA raw traceability, uncertainty threshold and pixel support. |
 | `aod_pm_source_precedence` | `accepted_for_readiness` | `False` | Sky / Confidence | Fresh AOD is primary; PM is fallback/context when AOD is unavailable or historical. |
-| `openaq_locality_policy` | `needs_policy_before_scoring` | `True` | Sky / Confidence | PM station distance/representativeness must be explicit before score use. |
-| `double_counting_policy` | `needs_policy_before_scoring` | `True` | Sky / Session | Aerosol, VIIRS sky background, weather transparency and Moon geometry need non-overlap rules. |
+| `openaq_locality_policy` | `accepted_for_default_off_experiment` | `False` | Sky / Confidence | OpenAQ PM is eligible only as local fallback within 25 km; 25-50 km remains context only. |
+| `double_counting_policy` | `accepted_for_default_off_experiment` | `False` | Sky / Session | AOD and PM are not additive; VIIRS, weather transparency and Moon geometry keep separate ownership. |
 | `confidence_metadata_policy` | `accepted` | `False` | Confidence | Provider freshness and availability remain metadata and do not change score. |
 
 ## Checks
@@ -94,16 +94,14 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 | `target_sensitivity_order_characterized` | `True` |
 | `aod_primary_pm_fallback` | `True` |
 | `aerosol_modifier_score_neutral` | `True` |
-| `provider_quality_blockers_explicit` | `True` |
-| `double_counting_blocker_explicit` | `True` |
+| `provider_quality_policy_accepted` | `True` |
+| `double_counting_policy_accepted` | `True` |
 | `confidence_metadata_policy_accepted` | `True` |
 
 ## Blockers
 
-- `aod_qa_policy`
-- `openaq_locality_policy`
-- `double_counting_policy`
+- None.
 
 ## Conclusion
 
-AOD/OpenAQ should remain score-neutral for now. The next useful backend step is not formula tuning; it is provider-quality policy hardening: formal AOD QA/uncertainty handling, OpenAQ locality and freshness policy, and explicit double-counting rules with VIIRS sky background, weather transparency and Moon geometry.
+AOD/OpenAQ should remain score-neutral until a separate default-off experiment introduces a formula. The provider-quality blockers from 1.14.7 now have explicit policy gates: AOD QA/uncertainty, OpenAQ locality and freshness, and non-overlap with VIIRS sky background, weather transparency and Moon geometry.

@@ -36,22 +36,21 @@ def test_aod_openaq_scoring_is_not_ready_and_blockers_are_explicit() -> None:
     data = generate_aod_openaq_scoring_readiness_data()
     decisions = {item["decision_id"]: item for item in data["policy_decisions"]}
 
-    assert data["readiness"]["verdict"] == "aod_openaq_scoring_blocked_pending_provider_quality_policy"
+    assert data["readiness"]["verdict"] == "aod_openaq_policy_hardened_ready_for_default_off_experiment"
     assert data["readiness"]["ready_for_default_on"] is False
-    assert data["readiness"]["ready_for_default_off_experiment"] is False
+    assert data["readiness"]["ready_for_default_off_experiment"] is True
     assert data["readiness"]["score_formula_implemented"] is False
     assert data["readiness"]["experimental_aerosol_scoring_default"] is False
     assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
 
-    assert decisions["aod_qa_policy"]["blocks_scoring"] is True
-    assert decisions["openaq_locality_policy"]["blocks_scoring"] is True
-    assert decisions["double_counting_policy"]["blocks_scoring"] is True
+    assert decisions["aod_qa_policy"]["status"] == "accepted_for_default_off_experiment"
+    assert decisions["aod_qa_policy"]["blocks_scoring"] is False
+    assert decisions["openaq_locality_policy"]["status"] == "accepted_for_default_off_experiment"
+    assert decisions["openaq_locality_policy"]["blocks_scoring"] is False
+    assert decisions["double_counting_policy"]["status"] == "accepted_for_default_off_experiment"
+    assert decisions["double_counting_policy"]["blocks_scoring"] is False
     assert decisions["confidence_metadata_policy"]["blocks_scoring"] is False
-    assert set(data["blockers"]) >= {
-        "aod_qa_policy",
-        "openaq_locality_policy",
-        "double_counting_policy",
-    }
+    assert data["blockers"] == []
 
 
 def test_freshness_and_source_precedence_are_characterized() -> None:
@@ -116,9 +115,9 @@ def test_checked_in_aod_openaq_readiness_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM AOD/OpenAQ Scoring Readiness" in text
-    assert "aod_openaq_scoring_blocked_pending_provider_quality_policy" in text
+    assert "aod_openaq_policy_hardened_ready_for_default_off_experiment" in text
     assert "Ready for default-on: `False`" in text
-    assert "Ready for default-off experiment: `False`" in text
+    assert "Ready for default-off experiment: `True`" in text
     assert "confidence_metadata_policy" in text
     assert "Provider freshness and availability remain metadata" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

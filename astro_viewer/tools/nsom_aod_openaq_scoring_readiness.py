@@ -44,6 +44,19 @@ SOURCE_MARKERS = (
         ),
     },
     {
+        "surface": "AOD/OpenAQ provider quality policy",
+        "path": Path("astro_viewer/app/services/aerosol_provider_quality_policy.py"),
+        "markers": (
+            "class AerosolProviderQualityPolicyService",
+            "class AodProviderQualityDecision",
+            "class ParticulateProviderQualityDecision",
+            "aod_and_particulate_are_not_additive",
+            "viirs_sky_background_remains_separate",
+            "weather_transparency_remains_separate",
+            "moon_geometry_remains_separate",
+        ),
+    },
+    {
         "surface": "NASA AOD provider",
         "path": Path("astro_viewer/app/services/nasa_aod_provider.py"),
         "markers": (
@@ -135,9 +148,9 @@ def generate_aod_openaq_scoring_readiness_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "aod_openaq_scoring_blocked_pending_provider_quality_policy"
+                "aod_openaq_readiness_needs_review"
                 if blockers
-                else "aod_openaq_scoring_ready_for_default_off_experiment"
+                else "aod_openaq_policy_hardened_ready_for_default_off_experiment"
             ),
             "experimental_aerosol_scoring_default": ObservationConditionFeatureFlags().experimental_aerosol_scoring,
             "current_runtime_score_effect": 0.0,
@@ -146,14 +159,14 @@ def generate_aod_openaq_scoring_readiness_data() -> dict[str, object]:
             "provider_inputs_available_diagnostically": True,
             "score_formula_implemented": False,
             "recommended_next_step": (
-                "Implement AOD/OpenAQ provider-quality policy hardening before "
-                "any default-off scoring path."
+                "Review 1.14.8, then implement a default-off aerosol scoring "
+                "experiment if the provider-quality policy is accepted."
             ),
             "reason": (
                 "NASA AOD and OpenAQ PM inputs are already adapted as diagnostic "
-                "Sky/Confidence data with freshness and source precedence, but "
-                "formal AOD QA/uncertainty policy and double-counting policy must "
-                "be hardened before they can influence ObservationEnvironment."
+                "Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and "
+                "double-counting now have explicit policy gates, but the scoring "
+                "formula remains intentionally unimplemented and disabled."
             ),
         },
         "provider_contracts": provider_contracts,
@@ -321,11 +334,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "AOD/OpenAQ should remain score-neutral for now. The next useful "
-                "backend step is not formula tuning; it is provider-quality policy "
-                "hardening: formal AOD QA/uncertainty handling, OpenAQ locality and "
-                "freshness policy, and explicit double-counting rules with VIIRS "
-                "sky background, weather transparency and Moon geometry."
+                "AOD/OpenAQ should remain score-neutral until a separate default-off "
+                "experiment introduces a formula. The provider-quality blockers from "
+                "1.14.7 now have explicit policy gates: AOD QA/uncertainty, OpenAQ "
+                "locality and freshness, and non-overlap with VIIRS sky background, "
+                "weather transparency and Moon geometry."
             ),
         ]
     )
@@ -345,16 +358,16 @@ def _provider_contracts() -> tuple[dict[str, object], ...]:
             "source": "NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback",
             "runtime_role": "Weather page display plus diagnostic AodConditionInput",
             "freshness_policy": "include current/stale inputs up to seven days; omit historical",
-            "scoring_status": "score-neutral; modifier remains 0.0",
-            "blocker": "formal AOD_QA bit decoding and uncertainty policy before scoring",
+            "scoring_status": "policy-hardened and score-neutral; modifier remains 0.0",
+            "blocker": "none for default-off experiment; formula still not implemented",
         },
         {
             "provider": "openaq_particulate",
             "source": "OpenAQ PM2.5/PM10 nearest local stations",
             "runtime_role": "Weather page display plus diagnostic ParticulateConditionInput",
             "freshness_policy": "current <=1 day, recent <=3 days, stale <=7 days, historical omitted",
-            "scoring_status": "score-neutral; modifier remains 0.0",
-            "blocker": "station locality/representativeness and fallback policy before scoring",
+            "scoring_status": "policy-hardened fallback/context and score-neutral; modifier remains 0.0",
+            "blocker": "none for default-off experiment; formula still not implemented",
         },
     )
 
@@ -527,10 +540,10 @@ def _policy_decisions() -> tuple[dict[str, object], ...]:
     return (
         {
             "decision_id": "aod_qa_policy",
-            "status": "needs_policy_before_scoring",
-            "blocks_scoring": True,
+            "status": "accepted_for_default_off_experiment",
+            "blocks_scoring": False,
             "affected_layer": "Sky / ObservationEnvironment",
-            "reason": "Formal AOD_QA bit decoding and uncertainty thresholds are required before score use.",
+            "reason": "AOD requires finite value, freshness, QA raw traceability, uncertainty threshold and pixel support.",
         },
         {
             "decision_id": "aod_pm_source_precedence",
@@ -541,17 +554,17 @@ def _policy_decisions() -> tuple[dict[str, object], ...]:
         },
         {
             "decision_id": "openaq_locality_policy",
-            "status": "needs_policy_before_scoring",
-            "blocks_scoring": True,
+            "status": "accepted_for_default_off_experiment",
+            "blocks_scoring": False,
             "affected_layer": "Sky / Confidence",
-            "reason": "PM station distance/representativeness must be explicit before score use.",
+            "reason": "OpenAQ PM is eligible only as local fallback within 25 km; 25-50 km remains context only.",
         },
         {
             "decision_id": "double_counting_policy",
-            "status": "needs_policy_before_scoring",
-            "blocks_scoring": True,
+            "status": "accepted_for_default_off_experiment",
+            "blocks_scoring": False,
             "affected_layer": "Sky / Session",
-            "reason": "Aerosol, VIIRS sky background, weather transparency and Moon geometry need non-overlap rules.",
+            "reason": "AOD and PM are not additive; VIIRS, weather transparency and Moon geometry keep separate ownership.",
         },
         {
             "decision_id": "confidence_metadata_policy",
@@ -606,14 +619,16 @@ def _checks(
             and row["adjusted_score_delta"] == 0
             for row in score_neutrality_rows
         ),
-        "provider_quality_blockers_explicit": any(
+        "provider_quality_policy_accepted": any(
             decision["decision_id"] == "aod_qa_policy"
-            and decision["blocks_scoring"] is True
+            and decision["status"] == "accepted_for_default_off_experiment"
+            and decision["blocks_scoring"] is False
             for decision in policy_decisions
         ),
-        "double_counting_blocker_explicit": any(
+        "double_counting_policy_accepted": any(
             decision["decision_id"] == "double_counting_policy"
-            and decision["blocks_scoring"] is True
+            and decision["status"] == "accepted_for_default_off_experiment"
+            and decision["blocks_scoring"] is False
             for decision in policy_decisions
         ),
         "confidence_metadata_policy_accepted": any(
@@ -643,8 +658,8 @@ def _blockers(
         "target_sensitivity_order_characterized": "aod-openaq-target-sensitivity-not-characterized",
         "aod_primary_pm_fallback": "aod-openaq-source-precedence-wrong",
         "aerosol_modifier_score_neutral": "aod-openaq-score-effect-present",
-        "provider_quality_blockers_explicit": "aod-openaq-quality-blocker-missing",
-        "double_counting_blocker_explicit": "aod-openaq-double-counting-blocker-missing",
+        "provider_quality_policy_accepted": "aod-openaq-quality-policy-not-accepted",
+        "double_counting_policy_accepted": "aod-openaq-double-counting-policy-not-accepted",
         "confidence_metadata_policy_accepted": "aod-openaq-confidence-policy-missing",
     }
     blockers.extend(

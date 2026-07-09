@@ -52,6 +52,7 @@ class LocalAtmosphere:
     freshness: str = "—"
     freshness_category: str = "unavailable"
     freshness_warning: bool = False
+    source_distance_km: float | None = None
 
     @classmethod
     def not_configured(cls) -> LocalAtmosphere:
@@ -268,6 +269,7 @@ class OpenAQLocalAtmosphereService:
             freshness=freshness_label,
             freshness_category=freshness_category,
             freshness_warning=freshness_category in ("recent", "stale"),
+            source_distance_km=source_reading.distance_km,
         )
 
     @staticmethod

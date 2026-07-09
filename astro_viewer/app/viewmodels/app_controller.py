@@ -3848,6 +3848,10 @@ class AppController(QObject):
             product=result.product,
             status=result.status,
             age_days=age_days,
+            uncertainty=result.uncertainty,
+            qa_raw=result.qa_raw,
+            method=result.method,
+            local_valid_pixel_count=result.local_valid_pixel_count,
         )
 
     def _particulate_condition_input(self) -> ParticulateConditionInput | None:
@@ -3862,6 +3866,7 @@ class AppController(QObject):
             source=atmosphere.source if atmosphere.source != "—" else "",
             status="ok",
             age_days=self._freshness_age_days(atmosphere.freshness),
+            distance_km=atmosphere.source_distance_km,
         )
 
     @staticmethod

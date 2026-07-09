@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.14.8 - 2026-07-09
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md`, report
+  developer-only che formalizza le policy provider-quality per NASA AOD e OpenAQ
+  prima di qualsiasi scoring aerosol.
+- Aggiunto `AerosolProviderQualityPolicyService` con decisioni immutabili per:
+  AOD freshness, valore finito, uncertainty, QA raw traceability, pixel locali;
+  OpenAQ freshness, distanza locale e rappresentativita'; source precedence e
+  regole anti double-counting.
+- Estesi gli input diagnostici interni con uncertainty/QA/method/pixel AOD e
+  distanza OpenAQ strutturata. Il payload QML resta invariato.
+- Aggiornato `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`: i blocker policy
+  1.14.7 sono risolti come gate espliciti, quindi il prossimo passo puo' essere
+  un esperimento aerosol default-off.
+- Nessuno scoring e' stato abilitato: `experimental_aerosol_scoring` resta
+  `False`, la formula non e' implementata e il modifier resta `0.0`.
+- Nessun cambio Planner, Home, Best Object, Advanced Observing, Sky Compass,
+  Detail/Object, Equipment, QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.14.7 - 2026-07-09
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`, audit

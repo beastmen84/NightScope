@@ -55,6 +55,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md",
             "docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md",
             "docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md",
+            "docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md",
         ],
     }
 
@@ -144,8 +145,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Harden AOD/OpenAQ provider-quality and double-counting policy "
-        "before any default-off aerosol scoring path"
+        "Review 1.14.8, then implement a default-off aerosol scoring "
+        "experiment if accepted"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -264,6 +265,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "equipment_default_off_path_policy_set_setup_local" in text
     assert "equipment_nsom_migration_closed_setup_local" in text
     assert "NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT" in text
-    assert "AOD/OpenAQ scoring remains blocked" in text
+    assert "AOD/OpenAQ provider-quality policy is now hardened" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

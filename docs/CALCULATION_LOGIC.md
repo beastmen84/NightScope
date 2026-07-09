@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.7`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.8`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -53,8 +53,9 @@ availability and ownership:
 - NASA AOD and OpenAQ particulate data are optional external provider inputs.
   They are currently display/diagnostic only and remain score-neutral until a
   later explicit NSOM aerosol step. `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`
-  records that they are not ready for scoring until AOD QA/uncertainty,
-  OpenAQ locality and double-counting policy are hardened.
+  records that they are not enabled for scoring; 1.14.8 adds
+  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` with the formal provider
+  gates needed before any default-off scoring experiment.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -77,12 +78,15 @@ available. Calibration and switch-state evidence are tracked in
 `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` and
 `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`.
 
-NASA AOD/OpenAQ scoring remains disabled after the 1.14.7 readiness audit.
+NASA AOD/OpenAQ scoring remains disabled after the 1.14.8 provider-quality
+policy hardening.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, and `ObservationConditionsService.intended_aerosol_modifier(...)`
 returns `0.0` for all current inputs. Fresh AOD is characterized as the primary
 future aerosol-column source, while OpenAQ PM2.5/PM10 is fallback/context when
-AOD is unavailable or historical. This characterization is metadata only.
+AOD is unavailable or historical. AOD now has explicit gates for value,
+freshness, uncertainty, QA raw traceability and local-pixel support; OpenAQ has
+explicit locality gates. This characterization is metadata only.
 
 ### Solar-System Objects
 
@@ -410,9 +414,10 @@ owned by `PlannerScoringService`.
 NASA AOD and OpenAQ particulate data, including freshness categories. These
 fields currently stay neutral: AOD and PM modifiers remain zero and do not feed
 Planner ranking, Home scores, Recommendation Engine, Sky Compass, seeing or
-transparency scores. The 1.14.7 readiness audit keeps them blocked from scoring
-until formal AOD QA/uncertainty, OpenAQ locality and double-counting policies
-are accepted.
+transparency scores. The 1.14.8 policy keeps them score-neutral while making the
+future default-off gate explicit: AOD owns column aerosol only when policy
+eligible, OpenAQ PM is fallback/context only, and VIIRS sky background, weather
+transparency and Moon geometry remain separate owners.
 
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
@@ -636,9 +641,9 @@ Current limitations:
 - AOD is a column aerosol/transparency proxy, not the same concept as OpenAQ
   ground-level PM2.5/PM10 measurements.
 - `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` classifies this provider work as
-  not ready for scoring yet. Freshness and target sensitivity are characterized,
-  but formula enablement is blocked by AOD QA/uncertainty, OpenAQ locality and
-  double-counting policy.
+  not enabled for scoring yet. `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md`
+  records the accepted 1.14.8 provider-quality gates for a future default-off
+  experiment; formula enablement is still separate.
 
 ## Refresh Chain
 
