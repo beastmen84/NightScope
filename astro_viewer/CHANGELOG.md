@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.13.0 - 2026-07-09
+
+- Aggiunto `docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md`, audit
+  developer-only del contratto presenter Equipment prima di qualunque
+  replacement runtime.
+- L'audit registra payload, `setupOptions`, fallback, `selectionScore`, uso
+  reference-only di `Q_target` e neutralita' di `RecommendationConfidence`.
+- Aggiornati gli audit backend/legacy: Equipment passa da semplice
+  `observer_adapter_extracted` a `equipment_presenter_contract_audited`, ma il
+  runtime helper `EquipmentService.suggest_for_profile(...)` resta invariato.
+- Il prossimo step consigliato e' estrarre un DTO/read-model presenter Equipment
+  runtime-neutral, preservando forma payload e QML esistenti.
+- Nessun cambio a raccomandazioni Equipment runtime, Planner, Home, Best Object,
+  Advanced Observing, Sky Compass, Detail/Object, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.12.12 - 2026-07-09
 
 - Chiusa la serie ObservationConditions consumer reroute dopo la review dello

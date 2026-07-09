@@ -1255,6 +1255,17 @@ the read-model for NSOM target physics while preserving display/live targets for
 compatibility payloads. The closeout changes only developer-facing status/docs;
 the next backend NSOM area is Equipment presenter contract work.
 
+Implementation note for 1.13.0:
+`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the current Equipment
+presenter contract before any runtime scoring replacement. The audit keeps
+`EquipmentService.suggest_for_profile(...)` as the runtime owner of setup
+payloads, fallback states, `setupOptions` and `selectionScore`; it treats
+`ObserverCapability`/`Q_target` as reference-only NSOM observer metadata for now
+and keeps `RecommendationConfidence` parallel and score-neutral. No QML field,
+runtime Equipment ranking, Planner/Home/Best Object/Sky Compass path, logging,
+network call or runtime write is introduced. The next NSOM-safe backend step is
+a runtime-neutral Equipment setup read-model/presenter DTO.
+
 Examples:
 
 - binocular-only profile;

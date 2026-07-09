@@ -12,7 +12,7 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 - ObserverCapability adapter extracted: `True`.
 - Runtime behaviour changed by this review: `False`.
 - Explicit legacy default: EquipmentService.suggest_for_profile(...) remains unchanged.
-- Recommended next change: Review the shared ObserverCapability/Q_target adapter extraction, then decide between ObservationConditions read-model cleanup and Equipment presenter contract work.
+- Recommended next change: Use the 1.13.0 Equipment presenter contract audit, then extract a runtime-neutral setup read-model boundary before any scoring replacement.
 - Reason: EquipmentService is still the concrete setup presenter and fallback owner. The comparison is sufficient to extract ObserverCapability/Q_target, but a default-off runtime replacement should wait for payload and environment boundaries.
 
 ## Default-Off Runtime Replacement Blockers
@@ -94,4 +94,4 @@ This developer-only audit records the Equipment/ObserverCapability policy decisi
 
 ## Recommended Next Step
 
-Review `1.12.2` and then decide whether the next backend step is ObservationConditions read-model cleanup or an Equipment presenter contract. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender.
+Use the `1.13.0` Equipment presenter contract audit to define the payload/read-model boundary. Keep `EquipmentService.suggest_for_profile(...)` as the runtime setup recommender until that boundary exists.

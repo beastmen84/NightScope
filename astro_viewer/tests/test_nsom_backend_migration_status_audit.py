@@ -46,6 +46,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md",
             "docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md",
             "docs/EQUIPMENT_NSOM_POLICY_READINESS.md",
+            "docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md",
         ],
     }
 
@@ -86,7 +87,7 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "ObservationConditions prepared-object cache",
         "Catalogue / raw object score",
     }
-    assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
+    assert remaining["Equipment recommendations"]["status"] == "equipment_presenter_contract_audited"
     assert remaining["ObservationConditions prepared-object cache"]["status"] == (
         "observation_conditions_consumer_reroute_closed"
     )
@@ -101,7 +102,7 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
         "observation_conditions_consumer_reroute_closed"
     )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
-    assert "presenter contract" in remaining["Equipment recommendations"]["recommended_handling"]
+    assert "setup read-model/presenter DTO" in remaining["Equipment recommendations"]["recommended_handling"]
     assert all(item["blocks_current_default_on_surfaces"] is False for item in remaining.values())
 
 
@@ -112,13 +113,17 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Start Equipment presenter contract review now that the "
-        "ObservationConditions consumer reroute series is closed"
+        "Add a runtime-neutral Equipment setup read-model/presenter DTO "
+        "before any EquipmentService scoring replacement"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
+    assert data["equipment_presenter_contract"]["verdict"] == "equipment_presenter_contract_audited"
+    assert data["equipment_presenter_contract"]["runtime_replacement_ready"] is False
     assert data["checks"]["equipment_policy_ready_for_adapter_step"] is True
     assert data["checks"]["equipment_observer_adapter_extracted"] is True
+    assert data["checks"]["equipment_presenter_contract_audited"] is True
+    assert data["checks"]["equipment_runtime_replacement_deferred"] is True
     assert sequence[:3] == [
         "Review 1.9.7",
         "Review 1.10.6",
@@ -149,6 +154,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[25] == "Review 1.12.11"
     assert sequence[26] == "1.12.12 ObservationConditions consumer reroute closeout"
     assert sequence[27] == "Next backend area: Equipment presenter contract"
+    assert sequence[28] == "1.13.0 Equipment presenter contract audit"
+    assert sequence[29] == "Review 1.13.0"
+    assert sequence[30] == "1.13.1 Equipment setup read-model boundary"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -177,6 +185,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "backend_nsom_default_on_surfaces_closed" in text
     assert "ObservationConditions Audit" in text
     assert "observation_conditions_consumer_reroute_closed" in text
-    assert "observer_adapter_extracted" in text
+    assert "equipment_presenter_contract_audited" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

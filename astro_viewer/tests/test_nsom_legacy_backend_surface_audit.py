@@ -108,7 +108,8 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     }
     assert active["Equipment recommendations"]["classification"] == "active_legacy_or_hybrid"
     assert "observer_capability_adapter.py" in active["Equipment recommendations"]["why_active"]
-    assert "presenter contract" in active[
+    assert "equipment_presenter_contract_audited" in active["Equipment recommendations"]["why_active"]
+    assert "setup read-model/presenter DTO" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
     assert "observation_conditions_consumer_reroute_closed" in active[
@@ -154,4 +155,7 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.12.9 Best Object raw-target reroute" in text
     assert "1.12.10 Sky Compass read-model reroute policy" in text
     assert "1.12.11 Sky Compass read-model reroute" in text
+    assert "1.13.0 Equipment presenter contract audit" in text
+    assert "Review 1.13.0" in text
+    assert "1.13.1 Equipment setup read-model boundary" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

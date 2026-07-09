@@ -18,6 +18,9 @@ from astro_viewer.tools.observation_conditions_consumer_reroute_audit import (
     generate_observation_conditions_consumer_reroute_audit_data,
 )
 from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
+from astro_viewer.tools.equipment_presenter_contract_audit import (
+    generate_equipment_presenter_contract_audit_data,
+)
 
 
 REPORT_PATH = Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md")
@@ -48,11 +51,13 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     notification_state = generate_notifications_dead_legacy_audit_data()["notification_surface"]
     observation_conditions_state = generate_observation_conditions_read_model_audit_data()["readiness"]
     observation_conditions_reroute_state = generate_observation_conditions_consumer_reroute_audit_data()["readiness"]
+    equipment_presenter_contract_state = generate_equipment_presenter_contract_audit_data()["readiness"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
     active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces(
         observation_conditions_state,
         observation_conditions_reroute_state,
+        equipment_presenter_contract_state,
     )
     static_checks = _static_checks(root)
 
@@ -77,8 +82,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Start Equipment presenter contract review now that the "
-                "ObservationConditions consumer reroute series is closed."
+                "Add a runtime-neutral Equipment setup read-model/presenter DTO "
+                "before any EquipmentService scoring replacement."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -95,7 +100,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "ranking, and Best Object now scores raw read-model targets while "
                 "returning display targets. Sky Compass now uses a raw-target/"
                 "display-live-geometry split adapter. The ObservationConditions "
-                "consumer reroute series is closed."
+                "consumer reroute series is closed. Equipment now has a presenter "
+                "contract audit but still uses the existing runtime helper."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -265,6 +271,27 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "preserving display/live geometry and payload fields."
             ),
         },
+        {
+            "step": "1.13.0 Equipment presenter contract audit",
+            "summary": (
+                "Define the Equipment setup payload/read-model contract before "
+                "any runtime scoring replacement."
+            ),
+        },
+        {
+            "step": "Review 1.13.0",
+            "summary": (
+                "Confirm the Equipment presenter contract audit is accurate and "
+                "developer-only."
+            ),
+        },
+        {
+            "step": "1.13.1 Equipment setup read-model boundary",
+            "summary": (
+                "Extract a runtime-neutral Equipment setup read-model/presenter DTO "
+                "while preserving current payload shape."
+            ),
+        },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -431,8 +458,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "consumer reroute policy; runtime rerouting remains a separate "
                 "implementation step. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "while runtime setup recommendations remain unchanged. Temporary "
-                "rollback cleanup remains a separate policy decision."
+                "and a presenter contract audit while runtime setup recommendations "
+                "remain unchanged. Temporary rollback cleanup remains a separate "
+                "policy decision."
             ),
             "",
         ]
@@ -572,6 +600,7 @@ def _payload_compatibility_surfaces() -> tuple[dict[str, object], ...]:
 def _active_legacy_or_hybrid_surfaces(
     observation_conditions_state: dict[str, object],
     observation_conditions_reroute_state: dict[str, object],
+    equipment_presenter_contract_state: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     return (
         {
@@ -581,12 +610,13 @@ def _active_legacy_or_hybrid_surfaces(
                 "`EquipmentService` still computes practical setup recommendations; "
                 "`observer_capability_adapter.py` now provides shared "
                 "ObserverCapability/Q_target projection while "
-                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup "
-                "helper unchanged."
+                "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
+                "setup payload/read-model contract required before runtime replacement. "
+                f"Contract status: `{equipment_presenter_contract_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Revisit Equipment presenter contract work now that the raw-target "
-                "consumer migration is closed."
+                "Extract a runtime-neutral Equipment setup read-model/presenter DTO "
+                "while preserving current payload shape."
             ),
         },
         {

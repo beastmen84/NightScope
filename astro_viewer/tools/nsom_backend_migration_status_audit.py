@@ -12,6 +12,9 @@ from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
 from astro_viewer.app.viewmodels.app_controller import AppController
 from astro_viewer.tools.equipment_nsom_policy_readiness import generate_policy_readiness_data
+from astro_viewer.tools.equipment_presenter_contract_audit import (
+    generate_equipment_presenter_contract_audit_data,
+)
 from astro_viewer.tools.observation_conditions_read_model_audit import (
     generate_observation_conditions_read_model_audit_data,
 )
@@ -38,6 +41,7 @@ SOURCE_REPORTS = (
     Path("docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md"),
     Path("docs/EQUIPMENT_NSOM_COMPARISON_REPORT.md"),
     Path("docs/EQUIPMENT_NSOM_POLICY_READINESS.md"),
+    Path("docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -59,14 +63,23 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
     notification_audit = generate_notifications_dead_legacy_audit_data()
     observation_conditions_audit = generate_observation_conditions_read_model_audit_data()
     observation_conditions_reroute_audit = generate_observation_conditions_consumer_reroute_audit_data()
+    equipment_policy = generate_policy_readiness_data()
+    equipment_presenter_contract = generate_equipment_presenter_contract_audit_data()
     remaining_surfaces = _remaining_legacy_or_hybrid_surfaces(
         observation_conditions_audit,
         observation_conditions_reroute_audit,
+        equipment_presenter_contract,
     )
-    equipment_policy = generate_policy_readiness_data()
     static_checks = _static_wiring_checks(root)
     documentation = _documentation_state(root)
-    checks = _checks(default_on_surfaces, remaining_surfaces, static_checks, documentation, equipment_policy)
+    checks = _checks(
+        default_on_surfaces,
+        remaining_surfaces,
+        static_checks,
+        documentation,
+        equipment_policy,
+        equipment_presenter_contract,
+    )
     blockers = _blockers(checks)
 
     data = {
@@ -96,8 +109,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Start Equipment presenter contract review now that the "
-                "ObservationConditions consumer reroute series is closed"
+                "Add a runtime-neutral Equipment setup read-model/presenter DTO "
+                "before any EquipmentService scoring replacement"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -113,7 +126,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "physics plus display/live geometry, closing the "
                 "ObservationConditions consumer reroute series. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
-                "while runtime setup recommendations remain unchanged."
+                "and a presenter contract audit; runtime setup recommendations "
+                "remain unchanged."
             ),
         },
         "blockers": blockers,
@@ -121,6 +135,7 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
         "remaining_non_blocking_items": remaining_surfaces,
         "documentation_state": documentation,
         "equipment_policy": equipment_policy["readiness"],
+        "equipment_presenter_contract": equipment_presenter_contract["readiness"],
         "notification_audit": notification_audit["notification_surface"],
         "observation_conditions_audit": observation_conditions_audit["readiness"],
         "observation_conditions_consumer_reroute_audit": observation_conditions_reroute_audit["readiness"],
@@ -383,24 +398,27 @@ def _default_on_surfaces() -> tuple[dict[str, object], ...]:
 def _remaining_legacy_or_hybrid_surfaces(
     observation_conditions_audit: dict[str, object],
     observation_conditions_reroute_audit: dict[str, object],
+    equipment_presenter_contract: dict[str, object],
 ) -> tuple[dict[str, object], ...]:
     observation_readiness = observation_conditions_audit["readiness"]
     reroute_readiness = observation_conditions_reroute_audit["readiness"]
+    equipment_contract_readiness = equipment_presenter_contract["readiness"]
     return (
         {
             "area": "Equipment recommendations",
-            "status": "observer_adapter_extracted",
+            "status": equipment_contract_readiness["verdict"],
             "why_it_remains": (
                 "`EquipmentService` still ranks eyepiece/Barlow/binocular candidates "
                 "with its own practical configuration score. "
                 "`observer_capability_adapter.py` now provides shared "
-                "ObserverCapability/Q_target projection while "
-                "`docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps runtime setup "
-                "recommendations unchanged."
+                "ObserverCapability/Q_target projection, and "
+                "`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md` defines the "
+                "payload/read-model boundary required before any scoring replacement."
             ),
             "recommended_handling": (
-                "Revisit Equipment presenter contract work now that the raw-target "
-                "consumer migration is closed."
+                "Extract a runtime-neutral Equipment setup read-model/presenter DTO "
+                "while preserving `EquipmentService.suggest_for_profile(...)` output "
+                "and QML payload shape."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -454,6 +472,7 @@ def _checks(
     static_checks: dict[str, object],
     documentation: dict[str, object],
     equipment_policy: dict[str, object],
+    equipment_presenter_contract: dict[str, object],
 ) -> dict[str, object]:
     return {
         "all_default_flags_enabled": all(surface["default_flag_enabled"] is True for surface in default_on_surfaces),
@@ -474,6 +493,14 @@ def _checks(
             "observer_capability_adapter_extracted"
         ]
         is True,
+        "equipment_presenter_contract_audited": equipment_presenter_contract["readiness"][
+            "verdict"
+        ]
+        == "equipment_presenter_contract_audited",
+        "equipment_runtime_replacement_deferred": equipment_presenter_contract["readiness"][
+            "runtime_replacement_ready"
+        ]
+        is False,
         "source_reports_present": all(documentation["source_reports_present"]),
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_exposure_absent": static_checks["qml_matches"] == (),
@@ -490,6 +517,8 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "source_reports_present": "nsom-source-report-missing",
         "equipment_policy_ready_for_adapter_step": "equipment-policy-adapter-step-not-ready",
         "equipment_observer_adapter_extracted": "equipment-observer-adapter-not-extracted",
+        "equipment_presenter_contract_audited": "equipment-presenter-contract-not-audited",
+        "equipment_runtime_replacement_deferred": "equipment-runtime-replacement-not-deferred",
         "runtime_report_imports_absent": "nsom-audit-runtime-wiring",
         "qml_exposure_absent": "nsom-audit-qml-exposure",
         "runtime_behaviour_unchanged_by_audit": "nsom-audit-runtime-change",
@@ -628,6 +657,24 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
             "summary": (
                 "Decide how the shared ObserverCapability/Q_target adapter should "
                 "feed Equipment presentation without reviving legacy scoring."
+            ),
+        },
+        {
+            "step": "1.13.0 Equipment presenter contract audit",
+            "summary": (
+                "Define the Equipment setup payload/read-model contract before any "
+                "runtime scoring replacement."
+            ),
+        },
+        {
+            "step": "Review 1.13.0",
+            "summary": "Confirm the Equipment presenter contract audit is developer-only and accurate.",
+        },
+        {
+            "step": "1.13.1 Equipment setup read-model boundary",
+            "summary": (
+                "Extract a runtime-neutral setup presentation DTO/read-model while "
+                "preserving current EquipmentService output."
             ),
         },
     )

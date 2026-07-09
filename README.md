@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.10.2`.
+Versione corrente: `1.13.0`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -597,6 +597,16 @@ gli audit developer-only registrano Home `recommendedDeepSky`, Best Object e
 Sky Compass come completati sul boundary raw/display, senza ulteriori cambi di
 ranking o payload. Il prossimo lavoro backend consigliato e' il presenter
 contract Equipment, non altro lavoro sulla cache ObservationConditions.
+Lo step `1.13.0` aggiunge
+`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md`, audit developer-only del
+contratto presenter Equipment. L'audit definisce cosa resta ownership di
+presentazione/setup (`setupOptions`, fallback, `selectionScore`, campi payload)
+e cosa resta reference-only NSOM (`ObserverCapability`/`Q_target`,
+`RecommendationConfidence` metadata-only). `EquipmentService.suggest_for_profile(...)`
+resta invariato, non viene aggiunto un path Equipment NSOM runtime e non viene
+esposto alcun campo QML. Il prossimo step backend consigliato e' un DTO/read-model
+presenter Equipment runtime-neutral che preservi payload e comportamento
+correnti.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

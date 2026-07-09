@@ -725,6 +725,16 @@ Compass service.
 through the raw/display read-model boundary. No ranking logic, payload shape or
 QML exposure changes in the closeout step; the next backend NSOM area is the
 Equipment presenter contract.
+`1.13.0` adds the developer-only Equipment presenter contract audit in
+`docs/EQUIPMENT_NSOM_PRESENTER_CONTRACT_AUDIT.md`. The audit records the
+runtime setup payload contract (`setupOptions`, fallback states,
+`selectionScore` and QML-facing fields), keeps `Q_target` reference-only for
+ObserverCapability/PracticalTargetValue, and confirms
+`RecommendationConfidence` remains metadata-only. `EquipmentService.suggest_for_profile(...)`
+continues to own the runtime setup recommendation; no Equipment ranking,
+payload, QML, logging, network or runtime file-write behaviour changes. The
+next safe backend step is a runtime-neutral Equipment setup read-model/presenter
+DTO before any scoring replacement.
 
 ## Dependency Flow
 

@@ -1,0 +1,80 @@
+# Equipment NSOM Presenter Contract Audit
+
+## Executive Summary
+
+This developer-only audit defines the presenter contract that must exist before any Equipment runtime scoring replacement. It does not change EquipmentService, Planner, Home, Best Object, Sky Compass, Detail/Object, QML, logging, network behaviour or runtime file writes.
+
+## Verdict
+
+- Verdict: `equipment_presenter_contract_audited`.
+- Runtime replacement ready: `False`.
+- Runtime read-model boundary recommended: `True`.
+- Default-off Equipment path recommended now: `False`.
+- Runtime behaviour changed by this audit: `False`.
+- Recommended next step: Add a runtime-neutral Equipment setup read-model/presenter DTO before any EquipmentService scoring replacement.
+- Reason: Equipment is an active setup-presentation helper. The existing runtime payload owns eyepiece, Barlow, binocular, fallback and setupOptions fields that Q_target does not replace. NSOM can own ObserverCapability/Q_target and future PracticalTargetValue metadata, but the presenter contract must be explicit first.
+
+## Presenter Contract
+
+- Runtime role: `active_practical_setup_presenter`.
+- NSOM-owned input: `ObserverCapability_profile_Q_target_reference`.
+- Presentation-owned output: `equipment_setup_payload_and_setupOptions`.
+- Replacement policy: `defer_scoring_replacement_until_setup_read_model_exists`.
+- QML policy: `preserve_existing_payload_no_nsom_fields`.
+- Confidence policy: `metadata_only_zero_score_effect`.
+
+## Payload Shape
+
+- Suggestion payload keys: `['bestEyepiece', 'suggestedPosition', 'barlow', 'difficulty', 'alternative', 'highMagnification', 'wideField', 'setupText', 'setupOptions', 'explanation', 'telescopeId', 'telescopeName', 'equipmentType', 'setupType', 'selectionScore']`.
+- Setup option keys: `['role', 'label', 'detailLabel', 'displayLabel', 'suggestedPosition', 'magnification', 'trueField', 'exitPupil', 'barlow', 'score', 'telescopeName', 'equipmentType']`.
+- Setup option roles: `['Consigliato', 'Alternativa', 'Alto ingrandimento', 'Campo largo']`.
+- Fallback payloads are compatible subsets: `True`.
+
+## Contract Decisions
+
+| Decision | Status | Layer | Blocks runtime replacement | Summary |
+| --- | --- | --- | --- | --- |
+| `equipment_runtime_role` | `accepted` | `presentation` | `True` | Equipment remains the runtime setup presenter, not a target recommendation score. |
+| `payload_shape_contract` | `accepted` | `presentation` | `True` | Future work must preserve suggestion payload keys and setupOptions roles. |
+| `q_target_policy` | `accepted_reference_only` | `observer` | `True` | Q_target is a reference projection for PracticalTargetValue, not a setup-option score. |
+| `seeing_and_sky_boundary` | `needs_read_model_boundary` | `sky` | `True` | Seeing and sky quality need explicit setup-context fields before Equipment scoring can be separated from legacy ownership mixing. |
+| `fallback_policy` | `accepted` | `presentation` | `True` | Naked-eye, missing-eyepiece and no-useful-configuration fallbacks stay presenter-owned. |
+| `selection_score_policy` | `accepted_compatibility` | `presentation` | `True` | selectionScore remains a setup-local compatibility score until replaced by a named setup metric. |
+| `confidence_policy` | `accepted` | `confidence` | `False` | RecommendationConfidence remains metadata only and does not affect Equipment score or Q_target. |
+
+## Checks
+
+| Check | Result |
+| --- | --- |
+| `strict_json_compatible` | `True` |
+| `required_contract_decisions_recorded` | `True` |
+| `payload_keys_preserved` | `True` |
+| `setup_option_keys_preserved` | `True` |
+| `recommended_setup_option_present` | `True` |
+| `fallback_payloads_are_known_subsets` | `True` |
+| `q_target_reference_only` | `True` |
+| `policy_runtime_replacement_deferred` | `True` |
+| `observer_capability_adapter_extracted` | `True` |
+| `comparison_evidence_available` | `True` |
+| `confidence_score_neutral` | `True` |
+| `controller_projection_fields_present` | `True` |
+| `qml_payload_consumers_present` | `True` |
+| `runtime_report_imports_absent` | `True` |
+| `qml_report_exposure_absent` | `True` |
+| `runtime_behaviour_unchanged_by_audit` | `True` |
+
+## Static Wiring
+
+- Runtime report imports: `[]`.
+- QML report exposure: `[]`.
+- AppController Equipment projection fields present: `True`.
+- QML uses current Equipment payload fields: `True`.
+
+## Recommended Sequence
+
+- `Review 1.13.0`: Confirm the Equipment presenter contract audit is accurate and developer-only.
+- `1.13.1 Equipment setup read-model boundary`: Extract an internal setup presentation DTO/read-model while preserving EquipmentService output and QML payload shape.
+
+## Conclusion
+
+Equipment should not be migrated by replacing its setup score with Q_target. The next safe backend step is a runtime-neutral setup read-model/presenter boundary that preserves the current payload while making ObserverCapability/Q_target ownership explicit.

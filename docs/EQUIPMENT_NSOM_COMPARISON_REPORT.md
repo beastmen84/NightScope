@@ -77,5 +77,5 @@ The matrix covers 5 deterministic scenarios and 34 candidate rows.
 ## Recommended Next Steps
 
 1. Review the shared ObserverCapability/Q_target adapter extraction.
-2. Decide whether the next backend area is ObservationConditions read-model cleanup or Equipment presenter contract work.
+2. Use the 1.13.0 Equipment presenter contract audit to define the payload/read-model boundary.
 3. Keep EquipmentService runtime ranking unchanged until a separate presenter contract exists.

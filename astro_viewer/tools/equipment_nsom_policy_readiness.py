@@ -58,9 +58,9 @@ def generate_policy_readiness_data() -> dict[str, object]:
             "runtime_behaviour_changed_by_this_review": False,
             "explicit_legacy_default": "EquipmentService.suggest_for_profile(...) remains unchanged",
             "recommended_next_change": (
-                "Review the shared ObserverCapability/Q_target adapter extraction, "
-                "then decide between ObservationConditions read-model cleanup and "
-                "Equipment presenter contract work."
+                "Use the 1.13.0 Equipment presenter contract audit, then extract "
+                "a runtime-neutral setup read-model boundary before any scoring "
+                "replacement."
             ),
             "reason": _readiness_reason(ready_for_default_off),
         },
@@ -203,10 +203,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "Review `1.12.2` and then decide whether the next backend step is "
-                "ObservationConditions read-model cleanup or an Equipment presenter "
-                "contract. Keep `EquipmentService.suggest_for_profile(...)` as the "
-                "runtime setup recommender."
+                "Use the `1.13.0` Equipment presenter contract audit to define the "
+                "payload/read-model boundary. Keep `EquipmentService.suggest_for_profile(...)` "
+                "as the runtime setup recommender until that boundary exists."
             ),
             "",
         ]
