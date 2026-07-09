@@ -1197,6 +1197,14 @@ values from those same objects. The next implementation step should introduce a
 read model that separates raw target score, condition-adjusted display score,
 condition diagnostics and NSOM-safe `ObservableTargetValue` input.
 
+Implementation note for 1.12.6:
+`ObservationConditionedTargetReadModel` introduces the explicit internal
+read-model boundary for ObservationConditions. It preserves raw target input for
+future NSOM `IntrinsicTargetQuality`/`ObservableTargetValue` construction while
+keeping the condition-adjusted `CelestialObject` as a display compatibility
+object. This commit does not reroute Home, Best Object or Sky Compass ranking;
+that remains a separate reviewed behaviour step.
+
 Examples:
 
 - binocular-only profile;

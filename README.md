@@ -548,9 +548,17 @@ Equipment, senza mantenere un path notifiche non usato.
 Lo step `1.12.5` aggiunge
 `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`: l'audit conferma che
 `ObservationConditionsService` non e' codice morto ma un path runtime ibrido.
-Il prossimo step consigliato e' separare in un read-model esplicito lo score
-raw del target, lo score/display condizionato e gli input NSOM
-`ObservableTargetValue`, senza cambiare ranking o QML.
+L'audit raccomandava di separare in un read-model esplicito lo score raw del
+target, lo score/display condizionato e gli input NSOM `ObservableTargetValue`,
+senza cambiare ranking o QML.
+Lo step `1.12.6` introduce quel boundary interno:
+`ObservationConditionedTargetReadModel` conserva target raw, target display
+condizionato, breakdown condizioni, score raw e score display. Le cache sono
+private nel controller e non espongono campi QML; ranking e payload restano
+immutati. Gli audit ora indicano
+`read_model_boundary_introduced_consumer_reroute_pending`: il prossimo lavoro e'
+una review mirata sul possibile reroute dei consumer NSOM verso l'input raw,
+non un cambio UI.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

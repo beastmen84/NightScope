@@ -167,15 +167,33 @@ class ObservationConditionsService:
         sky_quality: SkyQuality | None,
         inputs: ObservationConditionInputs | None = None,
     ) -> list[CelestialObject]:
+        return [
+            conditioned.target
+            for conditioned in self.condition_deep_sky_pollution_context(targets, sky_quality, inputs)
+        ]
+
+    def condition_deep_sky_pollution_context(
+        self,
+        targets: list[CelestialObject],
+        sky_quality: SkyQuality | None,
+        inputs: ObservationConditionInputs | None = None,
+    ) -> list[ConditionedTarget]:
         condition_inputs = self._pollution_inputs(sky_quality, inputs)
         if not self.is_pollution_context_active(condition_inputs.sky_quality):
-            return targets
+            return [
+                self.condition_target(item, condition_inputs, apply_pollution=False)
+                for item in targets
+            ]
 
         updated = [
-            self.condition_target(item, condition_inputs, apply_pollution=True).target
+            self.condition_target(item, condition_inputs, apply_pollution=True)
             for item in targets
         ]
-        return sorted([item for item in updated if item.visible], key=lambda item: item.score, reverse=True)[:10]
+        return sorted(
+            [item for item in updated if item.target.visible],
+            key=lambda item: item.target.score,
+            reverse=True,
+        )[:10]
 
     def apply_deep_sky_pollution_to_target(
         self,

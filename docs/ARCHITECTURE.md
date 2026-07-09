@@ -678,6 +678,14 @@ fallback compatibility, and those copies can become inputs to default-on NSOM
 observable calculations. No runtime behavior changes in this audit step; the
 next implementation step should introduce an explicit raw/display/NSOM
 read-model boundary.
+`1.12.6` introduces that internal boundary. `ObservationConditionedTargetReadModel`
+keeps raw target input, conditioned display target, condition breakdown, raw
+score and display score as separate fields. `AppController` stores this only in
+private caches; no QML property, report runtime wiring or visible payload field
+is added. Runtime ranking and selection remain unchanged in this commit. The
+remaining review item is whether Home, Best Object and Sky Compass NSOM
+consumers should be rerouted to the raw read-model target in a separate,
+behaviour-reviewed step.
 
 ## Dependency Flow
 

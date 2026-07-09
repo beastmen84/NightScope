@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.12.6 - 2026-07-09
+
+- Introdotto il read-model interno `ObservationConditionedTargetReadModel`
+  per separare target raw, target display condizionato, breakdown condizioni,
+  score raw, score display e policy di input NSOM.
+- Aggiunto `ObservationConditionsService.condition_deep_sky_pollution_context()`
+  come entrypoint che conserva i `ConditionedTarget` completi; il vecchio
+  `apply_deep_sky_pollution_context()` resta wrapper compatibile e mantiene lo
+  stesso output `CelestialObject`.
+- `AppController` mantiene cache read-model private per deep-sky/Home, senza
+  nuove property Qt/QML e senza modificare payload, ranking, Best Object, Sky
+  Compass o Planner.
+- Rigenerati gli audit `OBSERVATION_CONDITIONS_READ_MODEL_AUDIT`,
+  `NSOM_BACKEND_MIGRATION_STATUS_AUDIT` e
+  `NSOM_LEGACY_BACKEND_SURFACE_AUDIT`: lo stato passa a
+  `read_model_boundary_introduced_consumer_reroute_pending`.
+- Resta aperta una review successiva per decidere se e come Home, Best Object e
+  Sky Compass debbano leggere il lato raw del read-model senza cambi silenziosi
+  di ranking.
+
 ## NightScope 1.12.5 - 2026-07-09
 
 - Aggiunto `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, audit

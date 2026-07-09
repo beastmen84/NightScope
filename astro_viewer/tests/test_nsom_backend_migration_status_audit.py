@@ -86,14 +86,14 @@ def test_audit_identifies_remaining_non_blocking_legacy_or_hybrid_surfaces() -> 
     }
     assert remaining["Equipment recommendations"]["status"] == "observer_adapter_extracted"
     assert remaining["ObservationConditions prepared-object cache"]["status"] == (
-        "read_model_boundary_required_before_cleanup"
+        "read_model_boundary_introduced_consumer_reroute_pending"
     )
     assert "OBSERVATION_CONDITIONS_READ_MODEL_AUDIT" in remaining[
         "ObservationConditions prepared-object cache"
     ]["recommended_handling"]
     assert data["notification_audit"]["classification"] == "removed_dead_legacy"
     assert data["observation_conditions_audit"]["verdict"] == (
-        "read_model_boundary_required_before_cleanup"
+        "read_model_boundary_introduced_consumer_reroute_pending"
     )
     assert "observer_capability_adapter.py" in remaining["Equipment recommendations"]["why_it_remains"]
     assert "ObservationConditions" in remaining["Equipment recommendations"]["recommended_handling"]
@@ -107,8 +107,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review the ObservationConditions read-model audit, then implement "
-        "the read-model boundary before further cleanup"
+        "Review the 1.12.6 ObservationConditions read-model boundary, "
+        "then decide whether NSOM consumers should use the raw read-model "
+        "target in a separate behaviour-reviewed step"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -158,7 +159,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "# NSOM Backend Migration Status Audit" in text
     assert "backend_nsom_default_on_surfaces_closed" in text
     assert "ObservationConditions Audit" in text
-    assert "read_model_boundary_required_before_cleanup" in text
+    assert "read_model_boundary_introduced_consumer_reroute_pending" in text
     assert "observer_adapter_extracted" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

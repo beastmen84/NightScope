@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import json
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
@@ -10,6 +11,9 @@ from astro_viewer.app.services.home_nsom_observable import build_home_observable
 from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionInputs,
     ObservationConditionsService,
+)
+from astro_viewer.app.services.observation_conditions_read_model import (
+    ObservationConditionsReadModelBuilder,
 )
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -40,6 +44,10 @@ def generate_observation_conditions_read_model_audit_data() -> dict[str, object]
         apply_pollution=True,
     )
     reapplied_pollution = service.apply_deep_sky_pollution_to_target(pollution.target, sky_quality)
+    read_model = ObservationConditionsReadModelBuilder().from_conditioned_target(
+        combined,
+        source="observation_conditions_read_model_audit",
+    )
 
     raw_observable = build_home_observable_target_value(raw_target, sky_quality=sky_quality, moon=moon)
     pollution_observable = build_home_observable_target_value(
@@ -66,7 +74,14 @@ def generate_observation_conditions_read_model_audit_data() -> dict[str, object]
         pollution_observable_value=pollution_observable.value,
         combined_observable_value=combined_observable.value,
     )
-    checks = _checks(static_checks, controller_checks, service_checks, phenomenon_fixture)
+    read_model_fixture = _read_model_fixture(read_model)
+    checks = _checks(
+        static_checks,
+        controller_checks,
+        service_checks,
+        phenomenon_fixture,
+        read_model_fixture,
+    )
     blockers = _blockers(checks)
 
     data = {
@@ -84,21 +99,39 @@ def generate_observation_conditions_read_model_audit_data() -> dict[str, object]
             "report_path": str(REPORT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "read_model_boundary_required_before_cleanup",
+            "verdict": (
+                "read_model_boundary_introduced_consumer_reroute_pending"
+                if checks["read_model_boundary_present"]
+                else "read_model_boundary_required_before_cleanup"
+            ),
             "runtime_migration_recommended_now": False,
             "safe_to_remove_service": False,
             "safe_to_keep_current_runtime_temporarily": True,
             "recommended_next_step": (
-                "Review this audit, then introduce an ObservationConditions read-model "
-                "boundary that separates raw target score, condition-adjusted display "
-                "score and NSOM ObservableTargetValue inputs."
+                "Review the 1.12.6 boundary, then decide whether NSOM Home, Best "
+                "Object and Sky Compass consumers can read raw read-model targets "
+                "without changing presentation payloads unexpectedly."
+                if checks["read_model_boundary_present"]
+                else (
+                    "Review this audit, then introduce an ObservationConditions "
+                    "read-model boundary that separates raw target score, "
+                    "condition-adjusted display score and NSOM ObservableTargetValue "
+                    "inputs."
+                )
             ),
             "reason": (
                 "ObservationConditionsService is active runtime code. It returns "
                 "replacement CelestialObject instances for Moon and light-pollution "
                 "presentation compatibility, and those conditioned objects can become "
                 "inputs to default-on NSOM Home/Best Object/Sky Compass observable "
-                "calculations. That is a read-model boundary problem, not dead code."
+                "calculations. The 1.12.6 boundary now preserves raw and display "
+                "targets separately, but runtime consumer rerouting remains a "
+                "separate behaviour-changing review."
+                if checks["read_model_boundary_present"]
+                else (
+                    "calculations. That is a read-model boundary problem, not dead "
+                    "code."
+                )
             ),
         },
         "blockers": blockers,
@@ -127,6 +160,7 @@ def generate_observation_conditions_read_model_audit_data() -> dict[str, object]
         "controller_static_checks": controller_checks,
         "service_static_checks": service_checks,
         "phenomenon_fixture": phenomenon_fixture,
+        "read_model_fixture": read_model_fixture,
         "checks": checks,
         "static_wiring_checks": static_checks,
         "recommended_sequence": (
@@ -160,6 +194,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
     audit = generate_observation_conditions_read_model_audit_data() if data is None else data
     readiness = audit["readiness"]
     fixture = audit["phenomenon_fixture"]
+    read_model = audit["read_model_fixture"]
 
     lines = [
         "# ObservationConditions NSOM Read-Model Audit",
@@ -236,6 +271,18 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             f"- Original target mutated: `{fixture['original_target_mutated']}`.",
             f"- Pollution reapply guarded: `{fixture['pollution_reapply_guarded']}`.",
             "",
+            "## Read-Model Boundary",
+            "",
+            f"- Object id: `{read_model['object_id']}`.",
+            f"- Raw score: `{read_model['raw_score']}`.",
+            f"- Display score: `{read_model['display_score']}`.",
+            f"- Applied components: `{read_model['applied_components']}`.",
+            f"- Condition flags: `{read_model['condition_flags']}`.",
+            f"- Raw target preserved for NSOM input: `{read_model['raw_target_preserved']}`.",
+            f"- QML display target preserved: `{read_model['display_target_preserved']}`.",
+            f"- NSOM input uses raw target: `{read_model['nsom_input_uses_raw_target']}`.",
+            f"- Strict JSON compatible: `{read_model['strict_json_compatible']}`.",
+            "",
             "## Checks",
             "",
             "| Check | Result |",
@@ -266,10 +313,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "ObservationConditions is not dead legacy. It should stay in place "
-                "until a read-model boundary preserves current display compatibility "
-                "while preventing condition-adjusted CelestialObject scores from "
-                "becoming NSOM intrinsic inputs."
+                "ObservationConditions is not dead legacy. The 1.12.6 read-model "
+                "boundary now preserves raw and display targets separately, while "
+                "runtime consumer rerouting remains a separate behaviour-reviewed "
+                "step before condition-adjusted CelestialObject scores can be "
+                "fully removed from NSOM intrinsic input paths."
             ),
             "",
         ]
@@ -289,6 +337,7 @@ def _checks(
     controller_checks: dict[str, object],
     service_checks: dict[str, object],
     fixture: dict[str, object],
+    read_model_fixture: dict[str, object],
 ) -> dict[str, object]:
     return {
         "service_is_active_runtime_code": controller_checks["conditions_service_instantiated"] is True,
@@ -307,6 +356,17 @@ def _checks(
         "service_preserves_original_target_reference": fixture["original_target_preserved"] is True,
         "double_count_guard_present_for_pollution": fixture["pollution_reapply_guarded"] is True,
         "nsom_conditioned_score_input_risk_visible": fixture["nsom_conditioned_score_input_risk"] is True,
+        "read_model_boundary_present": (
+            controller_checks["read_model_caches_present"] is True
+            and controller_checks["read_model_builder_present"] is True
+            and service_checks["conditioned_pollution_context_available"] is True
+            and read_model_fixture["raw_target_preserved"] is True
+            and read_model_fixture["nsom_input_uses_raw_target"] is True
+        ),
+        "read_model_strict_json_compatible": read_model_fixture["strict_json_compatible"] is True,
+        "read_model_display_score_separate_from_raw_score": (
+            read_model_fixture["raw_score"] != read_model_fixture["display_score"]
+        ),
         "aod_pm_score_neutral_today": service_checks["aod_pm_modifiers_neutral"] is True,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_report_exposure_absent": static_checks["qml_report_exposure_matches"] == (),
@@ -320,8 +380,12 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         blockers.append("observation-conditions-conditioned-score-as-nsom-intrinsic")
     if checks["pollution_context_writes_deep_sky_cache"]:
         blockers.append("observation-conditions-deep-sky-cache-is-condition-adjusted")
-    if checks["conditioned_caches_present"]:
+    if not checks["read_model_boundary_present"]:
         blockers.append("observation-conditions-read-model-boundary-missing")
+    if checks["read_model_strict_json_compatible"] is not True:
+        blockers.append("observation-conditions-read-model-json-incompatible")
+    if checks["read_model_display_score_separate_from_raw_score"] is not True:
+        blockers.append("observation-conditions-read-model-score-boundary-missing")
     safety_names = {
         "service_is_active_runtime_code": "observation-conditions-service-not-detected",
         "service_uses_replacement_not_mutation": "observation-conditions-mutates-targets",
@@ -396,6 +460,12 @@ def _controller_static_checks() -> dict[str, object]:
     return {
         "conditions_service_instantiated": "self._conditions_service = ObservationConditionsService()" in source,
         "conditioned_caches_present": "_conditioned_deep_sky" in source and "_conditioned_home_objects" in source,
+        "read_model_builder_present": "ObservationConditionsReadModelBuilder()" in source,
+        "read_model_caches_present": (
+            "_conditioned_deep_sky_read_model" in source
+            and "_conditioned_home_read_model" in source
+            and "_deep_sky_pollution_read_model" in source
+        ),
         "pollution_context_writes_deep_sky_cache": "self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)" in source,
         "home_nsom_ranking_gets_deep_sky_candidates": (
             "rank_by_observable_target_value" in recommended_source
@@ -411,10 +481,28 @@ def _service_static_checks() -> dict[str, object]:
     source = inspect.getsource(ObservationConditionsService)
     return {
         "returns_conditioned_target": "return ConditionedTarget(" in source,
+        "conditioned_pollution_context_available": "def condition_deep_sky_pollution_context" in source,
         "uses_dataclass_replace_for_adjusted_copy": "replace(" in source,
         "tracks_condition_flags": "condition_flags" in source,
         "aod_pm_modifiers_neutral": "aod_modifier=0.0" in source and "pm25_modifier=0.0" in source,
         "experimental_flags_default_off": "experimental_aerosol_scoring: bool = False" in source,
+    }
+
+
+def _read_model_fixture(read_model) -> dict[str, object]:
+    payload = read_model.to_dict()
+    return {
+        "object_id": read_model.object_id,
+        "raw_score": read_model.raw_score,
+        "display_score": read_model.display_score,
+        "applied_components": read_model.applied_components,
+        "condition_flags": read_model.condition_flags,
+        "raw_target_preserved": read_model.raw_target is read_model.nsom_target_input,
+        "display_target_preserved": read_model.display_target is read_model.qml_display_target,
+        "nsom_input_uses_raw_target": read_model.nsom_target_input.score == read_model.raw_score,
+        "display_uses_conditioned_target": read_model.qml_display_target.score == read_model.display_score,
+        "strict_json_compatible": _strict_json_compatible(payload),
+        "payload": payload,
     }
 
 
@@ -465,6 +553,14 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
             QML_MARKERS,
         ),
     }
+
+
+def _strict_json_compatible(payload: object) -> bool:
+    try:
+        json.dumps(payload, sort_keys=True, allow_nan=False)
+    except (TypeError, ValueError):
+        return False
+    return True
 
 
 def _scan_files(

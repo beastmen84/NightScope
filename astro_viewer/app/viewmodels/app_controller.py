@@ -81,6 +81,10 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionsService,
     ParticulateConditionInput,
 )
+from astro_viewer.app.services.observation_conditions_read_model import (
+    ObservationConditionedTargetReadModel,
+    ObservationConditionsReadModelBuilder,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
@@ -233,6 +237,7 @@ class AppController(QObject):
             advanced_observing_nsom_service or AdvancedObservingNsomService()
         )
         self._conditions_service = ObservationConditionsService()
+        self._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
         self._use_nsom_best_object = use_nsom_best_object
         self._best_object_nsom_selection_service = (
             best_object_nsom_selection_service or BestObjectNsomSelectionService()
@@ -266,6 +271,10 @@ class AppController(QObject):
         self._deep_sky: list[CelestialObject] = []
         self._conditioned_deep_sky: list[CelestialObject] = []
         self._conditioned_home_objects: list[CelestialObject] = []
+        self._conditioned_deep_sky_read_model: list[ObservationConditionedTargetReadModel] = []
+        self._conditioned_home_read_model: list[ObservationConditionedTargetReadModel] = []
+        self._deep_sky_pollution_read_model: list[ObservationConditionedTargetReadModel] = []
+        self._deep_sky_raw_condition_input_by_id: dict[str, CelestialObject] = {}
         self._base_solar_system_objects: list[CelestialObject] = []
         self._base_deep_sky: list[CelestialObject] = []
         self._moon = None
@@ -1699,6 +1708,12 @@ class AppController(QObject):
         self._solar_system_objects = []
         self._visible_planets = []
         self._deep_sky = []
+        self._conditioned_deep_sky = []
+        self._conditioned_home_objects = []
+        self._conditioned_deep_sky_read_model = []
+        self._conditioned_home_read_model = []
+        self._deep_sky_pollution_read_model = []
+        self._deep_sky_raw_condition_input_by_id = {}
         self._moon = MoonSummary(
             phase="n/d",
             illumination="n/d",
@@ -3075,11 +3090,28 @@ class AppController(QObject):
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        return self._conditions_service.apply_deep_sky_pollution_context(
+        self._deep_sky_raw_condition_input_by_id = {item.id: item for item in objects}
+        conditioned = self._conditions_service.condition_deep_sky_pollution_context(
             objects,
             self._sky_quality,
             self._build_observation_condition_inputs(include_moon=False),
         )
+        builder = self._conditions_read_model_builder_instance()
+        self._deep_sky_pollution_read_model = list(
+            builder.from_conditioned_targets(
+                conditioned,
+                source="deep_sky_pollution_context",
+                raw_targets_by_id=self._deep_sky_raw_condition_input_by_id,
+            )
+        )
+        return [model.display_target for model in self._deep_sky_pollution_read_model]
+
+    def _conditions_read_model_builder_instance(self) -> ObservationConditionsReadModelBuilder:
+        builder = getattr(self, "_conditions_read_model_builder", None)
+        if builder is None:
+            builder = ObservationConditionsReadModelBuilder()
+            self._conditions_read_model_builder = builder
+        return builder
 
     def _deep_sky_pollution_base_penalty(self) -> float:
         return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
@@ -3533,20 +3565,69 @@ class AppController(QObject):
         return item.visibility_class.startswith("Catalogo ")
 
     def _refresh_conditioned_observing_candidates(self) -> None:
-        conditioned_deep_sky = self._recommended_deep_sky_candidates(self._home_visible_objects(self._deep_sky))
+        conditioned_deep_sky_read_model = self._recommended_deep_sky_read_models(
+            self._home_visible_objects(self._deep_sky)
+        )
+        conditioned_deep_sky = [
+            model.qml_display_target for model in conditioned_deep_sky_read_model
+        ]
         self._conditioned_deep_sky = conditioned_deep_sky
+        self._conditioned_deep_sky_read_model = list(conditioned_deep_sky_read_model)
         self._conditioned_home_objects = self._home_visible_objects(self._visible_planets) + conditioned_deep_sky
+        self._conditioned_home_read_model = list(
+            self._conditions_read_model_builder_instance().from_display_targets(
+                self._conditioned_home_objects,
+                source="home_observing_candidates",
+                raw_targets_by_id=self._conditioned_raw_targets_by_id(),
+            )
+        )
 
     def _recommended_deep_sky_candidates(self, objects: list[CelestialObject]) -> list[CelestialObject]:
+        return [
+            model.qml_display_target
+            for model in self._recommended_deep_sky_read_models(objects)
+        ]
+
+    def _recommended_deep_sky_read_models(
+        self,
+        objects: list[CelestialObject],
+    ) -> tuple[ObservationConditionedTargetReadModel, ...]:
+        raw_targets_by_id = self._conditioned_raw_targets_by_id()
+        builder = self._conditions_read_model_builder_instance()
         if not getattr(self, "_use_nsom_home_recommended_deep_sky", False):
-            return self._moon_adjusted_objects(objects)
+            conditioned = self._conditions_service.condition_targets(
+                objects,
+                self._build_observation_condition_inputs(include_sky_quality=False),
+                apply_moon=True,
+            )
+            ranked = sorted(conditioned, key=lambda item: item.target.score, reverse=True)
+            return builder.from_conditioned_targets(
+                ranked,
+                source="home_recommended_deep_sky_legacy_moon_adjusted",
+                raw_targets_by_id=raw_targets_by_id,
+            )
         sky_quality = getattr(self, "_sky_quality", None)
         if sky_quality is None:
-            return self._moon_adjusted_objects(objects)
-        return self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
+            conditioned = self._conditions_service.condition_targets(
+                objects,
+                self._build_observation_condition_inputs(include_sky_quality=False),
+                apply_moon=True,
+            )
+            ranked = sorted(conditioned, key=lambda item: item.target.score, reverse=True)
+            return builder.from_conditioned_targets(
+                ranked,
+                source="home_recommended_deep_sky_missing_sky_quality_fallback",
+                raw_targets_by_id=raw_targets_by_id,
+            )
+        ranked_targets = self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
             objects,
             sky_quality=sky_quality,
             moon=getattr(self, "_moon", None),
+        )
+        return builder.from_display_targets(
+            ranked_targets,
+            source="home_recommended_deep_sky_nsom_observable_order",
+            raw_targets_by_id=raw_targets_by_id,
         )
 
     def _conditioned_deep_sky_candidates(self) -> list[CelestialObject]:
@@ -3555,6 +3636,16 @@ class AppController(QObject):
         if not self._conditioned_deep_sky and self._home_visible_objects(self._deep_sky):
             self._refresh_conditioned_observing_candidates()
         return list(self._conditioned_deep_sky)
+
+    def _conditioned_deep_sky_nsom_targets(self) -> list[CelestialObject]:
+        if not hasattr(self, "_conditioned_deep_sky_read_model"):
+            self._refresh_conditioned_observing_candidates()
+        return [model.nsom_target_input for model in self._conditioned_deep_sky_read_model]
+
+    def _conditioned_raw_targets_by_id(self) -> dict[str, CelestialObject]:
+        raw_targets = dict(getattr(self, "_deep_sky_raw_condition_input_by_id", {}))
+        raw_targets.update({item.id: item for item in getattr(self, "_visible_planets", [])})
+        return raw_targets
 
     def _moon_adjusted_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         conditioned = self._conditions_service.condition_targets(

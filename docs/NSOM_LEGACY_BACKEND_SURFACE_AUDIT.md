@@ -9,10 +9,10 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 - Verdict: `legacy_backend_surface_cleanup_complete`.
 - Sky Map migration recommendation: `removed_dead_legacy_surface`.
 - Notifications migration recommendation: `removed_dead_legacy`.
-- ObservationConditions recommendation: `read_model_boundary_required_before_cleanup`.
+- ObservationConditions recommendation: `read_model_boundary_introduced_consumer_reroute_pending`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review the ObservationConditions read-model audit, then implement the read-model boundary.
-- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and needs an explicit read-model boundary before cleanup.
+- Recommended next step: Review the 1.12.6 ObservationConditions read-model boundary, then decide the NSOM consumer reroute policy.
+- Reason: The QML Home page consumes Sky Compass and no longer consumes `controller.skyMap`. The 1.11.1 cleanup removes the controller property, `_sky_map` storage, recomputation and `SkyMapService`, so Sky Map is no longer a backend migration target. Equipment now has a shared ObserverCapability/Q_target adapter while the runtime setup helper remains unchanged. The QML Home page no longer consumes notifications, and the 1.12.4 cleanup removes the controller property, runtime recomputation, `NotificationService` and DTO. ObservationConditions remains active runtime code and now has an explicit read-model boundary; consumer rerouting remains separate.
 
 ## Classification Policy
 
@@ -54,8 +54,8 @@ This developer-only audit classifies the remaining legacy backend surfaces after
 
 | Surface | Classification | Why active | Recommended handling |
 | --- | --- | --- | --- |
-| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the ObservationConditions read-model boundary is implemented; revisit Equipment presenter contract work after that boundary is stable. |
-| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.5 audit reports `read_model_boundary_required_before_cleanup`. | Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then introduce raw/display/conditioned read-model fields. |
+| Equipment recommendations | `active_legacy_or_hybrid` | `EquipmentService` still computes practical setup recommendations; `observer_capability_adapter.py` now provides shared ObserverCapability/Q_target projection while `docs/EQUIPMENT_NSOM_POLICY_READINESS.md` keeps the runtime setup helper unchanged. | Keep deferred while the 1.12.6 ObservationConditions boundary is reviewed; revisit Equipment presenter contract work after the consumer-reroute decision is stable. |
+| ObservationConditions prepared-object cache | `active_legacy_or_hybrid` | Conditioned object copies still feed fallback and compatibility presentation paths; the 1.12.6 audit reports `read_model_boundary_introduced_consumer_reroute_pending`. | Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then decide whether Home, Best Object and Sky Compass NSOM consumers should read raw read-model targets. |
 | Catalogue / raw object score | `active_legacy_or_hybrid` | Catalogue/base scores remain Universe input and display compatibility data. | Treat as Universe/read-model work, not as a ranking hotfix. |
 
 ## Safety Checks

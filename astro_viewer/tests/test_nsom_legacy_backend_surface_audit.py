@@ -108,17 +108,17 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     }
     assert active["Equipment recommendations"]["classification"] == "active_legacy_or_hybrid"
     assert "observer_capability_adapter.py" in active["Equipment recommendations"]["why_active"]
-    assert "ObservationConditions read-model boundary" in active[
+    assert "ObservationConditions boundary" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
-    assert "read_model_boundary_required_before_cleanup" in active[
+    assert "read_model_boundary_introduced_consumer_reroute_pending" in active[
         "ObservationConditions prepared-object cache"
     ]["why_active"]
     assert "OBSERVATION_CONDITIONS_READ_MODEL_AUDIT" in active[
         "ObservationConditions prepared-object cache"
     ]["recommended_handling"]
     assert data["readiness"]["observation_conditions_recommendation"] == (
-        "read_model_boundary_required_before_cleanup"
+        "read_model_boundary_introduced_consumer_reroute_pending"
     )
 
 
@@ -145,7 +145,7 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.12.2 ObserverCapability adapter extraction" in text
     assert "1.12.3 Notifications dead legacy audit" in text
     assert "1.12.5 ObservationConditions read-model audit" in text
-    assert "read_model_boundary_required_before_cleanup" in text
+    assert "read_model_boundary_introduced_consumer_reroute_pending" in text
     assert "removed_dead_legacy" in text
     assert "dead legacy pending removal" not in text
     assert "1.12.6 ObservationConditions read-model boundary" in text

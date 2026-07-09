@@ -37,14 +37,15 @@ def test_observation_conditions_read_model_audit_is_deterministic_strict_json_an
 def test_observation_conditions_audit_identifies_read_model_boundary_requirement() -> None:
     data = generate_observation_conditions_read_model_audit_data()
 
-    assert data["readiness"]["verdict"] == "read_model_boundary_required_before_cleanup"
+    assert data["readiness"]["verdict"] == "read_model_boundary_introduced_consumer_reroute_pending"
     assert data["readiness"]["runtime_migration_recommended_now"] is False
     assert data["readiness"]["safe_to_remove_service"] is False
     assert data["readiness"]["safe_to_keep_current_runtime_temporarily"] is True
     assert data["checks"]["service_is_active_runtime_code"] is True
     assert data["checks"]["conditioned_caches_present"] is True
     assert data["checks"]["pollution_context_writes_deep_sky_cache"] is True
-    assert "observation-conditions-read-model-boundary-missing" in data["blockers"]
+    assert data["checks"]["read_model_boundary_present"] is True
+    assert "observation-conditions-read-model-boundary-missing" not in data["blockers"]
 
 
 def test_observation_conditions_audit_exposes_conditioned_score_nsom_input_risk() -> None:
@@ -57,6 +58,19 @@ def test_observation_conditions_audit_exposes_conditioned_score_nsom_input_risk(
     assert fixture["nsom_conditioned_score_input_risk"] is True
     assert data["checks"]["nsom_conditioned_score_input_risk_visible"] is True
     assert "observation-conditions-conditioned-score-as-nsom-intrinsic" in data["blockers"]
+
+
+def test_observation_conditions_audit_exposes_read_model_boundary_fixture() -> None:
+    data = generate_observation_conditions_read_model_audit_data()
+    fixture = data["read_model_fixture"]
+
+    assert fixture["raw_score"] > fixture["display_score"]
+    assert fixture["raw_target_preserved"] is True
+    assert fixture["display_target_preserved"] is True
+    assert fixture["nsom_input_uses_raw_target"] is True
+    assert fixture["strict_json_compatible"] is True
+    assert data["checks"]["read_model_strict_json_compatible"] is True
+    assert data["checks"]["read_model_display_score_separate_from_raw_score"] is True
 
 
 def test_observation_conditions_audit_keeps_service_characterization_precise() -> None:
@@ -101,7 +115,8 @@ def test_checked_in_observation_conditions_read_model_audit_report_matches_rende
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# ObservationConditions NSOM Read-Model Audit" in text
-    assert "read_model_boundary_required_before_cleanup" in text
+    assert "read_model_boundary_introduced_consumer_reroute_pending" in text
     assert "observation-conditions-conditioned-score-as-nsom-intrinsic" in text
+    assert "## Read-Model Boundary" in text
     assert "ObservationConditions is not dead legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

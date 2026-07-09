@@ -87,8 +87,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review the ObservationConditions read-model audit, then implement "
-                "the read-model boundary before further cleanup"
+                "Review the 1.12.6 ObservationConditions read-model boundary, "
+                "then decide whether NSOM consumers should use the raw read-model "
+                "target in a separate behaviour-reviewed step"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -96,8 +97,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "with explicit rollback. Remaining items are non-blocking legacy or "
                 "hybrid surfaces; Sky Map and Notifications have been removed as "
                 "dead legacy. ObservationConditions is active hybrid runtime code "
-                "and now has a read-model audit showing that conditioned object "
-                "scores can become NSOM intrinsic inputs. "
+                "and now has a read-model boundary that separates raw and display "
+                "targets, while consumer rerouting remains a separate review. "
                 "Equipment now has a shared ObserverCapability/Q_target adapter "
                 "while runtime setup recommendations remain unchanged."
             ),
@@ -260,8 +261,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "as dead legacy rather than migrated to NSOM. Notifications are now "
                 "removed dead legacy, not an NSOM migration surface. "
                 "ObservationConditions is active hybrid runtime code and now has "
-                "a read-model audit; the next implementation step is to separate "
-                "raw target input from condition-adjusted display compatibility. "
+                "an internal read-model boundary separating raw and display target "
+                "data; consumer rerouting remains a separate reviewed behaviour "
+                "step. "
                 "Equipment now has a "
                 "shared ObserverCapability/Q_target adapter while runtime setup "
                 "recommendations remain unchanged. Visible UI explanation work "
@@ -373,9 +375,9 @@ def _remaining_legacy_or_hybrid_surfaces(
                 "recommendations unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the ObservationConditions read-model boundary "
-                "is implemented; revisit Equipment presenter contract work after "
-                "that boundary is stable."
+                "Keep deferred while the 1.12.6 ObservationConditions boundary is "
+                "reviewed; revisit Equipment presenter contract work after the "
+                "consumer-reroute decision is stable."
             ),
             "blocks_current_default_on_surfaces": False,
         },
@@ -385,12 +387,13 @@ def _remaining_legacy_or_hybrid_surfaces(
             "why_it_remains": (
                 "`ObservationConditionsService` still creates conditioned object "
                 "copies for moon and light-pollution presentation/fallback paths; "
-                "the 1.12.5 audit shows those copies need an explicit read-model "
-                "boundary before cleanup."
+                "the 1.12.6 boundary now preserves raw and display target fields "
+                "separately before any consumer reroute."
             ),
             "recommended_handling": (
                 "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
-                "introduce raw/display/conditioned read-model fields."
+                "decide whether Home, Best Object and Sky Compass NSOM consumers "
+                "should read raw read-model targets."
             ),
             "blocks_current_default_on_surfaces": False,
         },

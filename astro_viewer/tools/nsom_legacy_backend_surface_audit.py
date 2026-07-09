@@ -70,8 +70,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_state["verdict"],
             "recommended_next_step": (
-                "Review the ObservationConditions read-model audit, then implement "
-                "the read-model boundary."
+                "Review the 1.12.6 ObservationConditions read-model boundary, "
+                "then decide the NSOM consumer reroute policy."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -82,8 +82,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "setup helper remains unchanged. The QML Home page no longer consumes "
                 "notifications, and the 1.12.4 cleanup removes the controller "
                 "property, runtime recomputation, `NotificationService` and DTO. "
-                "ObservationConditions remains active runtime code and needs an "
-                "explicit read-model boundary before cleanup."
+                "ObservationConditions remains active runtime code and now has an "
+                "explicit read-model boundary; consumer rerouting remains separate."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -530,9 +530,9 @@ def _active_legacy_or_hybrid_surfaces(
                 "helper unchanged."
             ),
             "recommended_handling": (
-                "Keep deferred while the ObservationConditions read-model boundary "
-                "is implemented; revisit Equipment presenter contract work after "
-                "that boundary is stable."
+                "Keep deferred while the 1.12.6 ObservationConditions boundary is "
+                "reviewed; revisit Equipment presenter contract work after the "
+                "consumer-reroute decision is stable."
             ),
         },
         {
@@ -540,12 +540,13 @@ def _active_legacy_or_hybrid_surfaces(
             "classification": "active_legacy_or_hybrid",
             "why_active": (
                 "Conditioned object copies still feed fallback and compatibility "
-                "presentation paths; the 1.12.5 audit reports "
+                "presentation paths; the 1.12.6 audit reports "
                 f"`{observation_conditions_state['verdict']}`."
             ),
             "recommended_handling": (
                 "Review `docs/OBSERVATION_CONDITIONS_READ_MODEL_AUDIT.md`, then "
-                "introduce raw/display/conditioned read-model fields."
+                "decide whether Home, Best Object and Sky Compass NSOM consumers "
+                "should read raw read-model targets."
             ),
         },
         {
