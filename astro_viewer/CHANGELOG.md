@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.12.10 - 2026-07-09
+
+- Aggiunto `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`, report
+  developer-only per il reroute futuro di Sky Compass sul boundary
+  `ObservationConditionedTargetReadModel`.
+- Definita la policy Sky Compass: `ObservableTargetValue` deve usare target
+  physics raw da `nsom_target_input`, mentre direzione, visibilita',
+  horizon/current position e payload restano sul target display/live.
+- Documentato che boost da Night Plan e Best Object restano presentation/context
+  policy e non target physics NSOM.
+- Aggiornati gli audit ObservationConditions/backend/legacy: Home e Best Object
+  sono reroutati, Sky Compass ha policy definita e runtime adapter ancora
+  pending.
+- Nessun cambio runtime a Sky Compass, QML/UI, Planner, Home, Best Object,
+  Equipment, logging, rete o scritture runtime.
+
 ## NightScope 1.12.9 - 2026-07-09
 
 - Reroutato il ramo runtime Best Object NSOM sul boundary

@@ -579,6 +579,13 @@ display target compatibile. Il rollback
 `AppController(use_nsom_best_object=False)` e il fallback senza sky quality
 restano invariati. Sky Compass resta l'unico consumer ObservationConditions
 ancora da valutare per un eventuale reroute raw-target.
+Lo step `1.12.10` aggiunge
+`docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`: la policy conferma che Sky
+Compass non deve ricevere solo target raw. Il contributo `ObservableTargetValue`
+deve usare target physics raw da `nsom_target_input`, mentre direzione,
+visibilita', horizon/current position e payload devono restare sul target
+display/live. Il runtime Sky Compass non cambia in questo step; il prossimo
+lavoro e' un adapter split se la policy viene accettata.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

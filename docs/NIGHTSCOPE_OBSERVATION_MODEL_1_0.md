@@ -1231,6 +1231,15 @@ controller maps the selected raw target back to `qml_display_target` for the
 existing QML payload. Sky Compass remains the only ObservationConditions
 consumer pending a raw-target reroute decision.
 
+Implementation note for 1.12.10:
+`docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md` defines the remaining Sky
+Compass ObservationConditions policy. Sky Compass is a direction/presentation
+surface, so future runtime reroute work must split sources: raw
+`nsom_target_input` for `ObservableTargetValue` target physics, display/live
+target for direction grouping, visibility, horizon/current position and QML
+payload, and target-id context for Night Plan / Best Object boosts. This step
+does not change Sky Compass runtime behaviour.
+
 Examples:
 
 - binocular-only profile;

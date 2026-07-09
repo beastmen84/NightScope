@@ -18,6 +18,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 
 
 REPORT_PATH = Path("docs/OBSERVATION_CONDITIONS_CONSUMER_REROUTE_AUDIT.md")
+SKY_COMPASS_POLICY_REPORT_PATH = Path("docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md")
 
 REPORT_IMPORT_MARKERS = (
     "observation_conditions_consumer_reroute_audit",
@@ -54,14 +55,13 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
             "report_path": str(REPORT_PATH).replace("\\", "/"),
         },
         "readiness": {
-            "verdict": "home_and_best_object_rerouted_sky_compass_pending",
+            "verdict": "sky_compass_read_model_policy_defined_runtime_pending",
             "runtime_reroute_recommended_now": True,
             "safe_to_change_runtime_in_this_step": False,
             "safe_to_keep_current_runtime_temporarily": True,
             "recommended_next_step": (
-                "Review the 1.12.9 Best Object raw-target reroute, then decide "
-                "whether Sky Compass should consume read-model raw targets for "
-                "its observable contribution."
+                "Review the 1.12.10 Sky Compass read-model reroute policy, then "
+                "implement the split adapter if accepted."
             ),
             "reason": (
                 "The read-model boundary exposes raw target inputs and conditioned "
@@ -69,8 +69,9 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
                 "the NSOM path from read_model.nsom_target_input while returning "
                 "read_model.qml_display_target for payload compatibility. Best "
                 "Object now scores raw read-model candidates and returns the "
-                "selected display target. Sky Compass still requires a separate "
-                "behaviour-reviewed direction reroute."
+                "selected display target. Sky Compass now has a policy defining "
+                "raw ObservableTargetValue input plus display/live geometry and "
+                "payload ownership, but runtime rerouting is still pending."
             ),
         },
         "blockers": _blockers(checks),
@@ -120,6 +121,13 @@ def generate_observation_conditions_consumer_reroute_audit_data() -> dict[str, o
                     "while returning the selected display target."
                 ),
             },
+            {
+                "step": "1.12.10 Sky Compass read-model reroute policy",
+                "summary": (
+                    "Define raw target physics vs display/live geometry ownership "
+                    "before changing Sky Compass runtime."
+                ),
+            },
         ),
     }
     return nsom_to_json_compatible(data)
@@ -139,9 +147,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "This developer-only audit reviews whether NSOM consumers should use "
                 "the raw target side of the ObservationConditions read model. Home "
                 "recommendedDeepSky and Best Object have now been rerouted; Sky "
-                "Compass remains pending. The audit itself does not change runtime "
-                "behaviour, QML, scoring, logging, network access or runtime file "
-                "writes."
+                "Compass has a read-model policy and remains runtime-pending. The "
+                "audit itself does not change runtime behaviour, QML, scoring, "
+                "logging, network access or runtime file writes."
             ),
         "",
         "## Verdict",
@@ -237,9 +245,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "The NSOM-correct direction is to score Home, Best Object and Sky "
                 "Compass from raw read-model targets while preserving conditioned "
                 "display targets for compatibility payloads. Home recommendedDeepSky "
-                "and Best Object now follow this policy. Sky Compass should be "
-                "rerouted in a separate reviewed commit because it can change "
-                "direction ranking."
+                "and Best Object now follow this policy. Sky Compass now has a "
+                "split policy that keeps display/live geometry separate from raw "
+                "ObservableTargetValue input; runtime implementation should be a "
+                "separate reviewed commit."
             ),
             "",
         ]
@@ -365,13 +374,14 @@ def _consumer_policies(deep_sky_evaluations: tuple[dict[str, object], ...]) -> t
         {
             "consumer": "Sky Compass",
             "current_runtime_input": "conditioned display target for direction scoring",
-            "candidate_raw_input": "read_model.nsom_target_input for observable contribution",
-            "payload_target": "read_model.qml_display_target",
-            "status": "requires_direction_delta_review_before_reroute",
+            "candidate_raw_input": "read_model.nsom_target_input for observable contribution plus display/live geometry",
+            "payload_target": "read_model.qml_display_target or current live display target",
+            "status": "read_model_reroute_policy_defined_runtime_pending",
             "behaviour_change_expected": True,
             "policy": (
-                "Use raw observable contribution for direction ranking while "
-                "keeping display target score/name/type fields unchanged."
+                "Use raw target physics for ObservableTargetValue, keep current "
+                "display/live target for direction, visibility, horizon context "
+                "and payload fields."
             ),
         },
     )
@@ -425,12 +435,21 @@ def _checks(
             "best_object_runtime_returns_display_target"
         ]
         is True,
-        "sky_compass_policy_keeps_display_payload": _policy_field(
+        "sky_compass_policy_keeps_display_payload": (
+            _policy_field(
+                consumer_policies,
+                "Sky Compass",
+                "payload_target",
+            )
+            == "read_model.qml_display_target or current live display target"
+        ),
+        "sky_compass_policy_defined_runtime_pending": _policy_field(
             consumer_policies,
             "Sky Compass",
-            "payload_target",
+            "status",
         )
-        == "read_model.qml_display_target",
+        == "read_model_reroute_policy_defined_runtime_pending",
+        "sky_compass_policy_report_present": static_checks["sky_compass_policy_report_present"] is True,
         "runtime_report_imports_absent": static_checks["runtime_report_import_matches"] == (),
         "qml_report_exposure_absent": static_checks["qml_report_exposure_matches"] == (),
         "runtime_behaviour_unchanged_by_audit": True,
@@ -461,6 +480,10 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
             "observation-conditions-reroute-best-object-display-return-missing"
         ),
         "sky_compass_policy_keeps_display_payload": "observation-conditions-reroute-sky-compass-payload-policy-missing",
+        "sky_compass_policy_defined_runtime_pending": (
+            "observation-conditions-reroute-sky-compass-policy-status-missing"
+        ),
+        "sky_compass_policy_report_present": "observation-conditions-reroute-sky-compass-policy-report-missing",
         "runtime_report_imports_absent": "observation-conditions-reroute-audit-runtime-wiring",
         "qml_report_exposure_absent": "observation-conditions-reroute-audit-qml-exposure",
         "runtime_behaviour_unchanged_by_audit": "observation-conditions-reroute-audit-runtime-change",
@@ -508,6 +531,7 @@ def _static_wiring_checks(root: Path) -> dict[str, object]:
             and "return display_targets_by_raw_id.get(selected_raw_target.id, selected_raw_target)"
             in controller_source
         ),
+        "sky_compass_policy_report_present": (root / SKY_COMPASS_POLICY_REPORT_PATH).exists(),
         "runtime_report_import_matches": _scan_files(
             root / "astro_viewer" / "app",
             ("*.py",),

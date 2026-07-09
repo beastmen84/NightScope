@@ -705,6 +705,14 @@ payload shape and displayed score semantics remain compatible. The explicit
 rollback and missing-sky-quality fallback remain unchanged. Sky Compass remains
 the only ObservationConditions consumer still pending a raw-target reroute
 decision.
+`1.12.10` adds `docs/SKY_COMPASS_READ_MODEL_REROUTE_POLICY.md`. The policy
+states that Sky Compass must not be rerouted by passing only raw targets to the
+current service. `ObservableTargetValue` should read target physics from
+`ObservationConditionedTargetReadModel.nsom_target_input`, while direction
+grouping, visibility, horizon/current position and payload fields remain owned
+by the display/live target. Night Plan and Best Object boosts remain
+presentation/context policy outside target physics. No runtime Sky Compass path
+is changed in this policy step.
 
 ## Dependency Flow
 

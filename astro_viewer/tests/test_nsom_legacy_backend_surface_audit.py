@@ -111,12 +111,12 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     assert "ObservationConditions consumer reroute policy" in active[
         "Equipment recommendations"
     ]["recommended_handling"]
-    assert "home_and_best_object_rerouted_sky_compass_pending" in active[
+    assert "sky_compass_read_model_policy_defined_runtime_pending" in active[
         "ObservationConditions prepared-object cache"
     ]["why_active"]
-    assert "Sky Compass" in active["ObservationConditions prepared-object cache"]["recommended_handling"]
+    assert "split adapter" in active["ObservationConditions prepared-object cache"]["recommended_handling"]
     assert data["readiness"]["observation_conditions_recommendation"] == (
-        "home_and_best_object_rerouted_sky_compass_pending"
+        "sky_compass_read_model_policy_defined_runtime_pending"
     )
 
 
@@ -143,11 +143,12 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "1.12.2 ObserverCapability adapter extraction" in text
     assert "1.12.3 Notifications dead legacy audit" in text
     assert "1.12.5 ObservationConditions read-model audit" in text
-    assert "home_and_best_object_rerouted_sky_compass_pending" in text
+    assert "sky_compass_read_model_policy_defined_runtime_pending" in text
     assert "removed_dead_legacy" in text
     assert "dead legacy pending removal" not in text
     assert "1.12.6 ObservationConditions read-model boundary" in text
     assert "1.12.7 ObservationConditions consumer reroute audit" in text
     assert "1.12.8 Home recommendedDeepSky raw-target reroute" in text
     assert "1.12.9 Best Object raw-target reroute" in text
+    assert "1.12.10 Sky Compass read-model reroute policy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

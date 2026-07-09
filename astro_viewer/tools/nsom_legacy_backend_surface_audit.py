@@ -77,8 +77,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "notifications_migration_recommendation": notification_state["classification"],
             "observation_conditions_recommendation": observation_conditions_reroute_state["verdict"],
             "recommended_next_step": (
-                "Review the 1.12.9 Best Object raw-target reroute, then decide "
-                "whether Sky Compass should consume raw read-model targets."
+                "Review the 1.12.10 Sky Compass read-model reroute policy, then "
+                "implement the split adapter if accepted."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -93,7 +93,8 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "explicit read-model boundary plus consumer reroute policy. Home "
                 "recommendedDeepSky now uses the raw read-model target for NSOM "
                 "ranking, and Best Object now scores raw read-model targets while "
-                "returning display targets. Sky Compass remains a separate "
+                "returning display targets. Sky Compass now has a raw-target/"
+                "display-live-geometry policy and remains a separate runtime "
                 "consumer reroute."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
@@ -248,6 +249,13 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "summary": (
                 "Use raw read-model targets for Best Object NSOM scoring while "
                 "returning the selected display payload target."
+            ),
+        },
+        {
+            "step": "1.12.10 Sky Compass read-model reroute policy",
+            "summary": (
+                "Define Sky Compass raw target physics vs display/live geometry "
+                "ownership before runtime changes."
             ),
         },
         ),
@@ -586,9 +594,8 @@ def _active_legacy_or_hybrid_surfaces(
                 f"`{observation_conditions_reroute_state['verdict']}`."
             ),
             "recommended_handling": (
-                "Review the 1.12.9 Best Object reroute, then decide whether Sky "
-                "Compass should consume raw read-model targets for observable "
-                "direction scoring."
+                "Review the 1.12.10 Sky Compass policy, then implement the "
+                "read-model split adapter if accepted."
             ),
         },
         {
