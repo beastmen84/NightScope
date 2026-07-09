@@ -83,4 +83,4 @@ This developer-only audit rolls up the backend NSOM migration state after the Eq
 
 ## Conclusion
 
-The backend NSOM recommendation migration is ready for the next phase. The rollback cleanup policy is now set: internal legacy rollback flags should be removed in a focused implementation step, because the application is not distributed and those branches now create more maintenance surface than product value. Visible UI/explanation work remains a separate design step.
+The backend NSOM recommendation migration is ready for the next phase. The rollback cleanup policy has been implemented: internal legacy rollback flags were removed in 1.13.8 because the application is not distributed and those branches created more maintenance surface than product value. Visible UI/explanation work remains a separate design step.
