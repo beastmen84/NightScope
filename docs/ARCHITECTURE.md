@@ -660,6 +660,12 @@ and all QML payloads remain unchanged.
 immutable while still projecting to strict JSON. This does not change Equipment
 runtime ranking, Planner, Home, Best Object, Advanced Observing, Sky Compass,
 Detail/Object, QML, logging, network behaviour or runtime file writes.
+`1.12.3` adds the developer-only
+`docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md`. The audit confirms that the current
+QML/Home UI no longer consumes `controller.notifications`, while the old
+`NotificationService`, controller property and DTO still exist. Notifications
+are therefore classified as `dead_legacy_pending_removal`, not as an NSOM
+migration surface. No runtime behaviour changes in this audit step.
 
 ## Dependency Flow
 

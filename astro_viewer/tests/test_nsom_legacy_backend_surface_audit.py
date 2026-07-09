@@ -28,7 +28,8 @@ def test_legacy_backend_surface_audit_is_deterministic_strict_json_and_developer
 
 def test_sky_map_removed_dead_legacy_path_stays_out_of_runtime() -> None:
     data = generate_legacy_backend_surface_audit_data()
-    sky_map = data["dead_legacy_surfaces"][0]
+    dead = {item["surface"]: item for item in data["dead_legacy_surfaces"]}
+    sky_map = dead["Sky Map"]
 
     assert sky_map["surface"] == "Sky Map"
     assert sky_map["classification"] == "removed_dead_legacy"
@@ -44,6 +45,24 @@ def test_sky_map_removed_dead_legacy_path_stays_out_of_runtime() -> None:
         "removed_dead_legacy_surface"
     )
     assert "Keep removed" in sky_map["recommended_handling"]
+
+
+def test_notifications_are_dead_legacy_not_active_nsom_migration_target() -> None:
+    data = generate_legacy_backend_surface_audit_data()
+    dead = {item["surface"]: item for item in data["dead_legacy_surfaces"]}
+    notifications = dead["Notifications"]
+
+    assert notifications["classification"] == "dead_legacy_pending_removal"
+    assert notifications["qml_consumed"] is False
+    assert notifications["controller_runtime_present"] is True
+    assert notifications["service_file_present"] is True
+    assert notifications["not_a_nsom_migration_target"] is True
+    assert data["checks"]["notifications_qml_consumers_absent"] is True
+    assert data["checks"]["notifications_not_nsom_target"] is True
+    assert data["checks"]["notifications_dead_legacy_pending_removal"] is True
+    assert data["readiness"]["notifications_migration_recommendation"] == (
+        "dead_legacy_pending_removal"
+    )
 
 
 def test_temporary_rollbacks_are_internal_not_public_compatibility_contracts() -> None:
@@ -85,7 +104,6 @@ def test_active_legacy_or_hybrid_surfaces_remain_separate_from_dead_code_removal
     assert set(active) == {
         "Equipment recommendations",
         "ObservationConditions prepared-object cache",
-        "Notifications",
         "Catalogue / raw object score",
     }
     assert active["Equipment recommendations"]["classification"] == "active_legacy_or_hybrid"
@@ -114,5 +132,7 @@ def test_checked_in_legacy_backend_surface_audit_report_matches_renderer() -> No
     assert "Review 1.12.2" in text
     assert "1.12.1 Equipment NSOM policy readiness" in text
     assert "1.12.2 ObserverCapability adapter extraction" in text
+    assert "1.12.3 Notifications dead legacy audit" in text
+    assert "dead_legacy_pending_removal" in text
     assert "Next backend area decision" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

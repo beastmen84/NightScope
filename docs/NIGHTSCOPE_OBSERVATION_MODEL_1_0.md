@@ -1174,6 +1174,13 @@ metadata immutable while preserving strict JSON projection. The hardening is
 limited to DTO integrity; it does not change observer formulas, Q_target,
 PracticalTargetValue, runtime Equipment ranking, QML or report runtime wiring.
 
+Implementation note for 1.12.3:
+`docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md` classifies the old Notifications path
+as dead legacy pending removal. Current QML/Home no longer consumes
+`controller.notifications`, so Notifications should be removed like Sky Map
+rather than migrated to NSOM. This audit does not change runtime behaviour; the
+removal belongs to a separate cleanup commit.
+
 Examples:
 
 - binocular-only profile;

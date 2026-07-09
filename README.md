@@ -535,6 +535,11 @@ Lo step `1.12.2b` indurisce la projection estratta: il profilo di pesi
 target-specific viene esposto come metadata immutabile e resta serializzabile
 in JSON strict. Non cambia nessuno score runtime e non viene aggiunto wiring
 QML/report automatico.
+Lo step `1.12.3` aggiunge `docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md`: l'audit
+conferma che Notifications non ha piu' consumer QML/Home e lo riclassifica come
+`dead_legacy_pending_removal`, quindi non e' una superficie da migrare a NSOM.
+Il prossimo cleanup puo' rimuovere `NotificationService`,
+`AppController.notifications` e il DTO collegato senza cambiare UI visibile.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

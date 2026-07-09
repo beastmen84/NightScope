@@ -1,5 +1,16 @@
 # Changelog
 
+## NightScope 1.12.3 - 2026-07-09
+
+- Aggiunto `docs/NOTIFICATIONS_DEAD_LEGACY_AUDIT.md`, audit developer-only che
+  conferma l'assenza di consumer QML/Home per Notifications.
+- Riclassificato Notifications come `dead_legacy_pending_removal`, non come
+  superficie NSOM da migrare.
+- Aggiornati gli audit backend per indicare la rimozione del path
+  `NotificationService`/`AppController.notifications` come prossimo cleanup.
+- Nessun cambio runtime in questo commit: nessun scoring, QML, logging, rete o
+  scrittura runtime modificati.
+
 ## NightScope 1.12.2b - 2026-07-08
 
 - Indurita la projection Equipment condivisa `ObserverCapability/Q_target`: il

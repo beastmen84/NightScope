@@ -11,6 +11,7 @@ from astro_viewer.app.services.home_nsom_ranking import NSOM_HOME_RECOMMENDED_DE
 from astro_viewer.app.services.night_planner_service import NSOM_PLANNER_SCORING_ENABLED, NightPlannerService
 from astro_viewer.app.services.sky_compass_nsom_ranking import NSOM_SKY_COMPASS_ENABLED
 from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.tools.notifications_dead_legacy_audit import generate_notifications_dead_legacy_audit_data
 
 
 REPORT_PATH = Path("docs/NSOM_LEGACY_BACKEND_SURFACE_AUDIT.md")
@@ -38,6 +39,7 @@ SKY_MAP_CONTROLLER_MARKERS = (
 def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
     root = Path(__file__).parents[2]
     sky_map_state = _sky_map_state(root)
+    notification_state = generate_notifications_dead_legacy_audit_data()["notification_surface"]
     temporary_rollbacks = _temporary_rollbacks()
     payload_compatibility = _payload_compatibility_surfaces()
     active_legacy_or_hybrid = _active_legacy_or_hybrid_surfaces()
@@ -61,8 +63,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
         "readiness": {
             "verdict": "legacy_backend_surface_cleanup_complete",
             "sky_map_migration_recommendation": "removed_dead_legacy_surface",
+            "notifications_migration_recommendation": notification_state["classification"],
             "recommended_next_step": (
-                "Review 1.12.2, then decide the next backend area."
+                "Remove the dead Notifications backend path, then decide the next backend area."
             ),
             "reason": (
                 "The QML Home page consumes Sky Compass and no longer consumes "
@@ -70,7 +73,9 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "property, `_sky_map` storage, recomputation and `SkyMapService`, "
                 "so Sky Map is no longer a backend migration target. Equipment now "
                 "has a shared ObserverCapability/Q_target adapter while the runtime "
-                "setup helper remains unchanged."
+                "setup helper remains unchanged. The QML Home page also no longer "
+                "consumes notifications, so the remaining NotificationService path "
+                "is dead legacy pending removal."
             ),
             "runtime_behaviour_changed_by_this_audit": False,
         },
@@ -96,7 +101,7 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 "read-model migration before removal."
             ),
         },
-        "dead_legacy_surfaces": (sky_map_state,),
+        "dead_legacy_surfaces": (sky_map_state, notification_state),
         "temporary_rollback_surfaces": temporary_rollbacks,
         "payload_compatibility_surfaces": payload_compatibility,
         "active_legacy_or_hybrid_surfaces": active_legacy_or_hybrid,
@@ -106,6 +111,11 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
             "sky_map_controller_computation_absent": sky_map_state["controller_computation_present"] is False,
             "sky_map_service_file_absent": sky_map_state["service_file_present"] is False,
             "sky_map_removed_not_nsom_target": sky_map_state["classification"] == "removed_dead_legacy",
+            "notifications_qml_consumers_absent": notification_state["qml_consumed"] is False,
+            "notifications_not_nsom_target": notification_state["not_a_nsom_migration_target"] is True,
+            "notifications_dead_legacy_pending_removal": (
+                notification_state["classification"] == "dead_legacy_pending_removal"
+            ),
             "temporary_rollbacks_are_internal": all(
                 item["public_compatibility_contract"] is False for item in temporary_rollbacks
             ),
@@ -164,6 +174,20 @@ def generate_legacy_backend_surface_audit_data() -> dict[str, object]:
                 ),
             },
             {
+                "step": "1.12.3 Notifications dead legacy audit",
+                "summary": (
+                    "Classify Notifications as dead legacy because no QML/Home "
+                    "consumer remains."
+                ),
+            },
+            {
+                "step": "1.12.4 Remove dead Notifications backend path",
+                "summary": (
+                    "Remove AppController notifications, NotificationService and "
+                    "leftover DTO/tests."
+                ),
+            },
+            {
                 "step": "Next backend area decision",
                 "summary": (
                     "Choose between ObservationConditions read-model cleanup and "
@@ -195,6 +219,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Sky Map migration recommendation: `{readiness['sky_map_migration_recommendation']}`.",
+        f"- Notifications migration recommendation: `{readiness['notifications_migration_recommendation']}`.",
         f"- Runtime behaviour changed by this audit: `{readiness['runtime_behaviour_changed_by_this_audit']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         f"- Reason: {readiness['reason']}",
@@ -328,7 +353,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             (
                 "Sky Map has been removed from the backend runtime surface instead "
-                "of being migrated to NSOM. Equipment now has a shared "
+                "of being migrated to NSOM. Notifications are dead legacy pending "
+                "removal rather than a backend NSOM migration surface. Equipment now has a shared "
                 "ObserverCapability/Q_target adapter while runtime setup "
                 "recommendations remain unchanged. The next backend area should be "
                 "chosen explicitly, while temporary rollback cleanup remains a "
@@ -457,7 +483,7 @@ def _payload_compatibility_surfaces() -> tuple[dict[str, object], ...]:
         {
             "surface": "Advanced Observing",
             "compatibility_field": "advancedScores",
-            "why_it_remains": "Home cards, Planner and notifications still consume the legacy-compatible scores.",
+            "why_it_remains": "Home cards and Planner still consume the legacy-compatible scores; the old notification consumer is dead legacy pending removal.",
             "ranking_authority": "NSOM or separate active service",
         },
         {
@@ -491,12 +517,6 @@ def _active_legacy_or_hybrid_surfaces() -> tuple[dict[str, object], ...]:
             "classification": "active_legacy_or_hybrid",
             "why_active": "Conditioned object copies still feed fallback and compatibility presentation paths.",
             "recommended_handling": "Defer cleanup until an ObservationSnapshot/read-model boundary exists.",
-        },
-        {
-            "surface": "Notifications",
-            "classification": "active_legacy_or_hybrid",
-            "why_active": "Notifications consume legacy-compatible best object, plan and advanced-score payloads.",
-            "recommended_handling": "Define notification-specific NSOM semantics before replacement.",
         },
         {
             "surface": "Catalogue / raw object score",
