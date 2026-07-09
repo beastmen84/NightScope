@@ -627,6 +627,31 @@ def test_app_controller_builds_planner_moon_geometry_inputs_when_experimental_fl
     assert controller._astronomy_engine.calls == 1
 
 
+def test_app_controller_default_planner_builds_moon_geometry_inputs() -> None:
+    controller = AppController.__new__(AppController)
+    controller._night_planner_service = NightPlannerService()
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    controller._moon_geometry_condition_cache = {}
+    controller._astronomy_engine = _MoonGeometryEngine(
+        MoonGeometrySummary(
+            object_id="m31",
+            moon_altitude_deg=37.0,
+            moon_target_separation_deg=18.0,
+            moon_above_horizon=True,
+            moon_visible_during_target_window=True,
+            moon_set_before_target_window=False,
+        )
+    )
+    target = _target("m31", "M31", "Galaxy", 82)
+
+    geometry_by_id = controller._planner_moon_geometry_inputs([target])
+
+    assert controller._night_planner_service.uses_moon_geometry_scoring is True
+    assert geometry_by_id is not None
+    assert geometry_by_id["m31"].moon_target_separation_deg == 18.0
+    assert controller._astronomy_engine.calls == 1
+
+
 def test_app_controller_builds_runtime_condition_diagnostic_inputs() -> None:
     controller = AppController.__new__(AppController)
     controller._moon = _moon("42%")

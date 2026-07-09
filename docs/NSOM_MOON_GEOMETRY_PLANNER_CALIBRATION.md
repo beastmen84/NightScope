@@ -2,15 +2,15 @@
 
 ## Executive Summary
 
-This developer-only report evaluates 30 deterministic Planner rows for the default-off experimental Moon geometry path.
+This developer-only report evaluates 30 deterministic Planner rows for the Moon geometry path against the illumination-only rollback.
 The experiment changes only the Sky-owned `ObservationEnvironment.lunar_sky_background` component. It does not change ObserverCapability, SessionViability, RecommendationConfidence score effect, QML payloads, runtime logging, network calls or automatic file writes.
 The intended direction is visible: close high Moon geometry lowers deep-sky opportunities more than far high Moon geometry, Moon set before the target window removes the lunar background penalty, and planets/Moon remain protected from lunar sky-background penalties.
 
 ## Methodology
 
 - Used fixed in-memory Planner candidates only.
-- Compared the default Planner NSOM Moon model with the feature-flagged Moon geometry model.
-- Experimental flag under review: `experimental_moon_geometry_scoring`.
+- Compared the explicit illumination-only rollback model with the Planner default-on Moon geometry model.
+- Planner default flag under review: `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED`.
 - Held sky quality, weather, equipment, target score and session context stable inside each comparison.
 - Treated RecommendationConfidence as metadata only; it is not part of the score formula.
 - Marked this tooling as developer-only and kept it outside runtime imports/QML.
@@ -59,7 +59,7 @@ The intended direction is visible: close high Moon geometry lowers deep-sky oppo
 | `qml_report_exposure_absent` | `True` |
 | `only_lunar_environment_component_changes` | `True` |
 | `confidence_has_zero_score_effect` | `True` |
-| `flag_default_off_documented` | `True` |
+| `explicit_rollback_documented` | `True` |
 
 ## Calibration Observations
 

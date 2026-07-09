@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.5`.
+Versione corrente: `1.14.6`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -725,6 +725,12 @@ che classifica la geometria lunare Planner come pronta per uno switch default-on
 separato. Lo switch non e' ancora abilitato: il default runtime resta
 illumination-only e `NightPlannerService` usa la geometria lunare solo con
 opt-in esplicito del servizio NSOM.
+Lo step `1.14.6` abilita quello switch in modo stretto per il Planner:
+`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. Il default globale
+`ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` resta
+`False`, quindi AOD/OpenAQ e i modifier generici restano fuori scope. Il
+rollback esplicito e' l'iniezione di un `PlannerNsomScoringService` con
+`experimental_moon_geometry_scoring=False`.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

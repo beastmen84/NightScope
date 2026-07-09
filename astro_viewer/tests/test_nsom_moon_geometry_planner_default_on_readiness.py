@@ -5,6 +5,10 @@ from pathlib import Path
 
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import ObservationConditionFeatureFlags
+from astro_viewer.app.services.planner_nsom_service import (
+    NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
+    PlannerNsomScoringService,
+)
 from astro_viewer.tools.nsom_moon_geometry_planner_default_on_readiness import (
     REPORT_PATH,
     generate_moon_geometry_planner_default_on_readiness_data,
@@ -33,26 +37,38 @@ def test_moon_geometry_default_on_readiness_is_deterministic_strict_json_and_dev
     assert first["checks"]["strict_json_compatible"] is True
 
 
-def test_moon_geometry_default_on_readiness_reports_ready_but_does_not_enable_default() -> None:
+def test_moon_geometry_default_on_readiness_reports_default_on_switch_completed() -> None:
     data = generate_moon_geometry_planner_default_on_readiness_data()
 
-    assert data["readiness"]["verdict"] == "moon_geometry_planner_ready_for_default_on_switch"
+    assert data["readiness"]["verdict"] == "moon_geometry_planner_default_on_enabled"
     assert data["readiness"]["ready_for_default_on_switch"] is True
-    assert data["readiness"]["default_on_switch_completed"] is False
-    assert data["readiness"]["requires_separate_switch"] is True
-    assert data["readiness"]["night_planner_default_uses_moon_geometry"] is False
+    assert data["readiness"]["default_on_switch_completed"] is True
+    assert data["readiness"]["requires_separate_switch"] is False
+    assert data["readiness"]["night_planner_default_uses_moon_geometry"] is True
     assert data["readiness"]["opt_in_path_available"] is True
+    assert "experimental_moon_geometry_scoring=False" in data["readiness"]["explicit_rollback"]
     assert data["readiness"]["ready_for_aod_openaq_scoring"] is False
     assert data["default_on_blockers"] == []
+    assert NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED is True
     assert ObservationConditionFeatureFlags().experimental_moon_geometry_scoring is False
-    assert NightPlannerService().uses_moon_geometry_scoring is False
+    assert PlannerNsomScoringService().uses_moon_geometry_scoring is True
+    assert NightPlannerService().uses_moon_geometry_scoring is True
+
+
+def test_moon_geometry_default_on_readiness_preserves_explicit_planner_rollback() -> None:
+    rollback_service = PlannerNsomScoringService(
+        feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)
+    )
+
+    assert rollback_service.uses_moon_geometry_scoring is False
+    assert NightPlannerService(nsom_scoring_service=rollback_service).uses_moon_geometry_scoring is False
 
 
 def test_moon_geometry_default_on_readiness_accepts_calibration_without_tuning() -> None:
     data = generate_moon_geometry_planner_default_on_readiness_data()
     decisions = {decision["decision_id"]: decision for decision in data["decisions"]}
 
-    assert decisions["calibration_direction"]["status"] == "accepted_for_default_on_review"
+    assert decisions["calibration_direction"]["status"] == "default_on_enabled"
     assert decisions["missing_geometry_fallback"]["status"] == "accepted"
     assert decisions["protected_targets"]["status"] == "accepted"
     assert decisions["ownership_boundary"]["status"] == "accepted"
@@ -100,6 +116,6 @@ def test_checked_in_moon_geometry_default_on_readiness_report_matches_renderer()
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Moon Geometry Planner Default-On Readiness" in text
-    assert "moon_geometry_planner_ready_for_default_on_switch" in text
+    assert "moon_geometry_planner_default_on_enabled" in text
     assert "None for a narrow Planner Moon geometry default-on switch" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

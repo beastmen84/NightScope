@@ -856,7 +856,7 @@ that flag, so the default runtime path remains unchanged and no QML/UI exposure
 is added.
 `1.14.4` adds the developer-only
 `docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` report. It compares the
-illumination-only Planner model with the default-off Moon-geometry model across
+illumination-only Planner rollback model with the Moon-geometry model across
 fixed target classes and Moon geometry cases, and verifies that the experimental
 effect remains confined to the Sky-owned `lunar_sky_background` component.
 Planner `moon_geometry_confidence` now tracks actual `MoonGeometryConditionInput`
@@ -868,6 +868,11 @@ readiness audit for a future default-on switch. It accepts the 1.14.4
 calibration guardrails, confirms that `NightPlannerService` remains default-off
 for Moon geometry today, and recommends a separate narrow switch if the audit is
 accepted.
+`1.14.6` enables that switch through
+`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. The generic
+`ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
+remains `False`, so the change is Planner-specific and does not enable
+ObservationConditions modifiers, AOD/OpenAQ or other consumers.
 
 ## Dependency Flow
 

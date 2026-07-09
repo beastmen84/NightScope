@@ -14,7 +14,10 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionFeatureFlags,
     ObservationConditionsService,
 )
-from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.planner_nsom_service import (
+    NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
+    PlannerNsomScoringService,
+)
 
 
 REPORT_PATH = Path("docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md")
@@ -68,8 +71,9 @@ def generate_moon_geometry_planner_calibration_data() -> dict[str, object]:
             "qml_exposure": False,
             "runtime_wiring": False,
             "planner_scoring_changed_by_default": False,
-            "experimental_flag": "experimental_moon_geometry_scoring",
-            "experimental_flag_default": False,
+            "planner_default_flag": "NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED",
+            "planner_default_flag_enabled": NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
+            "explicit_rollback_flag": "experimental_moon_geometry_scoring=False",
             "score_owner": "Sky / ObservationEnvironment.lunar_sky_background",
             "scenario_count": len(rows),
             "target_count": len(targets),
@@ -96,7 +100,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "",
         (
             f"This developer-only report evaluates {metadata['scenario_count']} deterministic "
-            "Planner rows for the default-off experimental Moon geometry path."
+            "Planner rows for the Moon geometry path against the illumination-only rollback."
         ),
         (
             "The experiment changes only the Sky-owned "
@@ -114,8 +118,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Methodology",
         "",
         "- Used fixed in-memory Planner candidates only.",
-        "- Compared the default Planner NSOM Moon model with the feature-flagged Moon geometry model.",
-        "- Experimental flag under review: `experimental_moon_geometry_scoring`.",
+        "- Compared the explicit illumination-only rollback model with the Planner default-on Moon geometry model.",
+        "- Planner default flag under review: `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED`.",
         "- Held sky quality, weather, equipment, target score and session context stable inside each comparison.",
         "- Treated RecommendationConfidence as metadata only; it is not part of the score formula.",
         "- Marked this tooling as developer-only and kept it outside runtime imports/QML.",
@@ -199,7 +203,9 @@ def _evaluate_fixture(
     telescope = _telescope()
     moon = _moon()
 
-    flag_off_service = PlannerNsomScoringService()
+    flag_off_service = PlannerNsomScoringService(
+        feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)
+    )
     flag_on_service = PlannerNsomScoringService(
         feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=True)
     )
@@ -384,7 +390,7 @@ def _checks(rows: tuple[dict[str, object], ...]) -> dict[str, bool]:
         "confidence_has_zero_score_effect": all(
             row["confidence"]["score_effect"] == 0.0 for row in rows
         ),
-        "flag_default_off_documented": True,
+        "explicit_rollback_documented": True,
     }
 
 

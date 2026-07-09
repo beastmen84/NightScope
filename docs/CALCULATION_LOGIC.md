@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.5`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.6`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -54,28 +54,26 @@ availability and ownership:
   They are currently display/diagnostic only and remain score-neutral until a
   later explicit NSOM aerosol step.
 
-Moon geometry is now available as a local score-neutral diagnostic input. The
-runtime computes Moon altitude, Moon-target separation and Moon/window overlap
-from location, local time and ephemeris data, not from weather, VIIRS, NASA AOD,
-OpenAQ or equipment. Current recommendation scoring still uses the existing
-Moon illumination/background terms; the new geometry fields remain future NSOM
-scoring inputs with current score effect `0.0`.
+Moon geometry is now available as a local Planner NSOM input. The runtime
+computes Moon altitude, Moon-target separation and Moon/window overlap from
+location, local time and ephemeris data, not from weather, VIIRS, NASA AOD,
+OpenAQ or equipment.
 
-Planner NSOM has a default-off experimental exception for calibration work:
-when `experimental_moon_geometry_scoring` is explicitly enabled on
-`PlannerNsomScoringService`, `MoonGeometryConditionInput` scales the Moon
-illumination severity used by `ObservationEnvironment.lunar_sky_background`.
-This affects `EffectiveObservability`, then `ObservableTargetValue`,
-`PracticalTargetValue` and `ObservationOpportunity` through the existing NSOM
-pipeline. It does not change `IntrinsicTargetQuality`, `ObserverCapability`,
-`SessionViability` or confidence as a score modifier, and the default runtime
-flag remains off. `RecommendationConfidence.moon_geometry_confidence` is
-metadata only and indicates whether real `MoonGeometryConditionInput` was
-available. Calibration evidence for this default-off path is tracked in
-`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md`. The default-on readiness
-decision is tracked in
-`docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`; it does not enable
-the switch yet.
+Planner NSOM uses that geometry by default through
+`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. `MoonGeometryConditionInput`
+scales the Moon illumination severity used by
+`ObservationEnvironment.lunar_sky_background`; this affects
+`EffectiveObservability`, then `ObservableTargetValue`, `PracticalTargetValue`
+and `ObservationOpportunity` through the existing NSOM pipeline. It does not
+change `IntrinsicTargetQuality`, `ObserverCapability`, `SessionViability` or
+confidence as a score modifier. The generic
+`ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
+remains `False`, so ObservationConditions modifiers, AOD/OpenAQ and non-Planner
+consumers are not enabled implicitly. `RecommendationConfidence.moon_geometry_confidence`
+is metadata only and indicates whether real `MoonGeometryConditionInput` was
+available. Calibration and switch-state evidence are tracked in
+`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` and
+`docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`.
 
 ### Solar-System Objects
 

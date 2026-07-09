@@ -38,6 +38,9 @@ from astro_viewer.app.services.nsom_diagnostic_adapters import (
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
+NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True
+
+
 class PlannerNsomScoringService:
     """Experimental Planner adapter that ranks first-class NSOM opportunities."""
 
@@ -46,7 +49,9 @@ class PlannerNsomScoringService:
         *,
         feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> None:
-        self._feature_flags = feature_flags or ObservationConditionFeatureFlags()
+        self._feature_flags = feature_flags or ObservationConditionFeatureFlags(
+            experimental_moon_geometry_scoring=NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED
+        )
 
     @property
     def uses_moon_geometry_scoring(self) -> bool:

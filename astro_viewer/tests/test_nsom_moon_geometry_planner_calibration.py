@@ -27,7 +27,9 @@ def test_moon_geometry_planner_calibration_is_deterministic_strict_json_and_deve
     assert first["metadata"]["network"] is False
     assert first["metadata"]["qml_exposure"] is False
     assert first["metadata"]["runtime_wiring"] is False
-    assert first["metadata"]["experimental_flag_default"] is False
+    assert first["metadata"]["planner_default_flag"] == "NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED"
+    assert first["metadata"]["planner_default_flag_enabled"] is True
+    assert first["metadata"]["explicit_rollback_flag"] == "experimental_moon_geometry_scoring=False"
     assert first["metadata"]["score_owner"] == "Sky / ObservationEnvironment.lunar_sky_background"
     assert first["metadata"]["scenario_count"] == 30
     assert first["checks"]["strict_json_compatible"] is True
@@ -110,7 +112,7 @@ def test_checked_in_moon_geometry_planner_calibration_report_matches_renderer() 
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Moon Geometry Planner Calibration" in text
-    assert "experimental_moon_geometry_scoring" in text
+    assert "NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED" in text
     assert "AOD and OpenAQ remain separate provider-backed inputs" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
 

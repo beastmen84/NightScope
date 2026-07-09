@@ -56,13 +56,13 @@ def test_data_source_taxonomy_separates_local_optional_and_external_inputs() -> 
     )
 
 
-def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
+def test_moon_geometry_is_local_ready_and_active_for_planner_only() -> None:
     data = generate_local_input_moon_geometry_readiness_data()
     readiness = data["moon_readiness"]
     fields = {field["field"]: field for field in data["moon_geometry_field_inventory"]}
 
     assert data["readiness"]["verdict"] == "local_input_moon_geometry_runtime_diagnostics_available"
-    assert data["readiness"]["moon_geometry_scoring_enabled_now"] is False
+    assert data["readiness"]["moon_geometry_scoring_enabled_now"] is True
     assert data["readiness"]["moon_geometry_ready_for_local_implementation"] is True
     assert data["readiness"]["moon_geometry_runtime_diagnostics_available"] is True
     assert data["readiness"]["moon_geometry_planner_scoring_path_available"] is True
@@ -90,10 +90,10 @@ def test_moon_geometry_is_local_ready_but_not_active_scoring() -> None:
         "moon_visible_during_target_window",
         "moon_set_before_target_window",
     ):
-        assert fields[field_name]["status"] == "runtime_score_neutral_geometry_input"
+        assert fields[field_name]["status"] == "runtime_planner_scoring_geometry_input"
         assert "MoonGeometrySummary" in fields[field_name]["source_today"]
         assert fields[field_name]["absent_from_moon_summary"] is True
-        assert "Planner flag can use it" in fields[field_name]["score_role_now"]
+        assert "active Planner input" in fields[field_name]["score_role_now"]
 
 
 def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
@@ -101,8 +101,8 @@ def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
     consumers = {consumer["consumer"]: consumer for consumer in data["current_moon_consumers"]}
 
     assert consumers["Planner NSOM"]["current_moon_input"] == "MoonSummary.illumination"
-    assert consumers["Planner NSOM"]["geometry_input"] == "default-off experimental scoring input"
-    assert "flag can apply geometry" in consumers["Planner NSOM"]["score_status"]
+    assert consumers["Planner NSOM"]["geometry_input"] == "default-on Planner scoring input"
+    assert "geometry-aware lunar_sky_background" in consumers["Planner NSOM"]["score_status"]
     assert consumers["Home recommendedDeepSky NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["Best Object NSOM"]["geometry_input"] == "diagnostic export only"
     assert consumers["Sky Compass NSOM"]["geometry_input"] == "diagnostic export only"
@@ -156,7 +156,7 @@ def test_checked_in_local_input_moon_geometry_report_matches_renderer() -> None:
     text = report.read_text(encoding="utf-8")
     assert "# NSOM Local Input and Moon Geometry Readiness" in text
     assert "local_input_moon_geometry_runtime_diagnostics_available" in text
-    assert "moon_geometry_behind_experimental_flag" in text
+    assert "moon_geometry_planner_default_on" in text
     assert "nasa_aod" in text
     assert "openaq_particulate" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

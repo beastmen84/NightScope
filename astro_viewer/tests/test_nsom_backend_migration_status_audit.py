@@ -143,8 +143,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review the Moon geometry Planner default-on readiness audit, then "
-        "implement the narrow switch if accepted"
+        "Review the narrow Planner Moon geometry default-on switch, then "
+        "start AOD/OpenAQ scoring readiness if accepted"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True

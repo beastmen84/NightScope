@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.14.6 - 2026-07-09
+
+- Abilitata di default la geometria lunare nel Planner NSOM tramite
+  `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`.
+- Lo switch e' stretto al Planner: il default globale
+  `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` resta
+  `False`, quindi i modifier generici di `ObservationConditionsService`,
+  AOD/OpenAQ e gli altri consumer non vengono abilitati implicitamente.
+- Il Planner ora costruisce la mappa `moon_geometry_by_object_id` di default
+  quando la location e i target permettono il calcolo locale; la geometria
+  modifica solo `ObservationEnvironment.lunar_sky_background`.
+- Preservato rollback esplicito via
+  `NightPlannerService(nsom_scoring_service=PlannerNsomScoringService(feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)))`.
+- Aggiornati report e test di readiness/calibrazione per distinguere default
+  Planner attivo, rollback illumination-only e provider-backed AOD/OpenAQ
+  ancora fuori scope.
+- Nessun QML/UI, logging, rete o scrittura runtime; Home, Best Object, Sky
+  Compass, Advanced Observing, Detail/Object ed Equipment non cambiano.
+
 ## NightScope 1.14.5 - 2026-07-09
 
 - Aggiunto `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`, audit

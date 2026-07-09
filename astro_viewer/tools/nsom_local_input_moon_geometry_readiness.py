@@ -9,6 +9,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionFeatureFlags,
     ObservationConditionsService,
 )
+from astro_viewer.app.services.planner_nsom_service import NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED
 
 
 REPORT_PATH = Path("docs/NSOM_LOCAL_INPUT_MOON_GEOMETRY_READINESS.md")
@@ -113,6 +114,7 @@ SOURCE_MARKERS = (
         "surface": "Planner NSOM moon background",
         "path": Path("astro_viewer/app/services/planner_nsom_service.py"),
         "markers": (
+            "NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED",
             "lunar_sky_background=moon_background",
             "def _moon_background_factor",
             "def _moon_geometry_severity_factor",
@@ -188,26 +190,25 @@ def generate_local_input_moon_geometry_readiness_data() -> dict[str, object]:
                 if not blockers
                 else "local_input_moon_geometry_needs_review"
             ),
-            "moon_geometry_scoring_enabled_now": False,
+            "moon_geometry_scoring_enabled_now": NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
             "moon_geometry_ready_for_local_implementation": not blockers,
             "moon_geometry_runtime_diagnostics_available": not blockers,
             "moon_geometry_planner_scoring_path_available": not blockers,
-            "first_scoring_candidate": "moon_geometry_behind_experimental_flag",
+            "first_scoring_candidate": "moon_geometry_planner_default_on",
             "requires_provider_before_next_step": False,
             "blocks_current_default_on_surfaces": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md, "
-                "then implement a narrow Planner Moon geometry default-on switch "
-                "if accepted."
+                "Review the narrow Planner Moon geometry default-on switch, then "
+                "start AOD/OpenAQ scoring readiness if accepted."
             ),
             "reason": (
                 "Location plus local ephemeris data now computes Moon altitude, "
                 "Moon-target separation and window overlap without weather, "
-                "VIIRS, AOD or OpenAQ. Current default runtime scoring still "
-                "uses Moon illumination only; the experimental Planner path can "
-                "apply geometry to ObservationEnvironment.lunar_sky_background "
-                "when experimental_moon_geometry_scoring is enabled."
+                "VIIRS, AOD or OpenAQ. Planner NSOM now uses Moon geometry by "
+                "default through ObservationEnvironment.lunar_sky_background; "
+                "Home, Best Object, Sky Compass and provider-backed AOD/OpenAQ "
+                "remain separate."
             ),
         },
         "data_source_taxonomy": taxonomy,
@@ -522,42 +523,42 @@ def _moon_geometry_field_inventory(root: Path) -> tuple[dict[str, object], ...]:
         },
         {
             "field": "moon_altitude_deg",
-            "status": "runtime_score_neutral_geometry_input",
+            "status": "runtime_planner_scoring_geometry_input",
             "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary",
             "required_implementation": "implemented from sampled Moon altitude and local ephemeris",
-            "score_role_now": "default score-neutral; Planner flag can use it through lunar_sky_background",
+            "score_role_now": "active Planner input through lunar_sky_background; other consumers remain diagnostic-only",
             "absent_from_moon_summary": "moon_altitude_deg" not in moon_summary_text,
         },
         {
             "field": "moon_target_separation_deg",
-            "status": "runtime_score_neutral_geometry_input",
+            "status": "runtime_planner_scoring_geometry_input",
             "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; absent from MoonSummary",
             "required_implementation": "implemented as angular Moon-target separation at bounded window samples",
-            "score_role_now": "default score-neutral; Planner flag can use it through lunar_sky_background",
+            "score_role_now": "active Planner input through lunar_sky_background; other consumers remain diagnostic-only",
             "absent_from_moon_summary": "moon_target_separation_deg" not in moon_summary_text,
         },
         {
             "field": "moon_above_horizon",
-            "status": "runtime_score_neutral_geometry_input",
+            "status": "runtime_planner_scoring_geometry_input",
             "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput; derived from sampled altitude",
             "required_implementation": "implemented from Moon altitude samples, not from display strings",
-            "score_role_now": "default score-neutral; Planner flag can use it through lunar_sky_background",
+            "score_role_now": "active Planner input through lunar_sky_background; other consumers remain diagnostic-only",
             "absent_from_moon_summary": "moon_above_horizon" not in moon_summary_text,
         },
         {
             "field": "moon_visible_during_target_window",
-            "status": "runtime_score_neutral_geometry_input",
+            "status": "runtime_planner_scoring_geometry_input",
             "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput",
             "required_implementation": "implemented by comparing Moon samples with target window samples",
-            "score_role_now": "default score-neutral; Planner flag can use it through lunar_sky_background",
+            "score_role_now": "active Planner input through lunar_sky_background; other consumers remain diagnostic-only",
             "absent_from_moon_summary": "moon_visible_during_target_window" not in moon_summary_text,
         },
         {
             "field": "moon_set_before_target_window",
-            "status": "runtime_score_neutral_geometry_input",
+            "status": "runtime_planner_scoring_geometry_input",
             "source_today": "MoonGeometrySummary -> MoonGeometryConditionInput",
             "required_implementation": "implemented from sampled Moon geometry relative to target window",
-            "score_role_now": "default score-neutral; Planner flag can use it through lunar_sky_background",
+            "score_role_now": "active Planner input through lunar_sky_background; other consumers remain diagnostic-only",
             "absent_from_moon_summary": "moon_set_before_target_window" not in moon_summary_text,
         },
     )
@@ -568,9 +569,9 @@ def _current_moon_consumers() -> tuple[dict[str, object], ...]:
         {
             "consumer": "Planner NSOM",
             "current_moon_input": "MoonSummary.illumination",
-            "geometry_input": "default-off experimental scoring input",
-            "score_status": "default active illumination-only lunar_sky_background; flag can apply geometry",
-            "notes": "Moon altitude and separation affect only ObservationEnvironment.lunar_sky_background when experimental_moon_geometry_scoring is enabled.",
+            "geometry_input": "default-on Planner scoring input",
+            "score_status": "default active geometry-aware lunar_sky_background",
+            "notes": "Moon altitude and separation affect only ObservationEnvironment.lunar_sky_background in Planner NSOM.",
         },
         {
             "consumer": "Home recommendedDeepSky NSOM",
@@ -632,7 +633,7 @@ def _moon_readiness() -> dict[str, object]:
         "sampling_policy": "bounded start/mid/best/end samples",
         "confidence_policy": "RecommendationConfidence metadata only",
         "planner_scoring_flag": "experimental_moon_geometry_scoring",
-        "planner_scoring_default": False,
+        "planner_scoring_default": NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
         "moon_geometry_planner_scoring_path_available": True,
         "planner_scoring_owner": "Sky / ObservationEnvironment.lunar_sky_background",
         "current_geometry_factor_example": ObservationConditionsService.intended_moon_geometry_factor(
@@ -769,7 +770,7 @@ def _checks(
             for field in ("moon_phase", "moon_illumination", "moon_phase_angle")
         ),
         "moon_geometry_fields_are_runtime_diagnostics": all(
-            moon_field_by_id[field]["status"] == "runtime_score_neutral_geometry_input"
+            moon_field_by_id[field]["status"] == "runtime_planner_scoring_geometry_input"
             for field in MOON_GEOMETRY_FIELD_MARKERS
         ),
         "moon_geometry_absent_from_moon_summary": all(

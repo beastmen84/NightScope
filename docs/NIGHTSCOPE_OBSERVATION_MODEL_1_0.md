@@ -47,6 +47,10 @@ As of 1.14.5,
 `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md` classifies that
 calibration as ready for a separate narrow Planner default-on switch, while
 leaving the current runtime default off.
+As of 1.14.6, Planner NSOM uses Moon geometry by default through the
+Planner-specific `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED` switch. The
+generic condition feature flag remains default-off so non-Planner consumers and
+provider-backed AOD/OpenAQ scoring remain separate.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2233,6 +2237,9 @@ A future `ObserverCapabilityService` should own:
 - Status 1.14.5: default-on readiness is documented. The switch is not enabled
   yet, but the audit has no blocker for a narrow Planner Moon geometry default-on
   change after review.
+- Status 1.14.6: the narrow Planner-specific switch is enabled by default.
+  Rollback remains explicit through injecting a `PlannerNsomScoringService` with
+  `experimental_moon_geometry_scoring=False`; AOD/OpenAQ remain deferred.
 
 ### Step 7: Advanced score cleanup
 
@@ -2278,6 +2285,10 @@ A future `ObserverCapabilityService` should own:
   records that the calibration guardrails are accepted for a separate default-on
   switch. The current default remains off and AOD/OpenAQ scoring remains
   deferred.
+- Status update for 1.14.6: `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED` is now
+  `True`, making Planner lunar sky-background geometry-aware by default. The
+  global `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring`
+  default remains `False`.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a

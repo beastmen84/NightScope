@@ -2,20 +2,22 @@
 
 ## Executive Summary
 
-This developer-only audit decides whether the default-off Planner Moon geometry path has enough evidence for a separate default-on switch. It does not enable the switch, tune weights, alter Planner ranking, expose QML, log automatically, call the network or write runtime files.
+This developer-only audit records the Planner Moon geometry default-on switch state after the narrow 1.14.6 change. It does not tune weights, expose QML, log automatically, call the network or write runtime files.
 
 ## Readiness Verdict
 
-- Verdict: `moon_geometry_planner_ready_for_default_on_switch`.
+- Verdict: `moon_geometry_planner_default_on_enabled`.
 - Ready for default-on switch: `True`.
-- Default-on switch completed: `False`.
-- Requires separate switch: `True`.
-- Current default flag: `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring = False`.
-- NightPlannerService default uses Moon geometry: `False`.
+- Default-on switch completed: `True`.
+- Requires separate switch: `False`.
+- Condition feature flag default: `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring = False`.
+- Planner default flag: `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`.
+- NightPlannerService default uses Moon geometry: `True`.
 - Opt-in path available: `True`.
+- Explicit rollback: `NightPlannerService(nsom_scoring_service=PlannerNsomScoringService(feature_flags=ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)))`.
 - Ready for AOD/OpenAQ scoring: `False`.
-- Recommended next step: Review 1.14.5, then implement a narrow default-on switch for Planner Moon geometry if accepted.
-- Reason: The 1.14.4 calibration evidence is directionally coherent, score ownership stays in Sky/ObservationEnvironment, missing geometry falls back to the illumination-only baseline, and confidence remains score-neutral. The current runtime default is still off, so a separate switch is required.
+- Recommended next step: Review 1.14.6, then start AOD/OpenAQ scoring readiness if the Planner Moon geometry switch is accepted.
+- Reason: The 1.14.4 calibration evidence is directionally coherent, score ownership stays in Sky/ObservationEnvironment, missing geometry falls back to the illumination-only baseline, and confidence remains score-neutral. The Planner-specific default switch is enabled while the generic condition feature flag remains off.
 
 ## Default-On Blockers
 
@@ -25,12 +27,12 @@ This developer-only audit decides whether the default-off Planner Moon geometry 
 
 | Decision | Status | Blocks default-on | Summary | Evidence |
 | --- | --- | --- | --- | --- |
-| `calibration_direction` | `accepted_for_default_on_review` | `False` | Moon geometry changes follow expected NSOM direction without legacy score matching. | close_reduced=4; set_before_window_improved=4 |
+| `calibration_direction` | `default_on_enabled` | `False` | Moon geometry changes follow expected NSOM direction without legacy score matching, and the Planner default switch is now on. | close_reduced=4; set_before_window_improved=4 |
 | `missing_geometry_fallback` | `accepted` | `False` | Missing geometry keeps the illumination-only baseline and leaves Moon-geometry confidence unknown. | missing_identity=True |
 | `protected_targets` | `accepted` | `False` | Planets and Moon remain protected from lunar sky-background damage. | protected_rows_without_delta=10 |
 | `ownership_boundary` | `accepted` | `False` | The experimental effect is confined to the Sky-owned lunar_sky_background component. | only_lunar_rows=30 |
 | `confidence_metadata` | `accepted` | `False` | RecommendationConfidence remains metadata and has zero score effect. | rows_with_confidence_score_effect=0 |
-| `runtime_cost` | `monitor_after_switch` | `False` | Default-on would add bounded local ephemeris sampling for Planner targets only when location is available. | no_network; app_controller_builds_geometry_only_when_service_flag_is_true |
+| `runtime_cost` | `monitor_after_switch` | `False` | Default-on adds bounded local ephemeris sampling for Planner targets only when location is available. | no_network; app_controller_builds_geometry_only_when_service_flag_is_true |
 | `aod_openaq_scope` | `deferred` | `False` | AOD/OpenAQ provider scoring remains out of scope until Moon geometry is closed. | provider_inputs_not_evaluated_by_moon_geometry_audit |
 
 ## Representative Cases
@@ -65,8 +67,8 @@ This developer-only audit decides whether the default-off Planner Moon geometry 
 | `only_lunar_environment_component_changes` | `True` |
 | `confidence_zero_score_effect` | `True` |
 | `missing_geometry_keeps_baseline` | `True` |
-| `feature_flag_default_off_now` | `True` |
-| `night_planner_default_off_now` | `True` |
+| `condition_feature_flag_default_off` | `True` |
+| `planner_moon_geometry_default_on_now` | `True` |
 | `opt_in_path_available` | `True` |
 | `all_decisions_non_blocking` | `True` |
 | `runtime_report_imports_absent` | `True` |
@@ -82,4 +84,4 @@ This developer-only audit decides whether the default-off Planner Moon geometry 
 
 ## Recommended Next Step
 
-If review accepts this audit, implement the smallest possible default-on switch for Planner Moon geometry. Keep AOD/OpenAQ out of scope until after that switch is reviewed.
+Review the narrow Planner Moon geometry switch. If accepted, start AOD/OpenAQ scoring readiness as a separate provider-backed NSOM step.

@@ -6,7 +6,10 @@ from pathlib import Path
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import ObservationConditionFeatureFlags
-from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.planner_nsom_service import (
+    NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
+    PlannerNsomScoringService,
+)
 from astro_viewer.tools.nsom_moon_geometry_planner_calibration import (
     REPORT_PATH as CALIBRATION_REPORT_PATH,
     generate_moon_geometry_planner_calibration_data,
@@ -59,30 +62,40 @@ def generate_moon_geometry_planner_default_on_readiness_data() -> dict[str, obje
         },
         "readiness": {
             "verdict": (
-                "moon_geometry_planner_ready_for_default_on_switch"
+                "moon_geometry_planner_default_on_enabled"
                 if not blockers
                 else "moon_geometry_planner_default_on_blocked"
             ),
             "ready_for_default_on_switch": not blockers,
-            "default_on_switch_completed": False,
-            "requires_separate_switch": True,
-            "current_default_flag": (
+            "default_on_switch_completed": NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED,
+            "requires_separate_switch": False,
+            "condition_feature_flag_default": (
                 "ObservationConditionFeatureFlags.experimental_moon_geometry_scoring = "
                 f"{ObservationConditionFeatureFlags().experimental_moon_geometry_scoring}"
             ),
+            "planner_default_flag": (
+                "NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = "
+                f"{NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED}"
+            ),
             "night_planner_default_uses_moon_geometry": NightPlannerService().uses_moon_geometry_scoring,
             "opt_in_path_available": _opt_in_path_available(),
+            "explicit_rollback": (
+                "NightPlannerService(nsom_scoring_service="
+                "PlannerNsomScoringService(feature_flags="
+                "ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)))"
+            ),
             "ready_for_aod_openaq_scoring": False,
             "recommended_next_step": (
-                "Review 1.14.5, then implement a narrow default-on switch for "
-                "Planner Moon geometry if accepted."
+                "Review 1.14.6, then start AOD/OpenAQ scoring readiness if the "
+                "Planner Moon geometry switch is accepted."
             ),
             "reason": (
                 "The 1.14.4 calibration evidence is directionally coherent, "
                 "score ownership stays in Sky/ObservationEnvironment, missing "
                 "geometry falls back to the illumination-only baseline, and "
-                "confidence remains score-neutral. The current runtime default "
-                "is still off, so a separate switch is required."
+                "confidence remains score-neutral. The Planner-specific default "
+                "switch is enabled while the generic condition feature flag "
+                "remains off."
             ),
         },
         "default_on_blockers": blockers,
@@ -111,11 +124,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit decides whether the default-off Planner "
-            "Moon geometry path has enough evidence for a separate default-on "
-            "switch. It does not enable the switch, tune weights, alter Planner "
-            "ranking, expose QML, log automatically, call the network or write "
-            "runtime files."
+            "This developer-only audit records the Planner Moon geometry "
+            "default-on switch state after the narrow 1.14.6 change. It does not "
+            "tune weights, expose QML, log automatically, call the network or "
+            "write runtime files."
         ),
         "",
         "## Readiness Verdict",
@@ -124,12 +136,14 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Ready for default-on switch: `{readiness['ready_for_default_on_switch']}`.",
         f"- Default-on switch completed: `{readiness['default_on_switch_completed']}`.",
         f"- Requires separate switch: `{readiness['requires_separate_switch']}`.",
-        f"- Current default flag: `{readiness['current_default_flag']}`.",
+        f"- Condition feature flag default: `{readiness['condition_feature_flag_default']}`.",
+        f"- Planner default flag: `{readiness['planner_default_flag']}`.",
         (
             "- NightPlannerService default uses Moon geometry: "
             f"`{readiness['night_planner_default_uses_moon_geometry']}`."
         ),
         f"- Opt-in path available: `{readiness['opt_in_path_available']}`.",
+        f"- Explicit rollback: `{readiness['explicit_rollback']}`.",
         f"- Ready for AOD/OpenAQ scoring: `{readiness['ready_for_aod_openaq_scoring']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         f"- Reason: {readiness['reason']}",
@@ -231,9 +245,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Recommended Next Step",
             "",
             (
-                "If review accepts this audit, implement the smallest possible "
-                "default-on switch for Planner Moon geometry. Keep AOD/OpenAQ "
-                "out of scope until after that switch is reviewed."
+                "Review the narrow Planner Moon geometry switch. If accepted, "
+                "start AOD/OpenAQ scoring readiness as a separate provider-backed "
+                "NSOM step."
             ),
             "",
         ]
@@ -255,11 +269,11 @@ def _decisions(
     return (
         {
             "decision_id": "calibration_direction",
-            "status": "accepted_for_default_on_review",
+            "status": "default_on_enabled",
             "blocks_default_on": False,
             "summary": (
                 "Moon geometry changes follow expected NSOM direction without "
-                "legacy score matching."
+                "legacy score matching, and the Planner default switch is now on."
             ),
             "evidence": (
                 f"close_reduced={summary['deep_sky_close_rows_reduced']}; "
@@ -311,7 +325,7 @@ def _decisions(
             "status": "monitor_after_switch",
             "blocks_default_on": False,
             "summary": (
-                "Default-on would add bounded local ephemeris sampling for Planner "
+                "Default-on adds bounded local ephemeris sampling for Planner "
                 "targets only when location is available."
             ),
             "evidence": "no_network; app_controller_builds_geometry_only_when_service_flag_is_true",
@@ -351,10 +365,14 @@ def _checks(
         ),
         "confidence_zero_score_effect": summary["rows_with_confidence_score_effect"] == 0,
         "missing_geometry_keeps_baseline": _missing_geometry_identity(rows),
-        "feature_flag_default_off_now": (
+        "condition_feature_flag_default_off": (
             ObservationConditionFeatureFlags().experimental_moon_geometry_scoring is False
         ),
-        "night_planner_default_off_now": NightPlannerService().uses_moon_geometry_scoring is False,
+        "planner_moon_geometry_default_on_now": (
+            NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED is True
+            and PlannerNsomScoringService().uses_moon_geometry_scoring is True
+            and NightPlannerService().uses_moon_geometry_scoring is True
+        ),
         "opt_in_path_available": _opt_in_path_available(),
         "all_decisions_non_blocking": all(
             decision["blocks_default_on"] is False for decision in decisions
@@ -372,12 +390,7 @@ def _blockers(
     blockers = [
         key
         for key, value in checks.items()
-        if key
-        not in {
-            "feature_flag_default_off_now",
-            "night_planner_default_off_now",
-        }
-        and value is not True
+        if value is not True
     ]
     blockers.extend(
         str(decision["decision_id"])
