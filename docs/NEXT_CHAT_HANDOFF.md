@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.17.2`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `69ce9dd Harden Open-Meteo transient failure retries`
 - `3bb2b40 Record 1.17.1 build commit`
 - `38e971d Document 1.17.1 Windows distribution build`
 - `c3895dc Record Home startup state review`
