@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.17.1`
 Distribuzione Windows corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `190e095 Fix Home startup location states`
 - `4e59e1f Fix provider cache reuse for location jitter`
 - `792bd30 Record 1.17.0 build commit`
 - `48a840e Document 1.17.0 Windows distribution build`
@@ -62,6 +63,18 @@ Il closeout dichiara:
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
   vengono controllati.
+
+## Nota Di Review Sui Dati Home
+
+Nello screenshot Home caricato con `1.17.0`, lo stato `Consigliata` e'
+coerente con le soglie attuali: pioggia massima `61% < 65%`, indice meteo
+`45 > 25` e nuvolosita' media `40% < 85%`, quindi non scatta un blocker.
+
+La dicitura `Migliore finestra` indica pero' il blocco relativo di tre ore con
+penalita' minore, non una finestra in cui ogni ora supera il gate di usabilita'.
+Per questo puo' includere anche un'ora sfavorevole come il `100%` di nuvole
+mostrato alle `00:00`. Non e' stato cambiato alcun algoritmo: copy e policy
+andranno rivalutati sul prossimo screenshot solo con uno step esplicito.
 
 ## Superfici Backend NSOM Chiuse
 
