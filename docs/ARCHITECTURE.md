@@ -64,6 +64,13 @@ NSOM separates:
 Future scoring changes should be checked against this model before
 implementation.
 
+Current cleanup status for `1.15.1`: the backend NSOM migration is closed for
+the current recommendation surfaces, and
+`docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` defines which historical
+migration reports, generators and report-only tests can be removed in `1.15.2`.
+The source of truth remains the runtime services, regression tests and base
+architecture/model documents.
+
 Current implementation status for `1.8.6`: `astro_viewer/app/models/nsom.py`
 contains the first internal immutable NSOM core DTOs for Universe, Sky,
 Observer, Session, Opportunity and Confidence ownership boundaries.

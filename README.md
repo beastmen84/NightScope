@@ -28,7 +28,13 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.15.0`.
+Versione corrente: `1.15.1`.
+
+Lo step `1.15.1` aggiunge
+`docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`: il backend NSOM resta chiuso,
+ma i report/tool/test storici di migrazione vengono classificati come cleanup
+candidate per `1.15.2`. Runtime, scoring, QML/UI, provider, logging e scritture
+runtime non cambiano.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il

@@ -1,5 +1,16 @@
 # Changelog
 
+## NightScope 1.15.1 - 2026-07-10
+
+- Aggiunto `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`, audit statico per
+  distinguere codice/documentazione NSOM runtime da report, tool e test storici
+  di migrazione ormai sostituibili dal closeout backend.
+- Definito il perimetro del cleanup `1.15.2`: mantenere core/runtime/test
+  comportamentali e documentazione base, rimuovere generatori/report storici e
+  test che validano solo quei report.
+- Nessun cambio runtime, scoring, QML/UI, provider, logging, rete o scritture
+  runtime.
+
 ## NightScope 1.15.0 - 2026-07-10
 
 - Aggiunto `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`, closeout developer-only

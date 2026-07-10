@@ -2534,6 +2534,11 @@ migration scope is closed. AOD/OpenAQ scoring remains enabled by default after
 the 1.14.18 stale-vs-current replay audit was accepted and the 1.14.19 switch
 was applied.
 
+Status 1.15.1: `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` classifies the
+closed migration reports, report generators and report-only tests as cleanup
+candidates for `1.15.2`. Runtime NSOM services, behavioural tests and base
+architecture/model documentation remain the active source of truth.
+
 The safe operating policy is:
 
 1. keep `experimental_aerosol_scoring` default on;
