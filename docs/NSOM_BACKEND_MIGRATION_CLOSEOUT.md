@@ -91,6 +91,17 @@ the normal hourly path. Existing cached forecasts stay active throughout. This
 is refresh lifecycle hardening only and does not change weather scoring,
 Session policy, NSOM ranking or QML contracts.
 
+## 1.18.0 Lower Home Contract Follow-Up
+
+The explicitly authorized lower-Home work starts by aligning runtime contracts
+before changing QML. Planner now selects four `ObservationOpportunity` items
+and then orders them chronologically. The controller keeps the setup-local
+Equipment read-model per target and supplies the telescope selected for that
+target to Planner capability projection; binocular and naked-eye setups remain
+independent from the first telescope assigned to a profile. This is a
+post-closeout product-contract correction and does not reopen the historical
+NSOM migration or replace `EquipmentService` scoring.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

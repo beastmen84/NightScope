@@ -130,9 +130,12 @@ class Phase3ServiceTests(unittest.TestCase):
 
         names = [item.name for item in plan]
         self.assertNotIn("Mercurio", names)
-        self.assertCountEqual(names, ["Venere", "M31", "M13", "M11", "M24", "Saturno"])
-        self.assertEqual(names, ["Venere", "M31", "M13", "M11", "M24", "Saturno"])
-        self.assertEqual([item.time_label for item in plan], ["20:45 sera", "21:40 sera", "22:15 sera", "23:05 sera", "00:30 notte", "01:30 notte"])
+        self.assertCountEqual(names, ["Venere", "M11", "M24", "Saturno"])
+        self.assertEqual(names, ["Venere", "M11", "M24", "Saturno"])
+        self.assertEqual(
+            [item.time_label for item in plan],
+            ["20:45 sera", "23:05 sera", "00:30 notte", "01:30 notte"],
+        )
 
     def test_home_plan_numbering_follows_display_order(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")

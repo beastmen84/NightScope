@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,11 @@ from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.observer_capability_adapter import (
     build_observer_capability_from_configuration,
     build_observer_capability_projection_from_candidate,
+    build_observer_capability_for_target,
     project_observer_capability_profile,
+)
+from astro_viewer.app.services.nsom_diagnostic_adapters import (
+    build_observer_capability_profile_from_recommendation,
 )
 
 
@@ -99,6 +104,24 @@ def test_adapter_projection_from_candidate_matches_configuration_projection() ->
     assert projection.summary_for_planning == pytest.approx(direct_projection.summary_for_planning)
     assert projection.target_class_weighting_profile == direct_projection.target_class_weighting_profile
     assert projection.derivation == direct_projection.derivation
+
+
+def test_target_adapter_does_not_mix_a_binocular_recommendation_with_a_telescope() -> None:
+    target = replace(
+        _target("m45", "Open cluster", observation_type="WideField"),
+        recommended_setup="Nikon 10x50",
+        recommended_setup_type="binocular",
+    )
+    unrelated_telescope = Telescope("scope", "Dobson 300", 300, 1500, "Newton", "Dobson")
+
+    capability = build_observer_capability_for_target(target, telescope=unrelated_telescope)
+    recommendation_only = build_observer_capability_profile_from_recommendation(target)
+
+    assert capability.light_grasp == recommendation_only.light_grasp
+    assert capability.resolution == recommendation_only.resolution
+    assert capability.field_of_view == recommendation_only.field_of_view
+    assert "adapter:recommended_non_telescope_setup" in capability.notes
+    assert not any(note == "telescope=Dobson 300" for note in capability.notes)
 
 
 def test_adapter_extraction_does_not_wire_equipment_runtime_or_qml() -> None:

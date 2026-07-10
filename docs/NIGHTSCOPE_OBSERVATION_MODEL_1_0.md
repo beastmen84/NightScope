@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.17.2`:
+Current runtime status for `1.18.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload use NSOM-backed paths by default.
@@ -47,6 +47,10 @@ Current runtime status for `1.17.2`:
 - `1.17.2` hardens Open-Meteo refresh handling with status-code diagnostics and
   a five-minute forced retry for transient provider failures. Cached conditions,
   Session policy, NSOM formulas and ranking remain unchanged.
+- `1.18.0` starts the lower-Home completion by making the Planner output match
+  the visible four-step product contract. Per-target `ObserverCapability` uses
+  the telescope selected by the setup-local Equipment service; binocular and
+  naked-eye targets are no longer mixed with the first profile telescope.
 
 ## Core Diagram
 
@@ -783,7 +787,8 @@ caution text and user trust, not the physical target value.
 
 ### 3.11 Planner Ranking
 
-Owner: `PlannerScoringService`.
+Owner: `PlannerNsomScoringService` for default runtime ranking;
+`NightPlannerService` for four-item selection and chronological presentation.
 
 Purpose: select and order observation opportunities.
 
@@ -820,6 +825,11 @@ state, but the target's observable value remains interpretable.
 
 Chronological display should remain a presentation step after opportunity
 selection.
+
+For a multi-instrument profile, Observer capability must be derived from the
+configuration selected for that target. The first telescope assigned to the
+profile is not a valid profile-wide substitute. Non-telescope recommendations
+retain their binocular or naked-eye capability without telescope blending.
 
 Planner should consume `ObservationOpportunity`; it should not reconstruct Moon,
 sky brightness, AOD, PM, transparency, observer capability or practical target

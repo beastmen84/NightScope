@@ -99,8 +99,6 @@ def test_default_planner_path_uses_observation_opportunity_ranking() -> None:
         "nsom-b": 91,
         "nsom-c": 86,
         "nsom-d": 81,
-        "nsom-e": 76,
-        "nsom-f": 71,
     }
 
 
@@ -124,6 +122,36 @@ def test_night_planner_forwards_moon_geometry_to_nsom_service_when_supplied() ->
 
     assert nsom_service.received_moon_geometry["galaxy"] is geometry
     assert nsom_service.received_moon_geometry["cluster"] is None
+
+
+def test_night_planner_uses_the_recommended_telescope_for_each_target() -> None:
+    objects = [
+        _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5"),
+        _target("planet", "Pianeta", 88, "Facile", "22:00", "-1.0"),
+    ]
+    fallback = Telescope("fallback", "Fallback 80", 80, 400, "Refractor", "manuale")
+    deep_sky_scope = Telescope("deep", "Dobson 200", 200, 1200, "Newton", "Dobson")
+    planetary_scope = Telescope("planetary", "Maksutov 127", 127, 1500, "Maksutov", "GoTo")
+    nsom_service = RecordingTargetTelescopeNsomService()
+
+    NightPlannerService(nsom_scoring_service=nsom_service).plan(
+        objects,
+        _weather(85),
+        _scores(),
+        _sky_quality(3),
+        fallback,
+        _moon(10),
+        telescope_by_object_id={
+            "galaxy": deep_sky_scope,
+            "planet": planetary_scope,
+        },
+    )
+
+    assert NightPlannerService().uses_target_equipment is True
+    assert nsom_service.received_telescope_ids == {
+        "galaxy": "deep",
+        "planet": "planetary",
+    }
 
 
 def test_planner_nsom_service_builds_full_observation_opportunity_from_candidate() -> None:
@@ -628,6 +656,19 @@ class RecordingMoonGeometryNsomService:
 
     def opportunity(self, item, **kwargs) -> ObservationOpportunity:  # noqa: ANN001, ANN003
         self.received_moon_geometry[item.id] = kwargs.get("moon_geometry")
+        return _opportunity(50.0)
+
+    @staticmethod
+    def score(opportunity: ObservationOpportunity) -> float:
+        return opportunity.value
+
+
+class RecordingTargetTelescopeNsomService:
+    def __init__(self) -> None:
+        self.received_telescope_ids: dict[str, str] = {}
+
+    def opportunity(self, item, **kwargs) -> ObservationOpportunity:  # noqa: ANN001, ANN003
+        self.received_telescope_ids[item.id] = kwargs["telescope"].id
         return _opportunity(50.0)
 
     @staticmethod

@@ -36,6 +36,10 @@ class NightPlannerService:
     def uses_moon_geometry_scoring(self) -> bool:
         return bool(getattr(self._nsom_scoring_service, "uses_moon_geometry_scoring", False))
 
+    @property
+    def uses_target_equipment(self) -> bool:
+        return True
+
     def plan(
         self,
         objects: list[CelestialObject],
@@ -45,6 +49,7 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
+        telescope_by_object_id: Mapping[str, Telescope] | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
@@ -61,6 +66,7 @@ class NightPlannerService:
             telescope=telescope,
             moon=moon,
             moon_geometry_by_object_id=moon_geometry_by_object_id,
+            telescope_by_object_id=telescope_by_object_id,
             blocking_status=blocking_status,
         )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
@@ -72,7 +78,7 @@ class NightPlannerService:
                 continue
             used_names.add(item.name)
             selected.append((item, score))
-            if len(selected) >= 6:
+            if len(selected) >= 4:
                 break
 
         items = []
@@ -103,6 +109,7 @@ class NightPlannerService:
         telescope: Telescope,
         moon: MoonSummary | None,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
+        telescope_by_object_id: Mapping[str, Telescope] | None,
         blocking_status: WeatherBlockingStatus,
     ) -> list[tuple[CelestialObject, float]]:
         opportunities = [
@@ -113,7 +120,7 @@ class NightPlannerService:
                     weather=weather,
                     scores=scores,
                     sky_quality=sky_quality,
-                    telescope=telescope,
+                    telescope=(telescope_by_object_id or {}).get(item.id, telescope),
                     moon=moon,
                     moon_geometry=moon_geometry_by_object_id.get(item.id)
                     if moon_geometry_by_object_id is not None

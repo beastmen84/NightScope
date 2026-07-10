@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.17.2`:
+Current runtime status for `1.18.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -68,6 +68,9 @@ Current runtime status for `1.17.2`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
+- Planner now consumes the telescope selected by `EquipmentService` for each
+  target in a multi-instrument profile and emits four selected opportunities
+  before chronological presentation.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed
@@ -180,9 +183,9 @@ Services hold business logic:
 - `AdvancedObservingService`: separate planetary and deep-sky quality scores.
 - `SeeingTransparencyService`: seeing/transparency estimation from forecast
   fields and sky quality.
-- `NightPlannerService`: ordered observing plan, weather blocking and
-  chronological plan presentation. It delegates Planner ranking math to
-  `PlannerScoringService`.
+- `NightPlannerService`: four-item observing plan, weather blocking and
+  chronological plan presentation. It delegates default ranking to
+  `PlannerNsomScoringService` and accepts selected telescopes by target.
 - `PlannerScoringService`: Planner-specific score aggregation, diagnostic
   breakdown, weather factor, difficulty factor and Planner-specific
   light-pollution penalty. It reuses shared Moon-condition primitives from
@@ -281,7 +284,9 @@ Home recommendation flow:
    missing-sky fallback after internal rollback cleanup.
 5. `NightPlannerService` produces the observing plan unless weather is
    blocking, using the NSOM Planner path by default. `PlannerScoringService`
-   remains available for developer-only legacy formula comparison.
+   remains available for developer-only legacy formula comparison. The four
+   highest `ObservationOpportunity` values are selected before chronological
+   ordering, using the setup telescope selected for each target.
 6. `AppController` exposes the centralized blocking state to QML.
 7. QML presents the plan, a global "Sessione da monitorare" warning with a
    potential observing window, or a full "Sessione sconsigliata" warning when

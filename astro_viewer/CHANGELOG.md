@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.18.0 - 2026-07-10
+
+- Avviata la messa a punto della parte bassa Home con il riallineamento del
+  contratto Planner/Equipment prima delle modifiche QML.
+- Ridotto il piano sorgente a quattro `ObservationOpportunity`: la selezione
+  avviene per valore NSOM e soltanto dopo viene applicato l'ordine cronologico.
+- Conservato nel read-model Equipment interno lo strumento scelto per ciascun
+  target e passato al Planner il telescopio corrispondente, evitando di usare
+  sempre il primo telescopio assegnato al profilo.
+- Evitata la contaminazione delle raccomandazioni binocolo/occhio nudo con
+  apertura e focale di un telescopio non selezionato.
+- Aggiunti test per limite a quattro, selezione del secondo telescopio del
+  profilo e capability non-telescopio.
+- QML e distribuzione Windows non sono state modificate in questo primo step.
+
 ## NightScope 1.17.2 - 2026-07-10
 
 - Aggiunto al log Open-Meteo lo status code degli errori HTTP, senza registrare

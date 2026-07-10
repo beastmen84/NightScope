@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.17.2`, NightScope keeps backend recommendation inputs separated by
+As of `1.18.0`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -477,8 +477,18 @@ such as M24, M31, M44 and M45 low-power friendly.
 blocked, it selects visible objects with useful observing windows, falling back
 to visible scored objects when no useful-window candidates exist.
 
-Planner ranking math is owned by `PlannerScoringService`; `NightPlannerService`
-orchestrates selection and chronological display of the final plan.
+The default runtime ranking is owned by `PlannerNsomScoringService`, which
+builds one `ObservationOpportunity` per candidate. `NightPlannerService`
+selects the four highest-valued unique targets and only then orders those four
+chronologically for display. `PlannerScoringService` remains a legacy formula
+and diagnostic comparison helper, not the default ranking owner.
+
+Equipment capability is target-specific. `EquipmentService` evaluates every
+assigned telescope/binocular and optical combination, while the controller
+preserves the selected setup read-model for each target. Planner scoring uses
+the selected telescope for that target instead of the first telescope in the
+profile. Binocular and naked-eye recommendations retain their own capability
+projection and are not mixed with an unrelated telescope.
 
 Planner score:
 
@@ -495,8 +505,9 @@ Factors:
 - difficulty factor favors easier objects,
 - weather factor reduces ranking under weaker weather.
 
-The final plan is capped to a small ordered list and schedules items in roughly
-45-minute increments from their useful time.
+The final plan contains exactly four selected opportunities and schedules items
+in roughly 45-minute increments from their useful time when no explicit target
+time is available.
 
 ## Best Object Selection
 
@@ -542,6 +553,10 @@ Assigned equipment only:
 
 - `AppController` passes active-profile telescopes, eyepieces and Barlows.
 - `EquipmentService.suggest_for_profile` never considers unassigned equipment.
+- All assigned telescopes and binoculars are evaluated per target; there is no
+  single active telescope for recommendation ranking.
+- The selected per-target telescope is retained for Planner
+  `ObserverCapability` projection.
 - If no optical telescope is assigned, a naked-eye fallback is used or the
   recommendation asks the user to add appropriate equipment.
 

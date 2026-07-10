@@ -50,7 +50,10 @@ from astro_viewer.app.services.earthdata_credentials import (
     EarthdataCredentialStore,
 )
 from astro_viewer.app.services.equipment_service import EquipmentService
-from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModelBuilder
+from astro_viewer.app.services.equipment_setup_read_model import (
+    EquipmentSetupReadModel,
+    EquipmentSetupReadModelBuilder,
+)
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
@@ -272,6 +275,7 @@ class AppController(QObject):
         self._conditioned_home_objects: list[CelestialObject] = []
         self._conditioned_deep_sky_read_model: list[ObservationConditionedTargetReadModel] = []
         self._conditioned_home_read_model: list[ObservationConditionedTargetReadModel] = []
+        self._equipment_setup_read_models_by_object_id: dict[str, EquipmentSetupReadModel] = {}
         self._deep_sky_pollution_read_model: list[ObservationConditionedTargetReadModel] = []
         self._deep_sky_raw_condition_input_by_id: dict[str, CelestialObject] = {}
         self._base_solar_system_objects: list[CelestialObject] = []
@@ -1741,6 +1745,7 @@ class AppController(QObject):
         self._conditioned_home_objects = []
         self._conditioned_deep_sky_read_model = []
         self._conditioned_home_read_model = []
+        self._equipment_setup_read_models_by_object_id = {}
         self._deep_sky_pollution_read_model = []
         self._deep_sky_raw_condition_input_by_id = {}
         self._moon_geometry_condition_cache = {}
@@ -2033,11 +2038,11 @@ class AppController(QObject):
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
         self._best_object = self._select_best_object(planning_objects)
         planner_moon_geometry = self._planner_moon_geometry_inputs(planning_objects)
-        planner_kwargs = (
-            {"moon_geometry_by_object_id": planner_moon_geometry}
-            if planner_moon_geometry is not None
-            else {}
-        )
+        planner_kwargs = {}
+        if planner_moon_geometry is not None:
+            planner_kwargs["moon_geometry_by_object_id"] = planner_moon_geometry
+        if getattr(self._night_planner_service, "uses_target_equipment", False):
+            planner_kwargs["telescope_by_object_id"] = self._planner_telescopes_by_object_id(planning_objects)
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
@@ -2049,6 +2054,21 @@ class AppController(QObject):
         )
         self._refresh_sky_compass()
         self._refresh_nsom_diagnostics()
+
+    def _planner_telescopes_by_object_id(
+        self,
+        targets: list[CelestialObject],
+    ) -> dict[str, Telescope]:
+        setup_models = getattr(self, "_equipment_setup_read_models_by_object_id", {})
+        telescopes: dict[str, Telescope] = {}
+        for target in targets:
+            setup = setup_models.get(target.id)
+            if setup is None or setup.equipment_type != "Telescope" or not setup.telescope_id:
+                continue
+            telescope = self._find_telescope(setup.telescope_id)
+            if telescope is not None:
+                telescopes[target.id] = telescope
+        return telescopes
 
     def _planner_moon_geometry_inputs(
         self,
@@ -3110,6 +3130,7 @@ class AppController(QObject):
     def _refresh_equipment_recommendations_for_current_objects(self) -> None:
         solar_system_source = self._base_solar_system_objects or self._solar_system_objects
         deep_sky_source = self._base_deep_sky or self._deep_sky
+        self._equipment_setup_read_models_by_object_id = {}
         self._solar_system_objects = self._apply_equipment(solar_system_source)
         self._visible_planets = [
             item
@@ -3317,6 +3338,11 @@ class AppController(QObject):
                 binoculars,
             )
             setup_read_model = self._equipment_setup_read_model_builder.from_suggestion(item, suggestion)
+            setup_models = getattr(self, "_equipment_setup_read_models_by_object_id", None)
+            if setup_models is None:
+                setup_models = {}
+                self._equipment_setup_read_models_by_object_id = setup_models
+            setup_models[item.id] = setup_read_model
             naked_eye_blocked = (
                 not telescopes
                 and not binoculars

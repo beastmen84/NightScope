@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from types import MappingProxyType
 
 from astro_viewer.app.models.equipment import Telescope
@@ -41,6 +41,17 @@ def build_observer_capability_for_target(
     """Build the Observer-owned capability profile from runtime target/setup data."""
 
     base = build_observer_capability_profile_from_recommendation(item)
+    setup_type = (item.recommended_setup_type or "").strip().lower().replace("-", "_")
+    if setup_type in {"binocular", "naked_eye", "nakedeye"}:
+        return replace(
+            base,
+            notes=(
+                *base.notes,
+                context_note,
+                f"equipment_type={setup_type}",
+                "adapter:recommended_non_telescope_setup",
+            ),
+        )
     aperture = _unit_from_range(telescope.aperture_mm, lower=50.0, upper=250.0)
     focal_length = _unit_from_range(telescope.focal_length_mm, lower=350.0, upper=2000.0)
     field_width = 1.0 - (0.75 * focal_length)

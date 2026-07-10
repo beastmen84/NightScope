@@ -107,9 +107,10 @@ def test_equipment_setup_read_model_sanitizes_non_finite_payload_values_for_stri
 def test_app_controller_applies_equipment_through_read_model_without_payload_shape_change() -> None:
     controller = AppController.__new__(AppController)
     target = _object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification")
+    telescope = Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale")
     suggestion = EquipmentService().suggest_for_profile(
         target,
-        [Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale")],
+        [telescope],
         [Eyepiece("e10", "10 mm", 10, 60), Eyepiece("e25", "25 mm", 25, 52)],
         [],
         binoculars=[],
@@ -120,10 +121,11 @@ def test_app_controller_applies_equipment_through_read_model_without_payload_sha
     controller._sky_quality = None
     controller._object_image_map = {}
     controller._object_descriptions = {}
-    controller._active_profile_telescopes = lambda: [Telescope("scope", "Maksutov 90/1250", 90, 1250, "Maksutov", "manuale")]
+    controller._active_profile_telescopes = lambda: [telescope]
     controller._active_profile_eyepieces = lambda: [Eyepiece("e10", "10 mm", 10, 60)]
     controller._active_profile_barlows = lambda: []
     controller._active_profile_binoculars = lambda: []
+    controller._find_telescope = lambda telescope_id: telescope if telescope_id == telescope.id else None
 
     updated = controller._apply_equipment([target])[0]
     payload = updated.to_qml()
@@ -138,6 +140,41 @@ def test_app_controller_applies_equipment_through_read_model_without_payload_sha
     assert payload["recommended_setup"] == suggestion["setupText"]
     assert payload["setupOptions"] == suggestion["setupOptions"]
     assert "equipmentSetupReadModel" not in payload
+    assert controller._planner_telescopes_by_object_id([updated]) == {target.id: telescope}
+
+
+def test_app_controller_preserves_the_second_profile_telescope_selected_for_a_target() -> None:
+    controller = AppController.__new__(AppController)
+    target = _object("messier-M51", "M51", "Galaxy", "8.4", "11 arcmin", 0.183, "General")
+    compact_scope = Telescope("small", "Maksutov 90", 90, 1250, "Maksutov", "manuale")
+    deep_sky_scope = Telescope("large", "Dobson 200", 200, 1200, "Newton", "Dobson")
+    eyepieces = [Eyepiece("e25", "25 mm", 25, 68), Eyepiece("e10", "10 mm", 10, 60)]
+    suggestion = EquipmentService().suggest_for_profile(
+        target,
+        [compact_scope, deep_sky_scope],
+        eyepieces,
+        [],
+        binoculars=[],
+    )
+    controller._equipment_service = _FakeEquipmentService(suggestion)
+    controller._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
+    controller._seeing_transparency = None
+    controller._sky_quality = None
+    controller._object_image_map = {}
+    controller._object_descriptions = {}
+    controller._active_profile_telescopes = lambda: [compact_scope, deep_sky_scope]
+    controller._active_profile_eyepieces = lambda: eyepieces
+    controller._active_profile_barlows = lambda: []
+    controller._active_profile_binoculars = lambda: []
+    controller._find_telescope = lambda telescope_id: {
+        compact_scope.id: compact_scope,
+        deep_sky_scope.id: deep_sky_scope,
+    }.get(telescope_id)
+
+    updated = controller._apply_equipment([target])[0]
+
+    assert suggestion["telescopeId"] == deep_sky_scope.id
+    assert controller._planner_telescopes_by_object_id([updated]) == {target.id: deep_sky_scope}
 
 
 def test_app_controller_naked_eye_block_policy_still_matches_legacy_output() -> None:

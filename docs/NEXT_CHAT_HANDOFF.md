@@ -2,7 +2,7 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.17.2`
+Versione corrente sorgente: `1.18.0`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
@@ -66,6 +66,12 @@ Il closeout dichiara:
 - `1.17.2` registra lo status HTTP Open-Meteo e programma un retry forzato dopo
   5 minuti soltanto per errori temporanei; cache, scoring, Session e QML restano
   invariati;
+- `1.18.0` avvia la chiusura della parte bassa Home riallineando prima il
+  contratto backend: quattro opportunita' Planner selezionate prima dell'ordine
+  cronologico e telescopio scelto per target nei profili multi-strumento;
+- il Planner non mantiene piu' due tappe nascoste e non usa piu' il primo
+  telescopio del profilo per tutti i target; binocolo e occhio nudo conservano
+  capability proprie;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -226,6 +232,18 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Durante il primo step Home inferiore `1.18.0`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/observer_capability_adapter.py astro_viewer/app/services/night_planner_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_planner_nsom_experimental.py astro_viewer/tests/test_observer_capability_adapter.py astro_viewer/tests/test_equipment_setup_read_model.py astro_viewer/tests/test_phase3_services.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_phase3_services.py astro_viewer/tests/test_phase6_real_data.py astro_viewer/tests/test_planner_nsom_experimental.py astro_viewer/tests/test_planner_conditions_characterization.py astro_viewer/tests/test_equipment_setup_read_model.py astro_viewer/tests/test_observer_capability_adapter.py astro_viewer/tests/test_advanced_observing_nsom_consumer_split.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py astro_viewer/tests/test_observation_conditions_service.py
+```
+
+Risultati:
+
+- ruff focused: passed;
+- Planner/Equipment/NSOM focused: `222 passed, 7 subtests passed`.
+
 Durante lo hardening Open-Meteo `1.17.2`:
 
 ```powershell
@@ -343,11 +361,11 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: la sorgente e'
-   `1.17.2`, mentre la distribuzione corrente resta `1.17.1`.
+   `1.18.0`, mentre la distribuzione corrente resta `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping e coerenza dei dati caricati.
-3. Solo dopo il confronto passare alla seconda parte Home, `Piano della notte`,
-   un pezzo alla volta, verificando prima il contratto dati di ogni sezione.
+3. Completare gli step `1.18.0` rimasti: pool target condiviso/Sky Compass live,
+   quindi QML di `Piano della notte` e lista unificata degli altri oggetti.
 4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
