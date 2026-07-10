@@ -6,6 +6,8 @@ Versione corrente sorgente: `1.17.1`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `38e971d Document 1.17.1 Windows distribution build`
+- `c3895dc Record Home startup state review`
 - `190e095 Fix Home startup location states`
 - `4e59e1f Fix provider cache reuse for location jitter`
 - `792bd30 Record 1.17.0 build commit`
