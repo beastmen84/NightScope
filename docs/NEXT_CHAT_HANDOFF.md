@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `b3f78db Make Home Sky Compass session-aware`
 - `319e820 Migrate upper Home cards to overview contract`
 - `8a1f318 Add Home overview presentation contract`
 - `04f60e4 Release 1.16.1 VIIRS cache revalidation`
