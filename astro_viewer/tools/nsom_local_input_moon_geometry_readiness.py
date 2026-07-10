@@ -106,8 +106,8 @@ SOURCE_MARKERS = (
             "class ParticulateConditionInput",
             "experimental_aerosol_scoring: bool = False",
             "def intended_aerosol_modifier",
-            "aod_modifier=0.0",
-            "pm25_modifier=0.0",
+            "def experimental_aerosol_scoring_breakdown",
+            "aerosol_scoring:flag_off",
         ),
     },
     {

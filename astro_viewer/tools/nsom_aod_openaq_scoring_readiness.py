@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.services.aerosol_provider_quality_policy import (
+    AEROSOL_SCORING_FORMULA_IMPLEMENTED,
+)
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     ObservationConditionFeatureFlags,
@@ -148,25 +152,27 @@ def generate_aod_openaq_scoring_readiness_data() -> dict[str, object]:
         },
         "readiness": {
             "verdict": (
-                "aod_openaq_readiness_needs_review"
+                "aod_openaq_default_off_scoring_needs_review"
                 if blockers
-                else "aod_openaq_policy_hardened_ready_for_default_off_experiment"
+                else "aod_openaq_default_off_scoring_experiment_available"
             ),
             "experimental_aerosol_scoring_default": ObservationConditionFeatureFlags().experimental_aerosol_scoring,
             "current_runtime_score_effect": 0.0,
             "ready_for_default_on": False,
             "ready_for_default_off_experiment": not blockers,
             "provider_inputs_available_diagnostically": True,
-            "score_formula_implemented": False,
+            "score_formula_implemented": AEROSOL_SCORING_FORMULA_IMPLEMENTED,
             "recommended_next_step": (
-                "Review 1.14.8, then implement a default-off aerosol scoring "
-                "experiment if the provider-quality policy is accepted."
+                "Review 1.14.9, then run a calibration/default-on readiness "
+                "audit for the aerosol experiment."
             ),
             "reason": (
                 "NASA AOD and OpenAQ PM inputs are already adapted as diagnostic "
                 "Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and "
-                "double-counting now have explicit policy gates, but the scoring "
-                "formula remains intentionally unimplemented and disabled."
+                "double-counting have explicit policy gates. The scoring formula "
+                "now exists behind the default-off experimental flag; normal "
+                "runtime inputs still keep the flag off and produce no score "
+                "effect."
             ),
         },
         "provider_contracts": provider_contracts,
@@ -195,10 +201,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit reviews whether provider-dependent NASA AOD "
             "and OpenAQ particulate inputs are ready to affect NSOM scores. They "
-            "are not enabled for scoring in this step. The current runtime keeps "
-            "AOD and PM score-neutral, does not change Planner, Home, Best Object, "
-            "Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and "
-            "does not add network calls, logging or runtime file writes."
+            "are ready for a default-off scoring experiment. The current runtime "
+            "keeps the experiment disabled by default, does not change Planner, "
+            "Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, "
+            "Equipment or QML, and does not add network calls, logging or runtime "
+            "file writes."
         ),
         "",
         "## Verdict",
@@ -275,15 +282,15 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "",
             "## Score Neutrality",
             "",
-            "| Case | Target | AOD | PM | Flag off modifier | Flag on modifier | Adjusted score delta |",
-            "| --- | --- | --- | --- | --- | --- | --- |",
+            "| Case | Target | AOD | PM | Flag off modifier | Flag on modifier | Default adjusted delta | Experimental source |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
     for row in audit["score_neutrality_rows"]:
         lines.append(
             f"| `{row['case']}` | `{row['target_class']}` | `{row['aod']}` | `{row['pm']}` | "
             f"`{row['flag_off_modifier']}` | `{row['flag_on_modifier']}` | "
-            f"`{row['adjusted_score_delta']}` |"
+            f"`{row['default_adjusted_score_delta']}` | `{row['experimental_breakdown']['primary_source']}` |"
         )
 
     lines.extend(
@@ -334,11 +341,11 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "AOD/OpenAQ should remain score-neutral until a separate default-off "
-                "experiment introduces a formula. The provider-quality blockers from "
-                "1.14.7 now have explicit policy gates: AOD QA/uncertainty, OpenAQ "
-                "locality and freshness, and non-overlap with VIIRS sky background, "
-                "weather transparency and Moon geometry."
+                "AOD/OpenAQ should remain default-off until the experimental "
+                "formula is reviewed and calibrated. The provider-quality blockers "
+                "from 1.14.7 now have explicit policy gates: AOD QA/uncertainty, "
+                "OpenAQ locality and freshness, and non-overlap with VIIRS sky "
+                "background, weather transparency and Moon geometry."
             ),
         ]
     )
@@ -358,16 +365,16 @@ def _provider_contracts() -> tuple[dict[str, object], ...]:
             "source": "NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback",
             "runtime_role": "Weather page display plus diagnostic AodConditionInput",
             "freshness_policy": "include current/stale inputs up to seven days; omit historical",
-            "scoring_status": "policy-hardened and score-neutral; modifier remains 0.0",
-            "blocker": "none for default-off experiment; formula still not implemented",
+            "scoring_status": "policy-hardened; target-specific formula available only behind default-off flag",
+            "blocker": "none for default-off experiment; default-on still needs calibration review",
         },
         {
             "provider": "openaq_particulate",
             "source": "OpenAQ PM2.5/PM10 nearest local stations",
             "runtime_role": "Weather page display plus diagnostic ParticulateConditionInput",
             "freshness_policy": "current <=1 day, recent <=3 days, stale <=7 days, historical omitted",
-            "scoring_status": "policy-hardened fallback/context and score-neutral; modifier remains 0.0",
-            "blocker": "none for default-off experiment; formula still not implemented",
+            "scoring_status": "policy-hardened fallback/context; target-specific formula available only behind default-off flag",
+            "blocker": "none for default-off experiment; default-on still needs calibration review",
         },
     )
 
@@ -424,7 +431,7 @@ def _target_sensitivity_rows() -> tuple[dict[str, object], ...]:
                 "penalty_cap": profile.penalty_cap,
                 "aod_role": _aod_role(profile.target_class),
                 "pm_role": _pm_role(profile.target_class),
-                "scoring_status": "characterized only; no score effect",
+                "scoring_status": "default-off formula input; no default score effect",
             }
         )
     return tuple(rows)
@@ -435,44 +442,26 @@ def _source_precedence_rows() -> tuple[dict[str, object], ...]:
     cases = (
         (
             "fresh_aod_and_pm",
-            AodConditionInput(available=True, freshness_category="current", aod_550=0.22, age_days=1.0),
-            ParticulateConditionInput(
-                available=True,
-                freshness_category="current",
-                pm25=28.0,
-                pm10=64.0,
-                age_days=0.2,
-            ),
+            _policy_aod(aod_550=0.22),
+            _policy_pm(pm25=28.0, pm10=64.0),
             "fresh AOD is the column aerosol source; PM remains fallback/context",
         ),
         (
             "historical_aod_fresh_pm",
-            AodConditionInput(available=True, freshness_category="historical", aod_550=0.22, age_days=9.0),
-            ParticulateConditionInput(
-                available=True,
-                freshness_category="current",
-                pm25=28.0,
-                pm10=64.0,
-                age_days=0.2,
-            ),
+            _policy_aod(aod_550=0.22, freshness_category="historical", age_days=9.0),
+            _policy_pm(pm25=28.0, pm10=64.0),
             "historical AOD is not eligible; PM can be the fallback source",
         ),
         (
             "fresh_aod_missing_pm",
-            AodConditionInput(available=True, freshness_category="current", aod_550=0.22, age_days=1.0),
+            _policy_aod(aod_550=0.22),
             None,
             "AOD can stand alone when fresh enough",
         ),
         (
             "no_eligible_provider",
-            AodConditionInput(available=True, freshness_category="historical", aod_550=0.22, age_days=9.0),
-            ParticulateConditionInput(
-                available=True,
-                freshness_category="historical",
-                pm25=28.0,
-                pm10=64.0,
-                age_days=9.0,
-            ),
+            _policy_aod(aod_550=0.22, freshness_category="historical", age_days=9.0),
+            _policy_pm(pm25=28.0, pm10=64.0, freshness_category="historical", age_days=9.0),
             "historical provider data remains metadata only",
         ),
     )
@@ -498,14 +487,8 @@ def _score_neutrality_rows() -> tuple[dict[str, object], ...]:
     service = ObservationConditionsService()
     flags_off = ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)
     flags_on = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
-    aod = AodConditionInput(available=True, freshness_category="current", aod_550=0.44, age_days=1.0)
-    particulate = ParticulateConditionInput(
-        available=True,
-        freshness_category="current",
-        pm25=40.0,
-        pm10=90.0,
-        age_days=0.5,
-    )
+    aod = _policy_aod(aod_550=0.44)
+    particulate = _policy_pm(pm25=40.0, pm10=90.0)
     cases = (
         ("galaxy_high_aerosol", _target("m31", "M31", "Galaxy", 82), aod, particulate),
         ("diffuse_nebula_high_aerosol", _target("m42", "M42", "Diffuse Nebula", 82), aod, particulate),
@@ -517,10 +500,16 @@ def _score_neutrality_rows() -> tuple[dict[str, object], ...]:
     for case, target, case_aod, case_pm in cases:
         conditioned = service.condition_target(
             target,
-            ObservationConditionInputs.diagnostic_only(
+            ObservationConditionInputs(
                 aod=case_aod,
                 particulate=case_pm,
             ),
+        )
+        experimental_breakdown = service.experimental_aerosol_scoring_breakdown(
+            target,
+            case_aod,
+            case_pm,
+            flags_on,
         )
         rows.append(
             {
@@ -529,8 +518,9 @@ def _score_neutrality_rows() -> tuple[dict[str, object], ...]:
                 "aod": "available" if case_aod is not None else "missing",
                 "pm": "available" if case_pm is not None else "missing",
                 "flag_off_modifier": service.intended_aerosol_modifier(target, case_aod, case_pm, flags_off),
-                "flag_on_modifier": service.intended_aerosol_modifier(target, case_aod, case_pm, flags_on),
-                "adjusted_score_delta": conditioned.breakdown.adjusted_score - target.score,
+                "flag_on_modifier": experimental_breakdown.score_modifier,
+                "default_adjusted_score_delta": conditioned.breakdown.adjusted_score - target.score,
+                "experimental_breakdown": asdict(experimental_breakdown),
             }
         )
     return tuple(rows)
@@ -571,7 +561,11 @@ def _policy_decisions() -> tuple[dict[str, object], ...]:
             "status": "accepted",
             "blocks_scoring": False,
             "affected_layer": "Confidence",
-            "reason": "Provider freshness and availability remain metadata and do not change score.",
+            "reason": (
+                "RecommendationConfidence remains metadata and does not change score. "
+                "Provider freshness is an explicit formula input only inside the "
+                "default-off aerosol experiment."
+            ),
         },
     )
 
@@ -613,10 +607,21 @@ def _checks(
             sensitivity_rows
         ),
         "aod_primary_pm_fallback": _source_precedence_is_characterized(source_precedence_rows),
-        "aerosol_modifier_score_neutral": all(
+        "aerosol_modifier_default_runtime_neutral": all(
             row["flag_off_modifier"] == 0.0
-            and row["flag_on_modifier"] == 0.0
-            and row["adjusted_score_delta"] == 0
+            and row["default_adjusted_score_delta"] == 0
+            for row in score_neutrality_rows
+        ),
+        "aerosol_experiment_has_target_specific_effect": any(
+            row["flag_on_modifier"] < 0.0
+            for row in score_neutrality_rows
+        ),
+        "aerosol_experiment_uses_single_source": all(
+            row["experimental_breakdown"]["primary_source"] in {"aod", "particulate", "none"}
+            for row in score_neutrality_rows
+        ),
+        "recommendation_confidence_not_in_formula": all(
+            "confidence" not in row["experimental_breakdown"]["formula"].lower()
             for row in score_neutrality_rows
         ),
         "provider_quality_policy_accepted": any(
@@ -657,7 +662,10 @@ def _blockers(
         "freshness_policy_has_historical_zero": "aod-openaq-freshness-policy-wrong",
         "target_sensitivity_order_characterized": "aod-openaq-target-sensitivity-not-characterized",
         "aod_primary_pm_fallback": "aod-openaq-source-precedence-wrong",
-        "aerosol_modifier_score_neutral": "aod-openaq-score-effect-present",
+        "aerosol_modifier_default_runtime_neutral": "aod-openaq-default-score-effect-present",
+        "aerosol_experiment_has_target_specific_effect": "aod-openaq-experimental-score-effect-missing",
+        "aerosol_experiment_uses_single_source": "aod-openaq-source-policy-invalid",
+        "recommendation_confidence_not_in_formula": "aod-openaq-confidence-in-score-formula",
         "provider_quality_policy_accepted": "aod-openaq-quality-policy-not-accepted",
         "double_counting_policy_accepted": "aod-openaq-double-counting-policy-not-accepted",
         "confidence_metadata_policy_accepted": "aod-openaq-confidence-policy-missing",
@@ -746,6 +754,49 @@ def _targets() -> tuple[CelestialObject, ...]:
         _target("m57", "M57", "Planetary Nebula", 80),
         _target("m42", "M42", "Diffuse Nebula", 84),
         _target("m31", "M31", "Galaxy", 88),
+    )
+
+
+def _policy_aod(
+    *,
+    aod_550: float,
+    freshness_category: str = "current",
+    age_days: float = 1.0,
+    uncertainty: float | None = 0.04,
+    qa_raw: int | None = 1089,
+    product: str = "VNP19A2.002",
+) -> AodConditionInput:
+    return AodConditionInput(
+        available=True,
+        freshness_category=freshness_category,
+        aod_550=aod_550,
+        source="NASA Earthdata",
+        product=product,
+        status="ok",
+        age_days=age_days,
+        uncertainty=uncertainty,
+        qa_raw=qa_raw,
+        method="direct_pixel",
+    )
+
+
+def _policy_pm(
+    *,
+    pm25: float,
+    pm10: float,
+    freshness_category: str = "current",
+    age_days: float = 0.25,
+    distance_km: float = 5.0,
+) -> ParticulateConditionInput:
+    return ParticulateConditionInput(
+        available=True,
+        freshness_category=freshness_category,
+        pm25=pm25,
+        pm10=pm10,
+        source="OpenAQ Local",
+        status="ok",
+        age_days=age_days,
+        distance_km=distance_km,
     )
 
 

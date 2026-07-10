@@ -2,25 +2,25 @@
 
 ## Executive Summary
 
-This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ particulate inputs are ready to affect NSOM scores. They are not enabled for scoring in this step. The current runtime keeps AOD and PM score-neutral, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, logging or runtime file writes.
+This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ particulate inputs are ready to affect NSOM scores. They are ready for a default-off scoring experiment. The current runtime keeps the experiment disabled by default, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, logging or runtime file writes.
 
 ## Verdict
 
-- Verdict: `aod_openaq_policy_hardened_ready_for_default_off_experiment`.
+- Verdict: `aod_openaq_default_off_scoring_experiment_available`.
 - Experimental aerosol scoring default: `False`.
 - Current runtime score effect: `0.0`.
 - Ready for default-on: `False`.
 - Ready for default-off experiment: `True`.
-- Score formula implemented: `False`.
-- Recommended next step: Review 1.14.8, then implement a default-off aerosol scoring experiment if the provider-quality policy is accepted.
-- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and double-counting now have explicit policy gates, but the scoring formula remains intentionally unimplemented and disabled.
+- Score formula implemented: `True`.
+- Recommended next step: Review 1.14.9, then run a calibration/default-on readiness audit for the aerosol experiment.
+- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and double-counting have explicit policy gates. The scoring formula now exists behind the default-off experimental flag; normal runtime inputs still keep the flag off and produce no score effect.
 
 ## Provider Contracts
 
 | Provider | Source | Runtime role | Freshness policy | Scoring status | Blocker |
 | --- | --- | --- | --- | --- | --- |
-| `nasa_aod` | NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback | Weather page display plus diagnostic AodConditionInput | include current/stale inputs up to seven days; omit historical | policy-hardened and score-neutral; modifier remains 0.0 | none for default-off experiment; formula still not implemented |
-| `openaq_particulate` | OpenAQ PM2.5/PM10 nearest local stations | Weather page display plus diagnostic ParticulateConditionInput | current <=1 day, recent <=3 days, stale <=7 days, historical omitted | policy-hardened fallback/context and score-neutral; modifier remains 0.0 | none for default-off experiment; formula still not implemented |
+| `nasa_aod` | NASA Earthdata MAIAC AOD; VIIRS primary, MODIS fallback | Weather page display plus diagnostic AodConditionInput | include current/stale inputs up to seven days; omit historical | policy-hardened; target-specific formula available only behind default-off flag | none for default-off experiment; default-on still needs calibration review |
+| `openaq_particulate` | OpenAQ PM2.5/PM10 nearest local stations | Weather page display plus diagnostic ParticulateConditionInput | current <=1 day, recent <=3 days, stale <=7 days, historical omitted | policy-hardened fallback/context; target-specific formula available only behind default-off flag | none for default-off experiment; default-on still needs calibration review |
 
 ## Freshness Policy
 
@@ -44,13 +44,13 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 | Target class | Sensitivity | Penalty cap | AOD role | PM role | Scoring status |
 | --- | --- | --- | --- | --- | --- |
-| `moon` | `0.05` | `1.0` | minor/protected candidate | metadata/context only | characterized only; no score effect |
-| `planet` | `0.15` | `3.0` | minor/protected candidate | metadata/context only | characterized only; no score effect |
-| `globular_cluster` | `0.45` | `4.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | characterized only; no score effect |
-| `open_cluster` | `0.5` | `3.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | characterized only; no score effect |
-| `planetary_nebula` | `0.55` | `5.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | characterized only; no score effect |
-| `diffuse_nebula` | `0.85` | `8.0` | primary aerosol/transparency candidate | fallback/context when fresh AOD is unavailable | characterized only; no score effect |
-| `galaxy` | `1.0` | `12.0` | primary aerosol/transparency candidate | fallback/context when fresh AOD is unavailable | characterized only; no score effect |
+| `moon` | `0.05` | `1.0` | minor/protected candidate | metadata/context only | default-off formula input; no default score effect |
+| `planet` | `0.15` | `3.0` | minor/protected candidate | metadata/context only | default-off formula input; no default score effect |
+| `globular_cluster` | `0.45` | `4.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | default-off formula input; no default score effect |
+| `open_cluster` | `0.5` | `3.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | default-off formula input; no default score effect |
+| `planetary_nebula` | `0.55` | `5.0` | secondary aerosol/transparency candidate | low/medium fallback when fresh AOD is unavailable | default-off formula input; no default score effect |
+| `diffuse_nebula` | `0.85` | `8.0` | primary aerosol/transparency candidate | fallback/context when fresh AOD is unavailable | default-off formula input; no default score effect |
+| `galaxy` | `1.0` | `12.0` | primary aerosol/transparency candidate | fallback/context when fresh AOD is unavailable | default-off formula input; no default score effect |
 
 ## Source Precedence
 
@@ -63,13 +63,13 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 ## Score Neutrality
 
-| Case | Target | AOD | PM | Flag off modifier | Flag on modifier | Adjusted score delta |
-| --- | --- | --- | --- | --- | --- | --- |
-| `galaxy_high_aerosol` | `galaxy` | `available` | `available` | `0.0` | `0.0` | `0` |
-| `diffuse_nebula_high_aerosol` | `diffuse_nebula` | `available` | `available` | `0.0` | `0.0` | `0` |
-| `planet_protected` | `planet` | `available` | `available` | `0.0` | `0.0` | `0` |
-| `moon_protected` | `moon` | `available` | `available` | `0.0` | `0.0` | `0` |
-| `missing_providers` | `globular_cluster` | `missing` | `missing` | `0.0` | `0.0` | `0` |
+| Case | Target | AOD | PM | Flag off modifier | Flag on modifier | Default adjusted delta | Experimental source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `galaxy_high_aerosol` | `galaxy` | `available` | `available` | `0.0` | `-9.0` | `0` | `aod` |
+| `diffuse_nebula_high_aerosol` | `diffuse_nebula` | `available` | `available` | `0.0` | `-5.1` | `0` | `aod` |
+| `planet_protected` | `planet` | `available` | `available` | `0.0` | `-0.337` | `0` | `aod` |
+| `moon_protected` | `moon` | `available` | `available` | `0.0` | `-0.038` | `0` | `aod` |
+| `missing_providers` | `globular_cluster` | `missing` | `missing` | `0.0` | `0.0` | `0` | `none` |
 
 ## Policy Decisions
 
@@ -79,7 +79,7 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 | `aod_pm_source_precedence` | `accepted_for_readiness` | `False` | Sky / Confidence | Fresh AOD is primary; PM is fallback/context when AOD is unavailable or historical. |
 | `openaq_locality_policy` | `accepted_for_default_off_experiment` | `False` | Sky / Confidence | OpenAQ PM is eligible only as local fallback within 25 km; 25-50 km remains context only. |
 | `double_counting_policy` | `accepted_for_default_off_experiment` | `False` | Sky / Session | AOD and PM are not additive; VIIRS, weather transparency and Moon geometry keep separate ownership. |
-| `confidence_metadata_policy` | `accepted` | `False` | Confidence | Provider freshness and availability remain metadata and do not change score. |
+| `confidence_metadata_policy` | `accepted` | `False` | Confidence | RecommendationConfidence remains metadata and does not change score. Provider freshness is an explicit formula input only inside the default-off aerosol experiment. |
 
 ## Checks
 
@@ -93,7 +93,10 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 | `freshness_policy_has_historical_zero` | `True` |
 | `target_sensitivity_order_characterized` | `True` |
 | `aod_primary_pm_fallback` | `True` |
-| `aerosol_modifier_score_neutral` | `True` |
+| `aerosol_modifier_default_runtime_neutral` | `True` |
+| `aerosol_experiment_has_target_specific_effect` | `True` |
+| `aerosol_experiment_uses_single_source` | `True` |
+| `recommendation_confidence_not_in_formula` | `True` |
 | `provider_quality_policy_accepted` | `True` |
 | `double_counting_policy_accepted` | `True` |
 | `confidence_metadata_policy_accepted` | `True` |
@@ -104,4 +107,4 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 ## Conclusion
 
-AOD/OpenAQ should remain score-neutral until a separate default-off experiment introduces a formula. The provider-quality blockers from 1.14.7 now have explicit policy gates: AOD QA/uncertainty, OpenAQ locality and freshness, and non-overlap with VIIRS sky background, weather transparency and Moon geometry.
+AOD/OpenAQ should remain default-off until the experimental formula is reviewed and calibrated. The provider-quality blockers from 1.14.7 now have explicit policy gates: AOD QA/uncertainty, OpenAQ locality and freshness, and non-overlap with VIIRS sky background, weather transparency and Moon geometry.

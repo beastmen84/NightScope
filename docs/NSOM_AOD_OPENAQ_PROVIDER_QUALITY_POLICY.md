@@ -2,18 +2,19 @@
 
 ## Executive Summary
 
-This developer-only policy hardening step resolves the AOD/OpenAQ provider-quality decisions that blocked a future default-off aerosol scoring experiment. It does not enable scoring, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, automatic logging or runtime file writes.
+This developer-only policy hardening step resolves the AOD/OpenAQ provider-quality decisions that blocked a future default-off aerosol scoring experiment. It does not enable scoring by default, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, automatic logging or runtime file writes.
 
 ## Verdict
 
 - Verdict: `aod_openaq_provider_quality_policy_hardened`.
 - Ready for default-off experiment: `True`.
 - Ready for default-on: `False`.
+- Scoring formula implemented: `True`.
 - Scoring formula enabled: `False`.
 - Current runtime score effect: `0.0`.
 - Experimental aerosol scoring default: `False`.
-- Recommended next step: Review 1.14.8, then implement a default-off aerosol scoring experiment if the provider-quality policy is accepted.
-- Reason: AOD QA/uncertainty, OpenAQ locality and source double-counting now have explicit policy gates. The gates classify provider inputs for future experiments but keep all current scores neutral.
+- Recommended next step: Review 1.14.9, then audit/calibrate the default-off aerosol scoring experiment before any default-on switch.
+- Reason: AOD QA/uncertainty, OpenAQ locality and source double-counting have explicit policy gates. Target-specific AOD/OpenAQ scoring now exists only behind the default-off experimental flag, while the provider-quality policy itself remains target-neutral.
 
 ## Policy Thresholds
 
@@ -52,7 +53,8 @@ This developer-only policy hardening step resolves the AOD/OpenAQ provider-quali
 ## Confidence Policy
 
 - `provider_quality_changes_confidence_metadata_only`
-- `provider_quality_does_not_change_score`
+- `provider_quality_does_not_change_target_specific_score`
+- `recommendation_confidence_remains_score_neutral`
 
 ## Checks
 
@@ -66,9 +68,10 @@ This developer-only policy hardening step resolves the AOD/OpenAQ provider-quali
 | `pm_context_distance_not_fallback` | `True` |
 | `distant_pm_rejected` | `True` |
 | `unknown_distance_pm_rejected` | `True` |
-| `score_modifier_always_neutral` | `True` |
+| `targetless_policy_score_modifier_neutral` | `True` |
+| `forced_flag_marks_formula_enabled` | `True` |
 | `double_counting_policy_present` | `True` |
 
 ## Conclusion
 
-The provider-quality blockers are now explicit policy gates. Fresh, QA-traceable, low-uncertainty AOD is the only primary aerosol-column source for a future experiment; OpenAQ PM can only be local fallback/context when AOD is not policy-eligible. VIIRS sky background, weather transparency and Moon geometry remain separate owners. Scoring stays disabled until a later default-off implementation step.
+The provider-quality blockers are now explicit policy gates. Fresh, QA-traceable, low-uncertainty AOD is the only primary aerosol-column source for a future experiment; OpenAQ PM can only be local fallback/context when AOD is not policy-eligible. VIIRS sky background, weather transparency and Moon geometry remain separate owners. The target-specific formula is available only through the explicit default-off experiment flag.

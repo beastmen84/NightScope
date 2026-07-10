@@ -16,6 +16,7 @@ AOD_MAX_UNCERTAINTY_FOR_POLICY = 0.15
 AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS = 3
 OPENAQ_LOCAL_REPRESENTATIVE_KM = 25.0
 OPENAQ_CONTEXT_ONLY_KM = 50.0
+AEROSOL_SCORING_FORMULA_IMPLEMENTED = True
 
 
 @dataclass(frozen=True)
@@ -54,9 +55,10 @@ class ParticulateProviderQualityDecision:
 class AerosolProviderQualityPolicy:
     """Combined source-precedence and double-counting policy.
 
-    This is intentionally score-neutral. It defines whether AOD/PM data is
-    trustworthy enough for a later default-off experiment; it does not implement
-    that experiment.
+    This object is target-neutral. It defines whether AOD/PM data is
+    trustworthy enough for the default-off scoring experiment; target-specific
+    score modifiers are computed by ObservationConditionsService only when the
+    explicit experimental flag is enabled.
     """
 
     primary_source: str
@@ -234,12 +236,11 @@ class AerosolProviderQualityPolicyService:
             primary_source = "particulate"
         else:
             primary_source = "none"
-        formula_implemented = False
-
         return AerosolProviderQualityPolicy(
             primary_source=primary_source,
             score_modifier=0.0,
-            scoring_formula_enabled=formula_implemented and flags.experimental_aerosol_scoring,
+            scoring_formula_enabled=AEROSOL_SCORING_FORMULA_IMPLEMENTED
+            and flags.experimental_aerosol_scoring,
             ready_for_default_off_experiment=True,
             aod=aod_quality,
             particulate=particulate_quality,
@@ -253,7 +254,8 @@ class AerosolProviderQualityPolicyService:
             ),
             confidence_notes=(
                 "provider_quality_changes_confidence_metadata_only",
-                "provider_quality_does_not_change_score",
+                "provider_quality_does_not_change_target_specific_score",
+                "recommendation_confidence_remains_score_neutral",
             ),
         )
 

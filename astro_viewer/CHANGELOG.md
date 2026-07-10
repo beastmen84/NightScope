@@ -1,5 +1,27 @@
 # Changelog
 
+## NightScope 1.14.9 - 2026-07-10
+
+- Implementato il primo path di scoring aerosol AOD/OpenAQ come esperimento
+  interno e default-off: `ObservationConditionFeatureFlags.experimental_aerosol_scoring`
+  resta `False` di default.
+- Aggiunta `AerosolScoringBreakdown` e formula target-specific in
+  `ObservationConditionsService`: AOD policy-eligible e' primario, OpenAQ PM
+  locale e' fallback piu' debole, freshness e' input esplicito, e il modifier e'
+  cappato per classe target.
+- Mantenuta la neutralita' del runtime normale: con flag spento i modifier AOD e
+  PM restano `0.0`, i `CelestialObject` originali non vengono mutati e non ci
+  sono cambi Planner, Home, Best Object, Advanced Observing, Sky Compass,
+  Detail/Object, Equipment o QML/UI.
+- Aggiornati i report developer-only
+  `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`,
+  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` e
+  `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md`; aggiunto
+  `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md`.
+- Aggiunti test per formula AOD/PM, source precedence, default-off neutrality,
+  protezione pianeti/Luna, rejection provider non eleggibili, confidence
+  score-neutral e assenza di wiring runtime/QML dei report.
+
 ## NightScope 1.14.8 - 2026-07-09
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md`, report

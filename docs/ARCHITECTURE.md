@@ -878,8 +878,8 @@ readiness audit for provider-backed aerosol inputs. The architecture decision is
 that NASA AOD and OpenAQ remain Sky/Confidence diagnostics only until formal AOD
 QA/uncertainty, OpenAQ locality/representativeness and double-counting policies
 with VIIRS sky background, weather transparency and Moon geometry are accepted.
-`ObservationConditionFeatureFlags.experimental_aerosol_scoring` remains
-default-off and the current aerosol modifier remains `0.0`.
+At that step, `ObservationConditionFeatureFlags.experimental_aerosol_scoring`
+remained default-off and the current aerosol modifier remained `0.0`.
 `1.14.8` adds `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` and accepts
 those provider-quality policies as explicit internal gates for a future
 default-off experiment. AOD requires finite value, useful freshness,
@@ -888,6 +888,14 @@ support. OpenAQ PM requires local representativeness and is fallback/context
 only. AOD and PM are not additive, and VIIRS sky background, weather
 transparency and Moon geometry retain separate ownership. Scoring remains
 disabled.
+`1.14.9` implements that default-off experiment. When
+`ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`,
+`ObservationConditionsService` computes a target-specific aerosol modifier from
+the policy-selected source: AOD is primary, local OpenAQ PM is a weaker fallback,
+freshness is an explicit formula input, and provider confidence remains outside
+the score formula. The flag remains `False` by default, so runtime Planner, Home,
+Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment, QML,
+logging, network access and runtime file writes remain unchanged.
 
 ## Dependency Flow
 
@@ -988,8 +996,10 @@ Services hold business logic:
   deep-sky light-pollution context formerly implemented inside `AppController`,
   batch conditioning for Home/Sky Compass candidates and neutral diagnostic
   placeholders for future weather/seeing/transparency/equipment inputs.
-  It accepts provider-neutral NASA AOD and particulate inputs as diagnostic-only
-  data with freshness notes, while keeping their score modifiers neutral.
+  It accepts provider-neutral NASA AOD and particulate inputs with freshness
+  notes. Their score modifiers remain neutral by default; 1.14.9 adds an
+  explicit default-off experimental aerosol modifier that applies only when
+  `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`.
   Runtime diagnostic freshness is explicit: NASA AOD older than seven days is
   omitted from diagnostic inputs; fresh/recent NASA AOD is included
   diagnostically only. OpenAQ data is included diagnostically when the
@@ -997,9 +1007,10 @@ Services hold business logic:
   and omitted when historical, failed, unavailable or unconfigured. The 1.14.7
   readiness audit documents fresh AOD as the future primary aerosol-column source
   and OpenAQ PM as fallback/context. The 1.14.8 policy hardens provider-quality
-  and double-counting gates for a future default-off experiment. These inputs
-  are not exposed to QML and do not affect Planner, Home, equipment, weather,
-  seeing/transparency, advanced scores or Sky Compass.
+  and double-counting gates; 1.14.9 implements the target-specific default-off
+  formula. These inputs are not exposed to QML and do not affect Planner, Home,
+  equipment, weather, seeing/transparency, advanced scores or Sky Compass unless
+  the internal experimental flag is explicitly enabled.
   Deep-sky light-pollution conditioning marks targets with an internal condition
   flag so repeated passes do not reapply the same presentation penalty; the flag
   is intentionally removed from the QML payload.
@@ -1297,7 +1308,9 @@ For future changes:
 - Before enabling new AOD/OpenAQ or transparency scoring, use
   `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md` and
   `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` plus
-  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` as the mathematical
-  ownership, provider-quality and double-counting references.
+  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` and
+  `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md` as the mathematical
+  ownership, provider-quality, double-counting and default-off formula
+  references.
 - When changing calendar event copy or event-to-object linking, keep practical
   text in `EventDetailPage.qml` and target/setup enrichment in `AppController`.

@@ -63,6 +63,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md"),
     Path("docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md"),
     Path("docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md"),
+    Path("docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -142,8 +143,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.8, then implement a default-off aerosol scoring "
-                "experiment if accepted"
+                "Review 1.14.9, then run aerosol scoring calibration/default-on "
+                "readiness before enabling provider-backed AOD/OpenAQ by default"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -173,8 +174,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "parameters. Planner Moon geometry is now default-on through a "
                 "narrow Planner-specific switch. Provider-backed AOD/OpenAQ "
                 "readiness and provider-quality policy are documented. AOD/OpenAQ "
-                "scoring remains disabled, but the policy gates are now ready for "
-                "a default-off experiment if reviewed and accepted."
+                "now has an explicit default-off scoring experiment; default "
+                "runtime scoring remains disabled until a separate calibration "
+                "and default-on readiness review."
             ),
         },
         "blockers": blockers,
@@ -911,6 +913,17 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "1.13.8 Remove internal legacy rollback paths",
             "summary": "Remove internal rollback flags and legacy branches in a focused commit.",
+        },
+        {
+            "step": "1.14.9 AOD/OpenAQ default-off scoring experiment",
+            "summary": (
+                "Implement provider-backed aerosol scoring behind the existing "
+                "default-off ObservationConditions flag."
+            ),
+        },
+        {
+            "step": "Review 1.14.9",
+            "summary": "Confirm the aerosol experiment remains default-off and formula ownership is correct.",
         },
     )
 

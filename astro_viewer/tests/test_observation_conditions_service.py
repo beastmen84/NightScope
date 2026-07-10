@@ -396,29 +396,18 @@ def test_future_aerosol_target_sensitivity_order_and_caps_are_characterized() ->
 
 def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:
     service = ObservationConditionsService()
-    aod = AodConditionInput(
-        available=True,
-        freshness_category="current",
-        aod_550=0.22,
-        age_days=1.0,
-    )
-    historical_aod = AodConditionInput(
-        available=True,
-        freshness_category="historical",
-        aod_550=0.22,
-        age_days=9.0,
-    )
-    particulate = ParticulateConditionInput(
-        available=True,
-        freshness_category="current",
-        pm25=28.0,
-        pm10=64.0,
-        age_days=0.2,
-    )
+    aod = _scoring_aod(aod_550=0.22)
+    historical_aod = _scoring_aod(aod_550=0.22)
+    historical_aod = replace(historical_aod, freshness_category="historical", age_days=9.0)
+    missing_qa_aod = _scoring_aod(aod_550=0.22, qa_raw=None)
+    particulate = _scoring_pm(pm25=28.0, pm10=64.0)
+    context_particulate = _scoring_pm(pm25=28.0, pm10=64.0, distance_km=35.0)
 
     assert service.aerosol_primary_source(aod, particulate) == "aod"
     assert service.aerosol_primary_source(historical_aod, particulate) == "particulate"
+    assert service.aerosol_primary_source(missing_qa_aod, particulate) == "particulate"
     assert service.aerosol_primary_source(None, particulate) == "particulate"
+    assert service.aerosol_primary_source(None, context_particulate) == "none"
     assert service.aerosol_primary_source(historical_aod, None) == "none"
 
 
@@ -426,13 +415,14 @@ def test_future_aerosol_modifier_is_neutral_with_feature_flag_off() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
     flags = ObservationConditionFeatureFlags()
-    aod = AodConditionInput(available=True, freshness_category="current", aod_550=0.44, age_days=1.0)
+    aod = _scoring_aod(aod_550=0.44)
     particulate = ParticulateConditionInput(
         available=True,
         freshness_category="current",
         pm25=40.0,
         pm10=90.0,
         age_days=0.5,
+        distance_km=5.0,
     )
 
     conditioned = service.condition_target(
@@ -447,6 +437,166 @@ def test_future_aerosol_modifier_is_neutral_with_feature_flag_off() -> None:
     assert conditioned.breakdown.aod_modifier == 0.0
     assert conditioned.breakdown.pm25_modifier == 0.0
     assert conditioned.breakdown.applied_components == ()
+
+
+def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+    aod = _scoring_aod(aod_550=0.44)
+    particulate = _scoring_pm(pm25=55.0, pm10=120.0)
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+
+    breakdown = service.experimental_aerosol_scoring_breakdown(target, aod, particulate, flags)
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            aod=aod,
+            particulate=particulate,
+            feature_flags=flags,
+        ),
+    )
+
+    assert breakdown.primary_source == "aod"
+    assert breakdown.severity == 0.75
+    assert breakdown.source_weight == 1.0
+    assert breakdown.score_modifier == -9.0
+    assert conditioned.breakdown.aod_modifier == -9.0
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert conditioned.breakdown.adjusted_score == 73
+    assert conditioned.breakdown.applied_components == ("aod",)
+    assert "particulate" not in conditioned.breakdown.applied_components
+    assert "aod:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:source=aod" in conditioned.breakdown.diagnostic_notes
+    assert target.score == 82
+
+
+def test_experimental_aerosol_scoring_uses_local_pm_fallback_when_aod_rejected() -> None:
+    service = ObservationConditionsService()
+    target = _target("m42", "M42", "Diffuse Nebula", 82)
+    rejected_aod = _scoring_aod(aod_550=0.44, uncertainty=0.24)
+    particulate = _scoring_pm(pm25=55.0, pm10=120.0)
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+
+    breakdown = service.experimental_aerosol_scoring_breakdown(
+        target,
+        rejected_aod,
+        particulate,
+        flags,
+    )
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            aod=rejected_aod,
+            particulate=particulate,
+            feature_flags=flags,
+        ),
+    )
+
+    assert breakdown.primary_source == "particulate"
+    assert breakdown.severity == 0.75
+    assert breakdown.source_weight == 0.6
+    assert breakdown.score_modifier == -3.06
+    assert conditioned.breakdown.aod_modifier == 0.0
+    assert conditioned.breakdown.pm25_modifier == -3.06
+    assert conditioned.breakdown.adjusted_score == 79
+    assert conditioned.breakdown.applied_components == ("particulate",)
+    assert "aerosol_scoring:source=particulate" in conditioned.breakdown.diagnostic_notes
+
+
+def test_experimental_aerosol_scoring_respects_target_class_caps_and_protection() -> None:
+    service = ObservationConditionsService()
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    aod = _scoring_aod(aod_550=0.75)
+    particulate = _scoring_pm(pm25=70.0, pm10=180.0)
+
+    galaxy = service.experimental_aerosol_scoring_breakdown(
+        _target("m31", "M31", "Galaxy", 82),
+        aod,
+        particulate,
+        flags,
+    )
+    diffuse = service.experimental_aerosol_scoring_breakdown(
+        _target("m42", "M42", "Diffuse Nebula", 82),
+        aod,
+        particulate,
+        flags,
+    )
+    planet = service.experimental_aerosol_scoring_breakdown(
+        _target("mars", "Marte", "Pianeta", 82),
+        aod,
+        particulate,
+        flags,
+    )
+    moon = service.experimental_aerosol_scoring_breakdown(
+        _target("moon", "Luna", "Satellite naturale", 82),
+        aod,
+        particulate,
+        flags,
+    )
+
+    assert galaxy.score_modifier == -12.0
+    assert diffuse.score_modifier == -6.8
+    assert planet.score_modifier == -0.45
+    assert moon.score_modifier == -0.05
+    assert galaxy.penalty_points > diffuse.penalty_points > planet.penalty_points > moon.penalty_points
+
+
+def test_experimental_aerosol_scoring_rejects_non_policy_eligible_sources() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    missing_qa = _scoring_aod(aod_550=0.44, qa_raw=None)
+    context_only_pm = _scoring_pm(pm25=55.0, pm10=120.0, distance_km=35.0)
+
+    breakdown = service.experimental_aerosol_scoring_breakdown(
+        target,
+        missing_qa,
+        context_only_pm,
+        flags,
+    )
+    conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            aod=missing_qa,
+            particulate=context_only_pm,
+            feature_flags=flags,
+        ),
+    )
+
+    assert breakdown.primary_source == "none"
+    assert breakdown.score_modifier == 0.0
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == target.score
+    assert conditioned.breakdown.applied_components == ()
+    assert "aerosol_scoring:no_policy_eligible_provider" not in conditioned.breakdown.diagnostic_notes
+
+
+def test_experimental_aerosol_scoring_confidence_metadata_does_not_scale_score() -> None:
+    service = ObservationConditionsService()
+    target = _target("m31", "M31", "Galaxy", 82)
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    viirs = _scoring_aod(aod_550=0.44, product="VNP19A2.002")
+    modis = _scoring_aod(aod_550=0.44, product="MCD19A2.061")
+
+    viirs_breakdown = service.experimental_aerosol_scoring_breakdown(target, viirs, None, flags)
+    modis_breakdown = service.experimental_aerosol_scoring_breakdown(target, modis, None, flags)
+
+    assert viirs_breakdown.score_modifier == modis_breakdown.score_modifier == -9.0
+
+
+def test_aerosol_severity_steps_are_explicit() -> None:
+    service = ObservationConditionsService()
+
+    assert service.aod_severity(0.10) == 0.0
+    assert service.aod_severity(0.20) == 0.25
+    assert service.aod_severity(0.35) == 0.50
+    assert service.aod_severity(0.60) == 0.75
+    assert service.aod_severity(0.61) == 1.0
+    assert service.particulate_severity(5.0, 20.0) == 0.0
+    assert service.particulate_severity(15.0, 50.0) == 0.25
+    assert service.particulate_severity(35.0, 100.0) == 0.50
+    assert service.particulate_severity(55.0, 150.0) == 0.75
+    assert service.particulate_severity(56.0, 151.0) == 1.0
 
 
 def test_future_moon_geometry_fields_are_represented_diagnostically() -> None:
@@ -1327,6 +1477,45 @@ def test_observation_conditions_service_does_not_import_openaq_or_nasa_aod() -> 
     assert "NasaAodProvider" not in names
     assert "LocalAtmosphere" not in names
     assert "NasaAodResult" not in names
+
+
+def _scoring_aod(
+    *,
+    aod_550: float,
+    uncertainty: float | None = 0.04,
+    qa_raw: int | None = 1089,
+    product: str = "VNP19A2.002",
+) -> AodConditionInput:
+    return AodConditionInput(
+        available=True,
+        freshness_category="current",
+        aod_550=aod_550,
+        source="NASA Earthdata",
+        product=product,
+        status="ok",
+        age_days=1.0,
+        uncertainty=uncertainty,
+        qa_raw=qa_raw,
+        method="direct_pixel",
+    )
+
+
+def _scoring_pm(
+    *,
+    pm25: float,
+    pm10: float,
+    distance_km: float = 5.0,
+) -> ParticulateConditionInput:
+    return ParticulateConditionInput(
+        available=True,
+        freshness_category="current",
+        pm25=pm25,
+        pm10=pm10,
+        source="OpenAQ Local",
+        status="ok",
+        age_days=0.25,
+        distance_km=distance_km,
+    )
 
 
 def _target(

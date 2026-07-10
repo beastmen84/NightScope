@@ -32,6 +32,7 @@ def test_provider_quality_policy_report_is_deterministic_strict_json_and_develop
     assert first["metadata"]["qml_exposure"] is False
     assert first["readiness"]["ready_for_default_off_experiment"] is True
     assert first["readiness"]["ready_for_default_on"] is False
+    assert first["readiness"]["scoring_formula_implemented"] is True
     assert first["readiness"]["scoring_formula_enabled"] is False
     assert first["readiness"]["current_runtime_score_effect"] == 0.0
     assert first["checks"]["strict_json_compatible"] is True
@@ -91,7 +92,7 @@ def test_source_precedence_uses_aod_primary_and_pm_fallback_only() -> None:
     assert service.policy(None, _pm(distance_km=75.0)).primary_source == "none"
 
 
-def test_double_counting_policy_and_confidence_are_score_neutral_even_with_flag_on() -> None:
+def test_double_counting_policy_and_confidence_are_target_neutral_even_with_flag_on() -> None:
     service = AerosolProviderQualityPolicyService()
     policy = service.policy(
         _aod(),
@@ -100,12 +101,13 @@ def test_double_counting_policy_and_confidence_are_score_neutral_even_with_flag_
     )
 
     assert policy.score_modifier == 0.0
-    assert policy.scoring_formula_enabled is False
+    assert policy.scoring_formula_enabled is True
     assert "aod_and_particulate_are_not_additive" in policy.double_counting_rules
     assert "viirs_sky_background_remains_separate" in policy.double_counting_rules
     assert "weather_transparency_remains_separate" in policy.double_counting_rules
     assert "moon_geometry_remains_separate" in policy.double_counting_rules
-    assert "provider_quality_does_not_change_score" in policy.confidence_notes
+    assert "provider_quality_does_not_change_target_specific_score" in policy.confidence_notes
+    assert "recommendation_confidence_remains_score_neutral" in policy.confidence_notes
 
 
 def test_provider_quality_policy_report_has_expected_cases_and_no_wiring() -> None:
@@ -117,7 +119,8 @@ def test_provider_quality_policy_report_has_expected_cases_and_no_wiring() -> No
     assert data["checks"]["fresh_aod_is_primary"] is True
     assert data["checks"]["pm_is_fallback_when_aod_rejected"] is True
     assert data["checks"]["pm_context_distance_not_fallback"] is True
-    assert data["checks"]["score_modifier_always_neutral"] is True
+    assert data["checks"]["targetless_policy_score_modifier_neutral"] is True
+    assert data["checks"]["forced_flag_marks_formula_enabled"] is True
     assert data["blockers"] == []
     assert cases["fresh_viirs_aod_local_pm"]["primary_source"] == "aod"
     assert cases["aod_high_uncertainty_pm_local_fallback"]["primary_source"] == "particulate"
@@ -133,6 +136,7 @@ def test_checked_in_provider_quality_policy_report_matches_renderer() -> None:
     assert "aod_openaq_provider_quality_policy_hardened" in text
     assert "Ready for default-off experiment: `True`" in text
     assert "Ready for default-on: `False`" in text
+    assert "Scoring formula implemented: `True`" in text
     assert "fresh_aod_owns_column_aerosol_when_policy_eligible" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")
 

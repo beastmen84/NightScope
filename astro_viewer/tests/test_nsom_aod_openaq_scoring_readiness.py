@@ -36,10 +36,10 @@ def test_aod_openaq_scoring_is_not_ready_and_blockers_are_explicit() -> None:
     data = generate_aod_openaq_scoring_readiness_data()
     decisions = {item["decision_id"]: item for item in data["policy_decisions"]}
 
-    assert data["readiness"]["verdict"] == "aod_openaq_policy_hardened_ready_for_default_off_experiment"
+    assert data["readiness"]["verdict"] == "aod_openaq_default_off_scoring_experiment_available"
     assert data["readiness"]["ready_for_default_on"] is False
     assert data["readiness"]["ready_for_default_off_experiment"] is True
-    assert data["readiness"]["score_formula_implemented"] is False
+    assert data["readiness"]["score_formula_implemented"] is True
     assert data["readiness"]["experimental_aerosol_scoring_default"] is False
     assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
 
@@ -75,7 +75,7 @@ def test_freshness_and_source_precedence_are_characterized() -> None:
     assert data["checks"]["aod_primary_pm_fallback"] is True
 
 
-def test_target_sensitivity_is_directional_without_score_effect() -> None:
+def test_target_sensitivity_is_directional_without_default_score_effect() -> None:
     data = generate_aod_openaq_scoring_readiness_data()
     by_class = {row["target_class"]: row for row in data["target_sensitivity_rows"]}
 
@@ -85,18 +85,27 @@ def test_target_sensitivity_is_directional_without_score_effect() -> None:
     assert by_class["planet"]["sensitivity"] > by_class["moon"]["sensitivity"]
     assert by_class["galaxy"]["penalty_cap"] == 12.0
     assert by_class["moon"]["penalty_cap"] == 1.0
-    assert all(row["scoring_status"] == "characterized only; no score effect" for row in by_class.values())
+    assert all(
+        row["scoring_status"] == "default-off formula input; no default score effect"
+        for row in by_class.values()
+    )
     assert data["checks"]["target_sensitivity_order_characterized"] is True
 
 
-def test_aerosol_score_neutrality_holds_even_with_experimental_flag_on() -> None:
+def test_aerosol_default_runtime_is_neutral_and_flag_on_has_target_specific_effect() -> None:
     data = generate_aod_openaq_scoring_readiness_data()
 
-    assert data["checks"]["aerosol_modifier_score_neutral"] is True
+    assert data["checks"]["aerosol_modifier_default_runtime_neutral"] is True
+    assert data["checks"]["aerosol_experiment_has_target_specific_effect"] is True
+    assert data["checks"]["aerosol_experiment_uses_single_source"] is True
+    assert data["checks"]["recommendation_confidence_not_in_formula"] is True
     for row in data["score_neutrality_rows"]:
         assert row["flag_off_modifier"] == 0.0
-        assert row["flag_on_modifier"] == 0.0
-        assert row["adjusted_score_delta"] == 0
+        assert row["default_adjusted_score_delta"] == 0
+        assert "confidence" not in row["experimental_breakdown"]["formula"].lower()
+    galaxy = next(row for row in data["score_neutrality_rows"] if row["case"] == "galaxy_high_aerosol")
+    moon = next(row for row in data["score_neutrality_rows"] if row["case"] == "moon_protected")
+    assert galaxy["flag_on_modifier"] < moon["flag_on_modifier"] <= 0.0
 
 
 def test_source_markers_and_runtime_qml_wiring_are_clean() -> None:
@@ -115,9 +124,10 @@ def test_checked_in_aod_openaq_readiness_report_matches_renderer() -> None:
     assert report.exists()
     text = report.read_text(encoding="utf-8")
     assert "# NSOM AOD/OpenAQ Scoring Readiness" in text
-    assert "aod_openaq_policy_hardened_ready_for_default_off_experiment" in text
+    assert "aod_openaq_default_off_scoring_experiment_available" in text
     assert "Ready for default-on: `False`" in text
     assert "Ready for default-off experiment: `True`" in text
+    assert "Score formula implemented: `True`" in text
     assert "confidence_metadata_policy" in text
-    assert "Provider freshness and availability remain metadata" in text
+    assert "RecommendationConfidence remains metadata" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

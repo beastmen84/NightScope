@@ -6,6 +6,7 @@ from pathlib import Path
 
 from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.services.aerosol_provider_quality_policy import (
+    AEROSOL_SCORING_FORMULA_IMPLEMENTED,
     AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS,
     AOD_MAX_UNCERTAINTY_FOR_POLICY,
     AOD_MAX_VALUE_FOR_POLICY,
@@ -63,17 +64,20 @@ def generate_aod_openaq_provider_quality_policy_data() -> dict[str, object]:
             "verdict": "aod_openaq_provider_quality_policy_hardened",
             "ready_for_default_off_experiment": True,
             "ready_for_default_on": False,
-            "scoring_formula_enabled": False,
+            "scoring_formula_implemented": AEROSOL_SCORING_FORMULA_IMPLEMENTED,
+            "scoring_formula_enabled": AEROSOL_SCORING_FORMULA_IMPLEMENTED
+            and ObservationConditionFeatureFlags().experimental_aerosol_scoring,
             "current_runtime_score_effect": 0.0,
             "experimental_aerosol_scoring_default": ObservationConditionFeatureFlags().experimental_aerosol_scoring,
             "recommended_next_step": (
-                "Review 1.14.8, then implement a default-off aerosol scoring "
-                "experiment if the provider-quality policy is accepted."
+                "Review 1.14.9, then audit/calibrate the default-off aerosol "
+                "scoring experiment before any default-on switch."
             ),
             "reason": (
                 "AOD QA/uncertainty, OpenAQ locality and source double-counting "
-                "now have explicit policy gates. The gates classify provider "
-                "inputs for future experiments but keep all current scores neutral."
+                "have explicit policy gates. Target-specific AOD/OpenAQ scoring "
+                "now exists only behind the default-off experimental flag, while "
+                "the provider-quality policy itself remains target-neutral."
             ),
         },
         "thresholds": {
@@ -106,8 +110,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only policy hardening step resolves the AOD/OpenAQ "
             "provider-quality decisions that blocked a future default-off aerosol "
-            "scoring experiment. It does not enable scoring, does not change "
-            "Planner, Home, Best Object, Advanced Observing, Sky Compass, "
+            "scoring experiment. It does not enable scoring by default, does not "
+            "change Planner, Home, Best Object, Advanced Observing, Sky Compass, "
             "Detail/Object, Equipment or QML, and does not add network calls, "
             "automatic logging or runtime file writes."
         ),
@@ -117,6 +121,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Ready for default-off experiment: `{readiness['ready_for_default_off_experiment']}`.",
         f"- Ready for default-on: `{readiness['ready_for_default_on']}`.",
+        f"- Scoring formula implemented: `{readiness['scoring_formula_implemented']}`.",
         f"- Scoring formula enabled: `{readiness['scoring_formula_enabled']}`.",
         f"- Current runtime score effect: `{readiness['current_runtime_score_effect']}`.",
         f"- Experimental aerosol scoring default: `{readiness['experimental_aerosol_scoring_default']}`.",
@@ -200,8 +205,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "aerosol-column source for a future experiment; OpenAQ PM can "
                 "only be local fallback/context when AOD is not policy-eligible. "
                 "VIIRS sky background, weather transparency and Moon geometry "
-                "remain separate owners. Scoring stays disabled until a later "
-                "default-off implementation step."
+                "remain separate owners. The target-specific formula is available "
+                "only through the explicit default-off experiment flag."
             ),
         ]
     )
@@ -342,9 +347,12 @@ def _checks(cases: tuple[dict[str, object], ...], static_checks: dict[str, objec
         "pm_context_distance_not_fallback": by_case["missing_aod_context_distance_pm"]["primary_source"] == "none",
         "distant_pm_rejected": by_case["missing_aod_distant_pm"]["primary_source"] == "none",
         "unknown_distance_pm_rejected": by_case["missing_aod_unknown_distance_pm"]["primary_source"] == "none",
-        "score_modifier_always_neutral": all(
+        "targetless_policy_score_modifier_neutral": all(
             case["policy"]["score_modifier"] == 0.0
-            and case["policy"]["scoring_formula_enabled"] is False
+            for case in cases
+        ),
+        "forced_flag_marks_formula_enabled": all(
+            case["policy"]["scoring_formula_enabled"] is True
             for case in cases
         ),
         "double_counting_policy_present": all(

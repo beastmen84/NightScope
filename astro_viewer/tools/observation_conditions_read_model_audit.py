@@ -8,6 +8,7 @@ from astro_viewer.app.models.nsom import nsom_to_json_compatible
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
+import astro_viewer.app.services.observation_conditions_service as observation_conditions_module
 from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionInputs,
     ObservationConditionsService,
@@ -486,13 +487,19 @@ def _controller_static_checks() -> dict[str, object]:
 
 def _service_static_checks() -> dict[str, object]:
     source = inspect.getsource(ObservationConditionsService)
+    module_source = inspect.getsource(observation_conditions_module)
     return {
         "returns_conditioned_target": "return ConditionedTarget(" in source,
         "conditioned_pollution_context_available": "def condition_deep_sky_pollution_context" in source,
         "uses_dataclass_replace_for_adjusted_copy": "replace(" in source,
         "tracks_condition_flags": "condition_flags" in source,
-        "aod_pm_modifiers_neutral": "aod_modifier=0.0" in source and "pm25_modifier=0.0" in source,
-        "experimental_flags_default_off": "experimental_aerosol_scoring: bool = False" in source,
+        "aod_pm_modifiers_neutral": (
+            "experimental_aerosol_scoring: bool = False" in module_source
+            and "aod_modifier = 0.0" in source
+            and "pm25_modifier = 0.0" in source
+            and "aerosol_scoring:flag_off" in source
+        ),
+        "experimental_flags_default_off": "experimental_aerosol_scoring: bool = False" in module_source,
     }
 
 

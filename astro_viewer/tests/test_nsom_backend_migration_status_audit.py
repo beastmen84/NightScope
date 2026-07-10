@@ -56,6 +56,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md",
             "docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md",
             "docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md",
+            "docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md",
         ],
     }
 
@@ -145,8 +146,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.8, then implement a default-off aerosol scoring "
-        "experiment if accepted"
+        "Review 1.14.9, then run aerosol scoring calibration/default-on "
+        "readiness before enabling provider-backed AOD/OpenAQ by default"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -234,6 +235,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[43] == "1.13.7 Rollback cleanup policy audit"
     assert sequence[44] == "Review 1.13.7"
     assert sequence[45] == "1.13.8 Remove internal legacy rollback paths"
+    assert sequence[46] == "1.14.9 AOD/OpenAQ default-off scoring experiment"
+    assert sequence[47] == "Review 1.14.9"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:

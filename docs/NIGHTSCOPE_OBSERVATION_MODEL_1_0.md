@@ -52,16 +52,23 @@ Planner-specific `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED` switch. The
 generic condition feature flag remains default-off so non-Planner consumers and
 provider-backed AOD/OpenAQ scoring remain separate.
 As of 1.14.7, `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` records that
-provider-backed aerosol inputs are not ready for scoring. Fresh NASA AOD is
-characterized as the primary future aerosol-column source and OpenAQ PM2.5/PM10
-as fallback/context, but formal AOD QA/uncertainty, OpenAQ locality and
-double-counting policies must be accepted before any default-off scoring path.
+provider-backed aerosol inputs needed provider-quality review before scoring.
+Fresh NASA AOD is characterized as the primary future aerosol-column source and
+OpenAQ PM2.5/PM10 as fallback/context, but formal AOD QA/uncertainty, OpenAQ
+locality and double-counting policies had to be accepted before any default-off
+scoring path.
 As of 1.14.8, `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` accepts those
 policies as explicit gates for a future default-off experiment. AOD requires
 finite value, useful freshness, uncertainty threshold, QA raw traceability and
 local-pixel support; OpenAQ PM requires local representativeness and remains
-fallback/context only. Scoring remains disabled and confidence remains parallel
-metadata.
+fallback/context only. Confidence remains parallel metadata.
+As of 1.14.9, `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md`
+implements the provider-backed aerosol formula behind
+`ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`. AOD is
+primary when policy-eligible, local OpenAQ PM is weaker fallback, freshness is
+an explicit formula input, and RecommendationConfidence remains outside the
+score path. The flag remains `False` by default, so runtime behaviour is
+unchanged.
 `AdvancedObservingService` still keeps
 `advancedScores` as the legacy-compatible visible/consumer contract, while the
 default-on NSOM projection is exposed separately through the read-only
@@ -2230,8 +2237,11 @@ A future `ObserverCapabilityService` should own:
 - Status 1.14.8: `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` hardens those
   decisions into explicit gates. Policy-eligible AOD can be the future primary
   aerosol-column source; OpenAQ PM can only be local fallback/context; VIIRS,
-  weather transparency and Moon geometry stay separate owners. No score formula
-  is enabled.
+  weather transparency and Moon geometry stay separate owners.
+- Status 1.14.9: `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md`
+  implements the default-off formula. It applies only with
+  `experimental_aerosol_scoring=True`, uses AOD primary / OpenAQ PM fallback,
+  and keeps RecommendationConfidence outside the score formula.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2263,8 +2273,11 @@ A future `ObserverCapabilityService` should own:
 - Status 1.14.7: AOD/OpenAQ readiness is documented separately and remains
   blocked from scoring pending provider-quality and double-counting policy.
 - Status 1.14.8: provider-quality and double-counting policies are accepted for
-  a future default-off aerosol experiment, while the current modifier remains
-  `0.0`.
+  a future default-off aerosol experiment.
+- Status 1.14.9: the default-off aerosol scoring experiment is implemented in
+  `ObservationConditionsService`. Default runtime inputs keep
+  `experimental_aerosol_scoring=False`, so current modifiers remain `0.0`
+  unless the internal flag is explicitly enabled.
 
 ### Step 7: Advanced score cleanup
 
@@ -2315,13 +2328,18 @@ A future `ObserverCapabilityService` should own:
   global `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring`
   default remains `False`.
 - Status update for 1.14.7: `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` records
-  that provider-backed aerosol scoring is not ready. AOD/PM freshness and target
-  sensitivity are characterized, but `experimental_aerosol_scoring` remains
-  default-off and aerosol modifiers remain `0.0`.
+  that provider-backed aerosol scoring was not ready yet. AOD/PM freshness and
+  target sensitivity were characterized, while `experimental_aerosol_scoring`
+  remained default-off and aerosol modifiers remained `0.0`.
 - Status update for 1.14.8: `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md`
   records the accepted provider-quality gates. `experimental_aerosol_scoring`
-  still remains default-off, the formula is not implemented, and aerosol
-  modifiers remain `0.0`.
+  remains default-off, and default runtime aerosol modifiers remain `0.0`.
+- Status update for 1.14.9:
+  `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md` records the
+  implemented target-specific aerosol formula. AOD is primary when
+  policy-eligible, local OpenAQ PM is a weaker fallback, confidence remains
+  metadata, and the formula is only active when the internal default-off flag is
+  explicitly enabled.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2427,13 +2445,13 @@ A future `ObserverCapabilityService` should own:
 
 ## 13. Recommendation
 
-Do not enable AOD/OpenAQ scoring in production yet.
+Do not enable AOD/OpenAQ scoring by default yet.
 
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.8 provider-quality policy;
-3. if accepted, implement a default-off aerosol scoring experiment;
+2. review the 1.14.9 default-off aerosol scoring experiment;
+3. run calibration/default-on readiness before any runtime switch;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.
