@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.16.0`:
+Current runtime status for `1.16.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload use NSOM-backed paths by default.
@@ -26,6 +26,9 @@ Current runtime status for `1.16.0`:
 - `1.16.0` starts the visible UI follow-up only on Weather condition-data
   semantics: AOD/OpenAQ labels and freshness are clearer, but no QML surface
   exposes NSOM ranking explanations.
+- `1.16.1` hardens provider refresh semantics without changing NSOM scoring:
+  VIIRS is revalidated every 7 days with stale fallback and the manual Weather
+  refresh schedules cache-aware VIIRS/AOD checks.
 
 ## Core Diagram
 

@@ -246,6 +246,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             fake_weather_service.force_refresh_values.clear()
 
             controller._schedule_viirs_sky_quality_refresh = Mock()
+            controller._schedule_nasa_aod_refresh = Mock()
             controller.refreshWeatherNow()
 
             self.assertTrue(_wait_for_weather_refresh(controller))
@@ -255,7 +256,8 @@ class ReleaseScenarioTests(unittest.TestCase):
                 controller.weatherStatus,
                 "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili.",
             )
-            controller._schedule_viirs_sky_quality_refresh.assert_not_called()
+            controller._schedule_viirs_sky_quality_refresh.assert_called_once_with()
+            controller._schedule_nasa_aod_refresh.assert_called_once_with()
 
     def test_automatic_weather_refresh_uses_cache_friendly_mode_and_clears_failure(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:

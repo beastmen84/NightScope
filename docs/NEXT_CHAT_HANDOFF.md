@@ -2,9 +2,10 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente: `1.16.0`
+Versione corrente: `1.16.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `9debe8f Document 1.16.0 Windows distribution build`
 - `a814c7c Release 1.16.0 Weather condition semantics`
 - `efaf29c Clarify visible UI readiness meaning`
 - `7e42f12 Document NSOM QML boundary audit`
@@ -31,8 +32,12 @@ Il closeout dichiara:
 - UI/QML non toccata dal closeout backend `1.15.2`;
 - `1.16.0` avvia solo un passaggio semantico Meteo su AOD/OpenAQ/freshness,
   senza pannelli NSOM o spiegazioni visibili del ranking;
+- `1.16.1` aggiunge solo hardening della cache VIIRS e del refresh provider,
+  senza modificare scoring, ranking o payload QML;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
-- nessuna rete, logging automatico o scrittura runtime introdotta.
+- il closeout backend non introduce rete, logging automatico o scritture
+  runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
+  vengono controllati.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -59,7 +64,8 @@ Stato corrente:
 
 - `ObservationConditionFeatureFlags.experimental_aerosol_scoring = True`;
 - formula e pesi non sono stati cambiati nello switch default-on;
-- nessun nuovo fetch provider e nessuna nuova chiamata rete;
+- lo switch scoring non introduce fetch provider; `1.16.1` fa invece
+  schedulare al comando Meteo `Aggiorna` i normali controlli cache-aware;
 - AOD e OpenAQ entrano nello score solo quando i dati sono gia' presenti e
   passano i gate provider-quality;
 - AOD e OpenAQ non sono additivi: AOD e' primary quando eligible, OpenAQ PM e'
@@ -69,6 +75,17 @@ Stato corrente:
 - In `1.16.0` la pagina Meteo presenta AOD come `Aerosol atmosferico` e
   OpenAQ come `Particolato locale`, con freschezza visibile; questo resta copy
   di dati condizioni, non una UI NSOM-aware.
+
+Cache provider in `1.16.1`:
+
+- VIIRS Black Marble usa stati `missing`, `fresh` e `stale`;
+- `SkyQualityEstimate.updated_at` registra l'ultimo recupero VIIRS riuscito;
+- la rivalidazione VIIRS avviene dopo 7 giorni;
+- un valore stale resta subito disponibile e viene mantenuto se NASA fallisce;
+- AOD resta separato con cache memory+JSON e TTL di 18 ore;
+- il pulsante Meteo `Aggiorna` schedula entrambi i controlli senza bypassare
+  cache VIIRS fresca o TTL AOD;
+- i file satellitari originali restano temporanei e non sono conservati.
 
 Attenzione importante:
 
@@ -147,6 +164,8 @@ Questi non bloccano il backend NSOM chiuso:
 ## Commit Rilevanti Prima Di Questo Aggiornamento
 
 ```text
+9debe8f Document 1.16.0 Windows distribution build
+a814c7c Release 1.16.0 Weather condition semantics
 efaf29c Clarify visible UI readiness meaning
 7e42f12 Document NSOM QML boundary audit
 d1da051 Evaluate catalogue raw score policy
@@ -166,27 +185,32 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo `1.16.0`:
+Dopo `1.16.1`:
 
 ```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/light_pollution_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_viirs_cache_policy.py astro_viewer/tests/test_refresh_lifecycle.py astro_viewer/tests/test_release_scenarios.py
 .\.venv\Scripts\python.exe -m compileall astro_viewer
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_openaq_atmosphere.py astro_viewer/tests/test_phase6_real_data.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_viirs_cache_policy.py astro_viewer/tests/test_refresh_lifecycle.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_phase6_real_data.py
 .\.venv\Scripts\python.exe -m pytest -q -n auto
-.\packaging\build_windows.ps1
-$p = Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList --qml-smoke-test -WorkingDirectory .\dist\NightScope -WindowStyle Hidden -PassThru -Wait
-$p.ExitCode
 ```
 
 Risultati:
 
+- ruff focused: passed;
 - compileall: passed;
 - QML smoke: passed;
-- focused Weather/provider/release tests: `123 passed, 7 subtests passed`;
-- full suite: `616 passed, 7 subtests passed`;
-- PyInstaller Windows dist rebuild: passed;
-- bundled `VERSION`: `1.16.0`;
-- packaged QML smoke: exit code `0`.
+- focused VIIRS/refresh/release tests: `103 passed, 7 subtests passed`;
+- full suite: `622 passed, 7 subtests passed`.
+
+Distribuzione Windows:
+
+- l'ultima `dist/NightScope` rigenerata resta la `1.16.0`, verificata nel commit
+  documentale `9debe8f`;
+- la `dist` non e' stata rigenerata automaticamente per `1.16.1`, per non
+  sostituire `nightscope.db` e i sidecar runtime usati nel confronto visuale;
+- rigenerarla solo su richiesta esplicita, valutando prima la conservazione dei
+  dati runtime correnti.
 
 ## Ambiente `.venv` Verificato
 
@@ -212,7 +236,7 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Fare una review rapida di `1.16.0`.
+1. Fare una review rapida di `1.16.1`.
 2. Prossimo capitolo consigliato:
    - continuare la verifica UI un pezzo alla volta dopo WeatherPage, senza
      cambiare scoring o ranking salvo prompt esplicito.

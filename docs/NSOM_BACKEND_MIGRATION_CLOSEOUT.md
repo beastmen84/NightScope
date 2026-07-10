@@ -46,6 +46,15 @@ freshness more clearly. This does not add NSOM ranking explanations, does not
 change the Home/Planner/Best Object/Sky Compass payload contracts and does not
 change scoring formulas or provider refresh behavior.
 
+## 1.16.1 VIIRS Cache Follow-Up
+
+`1.16.1` is a provider-cache hardening step outside NSOM ranking policy. NASA
+Black Marble VIIRS cache entries are revalidated every 7 days while stale data
+remains available on lookup failure. The Weather `Aggiorna` command schedules
+cache-aware VIIRS and AOD checks; AOD keeps its 18-hour TTL. This changes
+provider refresh timing only and does not change scoring formulas, ranking,
+confidence weighting or QML payload contracts.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

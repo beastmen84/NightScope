@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
+from astro_viewer.app.services.light_pollution_service import ViirsCacheState
 from astro_viewer.app.services.refresh_lifecycle import (
     RefreshDomain,
     RefreshManager,
@@ -198,6 +199,8 @@ class RefreshManagerTest(unittest.TestCase):
         controller._viirs_sky_quality_running = False
         controller._sky_quality = None
         controller._light_pollution_status = ""
+        controller._light_pollution_service = Mock()
+        controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.MISSING
         controller._refresh_manager = RefreshManager()
         controller._astronomy_engine = _FakeAstronomyEngine()
         controller._refresh_equipment_recommendations_for_current_objects = lambda: None
@@ -223,6 +226,68 @@ class RefreshManagerTest(unittest.TestCase):
         )
 
         self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
+
+    def test_fresh_viirs_cache_skips_background_lookup(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+        controller._earthdata_credentials_state = EarthdataCredentialState(
+            username="earth-user",
+            configured=True,
+            secure_store_available=True,
+            connection_verified=True,
+        )
+        controller._viirs_sky_quality_running = False
+        controller._light_pollution_status = "old status"
+        controller._light_pollution_service = Mock()
+        controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.FRESH
+        controller._refresh_manager = RefreshManager()
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            controller._schedule_viirs_sky_quality_refresh()
+
+        thread_cls.assert_not_called()
+        self.assertFalse(controller._viirs_sky_quality_running)
+        self.assertEqual(controller._light_pollution_status, "")
+        self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
+
+    def test_stale_viirs_refresh_failure_reports_cached_fallback(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+        controller._earthdata_credentials_state = EarthdataCredentialState(
+            username="earth-user",
+            configured=True,
+            secure_store_available=True,
+            connection_verified=True,
+        )
+        controller._viirs_sky_quality_running = False
+        controller._light_pollution_status = ""
+        controller._light_pollution_service = Mock()
+        controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.STALE
+        controller._light_pollution_service.remote_sky_quality.return_value = None
+        controller._refresh_manager = RefreshManager()
+        emissions: list[tuple[str, object, str]] = []
+        controller._viirsSkyQualityFinished.connect(
+            lambda location_key, quality, message: emissions.append((location_key, quality, message))
+        )
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            controller._schedule_viirs_sky_quality_refresh()
+            run_lookup = thread_cls.call_args.kwargs["target"]
+            run_lookup()
+
+        self.assertEqual(controller._light_pollution_status, "Verifica aggiornamenti VIIRS NASA...")
+        self.assertEqual(
+            emissions,
+            [
+                (
+                    "9.030:38.740:addis ababa",
+                    None,
+                    "Aggiornamento VIIRS non disponibile; uso dati in cache.",
+                )
+            ],
+        )
 
 
 class _FakeAstronomyEngine:

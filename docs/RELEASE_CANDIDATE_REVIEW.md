@@ -126,7 +126,9 @@ VIIRS/light pollution:
 
 - Night weather windows are hard-coded around evening/morning hours and vary
   slightly by service.
-- VIIRS cache freshness is source-based, not age-based.
+- VIIRS cache freshness uses a 7-day revalidation interval; the interval is a
+  product-cadence policy rather than a guarantee that NASA has published a new
+  monthly composite.
 - Moon penalties use illumination only, not Moon altitude or angular distance.
 - Equipment recommendations assume catalog focal length, aperture and apparent
   field values are trustworthy.
@@ -275,8 +277,6 @@ Untested or intentionally tool-like:
 
 - Some active-profile CRUD/delete/rename edge cases remain under-covered.
 - Some profile repository mutation paths are under-covered.
-- VIIRS remote failure, stale cache and age policy paths are only partially
-  covered.
 - Controller-level integration of Moon/light-pollution presentation filtering is
   weaker than service-level coverage.
 - QML warning behavior is covered only by smoke-level validation, not granular
@@ -289,7 +289,6 @@ Untested or intentionally tool-like:
 - Deleting assigned telescope/eyepiece/Barlow from active profile.
 - Controller-level high-Moon ranking: galaxy vs globular vs open cluster.
 - Controller-level blocking-weather warning state matching planner blocking.
-- VIIRS cache freshness and remote failure fallback.
 
 ## Long-Term Maintainability
 

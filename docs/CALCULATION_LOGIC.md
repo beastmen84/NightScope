@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.16.0`, NightScope keeps backend recommendation inputs separated by
+As of `1.16.1`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -576,10 +576,22 @@ Radiance-to-Bortle conversion:
 
 Sky-brightness-to-Bortle conversion is also implemented for CSV/local sources.
 
+Cache policy:
+
+- VIIRS cache state is `missing`, `fresh` or `stale` for the active rounded
+  location key.
+- `SkyQualityEstimate.updated_at` records the last successful VIIRS retrieval.
+- A VIIRS value is fresh for 7 days. After that interval it remains available
+  to the UI and backend while a background lookup searches for a newer monthly
+  product.
+- A failed lookup preserves the stale VIIRS value; only a successful lookup
+  replaces it and resets `updated_at`.
+- The Weather page `Aggiorna` command schedules this cache-aware check and does
+  not force a network request while the VIIRS entry is fresh.
+
 Known limitations:
 
-- No general age-based TTL for sky-quality cache entries.
-- A cached NASA VIIRS source is treated as fresh if present.
+- Non-VIIRS local sky-quality estimates have no general age-based TTL.
 - Offline estimates are coarse and should not be treated as measured data.
 - VIIRS radiance is converted through fixed thresholds, not calibrated against
   local horizon, terrain or transient lighting.
@@ -606,6 +618,8 @@ Access flow:
 - `AppController` schedules the provider in the background when both a valid
   active observing location and a successful Earthdata connection test are
   available.
+- The Weather page `Aggiorna` command also schedules an AOD lookup, but the
+  provider reuses a processed cache entry while its 18-hour TTL is valid.
 - `earthaccess.login(..., persist=False)` is retried with backoff because URS
   token creation can time out.
 - Long-lived manually generated Earthdata tokens are not required by the default

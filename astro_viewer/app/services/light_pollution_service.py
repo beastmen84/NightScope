@@ -10,9 +10,10 @@ import tempfile
 from collections.abc import Iterable
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
+from enum import Enum
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -64,6 +65,13 @@ LEGACY_CACHE_SOURCES = {
 LEGACY_CACHE_MARKERS = (
     "pending World Atlas import",
 )
+VIIRS_CACHE_RECHECK_INTERVAL = timedelta(days=7)
+
+
+class ViirsCacheState(str, Enum):
+    MISSING = "missing"
+    FRESH = "fresh"
+    STALE = "stale"
 
 
 class LightPollutionService:
@@ -74,8 +82,13 @@ class LightPollutionService:
         repository: SkyQualityRepository,
         dataset_path: Path | None = None,
         earthdata_credentials: EarthdataCredentialStore | None = None,
+        *,
+        clock: Callable[[], datetime] | None = None,
+        viirs_cache_recheck_interval: timedelta = VIIRS_CACHE_RECHECK_INTERVAL,
     ):
         self._repository = repository
+        self._clock = clock or (lambda: datetime.now(UTC))
+        self._viirs_cache_recheck_interval = viirs_cache_recheck_interval
         dataset_paths = _candidate_dataset_paths(dataset_path)
         self._remote_providers: list[LightPollutionProvider] = [
             NasaViirsBlackMarbleProvider(earthdata_credentials),
@@ -89,7 +102,7 @@ class LightPollutionService:
     def sky_quality(self, location: ObserverLocation) -> SkyQuality:
         key = self._location_key(location)
         cached = self._repository.get(key)
-        if cached and not self._is_stale_cache(cached):
+        if cached and not self._is_legacy_cache(cached):
             return self._to_model(cached)
 
         quality = self._provider_quality(location)
@@ -100,14 +113,29 @@ class LightPollutionService:
             quality.sky_brightness,
             quality.source,
             quality.confidence,
-            datetime.now(UTC).isoformat(),
+            self._now().isoformat(),
         )
         return quality
+
+    def viirs_cache_state(self, location: ObserverLocation) -> ViirsCacheState:
+        cached = self._repository.get(self._location_key(location))
+        return self._viirs_cache_state(cached)
+
+    def _viirs_cache_state(self, cached: dict | None) -> ViirsCacheState:
+        if not cached or not self._is_viirs_cache(cached):
+            return ViirsCacheState.MISSING
+        updated_at = _parse_cache_datetime(cached.get("updated_at"))
+        if updated_at is None:
+            return ViirsCacheState.STALE
+        age = self._now() - updated_at
+        if timedelta(0) <= age <= self._viirs_cache_recheck_interval:
+            return ViirsCacheState.FRESH
+        return ViirsCacheState.STALE
 
     def remote_sky_quality(self, location: ObserverLocation) -> SkyQuality | None:
         key = self._location_key(location)
         cached = self._repository.get(key)
-        if cached and self._is_viirs_cache(cached):
+        if cached and self._viirs_cache_state(cached) is ViirsCacheState.FRESH:
             return self._to_model(cached)
 
         for provider in self._remote_providers:
@@ -125,10 +153,16 @@ class LightPollutionService:
                 quality.sky_brightness,
                 quality.source,
                 quality.confidence,
-                datetime.now(UTC).isoformat(),
+                self._now().isoformat(),
             )
             return quality
         return None
+
+    def _now(self) -> datetime:
+        now = self._clock()
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=UTC)
+        return now.astimezone(UTC)
 
     def _provider_quality(self, location: ObserverLocation) -> SkyQuality:
         for provider in self._providers:
@@ -160,13 +194,25 @@ class LightPollutionService:
         )
 
     @staticmethod
-    def _is_stale_cache(row: dict) -> bool:
+    def _is_legacy_cache(row: dict) -> bool:
         source = row.get("source") or ""
         return source in LEGACY_CACHE_SOURCES or any(marker in source for marker in LEGACY_CACHE_MARKERS)
 
     @staticmethod
     def _is_viirs_cache(row: dict) -> bool:
         return "NASA Black Marble VNP46A3" in (row.get("source") or "")
+
+
+def _parse_cache_datetime(value: object) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
 
 
 class LightPollutionProvider(Protocol):

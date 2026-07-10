@@ -30,7 +30,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.16.0`.
+Versione corrente: `1.16.1`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -55,6 +55,11 @@ ricevuto un primo passaggio semantico sui dati condizioni AOD/OpenAQ, senza
 nuovi pannelli NSOM e senza spiegazioni visibili del ranking. I punteggi display
 legacy/base restano campi di compatibilita' dove servono alla presentazione.
 Eventuali spiegazioni NSOM complete sono lavoro futuro di design.
+
+In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
+il valore salvato resta disponibile durante il controllo e in caso di errore
+NASA. Il pulsante Meteo `Aggiorna` avvia anche i controlli cache-aware VIIRS e
+AOD; AOD mantiene la propria TTL di 18 ore.
 
 ## Requisiti
 
@@ -160,7 +165,12 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 
 All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento.
 
-I sidecar runtime `user_preferences.json` e `location_cache.json` vivono nella stessa cartella di `nightscope.db`. Copiando la cartella NightScope completa si preservano profili, osservazioni, cache e preferenze. La password Earthdata resta nel vault di sistema e va reinserita sul nuovo computer.
+I sidecar runtime `user_preferences.json`, `location_cache.json` e
+`nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori
+VIIRS elaborati sono invece nella tabella `SkyQualityEstimate`. Copiando la
+cartella NightScope completa si preservano profili, osservazioni, cache e
+preferenze. La password Earthdata resta nel vault di sistema e va reinserita
+sul nuovo computer.
 
 ## Dataset locali
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.16.1 - 2026-07-10
+
+- Aggiunta una policy esplicita per la cache NASA Black Marble VIIRS: stati
+  `missing`, `fresh` e `stale`, con rivalidazione in background ogni 7 giorni.
+- Mantenuto il dato VIIRS stale come fallback immediato mentre viene cercato un
+  prodotto mensile piu' recente; un errore NASA non cancella la stima salvata.
+- Usato `SkyQualityEstimate.updated_at` come istante dell'ultimo recupero VIIRS
+  riuscito, senza migrazioni o nuove colonne database.
+- Esteso il pulsante Meteo `Aggiorna` ai controlli cache-aware VIIRS e AOD: una
+  cache VIIRS fresca evita la rete e AOD conserva la propria TTL di 18 ore.
+- Aggiunti test per cache VIIRS fresca, scaduta, malformata, rivalidazione,
+  fallback su errore e integrazione del refresh manuale.
+- Nessuna modifica a scoring, ranking NSOM, formule AOD/OpenAQ o payload QML.
+
 ## NightScope 1.16.0 - 2026-07-10
 
 - Avviato il primo passaggio UI Meteo post-backend NSOM senza introdurre una

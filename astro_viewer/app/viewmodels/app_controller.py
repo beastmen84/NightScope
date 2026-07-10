@@ -51,7 +51,7 @@ from astro_viewer.app.services.earthdata_credentials import (
 )
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModelBuilder
-from astro_viewer.app.services.light_pollution_service import LightPollutionService
+from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
     LocationDetectionResult,
@@ -1002,6 +1002,8 @@ class AppController(QObject):
     @Slot()
     def refreshWeatherNow(self) -> None:
         self._start_weather_refresh(force_refresh=True)
+        self._schedule_viirs_sky_quality_refresh()
+        self._schedule_nasa_aod_refresh()
 
     @Slot(bool)
     def setAutoDetectLocationOnStartup(self, enabled: bool) -> None:
@@ -2752,7 +2754,12 @@ class AppController(QObject):
             self._light_pollution_status = ""
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
-        if self._sky_quality and "NASA Black Marble VNP46A3" in self._sky_quality.source:
+        location = self._location
+        if location is None:
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
+            return
+        cache_state = self._light_pollution_service.viirs_cache_state(location)
+        if cache_state is ViirsCacheState.FRESH:
             self._light_pollution_status = ""
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
@@ -2761,23 +2768,35 @@ class AppController(QObject):
             RefreshReason.SKY_QUALITY_TTL_EXPIRED,
             (RefreshDomain.SKY_QUALITY,),
         )
-        location = self._location
         location_key = LightPollutionService._location_key(location)
         self._viirs_sky_quality_running = True
-        self._light_pollution_status = "Recupero dati VIIRS NASA..."
+        self._light_pollution_status = (
+            "Verifica aggiornamenti VIIRS NASA..."
+            if cache_state is ViirsCacheState.STALE
+            else "Recupero dati VIIRS NASA..."
+        )
         self.weatherChanged.emit()
 
         def run_lookup() -> None:
             try:
                 quality = self._light_pollution_service.remote_sky_quality(location)
-                message = "Dati VIIRS NASA aggiornati." if quality else "Dati VIIRS NASA non disponibili; uso fonte locale."
+                if quality:
+                    message = "Dati VIIRS NASA aggiornati."
+                elif cache_state is ViirsCacheState.STALE:
+                    message = "Aggiornamento VIIRS non disponibile; uso dati in cache."
+                else:
+                    message = "Dati VIIRS NASA non disponibili; uso fonte locale."
                 self._viirsSkyQualityFinished.emit(location_key, quality, message)
             except Exception:
                 logger.warning("Unexpected VIIRS sky-quality refresh failure.", exc_info=True)
                 self._viirsSkyQualityFinished.emit(
                     location_key,
                     None,
-                    "Dati VIIRS NASA non disponibili; uso fonte locale.",
+                    (
+                        "Aggiornamento VIIRS non disponibile; uso dati in cache."
+                        if cache_state is ViirsCacheState.STALE
+                        else "Dati VIIRS NASA non disponibili; uso fonte locale."
+                    ),
                 )
 
         Thread(target=run_lookup, daemon=True).start()

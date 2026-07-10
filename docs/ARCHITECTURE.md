@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.16.0`:
+Current runtime status for `1.16.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -75,6 +75,8 @@ Current runtime status for `1.16.0`:
 - The first visible follow-up is limited to Weather page condition-data
   semantics: AOD is labelled as aerosol data, OpenAQ as local particulate data,
   freshness is visible, and no NSOM ranking explanation panel is exposed.
+- VIIRS cache hardening is active: cached Black Marble values are revalidated
+  every 7 days while stale data remains available if NASA cannot be reached.
 
 Runtime safety rules remain unchanged: no report tooling is wired into QML, no
 automatic report logging is performed, and scoring must not trigger provider
@@ -424,9 +426,12 @@ Sky-quality cache:
 
 - Owner: `LightPollutionService` plus `SkyQualityRepository`.
 - Key: rounded latitude, longitude and city.
-- Local cache is reused unless it is recognized as a legacy/stale source.
-- NASA Black Marble VIIRS cache entries are treated as fresh if present.
-- There is no general age-based TTL for sky-quality estimates.
+- Local/non-VIIRS cache is reused unless its source matches a legacy marker.
+- NASA Black Marble VIIRS entries have explicit `missing`, `fresh` and `stale`
+  states based on `SkyQualityEstimate.updated_at`.
+- VIIRS is revalidated after 7 days. A stale value is served immediately and
+  remains the fallback if the background NASA lookup fails.
+- Non-VIIRS local sky-quality estimates still have no general age-based TTL.
 
 NASA AOD cache:
 
@@ -438,6 +443,10 @@ NASA AOD cache:
   copy for the current process and a small JSON cache so app restarts can reuse
   recent processed results.
 - Downloaded VIIRS/MODIS granules are temporary and deleted after extraction.
+
+The Weather page `Aggiorna` command forces the weather forecast request and
+also schedules normal cache-aware VIIRS/AOD checks. It does not bypass a fresh
+VIIRS entry or the AOD 18-hour TTL.
 
 In-memory controller caches:
 
