@@ -119,8 +119,8 @@ class NasaAodProviderTests(unittest.TestCase):
         result = NasaAodResult.ok(
             product=VIIRS_MAIAC_AOD.product_id,
             extraction=NasaAodExtraction(0.658, 0.0185, 1089, "local_neighborhood", 3),
-            granule=_granule(VIIRS_MAIAC_AOD, "granule-valid", date(2026, 6, 22)),
-            retrieved_at=_clock(),
+            granule=_granule(VIIRS_MAIAC_AOD, "granule-valid", date.today()),
+            retrieved_at=datetime.now(UTC),
         )
 
         qml = result.to_qml()
@@ -129,6 +129,9 @@ class NasaAodProviderTests(unittest.TestCase):
         self.assertTrue(qml["hasData"])
         self.assertEqual(qml["aod550"], "0.658")
         self.assertEqual(qml["transparency"], "Velata")
+        self.assertEqual(qml["freshness"], "Misura di oggi")
+        self.assertEqual(qml["freshnessCategory"], "current")
+        self.assertFalse(qml["freshnessWarning"])
         self.assertEqual(qml["productLabel"], "VIIRS MAIAC")
         self.assertEqual(qml["methodLabel"], "Area locale 5x5")
         self.assertIn("3 pixel validi", qml["sourceDetail"])

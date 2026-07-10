@@ -22,6 +22,7 @@ class SkyQuality:
         data["viirsRadiance"] = self.viirs_radiance
         data["viirsObservationCount"] = self.viirs_observation_count
         data["hasViirsRadiance"] = self.viirs_radiance is not None
+        data["confidenceLabel"] = _localized_confidence(self.confidence)
         return data
 
 

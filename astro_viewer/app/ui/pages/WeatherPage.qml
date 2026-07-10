@@ -23,6 +23,11 @@ Item {
         return hour[key] + suffix
     }
 
+    function skyQualityConfidenceText() {
+        var quality = controller.skyQuality || {}
+        return quality.confidenceLabel || quality.confidence || "n/d"
+    }
+
     AppTheme {
         id: theme
     }
@@ -115,7 +120,7 @@ Item {
                 MetricTile { label: "Umidità"; value: controller.weatherSummary.humidity + "%"; accentColor: theme.violet }
                 MetricTile { label: "Temperatura"; value: controller.weatherSummary.temperatureC + " °C"; accentColor: theme.amber }
                 MetricTile { label: "Seeing"; value: controller.seeingTransparency.seeing; accentColor: theme.green }
-                MetricTile { label: "Trasparenza"; value: controller.seeingTransparency.transparency; accentColor: theme.cyan }
+                MetricTile { label: "Trasparenza meteo"; value: controller.seeingTransparency.transparency; accentColor: theme.cyan }
                 MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
             }
 
@@ -149,7 +154,7 @@ Item {
                         value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.skyBrightness + " mag/arcsec2" : controller.skyQuality.limitingMagnitude + " mag"
                         accentColor: theme.teal
                     }
-                    MetricTile { label: "Confidenza"; value: controller.skyQuality.confidence; accentColor: theme.amber }
+                    MetricTile { label: "Confidenza"; value: root.skyQualityConfidenceText(); accentColor: theme.amber }
                 }
 
                 Text {
@@ -175,7 +180,7 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: controller.atmosphericTransparency.visible
-                title: "Trasparenza atmosferica"
+                title: "Aerosol atmosferico"
                 subtitle: "NASA MAIAC AOD"
                 accentColor: controller.atmosphericTransparency.running ? theme.cyan : controller.atmosphericTransparency.hasData ? theme.green : theme.amber
 
@@ -187,8 +192,8 @@ Item {
                     rowSpacing: 12
 
                     MetricTile { label: "AOD 550 nm"; value: controller.atmosphericTransparency.aod550; accentColor: theme.cyan }
-                    MetricTile { label: "Trasparenza"; value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
-                    MetricTile { label: "Misura"; value: controller.atmosphericTransparency.acquisitionDate; accentColor: theme.amber }
+                    MetricTile { label: "Effetto aerosol"; value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
+                    MetricTile { label: "Freschezza"; value: controller.atmosphericTransparency.freshness; accentColor: theme.amber }
                     MetricTile { label: "Fonte"; value: controller.atmosphericTransparency.productLabel; accentColor: theme.violet }
                 }
 
@@ -196,7 +201,7 @@ Item {
                     Layout.fillWidth: true
                     visible: controller.atmosphericTransparency.sourceDetail.length > 0
                     text: controller.atmosphericTransparency.sourceDetail
-                    color: theme.textMuted
+                    color: controller.atmosphericTransparency.freshnessWarning ? theme.amber : theme.textMuted
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
                 }
@@ -216,8 +221,8 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: controller.localAtmosphere.visible
-                title: "Atmosfera locale"
-                subtitle: "OpenAQ"
+                title: "Particolato locale"
+                subtitle: "OpenAQ PM2.5/PM10"
                 accentColor: controller.localAtmosphere.freshnessWarning ? theme.amber : theme.teal
 
                 GridLayout {
@@ -229,8 +234,9 @@ Item {
 
                     MetricTile { label: "PM2.5"; value: controller.localAtmosphere.pm25; accentColor: theme.teal }
                     MetricTile { label: "PM10"; value: controller.localAtmosphere.pm10; accentColor: theme.cyan }
-                    MetricTile { label: "Limpidezza"; value: controller.localAtmosphere.clarity; accentColor: theme.amber }
+                    MetricTile { label: "Aria locale"; value: controller.localAtmosphere.clarity; accentColor: theme.amber }
                     MetricTile { label: "Fonte"; value: controller.localAtmosphere.source; accentColor: theme.violet }
+                    MetricTile { label: "Freschezza"; value: controller.localAtmosphere.freshness; accentColor: theme.amber }
                 }
 
                 Text {

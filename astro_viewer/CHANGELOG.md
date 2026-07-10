@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.16.0 - 2026-07-10
+
+- Avviato il primo passaggio UI Meteo post-backend NSOM senza introdurre una
+  UI NSOM-aware di ranking: nessun nuovo pannello NSOM e nessuna modifica a
+  scoring, formule, refresh provider o ordinamenti.
+- Rinominata la card Meteo AOD da `Trasparenza atmosferica` ad `Aerosol
+  atmosferico`, con metrica `Effetto aerosol` e nuova freschezza della misura
+  nel payload `atmosphericTransparency`.
+- Rinominata la card OpenAQ da `Atmosfera locale` a `Particolato locale`, con
+  label `Aria locale` e freschezza esposta accanto a PM2.5/PM10 e fonte.
+- Distinta la `Trasparenza meteo` dalla misura AOD per evitare ambiguita' fra
+  forecast, aerosol satellitare e ranking NSOM.
+- Aggiunta `confidenceLabel` localizzata a `SkyQuality.to_qml()` mantenendo il
+  campo grezzo `confidence` per compatibilita'.
+- Aggiornati README, documenti tecnici e commenti provider: AOD/OpenAQ non sono
+  piu' descritti come esclusivamente display-only, ma come dati condizioni che
+  possono entrare nel backend solo quando gia' presenti e accettati dai gate.
+
 ## NightScope 1.15.2 - 2026-07-10
 
 - Corretto `docs/NEXT_CHAT_HANDOFF.md` con l'hash effettivo del commit

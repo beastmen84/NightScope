@@ -423,7 +423,7 @@ class ObservationConditionsService:
 
     @staticmethod
     def aod_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
-        """Intended future NASA AOD confidence weight; score-neutral in 1.3.7a."""
+        """NASA AOD freshness weight used by provider-quality gates."""
 
         if age_days is not None:
             age = max(0.0, age_days)
@@ -442,7 +442,7 @@ class ObservationConditionsService:
 
     @staticmethod
     def particulate_freshness_weight(age_days: float | None = None, freshness_category: str | None = None) -> float:
-        """Intended future OpenAQ/PM confidence weight; score-neutral in 1.3.7a."""
+        """OpenAQ/PM freshness weight used by provider-quality gates."""
 
         if age_days is not None:
             age = max(0.0, age_days)
@@ -463,7 +463,7 @@ class ObservationConditionsService:
 
     @classmethod
     def atmospheric_sensitivity_profile(cls, target: CelestialObject) -> AtmosphericSensitivityProfile:
-        """Return the intended future aerosol sensitivity without applying it."""
+        """Return target-class aerosol sensitivity for condition scoring."""
 
         lower_type = target.object_type.lower()
         if target.id == "moon" or "luna" in lower_type:

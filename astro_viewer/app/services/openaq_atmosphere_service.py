@@ -101,7 +101,7 @@ class LocalAtmosphere:
 
 
 class OpenAQLocalAtmosphereService:
-    """Fetches display-only local atmosphere data from OpenAQ.
+    """Fetches local particulate data from OpenAQ for Weather display.
 
     Limpidezza uses simple particulate thresholds only:
     PM2.5 <= 10 and PM10 <= 20: Aria limpida
@@ -110,7 +110,9 @@ class OpenAQLocalAtmosphereService:
     PM2.5 <= 75 and PM10 <= 150: Polverosa
     Higher values: Molto polverosa
 
-    The result is not used for seeing, transparency, planner or recommendation scores.
+    AppController may pass usable PM readings to ObservationConditionsService as
+    fallback/context input when NASA AOD is missing or not policy-eligible. The
+    data remains separate from forecast transparency and seeing.
     """
 
     def __init__(

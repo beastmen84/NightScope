@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current backend status for `1.15.2`:
+Current runtime status for `1.16.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -72,6 +72,9 @@ Current backend status for `1.15.2`:
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed
   in `1.15.2` per `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
+- The first visible follow-up is limited to Weather page condition-data
+  semantics: AOD is labelled as aerosol data, OpenAQ as local particulate data,
+  freshness is visible, and no NSOM ranking explanation panel is exposed.
 
 Runtime safety rules remain unchanged: no report tooling is wired into QML, no
 automatic report logging is performed, and scoring must not trigger provider
@@ -116,7 +119,8 @@ Important pages:
   `EquipmentOpticsPage.qml`: profile and equipment management.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
-  detail workflows.
+  detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
+  sources with freshness, not as an NSOM ranking explanation surface.
 
 ### AppController
 
@@ -168,9 +172,10 @@ Services hold business logic:
 - `NasaAodProvider`: NASA MAIAC aerosol lookup using VIIRS primary and MODIS
   fallback. `AppController` starts it in the background when a valid location
   exists and Earthdata credentials have a successful connection test. It returns
-  compact processed AOD results for the Weather page `Trasparenza atmosferica`
-  section, but remains disconnected from seeing/transparency, Planner,
-  Recommendation Engine, Sky Compass and observing scores.
+  compact processed AOD results for the Weather page `Aerosol atmosferico`
+  section and for gated `ObservationConditionsService` condition inputs. It
+  remains disconnected from forecast transparency, seeing and provider refresh
+  decisions.
 - `ObservationConditionsService`: shared equivalence layer for observing
   condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
   deep-sky light-pollution context formerly implemented inside `AppController`,
@@ -182,10 +187,11 @@ Services hold business logic:
   rollback is explicit by passing
   `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
   Runtime diagnostic freshness is explicit: NASA AOD older than seven days is
-  omitted from diagnostic inputs; fresh/recent NASA AOD is included
-  diagnostically only. OpenAQ data is included diagnostically when the
-  `LocalAtmosphere` result has usable data, including stale-but-present readings,
-  and omitted when historical, failed, unavailable or unconfigured. The 1.14.7
+  omitted from condition inputs; fresh/recent NASA AOD is included when
+  provider-quality gates accept it. OpenAQ data is included as fallback/context
+  when the `LocalAtmosphere` result has usable data, including
+  stale-but-present readings, and omitted when historical, failed, unavailable
+  or unconfigured. The 1.14.7
   readiness audit documents fresh AOD as the future primary aerosol-column source
   and OpenAQ PM as fallback/context. The 1.14.8 policy hardens provider-quality
   and double-counting gates; 1.14.9 implements the target-specific default-off
@@ -199,9 +205,9 @@ Services hold business logic:
   freshness/repeatability evidence. 1.14.18 replays those same real AOD values
   as current and accepts the stale/current freshness policy without enabling the
   flag.
-  These inputs are not exposed to QML and do not affect Planner, Home, equipment,
-  weather, seeing/transparency, advanced scores or Sky Compass unless the
-  internal experimental flag is explicitly enabled.
+  These inputs are not exposed as NSOM fields in QML. WeatherPage may display
+  their provider values and freshness, while condition-adjusted scores use them
+  only through the explicit aerosol feature flag and provider-quality policy.
   Deep-sky light-pollution conditioning marks targets with an internal condition
   flag so repeated passes do not reapply the same presentation penalty; the flag
   is intentionally removed from the QML payload.
@@ -341,8 +347,9 @@ Current refresh reasons are:
 
 The generic `TTL_EXPIRED` and `ASYNC_COMPLETED` reasons are intentionally
 neutral. Operational refresh dispatch should use the domain-specific reasons so
-display-only OpenAQ/AOD updates cannot dirty Planner, equipment or Sky Compass
-state by accident.
+OpenAQ/AOD Weather updates do not dirty Planner, equipment or Sky Compass state
+by accident. Condition scoring consumes already available provider DTOs through
+ObservationConditions rather than triggering provider refreshes from scoring.
 
 `LIVE_TICK` is the Sky Compass live refresh lane. It maps only to
 `COMPASS_LIVE`, which is separate from the broader `COMPASS` domain used by

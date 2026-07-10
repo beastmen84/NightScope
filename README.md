@@ -15,8 +15,10 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
 - Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
-- Sezione Meteo `Trasparenza atmosferica` con AOD NASA MAIAC opzionale da Earthdata, display-only e separata da OpenAQ.
-- Sezione Meteo `Atmosfera locale` con dati OpenAQ opzionali e display-only per PM2.5, PM10, limpidezza, fonte e freschezza della misura.
+- Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
+  freschezza misura e fonte satellite, separata da OpenAQ.
+- Sezione Meteo `Particolato locale` con dati OpenAQ opzionali per PM2.5,
+  PM10, aria locale, fonte e freschezza della misura.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
@@ -28,7 +30,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.15.2`.
+Versione corrente: `1.16.0`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -48,9 +50,11 @@ ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
 backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta la
 rimozione dei report/tool/test storici di migrazione eseguita in `1.15.2`.
 
-La UI/QML visibile resta invariata. I punteggi display legacy/base restano campi
-di compatibilita' dove servono alla presentazione. Eventuali spiegazioni NSOM
-visibili sono lavoro futuro di design, non parte del backend closeout.
+La UI/QML visibile resta compatibility-first. In `1.16.0` la pagina Meteo ha
+ricevuto un primo passaggio semantico sui dati condizioni AOD/OpenAQ, senza
+nuovi pannelli NSOM e senza spiegazioni visibili del ranking. I punteggi display
+legacy/base restano campi di compatibilita' dove servono alla presentazione.
+Eventuali spiegazioni NSOM complete sono lavoro futuro di design.
 
 ## Requisiti
 
@@ -193,8 +197,17 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 - `dist/`, `build/`, `logs/`, cache Python e report generati non sono parte del repository.
 - `nasa_login.txt` non deve essere committato.
 - Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
-- Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Trasparenza atmosferica` da NASA MAIAC AOD. Il dato resta display-only, viene mantenuto come risultato processato compatto con TTL locale e non modifica Recommendation Engine, Planner, Sky Compass, seeing, trasparenza meteo o punteggi.
-- La API key OpenAQ viene salvata tramite vault di sistema quando disponibile; dopo un test connessione riuscito NightScope ricorda un'impronta sicura della key verificata e la pagina Meteo la usa solo per la sezione informativa `Atmosfera locale`, mai per Recommendation Engine, Planner, Sky Compass, seeing, trasparenza o punteggi. Misure OpenAQ storiche non vengono presentate come condizioni atmosferiche attuali.
+- Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Aerosol
+  atmosferico` da NASA MAIAC AOD. Il dato viene mantenuto come risultato
+  processato compatto con TTL locale e resta separato da seeing e trasparenza
+  meteo; `ObservationConditionsService` può usarlo come input condizioni solo
+  quando i gate provider-quality lo accettano.
+- La API key OpenAQ viene salvata tramite vault di sistema quando disponibile;
+  dopo un test connessione riuscito NightScope ricorda un'impronta sicura della
+  key verificata e la pagina Meteo può mostrare `Particolato locale`. OpenAQ PM
+  resta fallback/context rispetto ad AOD e non viene sommato come seconda
+  sorgente aerosol indipendente. Misure OpenAQ storiche non vengono presentate
+  come condizioni atmosferiche attuali.
 - PyInstaller è il percorso di build supportato.
 - Il workflow di test per sviluppo e review e' documentato in
   `docs/TESTING.md`; la full suite parallela usa `pytest-xdist` via

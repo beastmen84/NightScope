@@ -124,6 +124,7 @@ class NasaAodResult:
 
     def to_qml(self) -> dict[str, object]:
         has_data = self.available and self.aod_550 is not None
+        freshness_category = _aod_freshness_category(self.acquisition_date) if has_data else "unavailable"
         return {
             "visible": self.status != "no_credentials",
             "hasData": has_data,
@@ -143,6 +144,9 @@ class NasaAodResult:
             "retrievedAt": self.retrieved_at,
             "cacheHit": self.cache_hit,
             "transparency": _interpretation_label(self.interpretation) if has_data else "—",
+            "freshness": _aod_freshness_label(self.acquisition_date) if has_data else "—",
+            "freshnessCategory": freshness_category,
+            "freshnessWarning": freshness_category in ("stale", "historical", "unavailable"),
             "sourceDetail": _source_detail(self) if has_data else "",
             "running": False,
         }
@@ -173,11 +177,12 @@ class NasaAodExtractor(Protocol):
 
 
 class NasaAodProvider:
-    """Display-only NASA MAIAC AOD provider.
+    """NASA MAIAC AOD provider for Weather display and condition inputs.
 
-    AOD is intentionally not used for seeing, transparency, planner or recommendation scores.
-    Current QA filtering is deliberately conservative and numeric; formal AOD_QA bit decoding
-    should be added before using these values operationally in any scoring path.
+    AOD stays separate from forecast transparency and seeing. AppController can pass
+    accepted provider results into ObservationConditionsService, where the explicit
+    aerosol feature flag and provider-quality gates decide whether they affect
+    condition-adjusted target scores.
     """
 
     def __init__(
@@ -883,6 +888,42 @@ def _method_label(method: str) -> str:
     if method == "local_neighborhood":
         return "Area locale 5x5"
     return method or "—"
+
+
+def _aod_freshness_category(acquisition_date: str) -> str:
+    age_days = _aod_age_days(acquisition_date)
+    if age_days is None:
+        return "unavailable"
+    if age_days < 3:
+        return "current"
+    if age_days <= 7:
+        return "stale"
+    return "historical"
+
+
+def _aod_freshness_label(acquisition_date: str) -> str:
+    age_days = _aod_age_days(acquisition_date)
+    if age_days is None:
+        return "Aggiornamento non disponibile"
+    if age_days == 0:
+        return "Misura di oggi"
+    if age_days == 1:
+        return "Misura di ieri"
+    if age_days < 3:
+        return f"Misura di {age_days} giorni fa"
+    if age_days <= 7:
+        return f"Misura vecchia di {age_days} giorni"
+    return f"Misura storica di {age_days} giorni"
+
+
+def _aod_age_days(acquisition_date: str) -> int | None:
+    if not acquisition_date:
+        return None
+    try:
+        measured = datetime.fromisoformat(acquisition_date).date()
+    except ValueError:
+        return None
+    return max(0, (datetime.now().date() - measured).days)
 
 
 def _source_detail(result: NasaAodResult) -> str:

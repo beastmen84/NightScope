@@ -38,6 +38,14 @@ or hide legacy display scores, how to present confidence and provider sources,
 and how to describe limiting factors such as Moon, AOD/OpenAQ freshness, seeing
 or transparency without exposing internal model jargon.
 
+## 1.16.0 Weather UI Semantics Follow-Up
+
+`1.16.0` starts with a limited Weather page copy/semantics pass. It labels NASA
+AOD as aerosol data, OpenAQ as local particulate data and exposes provider
+freshness more clearly. This does not add NSOM ranking explanations, does not
+change the Home/Planner/Best Object/Sky Compass payload contracts and does not
+change scoring formulas or provider refresh behavior.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |
@@ -72,7 +80,7 @@ or transparency without exposing internal model jargon.
 | --- | --- | --- | --- |
 | `AOD/OpenAQ real observing feedback` | `monitor_before_tuning` | `False` | Do not tune weights until enough real observing outcomes are reviewed. |
 | `Catalogue / Universe raw score semantics` | `current_policy_evaluated` | `False` | Existing separation is sufficient for current backend scope; defer a new `UniverseTargetProfile` until multi-catalogue provenance, intrinsic calibration or visible score explanations require it. |
-| `Visible UI explanations` | `future_design_step` | `False` | Keep UI unchanged until visible NSOM explanations, score semantics, confidence/source copy and QML payload contracts are designed explicitly. |
+| `Visible UI explanations` | `future_design_step` | `False` | `1.16.0` only clarifies Weather condition-data semantics. Keep full NSOM explanations, score semantics, confidence/source copy and QML payload contracts separate until designed explicitly. |
 
 ## Checks
 

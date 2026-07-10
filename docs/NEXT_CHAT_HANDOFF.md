@@ -2,9 +2,10 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente: `1.15.2`  
+Versione corrente: `1.16.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `efaf29c Clarify visible UI readiness meaning`
 - `7e42f12 Document NSOM QML boundary audit`
 - `d1da051 Evaluate catalogue raw score policy`
 - `06603d2 Clarify backend raw score policy`
@@ -26,7 +27,9 @@ Il closeout dichiara:
 - backend default-on blockers: nessuno;
 - runtime behaviour changed by closeout: `False`;
 - ready for visible UI redesign: `False`;
-- UI/QML non toccata;
+- UI/QML non toccata dal closeout backend `1.15.2`;
+- `1.16.0` avvia solo un passaggio semantico Meteo su AOD/OpenAQ/freshness,
+  senza pannelli NSOM o spiegazioni visibili del ranking;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - nessuna rete, logging automatico o scrittura runtime introdotta.
 
@@ -62,6 +65,9 @@ Stato corrente:
   fallback/context;
 - confidence/provider confidence restano metadata e non scalano lo score;
 - `stale=0.5` e' stato accettato come policy conservativa nel replay 1.14.18.
+- In `1.16.0` la pagina Meteo presenta AOD come `Aerosol atmosferico` e
+  OpenAQ come `Particolato locale`, con freschezza visibile; questo resta copy
+  di dati condizioni, non una UI NSOM-aware.
 
 Attenzione importante:
 
@@ -94,6 +100,9 @@ Questi non bloccano il backend NSOM chiuso:
 
 3. `Visible UI explanations`
    - La UI non va toccata automaticamente.
+   - Primo passaggio esplicito avviato in `1.16.0`: solo WeatherPage
+     condition-data semantics (`Aerosol atmosferico`, `Particolato locale`,
+     freshness e confidence localizzata).
    - L'audit dice esplicitamente `Ready for visible UI redesign: False`, ma
      questo non significa UI rotta o backend NSOM non pronto.
    - Significa che la UI visibile e' ancora una superficie compatibility, non
@@ -137,6 +146,7 @@ Questi non bloccano il backend NSOM chiuso:
 ## Commit Rilevanti Prima Di Questo Aggiornamento
 
 ```text
+efaf29c Clarify visible UI readiness meaning
 7e42f12 Document NSOM QML boundary audit
 d1da051 Evaluate catalogue raw score policy
 06603d2 Clarify backend raw score policy
@@ -155,18 +165,20 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo `1.15.2`:
+Dopo `1.16.0`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m compileall astro_viewer
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_nsom_model.py astro_viewer/tests/test_nsom_diagnostic_adapters.py astro_viewer/tests/test_nsom_runtime_snapshot.py astro_viewer/tests/test_nsom_formula_parity_sensitivity.py astro_viewer/tests/test_planner_nsom_experimental.py astro_viewer/tests/test_home_nsom_recommended_deep_sky_ranking.py astro_viewer/tests/test_best_object_nsom_ranking.py astro_viewer/tests/test_sky_compass_nsom_ranking.py astro_viewer/tests/test_detail_nsom_runtime.py astro_viewer/tests/test_advanced_observing_nsom_runtime.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py astro_viewer/tests/test_observer_capability_adapter.py astro_viewer/tests/test_observation_conditions_service.py astro_viewer/tests/test_observation_conditions_read_model.py astro_viewer/tests/test_equipment_setup_read_model.py astro_viewer/tests/test_equipment_setup_score_read_model.py
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_openaq_atmosphere.py astro_viewer/tests/test_phase6_real_data.py
 .\.venv\Scripts\python.exe -m pytest -q -n auto
 ```
 
 Risultati:
 
 - compileall: passed;
-- focused runtime NSOM tests: `235 passed`;
+- QML smoke: passed;
+- focused Weather/provider/release tests: `123 passed, 7 subtests passed`;
 - full suite: `616 passed, 7 subtests passed`.
 
 ## Ambiente `.venv` Verificato
@@ -193,10 +205,10 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Fare una review rapida di `1.15.2`.
+1. Fare una review rapida di `1.16.0`.
 2. Prossimo capitolo consigliato:
-   - verifica visuale UI separata, senza cambiare QML/comportamento salvo
-     prompt esplicito o bug concreto.
+   - continuare la verifica UI un pezzo alla volta dopo WeatherPage, senza
+     cambiare scoring o ranking salvo prompt esplicito.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

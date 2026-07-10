@@ -21,7 +21,7 @@ AEROSOL_SCORING_FORMULA_IMPLEMENTED = True
 
 @dataclass(frozen=True)
 class AodProviderQualityDecision:
-    """Formal AOD quality gate for future scoring experiments."""
+    """Formal AOD quality gate for aerosol condition scoring."""
 
     available: bool
     eligible_for_future_scoring: bool
@@ -38,7 +38,7 @@ class AodProviderQualityDecision:
 
 @dataclass(frozen=True)
 class ParticulateProviderQualityDecision:
-    """Formal OpenAQ particulate representativeness gate for future fallback use."""
+    """Formal OpenAQ particulate representativeness gate for fallback/context use."""
 
     available: bool
     eligible_for_future_fallback: bool
@@ -56,9 +56,9 @@ class AerosolProviderQualityPolicy:
     """Combined source-precedence and double-counting policy.
 
     This object is target-neutral. It defines whether AOD/PM data is
-    trustworthy enough for the default-off scoring experiment; target-specific
+    trustworthy enough for aerosol condition scoring; target-specific
     score modifiers are computed by ObservationConditionsService only when the
-    explicit experimental flag is enabled.
+    explicit aerosol feature flag is enabled.
     """
 
     primary_source: str
@@ -72,7 +72,7 @@ class AerosolProviderQualityPolicy:
 
 
 class AerosolProviderQualityPolicyService:
-    """Classifies AOD/OpenAQ provider inputs without changing recommendation scores."""
+    """Classifies AOD/OpenAQ provider inputs without applying target modifiers."""
 
     def aod_quality(self, aod: AodConditionInput | None) -> AodProviderQualityDecision:
         if aod is None:

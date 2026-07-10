@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current backend status for `1.15.2`:
+Current runtime status for `1.16.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload use NSOM-backed paths by default.
@@ -23,6 +23,9 @@ Current backend status for `1.15.2`:
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
+- `1.16.0` starts the visible UI follow-up only on Weather condition-data
+  semantics: AOD/OpenAQ labels and freshness are clearer, but no QML surface
+  exposes NSOM ranking explanations.
 
 ## Core Diagram
 

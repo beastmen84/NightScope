@@ -1521,6 +1521,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertTrue(qml["hasViirsRadiance"])
         self.assertEqual(qml["viirsRadiance"], 63.45)
         self.assertEqual(qml["viirsObservationCount"], 10)
+        self.assertEqual(qml["confidence"], "high")
+        self.assertEqual(qml["confidenceLabel"], "alta")
 
     def test_viirs_session_uses_temporary_netrc_for_earthdata_redirects(self) -> None:
         with patch.dict(os.environ, {"NETRC": "existing-netrc"}, clear=False):

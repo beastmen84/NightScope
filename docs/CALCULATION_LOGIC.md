@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.15.2`, NightScope keeps backend recommendation inputs separated by
+As of `1.16.0`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -413,19 +413,17 @@ Light-pollution presentation filtering also uses a stronger galaxy multiplier
 than globular clusters, while Planner-specific light-pollution ranking remains
 owned by `PlannerScoringService`.
 
-`ObservationConditionsService` can also carry provider-neutral diagnostics for
-NASA AOD and OpenAQ particulate data, including freshness categories. These
-fields stay neutral in the default runtime: AOD and PM modifiers remain zero and
-do not feed Planner ranking, Home scores, Recommendation Engine, Sky Compass,
-seeing or transparency scores. The 1.14.8 policy keeps provider-quality gates
-explicit, and 1.14.9 adds a default-off experiment where AOD owns column aerosol
-only when policy eligible, OpenAQ PM is fallback/context only, and VIIRS sky
-background, weather transparency and Moon geometry remain separate owners.
-The 1.14.11 calibration audit keeps the formula disabled by default and marks
-score-scale plus penalty-cap/transparency shape as review items before any
-default-on switch. The 1.14.12 targeted calibration resolves the shape item by
-using transparency loss as the mathematical owner and preserving a derived score
-modifier only for compatibility.
+`ObservationConditionsService` also accepts provider-gated NASA AOD and OpenAQ
+particulate inputs, including freshness categories. In the current default
+runtime, AOD and PM modifiers can affect condition-adjusted target scores only
+when `experimental_aerosol_scoring` is enabled and provider-quality gates pass.
+AOD owns column aerosol when policy eligible, OpenAQ PM remains fallback/context
+only, and VIIRS sky background, weather transparency and Moon geometry remain
+separate owners. The 1.14.11 calibration audit kept the formula disabled while
+score-scale plus penalty-cap/transparency shape were reviewed; 1.14.12 resolved
+the shape item by using transparency loss as the mathematical owner and
+preserving a derived score modifier only for compatibility. The path was later
+accepted for default-on use with explicit rollback.
 
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
@@ -589,9 +587,10 @@ Known limitations:
 ## NASA AOD Provider Backend
 
 `NasaAodProvider` is a satellite aerosol data provider for the Weather page
-`Trasparenza atmosferica` section. It is display-only and is not used by
-Recommendation Engine, Planner, Sky Compass, seeing, transparency, weather score
-or observing scores.
+`Aerosol atmosferico` section. The same compact result can also become an
+`ObservationConditionsService` input when it is already available and
+provider-quality gates pass. It remains separate from forecast transparency,
+seeing and provider refresh logic.
 
 Product order:
 
@@ -647,8 +646,10 @@ Current limitations:
 - MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed
   on the current Windows development environment, but distribution size and
   native dependency behavior should remain monitored.
-- AOD is a column aerosol/transparency proxy, not the same concept as OpenAQ
-  ground-level PM2.5/PM10 measurements.
+- AOD is a column aerosol proxy, not the same concept as forecast transparency
+  and not the same concept as OpenAQ ground-level PM2.5/PM10 measurements.
+- The `1.16.0` Weather page labels AOD as aerosol data and shows freshness
+  explicitly so stale-but-usable data is not presented as a fresh condition.
 - Historical AOD/OpenAQ migration reports were removed in `1.15.2`. The live source of truth is this calculation document, the runtime `ObservationConditionsService` implementation and `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`.
 
 ## Refresh Chain
