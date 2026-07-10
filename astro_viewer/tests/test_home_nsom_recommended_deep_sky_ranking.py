@@ -228,18 +228,16 @@ def test_missing_sky_quality_recommended_deep_sky_property_payload_uses_fallback
     assert payload == direct
 
 
-def test_readiness_audit_report_documents_score_semantics_and_runtime_safety() -> None:
-    report = Path(__file__).parents[2] / "docs" / "HOME_NSOM_RECOMMENDED_DEEP_SKY_READINESS_AUDIT.md"
+def test_current_status_docs_preserve_home_score_semantics_and_runtime_safety() -> None:
+    docs_root = Path(__file__).parents[2] / "docs"
+    closeout = (docs_root / "NSOM_BACKEND_MIGRATION_CLOSEOUT.md").read_text(encoding="utf-8")
+    cleanup = (docs_root / "NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md").read_text(encoding="utf-8")
 
-    text = report.read_text(encoding="utf-8")
-
-    assert "Readiness verdict: ready for a separate default-on switch PR" in text
-    assert "Displayed Score Semantics Decision" in text
-    assert "keep the legacy/base displayed score for compatibility" in text
-    assert "NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED` remains `False" in text
-    assert "No QML/UI changes" in text
-    assert "No report runtime wiring" in text
-    assert "globular_cluster > open_cluster > diffuse_nebula > galaxy" in text
+    assert "Home recommendedDeepSky" in closeout
+    assert "ObservableTargetValue ordering" in closeout
+    assert "runtime_report_imports_absent" in closeout
+    assert "qml_report_exposure_absent" in closeout
+    assert "report-only tests" in cleanup
 
 
 def test_no_home_nsom_ranking_qml_exposure_or_report_runtime_wiring() -> None:

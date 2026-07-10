@@ -1,5 +1,18 @@
 # Changelog
 
+## NightScope 1.15.2 - 2026-07-10
+
+- Rimosso il set storico di report, generatori e test di migrazione NSOM ormai
+  sostituito da `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e
+  `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
+- Snellita la documentazione base: `README.md`, `docs/ARCHITECTURE.md`,
+  `docs/CALCULATION_LOGIC.md` e `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`
+  descrivono lo stato corrente invece di duplicare il diario completo della
+  migrazione.
+- Mantenuti runtime NSOM, test comportamentali attivi, read-model e boundary
+  Observer/ObservationConditions/Equipment.
+- Nessun cambio a scoring, QML/UI, provider, logging, rete o scritture runtime.
+
 ## NightScope 1.15.1 - 2026-07-10
 
 - Aggiunto `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`, audit statico per

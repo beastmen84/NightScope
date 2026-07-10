@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.15.0`, NightScope keeps the backend recommendation inputs separated by
+As of `1.15.2`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -42,106 +42,32 @@ availability and ownership:
   phase/illumination without provider data.
 - Equipment profile data is local and optional. If no profile is active, the
   backend falls back to naked-eye/default observer assumptions before applying
-  `ObserverCapability` or `PracticalTargetValue` where those concepts are used.
+  ObserverCapability or PracticalTargetValue where those concepts are used.
 - Weather is an optional external provider input. When present, it belongs to
   session viability and blocking policy. When absent, weather-dependent
-  conclusions should remain unknown or fallback-safe rather than changing target
+  conclusions remain unknown or fallback-safe rather than changing target
   physics.
-- VIIRS sky quality is optional/hybrid. A real `viirs_radiance` value can feed
+- VIIRS sky quality is optional/hybrid. Real `viirs_radiance` can feed
   sky-background calculations; local preprocessed/fallback sky-quality data must
   remain distinguishable in confidence and source notes.
 - NASA AOD and OpenAQ particulate data are optional external provider inputs.
-  Since `1.14.19`, they can affect condition-adjusted scores by default through
-  the calibrated AOD/OpenAQ modifier when provider-quality gates pass.
-  `1.14.9` first added the formula behind
-  `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`;
-  `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md`,
-  `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md` and
-  `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md` document the
-  readiness, provider gates and target-specific formula. `1.14.11` adds
-  `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md`; the formula remains disabled by
-  default while score scale and penalty-cap/transparency shape are reviewed.
-  `1.14.12` resolves the formula-shape item by treating `penalty_cap / 100` as
-  maximum transparency loss and deriving the compatibility modifier from
-  `target.score * transparency_loss`. `1.14.13` adds
-  `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md` and keeps default-on blocked
-  only by absolute aerosol score-scale validation. `1.14.14` adds
-  `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md` with field-like deterministic
-  bands for deciding whether the synthetic scale is sufficient. `1.14.15` adds
-  `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md`, an explicit developer-only
-  real-provider run across five mixed locations using local `nasa_login.txt`
-  credentials without storing credential values in the report. `1.14.16`
-  expands that run to 15 mixed locations and records per-location policy
-  reasons. `1.14.17` adds an offline readiness audit over that checked-in
-  evidence: the real-provider score scale is accepted, but default-on remains
-  deferred because the run has stale AOD only and no temporal repeat. `1.14.18`
-  replays those same stale AOD values as current, accepts `stale=0.5` as a
-  conservative freshness policy. `1.14.19` enables the calibrated path by
-  default, with explicit rollback through
-  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
+  They can affect condition-adjusted scores by default only when the data is
+  already available and provider-quality gates pass. AOD is the primary aerosol
+  column source; OpenAQ PM is fallback/context. Confidence/provider confidence
+  remains metadata and does not scale score.
 
-Moon geometry is now available as a local Planner NSOM input. The runtime
-computes Moon altitude, Moon-target separation and Moon/window overlap from
-location, local time and ephemeris data, not from weather, VIIRS, NASA AOD,
-OpenAQ or equipment.
+Moon geometry is local deterministic input. The runtime computes Moon altitude,
+Moon-target separation and Moon/window overlap from location, time and ephemeris
+data, not from weather, VIIRS, NASA AOD, OpenAQ or equipment.
 
-Planner NSOM uses that geometry by default through
-`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. `MoonGeometryConditionInput`
-scales the Moon illumination severity used by
-`ObservationEnvironment.lunar_sky_background`; this affects
-`EffectiveObservability`, then `ObservableTargetValue`, `PracticalTargetValue`
-and `ObservationOpportunity` through the existing NSOM pipeline. It does not
-change `IntrinsicTargetQuality`, `ObserverCapability`, `SessionViability` or
-confidence as a score modifier. The generic
+Planner NSOM uses Moon geometry by default through
+`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. The generic
 `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
-remains `False`, so ObservationConditions modifiers, AOD/OpenAQ and non-Planner
-consumers are not enabled implicitly. `RecommendationConfidence.moon_geometry_confidence`
-is metadata only and indicates whether real `MoonGeometryConditionInput` was
-available. Calibration and switch-state evidence are tracked in
-`docs/NSOM_MOON_GEOMETRY_PLANNER_CALIBRATION.md` and
-`docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`.
+remains `False`, so non-Planner consumers are not implicitly rerouted.
 
-NASA AOD/OpenAQ scoring is enabled in the default runtime as of 1.14.19 after
-the 1.14.9 default-off experiment, 1.14.11 calibration audit, 1.14.12 targeted
-formula calibration, 1.14.13 readiness audit, 1.14.14 field-calibration
-fixtures, 1.14.15/1.14.16 real-provider probes, 1.14.17 provider readiness
-audit and 1.14.18 stale-vs-current replay. The replay shows that the same real
-AOD values remain bounded if treated as current, so stale AOD can reasonably
-stay at half weight.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
-`True`, so normal AppController-built condition inputs can receive an aerosol
-modifier when policy-eligible provider data is already available. Passing
-`ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)` preserves
-the rollback path and keeps
-`ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. AOD is
-the primary aerosol-column source if provider-quality gates pass; local OpenAQ
-PM2.5/PM10 is a weaker fallback when AOD is unavailable or rejected. AOD has
-explicit gates for value, freshness, uncertainty, QA raw traceability and
-local-pixel support; OpenAQ has explicit locality gates. Recommendation
-confidence and provider confidence remain metadata and do not scale the score.
-The 1.14.12 calibration keeps this behaviour unchanged, resolves the
-penalty-cap/transparency-shape mismatch and leaves absolute aerosol score scale
-as the remaining default-on review item. The 1.14.13 default-on readiness audit
-confirms that this is now the only default-on blocker. The 1.14.14 field-like
-fixtures pass the configured bands, leaving a product decision between accepting
-the synthetic scale or waiting for real observations. The 1.14.15 probe records
-real-provider observations for Bologna, San Pedro de Atacama, New Delhi, Mauna
-Kea and Addis Ababa: flag-off remains neutral, OpenAQ PM fallback is non
-additive, and deep-sky penalties remain larger than planet/Moon penalties when
-the experimental flag is enabled manually. The 1.14.16 expanded run adds ten
-more locations, policy rejection reasons such as sparse AOD neighborhoods or
-high uncertainty, and keeps the same ownership/score-neutrality conclusions.
-The 1.14.17 audit accepts the real-provider modifier scale but does not enable
-it because the checked-in evidence has no current AOD input and only one
-temporal provider snapshot. The 1.14.18 replay removes stale/current freshness
-as a technical blocker by showing that current replay remains bounded and
-target-specific. The 1.14.19 switch changes only the default flag and does not
-change formulas, weights, provider fetches, QML payloads, logging or runtime
-file writes.
-The 1.15.0 backend closeout records this as the current backend NSOM state:
-recommendation surfaces are migrated for the current scope, AOD/OpenAQ is
-default-on, and future work should be treated as separate monitoring, Universe
-policy or UI explanation design rather than as an open backend ranking blocker.
+`True`. Passing `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`
+preserves the AOD/OpenAQ rollback path.
 
 ### Solar-System Objects
 
@@ -691,26 +617,17 @@ Current limitations:
 
 - QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
   these values are used operationally for scoring.
-- The provider result is exposed only in the Weather page. Successful and failed
-  lookups are logged with status, product, acquisition date, AOD value, method
-  and cache-hit information, but Planner, Sky Compass and recommendation outputs
-  do not consume the value.
+- Provider results are displayed in the Weather page and may influence
+  condition-adjusted recommendation scoring when `experimental_aerosol_scoring`
+  is enabled and provider-quality gates pass. Successful and failed lookups are
+  logged with status, product, acquisition date, AOD value, method and cache-hit
+  information.
 - MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed
   on the current Windows development environment, but distribution size and
   native dependency behavior should remain monitored.
 - AOD is a column aerosol/transparency proxy, not the same concept as OpenAQ
   ground-level PM2.5/PM10 measurements.
-- `docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md` classifies this provider work as
-  default-off for scoring. `docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md`
-  records the accepted 1.14.8 provider-quality gates, while
-  `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md` records the 1.14.9
-  formula available only behind the internal experiment flag.
-  `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` records the 1.14.11 calibration
-  review and the 1.14.12 targeted transparency calibration. Default runtime
-  scoring remains disabled. `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`
-  records the 1.14.13 default-on gate review.
-  `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md` records the 1.14.14 field-like
-  scale fixtures.
+- Historical AOD/OpenAQ migration reports were removed in `1.15.2`. The live source of truth is this calculation document, the runtime `ObservationConditionsService` implementation and `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`.
 
 ## Refresh Chain
 

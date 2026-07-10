@@ -10,7 +10,6 @@ from astro_viewer.app.models.nsom import NsomTargetClass, nsom_to_json_compatibl
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
-from astro_viewer.app.services.equipment_nsom_comparison import EquipmentNsomComparisonService
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.observer_capability_adapter import (
     build_observer_capability_from_configuration,
@@ -70,7 +69,7 @@ def test_projection_weight_profile_is_immutable() -> None:
     json.dumps(nsom_to_json_compatible(projection), sort_keys=True, allow_nan=False)
 
 
-def test_adapter_projection_matches_equipment_comparison_rows() -> None:
+def test_adapter_projection_from_candidate_matches_configuration_projection() -> None:
     target = _target("m51", "Galassia", observation_type="General")
     telescopes = [_medium_scope()]
     eyepieces = [_wide_eyepiece(), _planetary_eyepiece()]
@@ -87,32 +86,19 @@ def test_adapter_projection_matches_equipment_comparison_rows() -> None:
         sky_quality,
     )[0]
 
-    comparison = EquipmentNsomComparisonService(equipment_service=service).compare(
-        target,
-        sky_quality=sky_quality,
-        telescopes=telescopes,
-        eyepieces=eyepieces,
-        seeing=seeing,
-        moon=_moon(),
-    )
-    row = next(
-        item
-        for item in comparison["candidates"]
-        if item["candidate_id"] == candidate.configuration.configuration_id
-    )
     projection = build_observer_capability_projection_from_candidate(
         candidate,
-        comparison["target"]["target_class"],
+        NsomTargetClass.GALAXY,
+    )
+    direct_projection = project_observer_capability_profile(
+        build_observer_capability_from_configuration(candidate.configuration),
+        NsomTargetClass.GALAXY,
     )
 
-    assert row["nsom"]["observer_capability"]["q_target"] == pytest.approx(projection.q_target)
-    assert row["nsom"]["observer_capability"]["summary_for_planning"] == pytest.approx(
-        projection.summary_for_planning
-    )
-    assert row["nsom"]["observer_capability"]["target_class_weighting_profile"] == (
-        projection.target_class_weighting_profile
-    )
-    assert row["nsom"]["observer_capability"]["derivation"] == projection.derivation
+    assert projection.q_target == pytest.approx(direct_projection.q_target)
+    assert projection.summary_for_planning == pytest.approx(direct_projection.summary_for_planning)
+    assert projection.target_class_weighting_profile == direct_projection.target_class_weighting_profile
+    assert projection.derivation == direct_projection.derivation
 
 
 def test_adapter_extraction_does_not_wire_equipment_runtime_or_qml() -> None:

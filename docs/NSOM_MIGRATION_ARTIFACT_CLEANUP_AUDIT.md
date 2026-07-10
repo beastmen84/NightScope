@@ -2,6 +2,8 @@
 
 Version: `1.15.1`
 
+Cleanup applied: `1.15.2`
+
 ## Verdict
 
 The backend NSOM migration is closed for the current recommendation surfaces, so
@@ -84,3 +86,10 @@ Before committing 1.15.2:
 - full pytest with `-n auto` if collection changes are broad
 - `rg` check for references to deleted report paths
 
+## 1.15.2 Result
+
+The cleanup removes the historical migration reports, report generators,
+report-only tests and unused developer-only comparison/calibration services.
+The active source of truth is now the runtime NSOM code, behavioural regression
+tests and base documentation. No runtime scoring, QML/UI, provider calls,
+logging or runtime file writes are changed by the cleanup.
