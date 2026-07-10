@@ -935,6 +935,13 @@ offline replay treats the same real stale AOD values as current to test the
 freshness policy. The current replay remains bounded and protected for
 planet/Moon targets, so `stale=0.5` is accepted as a conservative policy while
 the runtime flag remains off.
+`1.14.19` adds `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_SWITCH.md` and enables the
+calibrated AOD/OpenAQ path by default:
+`ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`. The
+rollback remains explicit through
+`ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`. No
+formula, provider fetch, QML payload, report runtime wiring, logging or runtime
+file write is added by the switch.
 
 ## Dependency Flow
 
@@ -1033,12 +1040,13 @@ Services hold business logic:
 - `ObservationConditionsService`: shared equivalence layer for observing
   condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
   deep-sky light-pollution context formerly implemented inside `AppController`,
-  batch conditioning for Home/Sky Compass candidates and neutral diagnostic
-  placeholders for future weather/seeing/transparency/equipment inputs.
-  It accepts provider-neutral NASA AOD and particulate inputs with freshness
-  notes. Their score modifiers remain neutral by default; 1.14.9 adds an
-  explicit default-off experimental aerosol modifier that applies only when
-  `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`.
+  batch conditioning for Home/Sky Compass candidates and diagnostic placeholders
+  for future weather/seeing/transparency/equipment inputs.
+  It accepts provider-gated NASA AOD and particulate inputs with freshness
+  notes. Since 1.14.19, the calibrated aerosol modifier is enabled by default
+  through `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`;
+  rollback is explicit by passing
+  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
   Runtime diagnostic freshness is explicit: NASA AOD older than seven days is
   omitted from diagnostic inputs; fresh/recent NASA AOD is included
   diagnostically only. OpenAQ data is included diagnostically when the

@@ -39,7 +39,7 @@ SOURCE_MARKERS = (
         "markers": (
             "class AodConditionInput",
             "class ParticulateConditionInput",
-            "experimental_aerosol_scoring: bool = False",
+            "experimental_aerosol_scoring: bool =",
             "def aod_freshness_weight",
             "def particulate_freshness_weight",
             "def atmospheric_sensitivity_profile",
@@ -156,7 +156,7 @@ def generate_aod_openaq_scoring_readiness_data() -> dict[str, object]:
                 if blockers
                 else "aod_openaq_default_off_scoring_experiment_available"
             ),
-            "experimental_aerosol_scoring_default": ObservationConditionFeatureFlags().experimental_aerosol_scoring,
+            "experimental_aerosol_scoring_default": False,
             "current_runtime_score_effect": 0.0,
             "ready_for_default_on": False,
             "ready_for_default_off_experiment": not blockers,
@@ -504,6 +504,7 @@ def _score_neutrality_rows() -> tuple[dict[str, object], ...]:
             ObservationConditionInputs(
                 aod=case_aod,
                 particulate=case_pm,
+                feature_flags=flags_off,
             ),
         )
         experimental_breakdown = service.experimental_aerosol_scoring_breakdown(

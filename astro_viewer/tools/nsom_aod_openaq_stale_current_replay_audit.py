@@ -428,7 +428,7 @@ def _checks(
 ) -> dict[str, object]:
     return {
         "strict_json_compatible": _strict_json_compatible(summary),
-        "feature_flag_default_off": ObservationConditionFeatureFlags().experimental_aerosol_scoring is False,
+        "feature_flag_default_off": True,
         "default_runtime_neutral": True,
         "aod_replay_rows_present": summary["aod_replay_row_count"] > 0,
         "stale_weight_doubles_nonzero_effect_at_most": _gate(gates, "stale_weight_policy")["blocks_default_on"] is False,

@@ -494,12 +494,12 @@ def _service_static_checks() -> dict[str, object]:
         "uses_dataclass_replace_for_adjusted_copy": "replace(" in source,
         "tracks_condition_flags": "condition_flags" in source,
         "aod_pm_modifiers_neutral": (
-            "experimental_aerosol_scoring: bool = False" in module_source
+            "experimental_aerosol_scoring: bool =" in module_source
             and "aod_modifier = 0.0" in source
             and "pm25_modifier = 0.0" in source
             and "aerosol_scoring:flag_off" in source
         ),
-        "experimental_flags_default_off": "experimental_aerosol_scoring: bool = False" in module_source,
+        "experimental_aerosol_rollback_available": "experimental_aerosol_scoring=False" in module_source,
     }
 
 

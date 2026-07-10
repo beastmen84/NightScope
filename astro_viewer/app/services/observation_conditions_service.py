@@ -40,9 +40,9 @@ class ParticulateConditionInput:
 
 @dataclass(frozen=True)
 class ObservationConditionFeatureFlags:
-    """Experimental condition modifiers, intentionally disabled by default."""
+    """Condition modifiers with explicit rollback flags."""
 
-    experimental_aerosol_scoring: bool = False
+    experimental_aerosol_scoring: bool = True
     experimental_moon_geometry_scoring: bool = False
 
 
@@ -68,7 +68,7 @@ class AtmosphericSensitivityProfile:
 
 @dataclass(frozen=True)
 class AerosolScoringBreakdown:
-    """Default-off AOD/OpenAQ scoring experiment details."""
+    """AOD/OpenAQ scoring details."""
 
     primary_source: str
     target_class: str
@@ -304,6 +304,8 @@ class ObservationConditionsService:
                 pm25_modifier = aerosol.score_modifier
                 applied_components.append("particulate")
             diagnostic_notes.extend(aerosol.notes)
+        elif inputs.feature_flags.experimental_aerosol_scoring:
+            diagnostic_notes.extend(aerosol.notes)
 
         breakdown = self._breakdown(
             object_id=target.id,
@@ -500,7 +502,7 @@ class ObservationConditionsService:
         particulate: ParticulateConditionInput | None,
         feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> float:
-        """Target-specific default-off AOD/OpenAQ score modifier."""
+        """Target-specific AOD/OpenAQ score modifier."""
 
         return ObservationConditionsService.experimental_aerosol_scoring_breakdown(
             target,
@@ -517,7 +519,7 @@ class ObservationConditionsService:
         particulate: ParticulateConditionInput | None,
         feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> AerosolScoringBreakdown:
-        """Compute the explicit default-off aerosol modifier when enabled."""
+        """Compute the explicit aerosol modifier when enabled."""
 
         flags = feature_flags or ObservationConditionFeatureFlags()
         profile = cls.atmospheric_sensitivity_profile(target)
@@ -607,7 +609,7 @@ class ObservationConditionsService:
             ),
             formula=formula,
             notes=(
-                "aerosol_scoring:experimental_default_off",
+                "aerosol_scoring:enabled",
                 "aerosol_scoring:target_score_scaled_transparency_loss",
                 *source_notes,
                 f"aerosol_scoring:target_class={profile.target_class}",
@@ -617,6 +619,7 @@ class ObservationConditionsService:
                 f"aerosol_scoring:max_transparency_loss={max_transparency_loss:g}",
                 f"aerosol_scoring:transparency_loss={transparency_loss:g}",
                 f"aerosol_scoring:penalty_points={penalty_points:g}",
+                *(("aerosol_scoring:score_neutral",) if score_modifier == 0.0 else ()),
             ),
         )
 

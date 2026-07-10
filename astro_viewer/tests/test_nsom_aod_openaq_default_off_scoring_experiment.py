@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from astro_viewer.app.services.observation_conditions_service import ObservationConditionFeatureFlags
 from astro_viewer.tools.nsom_aod_openaq_default_off_scoring_experiment import (
     REPORT_PATH,
     generate_aod_openaq_default_off_scoring_experiment_data,
@@ -28,7 +27,9 @@ def test_default_off_aerosol_experiment_report_is_deterministic_strict_json_and_
     assert first["metadata"]["runtime_behaviour_changed_by_this_report"] is False
     assert first["readiness"]["default_runtime_score_effect"] == 0.0
     assert first["readiness"]["ready_for_default_on"] is False
-    assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
+    assert first["readiness"]["default_flag"] == (
+        "ObservationConditionFeatureFlags.experimental_aerosol_scoring = False"
+    )
     assert first["checks"]["strict_json_compatible"] is True
 
 

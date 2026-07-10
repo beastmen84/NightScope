@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionFeatureFlags,
-)
 from astro_viewer.tools.nsom_aod_openaq_calibration_audit import (
     REPORT_PATH,
     generate_aod_openaq_calibration_audit_data,
@@ -33,7 +30,7 @@ def test_aod_openaq_calibration_audit_is_deterministic_strict_json_and_developer
     assert first["readiness"]["penalty_cap_transparency_shape_calibrated"] is True
     assert first["readiness"]["ready_for_default_on"] is False
     assert first["checks"]["strict_json_compatible"] is True
-    assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
+    assert first["checks"]["feature_flag_default_off"] is True
 
 
 def test_aod_openaq_calibration_audit_formula_direction_and_source_policy() -> None:

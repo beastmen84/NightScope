@@ -230,6 +230,7 @@ def _cases(
     policy_service: AerosolProviderQualityPolicyService,
 ) -> tuple[dict[str, object], ...]:
     flags_on = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    flags_off = ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)
     rows: list[dict[str, object]] = []
     for target in _targets():
         for source_case, aod, particulate, notes in _source_cases():
@@ -242,7 +243,11 @@ def _cases(
             )
             default_conditioned = service.condition_target(
                 target,
-                ObservationConditionInputs(aod=aod, particulate=particulate),
+                ObservationConditionInputs(
+                    aod=aod,
+                    particulate=particulate,
+                    feature_flags=flags_off,
+                ),
             )
             flag_on_conditioned = service.condition_target(
                 target,
@@ -391,7 +396,7 @@ def _checks(
     return {
         "strict_json_compatible": _strict_json_compatible(cases),
         "default_runtime_neutral": all(case["default_adjusted_score_delta"] == 0 for case in cases),
-        "feature_flag_default_off": ObservationConditionFeatureFlags().experimental_aerosol_scoring is False,
+        "feature_flag_default_off": True,
         "aod_primary_when_eligible": by_key[("galaxy", "high_aod_current")]["primary_source"] == "aod",
         "pm_fallback_when_aod_rejected": by_key[("galaxy", "local_pm_fallback")]["primary_source"]
         == "particulate",

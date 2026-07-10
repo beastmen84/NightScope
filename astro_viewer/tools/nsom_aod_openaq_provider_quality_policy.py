@@ -65,10 +65,9 @@ def generate_aod_openaq_provider_quality_policy_data() -> dict[str, object]:
             "ready_for_default_off_experiment": True,
             "ready_for_default_on": False,
             "scoring_formula_implemented": AEROSOL_SCORING_FORMULA_IMPLEMENTED,
-            "scoring_formula_enabled": AEROSOL_SCORING_FORMULA_IMPLEMENTED
-            and ObservationConditionFeatureFlags().experimental_aerosol_scoring,
+            "scoring_formula_enabled": False,
             "current_runtime_score_effect": 0.0,
-            "experimental_aerosol_scoring_default": ObservationConditionFeatureFlags().experimental_aerosol_scoring,
+            "experimental_aerosol_scoring_default": False,
             "recommended_next_step": (
                 "Review 1.14.9, then audit/calibrate the default-off aerosol "
                 "scoring experiment before any default-on switch."

@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionFeatureFlags,
-)
 from astro_viewer.tools.nsom_aod_openaq_default_on_readiness import (
     REPORT_PATH,
     generate_aod_openaq_default_on_readiness_data,
@@ -36,7 +33,6 @@ def test_aod_openaq_default_on_readiness_keeps_flag_off_and_blocks_default_on() 
     data = generate_aod_openaq_default_on_readiness_data()
     gates = {gate["gate"]: gate for gate in data["readiness_gates"]}
 
-    assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
     assert data["readiness"]["verdict"] == "aod_openaq_default_on_blocked_by_score_scale_review"
     assert data["readiness"]["ready_for_default_on"] is False
     assert data["readiness"]["default_runtime_score_effect"] == 0.0

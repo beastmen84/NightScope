@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from astro_viewer.app.services.observation_conditions_service import (
-    ObservationConditionFeatureFlags,
-)
 from astro_viewer.tools.nsom_aod_openaq_stale_current_replay_audit import (
     REPORT_PATH,
     generate_aod_openaq_stale_current_replay_audit_data,
@@ -35,7 +32,6 @@ def test_stale_current_replay_keeps_flag_off_but_accepts_stale_policy_for_review
     data = generate_aod_openaq_stale_current_replay_audit_data()
     gates = {gate["gate"]: gate for gate in data["readiness_gates"]}
 
-    assert ObservationConditionFeatureFlags().experimental_aerosol_scoring is False
     assert data["readiness"]["verdict"] == (
         "aod_openaq_stale_policy_ready_for_default_on_review"
     )

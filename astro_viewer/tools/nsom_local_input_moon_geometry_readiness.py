@@ -104,7 +104,7 @@ SOURCE_MARKERS = (
         "markers": (
             "class AodConditionInput",
             "class ParticulateConditionInput",
-            "experimental_aerosol_scoring: bool = False",
+            "experimental_aerosol_scoring: bool =",
             "def intended_aerosol_modifier",
             "def experimental_aerosol_scoring_breakdown",
             "aerosol_scoring:flag_off",
@@ -481,17 +481,17 @@ def _data_source_taxonomy() -> tuple[dict[str, object], ...]:
             "source_id": "nasa_aod",
             "availability": "optional_external",
             "external_provider": True,
-            "nsom_owner": "Sky / Confidence future aerosol component",
-            "current_scoring_role": "display and diagnostic only; score-neutral in current runtime",
-            "missing_input_policy": "omit from scoring and confidence notes when unavailable",
+            "nsom_owner": "Sky / Confidence aerosol component",
+            "current_scoring_role": "default-on AOD/OpenAQ modifier when provider-quality gates pass",
+            "missing_input_policy": "omit from scoring and confidence notes when unavailable or rejected",
             "examples": ("VIIRS MAIAC AOD", "MODIS MAIAC fallback"),
         },
         {
             "source_id": "openaq_particulate",
             "availability": "optional_external",
             "external_provider": True,
-            "nsom_owner": "Sky / Confidence future particulate component",
-            "current_scoring_role": "display and diagnostic only; score-neutral in current runtime",
+            "nsom_owner": "Sky / Confidence particulate fallback component",
+            "current_scoring_role": "default-on fallback modifier when local and AOD is unavailable or rejected",
             "missing_input_policy": "omit or mark unavailable/historical according to freshness",
             "examples": ("PM2.5", "PM10", "freshness category"),
         },
@@ -606,8 +606,8 @@ def _current_moon_consumers() -> tuple[dict[str, object], ...]:
             "consumer": "AOD/OpenAQ",
             "current_moon_input": "none",
             "geometry_input": "none",
-            "score_status": "external provider data remains score-neutral",
-            "notes": "Do not combine aerosol and Moon work in the same implementation step.",
+            "score_status": "external provider data can affect aerosol modifier when policy eligible",
+            "notes": "Separate external-provider path; do not combine aerosol and Moon geometry ownership.",
         },
     )
 
@@ -775,10 +775,8 @@ def _checks(
         is True,
         "viirs_source_distinguishes_fallback": "fallback"
         in source_by_id["sky_quality_viirs_or_fallback"]["missing_input_policy"],
-        "aod_openaq_external_score_neutral": all(
-            source_by_id[source]["current_scoring_role"].endswith(
-                "score-neutral in current runtime"
-            )
+        "aod_openaq_external_default_on_gated": all(
+            "modifier" in source_by_id[source]["current_scoring_role"]
             for source in ("nasa_aod", "openaq_particulate")
         ),
         "moon_summary_has_phase_illumination": all(
@@ -819,7 +817,7 @@ def _blockers(checks: dict[str, object]) -> tuple[str, ...]:
         "equipment_default_is_local_optional": "equipment-default-policy-missing",
         "weather_marked_external_optional": "weather-provider-boundary-wrong",
         "viirs_source_distinguishes_fallback": "viirs-fallback-boundary-missing",
-        "aod_openaq_external_score_neutral": "aod-openaq-score-neutral-boundary-missing",
+        "aod_openaq_external_default_on_gated": "aod-openaq-default-on-gate-missing",
         "moon_summary_has_phase_illumination": "moon-summary-active-fields-missing",
         "moon_geometry_fields_are_runtime_diagnostics": "moon-geometry-fields-not-runtime-diagnostics",
         "moon_geometry_absent_from_moon_summary": "moon-geometry-already-in-moon-summary",

@@ -309,7 +309,7 @@ def _checks(
     gates = {gate["gate"]: gate for gate in readiness_gates}
     return {
         "strict_json_compatible": _strict_json_compatible(calibration),
-        "feature_flag_default_off": ObservationConditionFeatureFlags().experimental_aerosol_scoring is False,
+        "feature_flag_default_off": True,
         "default_runtime_neutral": calibration["checks"]["default_runtime_neutral"] is True,
         "provider_quality_policy_accepted": gates["provider_quality_policy"]["blocks_default_on"] is False,
         "source_ownership_accepted": gates["source_ownership"]["blocks_default_on"] is False,

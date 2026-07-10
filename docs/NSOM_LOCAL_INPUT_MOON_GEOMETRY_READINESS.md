@@ -27,8 +27,8 @@ This developer-only audit separates NightScope input sources into local always-a
 | `equipment_profile` | optional_local | `False` | Observer | ObserverCapability and PracticalTargetValue where applicable | use naked-eye/default observer assumptions |
 | `weather_open_meteo` | optional_external | `True` | Session | SessionViability and weather blocking when available | weather-dependent conclusions remain unknown or fallback-safe |
 | `sky_quality_viirs_or_fallback` | optional_hybrid | `hybrid` | Sky | static_sky_background when VIIRS radiance or fallback exists | distinguish real VIIRS radiance from fallback sky quality |
-| `nasa_aod` | optional_external | `True` | Sky / Confidence future aerosol component | display and diagnostic only; score-neutral in current runtime | omit from scoring and confidence notes when unavailable |
-| `openaq_particulate` | optional_external | `True` | Sky / Confidence future particulate component | display and diagnostic only; score-neutral in current runtime | omit or mark unavailable/historical according to freshness |
+| `nasa_aod` | optional_external | `True` | Sky / Confidence aerosol component | default-on AOD/OpenAQ modifier when provider-quality gates pass | omit from scoring and confidence notes when unavailable or rejected |
+| `openaq_particulate` | optional_external | `True` | Sky / Confidence particulate fallback component | default-on fallback modifier when local and AOD is unavailable or rejected | omit or mark unavailable/historical according to freshness |
 
 ## Moon Geometry Field Inventory
 
@@ -52,7 +52,7 @@ This developer-only audit separates NightScope input sources into local always-a
 | Best Object NSOM | MoonSummary.illumination through Home observable adapter | diagnostic export only | active through ObservableTargetValue and Opportunity | SessionViability remains separate from target and sky physics. |
 | Sky Compass NSOM | MoonSummary.illumination through Home observable adapter | diagnostic export only | active as candidate base only | Direction policy remains presentation/context outside target physics. |
 | ObservationConditions legacy compatibility | MoonSummary.illumination | diagnostic notes only when supplied | geometry modifier is neutral | Existing presentation compatibility score remains bounded by raw/display policy. |
-| AOD/OpenAQ | none | none | external provider data remains score-neutral | Do not combine aerosol and Moon work in the same implementation step. |
+| AOD/OpenAQ | none | none | external provider data can affect aerosol modifier when policy eligible | Separate external-provider path; do not combine aerosol and Moon geometry ownership. |
 
 ## Moon Readiness Contract
 
@@ -104,7 +104,7 @@ This developer-only audit separates NightScope input sources into local always-a
 | `equipment_default_is_local_optional` | `True` |
 | `weather_marked_external_optional` | `True` |
 | `viirs_source_distinguishes_fallback` | `True` |
-| `aod_openaq_external_score_neutral` | `True` |
+| `aod_openaq_external_default_on_gated` | `True` |
 | `moon_summary_has_phase_illumination` | `True` |
 | `moon_geometry_fields_are_runtime_diagnostics` | `True` |
 | `moon_geometry_absent_from_moon_summary` | `True` |

@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.14.19 - 2026-07-10
+
+- Abilitato di default il path AOD/OpenAQ calibrato:
+  `ObservationConditionFeatureFlags.experimental_aerosol_scoring` ora vale
+  `True`.
+- Aggiunto `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_SWITCH.md`, report developer-only
+  che documenta review 1.14.18 accettata, rollback esplicito tramite
+  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`,
+  confidence neutrality e assenza di wiring runtime/QML.
+- Nessuna formula, peso, provider call, UI/QML, logging o scrittura runtime e'
+  stata aggiunta: l'effetto runtime compare solo quando i dati AOD/OpenAQ sono
+  gia' disponibili e passano i gate provider-quality.
+- Planner/Home/Best Object/Advanced Observing/Sky Compass/Detail/Equipment non
+  sono stati modificati direttamente; ricevono solo il normale output
+  condition-adjusted quando usano `ObservationConditionsService`.
+
 ## NightScope 1.14.18 - 2026-07-10
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md`, audit

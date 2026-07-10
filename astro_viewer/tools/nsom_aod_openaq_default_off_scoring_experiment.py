@@ -179,6 +179,7 @@ def write_markdown_report(path: Path = REPORT_PATH) -> Path:
 
 def _cases(service: ObservationConditionsService) -> tuple[dict[str, object], ...]:
     flags_on = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    flags_off = ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)
     rows = []
     for name, target, aod, particulate, notes in (
         (
@@ -233,7 +234,11 @@ def _cases(service: ObservationConditionsService) -> tuple[dict[str, object], ..
     ):
         default = service.condition_target(
             target,
-            ObservationConditionInputs(aod=aod, particulate=particulate),
+            ObservationConditionInputs(
+                aod=aod,
+                particulate=particulate,
+                feature_flags=flags_off,
+            ),
         )
         experimental = service.experimental_aerosol_scoring_breakdown(
             target,

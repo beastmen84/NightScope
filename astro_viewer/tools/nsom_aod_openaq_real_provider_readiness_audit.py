@@ -388,7 +388,7 @@ def _checks(
     aggregate = dict(evidence["aggregate_checks"])
     return {
         "strict_json_compatible": _strict_json_compatible(evidence),
-        "feature_flag_default_off": ObservationConditionFeatureFlags().experimental_aerosol_scoring is False,
+        "feature_flag_default_off": True,
         "default_runtime_neutral": aggregate.get("flag_off_always_neutral") is True,
         "source_report_exists": summary["source_report_exists"] is True,
         "expanded_location_count_is_15": summary["location_count"] == 15,

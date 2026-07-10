@@ -48,12 +48,8 @@ def test_data_source_taxonomy_separates_local_optional_and_external_inputs() -> 
     assert "real VIIRS radiance" in sources["sky_quality_viirs_or_fallback"]["missing_input_policy"]
     assert sources["nasa_aod"]["external_provider"] is True
     assert sources["openaq_particulate"]["external_provider"] is True
-    assert sources["nasa_aod"]["current_scoring_role"].endswith(
-        "score-neutral in current runtime"
-    )
-    assert sources["openaq_particulate"]["current_scoring_role"].endswith(
-        "score-neutral in current runtime"
-    )
+    assert "default-on AOD/OpenAQ modifier" in sources["nasa_aod"]["current_scoring_role"]
+    assert "default-on fallback modifier" in sources["openaq_particulate"]["current_scoring_role"]
 
 
 def test_moon_geometry_is_local_ready_and_active_for_planner_only() -> None:
@@ -109,7 +105,9 @@ def test_current_consumers_use_illumination_and_keep_geometry_future() -> None:
     assert consumers["ObservationConditions legacy compatibility"]["score_status"] == (
         "geometry modifier is neutral"
     )
-    assert consumers["AOD/OpenAQ"]["score_status"] == "external provider data remains score-neutral"
+    assert consumers["AOD/OpenAQ"]["score_status"] == (
+        "external provider data can affect aerosol modifier when policy eligible"
+    )
 
 
 def test_source_markers_and_safety_checks_are_clean() -> None:
@@ -123,7 +121,7 @@ def test_source_markers_and_safety_checks_are_clean() -> None:
     assert checks["equipment_default_is_local_optional"] is True
     assert checks["weather_marked_external_optional"] is True
     assert checks["viirs_source_distinguishes_fallback"] is True
-    assert checks["aod_openaq_external_score_neutral"] is True
+    assert checks["aod_openaq_external_default_on_gated"] is True
     assert checks["moon_summary_has_phase_illumination"] is True
     assert checks["moon_geometry_fields_are_runtime_diagnostics"] is True
     assert checks["moon_geometry_absent_from_moon_summary"] is True

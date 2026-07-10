@@ -2280,6 +2280,11 @@ A future `ObserverCapabilityService` should own:
   replay accepts `stale=0.5` as a conservative freshness policy because the
   current replay remains bounded, target-specific and nearly neutral for
   protected solar-system targets.
+- Status 1.14.19: `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_SWITCH.md` enables the
+  calibrated AOD/OpenAQ path by default through
+  `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`. Rollback
+  remains explicit with
+  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2313,9 +2318,8 @@ A future `ObserverCapabilityService` should own:
 - Status 1.14.8: provider-quality and double-counting policies are accepted for
   a future default-off aerosol experiment.
 - Status 1.14.9: the default-off aerosol scoring experiment is implemented in
-  `ObservationConditionsService`. Default runtime inputs keep
-  `experimental_aerosol_scoring=False`, so current modifiers remain `0.0`
-  unless the internal flag is explicitly enabled.
+  `ObservationConditionsService`. It later becomes default-on in 1.14.19 after
+  calibration, real-provider probing and stale/current replay.
 
 ### Step 7: Advanced score cleanup
 
@@ -2519,17 +2523,19 @@ A future `ObserverCapabilityService` should own:
 
 ## 13. Recommendation
 
-Do not enable AOD/OpenAQ scoring by default yet.
+The 1.14.19 backend state is to keep AOD/OpenAQ scoring enabled by default after
+the 1.14.18 stale-vs-current replay audit was accepted.
 
-The safe next step is:
+The safe operating policy is:
 
-1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.18 stale-vs-current replay audit;
-3. if accepted, implement a narrow AOD/OpenAQ default-on switch in a separate
-   commit;
-4. keep AOD/PM confidence metadata separate from score;
-5. keep VIIRS sky background, weather transparency and Moon geometry as separate
-   owners in that experiment.
+1. keep `experimental_aerosol_scoring` default on;
+2. keep rollback explicit with
+   `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`;
+3. keep AOD/PM confidence metadata separate from score;
+4. keep VIIRS sky background, weather transparency and Moon geometry as separate
+   owners;
+5. collect future real observing feedback before any further aerosol weight
+   tuning.
 
 This preserves NightScope's current stable behavior while moving toward a
 single explainable mathematical system where each physical phenomenon has one

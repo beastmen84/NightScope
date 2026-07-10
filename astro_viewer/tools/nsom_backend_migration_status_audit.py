@@ -70,6 +70,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md"),
     Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md"),
     Path("docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md"),
+    Path("docs/NSOM_AOD_OPENAQ_DEFAULT_ON_SWITCH.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -149,8 +150,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.18 AOD/OpenAQ stale-vs-current replay, then "
-                "decide whether to implement a narrow default-on switch"
+                "Review 1.14.19 AOD/OpenAQ default-on switch, then monitor "
+                "real observing feedback before any further aerosol tuning"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -180,8 +181,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "parameters. Planner Moon geometry is now default-on through a "
                 "narrow Planner-specific switch. Provider-backed AOD/OpenAQ "
                 "readiness and provider-quality policy are documented. AOD/OpenAQ "
-                "now has an explicit default-off scoring experiment; default "
-                "runtime scoring remains disabled. The 1.14.11 calibration audit "
+                "now has a calibrated scoring path enabled by default. The "
+                "1.14.11 calibration audit "
                 "identified score-scale and penalty-cap/transparency-shape review "
                 "items; 1.14.12 calibrates the formula shape by mapping class caps "
                 "to transparency loss and deriving score modifiers from target "
@@ -197,8 +198,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "score scale but keeps default-on deferred because the checked-in "
                 "evidence has stale AOD only and one temporal snapshot. The "
                 "1.14.18 stale-vs-current replay accepts stale=0.5 as a "
-                "conservative policy and leaves only review of the default-on "
-                "switch itself."
+                "conservative policy. The 1.14.19 default-on switch changes only "
+                "the feature flag, keeps explicit rollback available through "
+                "ObservationConditionFeatureFlags(experimental_aerosol_scoring=False), "
+                "and adds no QML, provider, logging or runtime report wiring."
             ),
         },
         "blockers": blockers,
@@ -389,11 +392,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "recommended removing internal rollback paths; 1.13.8 removed "
                 "the runtime constructor rollback parameters. "
                 "Planner Moon geometry is default-on. AOD/OpenAQ provider-quality "
-                "policy is hardened, the default-off formula exists and 1.14.12 "
-                "calibrates the penalty-cap/transparency shape. Runtime aerosol "
-                "scoring remains disabled by default. The 1.14.17 real-provider "
-                "readiness audit resolves score-scale review; 1.14.18 accepts "
-                "the stale/current freshness policy through offline replay. "
+                "policy is hardened, the calibrated formula exists and 1.14.12 "
+                "calibrates the penalty-cap/transparency shape. The 1.14.17 "
+                "real-provider readiness audit resolves score-scale review; "
+                "1.14.18 accepts the stale/current freshness policy through "
+                "offline replay; 1.14.19 enables the calibrated AOD/OpenAQ path "
+                "by default with explicit forced-off rollback still available. "
                 "Visible UI explanation work remains separate."
             ),
             "",
@@ -1023,6 +1027,17 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.18",
             "summary": "Confirm stale/current policy before any narrow default-on switch.",
+        },
+        {
+            "step": "1.14.19 AOD/OpenAQ default-on switch",
+            "summary": (
+                "Enable the calibrated AOD/OpenAQ path by default while keeping "
+                "explicit forced-off rollback."
+            ),
+        },
+        {
+            "step": "Review 1.14.19",
+            "summary": "Confirm the default-on switch has no QML/report/provider side effects.",
         },
     )
 

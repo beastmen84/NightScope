@@ -145,7 +145,9 @@ def test_aod_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
         assert f"aod:{category}" in breakdown.diagnostic_notes
         assert "aod:available" in breakdown.diagnostic_notes
         assert "aod:550=0.18" in breakdown.diagnostic_notes
-        assert "aod:score_neutral" in breakdown.diagnostic_notes
+        assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
+        assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
+        assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
 def test_particulate_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
@@ -177,7 +179,9 @@ def test_particulate_diagnostic_inputs_are_freshness_aware_and_score_neutral() -
         assert "particulate:available" in breakdown.diagnostic_notes
         assert "pm25=9.5" in breakdown.diagnostic_notes
         assert "pm10=22" in breakdown.diagnostic_notes
-        assert "particulate:score_neutral" in breakdown.diagnostic_notes
+        assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+        assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
+        assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
 def test_unavailable_atmospheric_diagnostics_remain_score_neutral() -> None:
@@ -204,8 +208,10 @@ def test_unavailable_atmospheric_diagnostics_remain_score_neutral() -> None:
     assert breakdown.applied_components == ()
     assert "aod:unavailable:no_credentials" in breakdown.diagnostic_notes
     assert "particulate:unavailable:no_measurements" in breakdown.diagnostic_notes
-    assert "aod:score_neutral" in breakdown.diagnostic_notes
-    assert "particulate:score_neutral" in breakdown.diagnostic_notes
+    assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
+    assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
 def test_diagnostic_only_inputs_prepare_runtime_aod_and_openaq_boundary() -> None:
@@ -330,8 +336,9 @@ def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_compon
     assert breakdown.applied_components == ("moon", "light_pollution")
     assert breakdown.aod_modifier == 0.0
     assert breakdown.pm25_modifier == 0.0
-    assert "aod:score_neutral" in breakdown.diagnostic_notes
-    assert "particulate:score_neutral" in breakdown.diagnostic_notes
+    assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
 def test_future_aod_freshness_weights_are_characterized() -> None:
@@ -411,10 +418,11 @@ def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:
     assert service.aerosol_primary_source(historical_aod, None) == "none"
 
 
-def test_future_aerosol_modifier_is_neutral_with_feature_flag_off() -> None:
+def test_aerosol_modifier_is_enabled_by_default_and_can_be_forced_off() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
-    flags = ObservationConditionFeatureFlags()
+    default_flags = ObservationConditionFeatureFlags()
+    forced_off_flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)
     aod = _scoring_aod(aod_550=0.44)
     particulate = ParticulateConditionInput(
         available=True,
@@ -425,18 +433,35 @@ def test_future_aerosol_modifier_is_neutral_with_feature_flag_off() -> None:
         distance_km=5.0,
     )
 
-    conditioned = service.condition_target(
+    default_conditioned = service.condition_target(
         target,
         ObservationConditionInputs.diagnostic_only(aod=aod, particulate=particulate),
     )
+    rollback_conditioned = service.condition_target(
+        target,
+        ObservationConditionInputs(
+            aod=aod,
+            particulate=particulate,
+            feature_flags=forced_off_flags,
+        ),
+    )
 
-    assert flags.experimental_aerosol_scoring is False
-    assert service.intended_aerosol_modifier(target, aod, particulate, flags) == 0.0
-    assert conditioned.target == target
-    assert conditioned.breakdown.adjusted_score == target.score
-    assert conditioned.breakdown.aod_modifier == 0.0
-    assert conditioned.breakdown.pm25_modifier == 0.0
-    assert conditioned.breakdown.applied_components == ()
+    assert default_flags.experimental_aerosol_scoring is True
+    assert service.intended_aerosol_modifier(target, aod, particulate, default_flags) == -7.38
+    assert default_conditioned.target != target
+    assert default_conditioned.breakdown.adjusted_score == 75
+    assert default_conditioned.breakdown.aod_modifier == -7.38
+    assert default_conditioned.breakdown.pm25_modifier == 0.0
+    assert default_conditioned.breakdown.applied_components == ("aod",)
+    assert target.score == 82
+
+    assert forced_off_flags.experimental_aerosol_scoring is False
+    assert service.intended_aerosol_modifier(target, aod, particulate, forced_off_flags) == 0.0
+    assert rollback_conditioned.target == target
+    assert rollback_conditioned.breakdown.adjusted_score == target.score
+    assert rollback_conditioned.breakdown.aod_modifier == 0.0
+    assert rollback_conditioned.breakdown.pm25_modifier == 0.0
+    assert rollback_conditioned.breakdown.applied_components == ()
 
 
 def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
@@ -594,7 +619,8 @@ def test_experimental_aerosol_scoring_rejects_non_policy_eligible_sources() -> N
     assert conditioned.target == target
     assert conditioned.breakdown.adjusted_score == target.score
     assert conditioned.breakdown.applied_components == ()
-    assert "aerosol_scoring:no_policy_eligible_provider" not in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:no_policy_eligible_provider" in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:score_neutral" in conditioned.breakdown.diagnostic_notes
 
 
 def test_experimental_aerosol_scoring_confidence_metadata_does_not_scale_score() -> None:
@@ -946,7 +972,9 @@ def test_app_controller_stale_openaq_runtime_input_remains_score_neutral() -> No
     assert conditioned.breakdown.pm25_modifier == 0.0
     assert conditioned.breakdown.applied_components == ()
     assert "particulate:stale" in conditioned.breakdown.diagnostic_notes
-    assert "particulate:score_neutral" in conditioned.breakdown.diagnostic_notes
+    assert "particulate:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:no_policy_eligible_provider" in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:score_neutral" in conditioned.breakdown.diagnostic_notes
 
 
 def test_app_controller_skips_failed_unavailable_or_historical_diagnostic_inputs() -> None:
