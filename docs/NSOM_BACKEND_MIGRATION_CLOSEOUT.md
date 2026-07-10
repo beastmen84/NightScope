@@ -11,8 +11,8 @@ This developer-only closeout records that the backend NSOM migration for recomme
 - Runtime behaviour changed by closeout: `False`.
 - Ready for visible UI redesign: `False`.
 - Backend default-on blockers: `[]`.
-- Recommended next step: Review this closeout, then monitor AOD/OpenAQ real observing feedback. Future work should treat backend Catalogue/Universe raw-score semantics and visible UI explanations as separate design steps.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are default-on NSOM surfaces. AOD/OpenAQ condition scoring is also default-on after the 1.14.19 switch. Equipment remains intentionally setup-local, ObservationConditions remains an active raw/display compatibility boundary, and Catalogue raw scores remain upstream backend Universe input policy rather than a ranking hotfix or visible UI score.
+- Recommended next step: Review this closeout, then perform the separate visible UI verification/design step. Monitor AOD/OpenAQ real observing feedback after real program use before tuning.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are default-on NSOM surfaces. AOD/OpenAQ condition scoring is also default-on after the 1.14.19 switch. Equipment remains intentionally setup-local, ObservationConditions remains an active raw/display compatibility boundary, and Catalogue raw scores have been reviewed as upstream backend Universe input policy rather than a ranking hotfix or visible UI score.
 
 ## Closed Backend Surfaces
 
@@ -40,14 +40,14 @@ This developer-only closeout records that the backend NSOM migration for recomme
 | --- | --- | --- |
 | `Equipment recommendations` | `equipment_nsom_migration_closed_setup_local` | Keep Equipment as a setup-local service; rollback cleanup is complete, so visible UI/explanation or Universe/catalogue policy can be considered separately. |
 | `ObservationConditions prepared-object cache` | `observation_conditions_consumer_reroute_closed` | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
-| `Catalogue / raw object score` | `upstream_legacy_input` | Treat as backend Universe/read-model work, not as a ranking hotfix or visible catalogue/Home score. |
+| `Catalogue / raw object score` | `evaluated_backend_input` | Keep as backend Universe/read-model input for the current scope; do not treat it as a ranking hotfix or visible catalogue/Home score. |
 
-## Future Work Policy
+## Follow-Up Policy
 
 | Area | Status | Blocks backend closeout | Policy |
 | --- | --- | --- | --- |
 | `AOD/OpenAQ real observing feedback` | `monitor_before_tuning` | `False` | Do not tune weights until enough real observing outcomes are reviewed. |
-| `Catalogue / Universe raw score semantics` | `future_universe_policy` | `False` | Clarify intrinsic catalogue scores as backend Universe inputs, not as a ranking hotfix or visible UI score. |
+| `Catalogue / Universe raw score semantics` | `current_policy_evaluated` | `False` | Existing separation is sufficient for current backend scope; defer a new `UniverseTargetProfile` until multi-catalogue provenance, intrinsic calibration or visible score explanations require it. |
 | `Visible UI explanations` | `future_design_step` | `False` | Keep UI unchanged until backend explanations and display semantics are designed explicitly. |
 
 ## Checks
@@ -60,6 +60,7 @@ This developer-only closeout records that the backend NSOM migration for recomme
 | `aod_openaq_default_on` | `True` |
 | `aod_openaq_rollback_documented` | `True` |
 | `aod_openaq_confidence_score_neutral` | `True` |
+| `catalogue_universe_raw_score_policy_evaluated` | `True` |
 | `remaining_items_are_non_blocking` | `True` |
 | `visible_ui_redesign_not_started` | `True` |
 | `runtime_report_imports_absent` | `True` |

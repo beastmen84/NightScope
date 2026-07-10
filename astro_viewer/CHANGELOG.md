@@ -8,6 +8,10 @@
 - Chiarito che `CelestialObject.score` / raw catalogue score resta un input
   backend Universe/read-model: non e' esposto come score nel Catalogo Oggetti
   Celesti e non coincide con lo score Home complessivo.
+- Valutata la policy backend Catalogue/Universe raw score nello scope corrente:
+  la separazione tra `IntrinsicTargetQuality`, metadata catalogo/provenance,
+  osservabilita' catalogo, payload Home e ranking NSOM e' sufficiente; nessun
+  nuovo `UniverseTargetProfile` runtime viene introdotto.
 - Rimosso il set storico di report, generatori e test di migrazione NSOM ormai
   sostituito da `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.

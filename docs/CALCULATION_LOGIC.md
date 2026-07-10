@@ -160,6 +160,25 @@ The future contract is documented, but the current calculation path keeps
 imports, intrinsic calibration or visible score explanation require a separate
 profile.
 
+As of `1.15.2`, the Catalogue/Universe raw-score policy has been reviewed for
+the current backend scope. The existing separation is sufficient:
+
+- intrinsic quality is represented by `IntrinsicTargetQuality`, seeded from the
+  raw prepared-object score;
+- catalogue/provenance metadata remains on catalogue rows and diagnostic
+  `source_fields`, not in a new runtime profile;
+- geometric and useful observability stay separate from raw score through
+  catalogue observability fields and `EffectiveObservability`;
+- the `Oggetti celesti` UI does not display the raw score;
+- Home visible score/payload semantics remain the existing downstream
+  `CelestialObject.score` display contract, while Home ordering uses NSOM
+  `ObservableTargetValue` where available.
+
+No new runtime `UniverseTargetProfile` is needed for the current backend
+migration. Revisit that profile only if a future feature requires
+multi-catalogue provenance, intrinsic calibration across catalogues, or visible
+score explanations that expose the distinction to users.
+
 ### Limitations
 
 Implemented:

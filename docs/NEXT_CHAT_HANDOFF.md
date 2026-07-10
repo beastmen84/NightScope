@@ -3,10 +3,11 @@
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
 Versione corrente: `1.15.2`  
-Ultimi commit completati:
+Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `06603d2 Clarify backend raw score policy`
+- `05397dc Update NSOM handoff state`
 - `d84de3a Remove closed NSOM migration artifacts`
-- `6a880c0 Audit NSOM migration artifact cleanup`
 
 ## Stato Breve
 
@@ -68,7 +69,7 @@ Attenzione importante:
 - Per audit offline rileggere i documenti base, il closeout e la cronologia Git;
   non introdurre nuove chiamate rete.
 
-## Residui Non Bloccanti
+## Residui E Decisioni Non Bloccanti
 
 Questi non bloccano il backend NSOM chiuso:
 
@@ -77,12 +78,17 @@ Questi non bloccano il backend NSOM chiuso:
      nuova implementazione NSOM, prima di qualunque tuning ulteriore.
    - Non fare tuning pesi adesso.
 
-2. `Catalogue / Universe raw score semantics`
+2. `Catalogue / Universe raw score semantics` valutato
    - I raw score/catalogue score restano input upstream backend.
    - Non sono esposti come score nel Catalogo Oggetti Celesti e non sono lo
      score Home complessivo gia' calcolato dopo le altre considerazioni.
-   - Da trattare come futura policy Universe/read-model, non come hotfix di
-     ranking.
+   - Policy valutata nello scope corrente: `IntrinsicTargetQuality`, metadata
+     catalogo/provenance, osservabilita' catalogo, payload Home e ranking NSOM
+     sono gia' separati a sufficienza.
+   - Chiuso per lo scope backend corrente: nessun nuovo
+     `UniverseTargetProfile` runtime adesso; rivalutarlo solo se
+     serviranno multi-catalogue provenance, calibrazione intrinseca o
+     spiegazioni score visibili.
 
 3. `Visible UI explanations`
    - La UI non va toccata automaticamente.
@@ -99,9 +105,11 @@ Questi non bloccano il backend NSOM chiuso:
    - Resta boundary attivo raw/display per compatibilita' e presentation.
    - Consumer reroute chiuso.
 
-## Ultimi Commit Rilevanti
+## Commit Rilevanti Prima Di Questo Aggiornamento
 
 ```text
+06603d2 Clarify backend raw score policy
+05397dc Update NSOM handoff state
 d84de3a Remove closed NSOM migration artifacts
 6a880c0 Audit NSOM migration artifact cleanup
 bde221a Close backend NSOM migration scope
@@ -155,11 +163,13 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Fare una review rapida di `1.15.2`.
-2. Decidere se aprire un nuovo capitolo su:
+2. Prossimo capitolo consigliato:
+   - verifica UI separata, senza cambiare QML/comportamento salvo prompt
+     esplicito.
+3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
-   - policy backend Catalogue/Universe raw score;
    - eventuale design UI/explanations.
-3. Non fare tuning e non toccare UI senza uno step esplicito.
+4. Non fare tuning e non toccare UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 

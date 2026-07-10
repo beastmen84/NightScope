@@ -1370,6 +1370,10 @@ Explicit boundaries that remain by design:
   seed and compatibility field until a future catalogue provenance policy
   exists. It is not exposed as an Object Catalogue UI score and is not the Home
   visible score.
+- The Catalogue/Universe raw-score policy has been evaluated for the current
+  backend scope: `IntrinsicTargetQuality`, catalogue metadata, catalogue
+  observability, Home display payloads and NSOM ranking inputs are already
+  separated enough that no new runtime `UniverseTargetProfile` is needed now.
 - Visible UI explanations are not part of this backend migration.
 
 The detailed migration evidence now lives in Git history. Checked-in source of
