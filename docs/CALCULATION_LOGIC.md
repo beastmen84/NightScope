@@ -144,12 +144,15 @@ Altitude contributes up to about 55 points. Magnitude contributes up to about
 35 points. Object type contributes a small bonus. Scores are clamped to 0-100.
 
 As of `1.13.9`, this raw prepared-object score is explicitly treated as an
-interim NSOM Universe/`IntrinsicTargetQuality` seed and as a compatibility
-display field. It is not a final NSOM recommendation score and should not be
-tuned directly without a future catalogue/provenance read-model step. The
+interim NSOM Universe/`IntrinsicTargetQuality` seed and as a backend
+compatibility field for existing services. It is not exposed as an `Oggetti
+celesti` catalogue UI score, and it is not the Home visible score, which is
+produced downstream after sky, observer, session and condition inputs are
+applied. It is not a final NSOM recommendation score and should not be tuned
+directly without a future catalogue/provenance read-model step. The
 ObservationConditions read model keeps raw target input separate from
-conditioned display score so Moon/light-pollution presentation adjustments do
-not become intrinsic target physics.
+conditioned recommendation/display score so Moon/light-pollution presentation
+adjustments do not become intrinsic target physics.
 
 As of `1.14.0`, a runtime `UniverseTargetProfile` is intentionally deferred.
 The future contract is documented, but the current calculation path keeps

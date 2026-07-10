@@ -1366,8 +1366,10 @@ Closed/default-on surfaces:
 Explicit boundaries that remain by design:
 
 - Equipment remains setup-local and is not replaced by a single NSOM scalar.
-- Catalogue/raw `CelestialObject.score` remains an upstream Universe seed and
-  compatibility display field until a future catalogue provenance policy exists.
+- Catalogue/raw `CelestialObject.score` remains an upstream backend Universe
+  seed and compatibility field until a future catalogue provenance policy
+  exists. It is not exposed as an Object Catalogue UI score and is not the Home
+  visible score.
 - Visible UI explanations are not part of this backend migration.
 
 The detailed migration evidence now lives in Git history. Checked-in source of

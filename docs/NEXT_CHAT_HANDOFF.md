@@ -78,7 +78,9 @@ Questi non bloccano il backend NSOM chiuso:
    - Non fare tuning pesi adesso.
 
 2. `Catalogue / Universe raw score semantics`
-   - I raw score/catalogue score restano input upstream.
+   - I raw score/catalogue score restano input upstream backend.
+   - Non sono esposti come score nel Catalogo Oggetti Celesti e non sono lo
+     score Home complessivo gia' calcolato dopo le altre considerazioni.
    - Da trattare come futura policy Universe/read-model, non come hotfix di
      ranking.
 
@@ -155,7 +157,7 @@ Sequenza consigliata:
 1. Fare una review rapida di `1.15.2`.
 2. Decidere se aprire un nuovo capitolo su:
    - monitoraggio AOD/OpenAQ reale;
-   - policy Catalogue/Universe raw score;
+   - policy backend Catalogue/Universe raw score;
    - eventuale design UI/explanations.
 3. Non fare tuning e non toccare UI senza uno step esplicito.
 

@@ -5,6 +5,9 @@
 - Corretto `docs/NEXT_CHAT_HANDOFF.md` con l'hash effettivo del commit
   `d84de3a`, la review di ripartenza su `1.15.2`, la policy AOD/OpenAQ da
   valutare dopo uso reale e uno snapshot sintetico delle librerie `.venv`.
+- Chiarito che `CelestialObject.score` / raw catalogue score resta un input
+  backend Universe/read-model: non e' esposto come score nel Catalogo Oggetti
+  Celesti e non coincide con lo score Home complessivo.
 - Rimosso il set storico di report, generatori e test di migrazione NSOM ormai
   sostituito da `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
