@@ -242,6 +242,61 @@ Item {
         return "target"
     }
 
+    function skyCompassTypeLabel(typeText) {
+        var raw = typeText || ""
+        var value = raw.toLowerCase()
+        if (value.indexOf("milky way star cloud") >= 0)
+            return "Nube stellare della Via Lattea"
+        if (value.indexOf("supernova remnant") >= 0)
+            return "Resto di supernova"
+        if (value.indexOf("optical double") >= 0)
+            return "Stella doppia ottica"
+        if (value.indexOf("asterism") >= 0)
+            return "Asterismo"
+        if (value.indexOf("planetary nebula") >= 0)
+            return "Nebulosa planetaria"
+        if (value.indexOf("h ii region nebula with cluster") >= 0)
+            return "Regione H II con ammasso"
+        if (value.indexOf("h ii region") >= 0)
+            return "Regione H II"
+        if (value.indexOf("nebula with cluster") >= 0)
+            return "Nebulosa con ammasso"
+        if (value.indexOf("diffuse nebula") >= 0)
+            return "Nebulosa diffusa"
+        if (value.indexOf("barred spiral galaxy") >= 0)
+            return "Galassia spirale barrata"
+        if (value.indexOf("dwarf elliptical galaxy") >= 0)
+            return "Galassia ellittica nana"
+        if (value.indexOf("elliptical galaxy") >= 0)
+            return "Galassia ellittica"
+        if (value.indexOf("lenticular galaxy") >= 0)
+            return "Galassia lenticolare"
+        if (value.indexOf("spiral galaxy") >= 0)
+            return "Galassia spirale"
+        if (value.indexOf("starburst galaxy") >= 0)
+            return "Galassia starburst"
+        if (value.indexOf("galaxy") >= 0)
+            return "Galassia"
+        if (value.indexOf("globular cluster") >= 0)
+            return "Ammasso globulare"
+        if (value.indexOf("open cluster") >= 0)
+            return "Ammasso aperto"
+        if (value.indexOf("cluster") >= 0)
+            return "Ammasso"
+        if (value === "planet" || value === "pianeta")
+            return "Pianeta"
+        if (value.indexOf("nebula") >= 0)
+            return "Nebulosa"
+        return raw
+    }
+
+    function skyCompassGeometricTargetCountLabel(count) {
+        var value = Number(count || 0)
+        if (value === 1)
+            return "1 target geometricamente visibile"
+        return value + " target geometricamente visibili"
+    }
+
     function sessionAccent(state) {
         if (state === "recommended")
             return theme.teal
@@ -839,13 +894,18 @@ Item {
                 property var compassData: controller.skyCompass || {}
                 property bool wide: root.width > 1180
                 property bool medium: root.width > 760
+                property bool sessionRecommended: root.sessionOverview.state === "recommended"
+                property string sessionCaution: compassData.cautionText
+                                                || (sessionRecommended ? "" :
+                                                    "Condizioni della sessione non confermate: usa la direzione solo come orientamento.")
 
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0
                 title: "Sky Compass"
-                subtitle: "Dove iniziare stasera"
+                subtitle: skyCompassCard.sessionRecommended
+                          ? "Dove iniziare stasera" : "Orientamento del cielo"
                 accentColor: theme.teal
                 headerContent: [
                     RowLayout {
@@ -854,7 +914,7 @@ Item {
                         spacing: 8
 
                         Text {
-                            text: "Alternative"
+                            text: skyCompassCard.sessionRecommended ? "Alternative" : "Altre direzioni"
                             color: theme.textSecondary
                             font.pixelSize: 12
                             font.weight: Font.DemiBold
@@ -1032,7 +1092,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Inizia da"
+                                    text: skyCompassCard.sessionRecommended ? "Inizia da" : "Guarda verso"
                                     color: theme.textSecondary
                                     font.pixelSize: 13
                                     font.weight: Font.DemiBold
@@ -1061,7 +1121,9 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: skyCompassCard.compassData.zoneLabel || "Zona consigliata"
+                                        text: skyCompassCard.sessionRecommended
+                                              ? (skyCompassCard.compassData.zoneLabel || "Zona consigliata")
+                                              : "Zona con più target"
                                         color: theme.teal
                                         font.pixelSize: 15
                                         font.weight: Font.DemiBold
@@ -1071,7 +1133,10 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: skyCompassCard.compassData.targetCountLabel || ""
+                                    text: skyCompassCard.sessionRecommended
+                                          ? (skyCompassCard.compassData.targetCountLabel || "")
+                                          : root.skyCompassGeometricTargetCountLabel(
+                                                skyCompassCard.compassData.targetCount)
                                     color: theme.textSecondary
                                     font.pixelSize: 13
                                     elide: Text.ElideRight
@@ -1079,8 +1144,8 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    visible: (skyCompassCard.compassData.cautionText || "").length > 0
-                                    text: skyCompassCard.compassData.cautionText || ""
+                                    visible: skyCompassCard.sessionCaution.length > 0
+                                    text: skyCompassCard.sessionCaution
                                     color: theme.amber
                                     font.pixelSize: 12
                                     wrapMode: Text.WordWrap
@@ -1156,7 +1221,8 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Target principali"
+                                text: skyCompassCard.sessionRecommended
+                                      ? "Target principali" : "Target nella direzione"
                                 color: theme.textPrimary
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
@@ -1258,7 +1324,7 @@ Item {
                                     Text {
                                         Layout.fillWidth: true
                                         visible: (modelData.type || "").length > 0
-                                        text: modelData.type || ""
+                                        text: root.skyCompassTypeLabel(modelData.type)
                                         color: theme.textMuted
                                         font.pixelSize: 11
                                         maximumLineCount: 1

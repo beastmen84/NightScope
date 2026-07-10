@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `319e820 Migrate upper Home cards to overview contract`
 - `8a1f318 Add Home overview presentation contract`
 - `04f60e4 Release 1.16.1 VIIRS cache revalidation`
 - `9debe8f Document 1.16.0 Windows distribution build`
@@ -39,7 +40,11 @@ Il closeout dichiara:
 - `1.17.0` aggiunge il contratto read-only `homeObservingOverview` e collega le
   card superiori Home: stato sessione, score solo meteo, condizioni descrittive
   planetarie/deep-sky e impatto lunare circoscritto;
-- Sky Compass e `Piano della notte` non sono inclusi nel secondo step Home;
+- Sky Compass e' ora state-aware nella presentazione: in sessione non
+  consigliata resta orientamento geometrico, con tipi target localizzati e
+  motivazioni neutrali; ranking e target non cambiano;
+- la parte alta Home e' completata per lo scope `1.17.0`; `Piano della notte`
+  resta fuori e sara' il capitolo successivo;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -188,21 +193,23 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo il secondo step `1.17.0`:
+Dopo il completamento della parte alta Home `1.17.0`:
 
 ```powershell
-.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
-.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py astro_viewer/tests/test_home_recommendation_presentation.py
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/sky_compass_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/sky_compass_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_sky_compass_nsom_ranking.py astro_viewer/tests/test_sky_compass_live_refresh.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_home_observing_overview.py
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q -n auto
 ```
 
 Risultati:
 
 - ruff focused: passed;
 - compileall: passed;
-- focused Home overview/release/NSOM presentation tests: `48 passed`;
-- QML smoke: passed.
+- focused Home/Sky Compass tests: `60 passed`;
+- QML smoke: passed;
+- full suite: `630 passed, 7 subtests passed`.
 
 Distribuzione Windows:
 
@@ -237,11 +244,10 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Completare la parte alta Home `1.17.0` con il solo step Sky Compass
-   state-aware e la localizzazione dei tipi target.
-2. Prossimo capitolo consigliato:
-   - passare alla seconda parte Home, `Piano della notte`, un pezzo alla volta,
-     senza cambiare scoring o ranking salvo prompt esplicito.
+1. Passare alla seconda parte Home, `Piano della notte`, un pezzo alla volta,
+   senza cambiare scoring o ranking salvo prompt esplicito.
+2. Verificare prima il contratto dati di ciascuna sezione del piano e solo dopo
+   modificarne il QML.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

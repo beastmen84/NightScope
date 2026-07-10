@@ -82,7 +82,8 @@ Current runtime status for `1.17.0`:
   category diagnostics and Moon impact. The upper QML cards consume this
   boundary: only the weather card exposes a numeric condition score, while
   planetary/deep-sky cards expose descriptive category diagnostics. Sky Compass
-  remains a separate presentation step.
+  consumes the same Session state only for copy/actionability: its direction,
+  target selection and NSOM ranking remain unchanged.
 
 Runtime safety rules remain unchanged: no report tooling is wired into QML, no
 automatic report logging is performed, and scoring must not trigger provider

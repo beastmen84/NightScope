@@ -33,7 +33,9 @@ Current runtime status for `1.17.0`:
   `homeObservingOverview` contract that keeps Session state separate from NSOM
   category diagnostics and legacy weather scoring. The upper cards now consume
   that contract; category diagnostics are descriptive and only the weather card
-  retains its numeric condition index.
+  retains its numeric condition index. Sky Compass reuses Session state only to
+  distinguish recommendation copy from orientation-only copy; ranking is not
+  changed.
 
 ## Core Diagram
 

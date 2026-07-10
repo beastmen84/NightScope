@@ -13,8 +13,12 @@
   meteo e condizioni descrittive planetarie/deep-sky.
 - Resi state-aware la finestra osservativa e gli stati senza dati; la scheda
   Luna descrive ora soltanto l'impatto lunare.
-- Mantenuti invariati scoring, ranking, Planner, Best Object, Sky Compass e
-  payload NSOM interni esistenti.
+- Reso Sky Compass state-aware: con sessione non consigliata presenta una
+  direzione geometrica di orientamento, non un invito a osservare.
+- Localizzati i tipi target mostrati da Sky Compass e rese neutrali le relative
+  motivazioni; aggiunta cautela esplicita anche senza dati meteo.
+- Mantenuti invariati scoring, ranking e selezione target di Planner, Best
+  Object, Home e Sky Compass, oltre ai payload NSOM diagnostici interni.
 
 ## NightScope 1.16.1 - 2026-07-10
 

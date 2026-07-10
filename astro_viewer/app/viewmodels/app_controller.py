@@ -2711,7 +2711,9 @@ class AppController(QObject):
         )
 
     def _sky_compass_caution_text(self) -> str:
-        if not self._weather_summary or self._observing_session_decision().state == "recommended":
+        if not self._weather_hours:
+            return "Condizioni meteo non disponibili: usa la direzione come orientamento, non come invito a osservare."
+        if self._observing_session_decision().state == "recommended":
             return ""
         return "Condizioni non ideali: usa la direzione come orientamento, non come invito a osservare."
 

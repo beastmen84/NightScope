@@ -66,7 +66,9 @@ AOD; AOD mantiene la propria TTL di 18 ore.
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
 impatto lunare. I punteggi numerici di categoria non sono piu' esposti in questa
-sezione. Sky Compass e Piano della notte restano capitoli separati.
+sezione. Sky Compass usa lo stesso stato di sessione per distinguere una
+direzione consigliata da un semplice orientamento geometrico e mostra i tipi
+target in italiano. `Piano della notte` resta il prossimo capitolo separato.
 
 ## Requisiti
 

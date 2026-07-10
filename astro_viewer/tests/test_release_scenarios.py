@@ -55,6 +55,8 @@ class ReleaseScenarioTests(unittest.TestCase):
                 self.assertIn("Meteo non disponibile", controller.weatherSummary["alert"])
                 self.assertFalse(controller.isObservingSessionBlocked)
                 self.assertEqual(controller.blockingReason, "")
+                self.assertEqual(controller.homeObservingOverview["session"]["state"], "unavailable")
+                self.assertIn("meteo non disponibili", controller.skyCompass["cautionText"].lower())
 
     def test_blocking_weather_state_is_exposed_by_controller(self) -> None:
         with self._controller_with_weather(_rainy_weather_response(), saved_location=True) as controller:

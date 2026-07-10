@@ -62,7 +62,10 @@ contract. It separates Session actionability, legacy weather index, NSOM
 planetary/deep-sky category diagnostics and scoped Moon impact copy. The second
 step connects the upper Home cards to that contract, removes the visible numeric
 category diagnostics and handles missing weather/Moon data explicitly. Neither
-step alters scoring, ranking or provider inputs; Sky Compass remains separate.
+step alters scoring, ranking or provider inputs. The final upper-Home step makes
+Sky Compass copy Session-aware, localizes displayed target types and keeps its
+direction ranking and target selection unchanged. `Piano della notte` remains a
+separate UI chapter.
 
 ## Closed Backend Surfaces
 

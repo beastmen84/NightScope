@@ -76,6 +76,12 @@ target ranking, Best Object or Sky Compass ranking. The upper Home QML consumes
 the projection without displaying the numeric category diagnostics; only the
 legacy weather index remains numeric and is labelled as weather-specific.
 
+Sky Compass direction ranking remains independent from this presentation
+projection. The Home QML uses the projected Session state only to label the
+direction as either an observing suggestion or geometric orientation; it does
+not rerank directions or targets. Missing weather also forces orientation-only
+copy.
+
 ### Solar-System Objects
 
 For Sun, Moon and planets, the engine computes:

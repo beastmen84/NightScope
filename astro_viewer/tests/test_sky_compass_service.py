@@ -31,7 +31,8 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert "targetNames" not in result
     assert "updatedLabel" not in result
     assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
-    assert any("Più ammassi osservabili" in reason for reason in result["decisionReasons"])
+    assert any("Più ammassi nella stessa zona" in reason for reason in result["decisionReasons"])
+    assert not any("osservabili" in reason.lower() for reason in result["decisionReasons"])
     assert not any("Due ottimi oggetti deep sky" in reason for reason in result["decisionReasons"])
     assert result["alternatives"][0]["direction"] == "Est"
 
@@ -125,13 +126,14 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert "controller.skyMap" not in source
     assert "columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1" in sky_compass_block
     assert "Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0" in sky_compass_block
-    assert 'text: "Inizia da"' in sky_compass_block
+    assert 'text: skyCompassCard.sessionRecommended ? "Inizia da" : "Guarda verso"' in sky_compass_block
     assert "accentColor: theme.teal" in sky_compass_block
     assert "property alias headerContent: headerContentRow.data" in glass_card_source
     assert "id: headerContentRow" in glass_card_source
     assert "headerContent: [" in sky_compass_block
-    assert 'text: "Alternative"' in sky_compass_block
-    assert sky_compass_block.index('text: "Alternative"') < sky_compass_block.index("GridLayout {")
+    alternatives_binding = 'text: skyCompassCard.sessionRecommended ? "Alternative" : "Altre direzioni"'
+    assert alternatives_binding in sky_compass_block
+    assert sky_compass_block.index(alternatives_binding) < sky_compass_block.index("GridLayout {")
     assert "Nessuna alternativa utile" not in sky_compass_block
     assert 'function eventAccent(type)' in source
     assert 'if (type === "Sciame meteorico")' in source
@@ -144,11 +146,30 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert "Target principali" in source
     assert "skyCompassCanvas" in source
     assert "skyCompassTypeIconKind" in source
+    assert "skyCompassTypeLabel" in source
+    assert "skyCompassGeometricTargetCountLabel" in source
     assert "iconKind === \"planet\"" in source
+    assert 'property bool sessionRecommended: root.sessionOverview.state === "recommended"' in sky_compass_block
+    assert '"Dove iniziare stasera" : "Orientamento del cielo"' in sky_compass_block
+    assert '"Inizia da" : "Guarda verso"' in sky_compass_block
+    assert '"Alternative" : "Altre direzioni"' in sky_compass_block
+    assert '"Target principali" : "Target nella direzione"' in sky_compass_block
+    assert 'text: root.skyCompassTypeLabel(modelData.type)' in sky_compass_block
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source
     assert "Aggiornato ora" not in source
     assert "Timer {" not in source
+
+
+def test_sky_compass_qml_localizes_catalogue_target_types() -> None:
+    source = HOME_PAGE.read_text(encoding="utf-8")
+
+    assert 'return "Nube stellare della Via Lattea"' in source
+    assert 'return "Ammasso globulare"' in source
+    assert 'return "Ammasso aperto"' in source
+    assert 'return "Galassia spirale"' in source
+    assert 'return "Nebulosa planetaria"' in source
+    assert 'return "Resto di supernova"' in source
 
 
 def _object(object_id: str, name: str, object_type: str, direction: str, score: int) -> CelestialObject:
