@@ -942,6 +942,13 @@ rollback remains explicit through
 `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`. No
 formula, provider fetch, QML payload, report runtime wiring, logging or runtime
 file write is added by the switch.
+`1.15.0` adds `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and closes the current
+backend NSOM recommendation-surface migration scope. Planner, Home
+`recommendedDeepSky`, Best Object, Advanced Observing backend, Sky Compass,
+Detail/Object internal payload and AOD/OpenAQ condition scoring are all in their
+intended default-on backend state. Remaining work is non-blocking and split into
+future real-observing AOD/OpenAQ monitoring, Catalogue/Universe raw-score policy
+and visible UI explanation design.
 
 ## Dependency Flow
 

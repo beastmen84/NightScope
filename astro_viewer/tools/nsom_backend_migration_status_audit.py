@@ -150,8 +150,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.19 AOD/OpenAQ default-on switch, then monitor "
-                "real observing feedback before any further aerosol tuning"
+                "Review 1.15.0 backend NSOM migration closeout, then monitor "
+                "AOD/OpenAQ real observing feedback before any further aerosol tuning"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -201,7 +201,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "conservative policy. The 1.14.19 default-on switch changes only "
                 "the feature flag, keeps explicit rollback available through "
                 "ObservationConditionFeatureFlags(experimental_aerosol_scoring=False), "
-                "and adds no QML, provider, logging or runtime report wiring."
+                "and adds no QML, provider, logging or runtime report wiring. "
+                "The 1.15.0 closeout records the backend NSOM recommendation "
+                "surface migration as closed for the current scope."
             ),
         },
         "blockers": blockers,
@@ -398,6 +400,8 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "1.14.18 accepts the stale/current freshness policy through "
                 "offline replay; 1.14.19 enables the calibrated AOD/OpenAQ path "
                 "by default with explicit forced-off rollback still available. "
+                "The 1.15.0 closeout records the current backend NSOM migration "
+                "scope as closed. "
                 "Visible UI explanation work remains separate."
             ),
             "",

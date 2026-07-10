@@ -2285,6 +2285,12 @@ A future `ObserverCapabilityService` should own:
   `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`. Rollback
   remains explicit with
   `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
+- Status 1.15.0: `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` closes the current
+  backend NSOM recommendation-surface migration scope. Planner, Home
+  `recommendedDeepSky`, Best Object, Advanced Observing backend, Sky Compass,
+  Detail/Object internal payload and AOD/OpenAQ condition scoring are in their
+  intended default-on backend state. Remaining work is non-blocking monitoring,
+  Universe/Catalogue policy or visible UI explanation design.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2523,8 +2529,10 @@ A future `ObserverCapabilityService` should own:
 
 ## 13. Recommendation
 
-The 1.14.19 backend state is to keep AOD/OpenAQ scoring enabled by default after
-the 1.14.18 stale-vs-current replay audit was accepted.
+The 1.15.0 backend state is that the current NSOM recommendation-surface
+migration scope is closed. AOD/OpenAQ scoring remains enabled by default after
+the 1.14.18 stale-vs-current replay audit was accepted and the 1.14.19 switch
+was applied.
 
 The safe operating policy is:
 
@@ -2535,7 +2543,9 @@ The safe operating policy is:
 4. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners;
 5. collect future real observing feedback before any further aerosol weight
-   tuning.
+   tuning;
+6. treat Catalogue/Universe raw-score semantics and visible UI explanations as
+   separate future work, not as backend migration blockers.
 
 This preserves NightScope's current stable behavior while moving toward a
 single explainable mathematical system where each physical phenomenon has one

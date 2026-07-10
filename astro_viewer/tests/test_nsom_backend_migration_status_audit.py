@@ -153,8 +153,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.19 AOD/OpenAQ default-on switch, then monitor "
-        "real observing feedback before any further aerosol tuning"
+        "Review 1.15.0 backend NSOM migration closeout, then monitor "
+        "AOD/OpenAQ real observing feedback before any further aerosol tuning"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -296,6 +296,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "AOD/OpenAQ provider-quality policy is hardened" in text
     assert "1.14.12 calibrates the penalty-cap/transparency shape" in text
     assert "1.14.19 enables the calibrated AOD/OpenAQ path by default" in text
+    assert "1.15.0 closeout records" in text
     assert "1.14.14 field-calibration fixtures pass" in text
     assert "1.14.15 real-provider probe covers" in text
     assert "1.14.16 expanded real-provider probe covers" in text

@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.15.0 - 2026-07-10
+
+- Aggiunto `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`, closeout developer-only
+  dello stato backend NSOM dopo lo switch AOD/OpenAQ default-on.
+- Dichiarate chiuse per lo scope corrente le superfici backend NSOM:
+  Planner, Home `recommendedDeepSky`, Best Object, Advanced Observing backend,
+  Sky Compass e Detail/Object internal payload.
+- Confermato che AOD/OpenAQ resta default-on con rollback esplicito tramite
+  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)` e che
+  confidence/provider confidence restano metadata.
+- I residui sono non bloccanti: monitoraggio AOD/OpenAQ reale prima di tuning,
+  policy futura Catalogue/Universe raw score e design futuro di spiegazioni UI.
+- Nessun cambio runtime, scoring, QML/UI, logging, rete o scritture runtime in
+  questo closeout.
+
 ## NightScope 1.14.19 - 2026-07-10
 
 - Abilitato di default il path AOD/OpenAQ calibrato:

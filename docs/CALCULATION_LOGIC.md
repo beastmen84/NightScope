@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.19`, NightScope keeps the backend recommendation inputs separated by
+As of `1.15.0`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -138,6 +138,10 @@ as a technical blocker by showing that current replay remains bounded and
 target-specific. The 1.14.19 switch changes only the default flag and does not
 change formulas, weights, provider fetches, QML payloads, logging or runtime
 file writes.
+The 1.15.0 backend closeout records this as the current backend NSOM state:
+recommendation surfaces are migrated for the current scope, AOD/OpenAQ is
+default-on, and future work should be treated as separate monitoring, Universe
+policy or UI explanation design rather than as an open backend ranking blocker.
 
 ### Solar-System Objects
 
