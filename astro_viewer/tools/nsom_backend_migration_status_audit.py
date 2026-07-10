@@ -65,6 +65,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md"),
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md"),
     Path("docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md"),
+    Path("docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -144,8 +145,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.12, then run provider-backed AOD/OpenAQ default-on "
-                "readiness only if the remaining aerosol score-scale risk is accepted"
+                "Review 1.14.13, then either accept the aerosol score-scale risk "
+                "for a narrow default-on switch or collect field-calibration fixtures"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -180,7 +181,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "identified score-scale and penalty-cap/transparency-shape review "
                 "items; 1.14.12 calibrates the formula shape by mapping class caps "
                 "to transparency loss and deriving score modifiers from target "
-                "score. Default-on remains blocked by aerosol score-scale review."
+                "score. The 1.14.13 default-on readiness audit keeps AOD/OpenAQ "
+                "disabled and leaves aerosol score-scale validation as the only "
+                "default-on blocker."
             ),
         },
         "blockers": blockers,
@@ -946,6 +949,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.12",
             "summary": "Confirm the calibrated default-off aerosol formula before any default-on readiness audit.",
+        },
+        {
+            "step": "1.14.13 AOD/OpenAQ default-on readiness audit",
+            "summary": "Classify remaining default-on gates without enabling aerosol scoring.",
+        },
+        {
+            "step": "Review 1.14.13",
+            "summary": "Decide whether to accept the score-scale risk or gather field-calibration fixtures.",
         },
     )
 

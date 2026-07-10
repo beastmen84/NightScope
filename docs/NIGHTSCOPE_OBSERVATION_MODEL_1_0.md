@@ -2250,6 +2250,10 @@ A future `ObserverCapabilityService` should own:
   target-class maximum transparency loss and derives compatibility score
   modifiers from `target.score * transparency_loss`. AOD/OpenAQ remains disabled
   by default; absolute score-scale validation remains open.
+- Status 1.14.13: `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md` confirms that
+  provider-quality gates, AOD/OpenAQ source ownership, confidence neutrality and
+  formula shape are accepted. Default-on remains blocked only by aerosol
+  score-scale acceptance or field validation.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2357,6 +2361,9 @@ A future `ObserverCapabilityService` should own:
   the penalty-cap/transparency-shape item is resolved by making transparency
   loss the mathematical output and keeping score modifier only as a compatibility
   projection. Default runtime scoring remains disabled.
+- Status update for 1.14.13:
+  default-on readiness is audited. AOD/OpenAQ remains default-off, with
+  `aerosol_score_scale` as the only remaining default-on blocker.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2467,9 +2474,9 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.12 targeted transparency calibration;
-3. run default-on readiness only after accepting the remaining aerosol
-   score-scale risk;
+2. review the 1.14.13 default-on readiness audit;
+3. either accept the remaining aerosol score-scale risk for a narrow default-on
+   switch or gather field-calibration fixtures first;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.

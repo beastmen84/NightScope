@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.12`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.13`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -62,7 +62,9 @@ availability and ownership:
   default while score scale and penalty-cap/transparency shape are reviewed.
   `1.14.12` resolves the formula-shape item by treating `penalty_cap / 100` as
   maximum transparency loss and deriving the compatibility modifier from
-  `target.score * transparency_loss`.
+  `target.score * transparency_loss`. `1.14.13` adds
+  `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md` and keeps default-on blocked
+  only by absolute aerosol score-scale validation.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -87,7 +89,8 @@ available. Calibration and switch-state evidence are tracked in
 
 NASA AOD/OpenAQ scoring remains disabled in the default runtime after the
 1.14.9 default-off experiment, the 1.14.11 calibration audit and the 1.14.12
-targeted formula calibration.
+targeted formula calibration. The 1.14.13 readiness audit also keeps the flag
+off.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, so normal AppController-built condition inputs keep
 `ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. When the
@@ -99,7 +102,8 @@ local-pixel support; OpenAQ has explicit locality gates. Recommendation
 confidence and provider confidence remain metadata and do not scale the score.
 The 1.14.12 calibration keeps this behaviour unchanged, resolves the
 penalty-cap/transparency-shape mismatch and leaves absolute aerosol score scale
-as the remaining default-on review item.
+as the remaining default-on review item. The 1.14.13 default-on readiness audit
+confirms that this is now the only default-on blocker.
 
 ### Solar-System Objects
 
@@ -665,7 +669,8 @@ Current limitations:
   formula available only behind the internal experiment flag.
   `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` records the 1.14.11 calibration
   review and the 1.14.12 targeted transparency calibration. Default runtime
-  scoring remains disabled.
+  scoring remains disabled. `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`
+  records the 1.14.13 default-on gate review.
 
 ## Refresh Chain
 

@@ -904,6 +904,10 @@ default-on review items.
 to maximum transparency loss and the score modifier is derived from
 `target.score * transparency_loss`. The flag still remains default-off; only
 absolute score-scale validation remains before any default-on decision.
+`1.14.13` adds `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`. That audit keeps
+the flag off, accepts provider quality, source ownership, formula shape and
+confidence neutrality, and leaves absolute aerosol score scale as the only
+default-on blocker.
 
 ## Dependency Flow
 
@@ -1018,7 +1022,8 @@ Services hold business logic:
   and double-counting gates; 1.14.9 implements the target-specific default-off
   formula; 1.14.11 audits its calibration without tuning weights or enabling it;
   1.14.12 maps the class cap to transparency loss before deriving the score
-  modifier.
+  modifier; 1.14.13 records default-on readiness as blocked only by score-scale
+  acceptance.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.

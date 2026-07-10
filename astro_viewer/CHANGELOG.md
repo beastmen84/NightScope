@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.14.13 - 2026-07-10
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`, audit
+  developer-only per decidere se il path AOD/OpenAQ calibrato e default-off sia
+  pronto a un futuro switch default-on.
+- Aggiunto `astro_viewer/tools/nsom_aod_openaq_default_on_readiness.py` con gate
+  espliciti per provider-quality, source ownership, formula shape, confidence
+  neutrality, safety runtime e scala aerosol.
+- Confermato che provider-quality, AOD-primary/OpenAQ-fallback, confidence
+  neutrality e formula shape sono accettati; il default-on resta bloccato solo
+  da `aerosol_score_scale`.
+- Aggiornato l'audit backend complessivo per includere il nuovo report e
+  puntare la prossima review a 1.14.13.
+- Nessun cambio runtime: `experimental_aerosol_scoring` resta `False`, nessuna
+  esposizione QML/UI, logging, rete, file write runtime o cambio Planner/Home/
+  Best Object/Advanced Observing/Sky Compass/Detail/Object/Equipment.
+
 ## NightScope 1.14.12 - 2026-07-10
 
 - Calibrata in modo mirato la formula aerosol AOD/OpenAQ sperimentale e
