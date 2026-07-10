@@ -21,7 +21,12 @@
   superiori Home, mantenendo le dimensioni correnti e senza cambiare il layout.
 - Nessuna modifica a scoring, ranking NSOM o formule AOD/OpenAQ; il contratto
   QML Home e' esteso soltanto con stati presentazionali additivi.
-- La distribuzione Windows non e' stata rigenerata in questo step.
+- Rigenerata la distribuzione Windows `dist/NightScope` con PyInstaller
+  `6.21.0`; verificati `VERSION` `1.17.1`, QML Home aggiornato e smoke test
+  dell'eseguibile con exit code `0`.
+- Preservati e ripristinati byte per byte database, backup e sidecar runtime
+  prima e dopo lo smoke; database finale con `integrity_check=ok` e
+  `user_version=6`.
 
 ## NightScope 1.17.0 - 2026-07-10
 

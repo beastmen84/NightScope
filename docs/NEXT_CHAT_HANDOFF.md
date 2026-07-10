@@ -3,7 +3,7 @@
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
 Versione corrente sorgente: `1.17.1`
-Distribuzione Windows corrente: `1.17.0`
+Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `190e095 Fix Home startup location states`
@@ -228,6 +228,8 @@ Dopo la correzione degli stati transitori e del wrapping Home `1.17.1`:
 .\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer/app/ui astro_viewer/app/ui/components/GlassCard.qml astro_viewer/app/ui/pages/HomePage.qml
 .\.venv\Scripts\python.exe astro_viewer/main.py --qml-smoke-test
 .\.venv\Scripts\python.exe -m pytest -q -n auto
+.\packaging\build_windows.ps1
+Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList '--qml-smoke-test' -WindowStyle Hidden -Wait -PassThru
 ```
 
 Risultati:
@@ -237,7 +239,9 @@ Risultati:
 - qmllint: exit code `0`, con i warning storici sugli accessi QML non
   qualificati della pagina;
 - QML smoke: passed;
-- full suite: `638 passed, 7 subtests passed`.
+- full suite: `638 passed, 7 subtests passed`;
+- Windows build PyInstaller `6.21.0`: passed;
+- bundled QML smoke: exit code `0`.
 
 Durante lo hardening provider-cache `1.17.1`:
 
@@ -278,16 +282,17 @@ Risultati:
 
 Distribuzione Windows:
 
-- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.17.0` con
+- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.17.1` con
   PyInstaller `6.21.0`;
-- `VERSION` incorporato: `1.17.0`; QML Home aggiornato verificato nel bundle;
+- `VERSION` incorporato: `1.17.1`; QML Home `pending`/wrapping verificato nel
+  bundle;
 - `NightScope.exe` SHA-256:
-  `FF82FC05A5BC9F83A24302B9FBBA245A1CA3FD68E1589CEC9264DA27B500C995`;
+  `F59A7D75A8C0BE71E3D526902C0CB82282325D0A479B652C0A6D60EC80C137D4`;
 - `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
   `location_cache.json` e `nasa_aod_cache.json` sono stati salvati prima del
-  `COLLECT`, ripristinati e confrontati via SHA-256;
-- dopo lo smoke test: database `integrity_check=ok`, `user_version=6`.
-- la `dist` non e' stata rigenerata per lo step sorgente `1.17.1`.
+  `COLLECT`, ripristinati, ricontrollati via SHA-256 e ripristinati nuovamente
+  dopo lo smoke test;
+- database finale: `integrity_check=ok`, `user_version=6`.
 
 ## Ambiente `.venv` Verificato
 
@@ -313,8 +318,8 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Rigenerare la `dist` solo su richiesta esplicita dell'utente; la sorgente e'
-   `1.17.1`, mentre la distribuzione corrente resta `1.17.0`.
+1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: sorgente e
+   distribuzione corrente sono entrambe `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping e coerenza dei dati caricati.
 3. Solo dopo il confronto passare alla seconda parte Home, `Piano della notte`,
