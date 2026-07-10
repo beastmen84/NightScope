@@ -2260,6 +2260,12 @@ A future `ObserverCapabilityService` should own:
   targets. The fixtures pass their configured bands, but AOD/OpenAQ remains
   default-off until the synthetic scale is accepted or real observations are
   collected.
+- Status 1.14.15: `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md` adds an
+  explicit developer-only real-provider probe across Bologna, San Pedro de
+  Atacama, New Delhi, Mauna Kea and Addis Ababa. NASA Earthdata AOD and OpenAQ
+  exercise policy branches `none`, `aod` and `particulate`; flag-off remains
+  neutral, confidence remains metadata, and deep-sky penalties exceed
+  planet/Moon penalties when the experimental flag is manually enabled.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2374,6 +2380,11 @@ A future `ObserverCapabilityService` should own:
   field-like calibration fixtures pass the configured bands. This does not
   enable AOD/OpenAQ; it changes the remaining blocker from formula uncertainty
   to a product decision about synthetic scale acceptance versus real field data.
+- Status update for 1.14.15:
+  real-provider evidence is now checked in through the explicit probe report.
+  This still does not enable AOD/OpenAQ; it changes the next decision from
+  "collect real provider observations" to "review whether the observed real
+  provider scale is sufficient for a narrow default-on switch".
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2484,7 +2495,8 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.14 field-calibration fixtures;
+2. review the 1.14.14 field-calibration fixtures and 1.14.15 real-provider
+   probe;
 3. either accept the synthetic scale for a narrow default-on switch or gather
    real field observations first;
 4. keep AOD/PM confidence metadata separate from score;

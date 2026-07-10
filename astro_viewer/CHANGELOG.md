@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.15 - 2026-07-10
+
+- Aggiunto `astro_viewer/tools/nsom_aod_openaq_real_provider_probe.py`, probe
+  developer-only esplicito per usare NASA Earthdata AOD e OpenAQ reali su cinque
+  localita' miste senza wiring runtime/QML e senza salvare credenziali nei
+  report.
+- Generato `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md`: Bologna, San Pedro de
+  Atacama, New Delhi, Mauna Kea e Addis Ababa coprono rami policy `none`, `aod`
+  e `particulate`.
+- Confermato con dati provider reali che il flag off resta neutro, OpenAQ PM e'
+  fallback non additivo, AOD policy-eligible resta primario e i target deep-sky
+  ricevono penalita' maggiori di pianeti/Luna quando il flag sperimentale viene
+  abilitato manualmente.
+- Corretto il parser locale di `nasa_login.txt` per preservare apostrofi finali
+  nelle password e per non confondere username/password OpenAQ con Earthdata.
+- Nessun default-on: `experimental_aerosol_scoring` resta `False`; il prossimo
+  passo e' review umana del report reale prima di decidere lo switch.
+
 ## NightScope 1.14.14 - 2026-07-10
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md`, report

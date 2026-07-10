@@ -67,6 +67,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md"),
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md"),
     Path("docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md"),
+    Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -146,9 +147,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.14, then either accept the synthetic field-calibration "
-                "bands for a narrow AOD/OpenAQ default-on switch or collect real "
-                "observing outcomes first"
+                "Review 1.14.15 real-provider AOD/OpenAQ results, then decide "
+                "whether to make a narrow default-on switch or collect more "
+                "field observations"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -186,9 +187,11 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "score. The 1.14.13 default-on readiness audit keeps AOD/OpenAQ "
                 "disabled and leaves aerosol score-scale validation as the only "
                 "default-on blocker. The 1.14.14 field-calibration fixtures pass "
-                "the deterministic bands, so the remaining decision is whether "
-                "synthetic fixtures are sufficient for a narrow default-on switch "
-                "or real observations are required first."
+                "the deterministic bands. The 1.14.15 real-provider probe covers "
+                "five mixed locations and observes policy branches none, aod and "
+                "particulate while preserving default flag-off neutrality. The "
+                "remaining decision is human review of that real-provider scale "
+                "before a narrow default-on switch."
             ),
         },
         "blockers": blockers,
@@ -970,6 +973,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.14",
             "summary": "Decide whether synthetic fixtures are sufficient for a narrow default-on switch.",
+        },
+        {
+            "step": "1.14.15 AOD/OpenAQ real-provider probe",
+            "summary": "Run real NASA Earthdata AOD and OpenAQ inputs across mixed locations.",
+        },
+        {
+            "step": "Review 1.14.15",
+            "summary": "Decide whether real-provider evidence is sufficient for a narrow default-on switch.",
         },
     )
 

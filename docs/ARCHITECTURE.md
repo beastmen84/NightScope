@@ -913,6 +913,13 @@ field-like fixtures pass the configured bands for clear air, moderate haze,
 high AOD, PM fallback, stale AOD, rejected providers and protected
 solar-system targets. The flag remains off until the synthetic scale is accepted
 for a narrow switch or real observing outcomes are collected.
+`1.14.15` adds `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md`. The explicit
+developer-only probe uses real NASA Earthdata AOD and OpenAQ responses for
+Bologna, San Pedro de Atacama, New Delhi, Mauna Kea and Addis Ababa. It records
+policy branches `none`, `aod` and `particulate`, keeps default flag-off scoring
+neutral, and does not add runtime wiring, QML exposure, automatic logging or
+credential disclosure. AOD/OpenAQ remains default-off pending human review of
+the real-provider result.
 
 ## Dependency Flow
 
@@ -1028,7 +1035,8 @@ Services hold business logic:
   formula; 1.14.11 audits its calibration without tuning weights or enabling it;
   1.14.12 maps the class cap to transparency loss before deriving the score
   modifier; 1.14.13 records default-on readiness as blocked only by score-scale
-  acceptance; 1.14.14 records field-like calibration fixtures for that scale.
+  acceptance; 1.14.14 records field-like calibration fixtures for that scale,
+  and 1.14.15 records a real-provider probe across five mixed locations.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.
