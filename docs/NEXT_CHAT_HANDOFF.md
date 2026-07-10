@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.0`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `8765348 Document 1.18.0 Windows distribution build`
 - `da10990 Connect lower Home QML to night plan overview`
 - `d54e847 Add Home night plan overview contract`
 - `94dabec Make Home target pool and Sky Compass live`
