@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.11`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.12`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -60,6 +60,9 @@ availability and ownership:
   readiness, provider gates and target-specific formula. `1.14.11` adds
   `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md`; the formula remains disabled by
   default while score scale and penalty-cap/transparency shape are reviewed.
+  `1.14.12` resolves the formula-shape item by treating `penalty_cap / 100` as
+  maximum transparency loss and deriving the compatibility modifier from
+  `target.score * transparency_loss`.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -83,7 +86,8 @@ available. Calibration and switch-state evidence are tracked in
 `docs/NSOM_MOON_GEOMETRY_PLANNER_DEFAULT_ON_READINESS.md`.
 
 NASA AOD/OpenAQ scoring remains disabled in the default runtime after the
-1.14.9 default-off experiment and the 1.14.11 calibration audit.
+1.14.9 default-off experiment, the 1.14.11 calibration audit and the 1.14.12
+targeted formula calibration.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, so normal AppController-built condition inputs keep
 `ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. When the
@@ -93,9 +97,9 @@ PM2.5/PM10 is a weaker fallback when AOD is unavailable or rejected. AOD has
 explicit gates for value, freshness, uncertainty, QA raw traceability and
 local-pixel support; OpenAQ has explicit locality gates. Recommendation
 confidence and provider confidence remain metadata and do not scale the score.
-The calibration audit keeps this behaviour unchanged and records two default-on
-review items: absolute aerosol modifier scale and the relationship between
-target-class penalty caps and derived atmospheric transparency.
+The 1.14.12 calibration keeps this behaviour unchanged, resolves the
+penalty-cap/transparency-shape mismatch and leaves absolute aerosol score scale
+as the remaining default-on review item.
 
 ### Solar-System Objects
 
@@ -429,7 +433,9 @@ only when policy eligible, OpenAQ PM is fallback/context only, and VIIRS sky
 background, weather transparency and Moon geometry remain separate owners.
 The 1.14.11 calibration audit keeps the formula disabled by default and marks
 score-scale plus penalty-cap/transparency shape as review items before any
-default-on switch.
+default-on switch. The 1.14.12 targeted calibration resolves the shape item by
+using transparency loss as the mathematical owner and preserving a derived score
+modifier only for compatibility.
 
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
@@ -658,7 +664,8 @@ Current limitations:
   `docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md` records the 1.14.9
   formula available only behind the internal experiment flag.
   `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` records the 1.14.11 calibration
-  review and keeps default runtime scoring disabled.
+  review and the 1.14.12 targeted transparency calibration. Default runtime
+  scoring remains disabled.
 
 ## Refresh Chain
 

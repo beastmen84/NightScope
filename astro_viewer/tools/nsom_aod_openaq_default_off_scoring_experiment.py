@@ -73,9 +73,10 @@ def generate_aod_openaq_default_off_scoring_experiment_data() -> dict[str, objec
             "pm_severity": "max(PM2.5 severity, PM10 severity)",
             "source_policy": "policy-eligible AOD primary; local policy-eligible OpenAQ PM fallback only",
             "score_modifier": (
-                "-min(penalty_cap, penalty_cap * sensitivity * severity * "
-                "freshness_weight * source_weight)"
+                "-target_score * min(max_transparency_loss, "
+                "max_transparency_loss * sensitivity * severity * freshness_weight * source_weight)"
             ),
+            "max_transparency_loss": "penalty_cap / 100",
             "source_weights": {
                 "aod": 1.0,
                 "particulate": 0.6,
@@ -123,6 +124,7 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- PM severity: {formula['pm_severity']}.",
         f"- Source policy: {formula['source_policy']}.",
         f"- Score modifier: `{formula['score_modifier']}`.",
+        f"- Max transparency loss: `{formula['max_transparency_loss']}`.",
         f"- Source weights: AOD `{formula['source_weights']['aod']}`, PM `{formula['source_weights']['particulate']}`.",
         f"- Confidence role: {formula['confidence_role']}",
         "",

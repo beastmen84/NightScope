@@ -61,22 +61,24 @@ def generate_aod_openaq_calibration_audit_data() -> dict[str, object]:
             "version": _read_text(root / "VERSION").strip(),
         },
         "readiness": {
-            "verdict": "aod_openaq_calibration_review_required",
+            "verdict": "aod_openaq_targeted_transparency_calibration_applied",
             "default_flag": "ObservationConditionFeatureFlags.experimental_aerosol_scoring = False",
             "default_runtime_score_effect": 0.0,
-            "formula_changed_by_audit": False,
-            "weights_tuned_by_audit": False,
+            "formula_changed_by_calibration": True,
+            "weights_tuned_by_calibration": False,
+            "penalty_cap_transparency_shape_calibrated": True,
             "ready_for_default_on": False,
             "recommended_next_step": (
-                "Review this calibration audit, then decide whether to tune the "
-                "aerosol score scale or keep the default-off formula unchanged."
+                "Review this targeted calibration, then run default-on readiness "
+                "only after accepting the remaining aerosol score-scale risk."
             ),
         },
         "formula": {
             "score_modifier": (
-                "-min(penalty_cap, penalty_cap * sensitivity * severity * "
-                "freshness_weight * source_weight)"
+                "-target_score * min(max_transparency_loss, "
+                "max_transparency_loss * sensitivity * severity * freshness_weight * source_weight)"
             ),
+            "max_transparency_loss": "penalty_cap / 100",
             "aod_source_weight": 1.0,
             "particulate_source_weight": 0.6,
             "confidence_role": (
@@ -116,10 +118,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         "## Executive Summary",
         "",
         (
-            "This developer-only audit reviews the 1.14.9 default-off AOD/OpenAQ "
-            "scoring experiment across deterministic target classes, provider "
-            "states and freshness cases. It does not tune weights, does not enable "
-            "the feature flag and does not change runtime behaviour."
+            "This developer-only audit reviews the 1.14.12 targeted calibration "
+            "of the default-off AOD/OpenAQ scoring experiment across deterministic "
+            "target classes, provider states and freshness cases. It converts the "
+            "aerosol cap into an explicit transparency loss and derives the "
+            "compatibility score modifier from target score. It does not enable "
+            "the feature flag and does not change default runtime behaviour."
         ),
         "",
         "## Verdict",
@@ -127,14 +131,16 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         f"- Verdict: `{readiness['verdict']}`.",
         f"- Default flag: `{readiness['default_flag']}`.",
         f"- Default runtime score effect: `{readiness['default_runtime_score_effect']}`.",
-        f"- Formula changed by audit: `{readiness['formula_changed_by_audit']}`.",
-        f"- Weights tuned by audit: `{readiness['weights_tuned_by_audit']}`.",
+        f"- Formula changed by calibration: `{readiness['formula_changed_by_calibration']}`.",
+        f"- Weights tuned by calibration: `{readiness['weights_tuned_by_calibration']}`.",
+        f"- Penalty-cap/transparency shape calibrated: `{readiness['penalty_cap_transparency_shape_calibrated']}`.",
         f"- Ready for default-on: `{readiness['ready_for_default_on']}`.",
         f"- Recommended next step: {readiness['recommended_next_step']}",
         "",
         "## Formula Under Review",
         "",
         f"- Score modifier: `{formula['score_modifier']}`.",
+        f"- Max transparency loss: `{formula['max_transparency_loss']}`.",
         f"- AOD source weight: `{formula['aod_source_weight']}`.",
         f"- OpenAQ PM fallback source weight: `{formula['particulate_source_weight']}`.",
         f"- Confidence role: {formula['confidence_role']}",
@@ -201,12 +207,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
             "## Conclusion",
             "",
             (
-                "The 1.14.9 formula is directionally coherent and remains safely "
-                "default-off. AOD and OpenAQ are not additive, local OpenAQ PM is a "
-                "weaker fallback, stale data is reduced, rejected provider inputs "
-                "are neutral and confidence remains metadata. The remaining work is "
-                "calibration review of the score scale and protected-target rounding "
-                "before any default-on decision."
+                "The targeted calibration aligns the default-off formula with the "
+                "NSOM transparency shape while keeping AOD/OpenAQ default-off. AOD "
+                "and OpenAQ are not additive, local OpenAQ PM is a weaker fallback, "
+                "stale data is reduced, rejected provider inputs are neutral and "
+                "confidence remains metadata. The remaining default-on work is "
+                "review of the absolute aerosol score scale."
             ),
         ]
     )
@@ -258,9 +264,11 @@ def _cases(
                     "policy_particulate_reasons": policy.particulate.reasons,
                     "sensitivity": breakdown.sensitivity,
                     "penalty_cap": breakdown.penalty_cap,
+                    "max_transparency_loss": breakdown.max_transparency_loss,
                     "severity": breakdown.severity,
                     "freshness_weight": breakdown.freshness_weight,
                     "source_weight": breakdown.source_weight,
+                    "transparency_loss": breakdown.transparency_loss,
                     "penalty_points": breakdown.penalty_points,
                     "score_modifier": breakdown.score_modifier,
                     "atmospheric_transparency_factor": breakdown.atmospheric_transparency_factor,
@@ -332,24 +340,23 @@ def _review_items(cases: tuple[dict[str, object], ...]) -> tuple[dict[str, objec
     rounded_cases = tuple(case["case_id"] for case in cases if case["modifier_rounds_away"])
     return (
         {
-            "id": "aerosol-score-scale-human-calibration",
+            "id": "aerosol-score-scale-field-validation",
             "severity": "review",
             "blocks_default_on": True,
             "affected_layer": "Sky/ObservationEnvironment",
             "reason": (
-                "The formula is directionally tested, but absolute point scale has "
-                "not been validated against observational expectations."
+                "The formula shape is now transparency-based, but absolute aerosol "
+                "score scale still needs human validation before default-on."
             ),
         },
         {
             "id": "penalty-cap-vs-transparency-shape",
-            "severity": "review",
-            "blocks_default_on": True,
+            "severity": "calibrated",
+            "blocks_default_on": False,
             "affected_layer": "Sky/ObservationEnvironment",
             "reason": (
-                "The implementation uses target-class point caps and derives a "
-                "transparency factor from points; calibration should confirm this "
-                "shape before default-on."
+                "Resolved in 1.14.12: target-class caps are interpreted as maximum "
+                "transparency loss and score modifiers are derived from target score."
             ),
         },
         {

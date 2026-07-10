@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.11`.
+Versione corrente: `1.14.12`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -765,11 +765,16 @@ AOD/OpenAQ default-off. Conferma source precedence, fallback PM piu' debole,
 neutralita' confidence e assenza di effetto runtime con flag spento; prima di
 qualsiasi default-on restano da rivedere la scala assoluta del modifier aerosol
 e la forma penalty-cap/transparency.
+Lo step `1.14.12` calibra in modo mirato quella forma: il cap aerosol diventa
+perdita massima di trasparenza (`penalty_cap / 100`) e il modifier compatibile
+viene derivato da `target.score * transparency_loss`. Il flag resta spento di
+default; resta da validare solo la scala aerosol prima di un eventuale
+default-on.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
 - dati VIIRS NASA, perché dipendono da connessione, credenziali Earthdata e disponibilità LAADS;
-- dati NASA AOD sperimentali nella sezione Meteo `Trasparenza atmosferica`: sono informativi, dipendono da disponibilità MAIAC/cloud mask e alimentano punteggi solo nel path interno default-off 1.14.9, ancora bloccato da review di calibrazione 1.14.11 prima di un eventuale default-on;
+- dati NASA AOD sperimentali nella sezione Meteo `Trasparenza atmosferica`: sono informativi, dipendono da disponibilità MAIAC/cloud mask e alimentano punteggi solo nel path interno default-off, calibrato in 1.14.12 ma ancora non abilitato di default;
 - OpenAQ, opzionale e usato solo per mostrare dati locali PM2.5/PM10 nella pagina Meteo; la freschezza della misura decide se il dato può essere presentato come attuale;
 - qualità dei cataloghi strumenti, da verificare sempre per varianti regionali e modelli commerciali specifici;
 - descrizioni e note osservative, che possono essere arricchite nel tempo.

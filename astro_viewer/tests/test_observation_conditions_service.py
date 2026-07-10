@@ -459,14 +459,18 @@ def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
     assert breakdown.primary_source == "aod"
     assert breakdown.severity == 0.75
     assert breakdown.source_weight == 1.0
-    assert breakdown.score_modifier == -9.0
-    assert conditioned.breakdown.aod_modifier == -9.0
+    assert breakdown.max_transparency_loss == 0.12
+    assert breakdown.transparency_loss == 0.09
+    assert breakdown.penalty_points == 7.38
+    assert breakdown.score_modifier == -7.38
+    assert conditioned.breakdown.aod_modifier == -7.38
     assert conditioned.breakdown.pm25_modifier == 0.0
-    assert conditioned.breakdown.adjusted_score == 73
+    assert conditioned.breakdown.adjusted_score == 75
     assert conditioned.breakdown.applied_components == ("aod",)
     assert "particulate" not in conditioned.breakdown.applied_components
     assert "aod:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:source=aod" in conditioned.breakdown.diagnostic_notes
+    assert "aerosol_scoring:target_score_scaled_transparency_loss" in conditioned.breakdown.diagnostic_notes
     assert target.score == 82
 
 
@@ -495,9 +499,11 @@ def test_experimental_aerosol_scoring_uses_local_pm_fallback_when_aod_rejected()
     assert breakdown.primary_source == "particulate"
     assert breakdown.severity == 0.75
     assert breakdown.source_weight == 0.6
-    assert breakdown.score_modifier == -3.06
+    assert breakdown.max_transparency_loss == 0.08
+    assert breakdown.transparency_loss == 0.0306
+    assert breakdown.score_modifier == -2.509
     assert conditioned.breakdown.aod_modifier == 0.0
-    assert conditioned.breakdown.pm25_modifier == -3.06
+    assert conditioned.breakdown.pm25_modifier == -2.509
     assert conditioned.breakdown.adjusted_score == 79
     assert conditioned.breakdown.applied_components == ("particulate",)
     assert "aerosol_scoring:source=particulate" in conditioned.breakdown.diagnostic_notes
@@ -534,11 +540,31 @@ def test_experimental_aerosol_scoring_respects_target_class_caps_and_protection(
         flags,
     )
 
-    assert galaxy.score_modifier == -12.0
-    assert diffuse.score_modifier == -6.8
-    assert planet.score_modifier == -0.45
-    assert moon.score_modifier == -0.05
+    assert galaxy.score_modifier == -9.84
+    assert diffuse.score_modifier == -5.576
+    assert planet.score_modifier == -0.369
+    assert moon.score_modifier == -0.041
+    assert galaxy.atmospheric_transparency_factor == 0.88
+    assert diffuse.atmospheric_transparency_factor == 0.932
+    assert planet.atmospheric_transparency_factor == 0.9955
+    assert moon.atmospheric_transparency_factor == 0.9995
     assert galaxy.penalty_points > diffuse.penalty_points > planet.penalty_points > moon.penalty_points
+
+
+def test_experimental_aerosol_scoring_uses_transparency_loss_shape() -> None:
+    service = ObservationConditionsService()
+    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
+    target = _target("m31", "M31", "Galaxy", 82)
+    aod = _scoring_aod(aod_550=0.75)
+
+    breakdown = service.experimental_aerosol_scoring_breakdown(target, aod, None, flags)
+
+    assert breakdown.max_transparency_loss == 0.12
+    assert breakdown.transparency_loss == 0.12
+    assert breakdown.atmospheric_transparency_factor == 0.88
+    assert breakdown.penalty_points == round(target.score * breakdown.transparency_loss, 3)
+    assert breakdown.score_modifier == -9.84
+    assert "target_score * transparency_loss" in breakdown.formula
 
 
 def test_experimental_aerosol_scoring_rejects_non_policy_eligible_sources() -> None:
@@ -581,7 +607,7 @@ def test_experimental_aerosol_scoring_confidence_metadata_does_not_scale_score()
     viirs_breakdown = service.experimental_aerosol_scoring_breakdown(target, viirs, None, flags)
     modis_breakdown = service.experimental_aerosol_scoring_breakdown(target, modis, None, flags)
 
-    assert viirs_breakdown.score_modifier == modis_breakdown.score_modifier == -9.0
+    assert viirs_breakdown.score_modifier == modis_breakdown.score_modifier == -7.38
 
 
 def test_aerosol_severity_steps_are_explicit() -> None:

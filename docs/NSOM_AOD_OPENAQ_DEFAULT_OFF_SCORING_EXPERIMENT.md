@@ -17,7 +17,8 @@ This developer-only report documents the 1.14.9 default-off AOD/OpenAQ scoring e
 - AOD severity: 0.0 if AOD <= 0.10; 0.25 if <= 0.20; 0.50 if <= 0.35; 0.75 if <= 0.60; 1.00 otherwise.
 - PM severity: max(PM2.5 severity, PM10 severity).
 - Source policy: policy-eligible AOD primary; local policy-eligible OpenAQ PM fallback only.
-- Score modifier: `-min(penalty_cap, penalty_cap * sensitivity * severity * freshness_weight * source_weight)`.
+- Score modifier: `-target_score * min(max_transparency_loss, max_transparency_loss * sensitivity * severity * freshness_weight * source_weight)`.
+- Max transparency loss: `penalty_cap / 100`.
 - Source weights: AOD `1.0`, PM `0.6`.
 - Confidence role: RecommendationConfidence and provider confidence remain outside the score formula.
 
@@ -25,13 +26,13 @@ This developer-only report documents the 1.14.9 default-off AOD/OpenAQ scoring e
 
 | Case | Target class | Default delta | Experimental source | Experimental modifier | Notes |
 | --- | --- | --- | --- | --- | --- |
-| `fresh_aod_galaxy` | `galaxy` | `0` | `aod` | `-9.0` | aod_primary, deep_sky_sensitive |
-| `fresh_aod_diffuse_nebula` | `diffuse_nebula` | `0` | `aod` | `-5.1` | aod_primary, nebula_sensitive |
-| `fresh_aod_planet` | `planet` | `0` | `aod` | `-0.337` | aod_primary, planet_protected |
-| `fresh_aod_moon` | `moon` | `0` | `aod` | `-0.038` | aod_primary, moon_protected |
-| `pm_fallback_galaxy` | `galaxy` | `0` | `particulate` | `-5.4` | aod_rejected, pm_local_fallback |
+| `fresh_aod_galaxy` | `galaxy` | `0` | `aod` | `-7.38` | aod_primary, deep_sky_sensitive |
+| `fresh_aod_diffuse_nebula` | `diffuse_nebula` | `0` | `aod` | `-4.182` | aod_primary, nebula_sensitive |
+| `fresh_aod_planet` | `planet` | `0` | `aod` | `-0.276` | aod_primary, planet_protected |
+| `fresh_aod_moon` | `moon` | `0` | `aod` | `-0.031` | aod_primary, moon_protected |
+| `pm_fallback_galaxy` | `galaxy` | `0` | `particulate` | `-4.428` | aod_rejected, pm_local_fallback |
 | `rejected_sources_neutral` | `galaxy` | `0` | `none` | `0.0` | aod_missing_qa, pm_context_only |
-| `confidence_product_neutral` | `galaxy` | `0` | `aod` | `-9.0` | modis_product_confidence_not_score_modifier |
+| `confidence_product_neutral` | `galaxy` | `0` | `aod` | `-7.38` | modis_product_confidence_not_score_modifier |
 
 ## Checks
 

@@ -147,8 +147,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.11, then decide whether targeted aerosol calibration "
-        "is required before any provider-backed AOD/OpenAQ default-on switch"
+        "Review 1.14.12, then run provider-backed AOD/OpenAQ default-on "
+        "readiness only if the remaining aerosol score-scale risk is accepted"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -240,6 +240,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[47] == "Review 1.14.9"
     assert sequence[48] == "1.14.11 AOD/OpenAQ calibration audit"
     assert sequence[49] == "Review 1.14.11"
+    assert sequence[50] == "1.14.12 AOD/OpenAQ targeted transparency calibration"
+    assert sequence[51] == "Review 1.14.12"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -271,6 +273,7 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "equipment_default_off_path_policy_set_setup_local" in text
     assert "equipment_nsom_migration_closed_setup_local" in text
     assert "NSOM_ROLLBACK_CLEANUP_POLICY_AUDIT" in text
-    assert "AOD/OpenAQ provider-quality policy is now hardened" in text
+    assert "AOD/OpenAQ provider-quality policy is hardened" in text
+    assert "1.14.12 calibrates the penalty-cap/transparency shape" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

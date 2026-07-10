@@ -144,8 +144,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.11, then decide whether targeted aerosol calibration "
-                "is required before any provider-backed AOD/OpenAQ default-on switch"
+                "Review 1.14.12, then run provider-backed AOD/OpenAQ default-on "
+                "readiness only if the remaining aerosol score-scale risk is accepted"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -177,9 +177,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "readiness and provider-quality policy are documented. AOD/OpenAQ "
                 "now has an explicit default-off scoring experiment; default "
                 "runtime scoring remains disabled. The 1.14.11 calibration audit "
-                "keeps the formula unchanged and identifies score-scale and "
-                "penalty-cap/transparency-shape review items before any default-on "
-                "decision."
+                "identified score-scale and penalty-cap/transparency-shape review "
+                "items; 1.14.12 calibrates the formula shape by mapping class caps "
+                "to transparency loss and deriving score modifiers from target "
+                "score. Default-on remains blocked by aerosol score-scale review."
             ),
         },
         "blockers": blockers,
@@ -370,8 +371,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "recommended removing internal rollback paths; 1.13.8 removed "
                 "the runtime constructor rollback parameters. "
                 "Planner Moon geometry is default-on. AOD/OpenAQ provider-quality "
-                "policy is now hardened for a future default-off experiment, while "
-                "scoring remains disabled and visible UI explanation work remains separate."
+                "policy is hardened, the default-off formula exists and 1.14.12 "
+                "calibrates the penalty-cap/transparency shape. Runtime aerosol "
+                "scoring remains disabled by default, and visible UI explanation "
+                "work remains separate."
             ),
             "",
         ]
@@ -935,6 +938,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.11",
             "summary": "Decide whether targeted aerosol calibration is needed before any default-on switch.",
+        },
+        {
+            "step": "1.14.12 AOD/OpenAQ targeted transparency calibration",
+            "summary": "Resolve the penalty-cap/transparency-shape blocker while keeping aerosol scoring default-off.",
+        },
+        {
+            "step": "Review 1.14.12",
+            "summary": "Confirm the calibrated default-off aerosol formula before any default-on readiness audit.",
         },
     )
 

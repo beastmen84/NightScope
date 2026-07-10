@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ particulate inputs are ready to affect NSOM scores. They are ready for a default-off scoring experiment. The current runtime keeps the experiment disabled by default, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, logging or runtime file writes.
+This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ particulate inputs are ready to affect NSOM scores. They are ready for a default-off scoring experiment, and the formula shape now maps aerosol caps to transparency loss before deriving a compatibility score modifier. The current runtime keeps the experiment disabled by default, does not change Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and does not add network calls, logging or runtime file writes.
 
 ## Verdict
 
@@ -12,8 +12,8 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 - Ready for default-on: `False`.
 - Ready for default-off experiment: `True`.
 - Score formula implemented: `True`.
-- Recommended next step: Review 1.14.9, then run a calibration/default-on readiness audit for the aerosol experiment.
-- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and double-counting have explicit policy gates. The scoring formula now exists behind the default-off experimental flag; normal runtime inputs still keep the flag off and produce no score effect.
+- Recommended next step: Review 1.14.12, then run default-on readiness only after accepting the remaining aerosol score-scale risk.
+- Reason: NASA AOD and OpenAQ PM inputs are already adapted as diagnostic Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and double-counting have explicit policy gates. The scoring formula now exists behind the default-off experimental flag and its penalty-cap/transparency shape has been calibrated; normal runtime inputs still keep the flag off and produce no score effect.
 
 ## Provider Contracts
 
@@ -65,10 +65,10 @@ This developer-only audit reviews whether provider-dependent NASA AOD and OpenAQ
 
 | Case | Target | AOD | PM | Flag off modifier | Flag on modifier | Default adjusted delta | Experimental source |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `galaxy_high_aerosol` | `galaxy` | `available` | `available` | `0.0` | `-9.0` | `0` | `aod` |
-| `diffuse_nebula_high_aerosol` | `diffuse_nebula` | `available` | `available` | `0.0` | `-5.1` | `0` | `aod` |
-| `planet_protected` | `planet` | `available` | `available` | `0.0` | `-0.337` | `0` | `aod` |
-| `moon_protected` | `moon` | `available` | `available` | `0.0` | `-0.038` | `0` | `aod` |
+| `galaxy_high_aerosol` | `galaxy` | `available` | `available` | `0.0` | `-7.38` | `0` | `aod` |
+| `diffuse_nebula_high_aerosol` | `diffuse_nebula` | `available` | `available` | `0.0` | `-4.182` | `0` | `aod` |
+| `planet_protected` | `planet` | `available` | `available` | `0.0` | `-0.276` | `0` | `aod` |
+| `moon_protected` | `moon` | `available` | `available` | `0.0` | `-0.031` | `0` | `aod` |
 | `missing_providers` | `globular_cluster` | `missing` | `missing` | `0.0` | `0.0` | `0` | `none` |
 
 ## Policy Decisions

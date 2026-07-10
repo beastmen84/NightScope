@@ -163,16 +163,16 @@ def generate_aod_openaq_scoring_readiness_data() -> dict[str, object]:
             "provider_inputs_available_diagnostically": True,
             "score_formula_implemented": AEROSOL_SCORING_FORMULA_IMPLEMENTED,
             "recommended_next_step": (
-                "Review 1.14.9, then run a calibration/default-on readiness "
-                "audit for the aerosol experiment."
+                "Review 1.14.12, then run default-on readiness only after "
+                "accepting the remaining aerosol score-scale risk."
             ),
             "reason": (
                 "NASA AOD and OpenAQ PM inputs are already adapted as diagnostic "
                 "Sky/Confidence data. AOD QA/uncertainty, OpenAQ locality and "
                 "double-counting have explicit policy gates. The scoring formula "
-                "now exists behind the default-off experimental flag; normal "
-                "runtime inputs still keep the flag off and produce no score "
-                "effect."
+                "now exists behind the default-off experimental flag and its "
+                "penalty-cap/transparency shape has been calibrated; normal runtime "
+                "inputs still keep the flag off and produce no score effect."
             ),
         },
         "provider_contracts": provider_contracts,
@@ -201,11 +201,12 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
         (
             "This developer-only audit reviews whether provider-dependent NASA AOD "
             "and OpenAQ particulate inputs are ready to affect NSOM scores. They "
-            "are ready for a default-off scoring experiment. The current runtime "
-            "keeps the experiment disabled by default, does not change Planner, "
-            "Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, "
-            "Equipment or QML, and does not add network calls, logging or runtime "
-            "file writes."
+            "are ready for a default-off scoring experiment, and the formula shape "
+            "now maps aerosol caps to transparency loss before deriving a "
+            "compatibility score modifier. The current runtime keeps the experiment "
+            "disabled by default, does not change Planner, Home, Best Object, "
+            "Advanced Observing, Sky Compass, Detail/Object, Equipment or QML, and "
+            "does not add network calls, logging or runtime file writes."
         ),
         "",
         "## Verdict",

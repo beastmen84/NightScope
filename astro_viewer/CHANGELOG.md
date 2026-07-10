@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.12 - 2026-07-10
+
+- Calibrata in modo mirato la formula aerosol AOD/OpenAQ sperimentale e
+  default-off: il `penalty_cap` di classe target viene interpretato come perdita
+  massima di trasparenza (`penalty_cap / 100`) e il modifier compatibile viene
+  derivato da `target.score * transparency_loss`.
+- Aggiunti `max_transparency_loss` e `transparency_loss` a
+  `AerosolScoringBreakdown`, mantenendo AOD primario, OpenAQ PM fallback locale
+  piu' debole e `RecommendationConfidence` fuori dallo score.
+- Risolto il blocker `penalty-cap-vs-transparency-shape`; resta bloccante per
+  un eventuale default-on solo la validazione umana della scala aerosol.
+- Rigenerati i report developer-only AOD/OpenAQ e aggiornato l'audit backend
+  complessivo per puntare la prossima review a 1.14.12.
+- Nessun cambio runtime default: `experimental_aerosol_scoring` resta `False`,
+  quindi Planner, Home, Best Object, Advanced Observing, Sky Compass,
+  Detail/Object, Equipment, QML/UI, logging, rete e scritture runtime non
+  cambiano.
+
 ## NightScope 1.14.11 - 2026-07-10
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md`, report

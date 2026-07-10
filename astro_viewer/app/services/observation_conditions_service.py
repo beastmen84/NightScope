@@ -74,9 +74,11 @@ class AerosolScoringBreakdown:
     target_class: str
     sensitivity: float
     penalty_cap: float
+    max_transparency_loss: float
     severity: float
     freshness_weight: float
     source_weight: float
+    transparency_loss: float
     penalty_points: float
     score_modifier: float
     atmospheric_transparency_factor: float
@@ -519,9 +521,11 @@ class ObservationConditionsService:
 
         flags = feature_flags or ObservationConditionFeatureFlags()
         profile = cls.atmospheric_sensitivity_profile(target)
+        max_transparency_loss = round(max(0.0, profile.penalty_cap / 100.0), 5)
         formula = (
-            "penalty_points = min(penalty_cap, "
-            "penalty_cap * sensitivity * severity * freshness_weight * source_weight)"
+            "transparency_loss = min(max_transparency_loss, "
+            "max_transparency_loss * sensitivity * severity * freshness_weight * source_weight); "
+            "penalty_points = target_score * transparency_loss"
         )
         if not flags.experimental_aerosol_scoring:
             return AerosolScoringBreakdown(
@@ -529,9 +533,11 @@ class ObservationConditionsService:
                 target_class=profile.target_class,
                 sensitivity=profile.sensitivity,
                 penalty_cap=profile.penalty_cap,
+                max_transparency_loss=max_transparency_loss,
                 severity=0.0,
                 freshness_weight=0.0,
                 source_weight=0.0,
+                transparency_loss=0.0,
                 penalty_points=0.0,
                 score_modifier=0.0,
                 atmospheric_transparency_factor=1.0,
@@ -556,9 +562,11 @@ class ObservationConditionsService:
                 target_class=profile.target_class,
                 sensitivity=profile.sensitivity,
                 penalty_cap=profile.penalty_cap,
+                max_transparency_loss=max_transparency_loss,
                 severity=0.0,
                 freshness_weight=0.0,
                 source_weight=0.0,
+                transparency_loss=0.0,
                 penalty_points=0.0,
                 score_modifier=0.0,
                 atmospheric_transparency_factor=1.0,
@@ -569,14 +577,16 @@ class ObservationConditionsService:
                 ),
             )
 
-        penalty_points = min(
-            profile.penalty_cap,
-            profile.penalty_cap
+        transparency_loss = min(
+            max_transparency_loss,
+            max_transparency_loss
             * profile.sensitivity
             * severity
             * freshness_weight
             * source_weight,
         )
+        transparency_loss = round(max(0.0, transparency_loss), 5)
+        penalty_points = target.score * transparency_loss
         penalty_points = round(max(0.0, penalty_points), 3)
         score_modifier = round(-penalty_points, 3) if penalty_points > 0.0 else 0.0
         return AerosolScoringBreakdown(
@@ -584,23 +594,28 @@ class ObservationConditionsService:
             target_class=profile.target_class,
             sensitivity=profile.sensitivity,
             penalty_cap=profile.penalty_cap,
+            max_transparency_loss=max_transparency_loss,
             severity=severity,
             freshness_weight=freshness_weight,
             source_weight=source_weight,
+            transparency_loss=transparency_loss,
             penalty_points=penalty_points,
             score_modifier=score_modifier,
             atmospheric_transparency_factor=round(
-                max(0.0, 1.0 - penalty_points / 100.0),
+                max(0.0, 1.0 - transparency_loss),
                 5,
             ),
             formula=formula,
             notes=(
                 "aerosol_scoring:experimental_default_off",
+                "aerosol_scoring:target_score_scaled_transparency_loss",
                 *source_notes,
                 f"aerosol_scoring:target_class={profile.target_class}",
                 f"aerosol_scoring:severity={severity:g}",
                 f"aerosol_scoring:freshness_weight={freshness_weight:g}",
                 f"aerosol_scoring:source_weight={source_weight:g}",
+                f"aerosol_scoring:max_transparency_loss={max_transparency_loss:g}",
+                f"aerosol_scoring:transparency_loss={transparency_loss:g}",
                 f"aerosol_scoring:penalty_points={penalty_points:g}",
             ),
         )
