@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from astro_viewer.app.models.observing import CelestialObject
@@ -13,7 +14,8 @@ class SkyCompassTarget:
     object_type: str
     direction: str
     score: int
-    priority: int
+    priority: float
+    current_altitude_factor: float
     in_plan: bool
     is_best: bool
 
@@ -67,7 +69,7 @@ class SkyCompassService:
         best_id = best_object.id if best_object else ""
         targets = self._targets(objects, plan_ids, best_id)
         if not targets:
-            return self.empty("no_targets", "Nessun target consigliato al momento.")
+            return self.empty("no_targets", "Nessun target osservabile in questo momento.")
 
         grouped = self._group_targets(targets)
         ranked_groups = sorted(
@@ -93,7 +95,7 @@ class SkyCompassService:
             "reason": "ready",
             "message": "",
             "direction": top["direction"],
-            "zoneLabel": "Migliore zona osservativa",
+            "zoneLabel": "Migliore zona adesso",
             "targetCount": top["targetCount"],
             "targetCountLabel": self._available_count_label(top["targetCount"]),
             "targets": top["targets"],
@@ -109,14 +111,15 @@ class SkyCompassService:
         targets = []
         seen_ids = set()
         for item in objects:
-            if item.id in seen_ids or not item.visible:
+            if item.id in seen_ids or not item.visible or not self.is_observable_now(item):
                 continue
             direction = self.normalize_direction(item.direction)
             if not direction:
                 continue
             in_plan = item.id in plan_ids
             is_best = item.id == best_id
-            priority = item.score + (42 if in_plan else 0) + (58 if is_best else 0)
+            altitude_factor = self.current_altitude_factor(item)
+            priority = item.score * altitude_factor
             targets.append(
                 SkyCompassTarget(
                     id=item.id,
@@ -125,6 +128,7 @@ class SkyCompassService:
                     direction=direction,
                     score=item.score,
                     priority=priority,
+                    current_altitude_factor=altitude_factor,
                     in_plan=in_plan,
                     is_best=is_best,
                 )
@@ -154,11 +158,38 @@ class SkyCompassService:
                     "score": target.score,
                     "inPlan": target.in_plan,
                     "isBest": target.is_best,
+                    "_priority": target.priority,
                 }
             )
         for group in grouped.values():
-            group["targets"].sort(key=lambda item: (item["isBest"], item["inPlan"], item["score"]), reverse=True)
+            group["targets"].sort(
+                key=lambda item: (
+                    item["_priority"],
+                    item["isBest"],
+                    item["inPlan"],
+                    item["score"],
+                ),
+                reverse=True,
+            )
+            for item in group["targets"]:
+                del item["_priority"]
         return [group for group in grouped.values() if group["targetCount"] > 0]
+
+    @staticmethod
+    def is_observable_now(item: CelestialObject) -> bool:
+        return item.observable_now is not False
+
+    @staticmethod
+    def current_altitude_factor(item: CelestialObject) -> float:
+        altitude = item.current_altitude_degrees
+        if altitude is None:
+            match = re.search(r"-?\d+(?:[.,]\d+)?", item.current_altitude or "")
+            if not match:
+                return 1.0
+            altitude = float(match.group(0).replace(",", "."))
+        threshold = 8.0 if item.object_type == "Pianeta" else 15.0
+        normalized = max(0.0, min(1.0, (altitude - threshold) / (60.0 - threshold)))
+        return 0.35 + (0.65 * normalized)
 
     @staticmethod
     def normalize_direction(direction: str) -> str:
@@ -190,14 +221,14 @@ class SkyCompassService:
     @staticmethod
     def _available_count_label(count: int) -> str:
         if count == 1:
-            return "1 target osservabile"
-        return f"{count} target osservabili"
+            return "1 target osservabile ora"
+        return f"{count} target osservabili ora"
 
     @staticmethod
     def _target_count_label(count: int) -> str:
         if count == 1:
-            return "1 target consigliato"
-        return f"{count} target consigliati"
+            return "1 target osservabile ora"
+        return f"{count} target osservabili ora"
 
     def _decision_reasons(self, top_group: dict, ranked_groups: list[dict]) -> list[str]:
         reasons = []
@@ -206,12 +237,7 @@ class SkyCompassService:
             return reasons
 
         first = targets[0]
-        if first["inPlan"]:
-            reasons.append("Include un target già nel piano osservativo")
-        elif first["isBest"]:
-            reasons.append("Presenza del target con priorità più alta")
-        else:
-            reasons.append(f"{first['name']} guida la scelta in questa zona")
+        reasons.append(f"{first['name']} guida la scelta in questo momento")
 
         deep_sky_count = sum(1 for item in targets if item["type"] != "Pianeta")
         planet_targets = [item for item in targets if item["type"] == "Pianeta"]
@@ -227,9 +253,12 @@ class SkyCompassService:
 
         max_count = max(group["targetCount"] for group in ranked_groups)
         if top_group["targetCount"] == max_count and max_count > 1:
-            reasons.append("Maggiore concentrazione di target")
+            reasons.append("Maggiore concentrazione di target osservabili ora")
         elif top_group["targetCount"] > 1:
-            reasons.append("Più target nella stessa zona")
+            reasons.append("Più target osservabili ora nella stessa zona")
+
+        if any(item["inPlan"] for item in targets):
+            reasons.append("Include una tappa del piano attualmente osservabile")
 
         return reasons[:3]
 

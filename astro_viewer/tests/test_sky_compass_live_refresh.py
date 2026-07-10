@@ -139,6 +139,9 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         self.assertEqual(updated.azimuth, "90 gradi")
         self.assertEqual(updated.current_altitude, "12.3 gradi")
         self.assertEqual(updated.current_azimuth, "90.0 gradi")
+        self.assertTrue(updated.observable_now)
+        self.assertEqual(updated.current_altitude_degrees, 12.3)
+        self.assertEqual(updated.current_azimuth_degrees, 90.0)
 
     def test_live_refresh_updates_direction_from_position_engine(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
@@ -186,10 +189,27 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         self.assertTrue(timer.isActive())
         self.assertEqual(timer.start_count, 1)
 
-        controller._set_sky_compass(SkyCompassService.empty("no_location", "Nessun target."))
+        controller._set_sky_compass(SkyCompassService.empty("no_targets", "Nessun target."))
+
+        self.assertTrue(timer.isActive())
+        self.assertEqual(timer.stop_count, 0)
+
+        controller._sky_compass_candidate_snapshot = []
+        controller._update_sky_compass_live_timer()
 
         self.assertFalse(timer.isActive())
         self.assertEqual(timer.stop_count, 1)
+
+    def test_live_refresh_continues_from_an_empty_current_compass_state(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, engine, timer = _controller([target])
+        controller._sky_compass = SkyCompassService.empty("no_targets", "Nessun target osservabile ora.")
+
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(engine.calls, 1)
+        self.assertTrue(controller._sky_compass["available"])
+        self.assertTrue(timer.isActive())
 
     def test_full_refresh_still_uses_existing_heavy_refresh_branches(self) -> None:
         source = inspect.getsource(AppController._refresh_all)
@@ -219,6 +239,9 @@ class _PositionEngine:
                 azimuth="90 gradi",
                 current_altitude="12.3 gradi",
                 current_azimuth="90.0 gradi",
+                observable_now=True,
+                current_altitude_degrees=12.3,
+                current_azimuth_degrees=90.0,
             )
             for item in objects
         ]

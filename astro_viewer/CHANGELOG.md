@@ -13,7 +13,22 @@
   apertura e focale di un telescopio non selezionato.
 - Aggiunti test per limite a quattro, selezione del secondo telescopio del
   profilo e capability non-telescopio.
-- QML e distribuzione Windows non sono state modificate in questo primo step.
+- Rimossi i limiti interni a 55 candidati dettagliati e 10 risultati dal
+  catalogo Messier della Home: tutti gli oggetti sopra la soglia utile nella
+  notte entrano ora nel pool condiviso.
+- Esposta la property read-only `homeVisibleAlternatives`, ordinata per orario,
+  con pianeti e cielo profondo unificati e le quattro tappe del piano escluse.
+- Distinti sui target `visible` per la notte e `observableNow` per l'istante
+  corrente, con altitudine/azimut numerici strutturati oltre alle label legacy.
+- Reso Sky Compass indipendente dal ranking del piano: `inPlan` e `isBest`
+  restano annotazioni/spareggi, mentre direzione e target usano
+  `ObservableTargetValue`, altitudine corrente e densita' della zona.
+- Il tick da 60 secondi continua anche quando nessun target e' osservabile al
+  momento, cosi' una finestra che si apre piu' tardi riattiva automaticamente
+  la bussola senza refresh pesanti.
+- Benchmark locale sul catalogo corrente: 96 Messier utili calcolati in circa
+  `0,6 s` e snapshot live aggiornato in circa `0,3 s`.
+- QML e distribuzione Windows non sono state ancora modificate.
 
 ## NightScope 1.17.2 - 2026-07-10
 

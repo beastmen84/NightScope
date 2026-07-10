@@ -102,6 +102,14 @@ independent from the first telescope assigned to a profile. This is a
 post-closeout product-contract correction and does not reopen the historical
 NSOM migration or replace `EquipmentService` scoring.
 
+The second `1.18.0` step removes the Home-only ten-object deep-sky cap and
+defines the complete useful-night pool shared by Home alternatives and Sky
+Compass. Live compass ranking now filters structured `observable_now` geometry
+and combines precomputed `ObservableTargetValue` with current altitude and
+target density. Plan and Best Object membership are retained as context only;
+the 60-second geometry tick remains isolated from provider, Equipment and
+Planner refresh paths and continues across temporarily empty current windows.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

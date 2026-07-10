@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.0`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `b8edbd0 Align Home plan with target equipment`
 - `69ce9dd Harden Open-Meteo transient failure retries`
 - `3bb2b40 Record 1.17.1 build commit`
 - `38e971d Document 1.17.1 Windows distribution build`
@@ -72,6 +73,16 @@ Il closeout dichiara:
 - il Planner non mantiene piu' due tappe nascoste e non usa piu' il primo
   telescopio del profilo per tutti i target; binocolo e occhio nudo conservano
   capability proprie;
+- il secondo step `1.18.0` espone `homeVisibleAlternatives` come pool Home
+  unificato di pianeti e cielo profondo, senza il precedente limite di dieci
+  oggetti deep-sky e con esclusione dei quattro target gia' nel piano;
+- Sky Compass usa lo stesso pool completo, filtra la geometria live
+  `observable_now` e bilancia valore osservativo, quota corrente e densita'
+  direzionale; piano e Best Object restano annotazioni/tie-break e non
+  alterano artificialmente la direzione;
+- il timer Sky Compass continua anche quando nessun target e' osservabile in
+  quel momento, cosi' la bussola puo' attivarsi quando un target sorge senza
+  richiedere un refresh manuale;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -232,6 +243,22 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Durante il secondo step Home inferiore `1.18.0`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/astronomy/skyfield_engine.py astro_viewer/app/models/observing.py astro_viewer/app/services/sky_compass_service.py astro_viewer/app/services/sky_compass_nsom_ranking.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_night_target_pool.py astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_sky_compass_nsom_ranking.py astro_viewer/tests/test_sky_compass_live_refresh.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_night_target_pool.py astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_sky_compass_nsom_ranking.py astro_viewer/tests/test_sky_compass_live_refresh.py astro_viewer/tests/test_phase3_services.py astro_viewer/tests/test_phase6_real_data.py astro_viewer/tests/test_planner_nsom_experimental.py astro_viewer/tests/test_equipment_setup_read_model.py astro_viewer/tests/test_observer_capability_adapter.py
+```
+
+Risultati:
+
+- ruff focused: passed;
+- pool Home/Sky Compass focused: `67 passed`;
+- regressione estesa durante l'implementazione: `237 passed, 7 subtests passed`;
+- revalidazione finale del perimetro elencato sopra: `143 passed, 7 subtests passed`;
+- benchmark locale sul catalogo Messier corrente: `96` target utili,
+  costruzione iniziale circa `0.6 s`, refresh geometria live circa `0.3 s`.
+
 Durante il primo step Home inferiore `1.18.0`:
 
 ```powershell
@@ -364,8 +391,8 @@ Sequenza consigliata:
    `1.18.0`, mentre la distribuzione corrente resta `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping e coerenza dei dati caricati.
-3. Completare gli step `1.18.0` rimasti: pool target condiviso/Sky Compass live,
-   quindi QML di `Piano della notte` e lista unificata degli altri oggetti.
+3. Completare lo step `1.18.0` rimasto: contratto presentazionale e QML di
+   `Piano della notte`, quindi lista unificata degli altri oggetti.
 4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

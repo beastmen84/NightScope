@@ -503,6 +503,19 @@ class AppController(QObject):
     def recommendedDeepSky(self) -> list[dict]:
         return [self._object_to_qml(deep_sky) for deep_sky in self._conditioned_deep_sky_candidates()]
 
+    @Property("QVariant", notify=dataChanged)
+    def homeVisibleAlternatives(self) -> list[dict]:
+        plan_ids = {item.object_id for item in self._night_plan}
+        alternatives = [item for item in self._tonight_target_pool() if item.id not in plan_ids]
+        payload = []
+        for item in sorted(alternatives, key=self._home_alternative_sort_key):
+            data = self._object_to_qml(item)
+            is_planet = item.object_type == "Pianeta"
+            data["homeCategory"] = "planet" if is_planet else "deep_sky"
+            data["homeCategoryLabel"] = "Pianeta" if is_planet else "Cielo profondo"
+            payload.append(data)
+        return payload
+
     @Property("QVariant", notify=catalogueChanged)
     def catalogueObjects(self) -> list[dict]:
         return self._filtered_catalogue_objects()
@@ -2658,7 +2671,7 @@ class AppController(QObject):
     def _refresh_sky_compass_live(self) -> None:
         self._mark_refresh_dirty(RefreshReason.LIVE_TICK)
         try:
-            if not self._has_valid_location() or not self._sky_compass.get("available", False):
+            if not self._has_valid_location():
                 return
             candidates = list(getattr(self, "_sky_compass_candidate_snapshot", []))
             if not candidates:
@@ -2721,7 +2734,6 @@ class AppController(QObject):
             return
         should_run = (
             self._has_valid_location()
-            and bool(self._sky_compass.get("available", False))
             and bool(getattr(self, "_sky_compass_candidate_snapshot", []))
         )
         if should_run:
@@ -2732,19 +2744,7 @@ class AppController(QObject):
             timer.stop()
 
     def _sky_compass_candidates(self) -> list[CelestialObject]:
-        candidates = self._home_visible_objects(self._visible_planets)
-        candidates.extend(self._conditioned_deep_sky_candidates())
-
-        by_id = {item.id: item for item in self._visible_planets + self._deep_sky}
-        seen_ids = {item.id for item in candidates}
-        for plan_item in self._night_plan:
-            item = by_id.get(plan_item.object_id)
-            if item and item.id not in seen_ids:
-                candidates.append(item)
-                seen_ids.add(item.id)
-        if self._best_object and self._best_object.id not in seen_ids:
-            candidates.append(self._best_object)
-        return candidates
+        return self._tonight_target_pool()
 
     def _sky_compass_observable_targets_by_id(
         self,
@@ -2778,6 +2778,9 @@ class AppController(QObject):
             azimuth=display_target.azimuth,
             current_altitude=display_target.current_altitude,
             current_azimuth=display_target.current_azimuth,
+            observable_now=display_target.observable_now,
+            current_altitude_degrees=display_target.current_altitude_degrees,
+            current_azimuth_degrees=display_target.current_azimuth_degrees,
             time_above_horizon=display_target.time_above_horizon,
             rise_time=display_target.rise_time,
             set_time=display_target.set_time,
@@ -3412,6 +3415,31 @@ class AppController(QObject):
     @staticmethod
     def _home_visible_objects(objects: list[CelestialObject]) -> list[CelestialObject]:
         return [item for item in objects if AppController._first_useful_time(item.best_time) or AppController._first_useful_time(item.observing_window)]
+
+    def _tonight_target_pool(self) -> list[CelestialObject]:
+        candidates = self._home_visible_objects(self._visible_planets)
+        candidates.extend(self._conditioned_deep_sky_candidates())
+        unique: list[CelestialObject] = []
+        seen_ids: set[str] = set()
+        for item in candidates:
+            if item.id in seen_ids:
+                continue
+            seen_ids.add(item.id)
+            unique.append(item)
+        return unique
+
+    @staticmethod
+    def _home_alternative_sort_key(item: CelestialObject) -> tuple[int, int, str]:
+        target_time = AppController._first_useful_time(item.best_time)
+        if target_time is None:
+            target_time = AppController._first_useful_time(item.observing_window)
+        if target_time is None:
+            time_order = 10_000
+        else:
+            hour, minute = target_time
+            time_order = ((hour + 24) if hour < 12 else hour) * 60 + minute
+        category_order = 0 if item.object_type == "Pianeta" else 1
+        return time_order, category_order, item.name.casefold()
 
     def _solar_system_monthly_visible_for_home(self, item: CelestialObject) -> bool:
         visibility = self._catalogue_month_visible_for_object(item.id)

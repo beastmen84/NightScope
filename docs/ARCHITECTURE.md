@@ -71,6 +71,9 @@ Current runtime status for `1.18.0`:
 - Planner now consumes the telescope selected by `EquipmentService` for each
   target in a multi-instrument profile and emits four selected opportunities
   before chronological presentation.
+- Home and Sky Compass share the complete useful-night target pool. Sky Compass
+  filters live `observable_now` geometry and no longer lets plan/Best Object
+  bonuses choose the direction.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed
@@ -241,7 +244,8 @@ Services hold business logic:
 - `OpenMeteoWeatherService`: forecast retrieval and weather cache integration.
 - `SkyCompassService`: guidance DTO generation for the Sky Compass assistant
   from already prepared Home targets; it does not call weather, VIIRS, Planner
-  or recommendation services.
+  or recommendation services. Direction ranking combines current altitude,
+  target value and density; plan/Best flags are annotations only.
 - `LocationService`: Windows, IP and manual location providers.
 
 ### Repositories
@@ -426,12 +430,13 @@ Sky Compass, seeing/transparency, weather score, observing scores or
 recommendation outputs.
 
 Sky Compass live refresh is controller-owned and runs on a 60-second `QTimer`
-only when a valid location, an available compass DTO and a stored candidate
-snapshot exist. Normal Home/Planner refreshes compute `_sky_compass_candidates()`
+when a valid location and a stored nightly candidate snapshot exist. It keeps
+running when the current compass DTO has no observable target, allowing later
+rise/window transitions to become available automatically. Normal Home/Planner refreshes compute `_sky_compass_candidates()`
 and store the result in `AppController._sky_compass_candidate_snapshot`. The
 live tick never calls `_sky_compass_candidates()`: it uses
 `SkyfieldAstronomyEngine.refresh_current_positions()` to update current
-altitude, azimuth and direction for the stored snapshot, emits only
+altitude, azimuth, direction and `observable_now` for the stored snapshot, emits only
 `skyCompassChanged` and clears `COMPASS_LIVE` after the update.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile

@@ -38,6 +38,9 @@ class CelestialObject:
     recommended_setup_type: str = ""
     setup_options: list[dict] = field(default_factory=list)
     equipment_explanation: str = ""
+    observable_now: bool | None = None
+    current_altitude_degrees: float | None = None
+    current_azimuth_degrees: float | None = None
     condition_flags: tuple[str, ...] = field(default_factory=tuple, compare=False, repr=False)
 
     def to_qml(self) -> dict:
@@ -58,6 +61,9 @@ class CelestialObject:
         data["recommendedSetupType"] = self.recommended_setup_type
         data["setupOptions"] = self.setup_options
         data["equipmentExplanation"] = self.equipment_explanation
+        data["observableNow"] = self.observable_now
+        data["currentAltitudeDegrees"] = self.current_altitude_degrees
+        data["currentAzimuthDegrees"] = self.current_azimuth_degrees
         return data
 
 

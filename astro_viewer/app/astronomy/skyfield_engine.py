@@ -130,13 +130,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             except ValueError:
                 continue
         objects = []
-        for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True)[:55]:
+        for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True):
             try:
                 objects.append(self._messier_details(row, location, dec_degrees=dec_degrees))
             except ValueError:
                 continue
         visible = [item for item in objects if item.visible]
-        return sorted(visible, key=lambda item: item.score, reverse=True)[:10]
+        return sorted(visible, key=lambda item: item.score, reverse=True)
 
     def refresh_current_positions(
         self,
@@ -148,6 +148,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         observer = self._observer(location)
         current_time = self._to_skyfield_time(now)
+        night_start, night_end = self._night_window(now)
+        is_observing_night = night_start <= now <= night_end
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
         updated = []
         for item in objects:
@@ -160,6 +162,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 updated.append(item)
                 continue
             altitude_degrees, azimuth_degrees = position
+            observable_now = is_observing_night and altitude_degrees >= self._geometry_altitude_threshold(item)
             updated.append(
                 replace(
                     item,
@@ -167,6 +170,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     azimuth=f"{azimuth_degrees:.0f} gradi",
                     current_altitude=f"{altitude_degrees:.1f} gradi",
                     current_azimuth=f"{azimuth_degrees:.1f} gradi",
+                    observable_now=observable_now,
+                    current_altitude_degrees=altitude_degrees,
+                    current_azimuth_degrees=azimuth_degrees,
                 )
             )
         return updated
@@ -443,6 +449,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=8.0)
         magnitude = self._magnitude(astrometric, config.object_id)
         visible = altitude.degrees > 0.0 or max_altitude > 8.0
+        observable_now = self._is_observable_now(now, altitude.degrees, threshold=8.0)
         score = self._object_score(max_altitude, magnitude, config.object_type, visible)
 
         return CelestialObject(
@@ -467,6 +474,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             culmination_time=culmination,
             current_altitude=f"{altitude.degrees:.1f} gradi",
             current_azimuth=f"{azimuth.degrees:.1f} gradi",
+            observable_now=observable_now,
+            current_altitude_degrees=float(altitude.degrees),
+            current_azimuth_degrees=float(azimuth.degrees),
             score=score,
             score_label=self._score_label(score),
             score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
@@ -490,6 +500,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
         magnitude = row["magnitude"]
         visible = max_altitude >= DEEP_SKY_USEFUL_ALTITUDE_DEG
+        observable_now = self._is_observable_now(
+            now,
+            altitude.degrees,
+            threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
+        )
         score = self._object_score(max_altitude, magnitude, row["object_type"], visible)
         setup = self._deep_sky_setup(row["object_type"], magnitude)
 
@@ -515,6 +530,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             culmination_time=self._format_dt(best_dt) if best_dt else "n/d",
             current_altitude=f"{altitude.degrees:.1f} gradi",
             current_azimuth=f"{azimuth.degrees:.1f} gradi",
+            observable_now=observable_now,
+            current_altitude_degrees=float(altitude.degrees),
+            current_azimuth_degrees=float(azimuth.degrees),
             score=score,
             score_label=self._score_label(score),
             score_explanation=f"Massima altezza {max_altitude:.0f} gradi; magnitudine {self._format_magnitude(magnitude)}.",
@@ -547,6 +565,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         start = datetime.combine(start_date, time(18, 0), tzinfo=now.tzinfo)
         end = start + timedelta(hours=13)
         return start, end
+
+    def _is_observable_now(self, now: datetime, altitude_degrees: float, *, threshold: float) -> bool:
+        start, end = self._night_window(now)
+        return start <= now <= end and altitude_degrees >= threshold
 
     def _sample_altitudes(
         self,

@@ -51,6 +51,10 @@ Current runtime status for `1.18.0`:
   the visible four-step product contract. Per-target `ObserverCapability` uses
   the telescope selected by the setup-local Equipment service; binocular and
   naked-eye targets are no longer mixed with the first profile telescope.
+- The same release defines one complete useful-night Home pool and separates
+  nightly visibility from live `observable_now` geometry. Sky Compass removes
+  plan/Best Object score boosts and ranks current directions from observable
+  target value, altitude and density while preserving those flags as metadata.
 
 ## Core Diagram
 
@@ -314,7 +318,7 @@ of the same physical effect inside the same mathematical decision.
 | Planner score | `PlannerNsomScoringService` default; `PlannerScoringService` rollback | NSOM `ObservationOpportunity` by default, legacy plan-specific aggregation as rollback | Night Planner | Managed: legacy path retained only as rollback |
 | Equipment score | `EquipmentService` | current observer capability / optical suitability | Home, Detail, Planner setup | Acceptable if it feeds observer capability instead of target physics |
 | Recommendation presentation | `RecommendationPresenter` | serialization and labels | QML | Low |
-| Sky Compass score | `SkyCompassService` | direction grouping from prepared targets | Home | Low if it only consumes prepared targets |
+| Sky Compass score | `SkyCompassNsomDirectionService` | current direction grouping from prepared target value, altitude and density | Home | Low: plan/Best flags are metadata/tie-breaks, not score bonuses |
 | NASA AOD diagnostics | `ObservationConditionsService` | column aerosol proxy | diagnostics only | Low today, future risk |
 | OpenAQ PM diagnostics | `ObservationConditionsService` | ground particulate proxy | diagnostics only | Low today, future risk |
 
@@ -1435,7 +1439,8 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
   single scalar in diagnostics.
 - `ObservationOpportunity` combines practical target value, observing window,
   chronology, session viability, constraints and confidence annotations.
-- Sky Compass live refresh still does not call scoring or heavy refresh paths.
+- Sky Compass live refresh still does not call provider, equipment, Planner or
+  other heavy refresh paths; it applies only live geometry to precomputed value.
 
 ### Atmospheric tests
 
@@ -1493,7 +1498,8 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
 
 - Moon geometry sampling uses bounded samples, not minute-by-minute loops.
 - AOD/PM diagnostics do not trigger network refreshes from scoring.
-- Sky Compass live refresh stays position-only.
+- Sky Compass live refresh stays geometry-only and may update
+  `observable_now`, altitude, azimuth and direction.
 
 ## 13. Recommendation
 

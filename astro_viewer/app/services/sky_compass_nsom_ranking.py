@@ -20,6 +20,7 @@ class SkyCompassNsomTarget:
     direction: str
     display_score: int
     observable_value: float
+    current_altitude_factor: float
     direction_score_contribution: float
     in_plan: bool
     is_best: bool
@@ -28,13 +29,11 @@ class SkyCompassNsomTarget:
 class SkyCompassNsomDirectionService:
     """Default Sky Compass NSOM direction policy.
 
-    This service preserves the public Sky Compass payload shape. It uses
-    ObservableTargetValue only as the candidate base, keeps plan/best/context
-    boosts as presentation policy, and exposes no NSOM fields to QML.
+    This service preserves the public Sky Compass payload shape. It combines
+    ObservableTargetValue with current altitude and target density. Plan and
+    Best Object remain annotations/tie-breaks and expose no NSOM fields to QML.
     """
 
-    IN_PLAN_BONUS = 42.0
-    BEST_OBJECT_BONUS = 58.0
     TARGET_PRESENCE_BONUS = 10.0
 
     def __init__(self, *, legacy_service: SkyCompassService | None = None) -> None:
@@ -66,7 +65,7 @@ class SkyCompassNsomDirectionService:
             observable_objects_by_id=observable_objects_by_id,
         )
         if not targets:
-            return self._legacy_service.empty("no_targets", "Nessun target consigliato al momento.")
+            return self._legacy_service.empty("no_targets", "Nessun target osservabile in questo momento.")
 
         grouped = self._group_targets(targets)
         ranked_groups = sorted(
@@ -96,7 +95,7 @@ class SkyCompassNsomDirectionService:
             "reason": "ready",
             "message": "",
             "direction": top["direction"],
-            "zoneLabel": "Migliore zona osservativa",
+            "zoneLabel": "Migliore zona adesso",
             "targetCount": top["targetCount"],
             "targetCountLabel": self._legacy_service._available_count_label(top["targetCount"]),
             "targets": top["targets"],
@@ -122,7 +121,7 @@ class SkyCompassNsomDirectionService:
         observable_objects = observable_objects_by_id or {}
         seen_ids = set()
         for item in objects:
-            if item.id in seen_ids or not item.visible:
+            if item.id in seen_ids or not item.visible or not self._legacy_service.is_observable_now(item):
                 continue
             direction = SkyCompassService.normalize_direction(item.direction)
             if not direction:
@@ -131,12 +130,8 @@ class SkyCompassNsomDirectionService:
             observable = build_home_observable_target_value(observable_item, sky_quality=sky_quality, moon=moon)
             in_plan = item.id in plan_ids
             is_best = item.id == best_id
-            direction_score = (
-                observable.value
-                + (self.IN_PLAN_BONUS if in_plan else 0.0)
-                + (self.BEST_OBJECT_BONUS if is_best else 0.0)
-                + self.TARGET_PRESENCE_BONUS
-            )
+            altitude_factor = self._legacy_service.current_altitude_factor(item)
+            direction_score = (observable.value * altitude_factor) + self.TARGET_PRESENCE_BONUS
             targets.append(
                 SkyCompassNsomTarget(
                     id=item.id,
@@ -145,6 +140,7 @@ class SkyCompassNsomDirectionService:
                     direction=direction,
                     display_score=item.score,
                     observable_value=observable.value,
+                    current_altitude_factor=altitude_factor,
                     direction_score_contribution=direction_score,
                     in_plan=in_plan,
                     is_best=is_best,
@@ -178,15 +174,17 @@ class SkyCompassNsomDirectionService:
                         "isBest": target.is_best,
                     },
                     target.observable_value,
+                    target.direction_score_contribution,
                 )
             )
         for group in grouped.values():
             ranked_targets = sorted(
                 group["_targets"],
                 key=lambda item: (
+                    item[2],
+                    item[1],
                     item[0]["isBest"],
                     item[0]["inPlan"],
-                    item[1],
                     item[0]["score"],
                 ),
                 reverse=True,

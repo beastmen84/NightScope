@@ -7,7 +7,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 ## Funzionalità principali
 
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
-- Sky Compass come prima guida pratica della Home: indica dove iniziare, spiega perché quella zona è consigliata e mostra target principali e alternative; non è un planetario.
+- Sky Compass come guida live della Home: ogni minuto valuta gli oggetti realmente osservabili adesso, combina qualità e concentrazione per direzione e mantiene piano/Best Object come contesto, non come bonus dominante.
 - Piano osservativo consigliato: quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
 - Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
@@ -36,10 +36,13 @@ Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
 
 - Planner: ranking `ObservationOpportunity`.
-- Home `recommendedDeepSky`: ordine `ObservableTargetValue`.
+- Home `recommendedDeepSky`: tutti i target utili della notte, ordinati per
+  `ObservableTargetValue`; `homeVisibleAlternatives` unifica pianeti e cielo
+  profondo escludendo le quattro tappe del piano.
 - Best Object: selezione Home-specific basata su concetti NSOM.
 - Advanced Observing: snapshot backend NSOM parallelo.
-- Sky Compass: direzione basata su `ObservableTargetValue`.
+- Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine
+  corrente e densita' dei target osservabili ora.
 - Detail/Object: payload interno NSOM separato.
 - ObservationConditions: AOD/OpenAQ default-on quando i dati provider sono gia'
   disponibili e passano i gate di qualita'.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 from astro_viewer.app.models.observing import CelestialObject
@@ -24,15 +25,15 @@ def test_sky_compass_ranks_broad_direction_from_home_targets() -> None:
     assert result["available"] is True
     assert result["direction"] == "Nord-Est"
     assert result["targetCount"] == 2
-    assert result["zoneLabel"] == "Migliore zona osservativa"
-    assert result["targetCountLabel"] == "2 target osservabili"
+    assert result["zoneLabel"] == "Migliore zona adesso"
+    assert result["targetCountLabel"] == "2 target osservabili ora"
     assert result["primaryTargets"][0]["id"] == "messier-M13"
     assert [item["name"] for item in result["primaryTargets"]] == ["M13", "M92"]
     assert "targetNames" not in result
     assert "updatedLabel" not in result
-    assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
+    assert result["decisionReasons"][0] == "M13 guida la scelta in questo momento"
     assert any("Più ammassi nella stessa zona" in reason for reason in result["decisionReasons"])
-    assert not any("osservabili" in reason.lower() for reason in result["decisionReasons"])
+    assert any("osservabili ora" in reason.lower() for reason in result["decisionReasons"])
     assert not any("Due ottimi oggetti deep sky" in reason for reason in result["decisionReasons"])
     assert result["alternatives"][0]["direction"] == "Est"
 
@@ -107,9 +108,30 @@ def test_sky_compass_presents_max_three_primary_targets_and_other_count() -> Non
 
 def test_sky_compass_uses_home_filtered_planets_not_raw_solar_system_objects() -> None:
     body = _python_function_body("_sky_compass_candidates")
+    pool_body = _python_function_body("_tonight_target_pool")
 
-    assert "_home_visible_objects(self._visible_planets)" in body
+    assert "_tonight_target_pool()" in body
+    assert "_home_visible_objects(self._visible_planets)" in pool_body
     assert "_solar_system_objects" not in body
+
+
+def test_sky_compass_excludes_targets_that_are_not_observable_now() -> None:
+    service = SkyCompassService()
+    future_target = _object("future", "Future", "Pianeta", "Sud", 100)
+    current_target = _object("current", "Current", "Pianeta", "Est", 60)
+
+    result = service.compass(
+        [
+            replace(future_target, observable_now=False),
+            replace(current_target, observable_now=True),
+        ],
+        [],
+        None,
+        has_location=True,
+    )
+
+    assert result["direction"] == "Est"
+    assert [item["id"] for item in result["targets"]] == ["current"]
 
 
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:

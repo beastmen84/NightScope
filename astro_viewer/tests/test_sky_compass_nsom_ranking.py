@@ -7,8 +7,6 @@ from inspect import signature
 from pathlib import Path
 from unittest.mock import Mock
 
-import pytest
-
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.services.sky_compass_nsom_ranking import (
@@ -63,12 +61,13 @@ def test_flag_on_uses_observable_value_direction_policy_without_qml_shape_change
     assert "nsom" not in result["primaryTargets"][0]
 
 
-def test_flag_on_preserves_plan_and_best_object_context_boosts() -> None:
+def test_plan_and_best_object_are_annotations_not_direction_boosts() -> None:
     targets = _targets()
     globular = _find(targets, "globular_cluster")
     plan = [_plan_item(globular)]
+    service = SkyCompassNsomDirectionService()
 
-    result = SkyCompassNsomDirectionService().compass(
+    result = service.compass(
         targets,
         plan,
         globular,
@@ -76,17 +75,19 @@ def test_flag_on_preserves_plan_and_best_object_context_boosts() -> None:
         moon=_moon(10),
         has_location=True,
     )
+    annotated_targets = service._targets(
+        list(targets),
+        {globular.id},
+        globular.id,
+        sky_quality=_sky_quality(2, radiance=1.0),
+        moon=_moon(10),
+    )
 
-    assert result["direction"] == "Nord-Est"
-    assert result["primaryTargets"][0] == {
-        "id": "globular_cluster",
-        "name": "Globular Cluster",
-        "type": "Globular Cluster",
-        "score": 84,
-        "inPlan": True,
-        "isBest": True,
-    }
-    assert result["decisionReasons"][0] == "Include un target già nel piano osservativo"
+    assert result["direction"] == "Sud"
+    planned = next(item for item in annotated_targets if item.id == globular.id)
+    assert planned.in_plan is True
+    assert planned.is_best is True
+    assert all("piano" not in reason.lower() for reason in result["decisionReasons"])
 
 
 def test_service_uses_observable_target_map_without_changing_payload_geometry() -> None:
@@ -113,6 +114,32 @@ def test_service_uses_observable_target_map_without_changing_payload_geometry() 
         "inPlan": False,
         "isBest": False,
     }
+
+
+def test_current_altitude_changes_direction_priority_without_exposing_nsom_fields() -> None:
+    low = replace(
+        _object("low", "Low", "Galaxy", "Sud", 80, magnitude="6.0"),
+        observable_now=True,
+        current_altitude_degrees=16.0,
+    )
+    high = replace(
+        _object("high", "High", "Galaxy", "Nord", 80, magnitude="6.0"),
+        observable_now=True,
+        current_altitude_degrees=55.0,
+    )
+
+    result = SkyCompassNsomDirectionService().compass(
+        [low, high],
+        [],
+        None,
+        sky_quality=_sky_quality(3, radiance=1.0),
+        moon=_moon(10),
+        has_location=True,
+    )
+
+    assert result["direction"] == "Nord"
+    assert result["primaryTargets"][0]["id"] == "high"
+    assert "observableValue" not in result["primaryTargets"][0]
 
 
 def test_controller_default_uses_nsom_and_missing_sky_falls_back_to_legacy() -> None:
@@ -205,7 +232,7 @@ def test_no_location_no_targets_and_original_objects_are_not_mutated() -> None:
     )
 
     assert no_location == SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
-    assert no_targets == SkyCompassService.empty("no_targets", "Nessun target consigliato al momento.")
+    assert no_targets == SkyCompassService.empty("no_targets", "Nessun target osservabile in questo momento.")
     assert targets == before
 
 

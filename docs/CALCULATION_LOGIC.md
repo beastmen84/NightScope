@@ -98,6 +98,21 @@ direction as either an observing suggestion or geometric orientation; it does
 not rerank directions or targets. Missing weather also forces orientation-only
 copy.
 
+The lower-Home candidate pool contains every planet and deep-sky object with a
+useful window during the observing night. `visible` means useful at some point
+in that night; `observable_now` is a separate live geometry result. The Home
+alternatives projection removes the four plan IDs, combines planet and deep-sky
+rows and orders them by observing-night time.
+
+Sky Compass runs from the same prepared pool but filters `observable_now=False`.
+Its direction contribution is the NSOM `ObservableTargetValue` scaled by a
+bounded current-altitude factor, plus a fixed per-target presence term. The
+direction therefore balances target quality and current density. Plan and Best
+Object flags remain payload annotations and target-order tie-breaks; they do not
+add direction-score bonuses. The 60-second tick updates geometry only and keeps
+running with a non-empty nightly snapshot even when no target is observable at
+the current minute.
+
 During automatic startup location detection, `homeObservingOverview` emits a
 presentation state of `pending` for Session, Weather and category cards. A
 completed detection with no valid location emits `unavailable`. Neither state
