@@ -25,6 +25,7 @@ class WeatherHardeningTests(unittest.TestCase):
             with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING"):
                 self.assertEqual(service.hourly_forecast(self.location), [])
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
+        self.assertTrue(service.retry_recommended)
 
     def test_timeout_retries_once_before_falling_back(self) -> None:
         response = Mock()
@@ -49,6 +50,7 @@ class WeatherHardeningTests(unittest.TestCase):
         self.assertEqual(len(forecast), 1)
         self.assertEqual(forecast[0].cloud_cover, 12)
         self.assertEqual(service.last_error, "")
+        self.assertFalse(service.retry_recommended)
         self.assertEqual(weather_get.call_count, 2)
         self.assertEqual(weather_get.call_args_list[0].kwargs["timeout"], 3)
         self.assertEqual(weather_get.call_args_list[1].kwargs["timeout"], 8)
@@ -65,6 +67,7 @@ class WeatherHardeningTests(unittest.TestCase):
                 self.assertEqual(service.hourly_forecast(self.location), [])
 
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
+        self.assertTrue(service.retry_recommended)
 
     def test_empty_response_returns_empty_forecast_without_traceback(self) -> None:
         response = Mock()
@@ -77,6 +80,41 @@ class WeatherHardeningTests(unittest.TestCase):
                 self.assertEqual(service.hourly_forecast(self.location), [])
 
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
+        self.assertTrue(service.retry_recommended)
+
+    def test_server_http_error_logs_status_and_recommends_retry(self) -> None:
+        response = Mock()
+        response.status_code = 503
+        error = requests.HTTPError("service unavailable")
+        error.response = response
+        response.raise_for_status.side_effect = error
+        service = OpenMeteoWeatherService()
+
+        with patch("astro_viewer.app.services.weather_service.requests.get", return_value=response):
+            with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING") as logs:
+                forecast = service.hourly_forecast(self.location)
+
+        self.assertEqual(forecast, [])
+        self.assertEqual(service.last_http_status, 503)
+        self.assertTrue(service.retry_recommended)
+        self.assertIn("status=503", "\n".join(logs.output))
+
+    def test_client_http_error_logs_status_without_short_retry(self) -> None:
+        response = Mock()
+        response.status_code = 400
+        error = requests.HTTPError("bad request")
+        error.response = response
+        response.raise_for_status.side_effect = error
+        service = OpenMeteoWeatherService()
+
+        with patch("astro_viewer.app.services.weather_service.requests.get", return_value=response):
+            with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING") as logs:
+                forecast = service.hourly_forecast(self.location)
+
+        self.assertEqual(forecast, [])
+        self.assertEqual(service.last_http_status, 400)
+        self.assertFalse(service.retry_recommended)
+        self.assertIn("status=400", "\n".join(logs.output))
 
     def test_rate_limit_uses_cached_forecast(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -116,6 +154,8 @@ class WeatherHardeningTests(unittest.TestCase):
         self.assertEqual(len(forecast), 1)
         self.assertEqual(forecast[0].cloud_cover, 12)
         self.assertEqual(service.last_error, WEATHER_UNAVAILABLE_MESSAGE)
+        self.assertEqual(service.last_http_status, 429)
+        self.assertFalse(service.retry_recommended)
 
     def test_force_refresh_bypasses_fresh_cache(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

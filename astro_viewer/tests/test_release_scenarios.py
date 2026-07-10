@@ -20,7 +20,7 @@ from astro_viewer.app.services.location_service import (
 )
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE
-from astro_viewer.app.viewmodels.app_controller import AppController
+from astro_viewer.app.viewmodels.app_controller import WEATHER_RETRY_DELAY_MS, AppController
 
 
 class ReleaseScenarioTests(unittest.TestCase):
@@ -303,20 +303,24 @@ class ReleaseScenarioTests(unittest.TestCase):
             controller._schedule_viirs_sky_quality_refresh.assert_not_called()
 
     def test_manual_weather_refresh_clears_unavailable_status_after_initial_failure(self) -> None:
+        app = QCoreApplication.instance() or QCoreApplication([])
         with self._controller_with_weather(
             side_effect=[requests.Timeout(), requests.Timeout(), _valid_weather_response()]
         ) as controller:
             controller.setManualLocation("41.9028", "12.4964", "Roma")
             self.assertEqual(controller.weatherHourly, [])
             self.assertEqual(controller.weatherStatus, "Dati meteo non disponibili al momento.")
+            self.assertTrue(controller._weather_retry_pending)
 
             controller.refreshWeatherNow()
 
             self.assertTrue(_wait_for_weather_refresh(controller))
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertEqual(controller.weatherStatus, "")
+            self.assertFalse(controller._weather_retry_pending)
             self.assertNotIn("Meteo non disponibile", controller.weatherSummary["alert"])
             self.assertNotEqual(controller.weatherDigest["bestWindow"], "n/d")
+        app.processEvents()
 
     def test_stale_weather_refresh_result_does_not_override_current_weather_state(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
@@ -332,7 +336,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.weatherStatus, "")
             self.assertGreater(len(controller.weatherHourly), 0)
 
-    def test_automatic_weather_refresh_failure_keeps_existing_data_and_reschedules(self) -> None:
+    def test_automatic_weather_refresh_failure_keeps_data_and_schedules_forced_retry(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
             controller.setManualLocation("41.9028", "12.4964", "Roma")
             existing_weather = controller.weatherHourly
@@ -352,6 +356,14 @@ class ReleaseScenarioTests(unittest.TestCase):
                 "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili.",
             )
             self.assertTrue(controller._weather_refresh_timer.isActive())
+            self.assertTrue(controller._weather_retry_pending)
+            self.assertGreater(controller._weather_refresh_timer.remainingTime(), 0)
+            self.assertLessEqual(controller._weather_refresh_timer.remainingTime(), WEATHER_RETRY_DELAY_MS)
+
+            controller._refresh_weather_from_timer()
+
+            self.assertTrue(_wait_for_weather_refresh(controller))
+            self.assertEqual(fake_weather_service.force_refresh_values, [False, True])
             controller._schedule_viirs_sky_quality_refresh.assert_not_called()
 
     def test_approximate_online_location_refreshes_weather(self) -> None:
@@ -600,6 +612,7 @@ class _ForceRefreshFailingWeatherService:
 class _AutomaticRefreshFailingWeatherService:
     def __init__(self) -> None:
         self.last_error = ""
+        self.retry_recommended = True
         self.force_refresh_values: list[bool] = []
 
     def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:

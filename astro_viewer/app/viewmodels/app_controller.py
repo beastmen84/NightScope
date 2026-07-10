@@ -109,6 +109,7 @@ OBSERVING_SOURCE = "observing"
 SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
 STARTUP_LOCATION_PENDING_MESSAGE = "Ricerca della posizione in corso..."
 STARTUP_WEATHER_PENDING_MESSAGE = "Meteo in attesa della posizione."
+WEATHER_RETRY_DELAY_MS = 5 * 60 * 1000
 CATALOGUE_MONTH_NAMES = [
     "Gennaio",
     "Febbraio",
@@ -142,7 +143,7 @@ class AppController(QObject):
     _openaqConnectionTestFinished = Signal(bool, str)
     _viirsSkyQualityFinished = Signal(str, object, str)
     _startupLocationDetectionFinished = Signal(int, object, bool, str)
-    _weatherRefreshFinished = Signal(int, str, object, str)
+    _weatherRefreshFinished = Signal(int, str, object, str, bool)
     _localAtmosphereRefreshFinished = Signal(str, object)
     _nasaAodRefreshFinished = Signal(str, object)
 
@@ -206,6 +207,7 @@ class AppController(QObject):
         self._weather_status = ""
         self._weather_refresh_running = False
         self._weather_refresh_request_id = 0
+        self._weather_retry_pending = False
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
@@ -1728,6 +1730,7 @@ class AppController(QObject):
 
     def _refresh_no_location_context(self) -> None:
         self._weather_refresh_timer.stop()
+        self._weather_retry_pending = False
         self._weather_refresh_running = False
         self._base_solar_system_objects = []
         self._base_deep_sky = []
@@ -1854,7 +1857,10 @@ class AppController(QObject):
         self._refresh_local_atmosphere()
         self._schedule_viirs_sky_quality_refresh()
         self._schedule_nasa_aod_refresh()
-        self._schedule_next_weather_refresh()
+        self._schedule_next_weather_refresh(
+            retry_soon=bool(self._weather_status)
+            and bool(getattr(self._weather_service, "retry_recommended", False))
+        )
         self._clear_refresh_domains(
             RefreshDomain.WEATHER,
             RefreshDomain.EQUIPMENT,
@@ -1862,7 +1868,10 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
-    def _start_weather_refresh(self, force_refresh: bool = True) -> None:
+    def _start_weather_refresh(self, force_refresh: bool = True, *, retry_attempt: bool = False) -> None:
+        if force_refresh:
+            self._weather_retry_pending = False
+            self._weather_refresh_timer.stop()
         if self._startup_location_detection_running:
             self._schedule_next_weather_refresh()
             return
@@ -1871,6 +1880,7 @@ class AppController(QObject):
             self._weather_status = "Dati meteo non disponibili al momento."
             self._weather_refresh_running = False
             self._weather_refresh_timer.stop()
+            self._weather_retry_pending = False
             self._refresh_local_atmosphere()
             self.weatherChanged.emit()
             self._clear_refresh_domains(
@@ -1885,7 +1895,9 @@ class AppController(QObject):
             return
 
         self._mark_refresh_dirty(
-            RefreshReason.MANUAL if force_refresh else RefreshReason.WEATHER_TTL_EXPIRED,
+            RefreshReason.MANUAL
+            if force_refresh and not retry_attempt
+            else RefreshReason.WEATHER_TTL_EXPIRED,
             (
                 RefreshDomain.WEATHER,
                 RefreshDomain.EQUIPMENT,
@@ -1904,18 +1916,43 @@ class AppController(QObject):
             try:
                 hours = self._weather_service.hourly_forecast(location, force_refresh=force_refresh)
                 error = getattr(self._weather_service, "last_error", "") or ""
-                self._weatherRefreshFinished.emit(request_id, location_key, hours, error)
+                retry_recommended = bool(getattr(self._weather_service, "retry_recommended", False))
+                self._weatherRefreshFinished.emit(
+                    request_id,
+                    location_key,
+                    hours,
+                    error,
+                    retry_recommended,
+                )
             except Exception:
                 logger.warning("Unexpected weather refresh failure.", exc_info=True)
-                self._weatherRefreshFinished.emit(request_id, location_key, [], WEATHER_UNAVAILABLE_MESSAGE)
+                self._weatherRefreshFinished.emit(
+                    request_id,
+                    location_key,
+                    [],
+                    WEATHER_UNAVAILABLE_MESSAGE,
+                    True,
+                )
 
         Thread(target=run_refresh, daemon=True).start()
 
     def _refresh_weather_from_timer(self) -> None:
-        self._start_weather_refresh(force_refresh=False)
+        retry_attempt = self._weather_retry_pending
+        self._weather_retry_pending = False
+        self._start_weather_refresh(
+            force_refresh=retry_attempt,
+            retry_attempt=retry_attempt,
+        )
 
-    @Slot(int, str, object, str)
-    def _finish_weather_refresh(self, request_id: int, location_key: str, hours: object, error: str) -> None:
+    @Slot(int, str, object, str, bool)
+    def _finish_weather_refresh(
+        self,
+        request_id: int,
+        location_key: str,
+        hours: object,
+        error: str,
+        retry_recommended: bool = False,
+    ) -> None:
         if request_id != self._weather_refresh_request_id:
             return
         self._weather_refresh_running = False
@@ -1952,7 +1989,9 @@ class AppController(QObject):
         self.weatherChanged.emit()
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
-        self._schedule_next_weather_refresh()
+        self._schedule_next_weather_refresh(
+            retry_soon=bool(error) and retry_recommended,
+        )
         self._clear_refresh_domains(
             RefreshDomain.WEATHER,
             RefreshDomain.EQUIPMENT,
@@ -1960,10 +1999,17 @@ class AppController(QObject):
             RefreshDomain.COMPASS,
         )
 
-    def _schedule_next_weather_refresh(self) -> None:
+    def _schedule_next_weather_refresh(self, *, retry_soon: bool = False) -> None:
         if not QCoreApplication.instance() or not self._has_valid_location() or self._startup_location_detection_running:
             self._weather_refresh_timer.stop()
+            self._weather_retry_pending = False
             return
+        if retry_soon:
+            self._weather_retry_pending = True
+            self._weather_refresh_timer.start(WEATHER_RETRY_DELAY_MS)
+            logger.info("Weather refresh retry scheduled in 5 minutes.")
+            return
+        self._weather_retry_pending = False
         now = datetime.now(self._zone())
         next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
         delay_ms = max(60_000, int((next_hour - now).total_seconds() * 1000))

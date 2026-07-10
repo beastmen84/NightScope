@@ -2,10 +2,11 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.17.1`
+Versione corrente sorgente: `1.17.2`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `3bb2b40 Record 1.17.1 build commit`
 - `38e971d Document 1.17.1 Windows distribution build`
 - `c3895dc Record Home startup state review`
 - `190e095 Fix Home startup location states`
@@ -61,6 +62,9 @@ Il closeout dichiara:
 - la stessa patch distingue in Home la ricerca posizione `pending` dalla reale
   assenza `unavailable`, usa copy neutro senza falsi suggerimenti favorevoli e
   consente due righe nelle card superiori senza cambiarne le dimensioni;
+- `1.17.2` registra lo status HTTP Open-Meteo e programma un retry forzato dopo
+  5 minuti soltanto per errori temporanei; cache, scoring, Session e QML restano
+  invariati;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -221,6 +225,23 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Durante lo hardening Open-Meteo `1.17.2`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/weather_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_weather_hardening.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/weather_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_weather_hardening.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_weather_hardening.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_refresh_lifecycle.py
+.\.venv\Scripts\python.exe astro_viewer/main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff e compileall focused: passed;
+- Weather/release/refresh focused tests: `47 passed`;
+- QML smoke: passed;
+- full suite: `640 passed, 7 subtests passed`.
+
 Dopo la correzione degli stati transitori e del wrapping Home `1.17.1`:
 
 ```powershell
@@ -320,8 +341,8 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: sorgente e
-   distribuzione corrente sono entrambe `1.17.1`.
+1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: la sorgente e'
+   `1.17.2`, mentre la distribuzione corrente resta `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping e coerenza dei dati caricati.
 3. Solo dopo il confronto passare alla seconda parte Home, `Piano della notte`,

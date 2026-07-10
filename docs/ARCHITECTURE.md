@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.17.1`:
+Current runtime status for `1.17.2`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -81,6 +81,10 @@ Current runtime status for `1.17.1`:
   metres to absorb normal Windows geolocation jitter. Exact location keys remain
   unchanged for asynchronous refresh identity and stale-result rejection. AOD
   performs this cache-only preflight before a background worker is started.
+- Open-Meteo retains cached forecasts on provider failure and classifies
+  retryable transport/server failures separately from permanent client/rate
+  errors. Retryable failures schedule a forced lookup after five minutes;
+  status-code logging excludes request coordinates and parameters.
 - The upper Home overview has a dedicated read-only presentation boundary,
   `homeObservingOverview`. It separates Session state, weather index, NSOM
   category diagnostics and Moon impact. The upper QML cards consume this

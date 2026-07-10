@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.17.1`, NightScope keeps backend recommendation inputs separated by
+As of `1.17.2`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -63,6 +63,14 @@ absorbs normal Windows geolocation jitter without merging observations across a
 broad area. AOD checks this processed cache before starting provider
 authentication or a background worker; entries dated in the future are not
 treated as fresh.
+
+Open-Meteo failures do not clear an existing forecast. Timeout, network,
+HTTP `408`/`425`/`5xx`, malformed JSON and empty responses are retryable and
+schedule a forced provider lookup after five minutes. HTTP `400` and `429` do
+not receive the short retry; the same applies to other permanent `4xx` errors.
+This changes refresh lifecycle only: cached values continue to drive the same
+weather summary, Session thresholds and scoring until a fresh response
+succeeds.
 
 Moon geometry is local deterministic input. The runtime computes Moon altitude,
 Moon-target separation and Moon/window overlap from location, time and ephemeris

@@ -18,6 +18,8 @@ WEATHER_UNAVAILABLE_MESSAGE = "Servizio meteo temporaneamente non disponibile."
 
 
 class WeatherService(Protocol):
+    retry_recommended: bool
+
     def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         ...
 
@@ -30,6 +32,8 @@ def score_observability(hours: list[WeatherHour]) -> WeatherSummary:
 
 
 class MockWeatherService:
+    retry_recommended = False
+
     def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         return [
             WeatherHour("mock-20", "20:00", 18, 4, 9, 58, 22.1),
@@ -54,9 +58,13 @@ class OpenMeteoWeatherService:
     def __init__(self, cache_repository: WeatherCacheRepository | None = None):
         self._cache_repository = cache_repository
         self.last_error = ""
+        self.last_http_status: int | None = None
+        self.retry_recommended = False
 
     def hourly_forecast(self, location: ObserverLocation, force_refresh: bool = False) -> list[WeatherHour]:
         self.last_error = ""
+        self.last_http_status = None
+        self.retry_recommended = False
         cache_key = self._cache_key(location)
         cached = self._read_cache(cache_key)
         if not force_refresh and cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
@@ -88,22 +96,42 @@ class OpenMeteoWeatherService:
             response.raise_for_status()
             payload = response.json()
         except requests.Timeout:
-            return self._fallback(cached, "Richiesta meteo scaduta.")
+            return self._fallback(cached, "Richiesta meteo scaduta.", retry_recommended=True)
         except requests.HTTPError as exc:
-            if getattr(exc.response, "status_code", None) == 429:
-                return self._fallback(cached, "Limite richieste API meteo raggiunto.")
-            return self._fallback(cached, "L'API meteo ha restituito un errore HTTP.")
+            status_code = getattr(exc.response, "status_code", None)
+            self.last_http_status = status_code if isinstance(status_code, int) else None
+            if self.last_http_status == 429:
+                return self._fallback(cached, "Open-Meteo HTTP status=429: limite richieste raggiunto.")
+            retry_recommended = _http_error_is_retryable(self.last_http_status)
+            status_label = self.last_http_status if self.last_http_status is not None else "unknown"
+            return self._fallback(
+                cached,
+                f"Open-Meteo HTTP status={status_label}.",
+                retry_recommended=retry_recommended,
+            )
         except requests.RequestException:
-            return self._fallback(cached, "API meteo non raggiungibile.")
+            return self._fallback(cached, "API meteo non raggiungibile.", retry_recommended=True)
         except (TypeError, ValueError):
-            return self._fallback(cached, "L'API meteo ha restituito JSON non valido.")
+            return self._fallback(
+                cached,
+                "L'API meteo ha restituito JSON non valido.",
+                retry_recommended=True,
+            )
 
         if not isinstance(payload, dict):
-            return self._fallback(cached, "L'API meteo ha restituito dati inattesi.")
+            return self._fallback(
+                cached,
+                "L'API meteo ha restituito dati inattesi.",
+                retry_recommended=True,
+            )
 
         hours = self._parse_payload(payload)
         if not hours:
-            return self._fallback(cached, "L'API meteo ha restituito una previsione vuota.")
+            return self._fallback(
+                cached,
+                "L'API meteo ha restituito una previsione vuota.",
+                retry_recommended=True,
+            )
 
         if self._cache_repository:
             self._cache_repository.set(cache_key, datetime.now(UTC).isoformat(), json.dumps(payload))
@@ -131,8 +159,15 @@ class OpenMeteoWeatherService:
             raise last_timeout
         raise requests.Timeout("Open-Meteo request timed out.")
 
-    def _fallback(self, cached: tuple[datetime, dict] | None, reason: str) -> list[WeatherHour]:
+    def _fallback(
+        self,
+        cached: tuple[datetime, dict] | None,
+        reason: str,
+        *,
+        retry_recommended: bool = False,
+    ) -> list[WeatherHour]:
         self.last_error = WEATHER_UNAVAILABLE_MESSAGE
+        self.retry_recommended = retry_recommended
         logger.warning(reason)
         if not cached:
             return []
@@ -212,3 +247,9 @@ def _hourly_value(hourly: dict, key: str, index: int, default):
     if index >= len(values):
         return default
     return values[index]
+
+
+def _http_error_is_retryable(status_code: int | None) -> bool:
+    if status_code is None:
+        return False
+    return status_code in {408, 425} or 500 <= status_code <= 599

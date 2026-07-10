@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.17.1`:
+Current runtime status for `1.17.2`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload use NSOM-backed paths by default.
@@ -44,6 +44,9 @@ Current runtime status for `1.17.1`:
   `unavailable` location states and neutral no-data category hints. These are
   QML-facing presentation semantics only and do not alter Session viability,
   category scores or target ranking.
+- `1.17.2` hardens Open-Meteo refresh handling with status-code diagnostics and
+  a five-minute forced retry for transient provider failures. Cached conditions,
+  Session policy, NSOM formulas and ranking remain unchanged.
 
 ## Core Diagram
 

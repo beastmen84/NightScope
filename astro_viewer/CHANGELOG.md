@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.17.2 - 2026-07-10
+
+- Aggiunto al log Open-Meteo lo status code degli errori HTTP, senza registrare
+  coordinate o parametri della richiesta.
+- Classificati come temporanei timeout, errori di rete, HTTP `408`/`425`/`5xx`
+  e risposte non valide o vuote; il fallback continua a usare immediatamente
+  l'ultima previsione disponibile.
+- Programmato per gli errori temporanei un retry automatico dopo 5 minuti, con
+  `force_refresh=True` per bypassare correttamente la TTL della cache.
+- Evitato il retry breve per HTTP `4xx` permanenti e `429`, lasciando il normale
+  controllo orario per errori client o rate limit.
+- Aggiunti test provider/controller per logging status, classificazione,
+  conservazione cache, timer breve e retry forzato.
+- Nessuna modifica a scoring, ranking NSOM, soglie sessione, payload Home o QML.
+- La distribuzione Windows non e' stata rigenerata in questo step.
+
 ## NightScope 1.17.1 - 2026-07-10
 
 - Reso tollerante al normale jitter della posizione Windows il riuso delle

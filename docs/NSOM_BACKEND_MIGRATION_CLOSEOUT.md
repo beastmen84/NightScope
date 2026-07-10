@@ -82,6 +82,15 @@ while `unavailable` means no valid location exists. The upper cards use neutral
 copy and two-line wrapping for these states. This does not change NSOM Session,
 category diagnostics or recommendation ranking.
 
+## 1.17.2 Open-Meteo Retry Follow-Up
+
+`1.17.2` records Open-Meteo HTTP status codes and schedules a forced refresh
+after five minutes for timeout, network, HTTP `408`/`425`/`5xx` and malformed
+or empty provider responses. Permanent HTTP `4xx` errors and `429` remain on
+the normal hourly path. Existing cached forecasts stay active throughout. This
+is refresh lifecycle hardening only and does not change weather scoring,
+Session policy, NSOM ranking or QML contracts.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

@@ -30,7 +30,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.17.1`.
+Versione corrente: `1.17.2`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -74,6 +74,12 @@ cielo profondo e Luna mostrano uno stato di attesa coerente; i testi delle card
 possono occupare due righe senza modificare le altezze correnti. In assenza di
 dati non vengono presentati suggerimenti favorevoli come se le condizioni
 fossero state calcolate.
+
+In `1.17.2` il refresh Open-Meteo distingue gli errori temporanei dagli errori
+client permanenti. Timeout, problemi di rete, HTTP `408`/`425`/`5xx` e risposte
+incomplete mantengono la cache e programmano un retry forzato dopo 5 minuti;
+HTTP `4xx` permanenti e `429` restano sul normale controllo orario. Il log
+include lo status HTTP senza esporre coordinate o parametri della richiesta.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
