@@ -896,6 +896,10 @@ freshness is an explicit formula input, and provider confidence remains outside
 the score formula. The flag remains `False` by default, so runtime Planner, Home,
 Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment, QML,
 logging, network access and runtime file writes remain unchanged.
+`1.14.11` adds `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` as a developer-only
+calibration review of that default-off formula. It does not tune weights or
+enable the flag; it records score-scale and penalty-cap/transparency-shape as
+default-on review items.
 
 ## Dependency Flow
 
@@ -1008,9 +1012,10 @@ Services hold business logic:
   readiness audit documents fresh AOD as the future primary aerosol-column source
   and OpenAQ PM as fallback/context. The 1.14.8 policy hardens provider-quality
   and double-counting gates; 1.14.9 implements the target-specific default-off
-  formula. These inputs are not exposed to QML and do not affect Planner, Home,
-  equipment, weather, seeing/transparency, advanced scores or Sky Compass unless
-  the internal experimental flag is explicitly enabled.
+  formula; 1.14.11 audits its calibration without tuning weights or enabling it.
+  These inputs are not exposed to QML and do not affect Planner, Home, equipment,
+  weather, seeing/transparency, advanced scores or Sky Compass unless the
+  internal experimental flag is explicitly enabled.
   Deep-sky light-pollution conditioning marks targets with an internal condition
   flag so repeated passes do not reapply the same presentation penalty; the flag
   is intentionally removed from the QML payload.

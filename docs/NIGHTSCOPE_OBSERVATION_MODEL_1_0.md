@@ -2242,6 +2242,10 @@ A future `ObserverCapabilityService` should own:
   implements the default-off formula. It applies only with
   `experimental_aerosol_scoring=True`, uses AOD primary / OpenAQ PM fallback,
   and keeps RecommendationConfidence outside the score formula.
+- Status 1.14.11: `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` reviews the
+  default-off formula without tuning weights or enabling runtime scoring. The
+  formula direction is coherent, but absolute score scale and
+  penalty-cap/transparency shape remain default-on review items.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2340,6 +2344,11 @@ A future `ObserverCapabilityService` should own:
   policy-eligible, local OpenAQ PM is a weaker fallback, confidence remains
   metadata, and the formula is only active when the internal default-off flag is
   explicitly enabled.
+- Status update for 1.14.11:
+  `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md` records deterministic calibration
+  evidence for that formula. Default runtime scoring remains disabled; score
+  scale and penalty-cap/transparency shape are explicit review items before any
+  AOD/OpenAQ default-on switch.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2450,8 +2459,8 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.9 default-off aerosol scoring experiment;
-3. run calibration/default-on readiness before any runtime switch;
+2. review the 1.14.11 calibration audit;
+3. run targeted calibration/default-on readiness before any runtime switch;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.

@@ -11,8 +11,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - Ready to start next backend area: `True`.
 - Ready for visible UI redesign: `False`.
 - Runtime behaviour changed by this audit: `False`.
-- Recommended next step: Review 1.14.9, then run aerosol scoring calibration/default-on readiness before enabling provider-backed AOD/OpenAQ by default.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths and their internal runtime rollback constructor parameters have been removed. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary and score ownership audit. Its setup-score components are now exposed through a runtime-neutral read-model with parity checks. The default-off path policy audit keeps Equipment setup-local; runtime setup recommendations remain unchanged. The 1.13.5 closeout closes Equipment as an NSOM-bounded setup-local service. The 1.13.6 overall backend readiness audit classifies the remaining work as non-blocking rollback, presentation or Catalogue/Universe policy. The 1.13.7 rollback cleanup policy recommended removing internal legacy rollback paths; 1.13.8 removed those runtime constructor parameters. Planner Moon geometry is now default-on through a narrow Planner-specific switch. Provider-backed AOD/OpenAQ readiness and provider-quality policy are documented. AOD/OpenAQ now has an explicit default-off scoring experiment; default runtime scoring remains disabled until a separate calibration and default-on readiness review.
+- Recommended next step: Review 1.14.11, then decide whether targeted aerosol calibration is required before any provider-backed AOD/OpenAQ default-on switch.
+- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object have default-on NSOM paths and their internal runtime rollback constructor parameters have been removed. Remaining items are non-blocking legacy or hybrid surfaces; Sky Map and Notifications have been removed as dead legacy. ObservationConditions is active hybrid runtime code and now has a read-model boundary that separates raw and display targets plus a consumer reroute policy audit. Home recommendedDeepSky now consumes the raw read-model target for NSOM ranking; Best Object now scores raw read-model targets and returns display payload targets; Sky Compass now uses the read-model split adapter for raw target physics plus display/live geometry, closing the ObservationConditions consumer reroute series. Equipment now has a shared ObserverCapability/Q_target adapter plus a setup read-model/presenter boundary and score ownership audit. Its setup-score components are now exposed through a runtime-neutral read-model with parity checks. The default-off path policy audit keeps Equipment setup-local; runtime setup recommendations remain unchanged. The 1.13.5 closeout closes Equipment as an NSOM-bounded setup-local service. The 1.13.6 overall backend readiness audit classifies the remaining work as non-blocking rollback, presentation or Catalogue/Universe policy. The 1.13.7 rollback cleanup policy recommended removing internal legacy rollback paths; 1.13.8 removed those runtime constructor parameters. Planner Moon geometry is now default-on through a narrow Planner-specific switch. Provider-backed AOD/OpenAQ readiness and provider-quality policy are documented. AOD/OpenAQ now has an explicit default-off scoring experiment; default runtime scoring remains disabled. The 1.14.11 calibration audit keeps the formula unchanged and identifies score-scale and penalty-cap/transparency-shape review items before any default-on decision.
 
 ## Audit Blockers
 
@@ -62,8 +62,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 
 | Check | Result |
 | --- | --- |
-| `version` | `1.14.10` |
-| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
+| `version` | `1.14.11` |
+| `source_reports_present` | `[True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True]` |
 | `base_docs_expected_to_be_updated_with_this_audit` | `True` |
 | `report_path` | `docs/NSOM_BACKEND_MIGRATION_STATUS_AUDIT.md` |
 
@@ -130,6 +130,8 @@ This developer-only audit reviews the current NSOM backend migration state after
 - `1.13.8 Remove internal legacy rollback paths`: Remove internal rollback flags and legacy branches in a focused commit.
 - `1.14.9 AOD/OpenAQ default-off scoring experiment`: Implement provider-backed aerosol scoring behind the existing default-off ObservationConditions flag.
 - `Review 1.14.9`: Confirm the aerosol experiment remains default-off and formula ownership is correct.
+- `1.14.11 AOD/OpenAQ calibration audit`: Audit formula scale, source policy and protected-target rounding without tuning weights.
+- `Review 1.14.11`: Decide whether targeted aerosol calibration is needed before any default-on switch.
 
 ## Conclusion
 

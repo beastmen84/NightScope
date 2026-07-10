@@ -1,5 +1,28 @@
 # Changelog
 
+## NightScope 1.14.11 - 2026-07-10
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md`, report
+  developer-only per verificare la formula aerosol AOD/OpenAQ default-off senza
+  abilitare scoring runtime o modificare pesi.
+- Aggiunto `astro_viewer/tools/nsom_aod_openaq_calibration_audit.py` con
+  scenari deterministici per target class, AOD fresco/stale, OpenAQ PM fallback,
+  sorgenti respinte, prodotto AOD con confidence diversa e target protetti
+  pianeta/Luna.
+- Confermata la direzione della formula 1.14.9: AOD resta primario quando passa
+  i gate provider-quality, OpenAQ PM locale resta fallback piu' debole, dati
+  storici/context-only restano neutrali e `RecommendationConfidence` non entra
+  nello score.
+- Identificati due blocker di calibrazione prima di un eventuale default-on:
+  scala assoluta del modifier aerosol e forma penalty-cap/transparency; il
+  rounding dei modifier piccoli su pianeti/Luna e' documentato come nota non
+  bloccante.
+- Aggiornato l'audit backend complessivo per includere il nuovo report e
+  puntare la prossima review a 1.14.11.
+- Nessun cambio runtime, scoring default, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, QML/UI, logging, rete o
+  scritture runtime.
+
 ## NightScope 1.14.10 - 2026-07-10
 
 - Aggiunta configurazione `pytest.ini` per limitare la discovery a

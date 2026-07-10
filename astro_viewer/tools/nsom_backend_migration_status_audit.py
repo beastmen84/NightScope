@@ -64,6 +64,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_SCORING_READINESS.md"),
     Path("docs/NSOM_AOD_OPENAQ_PROVIDER_QUALITY_POLICY.md"),
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md"),
+    Path("docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -143,8 +144,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.9, then run aerosol scoring calibration/default-on "
-                "readiness before enabling provider-backed AOD/OpenAQ by default"
+                "Review 1.14.11, then decide whether targeted aerosol calibration "
+                "is required before any provider-backed AOD/OpenAQ default-on switch"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -175,8 +176,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "narrow Planner-specific switch. Provider-backed AOD/OpenAQ "
                 "readiness and provider-quality policy are documented. AOD/OpenAQ "
                 "now has an explicit default-off scoring experiment; default "
-                "runtime scoring remains disabled until a separate calibration "
-                "and default-on readiness review."
+                "runtime scoring remains disabled. The 1.14.11 calibration audit "
+                "keeps the formula unchanged and identifies score-scale and "
+                "penalty-cap/transparency-shape review items before any default-on "
+                "decision."
             ),
         },
         "blockers": blockers,
@@ -924,6 +927,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.9",
             "summary": "Confirm the aerosol experiment remains default-off and formula ownership is correct.",
+        },
+        {
+            "step": "1.14.11 AOD/OpenAQ calibration audit",
+            "summary": "Audit formula scale, source policy and protected-target rounding without tuning weights.",
+        },
+        {
+            "step": "Review 1.14.11",
+            "summary": "Decide whether targeted aerosol calibration is needed before any default-on switch.",
         },
     )
 
