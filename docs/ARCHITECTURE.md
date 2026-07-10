@@ -920,6 +920,11 @@ policy branches `none`, `aod` and `particulate`, keeps default flag-off scoring
 neutral, and does not add runtime wiring, QML exposure, automatic logging or
 credential disclosure. AOD/OpenAQ remains default-off pending human review of
 the real-provider result.
+`1.14.16` expands the same probe to 15 mixed locations and adds per-location
+policy reasons to the report. The expanded run still observes `aod`,
+`particulate` and `none`, confirms flag-off neutrality, and keeps deep-sky
+penalties larger than planet/Moon penalties when the internal experimental
+flag is enabled manually.
 
 ## Dependency Flow
 
@@ -1036,7 +1041,8 @@ Services hold business logic:
   1.14.12 maps the class cap to transparency loss before deriving the score
   modifier; 1.14.13 records default-on readiness as blocked only by score-scale
   acceptance; 1.14.14 records field-like calibration fixtures for that scale,
-  and 1.14.15 records a real-provider probe across five mixed locations.
+  1.14.15 records a real-provider probe across five mixed locations, and
+  1.14.16 expands it to 15 mixed locations with policy reasons.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.

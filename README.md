@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.15`.
+Versione corrente: `1.14.16`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -788,6 +788,11 @@ Mauna Kea e Addis Ababa. Il flag off resta neutro, il flag on sperimentale
 produce effetti coerenti con i rami `aod`, `particulate` e `none`, e le
 credenziali locali non vengono scritte nel report. AOD/OpenAQ resta comunque
 default-off fino alla review umana del risultato reale.
+Lo step `1.14.16` estende lo stesso report a un set `expanded` da 15 localita'
+e aggiunge le ragioni policy per ogni localita'. I dati reali continuano a
+mostrare flag-off neutro, rami `aod`/`particulate`/`none` osservati e penalita'
+deep-sky maggiori di pianeti/Luna con flag sperimentale acceso manualmente.
+Il report resta developer-only e AOD/OpenAQ resta default-off.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 

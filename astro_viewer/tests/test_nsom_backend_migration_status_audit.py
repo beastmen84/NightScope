@@ -150,9 +150,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.15 real-provider AOD/OpenAQ results, then decide "
-        "whether to make a narrow default-on switch or collect more "
-        "field observations"
+        "Review 1.14.16 expanded real-provider AOD/OpenAQ results, "
+        "then decide whether to make a narrow default-on switch or "
+        "collect more field observations"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -252,6 +252,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[55] == "Review 1.14.14"
     assert sequence[56] == "1.14.15 AOD/OpenAQ real-provider probe"
     assert sequence[57] == "Review 1.14.15"
+    assert sequence[58] == "1.14.16 Expanded AOD/OpenAQ real-provider probe"
+    assert sequence[59] == "Review 1.14.16"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -288,5 +290,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "aerosol score-scale validation as the only default-on blocker" in text
     assert "1.14.14 field-calibration fixtures pass" in text
     assert "1.14.15 real-provider probe covers" in text
+    assert "1.14.16 expanded real-provider probe covers" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

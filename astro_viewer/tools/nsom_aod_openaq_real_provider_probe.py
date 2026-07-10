@@ -30,13 +30,34 @@ from astro_viewer.app.services.openaq_atmosphere_service import OpenAQLocalAtmos
 REPORT_PATH = Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md")
 DEFAULT_CREDENTIAL_PATH = Path("nasa_login.txt")
 
-DEFAULT_LOCATIONS: tuple[ObserverLocation, ...] = (
+BASELINE_LOCATIONS: tuple[ObserverLocation, ...] = (
     ObserverLocation("Bologna", "Italy", 44.4938, 11.3387, "Europe/Rome"),
     ObserverLocation("San Pedro de Atacama", "Chile", -22.9087, -68.1997, "America/Santiago"),
     ObserverLocation("New Delhi", "India", 28.6139, 77.2090, "Asia/Kolkata"),
     ObserverLocation("Mauna Kea", "USA", 19.8206, -155.4681, "Pacific/Honolulu"),
     ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"),
 )
+
+EXPANDED_LOCATIONS: tuple[ObserverLocation, ...] = (
+    *BASELINE_LOCATIONS,
+    ObserverLocation("Cairo", "Egypt", 30.0444, 31.2357, "Africa/Cairo"),
+    ObserverLocation("Marrakech", "Morocco", 31.6295, -7.9811, "Africa/Casablanca"),
+    ObserverLocation("Mexico City", "Mexico", 19.4326, -99.1332, "America/Mexico_City"),
+    ObserverLocation("Los Angeles", "USA", 34.0522, -118.2437, "America/Los_Angeles"),
+    ObserverLocation("Beijing", "China", 39.9042, 116.4074, "Asia/Shanghai"),
+    ObserverLocation("Tokyo", "Japan", 35.6762, 139.6503, "Asia/Tokyo"),
+    ObserverLocation("Singapore", "Singapore", 1.3521, 103.8198, "Asia/Singapore"),
+    ObserverLocation("Sydney", "Australia", -33.8688, 151.2093, "Australia/Sydney"),
+    ObserverLocation("Cape Town", "South Africa", -33.9249, 18.4241, "Africa/Johannesburg"),
+    ObserverLocation("Reykjavik", "Iceland", 64.1466, -21.9426, "Atlantic/Reykjavik"),
+)
+
+LOCATION_SETS: dict[str, tuple[ObserverLocation, ...]] = {
+    "baseline": BASELINE_LOCATIONS,
+    "expanded": EXPANDED_LOCATIONS,
+}
+DEFAULT_LOCATION_SET = "expanded"
+DEFAULT_LOCATIONS = EXPANDED_LOCATIONS
 
 
 @dataclass(frozen=True)
@@ -158,6 +179,7 @@ def run_real_provider_probe(
     *,
     credential_path: Path = DEFAULT_CREDENTIAL_PATH,
     locations: Iterable[ObserverLocation] = DEFAULT_LOCATIONS,
+    location_set: str = DEFAULT_LOCATION_SET,
 ) -> dict[str, object]:
     credentials = load_probe_credentials(credential_path)
     nasa_provider = (
@@ -184,7 +206,7 @@ def run_real_provider_probe(
             atmosphere = LocalAtmosphere.not_configured()
         rows.append(_location_probe_row(location, aod_result, atmosphere))
 
-    return _probe_report_data(credentials, tuple(rows))
+    return _probe_report_data(credentials, tuple(rows), location_set=location_set)
 
 
 def _fetch_aod_for_probe_location(
@@ -215,7 +237,7 @@ def render_markdown_report(data: dict[str, object]) -> str:
         "",
         (
             "This developer-only probe uses real NASA Earthdata AOD and OpenAQ "
-            "responses for a small mixed-location set. It compares the default "
+            "responses for a mixed-location set. It compares the default "
             "aerosol flag-off behaviour with the explicit experimental flag-on "
             "score effect. It is not wired into runtime, QML or automatic tests."
         ),
@@ -234,6 +256,8 @@ def render_markdown_report(data: dict[str, object]) -> str:
         f"- Verdict: `{data['readiness']['verdict']}`.",
         f"- Ready for default-on: `{data['readiness']['ready_for_default_on']}`.",
         f"- Recommended next step: {data['readiness']['recommended_next_step']}",
+        f"- Location set: `{data['metadata']['location_set']}`.",
+        f"- Location count: `{data['location_count']}`.",
         "",
         "## Provider Results By Location",
         "",
@@ -249,6 +273,24 @@ def render_markdown_report(data: dict[str, object]) -> str:
             f"`{row['openaq']['status']}` {row['openaq']['value_label']} | "
             f"`{row['particulate_input_included']}` `{row['particulate_input_freshness']}` | "
             f"`{row['policy']['primary_source']}` |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Policy Reasons By Location",
+            "",
+            "| Location | Policy source | AOD eligible | AOD reasons | PM eligible | PM reasons |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in data["locations"]:
+        policy = row["policy"]
+        lines.append(
+            "| "
+            f"{row['location_label']} | `{policy['primary_source']}` | "
+            f"`{policy['aod_eligible']}` | {_reason_label(policy['aod_reasons'])} | "
+            f"`{policy['particulate_eligible']}` | {_reason_label(policy['particulate_reasons'])} |"
         )
 
     lines.extend(
@@ -309,8 +351,13 @@ def write_markdown_report(
     path: Path = REPORT_PATH,
     *,
     credential_path: Path = DEFAULT_CREDENTIAL_PATH,
+    location_set: str = DEFAULT_LOCATION_SET,
 ) -> Path:
-    data = run_real_provider_probe(credential_path=credential_path)
+    data = run_real_provider_probe(
+        credential_path=credential_path,
+        locations=_locations_for_set(location_set),
+        location_set=location_set,
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(render_markdown_report(data), encoding="utf-8")
     return path
@@ -319,6 +366,8 @@ def write_markdown_report(
 def _probe_report_data(
     credentials: ProviderProbeCredentials,
     rows: tuple[dict[str, object], ...],
+    *,
+    location_set: str = DEFAULT_LOCATION_SET,
 ) -> dict[str, object]:
     checks = _checks(rows)
     data = {
@@ -334,6 +383,7 @@ def _probe_report_data(
             "credential_source_path": credentials.source_path,
             "credential_parse_notes": credentials.parse_notes,
             "report_path": str(REPORT_PATH).replace("\\", "/"),
+            "location_set": location_set,
             "version": _read_text(Path("VERSION")).strip(),
             "generated_at_utc": datetime.now(UTC).isoformat(),
         },
@@ -509,7 +559,7 @@ def _checks(rows: tuple[dict[str, object], ...]) -> dict[str, object]:
     ]
     policy_sources = {row["policy"]["primary_source"] for row in rows}
     return {
-        "location_count_is_4_or_5": 4 <= len(rows) <= 5,
+        "location_count_is_5_to_15": 5 <= len(rows) <= 15,
         "strict_json_compatible": _strict_json_ok(rows),
         "flag_off_always_neutral": all(float(target["flag_off_modifier"]) == 0.0 for target in target_rows),
         "has_real_provider_success": any(row["aod"]["available"] or row["openaq"]["has_data"] for row in rows),
@@ -527,6 +577,21 @@ def _checks(rows: tuple[dict[str, object], ...]) -> dict[str, object]:
             for row in rows
         ),
     }
+
+
+def _locations_for_set(location_set: str) -> tuple[ObserverLocation, ...]:
+    try:
+        return LOCATION_SETS[location_set]
+    except KeyError as exc:
+        raise ValueError(f"Unknown location set: {location_set}") from exc
+
+
+def _reason_label(reasons: object) -> str:
+    if not reasons:
+        return "`none`"
+    if isinstance(reasons, (list, tuple)):
+        return ", ".join(f"`{reason}`" for reason in reasons) or "`none`"
+    return f"`{reasons}`"
 
 
 def _verdict(checks: dict[str, object]) -> str:
@@ -738,8 +803,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the developer-only real provider AOD/OpenAQ probe.")
     parser.add_argument("--credentials", default=str(DEFAULT_CREDENTIAL_PATH))
     parser.add_argument("--output", default=str(REPORT_PATH))
+    parser.add_argument("--location-set", choices=tuple(LOCATION_SETS), default=DEFAULT_LOCATION_SET)
     args = parser.parse_args()
-    path = write_markdown_report(Path(args.output), credential_path=Path(args.credentials))
+    path = write_markdown_report(
+        Path(args.output),
+        credential_path=Path(args.credentials),
+        location_set=args.location_set,
+    )
     print(path)
 
 

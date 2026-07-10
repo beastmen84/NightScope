@@ -2266,6 +2266,10 @@ A future `ObserverCapabilityService` should own:
   exercise policy branches `none`, `aod` and `particulate`; flag-off remains
   neutral, confidence remains metadata, and deep-sky penalties exceed
   planet/Moon penalties when the experimental flag is manually enabled.
+- Status 1.14.16: the real-provider probe expands to 15 mixed locations and
+  records per-location policy reasons. The expanded run still observes `aod`,
+  `particulate` and `none`, keeps flag-off scoring neutral, and confirms that
+  AOD/OpenAQ remains a developer-only decision point before default-on.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2385,6 +2389,11 @@ A future `ObserverCapabilityService` should own:
   This still does not enable AOD/OpenAQ; it changes the next decision from
   "collect real provider observations" to "review whether the observed real
   provider scale is sufficient for a narrow default-on switch".
+- Status update for 1.14.16:
+  the real-provider evidence is expanded to 15 cities and includes policy
+  reasons for source acceptance/rejection. This still does not enable
+  AOD/OpenAQ; it makes the next step a focused review of the expanded evidence
+  before any default-on switch.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2495,8 +2504,8 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.14 field-calibration fixtures and 1.14.15 real-provider
-   probe;
+2. review the 1.14.14 field-calibration fixtures and the 1.14.16 expanded
+   real-provider probe;
 3. either accept the synthetic scale for a narrow default-on switch or gather
    real field observations first;
 4. keep AOD/PM confidence metadata separate from score;

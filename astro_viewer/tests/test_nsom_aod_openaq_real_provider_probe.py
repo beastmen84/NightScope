@@ -8,6 +8,9 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.tools.nsom_aod_openaq_real_provider_probe import (
+    BASELINE_LOCATIONS,
+    EXPANDED_LOCATIONS,
+    REPORT_PATH,
     _fetch_aod_for_probe_location,
     _location_probe_row,
     _probe_report_data,
@@ -47,6 +50,14 @@ def test_real_provider_probe_credential_parser_redacts_values(tmp_path: Path) ->
     assert credentials.openaq_api_key == "openaq-secret-token-1234567890"
     assert "nasa-secret-password" not in credentials.parse_notes
     assert "openaq-secret-token-1234567890" not in credentials.parse_notes
+
+
+def test_real_provider_probe_location_sets_are_explicit() -> None:
+    assert len(BASELINE_LOCATIONS) == 5
+    assert len(EXPANDED_LOCATIONS) == 15
+    assert {location.city for location in BASELINE_LOCATIONS}.issubset(
+        {location.city for location in EXPANDED_LOCATIONS}
+    )
 
 
 def test_real_provider_probe_parser_does_not_treat_openaq_username_as_earthdata(tmp_path: Path) -> None:
@@ -181,3 +192,14 @@ def test_real_provider_probe_rendered_report_does_not_include_credentials() -> N
     assert "secret" not in report.lower()
     assert "token" not in report.lower()
     assert "Credential values stored in report: `False`" in report
+    assert "## Policy Reasons By Location" in report
+
+
+def test_checked_in_real_provider_report_covers_expanded_policy_branches() -> None:
+    text = REPORT_PATH.read_text(encoding="utf-8")
+
+    assert "Location count: `15`" in text
+    assert "`aod`" in text
+    assert "`particulate`" in text
+    assert "`none`" in text
+    assert "## Policy Reasons By Location" in text

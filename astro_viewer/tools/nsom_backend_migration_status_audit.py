@@ -147,9 +147,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.15 real-provider AOD/OpenAQ results, then decide "
-                "whether to make a narrow default-on switch or collect more "
-                "field observations"
+                "Review 1.14.16 expanded real-provider AOD/OpenAQ results, "
+                "then decide whether to make a narrow default-on switch or "
+                "collect more field observations"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -190,6 +190,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "the deterministic bands. The 1.14.15 real-provider probe covers "
                 "five mixed locations and observes policy branches none, aod and "
                 "particulate while preserving default flag-off neutrality. The "
+                "1.14.16 expanded real-provider probe covers 15 mixed locations "
+                "and adds policy reasons for source acceptance/rejection. The "
                 "remaining decision is human review of that real-provider scale "
                 "before a narrow default-on switch."
             ),
@@ -981,6 +983,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.15",
             "summary": "Decide whether real-provider evidence is sufficient for a narrow default-on switch.",
+        },
+        {
+            "step": "1.14.16 Expanded AOD/OpenAQ real-provider probe",
+            "summary": "Expand real-provider coverage to 15 locations and include policy reasons.",
+        },
+        {
+            "step": "Review 1.14.16",
+            "summary": "Decide whether expanded real-provider evidence is sufficient for a narrow default-on switch.",
         },
     )
 

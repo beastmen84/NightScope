@@ -1,5 +1,23 @@
 # Changelog
 
+## NightScope 1.14.16 - 2026-07-10
+
+- Esteso il probe reale AOD/OpenAQ a un set `expanded` da 15 localita':
+  Bologna, San Pedro de Atacama, New Delhi, Mauna Kea, Addis Ababa, Cairo,
+  Marrakech, Mexico City, Los Angeles, Beijing, Tokyo, Singapore, Sydney,
+  Cape Town e Reykjavik.
+- Aggiornato `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md` con conteggio
+  localita', set usato e ragioni policy AOD/OpenAQ per ogni localita', cosi'
+  la review vede perche' una sorgente diventa `aod`, `particulate` o `none`.
+- Confermato su dati provider reali ampliati che il flag off resta neutro, che
+  i rami `aod`, `particulate` e `none` sono tutti osservati, e che le penalita'
+  deep-sky restano maggiori di pianeti/Luna quando il flag sperimentale viene
+  abilitato manualmente.
+- Aggiunti test offline per il set espanso e per il report checked-in, senza
+  rendere il probe provider-backed parte della suite automatica.
+- Nessun default-on e nessun wiring runtime/QML: AOD/OpenAQ resta un path
+  esplicito developer-only fino alla review.
+
 ## NightScope 1.14.15 - 2026-07-10
 
 - Aggiunto `astro_viewer/tools/nsom_aod_openaq_real_provider_probe.py`, probe
