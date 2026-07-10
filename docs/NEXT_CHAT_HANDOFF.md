@@ -2,9 +2,10 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente: `1.16.1`
+Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `04f60e4 Release 1.16.1 VIIRS cache revalidation`
 - `9debe8f Document 1.16.0 Windows distribution build`
 - `a814c7c Release 1.16.0 Weather condition semantics`
 - `efaf29c Clarify visible UI readiness meaning`
@@ -34,6 +35,9 @@ Il closeout dichiara:
   senza pannelli NSOM o spiegazioni visibili del ranking;
 - `1.16.1` aggiunge solo hardening della cache VIIRS e del refresh provider,
   senza modificare scoring, ranking o payload QML;
+- il primo step `1.17.0` aggiunge il contratto read-only
+  `homeObservingOverview`; il QML visibile resta ancora invariato in questo
+  commit;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -185,29 +189,25 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo `1.16.1`:
+Dopo il primo step `1.17.0`:
 
 ```powershell
-.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/light_pollution_service.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_viirs_cache_policy.py astro_viewer/tests/test_refresh_lifecycle.py astro_viewer/tests/test_release_scenarios.py
-.\.venv\Scripts\python.exe -m compileall astro_viewer
-.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_viirs_cache_policy.py astro_viewer/tests/test_refresh_lifecycle.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_phase6_real_data.py
-.\.venv\Scripts\python.exe -m pytest -q -n auto
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py
 ```
 
 Risultati:
 
 - ruff focused: passed;
 - compileall: passed;
-- QML smoke: passed;
-- focused VIIRS/refresh/release tests: `103 passed, 7 subtests passed`;
-- full suite: `622 passed, 7 subtests passed`.
+- focused Home overview/release/NSOM presentation tests: `39 passed`.
 
 Distribuzione Windows:
 
 - l'ultima `dist/NightScope` rigenerata resta la `1.16.0`, verificata nel commit
   documentale `9debe8f`;
-- la `dist` non e' stata rigenerata automaticamente per `1.16.1`, per non
+- la `dist` non e' stata rigenerata automaticamente per `1.17.0`, per non
   sostituire `nightscope.db` e i sidecar runtime usati nel confronto visuale;
 - rigenerarla solo su richiesta esplicita, valutando prima la conservazione dei
   dati runtime correnti.
@@ -236,7 +236,7 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Fare una review rapida di `1.16.1`.
+1. Completare gli step visibili della parte alta Home `1.17.0`.
 2. Prossimo capitolo consigliato:
    - continuare la verifica UI un pezzo alla volta dopo WeatherPage, senza
      cambiare scoring o ranking salvo prompt esplicito.

@@ -1,5 +1,16 @@
 # Changelog
 
+## NightScope 1.17.0 - 2026-07-10
+
+- Aggiunto `HomeObservingOverviewService` con contratto
+  `home_observing_overview_v1` per la parte alta della Home.
+- Separati nel payload stato della sessione, indice meteo, diagnostiche NSOM di
+  categoria planetaria/deep-sky e impatto lunare.
+- Esposta la property Qt read-only `homeObservingOverview` senza collegarla
+  ancora al QML in questo primo step.
+- Mantenuti invariati scoring, ranking, Planner, Best Object, Sky Compass e
+  payload NSOM interni esistenti.
+
 ## NightScope 1.16.1 - 2026-07-10
 
 - Aggiunta una policy esplicita per la cache NASA Black Marble VIIRS: stati

@@ -55,6 +55,13 @@ cache-aware VIIRS and AOD checks; AOD keeps its 18-hour TTL. This changes
 provider refresh timing only and does not change scoring formulas, ranking,
 confidence weighting or QML payload contracts.
 
+## 1.17.0 Upper Home Presentation Follow-Up
+
+The first `1.17.0` step adds the read-only `homeObservingOverview` presentation
+contract. It separates Session actionability, legacy weather index, NSOM
+planetary/deep-sky category diagnostics and scoped Moon impact copy. This step
+does not yet change QML and does not alter scoring, ranking or provider inputs.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

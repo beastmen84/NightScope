@@ -69,6 +69,7 @@ from astro_viewer.app.services.detail_nsom_runtime import (
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
 )
+from astro_viewer.app.services.home_observing_overview import HomeObservingOverviewService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_observable_target_value,
@@ -241,6 +242,7 @@ class AppController(QObject):
         self._home_recommended_deep_sky_nsom_ranking_service = (
             home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
         )
+        self._home_observing_overview_service = HomeObservingOverviewService()
         self._night_planner_service = NightPlannerService()
         self._sky_compass_service = SkyCompassService()
         self._sky_compass_nsom_direction_service = (
@@ -565,6 +567,27 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def observingQuality(self) -> dict:
         return self._weather_summary.to_qml() if self._weather_summary else {}
+
+    @Property("QVariant", notify=weatherChanged)
+    def homeObservingOverview(self) -> dict:
+        digest = self._weather_digest()
+        category_scores = self._advanced_observing_nsom_scores or self._advanced_scores
+        return self._home_observing_overview_service.build(
+            weather=self._weather_summary,
+            seeing=self._seeing_transparency,
+            sky_quality=self._sky_quality,
+            moon=self._moon,
+            category_scores=category_scores,
+            session=self._observing_session_decision(),
+            blocking=self._weather_blocking_status(),
+            suggested_window=self._suggested_observing_window(),
+            wind_label=str(digest.get("windLabel") or "n/d"),
+            category_source=(
+                "nsom_category_diagnostic"
+                if self._advanced_observing_nsom_scores is not None
+                else "legacy_category_fallback"
+            ),
+        )
 
     @Property("QVariant", notify=weatherChanged)
     def skyQuality(self) -> dict:

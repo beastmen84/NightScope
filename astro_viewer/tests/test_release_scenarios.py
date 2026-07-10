@@ -35,6 +35,18 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertGreater(controller.advancedScores["planetaryScore"], 0)
             self.assertGreater(controller.advancedScores["deepSkyScore"], 0)
 
+    def test_home_overview_separates_session_weather_and_category_diagnostics(self) -> None:
+        with self._controller_with_weather(_valid_weather_response()) as controller:
+            controller.setManualLocation("9.03", "38.74", "Addis Ababa")
+
+            overview = controller.homeObservingOverview
+
+            self.assertEqual(overview["schemaVersion"], "home_observing_overview_v1")
+            self.assertIn(overview["session"]["state"], {"recommended", "monitor", "discouraged"})
+            self.assertEqual(overview["weather"]["scoreValue"], controller.weatherSummary["scoreValue"])
+            self.assertEqual(overview["planetary"]["source"], "nsom_category_diagnostic")
+            self.assertEqual(overview["deepSky"]["source"], "nsom_category_diagnostic")
+
     def test_offline_weather_keeps_app_usable(self) -> None:
         with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING"):
             with self._controller_with_weather(side_effect=requests.Timeout, saved_location=True) as controller:

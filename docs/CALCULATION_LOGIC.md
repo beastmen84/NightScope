@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.16.1`, NightScope keeps backend recommendation inputs separated by
+As of `1.17.0`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -68,6 +68,11 @@ remains `False`, so non-Planner consumers are not implicitly rerouted.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `True`. Passing `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`
 preserves the AOD/OpenAQ rollback path.
+
+The read-only `homeObservingOverview` contract is a presentation projection of
+existing Session, weather, Advanced Observing category, sky-quality and Moon
+outputs. It does not recompute those values and does not feed Planner, Home
+target ranking, Best Object or Sky Compass ranking.
 
 ### Solar-System Objects
 
