@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.14.18 - 2026-07-10
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md`, audit
+  developer-only che rilegge il probe reale espanso e tratta gli stessi AOD
+  `stale` come `current` solo nel replay offline.
+- Il replay conferma che il peso `stale=0.5` e' una policy conservativa
+  ragionevole: l'effetto AOD current raddoppia circa rispetto a stale, ma resta
+  entro scala moderata (`-7.38` massimo deep-sky) e mantiene pianeti/Luna quasi
+  neutrali (`-0.277` massimo solar-system).
+- OpenAQ PM fallback e rami `none` restano invariati nel replay; confidence e
+  provider confidence restano metadata e non entrano nello score.
+- Nessun default-on in questo commit: `experimental_aerosol_scoring` resta
+  `False`, senza QML/UI, logging, rete, scritture runtime o modifiche a
+  Planner/Home/Best Object/Advanced Observing/Sky Compass/Detail/Equipment.
+
 ## NightScope 1.14.17 - 2026-07-10
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md`, audit

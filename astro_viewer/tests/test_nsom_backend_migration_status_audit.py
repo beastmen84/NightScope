@@ -62,6 +62,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md",
             "docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md",
             "docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md",
+            "docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md",
         ],
     }
 
@@ -151,9 +152,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.17 real-provider AOD/OpenAQ readiness, then "
-        "repeat the provider probe or explicitly accept stale-AOD "
-        "runtime policy before any narrow default-on switch"
+        "Review 1.14.18 AOD/OpenAQ stale-vs-current replay, then "
+        "decide whether to implement a narrow default-on switch"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -257,6 +257,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[59] == "Review 1.14.16"
     assert sequence[60] == "1.14.17 AOD/OpenAQ real-provider readiness audit"
     assert sequence[61] == "Review 1.14.17"
+    assert sequence[62] == "1.14.18 AOD/OpenAQ stale-vs-current replay audit"
+    assert sequence[63] == "Review 1.14.18"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -295,5 +297,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "1.14.15 real-provider probe covers" in text
     assert "1.14.16 expanded real-provider probe covers" in text
     assert "1.14.17 real-provider readiness audit accepts" in text
+    assert "1.14.18 stale-vs-current replay accepts" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

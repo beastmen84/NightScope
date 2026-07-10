@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.17`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.18`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -73,7 +73,9 @@ availability and ownership:
   expands that run to 15 mixed locations and records per-location policy
   reasons. `1.14.17` adds an offline readiness audit over that checked-in
   evidence: the real-provider score scale is accepted, but default-on remains
-  deferred because the run has stale AOD only and no temporal repeat.
+  deferred because the run has stale AOD only and no temporal repeat. `1.14.18`
+  replays those same stale AOD values as current, accepts `stale=0.5` as a
+  conservative freshness policy, and keeps the runtime flag off.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -104,7 +106,9 @@ The 1.14.15 and 1.14.16 real-provider probes also keep the flag off by default
 while showing that real NASA/OpenAQ inputs can exercise `none`, `aod` and
 `particulate` policy branches. The 1.14.17 readiness audit keeps the same
 runtime state and records that current-AOD coverage and repeatability are still
-needed before a default-on switch.
+needed before a default-on switch. The 1.14.18 stale-vs-current replay shows
+that the same real AOD values remain bounded if treated as current, so stale AOD
+can reasonably stay at half weight.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, so normal AppController-built condition inputs keep
 `ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. When the
@@ -128,7 +132,9 @@ more locations, policy rejection reasons such as sparse AOD neighborhoods or
 high uncertainty, and keeps the same ownership/score-neutrality conclusions.
 The 1.14.17 audit accepts the real-provider modifier scale but does not enable
 it because the checked-in evidence has no current AOD input and only one
-temporal provider snapshot.
+temporal provider snapshot. The 1.14.18 replay removes stale/current freshness
+as a technical blocker by showing that current replay remains bounded and
+target-specific; default runtime scoring still remains disabled.
 
 ### Solar-System Objects
 

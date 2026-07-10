@@ -930,6 +930,11 @@ offline audit reads that checked-in provider report, accepts the real-provider
 score scale as directionally coherent, and keeps AOD/OpenAQ default-off because
 all usable AOD inputs in the run are stale and the evidence is one temporal
 snapshot.
+`1.14.18` adds `docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md`. The
+offline replay treats the same real stale AOD values as current to test the
+freshness policy. The current replay remains bounded and protected for
+planet/Moon targets, so `stale=0.5` is accepted as a conservative policy while
+the runtime flag remains off.
 
 ## Dependency Flow
 
@@ -1049,7 +1054,9 @@ Services hold business logic:
   1.14.15 records a real-provider probe across five mixed locations,
   1.14.16 expands it to 15 mixed locations with policy reasons, and 1.14.17
   accepts the observed score scale while deferring default-on for temporal AOD
-  freshness/repeatability evidence.
+  freshness/repeatability evidence. 1.14.18 replays those same real AOD values
+  as current and accepts the stale/current freshness policy without enabling the
+  flag.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.

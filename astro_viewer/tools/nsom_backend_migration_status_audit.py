@@ -69,6 +69,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md"),
     Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md"),
     Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md"),
+    Path("docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -148,9 +149,8 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.17 real-provider AOD/OpenAQ readiness, then "
-                "repeat the provider probe or explicitly accept stale-AOD "
-                "runtime policy before any narrow default-on switch"
+                "Review 1.14.18 AOD/OpenAQ stale-vs-current replay, then "
+                "decide whether to implement a narrow default-on switch"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -195,7 +195,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "and adds policy reasons for source acceptance/rejection. The "
                 "1.14.17 real-provider readiness audit accepts the observed "
                 "score scale but keeps default-on deferred because the checked-in "
-                "evidence has stale AOD only and one temporal snapshot."
+                "evidence has stale AOD only and one temporal snapshot. The "
+                "1.14.18 stale-vs-current replay accepts stale=0.5 as a "
+                "conservative policy and leaves only review of the default-on "
+                "switch itself."
             ),
         },
         "blockers": blockers,
@@ -389,9 +392,9 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "policy is hardened, the default-off formula exists and 1.14.12 "
                 "calibrates the penalty-cap/transparency shape. Runtime aerosol "
                 "scoring remains disabled by default. The 1.14.17 real-provider "
-                "readiness audit resolves score-scale review but defers default-on "
-                "until temporal/current-AOD evidence is repeated or explicitly "
-                "accepted. Visible UI explanation work remains separate."
+                "readiness audit resolves score-scale review; 1.14.18 accepts "
+                "the stale/current freshness policy through offline replay. "
+                "Visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -1009,6 +1012,17 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
                 "Decide whether to repeat provider evidence or explicitly accept "
                 "stale-AOD runtime policy."
             ),
+        },
+        {
+            "step": "1.14.18 AOD/OpenAQ stale-vs-current replay audit",
+            "summary": (
+                "Replay checked-in stale AOD as current to decide whether "
+                "stale=0.5 is a reasonable runtime policy."
+            ),
+        },
+        {
+            "step": "Review 1.14.18",
+            "summary": "Confirm stale/current policy before any narrow default-on switch.",
         },
     )
 

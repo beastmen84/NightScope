@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.17`.
+Versione corrente: `1.14.18`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -800,11 +800,17 @@ modifier viene accettata come coerente e modesta, ma il default-on resta
 deferito per evidenza temporale insufficiente: nel report checked-in tutti gli
 AOD utilizzabili sono `stale` e manca una seconda esecuzione provider in un
 momento diverso. `experimental_aerosol_scoring` resta `False`.
+Lo step `1.14.18` aggiunge
+`docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md`, replay developer-only che
+tratta gli stessi AOD reali `stale` come `current` senza rete e senza cambiare
+runtime. Il replay conferma che il peso `stale=0.5` e' una policy prudente:
+l'effetto current resta bounded, target-specific e protetto per pianeti/Luna.
+Il flag aerosol resta comunque spento fino a uno switch separato.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
 - dati VIIRS NASA, perché dipendono da connessione, credenziali Earthdata e disponibilità LAADS;
-- dati NASA AOD sperimentali nella sezione Meteo `Trasparenza atmosferica`: sono informativi, dipendono da disponibilità MAIAC/cloud mask e alimentano punteggi solo nel path interno default-off, calibrato in 1.14.12 e auditato su provider reali in 1.14.17 ma ancora non abilitato di default;
+- dati NASA AOD sperimentali nella sezione Meteo `Trasparenza atmosferica`: sono informativi, dipendono da disponibilità MAIAC/cloud mask e alimentano punteggi solo nel path interno default-off, calibrato in 1.14.12, auditato su provider reali in 1.14.17 e verificato con replay stale/current in 1.14.18, ma ancora non abilitato di default;
 - OpenAQ, opzionale e usato solo per mostrare dati locali PM2.5/PM10 nella pagina Meteo; la freschezza della misura decide se il dato può essere presentato come attuale;
 - qualità dei cataloghi strumenti, da verificare sempre per varianti regionali e modelli commerciali specifici;
 - descrizioni e note osservative, che possono essere arricchite nel tempo.

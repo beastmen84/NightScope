@@ -2275,6 +2275,11 @@ A future `ObserverCapabilityService` should own:
   audit accepts the observed real-provider score scale as modest and
   target-specific, but keeps AOD/OpenAQ default-off because all usable AOD inputs
   in the run are `stale` and the evidence is a single temporal snapshot.
+- Status 1.14.18: `docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md`
+  replays the same real AOD values as `current` without network access. The
+  replay accepts `stale=0.5` as a conservative freshness policy because the
+  current replay remains bounded, target-specific and nearly neutral for
+  protected solar-system targets.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2404,6 +2409,11 @@ A future `ObserverCapabilityService` should own:
   real-provider score scale but keeps default-on deferred. The remaining
   blockers are `aod_current_coverage_absent` and `single_snapshot_repeatability`,
   not formula shape or deep-sky/protected-target scale.
+- Status update for 1.14.18:
+  `docs/NSOM_AOD_OPENAQ_STALE_CURRENT_REPLAY_AUDIT.md` replays checked-in stale
+  AOD as current and accepts the `stale=0.5` policy. Freshness is no longer a
+  technical blocker for review; the runtime flag remains off until a separate
+  default-on switch.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2514,9 +2524,9 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.17 real-provider readiness audit;
-3. either repeat the real-provider probe on another date/time or explicitly
-   accept stale-AOD runtime policy for a narrow default-on switch;
+2. review the 1.14.18 stale-vs-current replay audit;
+3. if accepted, implement a narrow AOD/OpenAQ default-on switch in a separate
+   commit;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.
