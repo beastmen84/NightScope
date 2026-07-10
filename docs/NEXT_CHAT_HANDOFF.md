@@ -94,6 +94,17 @@ Questi non bloccano il backend NSOM chiuso:
    - La UI non va toccata automaticamente.
    - L'audit dice esplicitamente `Ready for visible UI redesign: False`.
    - Eventuali spiegazioni visibili vanno progettate in uno step separato.
+   - Verifica confine backend/QML: Planner, Home, Best Object e Sky Compass
+     arrivano alla UI solo tramite payload esistenti (`nightPlan`,
+     `recommendedDeepSky`, `bestObjectOfNight`, `skyCompass`), senza campi NSOM
+     visibili.
+   - Detail/Object resta interno: nessuna property `detailObjectNsom` e nessun
+     campo NSOM aggiunto a `selectedObject`.
+   - Advanced Observing ha una property Qt read-only `advancedObservingNsom`
+     disponibile sul controller ma non letta dai QML; la UI continua a usare
+     `advancedScores`.
+   - Non emergono fix UI obbligatori dal confine NSOM/QML; resta da fare solo
+     una verifica visuale delle schermate.
 
 4. `Equipment recommendations`
    - Chiuso come setup-local.
@@ -164,8 +175,8 @@ Sequenza consigliata:
 
 1. Fare una review rapida di `1.15.2`.
 2. Prossimo capitolo consigliato:
-   - verifica UI separata, senza cambiare QML/comportamento salvo prompt
-     esplicito.
+   - verifica visuale UI separata, senza cambiare QML/comportamento salvo
+     prompt esplicito o bug concreto.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

@@ -12,6 +12,9 @@
   la separazione tra `IntrinsicTargetQuality`, metadata catalogo/provenance,
   osservabilita' catalogo, payload Home e ranking NSOM e' sufficiente; nessun
   nuovo `UniverseTargetProfile` runtime viene introdotto.
+- Verificato il confine NSOM/QML: Planner, Home, Best Object e Sky Compass
+  arrivano alla UI tramite payload esistenti, Detail/Object resta interno e la
+  property read-only `advancedObservingNsom` non e' letta dai QML.
 - Rimosso il set storico di report, generatori e test di migrazione NSOM ormai
   sostituito da `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
