@@ -2270,6 +2270,11 @@ A future `ObserverCapabilityService` should own:
   records per-location policy reasons. The expanded run still observes `aod`,
   `particulate` and `none`, keeps flag-off scoring neutral, and confirms that
   AOD/OpenAQ remains a developer-only decision point before default-on.
+- Status 1.14.17: `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md`
+  reviews the expanded checked-in provider evidence without network access. The
+  audit accepts the observed real-provider score scale as modest and
+  target-specific, but keeps AOD/OpenAQ default-off because all usable AOD inputs
+  in the run are `stale` and the evidence is a single temporal snapshot.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2394,6 +2399,11 @@ A future `ObserverCapabilityService` should own:
   reasons for source acceptance/rejection. This still does not enable
   AOD/OpenAQ; it makes the next step a focused review of the expanded evidence
   before any default-on switch.
+- Status update for 1.14.17:
+  `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md` accepts the
+  real-provider score scale but keeps default-on deferred. The remaining
+  blockers are `aod_current_coverage_absent` and `single_snapshot_repeatability`,
+  not formula shape or deep-sky/protected-target scale.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2504,10 +2514,9 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.14 field-calibration fixtures and the 1.14.16 expanded
-   real-provider probe;
-3. either accept the synthetic scale for a narrow default-on switch or gather
-   real field observations first;
+2. review the 1.14.17 real-provider readiness audit;
+3. either repeat the real-provider probe on another date/time or explicitly
+   accept stale-AOD runtime policy for a narrow default-on switch;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.

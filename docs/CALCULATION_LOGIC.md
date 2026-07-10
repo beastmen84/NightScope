@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.16`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.17`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -71,7 +71,9 @@ availability and ownership:
   real-provider run across five mixed locations using local `nasa_login.txt`
   credentials without storing credential values in the report. `1.14.16`
   expands that run to 15 mixed locations and records per-location policy
-  reasons.
+  reasons. `1.14.17` adds an offline readiness audit over that checked-in
+  evidence: the real-provider score scale is accepted, but default-on remains
+  deferred because the run has stale AOD only and no temporal repeat.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -100,7 +102,9 @@ targeted formula calibration. The 1.14.13 readiness audit also keeps the flag
 off, and the 1.14.14 field-calibration fixtures still do not enable it.
 The 1.14.15 and 1.14.16 real-provider probes also keep the flag off by default
 while showing that real NASA/OpenAQ inputs can exercise `none`, `aod` and
-`particulate` policy branches.
+`particulate` policy branches. The 1.14.17 readiness audit keeps the same
+runtime state and records that current-AOD coverage and repeatability are still
+needed before a default-on switch.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, so normal AppController-built condition inputs keep
 `ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. When the
@@ -122,6 +126,9 @@ additive, and deep-sky penalties remain larger than planet/Moon penalties when
 the experimental flag is enabled manually. The 1.14.16 expanded run adds ten
 more locations, policy rejection reasons such as sparse AOD neighborhoods or
 high uncertainty, and keeps the same ownership/score-neutrality conclusions.
+The 1.14.17 audit accepts the real-provider modifier scale but does not enable
+it because the checked-in evidence has no current AOD input and only one
+temporal provider snapshot.
 
 ### Solar-System Objects
 

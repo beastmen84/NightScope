@@ -68,6 +68,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md"),
     Path("docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md"),
     Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_PROBE.md"),
+    Path("docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -147,9 +148,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.16 expanded real-provider AOD/OpenAQ results, "
-                "then decide whether to make a narrow default-on switch or "
-                "collect more field observations"
+                "Review 1.14.17 real-provider AOD/OpenAQ readiness, then "
+                "repeat the provider probe or explicitly accept stale-AOD "
+                "runtime policy before any narrow default-on switch"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -192,8 +193,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "particulate while preserving default flag-off neutrality. The "
                 "1.14.16 expanded real-provider probe covers 15 mixed locations "
                 "and adds policy reasons for source acceptance/rejection. The "
-                "remaining decision is human review of that real-provider scale "
-                "before a narrow default-on switch."
+                "1.14.17 real-provider readiness audit accepts the observed "
+                "score scale but keeps default-on deferred because the checked-in "
+                "evidence has stale AOD only and one temporal snapshot."
             ),
         },
         "blockers": blockers,
@@ -386,8 +388,10 @@ def render_markdown_report(data: dict[str, object] | None = None) -> str:
                 "Planner Moon geometry is default-on. AOD/OpenAQ provider-quality "
                 "policy is hardened, the default-off formula exists and 1.14.12 "
                 "calibrates the penalty-cap/transparency shape. Runtime aerosol "
-                "scoring remains disabled by default, and visible UI explanation "
-                "work remains separate."
+                "scoring remains disabled by default. The 1.14.17 real-provider "
+                "readiness audit resolves score-scale review but defers default-on "
+                "until temporal/current-AOD evidence is repeated or explicitly "
+                "accepted. Visible UI explanation work remains separate."
             ),
             "",
         ]
@@ -991,6 +995,20 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.16",
             "summary": "Decide whether expanded real-provider evidence is sufficient for a narrow default-on switch.",
+        },
+        {
+            "step": "1.14.17 AOD/OpenAQ real-provider readiness audit",
+            "summary": (
+                "Convert expanded provider evidence into default-on gates without "
+                "network calls or runtime changes."
+            ),
+        },
+        {
+            "step": "Review 1.14.17",
+            "summary": (
+                "Decide whether to repeat provider evidence or explicitly accept "
+                "stale-AOD runtime policy."
+            ),
         },
     )
 

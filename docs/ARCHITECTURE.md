@@ -925,6 +925,11 @@ policy reasons to the report. The expanded run still observes `aod`,
 `particulate` and `none`, confirms flag-off neutrality, and keeps deep-sky
 penalties larger than planet/Moon penalties when the internal experimental
 flag is enabled manually.
+`1.14.17` adds `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md`. The
+offline audit reads that checked-in provider report, accepts the real-provider
+score scale as directionally coherent, and keeps AOD/OpenAQ default-off because
+all usable AOD inputs in the run are stale and the evidence is one temporal
+snapshot.
 
 ## Dependency Flow
 
@@ -1041,8 +1046,10 @@ Services hold business logic:
   1.14.12 maps the class cap to transparency loss before deriving the score
   modifier; 1.14.13 records default-on readiness as blocked only by score-scale
   acceptance; 1.14.14 records field-like calibration fixtures for that scale,
-  1.14.15 records a real-provider probe across five mixed locations, and
-  1.14.16 expands it to 15 mixed locations with policy reasons.
+  1.14.15 records a real-provider probe across five mixed locations,
+  1.14.16 expands it to 15 mixed locations with policy reasons, and 1.14.17
+  accepts the observed score scale while deferring default-on for temporal AOD
+  freshness/repeatability evidence.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.

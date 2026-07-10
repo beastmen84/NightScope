@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.14.17 - 2026-07-10
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_REAL_PROVIDER_READINESS_AUDIT.md`, audit
+  developer-only che rilegge il probe reale espanso senza rete e senza
+  abilitare `experimental_aerosol_scoring`.
+- Il nuovo audit accetta coverage reale, source policy, fallback OpenAQ,
+  casi provider a effetto zero, safety runtime/credentiali e scala reale del
+  modifier: il massimo effetto deep-sky resta modesto e maggiore di quello su
+  pianeti/Luna.
+- Il default-on AOD/OpenAQ resta bloccato da evidenza temporale insufficiente:
+  nel probe checked-in tutti gli AOD utilizzabili sono `stale` e manca una
+  seconda esecuzione provider su data/orario diverso.
+- Nessun cambio runtime, QML/UI, Planner, Home, Best Object, Advanced
+  Observing, Sky Compass, Detail/Object, Equipment, logging, rete o scritture
+  runtime. Il flag aerosol resta `False`.
+
 ## NightScope 1.14.16 - 2026-07-10
 
 - Esteso il probe reale AOD/OpenAQ a un set `expanded` da 15 localita':
