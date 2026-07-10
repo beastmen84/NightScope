@@ -15,6 +15,9 @@
 - Verificato il confine NSOM/QML: Planner, Home, Best Object e Sky Compass
   arrivano alla UI tramite payload esistenti, Detail/Object resta interno e la
   property read-only `advancedObservingNsom` non e' letta dai QML.
+- Precisato che `Ready for visible UI redesign: False` indica solo assenza di
+  una UI NSOM-aware progettata per spiegazioni/score/confidence/fonti, non un
+  problema della UI compatibile attuale o del backend NSOM.
 - Rimosso il set storico di report, generatori e test di migrazione NSOM ormai
   sostituito da `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.

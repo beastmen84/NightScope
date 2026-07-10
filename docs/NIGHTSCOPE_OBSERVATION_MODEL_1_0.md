@@ -1374,7 +1374,11 @@ Explicit boundaries that remain by design:
   backend scope: `IntrinsicTargetQuality`, catalogue metadata, catalogue
   observability, Home display payloads and NSOM ranking inputs are already
   separated enough that no new runtime `UniverseTargetProfile` is needed now.
-- Visible UI explanations are not part of this backend migration.
+- Visible UI explanations are not part of this backend migration. The current
+  UI is intentionally legacy-compatible: it keeps existing QML payload shapes
+  and display fields, and those fields may not fully explain NSOM ordering.
+  A future NSOM-aware UI should first define explicit explanation, score,
+  confidence and provider-source semantics before changing QML.
 
 The detailed migration evidence now lives in Git history. Checked-in source of
 truth is limited to runtime code, active behavioural tests, this NSOM model,

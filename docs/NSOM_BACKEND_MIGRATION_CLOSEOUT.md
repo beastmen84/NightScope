@@ -14,6 +14,30 @@ This developer-only closeout records that the backend NSOM migration for recomme
 - Recommended next step: Review this closeout, then perform the separate visible UI verification/design step. Monitor AOD/OpenAQ real observing feedback after real program use before tuning.
 - Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are default-on NSOM surfaces. AOD/OpenAQ condition scoring is also default-on after the 1.14.19 switch. Equipment remains intentionally setup-local, ObservationConditions remains an active raw/display compatibility boundary, and Catalogue raw scores have been reviewed as upstream backend Universe input policy rather than a ranking hotfix or visible UI score.
 
+## Visible UI Readiness Meaning
+
+`Ready for visible UI redesign: False` does not mean the UI is broken and does
+not block the backend NSOM closeout. It means the current visible UI remains a
+compatibility presentation surface rather than a designed NSOM-aware
+explanation surface.
+
+Current UI contract:
+
+- QML keeps the same pages, blocks and payload keys for Home, Planner, Best
+  Object, Sky Compass and Detail/Object.
+- No NSOM panels, labels or diagnostic fields are displayed.
+- Existing display fields such as object `score` remain compatibility/base
+  presentation fields where the current UI needs them.
+- Those display fields are not guaranteed to explain the NSOM order. For
+  example, Home may order candidates by `ObservableTargetValue` while the card
+  still shows the legacy-compatible `CelestialObject.score` field.
+
+A visible NSOM-aware UI needs a separate design/data-contract step before QML
+changes. That step should decide which explanations to show, whether to replace
+or hide legacy display scores, how to present confidence and provider sources,
+and how to describe limiting factors such as Moon, AOD/OpenAQ freshness, seeing
+or transparency without exposing internal model jargon.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |
@@ -48,7 +72,7 @@ This developer-only closeout records that the backend NSOM migration for recomme
 | --- | --- | --- | --- |
 | `AOD/OpenAQ real observing feedback` | `monitor_before_tuning` | `False` | Do not tune weights until enough real observing outcomes are reviewed. |
 | `Catalogue / Universe raw score semantics` | `current_policy_evaluated` | `False` | Existing separation is sufficient for current backend scope; defer a new `UniverseTargetProfile` until multi-catalogue provenance, intrinsic calibration or visible score explanations require it. |
-| `Visible UI explanations` | `future_design_step` | `False` | Keep UI unchanged until backend explanations and display semantics are designed explicitly. |
+| `Visible UI explanations` | `future_design_step` | `False` | Keep UI unchanged until visible NSOM explanations, score semantics, confidence/source copy and QML payload contracts are designed explicitly. |
 
 ## Checks
 

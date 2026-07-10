@@ -5,6 +5,8 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.15.2`  
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `7e42f12 Document NSOM QML boundary audit`
+- `d1da051 Evaluate catalogue raw score policy`
 - `06603d2 Clarify backend raw score policy`
 - `05397dc Update NSOM handoff state`
 - `d84de3a Remove closed NSOM migration artifacts`
@@ -92,8 +94,18 @@ Questi non bloccano il backend NSOM chiuso:
 
 3. `Visible UI explanations`
    - La UI non va toccata automaticamente.
-   - L'audit dice esplicitamente `Ready for visible UI redesign: False`.
-   - Eventuali spiegazioni visibili vanno progettate in uno step separato.
+   - L'audit dice esplicitamente `Ready for visible UI redesign: False`, ma
+     questo non significa UI rotta o backend NSOM non pronto.
+   - Significa che la UI visibile e' ancora una superficie compatibility, non
+     una UI NSOM-aware progettata per spiegare "perche'" NSOM ordina o sceglie
+     un target.
+   - La UI continua a ricevere gli stessi payload compatibili: stesse chiavi
+     QML, stessi blocchi Home/Planner/Best Object/Sky Compass, stessi campi
+     display dove servono, nessun pannello NSOM e nessuna spiegazione visibile
+     tipo "Luna alta + AOD stale + seeing scarso".
+   - Alcuni campi mostrati, in particolare `score`, restano legacy/base
+     compatibility data: servono a non rompere la UI, ma non sempre spiegano in
+     modo monotono l'ordine NSOM.
    - Verifica confine backend/QML: Planner, Home, Best Object e Sky Compass
      arrivano alla UI solo tramite payload esistenti (`nightPlan`,
      `recommendedDeepSky`, `bestObjectOfNight`, `skyCompass`), senza campi NSOM
@@ -105,6 +117,12 @@ Questi non bloccano il backend NSOM chiuso:
      `advancedScores`.
    - Non emergono fix UI obbligatori dal confine NSOM/QML; resta da fare solo
      una verifica visuale delle schermate.
+   - Prima di toccare la UI NSOM-aware bisogna decidere:
+     1. quali spiegazioni NSOM mostrare davvero;
+     2. se sostituire, affiancare o nascondere i vecchi score display;
+     3. copy/testi comprensibili e non tecnici per fattori, confidence e fonti;
+     4. contratto dati QML prima di cambiare QML;
+     5. verifica grafica Home, Detail, Planner e Sky Compass.
 
 4. `Equipment recommendations`
    - Chiuso come setup-local.
@@ -119,6 +137,8 @@ Questi non bloccano il backend NSOM chiuso:
 ## Commit Rilevanti Prima Di Questo Aggiornamento
 
 ```text
+7e42f12 Document NSOM QML boundary audit
+d1da051 Evaluate catalogue raw score policy
 06603d2 Clarify backend raw score policy
 05397dc Update NSOM handoff state
 d84de3a Remove closed NSOM migration artifacts
