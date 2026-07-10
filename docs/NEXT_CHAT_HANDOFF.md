@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `48a840e Document 1.17.0 Windows distribution build`
 - `71abc8a Record Home UI completion commits`
 - `b3f78db Make Home Sky Compass session-aware`
 - `319e820 Migrate upper Home cards to overview contract`
