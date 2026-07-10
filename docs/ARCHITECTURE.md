@@ -79,7 +79,10 @@ Current runtime status for `1.17.0`:
   every 7 days while stale data remains available if NASA cannot be reached.
 - The upper Home overview has a dedicated read-only presentation boundary,
   `homeObservingOverview`. It separates Session state, weather index, NSOM
-  category diagnostics and Moon impact without replacing existing QML yet.
+  category diagnostics and Moon impact. The upper QML cards consume this
+  boundary: only the weather card exposes a numeric condition score, while
+  planetary/deep-sky cards expose descriptive category diagnostics. Sky Compass
+  remains a separate presentation step.
 
 Runtime safety rules remain unchanged: no report tooling is wired into QML, no
 automatic report logging is performed, and scoring must not trigger provider

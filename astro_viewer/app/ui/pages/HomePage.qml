@@ -7,6 +7,13 @@ Item {
     id: root
 
     property var controller
+    readonly property var observingOverview: controller
+                                             ? (controller.homeObservingOverview || ({})) : ({})
+    readonly property var sessionOverview: observingOverview.session || ({})
+    readonly property var weatherOverview: observingOverview.weather || ({})
+    readonly property var planetaryOverview: observingOverview.planetary || ({})
+    readonly property var deepSkyOverview: observingOverview.deepSky || ({})
+    readonly property var moonOverview: observingOverview.moon || ({})
     signal openObject(string objectId)
 
     function assignedEquipment(kind) {
@@ -235,19 +242,14 @@ Item {
         return "target"
     }
 
-    function observingLimitFactor() {
-        var rain = Number(controller.weatherDigest.rainProbability || 0)
-        var cloud = Number(controller.weatherDigest.cloudAverage || 0)
-        var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
-        if (rain >= 45)
-            return "Fattore limitante: rischio precipitazioni"
-        if (cloud >= 65)
-            return "Fattore limitante: nuvolosità elevata"
-        if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
-            return "Fattore limitante: seeing scarso"
-        if (controller.weatherDigest.windLabel === "forte")
-            return "Fattore limitante: vento forte"
-        return "Fattore limitante: condizioni bilanciate"
+    function sessionAccent(state) {
+        if (state === "recommended")
+            return theme.teal
+        if (state === "monitor")
+            return theme.amber
+        if (state === "discouraged")
+            return theme.red
+        return theme.textMuted
     }
 
     function nightPlanEmptyText() {
@@ -274,50 +276,6 @@ Item {
             }
         }
         return names.length > 0 ? "• " + names.join("\n• ") : ""
-    }
-
-    function planetarySubtitle() {
-        if (controller.isObservingSessionBlocked)
-            return "Meteo bloccante: " + controller.blockingReason
-        return "Seeing " + controller.seeingTransparency.seeing + ", vento " + controller.weatherDigest.windLabel
-    }
-
-    function planetaryHint() {
-        if (controller.isObservingSessionBlocked)
-            return "Meteo bloccante"
-        var seeing = (controller.seeingTransparency.seeing || "").toLowerCase()
-        if (seeing.indexOf("excellent") >= 0 || seeing.indexOf("eccell") >= 0)
-            return "Seeing eccellente"
-        if (seeing.indexOf("good") >= 0 || seeing.indexOf("buon") >= 0)
-            return "Seeing buono"
-        if (seeing.indexOf("poor") >= 0 || seeing.indexOf("scar") >= 0)
-            return "Seeing scarso"
-        if ((controller.visiblePlanets || []).length > 0)
-            return "Migliori oggetti: " + controller.visiblePlanets.slice(0, 2).map(function(item) { return item.name }).join(" • ")
-        return "Seeing discreto"
-    }
-
-    function deepSkyHint() {
-        if (controller.isObservingSessionBlocked)
-            return "Meteo bloccante"
-        var bortle = Number(controller.skyQuality.bortleClass || 0)
-        if (bortle >= 8)
-            return "Evitare: oggetti deboli e diffusi"
-        if (bortle >= 6)
-            return "Consigliati: ammassi aperti e globulari"
-        if (bortle >= 4)
-            return "Consigliati: galassie brillanti"
-        return "Ottime condizioni per nebulose brillanti"
-    }
-
-    function moonImpactHint() {
-        var illuminationText = controller.moonSummary.illumination || "0%"
-        var illumination = Number(illuminationText.toString().replace("%", "").trim())
-        if (illumination >= 70)
-            return "Impatto cielo profondo: elevato"
-        if (illumination >= 35)
-            return "Impatto cielo profondo: medio"
-        return "Impatto cielo profondo: basso"
     }
 
     function weatherMetricColor(kind, value) {
@@ -430,44 +388,32 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Qualità osservativa"
-                        subtitle: controller.observingQuality.explanation
-                        accentColor: theme.scoreColor(controller.observingQuality.score)
-                        headerBadgeText: controller.observingQuality.score
-                        headerBadgeColor: theme.scoreColor(controller.observingQuality.score)
+                        title: "Sessione di stasera"
+                        subtitle: root.sessionOverview.detail || ""
+                        accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
+                        headerBadgeText: root.sessionOverview.badge || ""
+                        headerBadgeColor: accentColor
 
                         RowLayout {
                             Layout.fillWidth: true
                             spacing: 12
 
                             Text {
-                                text: controller.observingQuality.scoreValue + "/100"
+                                Layout.fillWidth: true
+                                text: root.sessionOverview.windowText || "Finestra osservativa non disponibile"
                                 color: theme.textPrimary
-                                font.pixelSize: 34
+                                font.pixelSize: 18
                                 font.weight: Font.DemiBold
+                                elide: Text.ElideRight
                             }
 
-                            ColumnLayout {
+                            Text {
                                 Layout.fillWidth: true
-                                spacing: 4
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.weatherDigest.bestWindow !== "n/d" ? "Migliore finestra: " + controller.weatherDigest.bestWindow : controller.observingQuality.alert
-                                    color: theme.textSecondary
-                                    font.pixelSize: 12
-                                    horizontalAlignment: Text.AlignRight
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: root.observingLimitFactor()
-                                    color: theme.textMuted
-                                    font.pixelSize: 12
-                                    horizontalAlignment: Text.AlignRight
-                                    elide: Text.ElideRight
-                                }
+                                text: root.sessionOverview.limitingFactor || ""
+                                color: theme.textMuted
+                                font.pixelSize: 12
+                                horizontalAlignment: Text.AlignRight
+                                elide: Text.ElideRight
                             }
                         }
                     }
@@ -476,7 +422,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
                         title: "Luna"
-                        subtitle: controller.moonSummary.best_note
+                        subtitle: root.moonOverview.summary || ""
                         accentColor: theme.amber
 
                         Rectangle {
@@ -548,7 +494,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: root.moonImpactHint()
+                                        text: root.moonOverview.impactLabel || ""
                                         color: theme.textMuted
                                         font.pixelSize: 12
                                         horizontalAlignment: Text.AlignRight
@@ -577,11 +523,13 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Punteggio planetario"
-                        subtitle: root.planetarySubtitle()
+                        title: "Condizioni planetarie"
+                        subtitle: root.planetaryOverview.secondaryMetric || ""
                         accentColor: theme.teal
-                        headerBadgeText: controller.advancedScores.planetaryLabel
-                        headerBadgeColor: theme.scoreColor(controller.advancedScores.planetaryLabel)
+                        headerBadgeText: root.planetaryOverview.label || ""
+                        headerBadgeColor: root.planetaryOverview.label === "n/d"
+                                          ? theme.textMuted
+                                          : theme.scoreColor(root.planetaryOverview.label || "")
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -589,16 +537,16 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: controller.advancedScores.planetaryScore + "/100"
+                                text: root.planetaryOverview.primaryMetric || ""
                                 color: theme.textPrimary
-                                font.pixelSize: 28
+                                font.pixelSize: 18
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: root.planetaryHint()
+                                text: root.planetaryOverview.hint || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
@@ -610,11 +558,13 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Punteggio cielo profondo"
-                        subtitle: "Bortle " + controller.skyQuality.bortleClass + ", " + controller.skyQuality.description
+                        title: "Condizioni del cielo profondo"
+                        subtitle: root.deepSkyOverview.secondaryMetric || ""
                         accentColor: theme.violet
-                        headerBadgeText: controller.advancedScores.deepSkyLabel
-                        headerBadgeColor: theme.scoreColor(controller.advancedScores.deepSkyLabel)
+                        headerBadgeText: root.deepSkyOverview.label || ""
+                        headerBadgeColor: root.deepSkyOverview.label === "n/d"
+                                          ? theme.textMuted
+                                          : theme.scoreColor(root.deepSkyOverview.label || "")
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -622,16 +572,16 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: controller.advancedScores.deepSkyScore + "/100"
+                                text: root.deepSkyOverview.primaryMetric || ""
                                 color: theme.textPrimary
-                                font.pixelSize: 28
+                                font.pixelSize: 18
                                 font.weight: Font.DemiBold
                                 elide: Text.ElideRight
                             }
 
                             Text {
                                 Layout.fillWidth: true
-                                text: root.deepSkyHint()
+                                text: root.deepSkyOverview.hint || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
@@ -647,19 +597,32 @@ Item {
                     Layout.preferredHeight: 334
                     Layout.alignment: Qt.AlignTop
                     title: "Meteo osservativo"
-                    subtitle: controller.weatherStatus.length > 0 ? controller.weatherStatus : "Migliore finestra: " + controller.weatherDigest.bestWindow
-                    accentColor: theme.scoreColor(controller.weatherSummary.score)
+                    subtitle: controller.weatherStatus.length > 0
+                              ? controller.weatherStatus : (root.weatherOverview.windowText || "")
+                    accentColor: root.weatherOverview.available
+                                 ? theme.scoreColor(root.weatherOverview.scoreLabel || "")
+                                 : theme.textMuted
+                    headerBadgeText: root.weatherOverview.available
+                                     ? ((root.weatherOverview.scoreLabel || "n/d") + "  "
+                                        + root.weatherOverview.scoreValue + "/100") : "n/d"
+                    headerBadgeColor: accentColor
 
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
 
                         Rectangle {
+                            id: cloudMetric
+
+                            property color metricColor: root.weatherOverview.available
+                                                        ? root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage)
+                                                        : theme.textMuted
+
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).r, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).g, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).b, 0.14)
-                            border.color: Qt.rgba(root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).r, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).g, root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage).b, 0.5)
+                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
+                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -678,8 +641,9 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: controller.weatherDigest.cloudAverage + "%"
-                                    color: root.weatherMetricColor("cloud", controller.weatherDigest.cloudAverage)
+                                    text: root.weatherOverview.available
+                                          ? controller.weatherDigest.cloudAverage + "%" : "n/d"
+                                    color: cloudMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
@@ -689,11 +653,17 @@ Item {
                         }
 
                         Rectangle {
+                            id: windMetric
+
+                            property color metricColor: root.weatherOverview.available
+                                                        ? root.weatherMetricColor("wind", controller.weatherDigest.windLabel)
+                                                        : theme.textMuted
+
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(root.weatherMetricColor("wind", controller.weatherDigest.windLabel).r, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).g, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).b, 0.14)
-                            border.color: Qt.rgba(root.weatherMetricColor("wind", controller.weatherDigest.windLabel).r, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).g, root.weatherMetricColor("wind", controller.weatherDigest.windLabel).b, 0.5)
+                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
+                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -712,8 +682,9 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: controller.weatherDigest.windLabel
-                                    color: root.weatherMetricColor("wind", controller.weatherDigest.windLabel)
+                                    text: root.weatherOverview.available
+                                          ? controller.weatherDigest.windLabel : "n/d"
+                                    color: windMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
@@ -723,11 +694,17 @@ Item {
                         }
 
                         Rectangle {
+                            id: rainMetric
+
+                            property color metricColor: root.weatherOverview.available
+                                                        ? root.weatherMetricColor("rain", controller.weatherDigest.rainProbability)
+                                                        : theme.textMuted
+
                             Layout.fillWidth: true
                             Layout.preferredHeight: 54
                             radius: 8
-                            color: Qt.rgba(root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).r, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).g, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).b, 0.14)
-                            border.color: Qt.rgba(root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).r, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).g, root.weatherMetricColor("rain", controller.weatherDigest.rainProbability).b, 0.5)
+                            color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.14)
+                            border.color: Qt.rgba(metricColor.r, metricColor.g, metricColor.b, 0.5)
                             border.width: 1
 
                             ColumnLayout {
@@ -746,8 +723,9 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: controller.weatherDigest.rainProbability + "%"
-                                    color: root.weatherMetricColor("rain", controller.weatherDigest.rainProbability)
+                                    text: root.weatherOverview.available
+                                          ? controller.weatherDigest.rainProbability + "%" : "n/d"
+                                    color: rainMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
@@ -764,7 +742,8 @@ Item {
                         rowSpacing: 0
 
                         Repeater {
-                            model: controller.weatherDigest.bestHours.slice(0, 5)
+                            model: root.weatherOverview.available
+                                   ? controller.weatherDigest.bestHours.slice(0, 5) : []
 
                             delegate: Rectangle {
                                 Layout.fillWidth: true
@@ -782,7 +761,7 @@ Item {
                                     StatusPill {
                                         Layout.alignment: Qt.AlignHCenter
                                         text: modelData.time
-                                        accentColor: theme.scoreColor(controller.weatherSummary.score)
+                                        accentColor: theme.scoreColor(root.weatherOverview.scoreLabel || "")
                                     }
 
                                     RowLayout {

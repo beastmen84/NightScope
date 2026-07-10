@@ -574,6 +574,7 @@ class AppController(QObject):
         category_scores = self._advanced_observing_nsom_scores or self._advanced_scores
         return self._home_observing_overview_service.build(
             weather=self._weather_summary,
+            weather_available=bool(self._weather_hours),
             seeing=self._seeing_transparency,
             sky_quality=self._sky_quality,
             moon=self._moon,

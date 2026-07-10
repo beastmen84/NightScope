@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import (
@@ -10,9 +12,13 @@ from astro_viewer.app.models.weather import (
 from astro_viewer.app.services.home_observing_overview import HomeObservingOverviewService
 
 
+HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
+
+
 def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
     payload = _service().build(
         weather=_weather(),
+        weather_available=True,
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("21%"),
@@ -45,6 +51,7 @@ def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
 def test_monitor_session_exposes_only_the_actionable_window() -> None:
     payload = _service().build(
         weather=_weather(),
+        weather_available=True,
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("45%"),
@@ -76,6 +83,7 @@ def test_monitor_session_exposes_only_the_actionable_window() -> None:
 def test_moon_summary_describes_only_lunar_impact() -> None:
     payload = _service().build(
         weather=_weather(),
+        weather_available=True,
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("21%"),
@@ -96,6 +104,7 @@ def test_moon_summary_describes_only_lunar_impact() -> None:
 def test_missing_weather_has_an_explicit_unavailable_state() -> None:
     payload = _service().build(
         weather=None,
+        weather_available=False,
         seeing=None,
         sky_quality=None,
         moon=None,
@@ -108,9 +117,50 @@ def test_missing_weather_has_an_explicit_unavailable_state() -> None:
     )
 
     assert payload["session"]["state"] == "unavailable"
+    assert payload["weather"]["available"] is False
+    assert payload["weather"]["scoreValue"] is None
     assert payload["weather"]["scoreLabel"] == "n/d"
     assert payload["planetary"]["label"] == "n/d"
     assert payload["deepSky"]["label"] == "n/d"
+
+
+def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
+    payload = _service().build(
+        weather=_weather(),
+        weather_available=False,
+        seeing=_seeing(),
+        sky_quality=_sky_quality(),
+        moon=_moon("n/d"),
+        category_scores=AdvancedObservingScores(0, 0, "n/d", "n/d", "No data"),
+        session=ObservingSessionDecision(state="recommended"),
+        blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
+        suggested_window="",
+        wind_label="n/d",
+        category_source="legacy_category_fallback",
+    )
+
+    assert payload["session"]["state"] == "unavailable"
+    assert payload["weather"]["available"] is False
+    assert payload["weather"]["scoreLabel"] == "n/d"
+    assert payload["moon"]["impact"] == "unavailable"
+
+
+def test_upper_home_cards_use_the_overview_contract_without_category_scores() -> None:
+    qml = HOME_PAGE.read_text(encoding="utf-8")
+
+    assert "controller.homeObservingOverview" in qml
+    assert 'title: "Sessione di stasera"' in qml
+    assert 'title: "Condizioni planetarie"' in qml
+    assert 'title: "Condizioni del cielo profondo"' in qml
+    assert "root.weatherOverview.scoreValue" in qml
+    assert "root.moonOverview.summary" in qml
+    assert 'title: "Qualità osservativa"' not in qml
+    assert 'title: "Punteggio planetario"' not in qml
+    assert 'title: "Punteggio cielo profondo"' not in qml
+    assert "controller.advancedScores.planetaryScore" not in qml
+    assert "controller.advancedScores.deepSkyScore" not in qml
+    assert "function observingLimitFactor" not in qml
+    assert "function moonImpactHint" not in qml
 
 
 def _service() -> HomeObservingOverviewService:

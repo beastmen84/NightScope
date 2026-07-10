@@ -31,7 +31,9 @@ Current runtime status for `1.17.0`:
   refresh schedules cache-aware VIIRS/AOD checks.
 - `1.17.0` starts the upper Home presentation migration with a dedicated
   `homeObservingOverview` contract that keeps Session state separate from NSOM
-  category diagnostics and legacy weather scoring.
+  category diagnostics and legacy weather scoring. The upper cards now consume
+  that contract; category diagnostics are descriptive and only the weather card
+  retains its numeric condition index.
 
 ## Core Diagram
 

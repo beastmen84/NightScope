@@ -99,6 +99,9 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.weatherStatus, "Configura una posizione per visualizzare il meteo.")
             self.assertEqual(controller.weatherHourly, [])
             self.assertEqual(controller.activeLocationLabel, "Nessuna posizione configurata")
+            self.assertEqual(controller.homeObservingOverview["session"]["state"], "unavailable")
+            self.assertEqual(controller.homeObservingOverview["weather"]["scoreLabel"], "n/d")
+            self.assertEqual(controller.homeObservingOverview["moon"]["impact"], "unavailable")
             context.weather_requests.assert_not_called()
 
     def test_app_starts_with_approximate_online_consent(self) -> None:

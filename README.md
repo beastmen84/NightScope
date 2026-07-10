@@ -50,11 +50,12 @@ ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
 backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta la
 rimozione dei report/tool/test storici di migrazione eseguita in `1.15.2`.
 
-La UI/QML visibile resta compatibility-first. In `1.16.0` la pagina Meteo ha
-ricevuto un primo passaggio semantico sui dati condizioni AOD/OpenAQ, senza
-nuovi pannelli NSOM e senza spiegazioni visibili del ranking. I punteggi display
-legacy/base restano campi di compatibilita' dove servono alla presentazione.
-Eventuali spiegazioni NSOM complete sono lavoro futuro di design.
+La UI/QML visibile resta compatibility-first fuori dalle superfici riviste. In
+`1.16.0` la pagina Meteo ha ricevuto un primo passaggio semantico sui dati
+condizioni AOD/OpenAQ, senza nuovi pannelli NSOM e senza spiegazioni visibili del
+ranking. I punteggi display legacy/base restano campi di compatibilita' dove
+servono alla presentazione. Eventuali spiegazioni NSOM complete sono lavoro
+futuro di design.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -62,9 +63,10 @@ NASA. Il pulsante Meteo `Aggiorna` avvia anche i controlli cache-aware VIIRS e
 AOD; AOD mantiene la propria TTL di 18 ore.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
-`homeObservingOverview` dedicato. Il primo step separa nel backend stato della
-sessione, indice meteo, condizioni planetarie/deep-sky e impatto lunare senza
-modificare ancora il QML visibile.
+`homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
+della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
+impatto lunare. I punteggi numerici di categoria non sono piu' esposti in questa
+sezione. Sky Compass e Piano della notte restano capitoli separati.
 
 ## Requisiti
 

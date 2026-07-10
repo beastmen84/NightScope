@@ -19,6 +19,7 @@ class HomeObservingOverviewService:
         self,
         *,
         weather: WeatherSummary | None,
+        weather_available: bool,
         seeing: SeeingTransparency | None,
         sky_quality: SkyQuality | None,
         moon: MoonSummary | None,
@@ -29,8 +30,9 @@ class HomeObservingOverviewService:
         wind_label: str,
         category_source: str,
     ) -> dict[str, object]:
+        available_weather = weather if weather_available else None
         session_payload = _session_payload(
-            weather,
+            available_weather,
             session,
             blocking,
             suggested_window=suggested_window,
@@ -38,7 +40,7 @@ class HomeObservingOverviewService:
         return {
             "schemaVersion": HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION,
             "session": session_payload,
-            "weather": _weather_payload(weather, session_payload),
+            "weather": _weather_payload(available_weather, session_payload),
             "planetary": _planetary_payload(seeing, category_scores, wind_label, category_source),
             "deepSky": _deep_sky_payload(seeing, sky_quality, category_scores, category_source),
             "moon": _moon_payload(moon),
@@ -114,12 +116,14 @@ def _session_payload(
 def _weather_payload(weather: WeatherSummary | None, session: dict[str, object]) -> dict[str, object]:
     if weather is None:
         return {
-            "scoreValue": 0,
+            "available": False,
+            "scoreValue": None,
             "scoreLabel": "n/d",
             "explanation": "Previsioni non disponibili.",
             "windowText": session["windowText"],
         }
     return {
+        "available": True,
         "scoreValue": weather.score_value,
         "scoreLabel": weather.score,
         "explanation": weather.explanation,
@@ -171,7 +175,13 @@ def _moon_payload(moon: MoonSummary | None) -> dict[str, object]:
             "impactLabel": "Impatto lunare non disponibile",
             "summary": "Dati lunari non disponibili.",
         }
-    illumination = _percentage(moon.illumination, default=50.0)
+    illumination = _percentage(moon.illumination)
+    if illumination is None:
+        return {
+            "impact": "unavailable",
+            "impactLabel": "Impatto lunare non disponibile",
+            "summary": "Dati lunari non disponibili.",
+        }
     if illumination >= 70:
         return {
             "impact": "high",
@@ -245,8 +255,8 @@ def _bortle_label(bortle: int) -> str:
     }.get(bortle, "qualità non classificata")
 
 
-def _percentage(value: str, *, default: float) -> float:
+def _percentage(value: str) -> float | None:
     try:
         return float((value or "").replace("%", "").strip())
     except ValueError:
-        return default
+        return None

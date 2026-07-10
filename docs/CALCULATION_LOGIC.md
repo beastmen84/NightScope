@@ -72,7 +72,9 @@ preserves the AOD/OpenAQ rollback path.
 The read-only `homeObservingOverview` contract is a presentation projection of
 existing Session, weather, Advanced Observing category, sky-quality and Moon
 outputs. It does not recompute those values and does not feed Planner, Home
-target ranking, Best Object or Sky Compass ranking.
+target ranking, Best Object or Sky Compass ranking. The upper Home QML consumes
+the projection without displaying the numeric category diagnostics; only the
+legacy weather index remains numeric and is labelled as weather-specific.
 
 ### Solar-System Objects
 

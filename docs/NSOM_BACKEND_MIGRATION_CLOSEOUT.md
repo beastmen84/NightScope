@@ -59,8 +59,10 @@ confidence weighting or QML payload contracts.
 
 The first `1.17.0` step adds the read-only `homeObservingOverview` presentation
 contract. It separates Session actionability, legacy weather index, NSOM
-planetary/deep-sky category diagnostics and scoped Moon impact copy. This step
-does not yet change QML and does not alter scoring, ranking or provider inputs.
+planetary/deep-sky category diagnostics and scoped Moon impact copy. The second
+step connects the upper Home cards to that contract, removes the visible numeric
+category diagnostics and handles missing weather/Moon data explicitly. Neither
+step alters scoring, ranking or provider inputs; Sky Compass remains separate.
 
 ## Closed Backend Surfaces
 

@@ -6,8 +6,13 @@
   `home_observing_overview_v1` per la parte alta della Home.
 - Separati nel payload stato della sessione, indice meteo, diagnostiche NSOM di
   categoria planetaria/deep-sky e impatto lunare.
-- Esposta la property Qt read-only `homeObservingOverview` senza collegarla
-  ancora al QML in questo primo step.
+- Esposta e collegata al QML la property Qt read-only
+  `homeObservingOverview`.
+- Sostituiti nella parte alta Home il generico `Qualita' osservativa` e i due
+  punteggi numerici di categoria con stato della sessione, score esplicitamente
+  meteo e condizioni descrittive planetarie/deep-sky.
+- Resi state-aware la finestra osservativa e gli stati senza dati; la scheda
+  Luna descrive ora soltanto l'impatto lunare.
 - Mantenuti invariati scoring, ranking, Planner, Best Object, Sky Compass e
   payload NSOM interni esistenti.
 

@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `8a1f318 Add Home overview presentation contract`
 - `04f60e4 Release 1.16.1 VIIRS cache revalidation`
 - `9debe8f Document 1.16.0 Windows distribution build`
 - `a814c7c Release 1.16.0 Weather condition semantics`
@@ -35,9 +36,10 @@ Il closeout dichiara:
   senza pannelli NSOM o spiegazioni visibili del ranking;
 - `1.16.1` aggiunge solo hardening della cache VIIRS e del refresh provider,
   senza modificare scoring, ranking o payload QML;
-- il primo step `1.17.0` aggiunge il contratto read-only
-  `homeObservingOverview`; il QML visibile resta ancora invariato in questo
-  commit;
+- `1.17.0` aggiunge il contratto read-only `homeObservingOverview` e collega le
+  card superiori Home: stato sessione, score solo meteo, condizioni descrittive
+  planetarie/deep-sky e impatto lunare circoscritto;
+- Sky Compass e `Piano della notte` non sono inclusi nel secondo step Home;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -121,34 +123,31 @@ Questi non bloccano il backend NSOM chiuso:
      spiegazioni score visibili.
 
 3. `Visible UI explanations`
-   - La UI non va toccata automaticamente.
+   - La UI non va toccata automaticamente: ogni superficie richiede uno step
+     esplicito.
    - Primo passaggio esplicito avviato in `1.16.0`: solo WeatherPage
      condition-data semantics (`Aerosol atmosferico`, `Particolato locale`,
      freshness e confidence localizzata).
    - L'audit dice esplicitamente `Ready for visible UI redesign: False`, ma
-     questo non significa UI rotta o backend NSOM non pronto.
-   - Significa che la UI visibile e' ancora una superficie compatibility, non
-     una UI NSOM-aware progettata per spiegare "perche'" NSOM ordina o sceglie
-     un target.
-   - La UI continua a ricevere gli stessi payload compatibili: stesse chiavi
-     QML, stessi blocchi Home/Planner/Best Object/Sky Compass, stessi campi
-     display dove servono, nessun pannello NSOM e nessuna spiegazione visibile
-     tipo "Luna alta + AOD stale + seeing scarso".
-   - Alcuni campi mostrati, in particolare `score`, restano legacy/base
-     compatibility data: servono a non rompere la UI, ma non sempre spiegano in
-     modo monotono l'ordine NSOM.
-   - Verifica confine backend/QML: Planner, Home, Best Object e Sky Compass
-     arrivano alla UI solo tramite payload esistenti (`nightPlan`,
-     `recommendedDeepSky`, `bestObjectOfNight`, `skyCompass`), senza campi NSOM
-     visibili.
+     questo descrive il closeout backend storico, non vieta gli step UI
+     successivi esplicitamente autorizzati.
+   - `1.17.0` introduce `homeObservingOverview` come contratto presentazionale
+     dedicato e lo usa nelle card superiori Home. Non e' un pannello di debug e
+     non espone spiegazioni tecniche complete del ranking target.
+   - Nella parte alta Home `advancedScores` non e' piu' mostrato: i valori
+     numerici planetario/deep-sky restano backend diagnostico, mentre la UI usa
+     etichette e fattori descrittivi. Lo score numerico rimasto e' dichiarato
+     nella card `Meteo osservativo`.
+   - Planner, liste Home, Best Object e Sky Compass continuano a usare i
+     rispettivi payload (`nightPlan`, `recommendedDeepSky`,
+     `bestObjectOfNight`, `skyCompass`) senza esporre payload diagnostici NSOM.
    - Detail/Object resta interno: nessuna property `detailObjectNsom` e nessun
      campo NSOM aggiunto a `selectedObject`.
    - Advanced Observing ha una property Qt read-only `advancedObservingNsom`
-     disponibile sul controller ma non letta dai QML; la UI continua a usare
-     `advancedScores`.
-   - Non emergono fix UI obbligatori dal confine NSOM/QML; resta da fare solo
-     una verifica visuale delle schermate.
-   - Prima di toccare la UI NSOM-aware bisogna decidere:
+     disponibile sul controller ma non letta direttamente dai QML.
+   - Resta necessaria la verifica visuale della nuova Home sulla `dist` solo
+     quando richiesta dall'utente.
+   - Prima di estendere le spiegazioni NSOM ad altre superfici bisogna decidere:
      1. quali spiegazioni NSOM mostrare davvero;
      2. se sostituire, affiancare o nascondere i vecchi score display;
      3. copy/testi comprensibili e non tecnici per fattori, confidence e fonti;
@@ -189,19 +188,21 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo il primo step `1.17.0`:
+Dopo il secondo step `1.17.0`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
-.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_advanced_observing_nsom_presentation_runtime.py astro_viewer/tests/test_home_recommendation_presentation.py
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
 ```
 
 Risultati:
 
 - ruff focused: passed;
 - compileall: passed;
-- focused Home overview/release/NSOM presentation tests: `39 passed`.
+- focused Home overview/release/NSOM presentation tests: `48 passed`;
+- QML smoke: passed.
 
 Distribuzione Windows:
 
@@ -236,10 +237,11 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Completare gli step visibili della parte alta Home `1.17.0`.
+1. Completare la parte alta Home `1.17.0` con il solo step Sky Compass
+   state-aware e la localizzazione dei tipi target.
 2. Prossimo capitolo consigliato:
-   - continuare la verifica UI un pezzo alla volta dopo WeatherPage, senza
-     cambiare scoring o ranking salvo prompt esplicito.
+   - passare alla seconda parte Home, `Piano della notte`, un pezzo alla volta,
+     senza cambiare scoring o ranking salvo prompt esplicito.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
