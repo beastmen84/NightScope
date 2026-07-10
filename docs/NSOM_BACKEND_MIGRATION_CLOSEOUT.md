@@ -111,12 +111,18 @@ the 60-second geometry tick remains isolated from provider, Equipment and
 Planner refresh paths and continues across temporarily empty current windows.
 
 The third `1.18.0` step adds the presentation-only
-`homeNightPlanOverview_v1` contract before the QML redesign. It exposes a
+`homeNightPlanOverview_v1` contract. It exposes a
 count-based active-profile summary, at most four compact plan rows and the full
 score-free alternatives table payload. Only a `recommended` Session can expose
 the numbered sequence; `monitor` and `discouraged` remain explicit non-plan
 states. Full Equipment explanations stay in object detail, and this projection
 does not feed any NSOM score or ranking.
+
+The fourth `1.18.0` step connects that contract to the lower Home QML. The
+visible Home now uses a state-aware plan card, keeps non-recommended states from
+showing a numbered plan and merges the old planet/deep-sky "other" cards into a
+single filterable alternatives table without numeric scores or long Equipment
+reasoning.
 
 ## Closed Backend Surfaces
 

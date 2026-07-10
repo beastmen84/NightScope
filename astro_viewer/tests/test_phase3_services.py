@@ -137,11 +137,13 @@ class Phase3ServiceTests(unittest.TestCase):
             ["20:45 sera", "23:05 sera", "00:30 notte", "01:30 notte"],
         )
 
-    def test_home_plan_numbering_follows_display_order(self) -> None:
+    def test_home_plan_uses_overview_contract_display_order(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
 
-        self.assertIn("model: controller.nightPlan.slice(0, 4)", qml)
-        self.assertIn('scoreText: "#" + (index + 1)', qml)
+        self.assertIn("model: root.nightPlanOverview.items || []", qml)
+        self.assertIn("delegate: HomePlanStepRow", qml)
+        self.assertNotIn("model: controller.nightPlan.slice(0, 4)", qml)
+        self.assertNotIn('scoreText: "#" + (index + 1)', qml)
 
     def test_night_planner_display_order_uses_observing_night_boundary(self) -> None:
         labels = ["00:30 notte", "18:45 sera", "05:30 prima dell'alba", "20:45 sera"]

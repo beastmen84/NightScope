@@ -58,7 +58,9 @@ Current runtime status for `1.18.0`:
 - The lower-Home `homeNightPlanOverview` projection then separates Session
   state from plan presentation. Only `recommended` can expose the four compact
   plan rows; alternatives omit raw/legacy scores and long Equipment reasoning,
-  while target detail retains the full recommendation payload.
+  while target detail retains the full recommendation payload. The Home QML
+  renders this projection as a state-aware plan card plus one filterable
+  alternatives table.
 
 ## Core Diagram
 

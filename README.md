@@ -9,8 +9,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
 - Sky Compass come guida live della Home: ogni minuto valuta gli oggetti realmente osservabili adesso, combina qualità e concentrazione per direzione e mantiene piano/Best Object come contesto, non come bonus dominante.
 - Piano osservativo consigliato: quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
-- Contratto Home inferiore state-aware: separa sequenza consigliata, finestra da
-  monitorare e sessione sconsigliata; prepara setup compatti e una lista unica
+- Home inferiore state-aware: separa sequenza consigliata, finestra da
+  monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
   degli altri oggetti senza esporre score grezzi.
 - Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
@@ -43,7 +43,8 @@ ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
   `ObservableTargetValue`; `homeVisibleAlternatives` unifica pianeti e cielo
   profondo escludendo le quattro tappe del piano.
 - Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
-  multi-equipment, piano compatto e righe alternative per il futuro QML.
+  multi-equipment, piano compatto e righe alternative lette direttamente dalla
+  QML della Home.
 - Best Object: selezione Home-specific basata su concetti NSOM.
 - Advanced Observing: snapshot backend NSOM parallelo.
 - Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine
@@ -88,6 +89,12 @@ client permanenti. Timeout, problemi di rete, HTTP `408`/`425`/`5xx` e risposte
 incomplete mantengono la cache e programmano un retry forzato dopo 5 minuti;
 HTTP `4xx` permanenti e `429` restano sul normale controllo orario. Il log
 include lo status HTTP senza esporre coordinate o parametri della richiesta.
+
+In `1.18.0` la parte bassa Home usa il contratto `homeNightPlanOverview`: la
+card piano e' state-aware, gli stati `monitor` e `discouraged` non mostrano una
+falsa sequenza numerata, e pianeti/cielo profondo fuori piano sono una tabella
+unica filtrabile senza score o motivazioni lunghe. La distribuzione Windows non
+e' stata rigenerata automaticamente.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

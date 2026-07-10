@@ -142,7 +142,8 @@ Important pages:
 
 - `HomePage.qml`: home dashboard, observing quality, best target, observing
   plan, visible-night alternatives and weather warning presentation. The lower
-  surface receives its non-visual decisions from `homeNightPlanOverview`.
+  surface renders `homeNightPlanOverview` through a state-aware plan card and a
+  unified filterable table for non-plan visible targets.
 - `ObjectCataloguePage.qml`: informational catalogue browser with search,
   filters and object-detail click-through. It renders catalogue data and does
   not present recommendation ranking.

@@ -112,6 +112,12 @@ Its compact setup includes the selected telescope name only when more than one
 is assigned to the active profile. None of these fields feed Planner, Equipment
 selection, Home target ordering or Session policy.
 
+The lower Home QML consumes this projection directly. It renders the plan state
+card from the projected labels and shows non-plan planets/deep-sky rows in one
+filterable table. The table intentionally omits legacy target scores and
+Equipment explanations; selecting a row still opens the detail page, where the
+longer observing guidance belongs.
+
 Sky Compass runs from the same prepared pool but filters `observable_now=False`.
 Its direction contribution is the NSOM `ObservableTargetValue` scaled by a
 bounded current-altitude factor, plus a fixed per-target presence term. The

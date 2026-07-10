@@ -7,6 +7,7 @@ Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `b8edbd0 Align Home plan with target equipment`
+- `d54e847 Add Home night plan overview contract`
 - `69ce9dd Harden Open-Meteo transient failure retries`
 - `3bb2b40 Record 1.17.1 build commit`
 - `38e971d Document 1.17.1 Windows distribution build`
@@ -88,7 +89,9 @@ Il closeout dichiara:
   lista alternativa completa senza score legacy o motivazioni Equipment lunghe;
 - soltanto lo stato `recommended` puo' esporre la sequenza numerata; `monitor`
   mostra la possibile finestra e `discouraged` resta esplicitamente senza piano;
-- il QML inferiore non usa ancora il nuovo contratto in questo commit;
+- il quarto step `1.18.0` collega il QML inferiore a quel contratto: card piano
+  state-aware, nessuna falsa sequenza negli stati non consigliati e tabella
+  unica filtrabile per gli altri oggetti visibili;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -411,13 +414,12 @@ Sequenza consigliata:
 1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: la sorgente e'
    `1.18.0`, mentre la distribuzione corrente resta `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
-   posizione, wrapping e coerenza dei dati caricati.
-3. Collegare al QML il contratto `homeNightPlanOverview`: piano state-aware e
-   tabella filtrabile unificata degli altri oggetti.
-4. Capitoli da lasciare separati:
+   posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
+   stasera`.
+3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
-5. Non fare tuning e non toccare UI senza uno step esplicito.
+4. Non fare tuning e non toccare altre UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 

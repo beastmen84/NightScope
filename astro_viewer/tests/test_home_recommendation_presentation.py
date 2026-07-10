@@ -10,38 +10,20 @@ from astro_viewer.app.services.equipment_service import EquipmentService
 HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
 
 
-def test_home_setup_option_uses_backend_recommended_role() -> None:
-    body = _qml_function_body("displaySetupOption")
+def test_home_lower_surface_uses_backend_overview_contract() -> None:
+    source = HOME_PAGE.read_text(encoding="utf-8")
 
-    assert 'optionByRole(item, "Consigliato")' in body
-    assert 'optionByRole(item, "Alternativa")' not in body
-    assert 'optionByRole(item, "Campo largo")' not in body
-    assert "item.type" not in body
-    assert "item.name" not in body
-    assert "venus" not in body
-    assert "mercury" not in body
-
-
-def test_home_reason_uses_backend_equipment_explanation() -> None:
-    body = _qml_function_body("recommendationReason")
-
-    assert "item.equipmentExplanation" in body
-    assert "typeText" not in body
-    assert "item.type" not in body
-    assert "Campo largo" not in body
-    assert "globular" not in body
-    assert "galaxy" not in body
-    assert "nebula" not in body
-    assert "Pianeta" not in body
-
-
-def test_home_visibility_label_uses_observable_wording() -> None:
-    body = _qml_function_body("visibilityLabel")
-
-    assert "Visibile a occhio nudo" in body
-    assert "Visibile con binocolo" in body
-    assert "Visibile con telescopio" in body
-    assert "Visibilità: telescopio" not in body
+    assert "controller.homeNightPlanOverview" in source
+    assert "model: root.nightPlanOverview.items || []" in source
+    assert "model: root.filteredNightAlternatives()" in source
+    assert "HomePlanStepRow" in source
+    assert "HomeVisibleTargetRow" in source
+    assert "function displaySetupOption" not in source
+    assert "function recommendationReason" not in source
+    assert "function visibilityLabel" not in source
+    assert "controller.nightPlan.slice" not in source
+    assert "scoreText:" not in source
+    assert "equipmentExplanation" not in source
 
 
 def test_home_backend_data_for_telescope_recommendation() -> None:
@@ -104,23 +86,6 @@ def test_home_backend_data_for_high_magnification_target() -> None:
     assert suggestion["setupOptions"][0]["role"] == "Consigliato"
     assert suggestion["equipmentType"] == "Telescope"
     assert suggestion["setupText"].startswith("Maksutov 90/1250 +")
-
-
-def _qml_function_body(name: str) -> str:
-    source = HOME_PAGE.read_text(encoding="utf-8")
-    marker = f"function {name}"
-    start = source.index(marker)
-    brace = source.index("{", start)
-    depth = 0
-    for index in range(brace, len(source)):
-        char = source[index]
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return source[brace + 1 : index]
-    raise AssertionError(f"Function {name} body not found")
 
 
 def _object(

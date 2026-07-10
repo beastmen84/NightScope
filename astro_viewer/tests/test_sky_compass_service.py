@@ -143,7 +143,7 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     events_block = source[events_start_index:]
 
     assert source.index('title: "Sky Compass"') < source.index('text: "Piano della notte"')
-    assert source.index('title: "Prossimi eventi"') > source.index('title: controller.isObservingSessionBlocked ? "Oggetti cielo profondo potenzialmente visibili"')
+    assert source.index('title: "Prossimi eventi"') > source.index('title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"')
     assert 'title: "Mappa cielo"' not in source
     assert "controller.skyMap" not in source
     assert "columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1" in sky_compass_block

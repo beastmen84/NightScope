@@ -14,161 +14,13 @@ Item {
     readonly property var planetaryOverview: observingOverview.planetary || ({})
     readonly property var deepSkyOverview: observingOverview.deepSky || ({})
     readonly property var moonOverview: observingOverview.moon || ({})
+    readonly property var nightOverview: controller
+                                           ? (controller.homeNightPlanOverview || ({})) : ({})
+    readonly property var nightProfileOverview: nightOverview.profile || ({})
+    readonly property var nightPlanOverview: nightOverview.plan || ({})
+    readonly property var nightAlternativesOverview: nightOverview.alternatives || ({})
+    property string targetFilter: "all"
     signal openObject(string objectId)
-
-    function assignedEquipment(kind) {
-        var items = controller.profileAssignedEquipment || []
-        return items.filter(function(item) { return item.kind === kind })
-    }
-
-    function firstAssignedName(kind) {
-        var items = root.assignedEquipment(kind)
-        return items.length > 0 ? items[0].name : ""
-    }
-
-    function activeProfileSummary() {
-        var telescope = root.firstAssignedName("telescope")
-        var eyepiece = root.firstAssignedName("eyepiece")
-        var barlows = root.assignedEquipment("barlow")
-        var parts = []
-        if (telescope.length > 0)
-            parts.push(telescope)
-        else
-            parts.push(controller.activeEquipmentProfile.profile_name || "Occhio nudo")
-        if (eyepiece.length > 0)
-            parts.push(eyepiece)
-        if (barlows.length > 0)
-            parts.push(barlows[0].name)
-        return "Profilo attivo: " + parts.join(" + ")
-    }
-
-    function hasOpticalProfile() {
-        return root.assignedEquipment("telescope").length > 0
-    }
-
-    function optionByRole(item, role) {
-        var options = item.setupOptions || []
-        for (var i = 0; i < options.length; i++) {
-            if (options[i].role === role)
-                return options[i]
-        }
-        return null
-    }
-
-    function displaySetupOption(item) {
-        if (!item)
-            return null
-        var recommended = root.optionByRole(item, "Consigliato")
-        if (recommended)
-            return recommended
-        var options = item.setupOptions || []
-        return options.length > 0 ? options[0] : null
-    }
-
-    function recommendedSetup(item) {
-        if (!item)
-            return ""
-        var option = root.displaySetupOption(item)
-        var fullSetup = item.recommended_setup || item.setup || ""
-        var setup = option ? (option.displayLabel || option.detailLabel) : fullSetup
-        if (!root.hasOpticalProfile())
-            return setup
-        if (option && option.equipmentType === "Binocular")
-            return setup
-        if (option && option.displayLabel && option.displayLabel !== option.detailLabel)
-            return option.displayLabel
-        var lower = setup.toLowerCase()
-        if (lower.indexOf("occhio nudo") >= 0 || lower.indexOf("binocolo") >= 0 || lower.indexOf("serve almeno") >= 0)
-            return setup
-        var telescope = option && option.telescopeName ? option.telescopeName : root.telescopeFromSetup(fullSetup)
-        return telescope.length > 0 ? telescope + " + " + setup : setup
-    }
-
-    function telescopeFromSetup(setup) {
-        var text = setup || ""
-        var separator = text.indexOf(" + ")
-        if (separator <= 0)
-            return ""
-        return text.substring(0, separator)
-    }
-
-    function recommendationReason(item) {
-        if (!item)
-            return ""
-        return item.equipmentExplanation || "Configurazione scelta in base al profilo attivo."
-    }
-
-    function objectById(objectId) {
-        var groups = [controller.visiblePlanets || [], controller.recommendedDeepSky || []]
-        for (var groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-            for (var itemIndex = 0; itemIndex < groups[groupIndex].length; itemIndex++) {
-                if (groups[groupIndex][itemIndex].id === objectId)
-                    return groups[groupIndex][itemIndex]
-            }
-        }
-        return null
-    }
-
-    function isInVisiblePlan(limit, objectId) {
-        var plan = controller.nightPlan || []
-        var itemLimit = Math.min(limit, plan.length)
-        for (var i = 0; i < itemLimit; i++) {
-            if (plan[i].objectId === objectId)
-                return true
-        }
-        return false
-    }
-
-    function outsideVisiblePlan(items, limit) {
-        var result = []
-        var source = items || []
-        for (var i = 0; i < source.length; i++) {
-            if (!root.isInVisiblePlan(limit, source[i].id))
-                result.push(source[i])
-        }
-        return result
-    }
-
-    function otherVisiblePlanets() {
-        return root.outsideVisiblePlan(controller.visiblePlanets || [], 4)
-    }
-
-    function otherVisibleDeepSky() {
-        return root.outsideVisiblePlan(controller.recommendedDeepSky || [], 4)
-    }
-
-    function planSetup(item) {
-        var objectData = root.objectById(item.objectId)
-        return objectData ? root.recommendedSetup(objectData) : item.setup
-    }
-
-    function planReason(item) {
-        var objectData = root.objectById(item.objectId)
-        return objectData ? root.recommendationReason(objectData) : "Sequenza ordinata per finestra utile e punteggio."
-    }
-
-    function visibilityLabel(item) {
-        var value = (item.visibility_class || "").toLowerCase()
-        if (value.indexOf("occhio") >= 0)
-            return "Visibile a occhio nudo"
-        if (value.indexOf("binocolo") >= 0)
-            return "Visibile con binocolo"
-        if (value.indexOf("telescopio") >= 0 || value.indexOf("pianeta") >= 0)
-            return "Visibile con telescopio"
-        if (value.length > 0)
-            return "Visibile con " + item.visibility_class
-        return item.observingStatus || "Finestra utile"
-    }
-
-    function objectWindow(item) {
-        var time = item.homeTimeLabel ? item.homeTimeLabel : item.timeLabel
-        var direction = item.direction || ""
-        return root.visibilityLabel(item) + "  -  " + time + (direction.length > 0 ? "  -  " + direction : "")
-    }
-
-    function difficultyLabel(item) {
-        return item.difficulty && item.difficulty !== "n/d" ? "Difficoltà: " + item.difficulty : ""
-    }
 
     function eventDateValue(eventData) {
         var parts = (eventData.date_label || "").split("/")
@@ -309,30 +161,49 @@ Item {
         return theme.textMuted
     }
 
-    function nightPlanEmptyText() {
-        return controller.isLoading ? "Aggiornamento del piano osservativo..." : "Nessun oggetto utile nella finestra notturna."
+    function planAccent(state) {
+        if (state === "recommended")
+            return theme.green
+        if (state === "monitor")
+            return theme.amber
+        if (state === "discouraged")
+            return theme.red
+        if (state === "pending")
+            return theme.cyan
+        return theme.textMuted
     }
 
-    function scoreText(item) {
-        return item && item.score !== undefined && item.score !== null ? item.score + "/100" : ""
+    function alternativeItems() {
+        return root.nightAlternativesOverview.items || []
     }
 
-    function potentialTargetsText(limit) {
-        var sources = [controller.visiblePlanets || [], controller.recommendedDeepSky || []]
-        var names = []
-        var seen = {}
-        for (var groupIndex = 0; groupIndex < sources.length; groupIndex++) {
-            for (var itemIndex = 0; itemIndex < sources[groupIndex].length; itemIndex++) {
-                var name = sources[groupIndex][itemIndex].name || ""
-                if (name.length === 0 || seen[name])
-                    continue
-                seen[name] = true
-                names.push(name)
-                if (names.length >= limit)
-                    return "• " + names.join("\n• ")
-            }
+    function filteredNightAlternatives() {
+        var items = root.alternativeItems()
+        if (root.targetFilter === "all")
+            return items
+        return items.filter(function(item) {
+            return item.category === root.targetFilter
+        })
+    }
+
+    function alternativeCount(filter) {
+        if (filter === "all")
+            return root.alternativeItems().length
+        var items = root.alternativeItems()
+        var count = 0
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].category === filter)
+                count += 1
         }
-        return names.length > 0 ? "• " + names.join("\n• ") : ""
+        return count
+    }
+
+    function alternativeFilterLabel(filter) {
+        if (filter === "planet")
+            return "Pianeti " + root.alternativeCount(filter)
+        if (filter === "deep_sky")
+            return "Cielo profondo " + root.alternativeCount(filter)
+        return "Tutti " + root.alternativeCount("all")
     }
 
     function weatherMetricColor(kind, value) {
@@ -393,11 +264,12 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.activeProfileSummary()
+                        text: root.nightProfileOverview.summary || "Profilo attivo: Occhio nudo"
                         color: theme.cyan
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
-                        elide: Text.ElideRight
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
                     }
                 }
 
@@ -1394,258 +1266,245 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                columns: root.width > 1180 ? 3 : 1
+                columns: root.width > 1180 ? 2 : 1
                 columnSpacing: 14
                 rowSpacing: 14
 
                 GlassCard {
                     Layout.fillWidth: true
-                    Layout.minimumHeight: controller.nightPlan.length > 0 ? 286 : 0
-                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
+                    Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: "Piano osservativo consigliato"
-                    subtitle: "Sequenza consigliata: cosa osservare e quando"
-                    accentColor: theme.green
+                    title: root.nightPlanOverview.title || "Piano osservativo"
+                    subtitle: root.nightPlanOverview.subtitle || ""
+                    subtitleWrap: true
+                    headerBadgeText: root.nightPlanOverview.badge || ""
+                    headerBadgeColor: root.planAccent(root.nightPlanOverview.state || "unavailable")
+                    accentColor: root.planAccent(root.nightPlanOverview.state || "unavailable")
 
                     ColumnLayout {
-                        id: sessionDecisionContent
-
                         Layout.fillWidth: true
-                        visible: controller.nightPlan.length === 0 && controller.isObservingSessionBlocked
-                        spacing: 14
+                        visible: !root.nightPlanOverview.showsSequence
+                        spacing: 12
 
-                        property bool opportunityWide: root.width > 760 && controller.showObservingSessionOpportunity
-
-                        GridLayout {
+                        Text {
                             Layout.fillWidth: true
-                            columns: sessionDecisionContent.opportunityWide ? 2 : 1
-                            columnSpacing: 36
-                            rowSpacing: 12
+                            visible: (root.nightPlanOverview.message || "").length > 0
+                            text: root.nightPlanOverview.message || ""
+                            color: root.planAccent(root.nightPlanOverview.state || "unavailable")
+                            font.pixelSize: 15
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                        }
 
-                            RowLayout {
-                                Layout.row: 0
-                                Layout.column: 0
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                                spacing: 8
+                        Text {
+                            Layout.fillWidth: true
+                            visible: (root.nightPlanOverview.supportingText || "").length > 0
+                            text: root.nightPlanOverview.supportingText || ""
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            visible: root.nightPlanOverview.showWindow
+                            radius: 8
+                            color: "#151a20"
+                            border.color: Qt.rgba(root.planAccent(root.nightPlanOverview.state || "unavailable").r,
+                                                  root.planAccent(root.nightPlanOverview.state || "unavailable").g,
+                                                  root.planAccent(root.nightPlanOverview.state || "unavailable").b,
+                                                  0.42)
+                            border.width: 1
+                            implicitHeight: windowLayout.implicitHeight + 18
+
+                            ColumnLayout {
+                                id: windowLayout
+                                anchors.fill: parent
+                                anchors.margins: 9
+                                spacing: 3
 
                                 Text {
-                                    text: controller.observingSessionIcon
-                                    color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
-                                    font.pixelSize: 18
-                                    font.weight: Font.DemiBold
+                                    Layout.fillWidth: true
+                                    text: root.nightPlanOverview.windowLabel || "Possibile finestra"
+                                    color: theme.textMuted
+                                    font.pixelSize: 12
+                                    wrapMode: Text.WordWrap
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: controller.observingSessionTitle
+                                    text: root.nightPlanOverview.windowValue || ""
                                     color: theme.textPrimary
-                                    font.pixelSize: 17
+                                    font.pixelSize: 16
                                     font.weight: Font.DemiBold
+                                    wrapMode: Text.WordWrap
+                                }
+                            }
+                        }
+                    }
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        visible: root.nightPlanOverview.showsSequence
+                        columns: root.width > 1180 ? 2 : 1
+                        columnSpacing: 10
+                        rowSpacing: 8
+
+                        Repeater {
+                            model: root.nightPlanOverview.items || []
+
+                            delegate: HomePlanStepRow {
+                                itemData: modelData
+                                assetBaseUrl: controller.assetBaseUrl
+                                accentColor: theme.green
+                                onOpenRequested: function(objectId) {
+                                    root.openObject(objectId)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                GlassCard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
+                    Layout.alignment: Qt.AlignTop
+                    title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"
+                    subtitle: root.nightAlternativesOverview.subtitle || ""
+                    subtitleWrap: true
+                    headerBadgeText: root.alternativeCount("all") > 0 ? root.alternativeCount("all") + " oggetti" : ""
+                    headerBadgeColor: theme.cyan
+                    accentColor: theme.cyan
+
+                    GridLayout {
+                        Layout.fillWidth: true
+                        visible: root.alternativeCount("all") > 0
+                        columns: root.width > 620 ? 3 : 1
+                        columnSpacing: 6
+                        rowSpacing: 6
+
+                        Repeater {
+                            model: [
+                                {"key": "all"},
+                                {"key": "planet"},
+                                {"key": "deep_sky"}
+                            ]
+
+                            delegate: Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                radius: 8
+                                color: root.targetFilter === modelData.key ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.16) : "#151a20"
+                                border.color: root.targetFilter === modelData.key ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.55) : theme.border
+                                border.width: 1
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    width: parent.width - 18
+                                    text: root.alternativeFilterLabel(modelData.key)
+                                    color: root.targetFilter === modelData.key ? theme.cyan : theme.textSecondary
+                                    font.pixelSize: 12
+                                    font.weight: Font.DemiBold
+                                    horizontalAlignment: Text.AlignHCenter
+                                    maximumLineCount: 1
                                     elide: Text.ElideRight
                                 }
-                            }
 
-                            ColumnLayout {
-                                Layout.row: 1
-                                Layout.column: 0
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                                spacing: 10
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.observingSessionDetail
-                                    color: controller.observingSessionState === "monitor" ? theme.amber : theme.red
-                                    font.pixelSize: 14
-                                    font.weight: Font.DemiBold
-                                    wrapMode: Text.WordWrap
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: controller.observingSessionDescription
-                                    color: theme.textSecondary
-                                    font.pixelSize: 13
-                                    wrapMode: Text.WordWrap
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.targetFilter = modelData.key
                                 }
                             }
+                        }
+                    }
 
-                            ColumnLayout {
-                                Layout.row: sessionDecisionContent.opportunityWide ? 0 : 2
-                                Layout.column: sessionDecisionContent.opportunityWide ? 1 : 0
-                                Layout.rowSpan: sessionDecisionContent.opportunityWide ? 2 : 1
-                                Layout.fillWidth: true
-                                Layout.alignment: Qt.AlignTop
-                                visible: controller.showObservingSessionOpportunity
-                                spacing: 12
+                    RowLayout {
+                        Layout.fillWidth: true
+                        visible: root.width > 760 && root.filteredNightAlternatives().length > 0
+                        spacing: 12
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    visible: controller.suggestedObservingWindow.length > 0
-                                    spacing: 2
+                        Item { Layout.preferredWidth: 4 }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: "Migliore finestra prevista"
-                                        color: theme.textMuted
-                                        font.pixelSize: 12
-                                        wrapMode: Text.WordWrap
-                                    }
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 140
+                            text: "Oggetto"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            font.weight: Font.DemiBold
+                        }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: controller.suggestedObservingWindow
-                                        color: theme.textPrimary
-                                        font.pixelSize: 16
-                                        font.weight: Font.DemiBold
-                                        wrapMode: Text.WordWrap
-                                    }
-                                }
+                        Text {
+                            Layout.preferredWidth: 170
+                            text: "Tipo"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            font.weight: Font.DemiBold
+                        }
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    visible: root.potentialTargetsText(3).length > 0
-                                    spacing: 4
+                        Text {
+                            Layout.preferredWidth: 145
+                            text: "Finestra"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            font.weight: Font.DemiBold
+                        }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: "Target potenzialmente interessanti"
-                                        color: theme.textMuted
-                                        font.pixelSize: 12
-                                        wrapMode: Text.WordWrap
-                                    }
+                        Text {
+                            Layout.preferredWidth: 105
+                            text: "Direzione"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            font.weight: Font.DemiBold
+                        }
 
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: root.potentialTargetsText(3)
-                                        color: theme.textSecondary
-                                        font.pixelSize: 13
-                                        lineHeight: 1.15
-                                        wrapMode: Text.WordWrap
-                                    }
-                                }
+                        Text {
+                            Layout.preferredWidth: 90
+                            horizontalAlignment: Text.AlignRight
+                            text: "Difficoltà"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            font.weight: Font.DemiBold
+                        }
+                    }
+
+                    ListView {
+                        id: visibleTargetList
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.min(
+                                                    Math.max(contentHeight, root.width > 760 ? 46 : 82),
+                                                    root.width > 760 ? 322 : 410)
+                        visible: root.filteredNightAlternatives().length > 0
+                        clip: true
+                        model: root.filteredNightAlternatives()
+                        spacing: 2
+                        boundsBehavior: Flickable.StopAtBounds
+                        interactive: contentHeight > height
+
+                        delegate: HomeVisibleTargetRow {
+                            width: visibleTargetList.width
+                            compact: root.width <= 760
+                            itemData: modelData
+                            onOpenRequested: function(objectId) {
+                                root.openObject(objectId)
                             }
+                        }
+
+                        ScrollBar.vertical: ScrollBar {
+                            policy: visibleTargetList.contentHeight > visibleTargetList.height
+                                    ? ScrollBar.AsNeeded
+                                    : ScrollBar.AlwaysOff
                         }
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        visible: controller.nightPlan.length === 0 && !controller.isObservingSessionBlocked
-                        text: root.nightPlanEmptyText()
+                        visible: root.filteredNightAlternatives().length === 0
+                        text: root.nightAlternativesOverview.emptyText || "Nessun altro oggetto utile fuori dal piano."
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
-                    }
-
-                    GridLayout {
-                        Layout.fillWidth: true
-                        columns: root.width > 1180 ? 2 : 1
-                        columnSpacing: 10
-                        rowSpacing: 4
-
-                        Repeater {
-                            model: controller.nightPlan.slice(0, 4)
-
-                            delegate: ObjectRow {
-                                itemData: modelData
-                                assetBaseUrl: controller.assetBaseUrl
-                                typeText: "Tappa consigliata"
-                                difficultyText: "Difficoltà: " + modelData.difficulty
-                                visibilityText: modelData.timeLabel + "  -  " + modelData.direction
-                                recommendedSetup: root.planSetup(modelData)
-                                reasonText: root.planReason(modelData)
-                                scoreText: "#" + (index + 1)
-                                onOpenRequested: function(objectId) {
-                                    root.openObject(objectId)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
-                    title: controller.isObservingSessionBlocked ? "Pianeti potenzialmente visibili" : "Altri pianeti visibili"
-                    subtitle: "Oggetti utili non già presenti nel piano consigliato"
-                    accentColor: theme.teal
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: root.otherVisiblePlanets().length === 0
-                        text: controller.isLoading ? "Calcolo della visibilità..." : "Nessun altro pianeta utile fuori dal piano consigliato."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    GridLayout {
-                        Layout.fillWidth: true
-                        columns: root.width > 1180 ? 2 : 1
-                        columnSpacing: 10
-                        rowSpacing: 4
-
-                        Repeater {
-                            model: root.otherVisiblePlanets().slice(0, 4)
-
-                            delegate: ObjectRow {
-                                itemData: modelData
-                                assetBaseUrl: controller.assetBaseUrl
-                                typeText: modelData.type
-                                difficultyText: root.difficultyLabel(modelData)
-                                visibilityText: root.objectWindow(modelData)
-                                recommendedSetup: root.recommendedSetup(modelData)
-                                reasonText: root.recommendationReason(modelData)
-                                scoreText: root.scoreText(modelData)
-                                onOpenRequested: function(objectId) {
-                                    root.openObject(objectId)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                GlassCard {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: centerGrid.columns > 1 ? 3 : 1
-                    Layout.alignment: Qt.AlignTop
-                    title: controller.isObservingSessionBlocked ? "Oggetti cielo profondo potenzialmente visibili" : "Oggetti cielo profondo visibili"
-                    subtitle: controller.skyQualityWarning.length > 0 ? controller.skyQualityWarning : "Oggetti utili non già presenti nel piano consigliato"
-                    accentColor: theme.violet
-
-                    Text {
-                        Layout.fillWidth: true
-                        visible: root.otherVisibleDeepSky().length === 0
-                        text: controller.isLoading ? "Calcolo della visibilità..." : "Nessun altro oggetto cielo profondo utile fuori dal piano consigliato."
-                        color: theme.textSecondary
-                        font.pixelSize: 13
-                        wrapMode: Text.WordWrap
-                    }
-
-                    GridLayout {
-                        Layout.fillWidth: true
-                        columns: root.width > 1180 ? 2 : 1
-                        columnSpacing: 10
-                        rowSpacing: 4
-
-                        Repeater {
-                            model: root.otherVisibleDeepSky().slice(0, 4)
-
-                            delegate: ObjectRow {
-                                itemData: modelData
-                                assetBaseUrl: controller.assetBaseUrl
-                                typeText: modelData.type
-                                difficultyText: root.difficultyLabel(modelData)
-                                visibilityText: root.objectWindow(modelData)
-                                recommendedSetup: root.recommendedSetup(modelData)
-                                reasonText: root.recommendationReason(modelData)
-                                scoreText: root.scoreText(modelData)
-                                onOpenRequested: function(objectId) {
-                                    root.openObject(objectId)
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -1718,10 +1577,9 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.chronologicalEvents(1).length === 0
-                    text: "Nessun evento in calendario."
+                    text: "Nessun evento imminente disponibile."
                     color: theme.textSecondary
                     font.pixelSize: 13
-                    wrapMode: Text.WordWrap
                 }
             }
             Item { Layout.fillWidth: true; Layout.preferredHeight: 28 }

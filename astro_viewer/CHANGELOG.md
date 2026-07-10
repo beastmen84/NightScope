@@ -36,7 +36,16 @@
   target non entrano nel nuovo payload Home.
 - Gli stati `monitor` e `discouraged` non possono proiettare una falsa sequenza
   numerata anche se ricevono accidentalmente elementi Planner.
-- Il QML e la distribuzione Windows non sono stati modificati in questo step.
+- Collegata la parte bassa `HomePage.qml` a `homeNightPlanOverview`: la card
+  piano ora usa titolo, badge, messaggio, finestra e righe compatte dal
+  contratto backend.
+- Unificate le vecchie sezioni `Altri pianeti` e `Oggetti cielo profondo` in
+  una tabella filtrabile `Altri oggetti visibili stasera`, senza score numerici
+  o motivazioni Equipment lunghe.
+- Il riepilogo profilo in Home usa il sommario multi-equipment backend, cosi'
+  i profili con piu' telescopi non vengono ridotti al primo strumento.
+- Aggiunti componenti QML dedicati per righe piano e tabella alternative.
+- La distribuzione Windows non e' stata rigenerata in questo step.
 
 ## NightScope 1.17.2 - 2026-07-10
 
