@@ -74,6 +74,9 @@ Current runtime status for `1.18.0`:
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
+- `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
+  projects Session state, a count-based multi-equipment summary, four compact
+  plan rows and score-free alternative rows without changing Planner ranking.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed
@@ -138,7 +141,8 @@ QML pages are responsible for:
 Important pages:
 
 - `HomePage.qml`: home dashboard, observing quality, best target, observing
-  plan, planets, deep-sky objects and weather warning presentation.
+  plan, visible-night alternatives and weather warning presentation. The lower
+  surface receives its non-visual decisions from `homeNightPlanOverview`.
 - `ObjectCataloguePage.qml`: informational catalogue browser with search,
   filters and object-detail click-through. It renders catalogue data and does
   not present recommendation ranking.
@@ -517,7 +521,8 @@ The following duplication or concentration of responsibility should be tracked:
   weather, difficulty and aperture factors.
 - `AppController` is oversized and mixes controller, presenter and orchestration
   responsibilities.
-- `HomePage.qml` is also large and contains non-trivial presentation decisions.
+- `HomePage.qml` is also large. Upper-Home and lower-Home decisions are moving
+  into explicit presentation contracts, while visual formatting remains QML.
 - `EquipmentProfile.telescope_id` remains as a legacy single-telescope field
   while many-to-many profile assignment tables hold the current multi-equipment
   model.

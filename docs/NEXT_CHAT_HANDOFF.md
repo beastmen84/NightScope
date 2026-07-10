@@ -83,6 +83,12 @@ Il closeout dichiara:
 - il timer Sky Compass continua anche quando nessun target e' osservabile in
   quel momento, cosi' la bussola puo' attivarsi quando un target sorge senza
   richiedere un refresh manuale;
+- il terzo step `1.18.0` aggiunge `homeNightPlanOverview`: stato sessione,
+  riepilogo quantitativo del profilo, massimo quattro righe piano compatte e
+  lista alternativa completa senza score legacy o motivazioni Equipment lunghe;
+- soltanto lo stato `recommended` puo' esporre la sequenza numerata; `monitor`
+  mostra la possibile finestra e `discouraged` resta esplicitamente senza piano;
+- il QML inferiore non usa ancora il nuovo contratto in questo commit;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -243,6 +249,21 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Durante il terzo step Home inferiore `1.18.0`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/home_night_plan_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_night_plan_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer/app/services/home_night_plan_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_night_plan_overview.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_night_plan_overview.py astro_viewer/tests/test_home_night_target_pool.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_phase3_services.py astro_viewer/tests/test_phase6_real_data.py astro_viewer/tests/test_equipment_setup_read_model.py
+```
+
+Risultati:
+
+- ruff e compileall focused: passed;
+- unit test nuovo contratto: `5 passed`;
+- Home/Equipment/release integration: `120 passed, 7 subtests passed`;
+- lettura reale della property verificata per stati recommended/monitor/discouraged.
+
 Durante il secondo step Home inferiore `1.18.0`:
 
 ```powershell
@@ -391,8 +412,8 @@ Sequenza consigliata:
    `1.18.0`, mentre la distribuzione corrente resta `1.17.1`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping e coerenza dei dati caricati.
-3. Completare lo step `1.18.0` rimasto: contratto presentazionale e QML di
-   `Piano della notte`, quindi lista unificata degli altri oggetti.
+3. Collegare al QML il contratto `homeNightPlanOverview`: piano state-aware e
+   tabella filtrabile unificata degli altri oggetti.
 4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

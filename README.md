@@ -9,6 +9,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
 - Sky Compass come guida live della Home: ogni minuto valuta gli oggetti realmente osservabili adesso, combina qualità e concentrazione per direzione e mantiene piano/Best Object come contesto, non come bonus dominante.
 - Piano osservativo consigliato: quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
+- Contratto Home inferiore state-aware: separa sequenza consigliata, finestra da
+  monitorare e sessione sconsigliata; prepara setup compatti e una lista unica
+  degli altri oggetti senza esporre score grezzi.
 - Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
@@ -39,6 +42,8 @@ ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
 - Home `recommendedDeepSky`: tutti i target utili della notte, ordinati per
   `ObservableTargetValue`; `homeVisibleAlternatives` unifica pianeti e cielo
   profondo escludendo le quattro tappe del piano.
+- Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
+  multi-equipment, piano compatto e righe alternative per il futuro QML.
 - Best Object: selezione Home-specific basata su concetti NSOM.
 - Advanced Observing: snapshot backend NSOM parallelo.
 - Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine

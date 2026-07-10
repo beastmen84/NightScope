@@ -72,6 +72,7 @@ from astro_viewer.app.services.detail_nsom_runtime import (
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
 )
+from astro_viewer.app.services.home_night_plan_overview import HomeNightPlanOverviewService
 from astro_viewer.app.services.home_observing_overview import HomeObservingOverviewService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
@@ -139,6 +140,7 @@ class AppController(QObject):
     equipmentChanged = Signal()
     observationChanged = Signal()
     skyCompassChanged = Signal()
+    homeNightPlanChanged = Signal()
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
     openaqCredentialsChanged = Signal()
@@ -169,6 +171,9 @@ class AppController(QObject):
         self._weatherRefreshFinished.connect(self._finish_weather_refresh)
         self._localAtmosphereRefreshFinished.connect(self._finish_local_atmosphere_refresh)
         self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
+        self.dataChanged.connect(self.homeNightPlanChanged.emit)
+        self.weatherChanged.connect(self.homeNightPlanChanged.emit)
+        self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -250,6 +255,7 @@ class AppController(QObject):
             home_recommended_deep_sky_nsom_ranking_service or HomeRecommendedDeepSkyNsomRankingService()
         )
         self._home_observing_overview_service = HomeObservingOverviewService()
+        self._home_night_plan_overview_service = HomeNightPlanOverviewService()
         self._night_planner_service = NightPlannerService()
         self._sky_compass_service = SkyCompassService()
         self._sky_compass_nsom_direction_service = (
@@ -505,16 +511,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def homeVisibleAlternatives(self) -> list[dict]:
-        plan_ids = {item.object_id for item in self._night_plan}
-        alternatives = [item for item in self._tonight_target_pool() if item.id not in plan_ids]
-        payload = []
-        for item in sorted(alternatives, key=self._home_alternative_sort_key):
-            data = self._object_to_qml(item)
-            is_planet = item.object_type == "Pianeta"
-            data["homeCategory"] = "planet" if is_planet else "deep_sky"
-            data["homeCategoryLabel"] = "Pianeta" if is_planet else "Cielo profondo"
-            payload.append(data)
-        return payload
+        return self._home_visible_alternative_payloads()
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueObjects(self) -> list[dict]:
@@ -615,6 +612,25 @@ class AppController(QObject):
                 if self._advanced_observing_nsom_scores is not None
                 else "legacy_category_fallback"
             ),
+        )
+
+    @Property("QVariant", notify=homeNightPlanChanged)
+    def homeNightPlanOverview(self) -> dict:
+        target_pool = self._tonight_target_pool()
+        target_payloads_by_id = {
+            item.id: self._object_to_qml(item)
+            for item in target_pool
+        }
+        return self._home_night_plan_overview_service.build(
+            session=self.homeObservingOverview.get("session", {}),
+            night_plan=self._night_plan,
+            target_payloads_by_id=target_payloads_by_id,
+            setup_models_by_object_id=self._equipment_setup_read_models_by_object_id,
+            alternatives=self._home_visible_alternative_payloads(target_pool),
+            active_profile=self._active_profile() or self.activeEquipmentProfile,
+            assigned_equipment=self._profile_assigned_equipment(),
+            loading=self._is_loading,
+            sky_quality_warning=self.skyQualityWarning,
         )
 
     @Property("QVariant", notify=weatherChanged)
@@ -3427,6 +3443,25 @@ class AppController(QObject):
             seen_ids.add(item.id)
             unique.append(item)
         return unique
+
+    def _home_visible_alternative_payloads(
+        self,
+        target_pool: list[CelestialObject] | None = None,
+    ) -> list[dict]:
+        plan_ids = {item.object_id for item in self._night_plan}
+        alternatives = [
+            item
+            for item in (target_pool if target_pool is not None else self._tonight_target_pool())
+            if item.id not in plan_ids
+        ]
+        payload = []
+        for item in sorted(alternatives, key=self._home_alternative_sort_key):
+            data = self._object_to_qml(item)
+            is_planet = item.object_type == "Pianeta"
+            data["homeCategory"] = "planet" if is_planet else "deep_sky"
+            data["homeCategoryLabel"] = "Pianeta" if is_planet else "Cielo profondo"
+            payload.append(data)
+        return payload
 
     @staticmethod
     def _home_alternative_sort_key(item: CelestialObject) -> tuple[int, int, str]:

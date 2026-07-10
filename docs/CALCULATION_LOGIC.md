@@ -104,6 +104,14 @@ in that night; `observable_now` is a separate live geometry result. The Home
 alternatives projection removes the four plan IDs, combines planet and deep-sky
 rows and orders them by observing-night time.
 
+`homeNightPlanOverview` is a presentation-only projection over those existing
+results. In `recommended` state it emits at most the four Planner items and
+removes ranking scores and long Equipment explanations. In `monitor`,
+`discouraged`, `pending` and `unavailable` states it emits no numbered sequence.
+Its compact setup includes the selected telescope name only when more than one
+is assigned to the active profile. None of these fields feed Planner, Equipment
+selection, Home target ordering or Session policy.
+
 Sky Compass runs from the same prepared pool but filters `observable_now=False`.
 Its direction contribution is the NSOM `ObservableTargetValue` scaled by a
 bounded current-altitude factor, plus a fixed per-target presence term. The

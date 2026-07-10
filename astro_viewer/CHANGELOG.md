@@ -28,7 +28,15 @@
   la bussola senza refresh pesanti.
 - Benchmark locale sul catalogo corrente: 96 Messier utili calcolati in circa
   `0,6 s` e snapshot live aggiornato in circa `0,3 s`.
-- QML e distribuzione Windows non sono state ancora modificate.
+- Aggiunto il contratto read-only `homeNightPlanOverview` per la parte bassa
+  Home: stato sessione, riepilogo quantitativo del profilo, piano compatto e
+  lista alternativa unificata pronta per la tabella.
+- Nei setup del piano il nome del telescopio compare solo quando il profilo ne
+  contiene piu' di uno; motivazioni lunghe, score Planner e score legacy dei
+  target non entrano nel nuovo payload Home.
+- Gli stati `monitor` e `discouraged` non possono proiettare una falsa sequenza
+  numerata anche se ricevono accidentalmente elementi Planner.
+- Il QML e la distribuzione Windows non sono stati modificati in questo step.
 
 ## NightScope 1.17.2 - 2026-07-10
 

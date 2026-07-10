@@ -40,12 +40,20 @@ class ReleaseScenarioTests(unittest.TestCase):
             controller.setManualLocation("9.03", "38.74", "Addis Ababa")
 
             overview = controller.homeObservingOverview
+            night_overview = controller.homeNightPlanOverview
 
             self.assertEqual(overview["schemaVersion"], "home_observing_overview_v1")
             self.assertIn(overview["session"]["state"], {"recommended", "monitor", "discouraged"})
             self.assertEqual(overview["weather"]["scoreValue"], controller.weatherSummary["scoreValue"])
             self.assertEqual(overview["planetary"]["source"], "nsom_category_diagnostic")
             self.assertEqual(overview["deepSky"]["source"], "nsom_category_diagnostic")
+            self.assertEqual(night_overview["schemaVersion"], "home_night_plan_overview_v1")
+            self.assertEqual(night_overview["plan"]["state"], overview["session"]["state"])
+            self.assertTrue(night_overview["profile"]["summary"].startswith("Profilo attivo:"))
+            self.assertLessEqual(len(night_overview["plan"]["items"]), 4)
+            self.assertTrue(
+                all("score" not in item for item in night_overview["alternatives"]["items"])
+            )
 
     def test_offline_weather_keeps_app_usable(self) -> None:
         with self.assertLogs("astro_viewer.app.services.weather_service", level="WARNING"):
@@ -73,6 +81,8 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertFalse(controller.showObservingSessionOpportunity)
             self.assertEqual(controller.suggestedObservingWindow, "")
             self.assertEqual(controller.nightPlan, [])
+            self.assertEqual(controller.homeNightPlanOverview["plan"]["title"], "Sessione sconsigliata")
+            self.assertEqual(controller.homeNightPlanOverview["plan"]["items"], [])
 
     def test_blocking_weather_with_later_window_is_monitor_state(self) -> None:
         with self._controller_with_weather(_monitoring_weather_response(), saved_location=True) as controller:
@@ -85,6 +95,8 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(controller.showObservingSessionOpportunity)
             self.assertEqual(controller.suggestedObservingWindow, "03:00–06:00")
             self.assertEqual(controller.nightPlan, [])
+            self.assertEqual(controller.homeNightPlanOverview["plan"]["title"], "Finestra da monitorare")
+            self.assertEqual(controller.homeNightPlanOverview["plan"]["items"], [])
 
     def test_app_starts_with_saved_location_and_refreshes_weather(self) -> None:
         with self._controller_with_weather(_valid_weather_response(), saved_location=True) as controller:
