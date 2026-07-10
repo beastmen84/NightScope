@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import warnings
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import h5py
 import netCDF4
@@ -256,6 +256,63 @@ class NasaAodProviderTests(unittest.TestCase):
             self.assertEqual(reloaded_client.authenticate_calls, 0)
             self.assertEqual(reloaded_client.download_calls, [])
 
+    def test_processed_cache_reuses_nearby_windows_location_jitter(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            origin = _location(9.0304, 38.7404)
+            jittered = _location(9.0306, 38.7404)
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]}),
+                extractor=FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(origin)
+
+            reloaded_client = FakeNasaClient()
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            result = reloaded.aod(jittered)
+
+            self.assertEqual(result.status, "cache_hit")
+            self.assertTrue(result.cache_hit)
+            self.assertEqual(reloaded_client.authenticate_calls, 0)
+            self.assertEqual(reloaded_client.download_calls, [])
+
+    def test_processed_cache_does_not_reuse_location_outside_radius(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]}),
+                extractor=FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(_location(9.0304, 38.7404))
+
+            reloaded_client = FakeNasaClient()
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            result = reloaded.aod(_location(9.0404, 38.7404))
+
+            self.assertFalse(result.available)
+            self.assertEqual(result.status, "no_granules")
+            self.assertEqual(reloaded_client.authenticate_calls, 1)
+
     def test_stale_processed_disk_cache_is_ignored(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             cache_path = Path(temp_dir) / "nasa_aod_cache.json"
@@ -284,6 +341,37 @@ class NasaAodProviderTests(unittest.TestCase):
                 cache_path=cache_path,
             )
 
+            result = reloaded.aod(_location())
+
+            self.assertFalse(result.available)
+            self.assertEqual(result.status, "no_granules")
+            self.assertEqual(reloaded_client.authenticate_calls, 1)
+
+    def test_future_processed_disk_cache_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]}),
+                extractor=FakeExtractor({"valid": NasaAodExtraction(0.2, None, 1, "direct_pixel")}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(_location())
+
+            reloaded_client = FakeNasaClient()
+
+            def earlier_clock() -> datetime:
+                return _clock() - timedelta(minutes=5)
+
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=earlier_clock,
+                cache_path=cache_path,
+            )
             result = reloaded.aod(_location())
 
             self.assertFalse(result.available)
@@ -412,6 +500,26 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertTrue(controller.atmosphericTransparency["running"])
         self.assertEqual(len(emissions), 1)
         self.assertIn("NASA AOD refresh started", "\n".join(logs.output))
+
+    def test_fresh_cache_skips_background_lookup_and_running_state(self) -> None:
+        cached = NasaAodResult.ok(
+            product=VIIRS_MAIAC_AOD.product_id,
+            extraction=NasaAodExtraction(0.18, 0.01, 4, "direct_pixel"),
+            granule=_granule(VIIRS_MAIAC_AOD, "granule-cached", date(2026, 6, 27)),
+            retrieved_at=_clock(),
+        ).as_cache_hit()
+        provider = _FakeControllerAodProvider(cached=cached)
+        controller = _aod_controller(provider=provider, verified=True)
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            controller._schedule_nasa_aod_refresh()
+
+        thread_cls.assert_not_called()
+        self.assertFalse(controller._nasa_aod_refresh_running)
+        self.assertIs(controller._nasa_aod_result, cached)
+        self.assertEqual(provider.cache_checks, 1)
+        self.assertEqual(provider.calls, 0)
+        controller._refresh_nsom_diagnostics.assert_called_once_with()
 
     def test_finished_refresh_stores_and_logs_result(self) -> None:
         controller = _aod_controller(verified=True)
@@ -567,9 +675,15 @@ class _FakeEarthaccessClient(EarthaccessNasaAodClient):
 
 
 class _FakeControllerAodProvider:
-    def __init__(self) -> None:
+    def __init__(self, *, cached: NasaAodResult | None = None) -> None:
         self.calls = 0
+        self.cache_checks = 0
         self.cache_cleared = False
+        self.cached = cached
+
+    def cached_aod(self, _location) -> NasaAodResult | None:
+        self.cache_checks += 1
+        return self.cached
 
     def aod(self, _location) -> NasaAodResult:
         self.calls += 1
@@ -597,6 +711,7 @@ def _aod_controller(
     controller._nasa_aod_refresh_running = False
     controller._nasa_aod_result = NasaAodResult.no_location()
     controller._nasa_aod_provider = provider or _FakeControllerAodProvider()
+    controller._refresh_nsom_diagnostics = Mock()
     return controller
 
 

@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 NASA_AOD_PROVIDER = "NASA Earthdata"
 NASA_AOD_CACHE_TTL = timedelta(hours=18)
+NASA_AOD_CACHE_REUSE_RADIUS_KM = 0.5
 NASA_AOD_SEARCH_DAYS = 10
 NASA_AOD_GRANULE_LIMIT = 12
 VIIRS_PRODUCT = "VNP19A2.002"
@@ -193,6 +194,7 @@ class NasaAodProvider:
         extractor: NasaAodExtractor | None = None,
         clock: Callable[[], datetime] | None = None,
         cache_ttl: timedelta = NASA_AOD_CACHE_TTL,
+        cache_reuse_radius_km: float = NASA_AOD_CACHE_REUSE_RADIUS_KM,
         search_days: int = NASA_AOD_SEARCH_DAYS,
         granule_limit: int = NASA_AOD_GRANULE_LIMIT,
         cache_path: Path | None = None,
@@ -202,6 +204,7 @@ class NasaAodProvider:
         self._extractor = extractor or MaiacAodExtractor()
         self._clock = clock or (lambda: datetime.now(UTC))
         self._cache_ttl = cache_ttl
+        self._cache_reuse_radius_km = max(0.0, float(cache_reuse_radius_km))
         self._search_days = search_days
         self._granule_limit = granule_limit
         self._cache_path = cache_path
@@ -212,6 +215,10 @@ class NasaAodProvider:
         self._cache.clear()
         self._location_cache_keys.clear()
         self._clear_disk_cache()
+
+    def cached_aod(self, location: ObserverLocation | None) -> NasaAodResult | None:
+        """Return a fresh processed result without provider authentication or network access."""
+        return self._cached_result(location) if location is not None else None
 
     def aod(self, location: ObserverLocation | None) -> NasaAodResult:
         if location is None:
@@ -317,17 +324,9 @@ class NasaAodProvider:
 
     def _cached_result(self, location: ObserverLocation) -> NasaAodResult | None:
         location_key = self._location_key(location)
-        cache_key = self._location_cache_keys.get(location_key)
-        if cache_key is not None:
-            cached = self._cache.get(cache_key)
-            if cached is None:
-                self._location_cache_keys.pop(location_key, None)
-            else:
-                cached_at, result = cached
-                if self._cache_is_fresh(cached_at):
-                    return result.as_cache_hit()
-                self._cache.pop(cache_key, None)
-                self._location_cache_keys.pop(location_key, None)
+        cached = self._cached_memory_result(location_key)
+        if cached is not None:
+            return cached
 
         disk_cached = self._cached_disk_result(location_key)
         if disk_cached is None:
@@ -340,7 +339,27 @@ class NasaAodProvider:
 
     def _cache_is_fresh(self, cached_at: datetime) -> bool:
         now = self._clock().astimezone(UTC)
-        return now - cached_at <= self._cache_ttl
+        age = now - cached_at
+        return timedelta(0) <= age <= self._cache_ttl
+
+    def _cached_memory_result(self, location_key: tuple[float, float]) -> NasaAodResult | None:
+        nearest = None
+        nearest_distance = math.inf
+        for cached_location, cache_key in list(self._location_cache_keys.items()):
+            cached = self._cache.get(cache_key)
+            if cached is None:
+                self._location_cache_keys.pop(cached_location, None)
+                continue
+            cached_at, result = cached
+            if not self._cache_is_fresh(cached_at):
+                self._cache.pop(cache_key, None)
+                self._location_cache_keys.pop(cached_location, None)
+                continue
+            distance = _distance_km(*location_key, *cached_location)
+            if distance <= self._cache_reuse_radius_km and distance < nearest_distance:
+                nearest = result
+                nearest_distance = distance
+        return nearest.as_cache_hit() if nearest is not None else None
 
     def _cached_disk_result(self, location_key: tuple[float, float]) -> tuple[datetime, NasaAodResult] | None:
         if self._cache_path is None:
@@ -349,20 +368,31 @@ class NasaAodProvider:
         entries = payload.get("entries")
         if not isinstance(entries, dict):
             return None
-        entry_key = self._disk_location_key(location_key)
-        entry = entries.get(entry_key)
-        if not isinstance(entry, dict):
-            return None
-        cached_at = _parse_datetime(entry.get("cached_at"))
-        result = _result_from_cache_payload(entry.get("result"))
-        if cached_at is None or result is None:
-            entries.pop(entry_key, None)
+        candidates: list[tuple[float, datetime, NasaAodResult]] = []
+        changed = False
+        for entry_key, entry in list(entries.items()):
+            cached_location = self._parse_disk_location_key(entry_key)
+            if cached_location is None:
+                continue
+            distance = _distance_km(*location_key, *cached_location)
+            if distance > self._cache_reuse_radius_km:
+                continue
+            if not isinstance(entry, dict):
+                entries.pop(entry_key, None)
+                changed = True
+                continue
+            cached_at = _parse_datetime(entry.get("cached_at"))
+            result = _result_from_cache_payload(entry.get("result"))
+            if cached_at is None or result is None or not self._cache_is_fresh(cached_at):
+                entries.pop(entry_key, None)
+                changed = True
+                continue
+            candidates.append((distance, cached_at, result))
+        if changed:
             self._write_disk_cache(payload)
+        if not candidates:
             return None
-        if not self._cache_is_fresh(cached_at):
-            entries.pop(entry_key, None)
-            self._write_disk_cache(payload)
-            return None
+        _, cached_at, result = min(candidates, key=lambda item: item[0])
         return cached_at, result
 
     def _read_disk_cache(self) -> dict[str, object]:
@@ -421,6 +451,18 @@ class NasaAodProvider:
     @staticmethod
     def _disk_location_key(location_key: tuple[float, float]) -> str:
         return f"{location_key[0]:.3f}:{location_key[1]:.3f}"
+
+    @staticmethod
+    def _parse_disk_location_key(value: object) -> tuple[float, float] | None:
+        if not isinstance(value, str):
+            return None
+        parts = value.split(":", 1)
+        if len(parts) != 2:
+            return None
+        try:
+            return float(parts[0]), float(parts[1])
+        except ValueError:
+            return None
 
     @staticmethod
     def _location_key(location: ObserverLocation) -> tuple[float, float]:
@@ -571,6 +613,16 @@ def _parse_datetime(value: Any) -> datetime | None:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
+
+
+def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    radius_km = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    value = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
+    return 2 * radius_km * math.atan2(math.sqrt(value), math.sqrt(1 - value))
 
 
 def _result_from_cache_payload(value: Any) -> NasaAodResult | None:

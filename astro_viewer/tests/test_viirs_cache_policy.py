@@ -43,6 +43,36 @@ class ViirsCachePolicyTests(unittest.TestCase):
         self.assertEqual(result.source, cached.source)
         self.assertEqual(provider.calls, 0)
 
+    def test_fresh_viirs_cache_reuses_nearby_windows_location_jitter(self) -> None:
+        cached_location = ObserverLocation("Addis Ababa", "Ethiopia", 9.0304, 38.7404, "Africa/Addis_Ababa")
+        jittered_location = ObserverLocation("Addis Ababa", "Ethiopia", 9.0306, 38.7404, "Africa/Addis_Ababa")
+        cached = _viirs_quality("2026-05", 24.79, 14, 6)
+        self._store(cached, NOW - timedelta(days=1), location=cached_location)
+        provider = _FakeViirsProvider(_viirs_quality("2026-06", 30.0, 16, 6))
+        service = self._service(provider)
+
+        immediate = service.sky_quality(jittered_location)
+        result = service.remote_sky_quality(jittered_location)
+
+        self.assertEqual(service.viirs_cache_state(jittered_location), ViirsCacheState.FRESH)
+        self.assertEqual(immediate.source, cached.source)
+        self.assertEqual(result.source, cached.source)
+        self.assertEqual(provider.calls, 0)
+
+    def test_viirs_cache_does_not_reuse_location_outside_radius(self) -> None:
+        cached_location = ObserverLocation("Addis Ababa", "Ethiopia", 9.0304, 38.7404, "Africa/Addis_Ababa")
+        distant_location = ObserverLocation("Addis Ababa", "Ethiopia", 9.0404, 38.7404, "Africa/Addis_Ababa")
+        cached = _viirs_quality("2026-05", 24.79, 14, 6)
+        refreshed = _viirs_quality("2026-06", 30.0, 16, 6)
+        self._store(cached, NOW - timedelta(days=1), location=cached_location)
+        provider = _FakeViirsProvider(refreshed)
+        service = self._service(provider)
+
+        result = service.remote_sky_quality(distant_location)
+
+        self.assertEqual(result.source, refreshed.source)
+        self.assertEqual(provider.calls, 1)
+
     def test_stale_viirs_cache_is_served_then_revalidated(self) -> None:
         cached = _viirs_quality("2026-05", 24.79, 14, 6)
         refreshed = _viirs_quality("2026-06", 30.0, 16, 6)
@@ -102,9 +132,15 @@ class ViirsCachePolicyTests(unittest.TestCase):
         service._remote_providers = [provider]
         return service
 
-    def _store(self, quality: SkyQuality, updated_at: datetime) -> None:
+    def _store(
+        self,
+        quality: SkyQuality,
+        updated_at: datetime,
+        *,
+        location: ObserverLocation = LOCATION,
+    ) -> None:
         self._repository.set(
-            LightPollutionService._location_key(LOCATION),
+            LightPollutionService._location_key(location),
             quality.bortle_class,
             quality.limiting_magnitude,
             quality.sky_brightness,

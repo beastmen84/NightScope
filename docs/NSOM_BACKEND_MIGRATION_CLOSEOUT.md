@@ -67,6 +67,15 @@ Sky Compass copy Session-aware, localizes displayed target types and keeps its
 direction ranking and target selection unchanged. `Piano della notte` remains a
 separate UI chapter.
 
+## 1.17.1 Provider Cache Follow-Up
+
+`1.17.1` reuses fresh NASA AOD and Black Marble VIIRS provider results within a
+500-metre radius so normal Windows location jitter does not create duplicate
+fetches. Exact location keys still identify asynchronous refreshes and reject
+stale completions. AOD also checks the processed cache before starting its
+worker. This changes provider lifecycle behavior only; scoring formulas, NSOM
+ranking and QML data contracts are unchanged.
+
 ## Closed Backend Surfaces
 
 | Surface | Status | Default flag | NSOM role |

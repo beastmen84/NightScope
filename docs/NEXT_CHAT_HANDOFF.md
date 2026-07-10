@@ -2,9 +2,11 @@
 
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente: `1.17.0`
+Versione corrente sorgente: `1.17.1`
+Distribuzione Windows corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `792bd30 Record 1.17.0 build commit`
 - `48a840e Document 1.17.0 Windows distribution build`
 - `71abc8a Record Home UI completion commits`
 - `b3f78db Make Home Sky Compass session-aware`
@@ -48,6 +50,9 @@ Il closeout dichiara:
   motivazioni neutrali; ranking e target non cambiano;
 - la parte alta Home e' completata per lo scope `1.17.0`; `Piano della notte`
   resta fuori e sara' il capitolo successivo;
+- `1.17.1` rende le cache provider AOD/VIIRS tolleranti al jitter della
+  posizione Windows entro 500 metri e controlla la cache AOD prima di avviare
+  il worker; chiavi asincrone, scoring, ranking e payload QML restano invariati;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -196,6 +201,22 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Durante lo hardening provider-cache `1.17.1`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/database/sky_quality_repository.py astro_viewer/app/services/light_pollution_service.py astro_viewer/app/services/nasa_aod_provider.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_viirs_cache_policy.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/database/sky_quality_repository.py astro_viewer/app/services/light_pollution_service.py astro_viewer/app/services/nasa_aod_provider.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_viirs_cache_policy.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_viirs_cache_policy.py astro_viewer/tests/test_refresh_lifecycle.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff focused: passed;
+- compileall focused: passed;
+- provider/refresh focused tests: `76 passed`;
+- full suite: `636 passed, 7 subtests passed`.
+
 Dopo il completamento della parte alta Home `1.17.0`:
 
 ```powershell
@@ -228,6 +249,7 @@ Distribuzione Windows:
   `location_cache.json` e `nasa_aod_cache.json` sono stati salvati prima del
   `COLLECT`, ripristinati e confrontati via SHA-256;
 - dopo lo smoke test: database `integrity_check=ok`, `user_version=6`.
+- la `dist` non e' stata rigenerata per lo step sorgente `1.17.1`.
 
 ## Ambiente `.venv` Verificato
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.17.1 - 2026-07-10
+
+- Reso tollerante al normale jitter della posizione Windows il riuso delle
+  cache provider NASA AOD e Black Marble VIIRS entro un raggio conservativo di
+  500 metri.
+- Mantenute invariate le chiavi esatte usate dal ciclo asincrono: la prossimita'
+  e' applicata soltanto alla ricerca dei dati provider gia' salvati.
+- Aggiunto un preflight sincrono della cache AOD prima di avviare il worker, in
+  modo che una misura fresca non mostri uno stato di recupero e non autentichi
+  Earthdata inutilmente.
+- Ignorate le entry AOD con timestamp futuro e aggiunti test per riuso vicino,
+  limite spaziale, cache persistente e assenza di rete su cache hit.
+- Nessuna modifica a scoring, ranking NSOM, formule AOD/OpenAQ o payload QML.
+- La distribuzione Windows non e' stata rigenerata in questo step.
+
 ## NightScope 1.17.0 - 2026-07-10
 
 - Aggiunto `HomeObservingOverviewService` con contratto

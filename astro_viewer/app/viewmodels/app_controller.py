@@ -2897,6 +2897,15 @@ class AppController(QObject):
             self._clear_refresh_domains(RefreshDomain.AOD)
             return
 
+        cached = self._nasa_aod_provider.cached_aod(location)
+        if cached is not None:
+            self._nasa_aod_result = cached
+            self._log_nasa_aod_result(cached)
+            self._refresh_nsom_diagnostics()
+            self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AOD)
+            return
+
         self._mark_refresh_dirty(RefreshReason.AOD_TTL_EXPIRED, (RefreshDomain.AOD,))
         location_key = LightPollutionService._location_key(location)
         self._nasa_aod_refresh_running = True

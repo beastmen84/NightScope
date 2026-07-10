@@ -30,7 +30,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.17.0`.
+Versione corrente: `1.17.1`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -61,6 +61,12 @@ In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
 NASA. Il pulsante Meteo `Aggiorna` avvia anche i controlli cache-aware VIIRS e
 AOD; AOD mantiene la propria TTL di 18 ore.
+
+In `1.17.1` le cache provider AOD e VIIRS riusano una misura valida anche quando
+la posizione Windows oscilla entro 500 metri. La policy spaziale non modifica
+le chiavi usate per identificare i refresh asincroni; evita soltanto fetch NASA
+duplicati per la stessa area. Il controllo AOD avviene prima di avviare il
+worker, quindi una cache fresca non presenta uno stato di recupero transitorio.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

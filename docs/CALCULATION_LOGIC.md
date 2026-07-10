@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.17.0`, NightScope keeps backend recommendation inputs separated by
+As of `1.17.1`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -55,6 +55,14 @@ availability and ownership:
   already available and provider-quality gates pass. AOD is the primary aerosol
   column source; OpenAQ PM is fallback/context. Confidence/provider confidence
   remains metadata and does not scale score.
+
+Provider cache identity is deliberately distinct from refresh identity. AOD and
+VIIRS keep their existing exact rounded location keys for asynchronous refresh
+tokens, but a fresh provider result can be reused within 500 metres. This
+absorbs normal Windows geolocation jitter without merging observations across a
+broad area. AOD checks this processed cache before starting provider
+authentication or a background worker; entries dated in the future are not
+treated as fresh.
 
 Moon geometry is local deterministic input. The runtime computes Moon altitude,
 Moon-target separation and Moon/window overlap from location, time and ephemeris

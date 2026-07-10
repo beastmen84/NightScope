@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.17.0`:
+Current runtime status for `1.17.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload use NSOM-backed paths by default.
@@ -36,6 +36,10 @@ Current runtime status for `1.17.0`:
   retains its numeric condition index. Sky Compass reuses Session state only to
   distinguish recommendation copy from orientation-only copy; ranking is not
   changed.
+- `1.17.1` makes AOD and VIIRS provider caches tolerant of Windows location
+  jitter within 500 metres and performs an AOD cache preflight before starting
+  network work. This is provider lifecycle hardening only; NSOM inputs, formulas
+  and ranking remain unchanged.
 
 ## Core Diagram
 

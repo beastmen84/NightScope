@@ -66,6 +66,7 @@ LEGACY_CACHE_MARKERS = (
     "pending World Atlas import",
 )
 VIIRS_CACHE_RECHECK_INTERVAL = timedelta(days=7)
+VIIRS_CACHE_REUSE_RADIUS_KM = 0.5
 
 
 class ViirsCacheState(str, Enum):
@@ -85,10 +86,12 @@ class LightPollutionService:
         *,
         clock: Callable[[], datetime] | None = None,
         viirs_cache_recheck_interval: timedelta = VIIRS_CACHE_RECHECK_INTERVAL,
+        viirs_cache_reuse_radius_km: float = VIIRS_CACHE_REUSE_RADIUS_KM,
     ):
         self._repository = repository
         self._clock = clock or (lambda: datetime.now(UTC))
         self._viirs_cache_recheck_interval = viirs_cache_recheck_interval
+        self._viirs_cache_reuse_radius_km = max(0.0, float(viirs_cache_reuse_radius_km))
         dataset_paths = _candidate_dataset_paths(dataset_path)
         self._remote_providers: list[LightPollutionProvider] = [
             NasaViirsBlackMarbleProvider(earthdata_credentials),
@@ -101,6 +104,10 @@ class LightPollutionService:
 
     def sky_quality(self, location: ObserverLocation) -> SkyQuality:
         key = self._location_key(location)
+        viirs_cached = self._cached_viirs_row(location)
+        if viirs_cached:
+            return self._to_model(viirs_cached)
+
         cached = self._repository.get(key)
         if cached and not self._is_legacy_cache(cached):
             return self._to_model(cached)
@@ -118,7 +125,7 @@ class LightPollutionService:
         return quality
 
     def viirs_cache_state(self, location: ObserverLocation) -> ViirsCacheState:
-        cached = self._repository.get(self._location_key(location))
+        cached = self._cached_viirs_row(location)
         return self._viirs_cache_state(cached)
 
     def _viirs_cache_state(self, cached: dict | None) -> ViirsCacheState:
@@ -134,7 +141,7 @@ class LightPollutionService:
 
     def remote_sky_quality(self, location: ObserverLocation) -> SkyQuality | None:
         key = self._location_key(location)
-        cached = self._repository.get(key)
+        cached = self._cached_viirs_row(location)
         if cached and self._viirs_cache_state(cached) is ViirsCacheState.FRESH:
             return self._to_model(cached)
 
@@ -164,6 +171,31 @@ class LightPollutionService:
             now = now.replace(tzinfo=UTC)
         return now.astimezone(UTC)
 
+    def _cached_viirs_row(self, location: ObserverLocation) -> dict | None:
+        exact_key = self._location_key(location)
+        exact = self._repository.get(exact_key)
+        if exact and self._is_viirs_cache(exact):
+            return exact
+
+        nearest = None
+        nearest_distance = math.inf
+        for row in self._repository.list_estimates():
+            if not self._is_viirs_cache(row):
+                continue
+            coordinates = self._coordinates_from_location_key(row.get("location_key"))
+            if coordinates is None:
+                continue
+            distance = _distance_km(
+                location.latitude,
+                location.longitude,
+                coordinates[0],
+                coordinates[1],
+            )
+            if distance <= self._viirs_cache_reuse_radius_km and distance < nearest_distance:
+                nearest = row
+                nearest_distance = distance
+        return nearest
+
     def _provider_quality(self, location: ObserverLocation) -> SkyQuality:
         for provider in self._providers:
             quality = provider.lookup(location)
@@ -178,6 +210,18 @@ class LightPollutionService:
     @staticmethod
     def _location_key(location: ObserverLocation) -> str:
         return f"{location.latitude:.3f}:{location.longitude:.3f}:{location.city.lower()}"
+
+    @staticmethod
+    def _coordinates_from_location_key(value: object) -> tuple[float, float] | None:
+        if not isinstance(value, str):
+            return None
+        parts = value.split(":", 2)
+        if len(parts) < 2:
+            return None
+        try:
+            return float(parts[0]), float(parts[1])
+        except ValueError:
+            return None
 
     @staticmethod
     def _to_model(row: dict) -> SkyQuality:

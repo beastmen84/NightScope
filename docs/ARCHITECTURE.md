@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.17.0`:
+Current runtime status for `1.17.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -77,6 +77,10 @@ Current runtime status for `1.17.0`:
   freshness is visible, and no NSOM ranking explanation panel is exposed.
 - VIIRS cache hardening is active: cached Black Marble values are revalidated
   every 7 days while stale data remains available if NASA cannot be reached.
+- AOD and VIIRS provider-cache lookups reuse a valid observation within 500
+  metres to absorb normal Windows geolocation jitter. Exact location keys remain
+  unchanged for asynchronous refresh identity and stale-result rejection. AOD
+  performs this cache-only preflight before a background worker is started.
 - The upper Home overview has a dedicated read-only presentation boundary,
   `homeObservingOverview`. It separates Session state, weather index, NSOM
   category diagnostics and Moon impact. The upper QML cards consume this

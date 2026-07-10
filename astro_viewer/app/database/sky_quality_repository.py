@@ -29,6 +29,17 @@ class SkyQualityRepository:
             ).fetchone()
         return dict(row) if row else None
 
+    def list_estimates(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT location_key, bortle_class, limiting_magnitude,
+                       sky_brightness, source, confidence, updated_at
+                FROM SkyQualityEstimate
+                """
+            ).fetchall()
+        return [dict(row) for row in rows]
+
     def set(
         self,
         location_key: str,
