@@ -66,6 +66,7 @@ SOURCE_REPORTS = (
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md"),
     Path("docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md"),
     Path("docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md"),
+    Path("docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md"),
 )
 
 REPORT_IMPORT_MARKERS = (
@@ -145,8 +146,9 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
             "ready_for_visible_ui_redesign": False,
             "runtime_behaviour_changed_by_this_audit": False,
             "recommended_next_step": (
-                "Review 1.14.13, then either accept the aerosol score-scale risk "
-                "for a narrow default-on switch or collect field-calibration fixtures"
+                "Review 1.14.14, then either accept the synthetic field-calibration "
+                "bands for a narrow AOD/OpenAQ default-on switch or collect real "
+                "observing outcomes first"
             ),
             "reason": (
                 "Planner, Home recommendedDeepSky, Best Object, Advanced Observing "
@@ -183,7 +185,10 @@ def generate_backend_migration_status_audit_data() -> dict[str, object]:
                 "to transparency loss and deriving score modifiers from target "
                 "score. The 1.14.13 default-on readiness audit keeps AOD/OpenAQ "
                 "disabled and leaves aerosol score-scale validation as the only "
-                "default-on blocker."
+                "default-on blocker. The 1.14.14 field-calibration fixtures pass "
+                "the deterministic bands, so the remaining decision is whether "
+                "synthetic fixtures are sufficient for a narrow default-on switch "
+                "or real observations are required first."
             ),
         },
         "blockers": blockers,
@@ -957,6 +962,14 @@ def _recommended_sequence() -> tuple[dict[str, object], ...]:
         {
             "step": "Review 1.14.13",
             "summary": "Decide whether to accept the score-scale risk or gather field-calibration fixtures.",
+        },
+        {
+            "step": "1.14.14 AOD/OpenAQ field-calibration fixtures",
+            "summary": "Characterize the calibrated aerosol scale with field-like deterministic scenarios.",
+        },
+        {
+            "step": "Review 1.14.14",
+            "summary": "Decide whether synthetic fixtures are sufficient for a narrow default-on switch.",
         },
     )
 

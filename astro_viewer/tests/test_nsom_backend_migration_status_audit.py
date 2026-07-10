@@ -59,6 +59,7 @@ def test_backend_migration_status_audit_is_deterministic_strict_json_and_develop
             "docs/NSOM_AOD_OPENAQ_DEFAULT_OFF_SCORING_EXPERIMENT.md",
             "docs/NSOM_AOD_OPENAQ_CALIBRATION_AUDIT.md",
             "docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md",
+            "docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md",
         ],
     }
 
@@ -148,8 +149,9 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert data["readiness"]["ready_to_start_next_backend_area"] is True
     assert data["readiness"]["ready_for_visible_ui_redesign"] is False
     assert data["readiness"]["recommended_next_step"] == (
-        "Review 1.14.13, then either accept the aerosol score-scale risk "
-        "for a narrow default-on switch or collect field-calibration fixtures"
+        "Review 1.14.14, then either accept the synthetic field-calibration "
+        "bands for a narrow AOD/OpenAQ default-on switch or collect real "
+        "observing outcomes first"
     )
     assert data["equipment_policy"]["ready_for_observer_capability_adapter_step"] is True
     assert data["equipment_policy"]["observer_capability_adapter_extracted"] is True
@@ -245,6 +247,8 @@ def test_audit_recommends_equipment_after_sky_map_removal() -> None:
     assert sequence[51] == "Review 1.14.12"
     assert sequence[52] == "1.14.13 AOD/OpenAQ default-on readiness audit"
     assert sequence[53] == "Review 1.14.13"
+    assert sequence[54] == "1.14.14 AOD/OpenAQ field-calibration fixtures"
+    assert sequence[55] == "Review 1.14.14"
 
 
 def test_audit_has_no_runtime_or_qml_wiring() -> None:
@@ -279,5 +283,6 @@ def test_checked_in_backend_migration_status_audit_report_matches_renderer() -> 
     assert "AOD/OpenAQ provider-quality policy is hardened" in text
     assert "1.14.12 calibrates the penalty-cap/transparency shape" in text
     assert "aerosol score-scale validation as the only default-on blocker" in text
+    assert "1.14.14 field-calibration fixtures pass" in text
     assert "removed_dead_legacy" in text
     assert text.rstrip("\n") == render_markdown_report().rstrip("\n")

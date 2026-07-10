@@ -2254,6 +2254,12 @@ A future `ObserverCapabilityService` should own:
   provider-quality gates, AOD/OpenAQ source ownership, confidence neutrality and
   formula shape are accepted. Default-on remains blocked only by aerosol
   score-scale acceptance or field validation.
+- Status 1.14.14: `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md` adds
+  deterministic field-like fixtures for clean air, moderate haze, high AOD,
+  OpenAQ PM fallback, stale AOD, rejected providers and protected solar-system
+  targets. The fixtures pass their configured bands, but AOD/OpenAQ remains
+  default-off until the synthetic scale is accepted or real observations are
+  collected.
 
 ### Step 5: Moon geometry diagnostics
 
@@ -2364,6 +2370,10 @@ A future `ObserverCapabilityService` should own:
 - Status update for 1.14.13:
   default-on readiness is audited. AOD/OpenAQ remains default-off, with
   `aerosol_score_scale` as the only remaining default-on blocker.
+- Status update for 1.14.14:
+  field-like calibration fixtures pass the configured bands. This does not
+  enable AOD/OpenAQ; it changes the remaining blocker from formula uncertainty
+  to a product decision about synthetic scale acceptance versus real field data.
 - Future work should review score presentation, AdvancedObserving and Sky
   Compass consumers before removing remaining legacy score surfaces.
 - Status update for 1.8.0: AdvancedObserving review has started as a
@@ -2474,9 +2484,9 @@ Do not enable AOD/OpenAQ scoring by default yet.
 The safe next step is:
 
 1. keep `experimental_aerosol_scoring` default off;
-2. review the 1.14.13 default-on readiness audit;
-3. either accept the remaining aerosol score-scale risk for a narrow default-on
-   switch or gather field-calibration fixtures first;
+2. review the 1.14.14 field-calibration fixtures;
+3. either accept the synthetic scale for a narrow default-on switch or gather
+   real field observations first;
 4. keep AOD/PM confidence metadata separate from score;
 5. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners in that experiment.

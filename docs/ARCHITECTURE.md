@@ -908,6 +908,11 @@ absolute score-scale validation remains before any default-on decision.
 the flag off, accepts provider quality, source ownership, formula shape and
 confidence neutrality, and leaves absolute aerosol score scale as the only
 default-on blocker.
+`1.14.14` adds `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md`. The deterministic
+field-like fixtures pass the configured bands for clear air, moderate haze,
+high AOD, PM fallback, stale AOD, rejected providers and protected
+solar-system targets. The flag remains off until the synthetic scale is accepted
+for a narrow switch or real observing outcomes are collected.
 
 ## Dependency Flow
 
@@ -1023,7 +1028,7 @@ Services hold business logic:
   formula; 1.14.11 audits its calibration without tuning weights or enabling it;
   1.14.12 maps the class cap to transparency loss before deriving the score
   modifier; 1.14.13 records default-on readiness as blocked only by score-scale
-  acceptance.
+  acceptance; 1.14.14 records field-like calibration fixtures for that scale.
   These inputs are not exposed to QML and do not affect Planner, Home, equipment,
   weather, seeing/transparency, advanced scores or Sky Compass unless the
   internal experimental flag is explicitly enabled.

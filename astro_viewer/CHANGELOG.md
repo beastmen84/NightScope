@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.14.14 - 2026-07-10
+
+- Aggiunto `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md`, report
+  developer-only con fixture deterministiche field-like per validare la scala
+  AOD/OpenAQ calibrata senza abilitare il default-on.
+- Aggiunto `astro_viewer/tools/nsom_aod_openaq_field_calibration.py` con scenari
+  per aria pulita, foschia moderata, AOD alto deep-sky, target solari protetti,
+  OpenAQ PM fallback, AOD stale e provider respinti/context-only.
+- Le fixture rientrano nelle bande attese: aria pulita e provider respinti sono
+  neutrali, deep-sky e' piu' sensibile di pianeti/Luna, PM locale resta piu'
+  debole di AOD alto.
+- Il default-on resta disabilitato: la scala e' accettabile per una review di
+  switch stretto, ma la decisione finale resta accettazione umana o raccolta di
+  osservazioni reali.
+- Nessun cambio Planner, Home, Best Object, Advanced Observing, Sky Compass,
+  Detail/Object, Equipment, QML/UI, logging, rete o scritture runtime.
+
 ## NightScope 1.14.13 - 2026-07-10
 
 - Aggiunto `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`, audit

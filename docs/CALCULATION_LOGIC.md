@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.14.13`, NightScope keeps the backend recommendation inputs separated by
+As of `1.14.14`, NightScope keeps the backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -64,7 +64,9 @@ availability and ownership:
   maximum transparency loss and deriving the compatibility modifier from
   `target.score * transparency_loss`. `1.14.13` adds
   `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md` and keeps default-on blocked
-  only by absolute aerosol score-scale validation.
+  only by absolute aerosol score-scale validation. `1.14.14` adds
+  `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md` with field-like deterministic
+  bands for deciding whether the synthetic scale is sufficient.
 
 Moon geometry is now available as a local Planner NSOM input. The runtime
 computes Moon altitude, Moon-target separation and Moon/window overlap from
@@ -90,7 +92,7 @@ available. Calibration and switch-state evidence are tracked in
 NASA AOD/OpenAQ scoring remains disabled in the default runtime after the
 1.14.9 default-off experiment, the 1.14.11 calibration audit and the 1.14.12
 targeted formula calibration. The 1.14.13 readiness audit also keeps the flag
-off.
+off, and the 1.14.14 field-calibration fixtures still do not enable it.
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `False`, so normal AppController-built condition inputs keep
 `ObservationConditionsService.intended_aerosol_modifier(...)` at `0.0`. When the
@@ -103,7 +105,9 @@ confidence and provider confidence remain metadata and do not scale the score.
 The 1.14.12 calibration keeps this behaviour unchanged, resolves the
 penalty-cap/transparency-shape mismatch and leaves absolute aerosol score scale
 as the remaining default-on review item. The 1.14.13 default-on readiness audit
-confirms that this is now the only default-on blocker.
+confirms that this is now the only default-on blocker. The 1.14.14 field-like
+fixtures pass the configured bands, leaving a product decision between accepting
+the synthetic scale or waiting for real observations.
 
 ### Solar-System Objects
 
@@ -671,6 +675,8 @@ Current limitations:
   review and the 1.14.12 targeted transparency calibration. Default runtime
   scoring remains disabled. `docs/NSOM_AOD_OPENAQ_DEFAULT_ON_READINESS.md`
   records the 1.14.13 default-on gate review.
+  `docs/NSOM_AOD_OPENAQ_FIELD_CALIBRATION.md` records the 1.14.14 field-like
+  scale fixtures.
 
 ## Refresh Chain
 
