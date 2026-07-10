@@ -19,6 +19,11 @@
   motivazioni; aggiunta cautela esplicita anche senza dati meteo.
 - Mantenuti invariati scoring, ranking e selezione target di Planner, Best
   Object, Home e Sky Compass, oltre ai payload NSOM diagnostici interni.
+- Rigenerata la distribuzione Windows `dist/NightScope` con
+  `packaging/build_windows.ps1`, preservando e verificando via SHA-256 database,
+  backup e sidecar runtime gia' presenti.
+- Verificati nel bundle `VERSION` `1.17.0`, QML Home aggiornato, integrita' del
+  database e smoke test QML dell'eseguibile con exit code `0`.
 
 ## NightScope 1.16.1 - 2026-07-10
 

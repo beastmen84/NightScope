@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `71abc8a Record Home UI completion commits`
 - `b3f78db Make Home Sky Compass session-aware`
 - `319e820 Migrate upper Home cards to overview contract`
 - `8a1f318 Add Home overview presentation contract`
@@ -202,6 +203,8 @@ Dopo il completamento della parte alta Home `1.17.0`:
 .\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_sky_compass_service.py astro_viewer/tests/test_sky_compass_nsom_ranking.py astro_viewer/tests/test_sky_compass_live_refresh.py astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_home_observing_overview.py
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
 .\.venv\Scripts\python.exe -m pytest -q -n auto
+.\packaging\build_windows.ps1
+Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList '--qml-smoke-test' -WindowStyle Hidden -Wait -PassThru
 ```
 
 Risultati:
@@ -210,16 +213,20 @@ Risultati:
 - compileall: passed;
 - focused Home/Sky Compass tests: `60 passed`;
 - QML smoke: passed;
-- full suite: `630 passed, 7 subtests passed`.
+- full suite: `630 passed, 7 subtests passed`;
+- bundled QML smoke: exit code `0`.
 
 Distribuzione Windows:
 
-- l'ultima `dist/NightScope` rigenerata resta la `1.16.0`, verificata nel commit
-  documentale `9debe8f`;
-- la `dist` non e' stata rigenerata automaticamente per `1.17.0`, per non
-  sostituire `nightscope.db` e i sidecar runtime usati nel confronto visuale;
-- rigenerarla solo su richiesta esplicita, valutando prima la conservazione dei
-  dati runtime correnti.
+- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.17.0` con
+  PyInstaller `6.21.0`;
+- `VERSION` incorporato: `1.17.0`; QML Home aggiornato verificato nel bundle;
+- `NightScope.exe` SHA-256:
+  `FF82FC05A5BC9F83A24302B9FBBA245A1CA3FD68E1589CEC9264DA27B500C995`;
+- `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
+  `location_cache.json` e `nasa_aod_cache.json` sono stati salvati prima del
+  `COLLECT`, ripristinati e confrontati via SHA-256;
+- dopo lo smoke test: database `integrity_check=ok`, `user_version=6`.
 
 ## Ambiente `.venv` Verificato
 
