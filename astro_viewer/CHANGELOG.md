@@ -45,7 +45,11 @@
 - Il riepilogo profilo in Home usa il sommario multi-equipment backend, cosi'
   i profili con piu' telescopi non vengono ridotti al primo strumento.
 - Aggiunti componenti QML dedicati per righe piano e tabella alternative.
-- La distribuzione Windows non e' stata rigenerata in questo step.
+- Rigenerata su richiesta la distribuzione Windows `dist/NightScope` con
+  PyInstaller `6.21.0`; verificati bundle `VERSION` `1.18.0`, presenza dei
+  nuovi QML Home, smoke test e QML smoke dell'eseguibile con exit code `0`.
+- Preservati e ripristinati byte per byte database, backup e sidecar runtime;
+  database finale con `integrity_check=ok` e `user_version=6`.
 
 ## NightScope 1.17.2 - 2026-07-10
 

@@ -3,7 +3,7 @@
 Data: 2026-07-10  
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
 Versione corrente sorgente: `1.18.0`
-Distribuzione Windows corrente: `1.17.1`
+Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `da10990 Connect lower Home QML to night plan overview`
@@ -94,6 +94,9 @@ Il closeout dichiara:
 - il quarto step `1.18.0` collega il QML inferiore a quel contratto: card piano
   state-aware, nessuna falsa sequenza negli stati non consigliati e tabella
   unica filtrabile per gli altri oggetti visibili;
+- la distribuzione Windows `dist/NightScope` e' stata rigenerata su richiesta
+  esplicita per `1.18.0`; bundle `VERSION` `1.18.0`, smoke e QML smoke
+  dell'eseguibile passati, runtime utente preservati;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -254,6 +257,31 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo la rigenerazione Windows `1.18.0`:
+
+```powershell
+.\packaging\build_windows.ps1
+Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList '--smoke-test' -WindowStyle Hidden -Wait -PassThru
+Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList '--qml-smoke-test' -WindowStyle Hidden -Wait -PassThru
+```
+
+Risultati:
+
+- Windows build PyInstaller `6.21.0`: passed;
+- bundle `_internal/VERSION`: `1.18.0`;
+- `NightScope.exe` SHA-256:
+  `EF47CAF138C16EF7C14FCF4233D0DD3B5FB0FF02F5D4108795C2448F9D01E18A`;
+- bundled smoke: exit code `0`;
+- bundled QML smoke: exit code `0`;
+- nuovi QML Home presenti nel bundle:
+  `HomePlanStepRow.qml`, `HomeVisibleTargetRow.qml` e `HomePage.qml` con
+  `homeNightPlanOverview`;
+- `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
+  `location_cache.json` e `nasa_aod_cache.json` salvati prima del `COLLECT`,
+  ripristinati, ricontrollati via SHA-256 e ripristinati nuovamente dopo gli
+  smoke test;
+- database finale: `integrity_check=ok`, `user_version=6`.
+
 Al completamento QML della parte bassa Home `1.18.0`:
 
 ```powershell
@@ -275,7 +303,8 @@ Risultati:
 - qmllint: exit code `0`, con i warning storici sugli accessi QML non
   qualificati e warning analoghi nei nuovi delegate;
 - full suite: `651 passed, 7 subtests passed`;
-- distribuzione Windows non rigenerata.
+- distribuzione Windows rigenerata nel passaggio successivo su richiesta
+  esplicita.
 
 Durante il terzo step Home inferiore `1.18.0`:
 
@@ -400,16 +429,17 @@ Risultati:
 
 Distribuzione Windows:
 
-- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.17.1` con
+- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.18.0` con
   PyInstaller `6.21.0`;
-- `VERSION` incorporato: `1.17.1`; QML Home `pending`/wrapping verificato nel
-  bundle;
+- `VERSION` incorporato sotto `_internal/VERSION`: `1.18.0`; QML Home inferiore
+  `homeNightPlanOverview` verificato nel bundle;
 - `NightScope.exe` SHA-256:
-  `F59A7D75A8C0BE71E3D526902C0CB82282325D0A479B652C0A6D60EC80C137D4`;
+  `EF47CAF138C16EF7C14FCF4233D0DD3B5FB0FF02F5D4108795C2448F9D01E18A`;
 - `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
   `location_cache.json` e `nasa_aod_cache.json` sono stati salvati prima del
   `COLLECT`, ripristinati, ricontrollati via SHA-256 e ripristinati nuovamente
-  dopo lo smoke test;
+  dopo gli smoke test;
+- bundled smoke e bundled QML smoke: exit code `0`;
 - database finale: `integrity_check=ok`, `user_version=6`.
 
 ## Ambiente `.venv` Verificato
@@ -436,8 +466,8 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: la sorgente e'
-   `1.18.0`, mentre la distribuzione corrente resta `1.17.1`.
+1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: sorgente e
+   distribuzione corrente sono entrambe `1.18.0`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
    stasera`.

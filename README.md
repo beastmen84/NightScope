@@ -93,8 +93,9 @@ include lo status HTTP senza esporre coordinate o parametri della richiesta.
 In `1.18.0` la parte bassa Home usa il contratto `homeNightPlanOverview`: la
 card piano e' state-aware, gli stati `monitor` e `discouraged` non mostrano una
 falsa sequenza numerata, e pianeti/cielo profondo fuori piano sono una tabella
-unica filtrabile senza score o motivazioni lunghe. La distribuzione Windows non
-e' stata rigenerata automaticamente.
+unica filtrabile senza score o motivazioni lunghe. La distribuzione Windows
+`dist/NightScope` e' stata rigenerata su richiesta con PyInstaller `6.21.0`:
+bundle `VERSION` `1.18.0`, smoke e QML smoke dell'eseguibile con exit code `0`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
