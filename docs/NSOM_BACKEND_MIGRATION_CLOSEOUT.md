@@ -73,8 +73,14 @@ separate UI chapter.
 500-metre radius so normal Windows location jitter does not create duplicate
 fetches. Exact location keys still identify asynchronous refreshes and reject
 stale completions. AOD also checks the processed cache before starting its
-worker. This changes provider lifecycle behavior only; scoring formulas, NSOM
-ranking and QML data contracts are unchanged.
+worker. This provider-cache substep changes lifecycle behavior only; scoring
+formulas, NSOM ranking and provider payloads are unchanged.
+
+The same patch makes the existing upper-Home presentation contract explicit
+about location startup: `pending` means automatic detection is still running,
+while `unavailable` means no valid location exists. The upper cards use neutral
+copy and two-line wrapping for these states. This does not change NSOM Session,
+category diagnostics or recommendation ranking.
 
 ## Closed Backend Surfaces
 

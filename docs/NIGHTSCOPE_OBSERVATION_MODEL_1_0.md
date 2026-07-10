@@ -40,6 +40,10 @@ Current runtime status for `1.17.1`:
   jitter within 500 metres and performs an AOD cache preflight before starting
   network work. This is provider lifecycle hardening only; NSOM inputs, formulas
   and ranking remain unchanged.
+- The same patch gives the upper Home presentation explicit `pending` and
+  `unavailable` location states and neutral no-data category hints. These are
+  QML-facing presentation semantics only and do not alter Session viability,
+  category scores or target ranking.
 
 ## Core Diagram
 

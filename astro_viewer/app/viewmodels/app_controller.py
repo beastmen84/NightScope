@@ -107,6 +107,8 @@ CATALOGUE_ALL_FILTER = "Tutti"
 CATALOGUE_SOURCE = "catalogue"
 OBSERVING_SOURCE = "observing"
 SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
+STARTUP_LOCATION_PENDING_MESSAGE = "Ricerca della posizione in corso..."
+STARTUP_WEATHER_PENDING_MESSAGE = "Meteo in attesa della posizione."
 CATALOGUE_MONTH_NAMES = [
     "Gennaio",
     "Febbraio",
@@ -359,12 +361,16 @@ class AppController(QObject):
 
     @Property(str, notify=locationChanged)
     def activeLocationLabel(self) -> str:
+        if self._startup_location_detection_running:
+            return "Posizione in aggiornamento"
         if not self._has_valid_location():
             return "Nessuna posizione configurata"
         return f"{self._location.city} — {self._location.timezone}"
 
     @Property(str, notify=locationChanged)
     def activeLocationSource(self) -> str:
+        if self._startup_location_detection_running:
+            return "Rilevamento automatico"
         if not self._location_detection_result:
             return "Nessuna posizione"
         return self._location_source_label(self._location_detection_result.provider)
@@ -573,6 +579,8 @@ class AppController(QObject):
         digest = self._weather_digest()
         category_scores = self._advanced_observing_nsom_scores or self._advanced_scores
         return self._home_observing_overview_service.build(
+            location_available=self._has_valid_location(),
+            location_pending=self._startup_location_detection_running,
             weather=self._weather_summary,
             weather_available=bool(self._weather_hours),
             seeing=self._seeing_transparency,
@@ -1714,9 +1722,9 @@ class AppController(QObject):
     def _refresh_startup_location_pending_context(self) -> None:
         self._weather_refresh_timer.stop()
         self._refresh_no_location_context()
-        self._location_message = "Rilevamento posizione all'avvio in corso..."
-        self._weather_status = "Rilevamento posizione all'avvio in corso..."
-        self._service_status = "Rilevamento posizione all'avvio in corso."
+        self._location_message = STARTUP_LOCATION_PENDING_MESSAGE
+        self._weather_status = STARTUP_WEATHER_PENDING_MESSAGE
+        self._service_status = "Ricerca della posizione in corso."
 
     def _refresh_no_location_context(self) -> None:
         self._weather_refresh_timer.stop()
@@ -3103,7 +3111,7 @@ class AppController(QObject):
         self._startup_location_detection_running = True
         self._location_detection_result = None
         self._location = None
-        self._location_message = "Rilevamento posizione all'avvio in corso..."
+        self._location_message = STARTUP_LOCATION_PENDING_MESSAGE
 
         def run_detection() -> None:
             result, persist, message = self._resolve_startup_location(preferences)

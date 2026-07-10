@@ -12,7 +12,15 @@
   Earthdata inutilmente.
 - Ignorate le entry AOD con timestamp futuro e aggiunti test per riuso vicino,
   limite spaziale, cache persistente e assenza di rete su cache hit.
-- Nessuna modifica a scoring, ranking NSOM, formule AOD/OpenAQ o payload QML.
+- Distinti nella parte alta Home gli stati di posizione `pending` e
+  `unavailable`: durante il rilevamento automatico le card mostrano dati in
+  attesa invece di dichiarare che la posizione non e' configurata.
+- Rimossi i suggerimenti favorevoli planetari/deep-sky quando i relativi dati
+  non esistono e corretta la sessione senza meteo ma con posizione valida.
+- Abilitato il wrapping fino a due righe per sottotitoli e riepiloghi delle card
+  superiori Home, mantenendo le dimensioni correnti e senza cambiare il layout.
+- Nessuna modifica a scoring, ranking NSOM o formule AOD/OpenAQ; il contratto
+  QML Home e' esteso soltanto con stati presentazionali additivi.
 - La distribuzione Windows non e' stata rigenerata in questo step.
 
 ## NightScope 1.17.0 - 2026-07-10

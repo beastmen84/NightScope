@@ -18,6 +18,8 @@ class HomeObservingOverviewService:
     def build(
         self,
         *,
+        location_available: bool,
+        location_pending: bool,
         weather: WeatherSummary | None,
         weather_available: bool,
         seeing: SeeingTransparency | None,
@@ -30,6 +32,11 @@ class HomeObservingOverviewService:
         wind_label: str,
         category_source: str,
     ) -> dict[str, object]:
+        if location_pending:
+            return _location_context_payload(pending=True)
+        if not location_available:
+            return _location_context_payload(pending=False)
+
         available_weather = weather if weather_available else None
         session_payload = _session_payload(
             available_weather,
@@ -60,7 +67,7 @@ def _session_payload(
             "title": "Sessione non valutabile",
             "badge": "Non disponibile",
             "detail": "Previsioni meteo non disponibili.",
-            "description": "Configura una posizione o aggiorna i dati meteo.",
+            "description": "Aggiorna i dati meteo per valutare la sessione.",
             "windowLabel": "",
             "windowValue": "",
             "windowText": "Finestra osservativa non disponibile",
@@ -116,14 +123,18 @@ def _session_payload(
 def _weather_payload(weather: WeatherSummary | None, session: dict[str, object]) -> dict[str, object]:
     if weather is None:
         return {
+            "state": "unavailable",
             "available": False,
+            "badge": "n/d",
             "scoreValue": None,
             "scoreLabel": "n/d",
             "explanation": "Previsioni non disponibili.",
             "windowText": session["windowText"],
         }
     return {
+        "state": "available",
         "available": True,
+        "badge": f"{weather.score}  {weather.score_value}/100",
         "scoreValue": weather.score_value,
         "scoreLabel": weather.score,
         "explanation": weather.explanation,
@@ -138,8 +149,10 @@ def _planetary_payload(
     source: str,
 ) -> dict[str, object]:
     seeing_label = _quality_label(seeing.seeing if seeing else "")
+    label = scores.planetary_label if scores else "n/d"
     return {
-        "label": scores.planetary_label if scores else "n/d",
+        "state": "available" if seeing_label != "n/d" and label != "n/d" else "unavailable",
+        "label": label,
         "primaryMetric": f"Seeing {seeing_label}" if seeing_label != "n/d" else "Seeing non disponibile",
         "secondaryMetric": f"Vento {wind_label}" if wind_label and wind_label != "n/d" else "Vento non disponibile",
         "hint": _planetary_hint(seeing),
@@ -155,8 +168,10 @@ def _deep_sky_payload(
 ) -> dict[str, object]:
     transparency = _quality_label(seeing.transparency if seeing else "")
     bortle = sky_quality.bortle_class if sky_quality else 0
+    label = scores.deep_sky_label if scores else "n/d"
     return {
-        "label": scores.deep_sky_label if scores else "n/d",
+        "state": "available" if label != "n/d" else "unavailable",
+        "label": label,
         "primaryMetric": (
             f"Trasparenza {transparency}" if transparency != "n/d" else "Trasparenza non disponibile"
         ),
@@ -202,6 +217,8 @@ def _moon_payload(moon: MoonSummary | None) -> dict[str, object]:
 
 
 def _planetary_hint(seeing: SeeingTransparency | None) -> str:
+    if seeing is None or _quality_label(seeing.seeing) == "n/d":
+        return "Dati atmosferici non disponibili"
     score = seeing.seeing_score if seeing else 0
     if score >= 80:
         return "Atmosfera stabile per i dettagli fini"
@@ -213,7 +230,11 @@ def _planetary_hint(seeing: SeeingTransparency | None) -> str:
 
 
 def _deep_sky_hint(seeing: SeeingTransparency | None, sky_quality: SkyQuality | None) -> str:
-    if seeing and seeing.transparency_score < 40:
+    transparency_available = seeing is not None and _quality_label(seeing.transparency) != "n/d"
+    sky_quality_available = sky_quality is not None and sky_quality.bortle_class > 0
+    if not transparency_available and not sky_quality_available:
+        return "Dati del cielo non disponibili"
+    if transparency_available and seeing.transparency_score < 40:
         return "Trasparenza limitante per gli oggetti deboli"
     bortle = sky_quality.bortle_class if sky_quality else 0
     if bortle >= 8:
@@ -260,3 +281,100 @@ def _percentage(value: str) -> float | None:
         return float((value or "").replace("%", "").strip())
     except ValueError:
         return None
+
+
+def _location_context_payload(*, pending: bool) -> dict[str, object]:
+    if pending:
+        session = {
+            "state": "pending",
+            "title": "Posizione in aggiornamento",
+            "badge": "In attesa",
+            "detail": "Ricerca della posizione in corso.",
+            "description": "Le condizioni saranno valutate appena la posizione è disponibile.",
+            "windowLabel": "",
+            "windowValue": "",
+            "windowText": "Finestra in attesa della posizione",
+            "hasWindow": False,
+            "limitingFactor": "Dati locali in aggiornamento",
+        }
+        return {
+            "schemaVersion": HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION,
+            "session": session,
+            "weather": {
+                "state": "pending",
+                "available": False,
+                "badge": "In attesa",
+                "scoreValue": None,
+                "scoreLabel": "n/d",
+                "explanation": "Previsioni in attesa della posizione.",
+                "windowText": session["windowText"],
+            },
+            "planetary": {
+                "state": "pending",
+                "label": "In attesa",
+                "primaryMetric": "Seeing in attesa",
+                "secondaryMetric": "Posizione in aggiornamento",
+                "hint": "Calcolo dopo il rilevamento",
+                "source": "location_pending",
+            },
+            "deepSky": {
+                "state": "pending",
+                "label": "In attesa",
+                "primaryMetric": "Trasparenza in attesa",
+                "secondaryMetric": "Cielo locale in aggiornamento",
+                "hint": "Calcolo dopo il rilevamento",
+                "source": "location_pending",
+            },
+            "moon": {
+                "impact": "pending",
+                "impactLabel": "Calcolo dopo il rilevamento",
+                "summary": "Dati lunari in attesa.",
+            },
+        }
+
+    session = {
+        "state": "unavailable",
+        "title": "Sessione non valutabile",
+        "badge": "Non disponibile",
+        "detail": "Posizione necessaria per valutare la sessione.",
+        "description": "Configura una posizione per ottenere le condizioni locali.",
+        "windowLabel": "",
+        "windowValue": "",
+        "windowText": "Finestra non disponibile",
+        "hasWindow": False,
+        "limitingFactor": "Posizione non disponibile",
+    }
+    return {
+        "schemaVersion": HOME_OBSERVING_OVERVIEW_SCHEMA_VERSION,
+        "session": session,
+        "weather": {
+            "state": "unavailable",
+            "available": False,
+            "badge": "n/d",
+            "scoreValue": None,
+            "scoreLabel": "n/d",
+            "explanation": "Posizione necessaria per il meteo.",
+            "windowText": session["windowText"],
+        },
+        "planetary": {
+            "state": "unavailable",
+            "label": "n/d",
+            "primaryMetric": "Seeing non disponibile",
+            "secondaryMetric": "Posizione necessaria",
+            "hint": "Configura una posizione",
+            "source": "no_location",
+        },
+        "deepSky": {
+            "state": "unavailable",
+            "label": "n/d",
+            "primaryMetric": "Trasparenza non disponibile",
+            "secondaryMetric": "Posizione necessaria",
+            "hint": "Configura una posizione",
+            "source": "no_location",
+        },
+        "moon": {
+            "impact": "unavailable",
+            "impactLabel": "Impatto lunare non disponibile",
+            "summary": "Posizione necessaria per la Luna.",
+        },
+    }

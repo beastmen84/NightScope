@@ -88,6 +88,11 @@ Current runtime status for `1.17.1`:
   planetary/deep-sky cards expose descriptive category diagnostics. Sky Compass
   consumes the same Session state only for copy/actionability: its direction,
   target selection and NSOM ranking remain unchanged.
+- The overview boundary distinguishes startup location detection (`pending`)
+  from a genuinely missing location (`unavailable`). Pending and no-data
+  payloads are presentation-only states and cannot produce favourable category
+  hints. Upper-card subtitles opt into two-line wrapping through `GlassCard`
+  without changing the component default for other pages.
 
 Runtime safety rules remain unchanged: no report tooling is wired into QML, no
 automatic report logging is performed, and scoring must not trigger provider

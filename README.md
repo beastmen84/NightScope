@@ -68,6 +68,13 @@ le chiavi usate per identificare i refresh asincroni; evita soltanto fetch NASA
 duplicati per la stessa area. Il controllo AOD avviene prima di avviare il
 worker, quindi una cache fresca non presenta uno stato di recupero transitorio.
 
+La stessa patch distingue inoltre la ricerca automatica della posizione dalla
+sua reale assenza nella parte alta Home. Sessione, Meteo, condizioni planetarie,
+cielo profondo e Luna mostrano uno stato di attesa coerente; i testi delle card
+possono occupare due righe senza modificare le altezze correnti. In assenza di
+dati non vengono presentati suggerimenti favorevoli come se le condizioni
+fossero state calcolate.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e

@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.17.1`
 Distribuzione Windows corrente: `1.17.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `4e59e1f Fix provider cache reuse for location jitter`
 - `792bd30 Record 1.17.0 build commit`
 - `48a840e Document 1.17.0 Windows distribution build`
 - `71abc8a Record Home UI completion commits`
@@ -52,7 +53,11 @@ Il closeout dichiara:
   resta fuori e sara' il capitolo successivo;
 - `1.17.1` rende le cache provider AOD/VIIRS tolleranti al jitter della
   posizione Windows entro 500 metri e controlla la cache AOD prima di avviare
-  il worker; chiavi asincrone, scoring, ranking e payload QML restano invariati;
+  il worker; chiavi asincrone, scoring, ranking e payload provider restano
+  invariati;
+- la stessa patch distingue in Home la ricerca posizione `pending` dalla reale
+  assenza `unavailable`, usa copy neutro senza falsi suggerimenti favorevoli e
+  consente due righe nelle card superiori senza cambiarne le dimensioni;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -201,6 +206,26 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo la correzione degli stati transitori e del wrapping Home `1.17.1`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m compileall astro_viewer/app/services/home_observing_overview.py astro_viewer/app/viewmodels/app_controller.py astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_home_observing_overview.py astro_viewer/tests/test_release_scenarios.py
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer/app/ui astro_viewer/app/ui/components/GlassCard.qml astro_viewer/app/ui/pages/HomePage.qml
+.\.venv\Scripts\python.exe astro_viewer/main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff e compileall focused: passed;
+- Home/release focused tests: `32 passed`;
+- qmllint: exit code `0`, con i warning storici sugli accessi QML non
+  qualificati della pagina;
+- QML smoke: passed;
+- full suite: `638 passed, 7 subtests passed`.
+
 Durante lo hardening provider-cache `1.17.1`:
 
 ```powershell
@@ -275,14 +300,16 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Passare alla seconda parte Home, `Piano della notte`, un pezzo alla volta,
-   senza cambiare scoring o ranking salvo prompt esplicito.
-2. Verificare prima il contratto dati di ciascuna sezione del piano e solo dopo
-   modificarne il QML.
-3. Capitoli da lasciare separati:
+1. Rigenerare la `dist` solo su richiesta esplicita dell'utente; la sorgente e'
+   `1.17.1`, mentre la distribuzione corrente resta `1.17.0`.
+2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
+   posizione, wrapping e coerenza dei dati caricati.
+3. Solo dopo il confronto passare alla seconda parte Home, `Piano della notte`,
+   un pezzo alla volta, verificando prima il contratto dati di ogni sezione.
+4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
-4. Non fare tuning e non toccare UI senza uno step esplicito.
+5. Non fare tuning e non toccare UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 

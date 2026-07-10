@@ -13,10 +13,13 @@ from astro_viewer.app.services.home_observing_overview import HomeObservingOverv
 
 
 HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
+GLASS_CARD = Path(__file__).resolve().parents[1] / "app" / "ui" / "components" / "GlassCard.qml"
 
 
 def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
     payload = _service().build(
+        location_available=True,
+        location_pending=False,
         weather=_weather(),
         weather_available=True,
         seeing=_seeing(),
@@ -50,6 +53,8 @@ def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
 
 def test_monitor_session_exposes_only_the_actionable_window() -> None:
     payload = _service().build(
+        location_available=True,
+        location_pending=False,
         weather=_weather(),
         weather_available=True,
         seeing=_seeing(),
@@ -82,6 +87,8 @@ def test_monitor_session_exposes_only_the_actionable_window() -> None:
 
 def test_moon_summary_describes_only_lunar_impact() -> None:
     payload = _service().build(
+        location_available=True,
+        location_pending=False,
         weather=_weather(),
         weather_available=True,
         seeing=_seeing(),
@@ -103,6 +110,8 @@ def test_moon_summary_describes_only_lunar_impact() -> None:
 
 def test_missing_weather_has_an_explicit_unavailable_state() -> None:
     payload = _service().build(
+        location_available=True,
+        location_pending=False,
         weather=None,
         weather_available=False,
         seeing=None,
@@ -117,15 +126,20 @@ def test_missing_weather_has_an_explicit_unavailable_state() -> None:
     )
 
     assert payload["session"]["state"] == "unavailable"
+    assert "posizione" not in payload["session"]["description"].lower()
     assert payload["weather"]["available"] is False
     assert payload["weather"]["scoreValue"] is None
     assert payload["weather"]["scoreLabel"] == "n/d"
     assert payload["planetary"]["label"] == "n/d"
     assert payload["deepSky"]["label"] == "n/d"
+    assert payload["planetary"]["hint"] == "Dati atmosferici non disponibili"
+    assert payload["deepSky"]["hint"] == "Dati del cielo non disponibili"
 
 
 def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
     payload = _service().build(
+        location_available=True,
+        location_pending=False,
         weather=_weather(),
         weather_available=False,
         seeing=_seeing(),
@@ -145,14 +159,67 @@ def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
     assert payload["moon"]["impact"] == "unavailable"
 
 
+def test_pending_location_has_coherent_transient_copy() -> None:
+    payload = _service().build(
+        location_available=False,
+        location_pending=True,
+        weather=None,
+        weather_available=False,
+        seeing=None,
+        sky_quality=None,
+        moon=None,
+        category_scores=None,
+        session=ObservingSessionDecision(state="recommended"),
+        blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
+        suggested_window="",
+        wind_label="n/d",
+        category_source="legacy_category_fallback",
+    )
+
+    assert payload["session"]["state"] == "pending"
+    assert payload["session"]["badge"] == "In attesa"
+    assert payload["weather"]["state"] == "pending"
+    assert payload["weather"]["badge"] == "In attesa"
+    assert payload["planetary"]["state"] == "pending"
+    assert payload["planetary"]["hint"] == "Calcolo dopo il rilevamento"
+    assert payload["deepSky"]["state"] == "pending"
+    assert payload["deepSky"]["hint"] == "Calcolo dopo il rilevamento"
+    assert payload["moon"]["impact"] == "pending"
+
+
+def test_missing_location_does_not_claim_favourable_conditions() -> None:
+    payload = _service().build(
+        location_available=False,
+        location_pending=False,
+        weather=_weather(),
+        weather_available=True,
+        seeing=_seeing(),
+        sky_quality=_sky_quality(),
+        moon=_moon("21%"),
+        category_scores=AdvancedObservingScores(82, 58, "Buona", "Discreta", "NSOM categories"),
+        session=ObservingSessionDecision(state="recommended"),
+        blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
+        suggested_window="23:00–02:00",
+        wind_label="debole",
+        category_source="nsom_category_diagnostic",
+    )
+
+    assert payload["session"]["state"] == "unavailable"
+    assert payload["weather"]["available"] is False
+    assert payload["planetary"]["hint"] == "Configura una posizione"
+    assert payload["deepSky"]["hint"] == "Configura una posizione"
+    assert "potenziale" not in payload["deepSky"]["hint"].lower()
+
+
 def test_upper_home_cards_use_the_overview_contract_without_category_scores() -> None:
     qml = HOME_PAGE.read_text(encoding="utf-8")
+    glass_card = GLASS_CARD.read_text(encoding="utf-8")
 
     assert "controller.homeObservingOverview" in qml
     assert 'title: "Sessione di stasera"' in qml
     assert 'title: "Condizioni planetarie"' in qml
     assert 'title: "Condizioni del cielo profondo"' in qml
-    assert "root.weatherOverview.scoreValue" in qml
+    assert "root.weatherOverview.badge" in qml
     assert "root.moonOverview.summary" in qml
     assert 'title: "Qualità osservativa"' not in qml
     assert 'title: "Punteggio planetario"' not in qml
@@ -161,6 +228,13 @@ def test_upper_home_cards_use_the_overview_contract_without_category_scores() ->
     assert "controller.advancedScores.deepSkyScore" not in qml
     assert "function observingLimitFactor" not in qml
     assert "function moonImpactHint" not in qml
+    assert qml.count("subtitleWrap: true") >= 4
+    assert 'root.planetaryOverview.state === "pending"' in qml
+    assert 'root.deepSkyOverview.state === "pending"' in qml
+    assert 'root.weatherOverview.state === "pending"' in qml
+    assert "property bool subtitleWrap: false" in glass_card
+    assert "wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap" in glass_card
+    assert "maximumLineCount: root.subtitleWrap ? 2 : 1" in glass_card
 
 
 def _service() -> HomeObservingOverviewService:

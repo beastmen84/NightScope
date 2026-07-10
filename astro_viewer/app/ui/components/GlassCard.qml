@@ -7,6 +7,7 @@ Rectangle {
 
     property string title: ""
     property string subtitle: ""
+    property bool subtitleWrap: false
     property color accentColor: "#65d6e8"
     property string headerBadgeText: ""
     property color headerBadgeColor: accentColor
@@ -47,10 +48,12 @@ Rectangle {
 
             ColumnLayout {
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 spacing: 2
 
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     text: root.title
                     color: "#f4f7fb"
                     font.pixelSize: 18
@@ -60,11 +63,14 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     visible: root.subtitle.length > 0
                     text: root.subtitle
                     color: "#aeb7c4"
                     font.pixelSize: 12
+                    wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap
                     elide: Text.ElideRight
+                    maximumLineCount: root.subtitleWrap ? 2 : 1
                 }
             }
 

@@ -171,7 +171,14 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertTrue(controller.startupLocationDetectionRunning)
             self.assertFalse(controller.hasValidLocation)
             self.assertEqual(controller.weatherHourly, [])
-            self.assertEqual(controller.weatherStatus, "Rilevamento posizione all'avvio in corso...")
+            self.assertEqual(controller.activeLocationLabel, "Posizione in aggiornamento")
+            self.assertEqual(controller.activeLocationSource, "Rilevamento automatico")
+            self.assertEqual(controller.weatherStatus, "Meteo in attesa della posizione.")
+            overview = controller.homeObservingOverview
+            self.assertEqual(overview["session"]["state"], "pending")
+            self.assertEqual(overview["weather"]["badge"], "In attesa")
+            self.assertEqual(overview["planetary"]["state"], "pending")
+            self.assertEqual(overview["deepSky"]["state"], "pending")
             context.weather_requests.assert_not_called()
 
             self.assertTrue(_wait_for_startup_location(controller))

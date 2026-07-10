@@ -298,6 +298,8 @@ Item {
     }
 
     function sessionAccent(state) {
+        if (state === "pending")
+            return theme.cyan
         if (state === "recommended")
             return theme.teal
         if (state === "monitor")
@@ -408,7 +410,9 @@ Item {
                 visible: controller.isLoading || controller.serviceStatus.length > 0
                 radius: 8
                 color: "#1c222b"
-                border.color: controller.serviceStatus.length > 0 ? theme.coral : theme.cyan
+                border.color: controller.startupLocationDetectionRunning
+                              ? theme.cyan
+                              : (controller.serviceStatus.length > 0 ? theme.coral : theme.cyan)
                 border.width: 1
                 implicitHeight: statusText.implicitHeight + 22
 
@@ -445,6 +449,7 @@ Item {
                         Layout.preferredHeight: 160
                         title: "Sessione di stasera"
                         subtitle: root.sessionOverview.detail || ""
+                        subtitleWrap: true
                         accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
                         headerBadgeText: root.sessionOverview.badge || ""
                         headerBadgeColor: accentColor
@@ -455,20 +460,26 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.sessionOverview.windowText || "Finestra osservativa non disponibile"
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.sessionOverview.limitingFactor || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
                         }
                     }
@@ -549,11 +560,14 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
+                                        Layout.minimumWidth: 0
                                         text: root.moonOverview.impactLabel || ""
                                         color: theme.textMuted
                                         font.pixelSize: 12
                                         horizontalAlignment: Text.AlignRight
+                                        wrapMode: Text.WordWrap
                                         elide: Text.ElideRight
+                                        maximumLineCount: 2
                                     }
                                 }
                             }
@@ -580,11 +594,14 @@ Item {
                         Layout.preferredHeight: 160
                         title: "Condizioni planetarie"
                         subtitle: root.planetaryOverview.secondaryMetric || ""
+                        subtitleWrap: true
                         accentColor: theme.teal
                         headerBadgeText: root.planetaryOverview.label || ""
-                        headerBadgeColor: root.planetaryOverview.label === "n/d"
-                                          ? theme.textMuted
-                                          : theme.scoreColor(root.planetaryOverview.label || "")
+                        headerBadgeColor: root.planetaryOverview.state === "pending"
+                                          ? theme.cyan
+                                          : (root.planetaryOverview.state === "unavailable"
+                                             ? theme.textMuted
+                                             : theme.scoreColor(root.planetaryOverview.label || ""))
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -592,20 +609,26 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.planetaryOverview.primaryMetric || ""
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.planetaryOverview.hint || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
                         }
                     }
@@ -615,11 +638,14 @@ Item {
                         Layout.preferredHeight: 160
                         title: "Condizioni del cielo profondo"
                         subtitle: root.deepSkyOverview.secondaryMetric || ""
+                        subtitleWrap: true
                         accentColor: theme.violet
                         headerBadgeText: root.deepSkyOverview.label || ""
-                        headerBadgeColor: root.deepSkyOverview.label === "n/d"
-                                          ? theme.textMuted
-                                          : theme.scoreColor(root.deepSkyOverview.label || "")
+                        headerBadgeColor: root.deepSkyOverview.state === "pending"
+                                          ? theme.cyan
+                                          : (root.deepSkyOverview.state === "unavailable"
+                                             ? theme.textMuted
+                                             : theme.scoreColor(root.deepSkyOverview.label || ""))
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -627,20 +653,26 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.deepSkyOverview.primaryMetric || ""
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
 
                             Text {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.deepSkyOverview.hint || ""
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 horizontalAlignment: Text.AlignRight
+                                wrapMode: Text.WordWrap
                                 elide: Text.ElideRight
+                                maximumLineCount: 2
                             }
                         }
                     }
@@ -654,13 +686,14 @@ Item {
                     title: "Meteo osservativo"
                     subtitle: controller.weatherStatus.length > 0
                               ? controller.weatherStatus : (root.weatherOverview.windowText || "")
-                    accentColor: root.weatherOverview.available
-                                 ? theme.scoreColor(root.weatherOverview.scoreLabel || "")
-                                 : theme.textMuted
-                    headerBadgeText: root.weatherOverview.available
-                                     ? ((root.weatherOverview.scoreLabel || "n/d") + "  "
-                                        + root.weatherOverview.scoreValue + "/100") : "n/d"
-                    headerBadgeColor: accentColor
+                    subtitleWrap: true
+                    accentColor: root.weatherOverview.state === "pending"
+                                 ? theme.cyan
+                                 : (root.weatherOverview.available
+                                    ? theme.scoreColor(root.weatherOverview.scoreLabel || "")
+                                    : theme.textMuted)
+                    headerBadgeText: root.weatherOverview.badge || "n/d"
+                    headerBadgeColor: root.weatherOverview.state === "pending" ? theme.cyan : accentColor
 
                     RowLayout {
                         Layout.fillWidth: true

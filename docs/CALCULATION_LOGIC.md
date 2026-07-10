@@ -90,6 +90,13 @@ direction as either an observing suggestion or geometric orientation; it does
 not rerank directions or targets. Missing weather also forces orientation-only
 copy.
 
+During automatic startup location detection, `homeObservingOverview` emits a
+presentation state of `pending` for Session, Weather and category cards. A
+completed detection with no valid location emits `unavailable`. Neither state
+is a score and neither feeds recommendation calculations. Missing seeing and
+sky-quality inputs produce neutral no-data hints instead of inferring favourable
+deep-sky potential from zero/default placeholders.
+
 ### Solar-System Objects
 
 For Sun, Moon and planets, the engine computes:
