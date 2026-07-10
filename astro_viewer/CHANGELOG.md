@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.14.10 - 2026-07-10
+
+- Aggiunta configurazione `pytest.ini` per limitare la discovery a
+  `astro_viewer/tests`, escludere cartelle pesanti come `.venv`, `build` e
+  `dist`, e registrare marker developer-only.
+- Aggiunto `requirements-dev.txt` con `pytest-xdist` per rendere riproducibile
+  la full suite parallela.
+- Aggiunto `docs/TESTING.md` con workflow consigliato: `compileall
+  astro_viewer`, test focused per area, full suite parallela con `pytest -q -n
+  auto` e fallback seriale.
+- Misurata la full suite su Windows: seriale circa `0:06:06`, parallela circa
+  `0:01:14`, entrambe con `1036 passed, 7 subtests passed`.
+- Nessun cambio runtime, NSOM scoring, QML/UI, provider, logging o file write
+  runtime.
+
 ## NightScope 1.14.9 - 2026-07-10
 
 - Implementato il primo path di scoring aerosol AOD/OpenAQ come esperimento

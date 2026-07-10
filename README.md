@@ -28,7 +28,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.14.9`.
+Versione corrente: `1.14.10`.
 
 La serie `1.1` è chiusa a `1.1.15` come ultimo stato stabile prima del ciclo 1.2.
 La serie `1.3` introduce il layer `ObservationConditionsService` e separa il
@@ -755,6 +755,10 @@ debole, e `RecommendationConfidence` resta fuori dalla formula. Il flag resta
 `False` di default, quindi Planner, Home, Best Object, Advanced Observing, Sky
 Compass, Detail/Object, Equipment, QML/UI, logging, rete e scritture runtime non
 cambiano.
+Lo step `1.14.10` aggiunge il workflow test developer-only: `pytest.ini`
+limita la discovery a `astro_viewer/tests`, `requirements-dev.txt` dichiara
+`pytest-xdist` per la full suite parallela e `docs/TESTING.md` documenta i
+comandi focused, full paralleli e fallback seriali. Non cambia runtime o NSOM.
 
 La UI e il flusso principale sono considerati stabili per l'uso osservativo visuale. Le aree più sperimentali restano:
 
@@ -916,6 +920,9 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 - Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Trasparenza atmosferica` da NASA MAIAC AOD. Il dato resta display-only, viene mantenuto come risultato processato compatto con TTL locale e non modifica Recommendation Engine, Planner, Sky Compass, seeing, trasparenza meteo o punteggi.
 - La API key OpenAQ viene salvata tramite vault di sistema quando disponibile; dopo un test connessione riuscito NightScope ricorda un'impronta sicura della key verificata e la pagina Meteo la usa solo per la sezione informativa `Atmosfera locale`, mai per Recommendation Engine, Planner, Sky Compass, seeing, trasparenza o punteggi. Misure OpenAQ storiche non vengono presentate come condizioni atmosferiche attuali.
 - PyInstaller è il percorso di build supportato.
+- Il workflow di test per sviluppo e review e' documentato in
+  `docs/TESTING.md`; la full suite parallela usa `pytest-xdist` via
+  `requirements-dev.txt`.
 
 ## Manuale utente
 
