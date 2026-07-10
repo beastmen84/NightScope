@@ -6,8 +6,10 @@ Versione corrente sorgente: `1.18.0`
 Distribuzione Windows corrente: `1.17.1`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
-- `b8edbd0 Align Home plan with target equipment`
+- `da10990 Connect lower Home QML to night plan overview`
 - `d54e847 Add Home night plan overview contract`
+- `94dabec Make Home target pool and Sky Compass live`
+- `b8edbd0 Align Home plan with target equipment`
 - `69ce9dd Harden Open-Meteo transient failure retries`
 - `3bb2b40 Record 1.17.1 build commit`
 - `38e971d Document 1.17.1 Windows distribution build`
@@ -251,6 +253,29 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 ```
 
 ## Ultima Validazione Eseguita
+
+Al completamento QML della parte bassa Home `1.18.0`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall astro_viewer
+.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\HomePage.qml astro_viewer\app\ui\components\HomePlanStepRow.qml astro_viewer\app\ui\components\HomeVisibleTargetRow.qml
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff completo: passed;
+- compileall completo: passed;
+- smoke Python: passed;
+- QML smoke isolato: passed; un run parallelo con lo smoke Python ha prodotto
+  un exit code `1` senza messaggio, poi il rilancio isolato e' passato;
+- qmllint: exit code `0`, con i warning storici sugli accessi QML non
+  qualificati e warning analoghi nei nuovi delegate;
+- full suite: `651 passed, 7 subtests passed`;
+- distribuzione Windows non rigenerata.
 
 Durante il terzo step Home inferiore `1.18.0`:
 

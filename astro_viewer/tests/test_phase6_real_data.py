@@ -718,6 +718,9 @@ class Phase6RealDataTests(unittest.TestCase):
         home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
         object_catalogue_qml = (ui_dir / "pages" / "ObjectCataloguePage.qml").read_text(encoding="utf-8")
         object_detail_qml = (ui_dir / "pages" / "ObjectDetailPage.qml").read_text(encoding="utf-8")
+        home_overview_service = (
+            Path(__file__).resolve().parents[1] / "app" / "services" / "home_night_plan_overview.py"
+        ).read_text(encoding="utf-8")
 
         expected_labels = [
             'text: "Home"',
@@ -807,7 +810,9 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('title: "Binocoli"', profiles_qml)
         self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
         self.assertIn('model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]', profiles_qml)
-        self.assertIn('equipmentType === "Binocular"', home_qml)
+        self.assertIn("homeNightPlanOverview", home_qml)
+        self.assertNotIn('equipmentType === "Binocular"', home_qml)
+        self.assertIn('setup_model.equipment_type == "Binocular"', home_overview_service)
         self.assertIn('equipmentType === "Binocular"', object_detail_qml)
         self.assertIn("setupDetailText()", object_detail_qml)
         self.assertIn("Pupilla d'uscita", object_detail_qml)
