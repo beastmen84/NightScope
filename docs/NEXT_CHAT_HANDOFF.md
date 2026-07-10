@@ -5,8 +5,8 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.15.2`  
 Ultimi commit completati:
 
+- `d84de3a Remove closed NSOM migration artifacts`
 - `6a880c0 Audit NSOM migration artifact cleanup`
-- cleanup `1.15.2` dei report/tool/test storici NSOM
 
 ## Stato Breve
 
@@ -62,17 +62,19 @@ Stato corrente:
 
 Attenzione importante:
 
-- Non lanciare `astro_viewer/tools/nsom_aod_openaq_real_provider_probe.py`
-  per sbaglio. Quello e' il tool che usa NASA/OpenAQ reali.
-- Per report/audit offline usare solo i tool readiness/replay/closeout che
-  rileggono report gia' presenti.
+- Il probe reale AOD/OpenAQ e' stato rimosso nel cleanup `1.15.2`; non
+  ripristinarlo o lanciarlo da history salvo richiesta esplicita. Quel tool usa
+  NASA/OpenAQ reali.
+- Per audit offline rileggere i documenti base, il closeout e la cronologia Git;
+  non introdurre nuove chiamate rete.
 
 ## Residui Non Bloccanti
 
 Questi non bloccano il backend NSOM chiuso:
 
 1. `AOD/OpenAQ real observing feedback`
-   - Policy: monitorare risultati reali prima di qualunque tuning ulteriore.
+   - Policy: monitorare risultati reali dopo l'uso del programma a valle della
+     nuova implementazione NSOM, prima di qualunque tuning ulteriore.
    - Non fare tuning pesi adesso.
 
 2. `Catalogue / Universe raw score semantics`
@@ -98,6 +100,7 @@ Questi non bloccano il backend NSOM chiuso:
 ## Ultimi Commit Rilevanti
 
 ```text
+d84de3a Remove closed NSOM migration artifacts
 6a880c0 Audit NSOM migration artifact cleanup
 bde221a Close backend NSOM migration scope
 c8b392f Enable AOD OpenAQ condition scoring by default
@@ -125,6 +128,18 @@ Risultati:
 - focused runtime NSOM tests: `235 passed`;
 - full suite: `616 passed, 7 subtests passed`.
 
+## Ambiente `.venv` Verificato
+
+Snapshot controllato prima del prossimo step:
+
+- runtime/UI: `PySide6 6.11.1`, `astropy 8.0.1`, `skyfield 1.54`,
+  `numpy 2.5.1`, `requests 2.34.2`, `keyring 25.7.0`, `tzdata 2026.2`;
+- AOD/Earthdata: `earthaccess 0.18.0`, `python-cmr 0.13.0`,
+  `h5py 3.16.0`, `netCDF4 1.7.4`, `s3fs 2026.6.0`, `aiohttp 3.14.1`;
+- test/build: `pytest 9.1.1`, `pytest-xdist 3.8.0`,
+  `pytest-cov 7.1.0`, `ruff 0.15.21`, `pyinstaller 6.21.0`,
+  `Nuitka 4.1.3`.
+
 ## Come Ripartire Nella Nuova Chat
 
 Primo contesto da leggere:
@@ -137,7 +152,7 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Fare una review rapida di `1.15.0`.
+1. Fare una review rapida di `1.15.2`.
 2. Decidere se aprire un nuovo capitolo su:
    - monitoraggio AOD/OpenAQ reale;
    - policy Catalogue/Universe raw score;
@@ -151,5 +166,7 @@ Sequenza consigliata:
 - Non introdurre logging automatico, rete o scritture runtime nei report.
 - Usare `-n auto` nei test pytest quando possibile.
 - Aggiornare sempre documentazione base e changelog a ogni commit/versione.
+- Se sono stati modificati file, chiudere il lavoro con un commit mirato dopo
+  le validazioni appropriate.
 - Se si rigenerano report, evitare il real-provider probe salvo richiesta
   esplicita dell'utente.
