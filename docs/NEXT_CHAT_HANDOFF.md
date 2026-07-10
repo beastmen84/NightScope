@@ -5,6 +5,7 @@ Workspace: `C:\Users\beast\PycharmProjects\NightScope`
 Versione corrente: `1.16.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `a814c7c Release 1.16.0 Weather condition semantics`
 - `efaf29c Clarify visible UI readiness meaning`
 - `7e42f12 Document NSOM QML boundary audit`
 - `d1da051 Evaluate catalogue raw score policy`
@@ -172,6 +173,9 @@ Dopo `1.16.0`:
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
 .\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer/tests/test_release_scenarios.py astro_viewer/tests/test_nasa_aod_provider.py astro_viewer/tests/test_openaq_atmosphere.py astro_viewer/tests/test_phase6_real_data.py
 .\.venv\Scripts\python.exe -m pytest -q -n auto
+.\packaging\build_windows.ps1
+$p = Start-Process -FilePath .\dist\NightScope\NightScope.exe -ArgumentList --qml-smoke-test -WorkingDirectory .\dist\NightScope -WindowStyle Hidden -PassThru -Wait
+$p.ExitCode
 ```
 
 Risultati:
@@ -179,7 +183,10 @@ Risultati:
 - compileall: passed;
 - QML smoke: passed;
 - focused Weather/provider/release tests: `123 passed, 7 subtests passed`;
-- full suite: `616 passed, 7 subtests passed`.
+- full suite: `616 passed, 7 subtests passed`;
+- PyInstaller Windows dist rebuild: passed;
+- bundled `VERSION`: `1.16.0`;
+- packaged QML smoke: exit code `0`.
 
 ## Ambiente `.venv` Verificato
 

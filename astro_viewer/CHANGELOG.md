@@ -17,6 +17,9 @@
 - Aggiornati README, documenti tecnici e commenti provider: AOD/OpenAQ non sono
   piu' descritti come esclusivamente display-only, ma come dati condizioni che
   possono entrare nel backend solo quando gia' presenti e accettati dai gate.
+- Rigenerata la distribuzione Windows con `packaging/build_windows.ps1` e
+  verificato il bundle `dist/NightScope`: `VERSION` incorporato `1.16.0` e QML
+  smoke test eseguito dall'eseguibile con exit code `0`.
 
 ## NightScope 1.15.2 - 2026-07-10
 
