@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.20.1`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `f9d912f Refine catalogue visibility presentation`
 - `e7ade3f Document completed 1.20.0 Calendar`
 - `2172d20 Add observable planetary conjunctions`
 - `29fb424 Finalize 1.20.0 Calendar validation`
