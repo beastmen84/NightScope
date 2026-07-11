@@ -6,6 +6,9 @@ Versione corrente sorgente: `1.18.5`
 Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `8606f18 Keep moon geometry sampling unchanged`
+- `3a511a0 Unify Home Bortle presentation`
+- `f43b99a Fix sampled observing windows`
 - `7c90b43 Finalize 1.18.4 validation`
 - `bd1664b Align Earthaccess botocore dependency`
 - `6d25b5f Log Sky Compass NSOM fallback failures`
@@ -343,6 +346,29 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo i due fix Home `1.18.5`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+```
+
+Risultati:
+
+- `pip check`: nessuna dipendenza rotta;
+- ruff completo: passed;
+- compileall completo: passed;
+- probe reale Addis Ababa: M44 `18:48-18:57`, M36 `05:31-06:12`,
+  M37 `05:47-06:12`, M38 `05:23-06:12`, M42 `05:46-06:12`;
+- test mirati finestre/geometria lunare: `12 passed`, valori diagnostici
+  Luna-target invariati;
+- test mirati Home/Bortle: `15 passed`;
+- suite completa parallela: `696 passed, 28 warnings, 7 subtests passed` in
+  `37.14 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- nessuna build Windows: sorgente `1.18.5`, `dist/NightScope` `1.18.4`.
+
 Dopo il completamento sorgente `1.18.4`:
 
 ```powershell
@@ -675,9 +701,13 @@ Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
    sono rispettivamente `1.18.5` e `1.18.4`.
-2. Il prossimo capitolo UI concordato e' la review, prima di qualunque modifica,
-   della pagina di dettaglio osservativo.
-3. Capitoli da lasciare separati:
+2. Prossimo step Meteo proposto, da implementare solo dopo conferma:
+   `weatherNext24Hours` mobile dall'ora corrente, flag `isObservingNight` per
+   barre/schede, selezione stabile per timestamp; score, seeing, trasparenza e
+   ranking restano limitati a `observingWeatherHourly`.
+3. Dopo Meteo, il prossimo capitolo UI concordato e' la review, prima di
+   qualunque modifica, della pagina di dettaglio osservativo.
+4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
 4. Non fare tuning e non toccare altre UI senza uno step esplicito.

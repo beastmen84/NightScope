@@ -16,6 +16,9 @@
 - Centralizzata la descrizione Bortle usata dalla Home: la classe 7 e' ora
   `transizione suburbana-urbana` sia nella card cielo profondo sia nel messaggio
   della lista, eliminando il contrasto `urbano`/`suburbano luminoso`.
+- Verificati `pip check`, ruff, compileall, probe astronomico reale e suite
+  completa parallela: `696 passed`, `28 warnings`, `7 subtests passed` in
+  `37,14 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota.
 
 ## NightScope 1.18.4 - 2026-07-11
 
