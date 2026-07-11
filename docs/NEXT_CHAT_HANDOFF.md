@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.3`
 Distribuzione Windows corrente: `1.18.3`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `be9f5a7 Document 1.18.3 Windows distribution build`
 - `3c5aca7 Release 1.18.3 Home list fixes`
 - `b57049f Keep Home list wheel scrolling contained`
 - `4f5cdec Remove residual Home target cap`
