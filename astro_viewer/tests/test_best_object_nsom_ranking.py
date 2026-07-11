@@ -89,6 +89,29 @@ def test_best_object_nsom_observer_capability_uses_best_object_context() -> None
     assert "nsom:planner_observer_capability" not in notes
 
 
+def test_best_object_uses_target_specific_telescope_mapping() -> None:
+    targets = [
+        _target("galaxy", "Galaxy", 90, difficulty="Media"),
+        _target("jupiter", "Pianeta", 86, difficulty="Facile", magnitude="-2.1"),
+    ]
+    fallback = _telescope()
+    wide_field = Telescope("wide", "Wide Field", 100, 500, "Refractor", "Alt-az")
+    planetary = Telescope("planetary", "Planetary", 220, 2200, "Reflector", "GoTo EQ")
+
+    ranked = BestObjectNsomSelectionService().ranked_candidates(
+        targets,
+        weather=_weather(90),
+        sky_quality=_sky_quality(3),
+        telescope=fallback,
+        telescope_by_object_id={"galaxy": wide_field, "jupiter": planetary},
+        moon=_moon(10),
+    )
+    by_id = {candidate.target.id: candidate for candidate in ranked}
+
+    assert "telescope=Wide Field" in by_id["galaxy"].practical_target_value.observer_capability.notes
+    assert "telescope=Planetary" in by_id["jupiter"].practical_target_value.observer_capability.notes
+
+
 def test_best_object_nsom_blocked_session_is_non_actionable_with_preserved_order() -> None:
     targets = _targets()
 

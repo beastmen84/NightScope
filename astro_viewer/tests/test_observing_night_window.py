@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from unittest.mock import patch
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -97,6 +98,30 @@ def test_planner_does_not_replace_sunset_best_time_with_window_end() -> None:
     )
 
     assert NightPlannerService._observing_time(target, window) == start
+
+
+def test_planner_uses_now_when_target_window_is_already_active() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    now = datetime(2026, 7, 10, 23, 17, 42, tzinfo=zone)
+    window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 10, 18, 48, tzinfo=zone),
+        datetime(2026, 7, 11, 6, 12, tzinfo=zone),
+    )
+    target = SimpleNamespace(
+        best_time="22:00",
+        observing_window="21:00 - 02:00",
+        visible=True,
+    )
+
+    class FixedDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return now if tz is None else now.astimezone(tz)
+
+    with patch("astro_viewer.app.services.night_planner_service.datetime", FixedDatetime):
+        observing_time = NightPlannerService._observing_time(target, window)
+
+    assert observing_time == datetime(2026, 7, 10, 23, 17, tzinfo=zone)
 
 
 def test_altitude_samples_always_include_the_exact_night_end() -> None:

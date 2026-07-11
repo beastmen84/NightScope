@@ -326,11 +326,65 @@ class NightPlannerService:
         parsed_best = NightPlannerService._parse_time(item.best_time, night_window)
         if parsed_best:
             return parsed_best
-        for value in NightPlannerService._window_times(item.observing_window):
-            parsed = NightPlannerService._parse_time(value, night_window)
-            if parsed:
-                return parsed
-        return None
+        interval = NightPlannerService._observing_window_interval(
+            item.observing_window,
+            night_window,
+        )
+        if interval is None:
+            return None
+        start, end = interval
+        now = datetime.now(start.tzinfo)
+        if start <= now < end:
+            return now.replace(second=0, microsecond=0)
+        return start if start >= now else None
+
+    @staticmethod
+    def _observing_window_interval(
+        value: str,
+        night_window: ObservingNightWindow | None = None,
+    ) -> tuple[datetime, datetime] | None:
+        times = NightPlannerService._window_times(value)
+        if len(times) < 2:
+            return None
+        start_clock = NightPlannerService._parse_clock_token(times[0])
+        end_clock = NightPlannerService._parse_clock_token(times[1])
+        if start_clock is None or end_clock is None:
+            return None
+
+        if night_window is not None and night_window.has_observing_window:
+            start = night_window.datetime_for_clock(*start_clock)
+            end = night_window.datetime_for_clock(*end_clock)
+            if start is None or end is None:
+                return None
+            if end <= start:
+                return None
+            return start, end
+
+        now = datetime.now()
+        intervals = []
+        for day_offset in (-1, 0, 1):
+            day = now.date() + timedelta(days=day_offset)
+            start = now.replace(
+                year=day.year,
+                month=day.month,
+                day=day.day,
+                hour=start_clock[0],
+                minute=start_clock[1],
+                second=0,
+                microsecond=0,
+            )
+            end = start.replace(hour=end_clock[0], minute=end_clock[1])
+            if end <= start:
+                end += timedelta(days=1)
+            intervals.append((start, end))
+        active = next((interval for interval in intervals if interval[0] <= now < interval[1]), None)
+        if active is not None:
+            return active
+        return min(
+            (interval for interval in intervals if interval[0] >= now),
+            default=None,
+            key=lambda interval: interval[0],
+        )
 
     @staticmethod
     def _has_useful_window(

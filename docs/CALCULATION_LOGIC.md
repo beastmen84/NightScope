@@ -621,6 +621,12 @@ selects the four highest-valued unique targets and only then orders those four
 chronologically for display. `PlannerScoringService` remains a legacy formula
 and diagnostic comparison helper, not the default ranking owner.
 
+An observing window is an interval, not two candidate instants. If its best
+time has passed but the current local time is still inside the interval, the
+Planner schedules the target at the current minute. If the interval has not
+started it uses its start; once it has ended it is no longer useful. The end of
+a window is never presented as the next observing time.
+
 Equipment capability is target-specific. `EquipmentService` evaluates every
 assigned telescope/binocular and optical combination, while the controller
 preserves the selected setup read-model for each target. Planner scoring uses
@@ -656,17 +662,16 @@ time is available.
 
 ## Best Object Selection
 
-`ObservingScoreService.best_object` selects from visible objects.
+`BestObjectNsomSelectionService` ranks visible candidates by the same canonical
+`ObservableTargetValue`, target-specific `ObserverCapability` and binary
+Session viability used by the runtime NSOM path. A hard-blocked Session returns
+no actionable Best Object.
 
-Ranking uses:
-
-- object score,
-- weather factor: `max(0.25, weather_score / 100)`,
-- difficulty factor.
-
-Because the weather factor has a floor, a visible object can still be selected
-under poor weather. The blocked-session presentation is therefore important: it
-explains that targets are only potential if a clear window appears.
+For profiles with multiple instruments, Best Object receives the telescope
+selected by `EquipmentService` for each target. It does not evaluate every
+candidate with the first/current telescope; binocular and naked-eye targets
+retain their non-telescope capability projection. `ObservingScoreService` is
+kept only as the missing-sky-quality fallback.
 
 ## Equipment Calculations
 
