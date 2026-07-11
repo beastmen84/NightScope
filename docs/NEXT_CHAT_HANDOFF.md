@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.6`
 Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `ce6f49c Document 1.18.6 validation`
 - `39faaa7 Show rolling 24-hour weather forecast`
 - `be2ab2e Document 1.18.5 validation`
 - `8606f18 Keep moon geometry sampling unchanged`
