@@ -13,6 +13,9 @@
   l'altezza compatta delle schede; lo scorrimento orizzontale resta attivo.
 - Aggiunte regressioni su ordine a `best_time` condiviso e contratto QML.
   Distribuzione Windows non rigenerata: sorgente `1.18.7`, dist `1.18.6`.
+- Verificati `pip check`, ruff, compileall, `qmllint`, test Home/Meteo/release e
+  suite completa parallela: `699 passed`, `27 warnings`, `7 subtests passed` in
+  `37,05 s`.
 
 ## NightScope 1.18.6 - 2026-07-11
 
