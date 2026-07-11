@@ -117,6 +117,8 @@ class AstronomicalEvent:
     visibility_label: str = "Da verificare"
     visibility_detail: str = ""
     target_object_id: str = ""
+    target_object_ids: tuple[str, ...] = field(default_factory=tuple)
+    angular_separation_deg: float | None = None
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -129,4 +131,6 @@ class AstronomicalEvent:
         data["visibilityLabel"] = self.visibility_label
         data["visibilityDetail"] = self.visibility_detail
         data["targetObjectId"] = self.target_object_id
+        data["targetObjectIds"] = list(self.target_object_ids)
+        data["angularSeparationDeg"] = self.angular_separation_deg
         return data

@@ -507,7 +507,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Quando osservarlo", detail_qml)
         self.assertIn("Con il tuo profilo", detail_qml)
         self.assertIn("Consigli osservativi", detail_qml)
-        self.assertIn("Apri oggetto per stasera", detail_qml)
+        self.assertIn('text: "Apri " + modelData.name', detail_qml)
         self.assertIn("root.eventData.whyText", detail_qml)
         self.assertIn("root.eventData.setupText", detail_qml)
         self.assertIn("root.eventData.tips", detail_qml)

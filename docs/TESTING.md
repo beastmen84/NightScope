@@ -56,7 +56,7 @@ Measured on the current Windows development environment for `1.20.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `714 passed, 7 subtests passed` | `0:00:34` |
+| `python -m pytest -q -n auto` | `716 passed, 7 subtests passed` | `0:00:40` |
 
 The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
 subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield
@@ -66,6 +66,13 @@ Use the parallel full suite for normal pre-commit validation when the change
 touches shared runtime services. Use the serial suite only to isolate a
 parallel/order-dependent failure or to diagnose timing in one deterministic
 process.
+
+The `1.20.0` Calendar probe for Addis Ababa produces 82 annual events in about
+2.8 seconds inside the astronomy worker. Planetary conjunction discovery scans
+all 21 planet pairs in less than one second; the remaining time includes local
+night-window and common-altitude sampling. The repeated warnings in Calendar
+tests come from the known Skyfield/NumPy dtype deprecation, not application
+failures.
 
 ## Validation Policy
 

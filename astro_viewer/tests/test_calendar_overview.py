@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import (
     CALENDAR_EVENT_HORIZON_DAYS,
+    PLANETARY_CONJUNCTION_MAX_SEPARATION_DEG,
     SkyfieldAstronomyEngine,
 )
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
@@ -42,7 +43,8 @@ def test_skyfield_calendar_keeps_every_event_in_the_annual_horizon() -> None:
     assert len(events) > 18
     assert counts["Luna"] >= 48
     assert counts["Opposizione"] >= 4
-    assert counts["Congiunzione"] >= 4
+    assert counts["Congiunzione planetaria"] >= 1
+    assert counts["Congiunzione solare"] >= 4
     assert counts["Sciame meteorico"] == 10
     assert counts["Eclissi"] >= 1
     assert event_datetimes == sorted(event_datetimes)
@@ -58,16 +60,31 @@ def test_skyfield_calendar_exposes_event_specific_local_visibility() -> None:
         engine.close()
 
     opposition = next(event for event in events if event.event_type == "Opposizione")
-    conjunction = next(event for event in events if event.event_type == "Congiunzione")
+    solar_conjunction = next(
+        event for event in events if event.event_type == "Congiunzione solare"
+    )
+    planetary_conjunction = next(
+        event
+        for event in events
+        if event.event_type == "Congiunzione planetaria" and event.observing_window
+    )
     eclipse = next(event for event in events if event.event_type == "Eclissi")
 
     assert opposition.observing_window
     assert opposition.visibility_state == "visible"
-    assert conjunction.visibility_state == "not_visible"
-    assert conjunction.observing_window == ""
+    assert solar_conjunction.visibility_state == "not_visible"
+    assert solar_conjunction.observing_window == ""
+    assert "con il Sole" in solar_conjunction.title
+    assert planetary_conjunction.visibility_state in {"visible", "check"}
+    assert len(planetary_conjunction.target_object_ids) == 2
+    assert 0 < planetary_conjunction.angular_separation_deg <= (
+        PLANETARY_CONJUNCTION_MAX_SEPARATION_DEG
+    )
     assert eclipse.timing_label == "Massimo dell'eclissi"
     assert eclipse.visibility_state in {"visible", "daylight", "below_horizon"}
     assert eclipse.visibility_detail
+    if eclipse.visibility_state != "visible":
+        assert eclipse.observing_window == ""
 
 
 def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
@@ -83,8 +100,8 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
         ),
         _event(
             event_id="jupiter-conjunction",
-            title="Giove in congiunzione",
-            event_type="Congiunzione",
+            title="Giove in congiunzione con il Sole",
+            event_type="Congiunzione solare",
             event_at="2026-07-29T10:00:00+03:00",
             usefulness=38,
             visibility_state="not_visible",
@@ -107,7 +124,7 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
         has_configured_equipment=False,
     )
 
-    assert overview["schemaVersion"] == "calendar_overview_v1"
+    assert overview["schemaVersion"] == "calendar_overview_v2"
     assert overview["horizonDays"] == 365
     assert overview["totalCount"] == 3
     assert [item["id"] for item in overview["items"]] == [
@@ -118,13 +135,120 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
     assert all("usefulness" not in item for item in overview["items"])
     assert overview["items"][0]["priorityLabel"] == "In evidenza"
     assert overview["items"][1]["visibilityLabel"] == "Non visibile nella notte"
-    assert overview["counts"]["conjunctions"] == 1
+    assert overview["counts"]["solarConjunctions"] == 1
+    assert overview["counts"]["planetaryConjunctions"] == 0
+    assert [item["id"] for item in overview["homeItems"]] == [
+        "moon-new",
+        "saturn-opposition",
+    ]
+
+
+def test_calendar_highlights_balance_priority_with_local_visibility() -> None:
+    events = [
+        _event(
+            event_id="moon-new",
+            title="Luna nuova",
+            event_type="Luna",
+            event_at="2026-07-14T12:43:00+03:00",
+            usefulness=95,
+            visibility_state="favorable",
+            visibility_label="Cielo profondo favorito",
+        ),
+        _event(
+            event_id="partial-eclipse",
+            title="Eclissi lunare parziale",
+            event_type="Eclissi",
+            event_at="2026-07-16T07:12:00+03:00",
+            usefulness=86,
+            visibility_state="below_horizon",
+            visibility_label="Massimo sotto l'orizzonte",
+        ),
+        _event(
+            event_id="meteor-shower",
+            title="Delta Aquaridi",
+            event_type="Sciame meteorico",
+            event_at="2026-07-18T00:00:00+03:00",
+            usefulness=78,
+            visibility_state="check",
+            visibility_label="Da verificare",
+        ),
+        _event(
+            event_id="first-quarter",
+            title="Primo quarto",
+            event_type="Luna",
+            event_at="2026-07-20T20:00:00+03:00",
+            usefulness=68,
+            visibility_state="visible",
+            visibility_label="Visibile all'istante",
+        ),
+    ]
+
+    overview = CalendarOverviewService().build(
+        events=[event.to_qml() for event in events],
+        now=NOW,
+        has_configured_equipment=False,
+    )
+
+    assert [item["id"] for item in overview["highlights"]] == [
+        "moon-new",
+        "meteor-shower",
+        "first-quarter",
+    ]
+
+
+def test_calendar_event_copy_is_compact_and_visibility_aware() -> None:
+    shower = _event(
+        event_id="meteor-shower",
+        title="Delta Aquaridi",
+        event_type="Sciame meteorico",
+        event_at="2026-07-18T00:00:00+03:00",
+        usefulness=78,
+        visibility_state="check",
+        visibility_label="Da verificare",
+    ).to_qml()
+    shower["timingKind"] = "window"
+    shower["best_time"] = "Dopo mezzanotte"
+    shower["observingWindow"] = "Dopo mezzanotte"
+    eclipse = _event(
+        event_id="partial-eclipse",
+        title="Eclissi lunare parziale",
+        event_type="Eclissi",
+        event_at="2026-07-20T07:12:00+03:00",
+        usefulness=86,
+        visibility_state="below_horizon",
+        visibility_label="Massimo sotto l'orizzonte",
+    ).to_qml()
+    eclipse["observingWindow"] = ""
+    solar = _event(
+        event_id="jupiter-solar-conjunction",
+        title="Giove in congiunzione con il Sole",
+        event_type="Congiunzione solare",
+        event_at="2026-07-29T15:17:00+03:00",
+        usefulness=20,
+        visibility_state="not_visible",
+        visibility_label="Non osservabile",
+    ).to_qml()
+    solar["observingWindow"] = ""
+
+    overview = CalendarOverviewService().build(
+        events=[shower, eclipse, solar],
+        now=NOW,
+        has_configured_equipment=True,
+    )
+    items = {item["id"]: item for item in overview["items"]}
+
+    assert items["meteor-shower"]["compactTimingValue"] == "Notte"
+    assert "massimo non è osservabile" in items["partial-eclipse"]["setupText"]
+    assert "fasi" in items["partial-eclipse"]["whyText"]
+    assert "Nessun setup osservativo" in items["jupiter-solar-conjunction"]["setupText"]
+    assert any("Non puntare" in tip for tip in items["jupiter-solar-conjunction"]["tips"])
 
 
 def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
     calendar_qml = (ui_dir / "pages" / "CalendarPage.qml").read_text(encoding="utf-8")
     event_row_qml = (ui_dir / "components" / "EventRow.qml").read_text(encoding="utf-8")
+    event_detail_qml = (ui_dir / "pages" / "EventDetailPage.qml").read_text(encoding="utf-8")
     home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
 
     assert "controller.calendarOverview" in calendar_qml
@@ -134,8 +258,14 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     assert "controller.events" not in calendar_qml
     assert "usefulness" not in event_row_qml
     assert "root.eventData.visibilityLabel" in event_row_qml
+    assert "root.eventData.compactTimingValue" in event_row_qml
+    assert "root.hasDistinctWindow" in event_detail_qml
+    assert "root.eventData.separationLabel" in event_detail_qml
+    assert "model: root.eventObjects()" in event_detail_qml
+    assert "Apri oggetto per stasera" not in event_detail_qml
     assert "controller.calendarOverview" in home_qml
     assert "controller.events" not in home_qml
+    assert "root.calendarOverview.homeItems" in home_qml
 
 
 def test_calendar_future_setup_does_not_consume_current_seeing() -> None:

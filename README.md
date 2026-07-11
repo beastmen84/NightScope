@@ -14,7 +14,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   degli altri oggetti senza esporre score grezzi.
 - Dettaglio osservativo state-aware con finestra utile, momento migliore,
   configurazione target-specific, valutazione locale e ciclo lunare.
-- Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
+- Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
 - Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
@@ -210,12 +210,16 @@ repository e database restano disponibili per una futura pagina dedicata
 database gia' inizializzati. La distribuzione Windows resta alla `1.18.8`.
 
 In `1.20.0` il Calendario usa un orizzonte unico di 365 giorni senza tagli per
-priorita': fasi lunari, opposizioni, congiunzioni, eclissi e sciami restano
-tutti disponibili e ordinati cronologicamente. Istante astronomico, finestra
-osservativa e visibilita' locale sono distinti; il numero `usefulness` non e'
-piu' mostrato. Setup e consigli per eventi futuri non riusano il seeing di oggi.
-La card Home `Prossimi eventi` usa lo stesso contratto e apre il relativo
-dettaglio. La distribuzione Windows resta alla `1.18.8`.
+priorita': fasi lunari, opposizioni, congiunzioni planetarie e solari, eclissi e
+sciami restano disponibili e ordinati cronologicamente. Le congiunzioni
+planetarie derivano dai minimi di separazione apparente entro 6 gradi e usano
+una finestra locale comune ai due pianeti; quelle col Sole sono eventi
+informativi separati e non producono consigli strumentali. Istante astronomico,
+finestra osservativa, separazione e visibilita' locale sono distinti; il numero
+`usefulness` non e' mostrato. Un massimo di eclissi non visibile non viene piu'
+presentato come finestra osservativa. La card Home `Prossimi eventi` usa lo
+stesso contratto, esclude le congiunzioni solari dalla preview e apre il
+relativo dettaglio. La distribuzione Windows resta alla `1.18.8`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

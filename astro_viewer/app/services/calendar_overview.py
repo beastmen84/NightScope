@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 
 
-CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v1"
+CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v2"
 CALENDAR_HORIZON_DAYS = 365
 
 
@@ -44,13 +45,21 @@ class CalendarOverviewService:
 
         candidates.sort(key=lambda candidate: candidate[0])
         items = [candidate[2] for candidate in candidates]
+        home_items = [item for item in items if item["type"] != "Congiunzione solare"]
         highlights = [
             candidate[2]
             for candidate in sorted(
-                (candidate for candidate in candidates if candidate[2]["daysUntil"] <= 30),
+                (
+                    candidate
+                    for candidate in candidates
+                    if candidate[2]["daysUntil"] <= 30
+                    and candidate[2]["type"] != "Congiunzione solare"
+                ),
                 key=lambda candidate: (
-                    _visibility_order(str(candidate[2]["visibilityState"])),
-                    -candidate[1],
+                    -_highlight_value(
+                        candidate[1],
+                        str(candidate[2]["visibilityState"]),
+                    ),
                     candidate[0],
                 ),
             )[:3]
@@ -62,11 +71,17 @@ class CalendarOverviewService:
             "horizonLabel": "Prossimi 365 giorni",
             "totalCount": len(items),
             "items": items,
+            "homeItems": home_items,
             "highlights": highlights,
             "counts": {
                 "moon": counts["Luna"],
                 "oppositions": counts["Opposizione"],
-                "conjunctions": counts["Congiunzione"],
+                "planetaryConjunctions": counts["Congiunzione planetaria"],
+                "solarConjunctions": counts["Congiunzione solare"],
+                "conjunctions": (
+                    counts["Congiunzione planetaria"]
+                    + counts["Congiunzione solare"]
+                ),
                 "showers": counts["Sciame meteorico"],
                 "eclipses": counts["Eclissi"],
             },
@@ -85,6 +100,7 @@ def _event_payload(
     title = _text(event, "title")
     date_label = _text(event, "date_label") or event_at.strftime("%d/%m/%Y")
     timing_label = _text(event, "timingLabel") or _text(event, "timing_label") or "Istante evento"
+    timing_kind = _text(event, "timingKind") or _text(event, "timing_kind") or "instant"
     timing_value = _text(event, "best_time")
     observing_window = _text(event, "observingWindow") or _text(event, "observing_window")
     visibility_state = (
@@ -106,8 +122,21 @@ def _event_payload(
         event_type,
         title,
         _text(event, "setup"),
+        visibility_state=visibility_state,
         has_configured_equipment=has_configured_equipment,
     )
+    angular_separation_deg = _optional_float(
+        event.get("angularSeparationDeg", event.get("angular_separation_deg"))
+    )
+    target_object_ids = _text_list(
+        event.get("targetObjectIds", event.get("target_object_ids"))
+    )
+    primary_target_id = _text(event, "targetObjectId") or _text(
+        event,
+        "target_object_id",
+    )
+    if primary_target_id and primary_target_id not in target_object_ids:
+        target_object_ids.insert(0, primary_target_id)
     priority_state, priority_label = _priority(usefulness)
     return {
         "id": _text(event, "id"),
@@ -116,9 +145,10 @@ def _event_payload(
         "dateLabel": date_label,
         "eventAt": event_at.isoformat(),
         "daysUntil": days_until,
-        "timingKind": _text(event, "timingKind") or _text(event, "timing_kind") or "instant",
+        "timingKind": timing_kind,
         "timingLabel": timing_label,
         "timingValue": timing_value,
+        "compactTimingValue": _compact_timing_value(timing_kind, timing_value),
         "observingWindow": observing_window,
         "visibilityState": visibility_state,
         "visibilityLabel": visibility_label,
@@ -127,9 +157,22 @@ def _event_payload(
         "priorityLabel": priority_label,
         "setupText": setup,
         "note": _text(event, "note"),
-        "targetObjectId": _text(event, "targetObjectId") or _text(event, "target_object_id"),
-        "whyText": _why_text(event_type, title, _text(event, "note")),
-        "tips": _observing_tips(event_type, title),
+        "targetObjectId": primary_target_id,
+        "targetObjectIds": target_object_ids,
+        "targetObjects": _mapping_list(event.get("targetObjects")),
+        "angularSeparationDeg": angular_separation_deg,
+        "separationLabel": _separation_label(angular_separation_deg),
+        "whyText": _why_text(
+            event_type,
+            title,
+            _text(event, "note"),
+            visibility_state=visibility_state,
+        ),
+        "tips": _observing_tips(
+            event_type,
+            title,
+            visibility_state=visibility_state,
+        ),
         "detailSubtitle": _detail_subtitle(date_label, timing_label, timing_value),
     }
 
@@ -166,6 +209,7 @@ def _profile_setup_text(
     title: str,
     setup: str,
     *,
+    visibility_state: str,
     has_configured_equipment: bool,
 ) -> str:
     normalized_title = title.casefold()
@@ -179,7 +223,17 @@ def _profile_setup_text(
             "Osserva il Sole solo con filtri solari certificati davanti all'obiettivo. "
             "Non usare oculari o cercatori non filtrati."
         )
+    if event_type == "Congiunzione solare":
+        return (
+            "Nessun setup osservativo: il pianeta è troppo vicino al Sole per "
+            "un'osservazione visuale sicura."
+        )
     if event_type == "Eclissi":
+        if visibility_state != "visible":
+            return (
+                "Il massimo non è osservabile localmente. Prepara binocolo o basso "
+                "ingrandimento solo dopo aver verificato gli orari completi delle fasi."
+            )
         return (
             "Osservabile a occhio nudo. Con binocolo o telescopio usa basso "
             "ingrandimento: l'intero disco lunare deve restare nel campo."
@@ -212,21 +266,31 @@ def _profile_setup_text(
             setup,
             "Aumenta l'ingrandimento solo se il seeing della notte dell'evento mantiene il pianeta nitido.",
         )
-    if event_type == "Congiunzione" and setup:
+    if event_type in {"Congiunzione", "Congiunzione planetaria"} and setup:
         return _append_guidance(
             setup,
-            "Preferisci campo largo: l'obiettivo è vedere gli oggetti insieme.",
+            "La separazione indicata determina se entrambi entrano nello stesso campo.",
         )
     if setup == "Occhio nudo":
         return "Osservabile a occhio nudo"
-    if not has_configured_equipment and event_type in {"Opposizione", "Congiunzione"}:
+    if not has_configured_equipment and event_type in {
+        "Opposizione",
+        "Congiunzione",
+        "Congiunzione planetaria",
+    }:
         return "Configura un profilo per consigli più precisi."
     if _is_generic_setup(setup):
         return "Configura un profilo per consigli più precisi."
     return setup or "Configura un profilo per consigli più precisi."
 
 
-def _why_text(event_type: str, title: str, fallback: str) -> str:
+def _why_text(
+    event_type: str,
+    title: str,
+    fallback: str,
+    *,
+    visibility_state: str,
+) -> str:
     normalized_title = title.casefold()
     if event_type == "Opposizione":
         return (
@@ -259,19 +323,34 @@ def _why_text(event_type: str, title: str, fallback: str) -> str:
     if event_type == "Eclissi" and "solare" in normalized_title:
         return "È un evento da pianificare con protezione solare certificata."
     if event_type == "Eclissi":
+        if visibility_state != "visible":
+            return (
+                "Il massimo non è osservabile dalla posizione attuale; le fasi iniziali "
+                "o finali possono avere una visibilità diversa e vanno verificate."
+            )
         return (
             "È osservabile anche a occhio nudo; binocolo o basso ingrandimento aiutano "
             "a seguire ombra e colore sul disco lunare."
         )
-    if event_type == "Congiunzione":
+    if event_type == "Congiunzione solare":
         return (
-            "È interessante quando più oggetti entrano nello stesso campo con binocolo, "
-            "bassi ingrandimenti o fotografia a campo largo."
+            "È un riferimento effemeride che segna il passaggio del pianeta dalla "
+            "visibilità serale a quella mattutina, non un'opportunità visuale."
+        )
+    if event_type in {"Congiunzione", "Congiunzione planetaria"}:
+        return (
+            "I due pianeti raggiungono la minima separazione apparente e possono entrare "
+            "nello stesso campo con binocolo o bassi ingrandimenti."
         )
     return fallback or "Evento astronomico nell'orizzonte annuale."
 
 
-def _observing_tips(event_type: str, title: str) -> list[str]:
+def _observing_tips(
+    event_type: str,
+    title: str,
+    *,
+    visibility_state: str,
+) -> list[str]:
     normalized_title = title.casefold()
     if event_type == "Opposizione":
         return [
@@ -313,16 +392,28 @@ def _observing_tips(event_type: str, title: str) -> list[str]:
             "Prepara il setup prima dell'inizio dell'evento.",
         ]
     if event_type == "Eclissi":
+        if visibility_state != "visible":
+            return [
+                "Verifica gli orari completi delle fasi per la tua posizione.",
+                "Non considerare il solo massimo come finestra osservativa.",
+                "Prepara lo strumento solo se almeno una fase risulta visibile.",
+            ]
         return [
             "Controlla lo stato di visibilità locale del massimo.",
             "Usa binocolo o basso ingrandimento.",
             "Mantieni il disco lunare completo nel campo.",
         ]
-    if event_type == "Congiunzione":
+    if event_type == "Congiunzione solare":
+        return [
+            "Non puntare binocoli, telescopi o cercatori vicino al Sole.",
+            "Attendi che il pianeta riemerga nel cielo mattutino dopo la congiunzione.",
+            "Usa la scheda del pianeta per controllarne la visibilità nelle notti successive.",
+        ]
+    if event_type in {"Congiunzione", "Congiunzione planetaria"}:
         return [
             "Preferisci bassi ingrandimenti o binocolo.",
-            "Controlla la visibilità locale prima di preparare il setup.",
-            "Cerca un orizzonte libero vicino alla finestra indicata.",
+            "Usa la finestra locale in cui entrambi superano la soglia utile.",
+            "Cerca un orizzonte libero nella direzione indicata dalle schede dei pianeti.",
         ]
     return [
         "Controlla visibilità locale e meteo vicino alla data.",
@@ -338,12 +429,36 @@ def _priority(usefulness: int) -> tuple[str, str]:
     return "informational", "Informativo"
 
 
-def _visibility_order(state: str) -> int:
-    if state in {"visible", "favorable", "nearby_night"}:
-        return 0
-    if state in {"check", "unknown"}:
-        return 1
-    return 2
+def _highlight_value(usefulness: int, visibility_state: str) -> int:
+    if visibility_state in {"visible", "favorable", "nearby_night"}:
+        penalty = 0
+    elif visibility_state in {"check", "unknown"}:
+        penalty = 5
+    else:
+        penalty = 50
+    return usefulness - penalty
+
+
+def _compact_timing_value(timing_kind: str, timing_value: str) -> str:
+    if timing_kind != "window" or not timing_value:
+        return timing_value
+    if re.fullmatch(r"\d{2}:\d{2}(?:\s*-\s*\d{2}:\d{2})?", timing_value):
+        return timing_value
+    normalized = timing_value.casefold()
+    if "prima dell'alba" in normalized or "pre-alba" in normalized:
+        return "Pre-alba"
+    if "mezzanotte" in normalized:
+        return "Notte"
+    if "prima parte" in normalized:
+        return "Sera"
+    return timing_value if len(timing_value) <= 12 else "Notte"
+
+
+def _separation_label(value: float | None) -> str:
+    if value is None:
+        return ""
+    precision = 2 if value < 1.0 else 1
+    return f"{value:.{precision}f}".replace(".", ",") + " gradi"
 
 
 def _detail_subtitle(date_label: str, timing_label: str, timing_value: str) -> str:
@@ -368,6 +483,33 @@ def _integer(value: object) -> int:
         return int(value)
     except (TypeError, ValueError):
         return 0
+
+
+def _optional_float(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _text_list(value: object) -> list[str]:
+    if isinstance(value, str):
+        text = value.strip()
+        return [text] if text else []
+    if not isinstance(value, Sequence):
+        return []
+    result: list[str] = []
+    for item in value:
+        text = str(item).strip()
+        if text and text not in result:
+            result.append(text)
+    return result
+
+
+def _mapping_list(value: object) -> list[dict[str, object]]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return []
+    return [dict(item) for item in value if isinstance(item, Mapping)]
 
 
 def _text(payload: Mapping[str, object], key: str) -> str:

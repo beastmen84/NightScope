@@ -626,15 +626,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def upcomingHighlights(self) -> list[dict]:
-        now = datetime.now(self._zone())
-        limit = now + timedelta(days=30)
-        upcoming = []
-        for event in self._events:
-            event_date = self._parse_event_date(event.date_label, now)
-            if event_date and now.date() <= event_date.date() <= limit.date():
-                upcoming.append((event_date, event))
-        upcoming.sort(key=lambda item: (-item[1].usefulness, item[0]))
-        return [self._event_to_qml(event) for _, event in upcoming[:3]]
+        return list(self.calendarOverview.get("highlights", []))
 
     @Property("QVariant", notify=weatherChanged)
     def weatherHourly(self) -> list[dict]:
@@ -4750,8 +4742,13 @@ class AppController(QObject):
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
         data = event.to_qml()
         data["setup"] = self._calendar_event_setup(event)
-        target = self._calendar_event_target(event)
-        data["targetObjectId"] = target.id if target else ""
+        targets = self._calendar_event_targets(event)
+        data["targetObjectId"] = targets[0].id if targets else ""
+        data["targetObjectIds"] = [target.id for target in targets]
+        data["targetObjects"] = [
+            {"id": target.id, "name": target.name}
+            for target in targets
+        ]
         return data
 
     def _calendar_event_setup(self, event: AstronomicalEvent) -> str:
@@ -4762,13 +4759,10 @@ class AppController(QObject):
             return self._calendar_moon_setup(event)
         if event_type == "eclissi":
             return "Occhio nudo; binocolo o basso ingrandimento"
-        if event_type == "congiunzione":
-            target = self._calendar_event_target(event)
-            if target:
-                setup = self._calendar_profile_setup(target, event.setup)
-                if setup != "Bassa priorità osservativa":
-                    return f"Bassa priorità: {setup}"
-            return "Bassa priorità osservativa"
+        if event_type == "congiunzione solare":
+            return "Nessuna configurazione osservativa"
+        if event_type in {"congiunzione", "congiunzione planetaria"}:
+            return self._calendar_clean_setup(event.setup)
         if event_type in {"opposizione", "pianeti"}:
             target = self._calendar_event_target(event)
             if target:
@@ -4812,64 +4806,98 @@ class AppController(QObject):
         title = event.title.strip().lower()
         target_id = event.target_object_id.strip()
         if target_id:
-            targets = list(getattr(self, "_base_solar_system_objects", []))
-            targets.extend(getattr(self, "_solar_system_objects", []))
-            for target in targets:
-                if target.id == target_id:
-                    return replace(
-                        target,
-                        best_time=event.best_time,
-                        observing_window=event.observing_window or event.best_time,
-                    )
+            target = self._calendar_target_by_id(event, target_id)
+            if target:
+                return target
         if event_type == "luna" or (event_type == "eclissi" and "lunare" in title):
             return self._calendar_moon_target(event)
-        bodies = {
-            "mercury": ("Mercurio", "-0.2"),
-            "mercurio": ("Mercurio", "-0.2"),
-            "venus": ("Venere", "-4.0"),
-            "venere": ("Venere", "-4.0"),
-            "mars": ("Marte", "-1.2"),
-            "marte": ("Marte", "-1.2"),
-            "jupiter": ("Giove", "-2.3"),
-            "giove": ("Giove", "-2.3"),
-            "saturn": ("Saturno", "0.7"),
-            "saturno": ("Saturno", "0.7"),
-            "uranus": ("Urano", "5.7"),
-            "urano": ("Urano", "5.7"),
-            "neptune": ("Nettuno", "7.8"),
-            "nettuno": ("Nettuno", "7.8"),
+        body_tokens = {
+            "mercury": "mercury",
+            "mercurio": "mercury",
+            "venus": "venus",
+            "venere": "venus",
+            "mars": "mars",
+            "marte": "mars",
+            "jupiter": "jupiter",
+            "giove": "jupiter",
+            "saturn": "saturn",
+            "saturno": "saturn",
+            "uranus": "uranus",
+            "urano": "uranus",
+            "neptune": "neptune",
+            "nettuno": "neptune",
         }
         search_text = f"{event.id} {event.title}".lower()
-        for token, (name, magnitude) in bodies.items():
+        for token, object_id in body_tokens.items():
             if token in search_text:
-                object_id = {
-                    "mercurio": "mercury",
-                    "venere": "venus",
-                    "marte": "mars",
-                    "giove": "jupiter",
-                    "saturno": "saturn",
-                    "urano": "uranus",
-                    "nettuno": "neptune",
-                }.get(token, token)
-                return CelestialObject(
-                    id=object_id,
-                    name=name,
-                    object_type="Pianeta",
-                    image=f"resources/images/{object_id}.svg",
-                    magnitude=magnitude,
-                    distance="n/d",
-                    max_altitude="45 gradi",
-                    direction="Sud",
-                    best_time=event.best_time,
-                    observing_window=event.best_time,
-                    notes=event.note,
-                    recommended_setup="",
-                    visibility_class="Pianeta",
-                    azimuth="180 gradi",
-                    time_above_horizon="n/d",
-                    score=event.usefulness,
-                )
+                return self._calendar_target_by_id(event, object_id)
         return None
+
+    def _calendar_event_targets(self, event: AstronomicalEvent) -> list[CelestialObject]:
+        target_ids = list(event.target_object_ids)
+        if event.target_object_id and event.target_object_id not in target_ids:
+            target_ids.insert(0, event.target_object_id)
+        if not target_ids:
+            target = self._calendar_event_target(event)
+            return [target] if target else []
+
+        targets: list[CelestialObject] = []
+        for target_id in target_ids:
+            target = self._calendar_target_by_id(event, target_id)
+            if target and all(existing.id != target.id for existing in targets):
+                targets.append(target)
+        return targets
+
+    def _calendar_target_by_id(
+        self,
+        event: AstronomicalEvent,
+        target_id: str,
+    ) -> CelestialObject | None:
+        target_id = target_id.strip().lower()
+        if target_id == "moon":
+            return self._calendar_moon_target(event)
+
+        targets = list(getattr(self, "_base_solar_system_objects", []))
+        targets.extend(getattr(self, "_solar_system_objects", []))
+        for target in targets:
+            if target.id == target_id:
+                return replace(
+                    target,
+                    best_time=event.best_time,
+                    observing_window=event.observing_window or event.best_time,
+                )
+
+        bodies = {
+            "mercury": ("Mercurio", "-0.2"),
+            "venus": ("Venere", "-4.0"),
+            "mars": ("Marte", "-1.2"),
+            "jupiter": ("Giove", "-2.3"),
+            "saturn": ("Saturno", "0.7"),
+            "uranus": ("Urano", "5.7"),
+            "neptune": ("Nettuno", "7.8"),
+        }
+        body = bodies.get(target_id)
+        if not body:
+            return None
+        name, magnitude = body
+        return CelestialObject(
+            id=target_id,
+            name=name,
+            object_type="Pianeta",
+            image=f"resources/images/{target_id}.svg",
+            magnitude=magnitude,
+            distance="n/d",
+            max_altitude="45 gradi",
+            direction="Sud",
+            best_time=event.best_time,
+            observing_window=event.observing_window or event.best_time,
+            notes=event.note,
+            recommended_setup="",
+            visibility_class="Pianeta",
+            azimuth="180 gradi",
+            time_above_horizon="n/d",
+            score=event.usefulness,
+        )
 
     def _calendar_profile_setup(self, target: CelestialObject, fallback: str) -> str:
         telescopes = self._active_profile_telescopes()

@@ -112,12 +112,26 @@ Current runtime status for `1.20.0`:
   the backend for a future dedicated log surface and is no longer embedded in
   object detail. Database bootstrap also corrects the exact legacy Moon
   `best_seen` typo without overwriting other seeded or user-held values.
-- `CalendarOverviewService` projects the complete 365-day event set into a
-  score-free read model. Event instant, observing window and local visibility
-  are separate fields; future setups use profile capability without reusing
-  tonight's seeing. Calendar QML and the Home event strip consume this read
-  model; the legacy `events` property remains available only for compatibility
+- `CalendarOverviewService` v2 projects the complete 365-day event set into a
+  score-free read model. Event instant, observing window, local visibility,
+  participants and angular separation are separate fields; future setups use
+  profile capability without reusing tonight's seeing. Highlight selection
+  combines intrinsic event priority with a bounded local-visibility penalty.
+  Calendar QML and the Home event strip consume this read model; the Home
+  projection excludes solar conjunctions while the complete Calendar keeps
+  them. The legacy `events` property remains available only for compatibility
   and no event is removed by a usefulness cap.
+- Planetary conjunction candidates are observational close approaches found by
+  `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
+  The annual contract retains minima up to 6 degrees, then samples adjacent
+  local nights to require both planets above the 8-degree useful threshold.
+  Windows shorter than 20 minutes are retained with `check` confidence instead
+  of being cut. Solar conjunctions remain a separate, non-observing category
+  with no optical setup recommendation.
+- Lunar-eclipse visibility describes the computed maximum only. A maximum in
+  daylight or below the local horizon has no observing window; the UI asks the
+  observer to verify individual phase contacts instead of implying that the
+  whole eclipse is either visible or invisible.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed
@@ -373,11 +387,12 @@ Calendar event detail flow:
 1. `CalendarPage.qml` selects an event from the inline calendar list.
 2. `EventDetailPage.qml` renders practical observing text, profile guidance and
    field tips without changing event calculations.
-3. `AppController._event_to_qml` enriches events with active-profile setup text
-   and `targetObjectId` when the event maps to a known object.
-4. Planetary opposition/conjunction events map to their planet object. Moon
-   phases and lunar eclipses map to `moon`, allowing the existing object detail
-   navigation to be reused.
+3. `AppController._event_to_qml` enriches events with active-profile setup text,
+   `targetObjectIds` and display names when the event maps to known objects.
+4. A planetary conjunction maps to both planets and exposes one detail button
+   for each. Oppositions and solar conjunctions map to their single planet;
+   Moon phases and lunar eclipses map to `moon`, allowing the existing object
+   detail navigation to be reused.
 
 ## Refresh Flow
 

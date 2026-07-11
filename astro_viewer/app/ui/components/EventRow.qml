@@ -57,7 +57,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.eventData.timingValue
+                    text: root.eventData.compactTimingValue || root.eventData.timingValue
                     color: "#aeb7c4"
                     font.pixelSize: 11
                     horizontalAlignment: Text.AlignHCenter

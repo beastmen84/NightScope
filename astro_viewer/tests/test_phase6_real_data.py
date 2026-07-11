@@ -485,27 +485,27 @@ class Phase6RealDataTests(unittest.TestCase):
 
             self.assertEqual(controller._event_to_qml(event)["setup"], "Occhio nudo")
 
-    def test_calendar_conjunction_keeps_low_priority_but_uses_profile(self) -> None:
+    def test_calendar_solar_conjunction_does_not_recommend_profile_equipment(self) -> None:
         with _controller() as controller:
             telescope = controller.telescopeCatalogModels[0]
             eyepiece = controller.eyepieceCatalog[0]
             controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
             controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
             event = AstronomicalEvent(
-                id="jupiter-0-test",
-                title="Giove in congiunzione",
-                event_type="Congiunzione",
+                id="jupiter-solar-conjunction-test",
+                title="Giove in congiunzione con il Sole",
+                event_type="Congiunzione solare",
                 date_label="21/01/2027",
                 best_time="07:00",
-                usefulness=38,
-                setup="Non prioritario",
+                usefulness=20,
+                setup="Nessuna configurazione osservativa",
                 note="Test",
             )
 
             setup = controller._event_to_qml(event)["setup"]
 
-            self.assertTrue(setup.startswith("Bassa priorità: "))
-            self.assertIn(controller.currentSetup["name"], setup)
+            self.assertEqual(setup, "Nessuna configurazione osservativa")
+            self.assertNotIn(controller.currentSetup["name"], setup)
 
     def test_calendar_profile_setup_is_future_safe_for_telescope_only_profile(self) -> None:
         with _controller() as controller:

@@ -30,8 +30,10 @@ Item {
             return theme.teal
         if (type === "Eclissi")
             return theme.coral
-        if (type === "Congiunzione")
+        if (type === "Congiunzione" || type === "Congiunzione planetaria")
             return theme.violet
+        if (type === "Congiunzione solare")
+            return theme.coral
         return theme.cyan
     }
 
@@ -251,7 +253,7 @@ Item {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: scroll.availableWidth >= 1420 ? 3 : 2
+                        columns: scroll.availableWidth >= 1420 ? 4 : 2
                         columnSpacing: 10
                         rowSpacing: 10
 
@@ -274,9 +276,15 @@ Item {
                         }
 
                         MetricTile {
-                            label: "Congiunzioni"
-                            value: root.countEvents("Congiunzione").toString()
+                            label: "Cong. planetarie"
+                            value: root.countEvents("Congiunzione planetaria").toString()
                             accentColor: theme.violet
+                        }
+
+                        MetricTile {
+                            label: "Cong. solari"
+                            value: root.countEvents("Congiunzione solare").toString()
+                            accentColor: theme.coral
                         }
 
                         MetricTile {
@@ -350,7 +358,8 @@ Item {
                                 { "label": "Tutti", "value": "Tutti" },
                                 { "label": "Luna", "value": "Luna" },
                                 { "label": "Opposizioni", "value": "Opposizione" },
-                                { "label": "Congiunzioni", "value": "Congiunzione" },
+                                { "label": "Cong. planetarie", "value": "Congiunzione planetaria" },
+                                { "label": "Cong. solari", "value": "Congiunzione solare" },
                                 { "label": "Sciami", "value": "Sciame meteorico" },
                                 { "label": "Eclissi", "value": "Eclissi" }
                             ]

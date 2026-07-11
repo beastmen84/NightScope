@@ -5,10 +5,11 @@ import logging
 from calendar import monthrange
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, time, timedelta
+from itertools import combinations
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from skyfield import almanac, eclipselib, magnitudelib
+from skyfield import almanac, eclipselib, magnitudelib, searchlib
 from skyfield.api import Loader, Star, wgs84
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
@@ -27,6 +28,11 @@ logger = logging.getLogger(__name__)
 DEEP_SKY_USEFUL_ALTITUDE_DEG = 15.0
 CATALOGUE_MONTH_SAMPLE_MINUTES = 60
 CALENDAR_EVENT_HORIZON_DAYS = 365
+PLANETARY_CONJUNCTION_MAX_SEPARATION_DEG = 6.0
+PLANETARY_CONJUNCTION_SEARCH_STEP_DAYS = 0.5
+PLANETARY_CONJUNCTION_WINDOW_SAMPLE_MINUTES = 15
+PLANETARY_CONJUNCTION_ALTITUDE_THRESHOLD_DEG = 8.0
+PLANETARY_CONJUNCTION_BRIEF_WINDOW_MINUTES = 20
 
 
 class EphemerisUnavailableError(RuntimeError):
@@ -584,29 +590,53 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             for event_time, kind in zip(times, kinds):
                 is_opposition = int(kind) == 1
                 local_dt = event_time.utc_datetime().astimezone(zone)
-                visibility_state, visibility_label, visibility_detail, observing_window = (
-                    self._calendar_planet_visibility(location, config, local_dt)
-                )
+                if is_opposition:
+                    visibility_state, visibility_label, visibility_detail, observing_window = (
+                        self._calendar_planet_visibility(location, config, local_dt)
+                    )
+                    title = f"{config.name} in opposizione"
+                    event_type = "Opposizione"
+                    usefulness = 92
+                    setup = "Telescopio medio"
+                    timing_label = "Istante dell'opposizione"
+                    note = "Opposizione calcolata dalla longitudine eclittica relativa al Sole."
+                else:
+                    visibility_state = "not_visible"
+                    visibility_label = "Non osservabile"
+                    visibility_detail = (
+                        "Il pianeta appare vicino al Sole e non costituisce "
+                        "un target visuale sicuro."
+                    )
+                    observing_window = ""
+                    title = f"{config.name} in congiunzione con il Sole"
+                    event_type = "Congiunzione solare"
+                    usefulness = 20
+                    setup = "Nessuna configurazione osservativa"
+                    timing_label = "Istante della congiunzione solare"
+                    note = "Congiunzione solare calcolata dalla longitudine eclittica relativa al Sole."
                 events.append(
                     AstronomicalEvent(
-                        id=f"{config.object_id}-{int(kind)}-{event_time.tt}",
-                        title=f"{config.name} in {'opposizione' if is_opposition else 'congiunzione'}",
-                        event_type="Opposizione" if is_opposition else "Congiunzione",
+                        id=f"{config.object_id}-{'opposition' if is_opposition else 'solar-conjunction'}-{event_time.tt}",
+                        title=title,
+                        event_type=event_type,
                         date_label=self._format_date(local_dt),
                         best_time=self._format_dt(local_dt),
-                        usefulness=92 if is_opposition else 38,
-                        setup="Telescopio medio" if is_opposition else "Non prioritario",
-                        note="Calcolato dalla longitudine eclittica relativa al Sole.",
+                        usefulness=usefulness,
+                        setup=setup,
+                        note=note,
                         event_at=local_dt.isoformat(),
                         timing_kind="instant",
-                        timing_label="Istante astronomico",
+                        timing_label=timing_label,
                         observing_window=observing_window,
                         visibility_state=visibility_state,
                         visibility_label=visibility_label,
                         visibility_detail=visibility_detail,
                         target_object_id=config.object_id,
+                        target_object_ids=(config.object_id,),
                     )
                 )
+
+        events.extend(self._planetary_conjunction_events(location, start, end, zone))
 
         eclipse_times, eclipse_kinds, _ = eclipselib.lunar_eclipses(
             start,
@@ -633,16 +663,254 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     event_at=local_dt.isoformat(),
                     timing_kind="instant",
                     timing_label="Massimo dell'eclissi",
-                    observing_window=f"Intorno alle {self._format_dt(local_dt)}",
+                    observing_window=(
+                        f"Intorno alle {self._format_dt(local_dt)}"
+                        if visibility_state == "visible"
+                        else ""
+                    ),
                     visibility_state=visibility_state,
                     visibility_label=visibility_label,
                     visibility_detail=visibility_detail,
                     target_object_id="moon",
+                    target_object_ids=("moon",),
                 )
             )
 
         events.extend(self._recurring_meteor_showers(now, end_datetime))
         return sorted(events, key=lambda event: event.event_at)
+
+    def _planetary_conjunction_events(
+        self,
+        location: ObserverLocation,
+        start,
+        end,
+        zone: ZoneInfo,
+    ) -> list[AstronomicalEvent]:
+        earth = self._ephemeris["earth"]
+        planet_configs = [
+            config for config in self.BODY_CONFIGS if config.object_id in self.PLANET_IDS
+        ]
+        events: list[AstronomicalEvent] = []
+
+        for first, second in combinations(planet_configs, 2):
+            first_body = self._ephemeris[first.body_key]
+            second_body = self._ephemeris[second.body_key]
+
+            def angular_separation(
+                search_time,
+                body_a=first_body,
+                body_b=second_body,
+            ):
+                earth_at_time = earth.at(search_time)
+                first_apparent = earth_at_time.observe(body_a).apparent()
+                second_apparent = earth_at_time.observe(body_b).apparent()
+                return first_apparent.separation_from(second_apparent).degrees
+
+            angular_separation.step_days = PLANETARY_CONJUNCTION_SEARCH_STEP_DAYS
+            conjunction_times, separations = searchlib.find_minima(
+                start,
+                end,
+                angular_separation,
+            )
+            for conjunction_time, separation in zip(conjunction_times, separations):
+                separation_deg = float(separation)
+                if separation_deg > PLANETARY_CONJUNCTION_MAX_SEPARATION_DEG:
+                    continue
+                local_dt = conjunction_time.utc_datetime().astimezone(zone)
+                visibility_state, visibility_label, visibility_detail, observing_window = (
+                    self._calendar_planet_pair_visibility(
+                        location,
+                        first,
+                        second,
+                        local_dt,
+                        separation_deg,
+                    )
+                )
+                separation_label = self._format_angular_separation(separation_deg)
+                events.append(
+                    AstronomicalEvent(
+                        id=(
+                            f"planetary-conjunction-{first.object_id}-{second.object_id}-"
+                            f"{conjunction_time.tt}"
+                        ),
+                        title=f"{first.name} e {second.name} in congiunzione",
+                        event_type="Congiunzione planetaria",
+                        date_label=self._format_date(local_dt),
+                        best_time=self._format_dt(local_dt),
+                        usefulness=self._planetary_conjunction_usefulness(separation_deg),
+                        setup=self._planetary_conjunction_setup(first, second),
+                        note=(
+                            f"Separazione minima {separation_label} calcolata con Skyfield."
+                        ),
+                        event_at=local_dt.isoformat(),
+                        timing_kind="instant",
+                        timing_label="Massimo avvicinamento",
+                        observing_window=observing_window,
+                        visibility_state=visibility_state,
+                        visibility_label=visibility_label,
+                        visibility_detail=visibility_detail,
+                        target_object_id=first.object_id,
+                        target_object_ids=(first.object_id, second.object_id),
+                        angular_separation_deg=round(separation_deg, 3),
+                    )
+                )
+
+        return events
+
+    def _calendar_planet_pair_visibility(
+        self,
+        location: ObserverLocation,
+        first: SolarSystemBodyConfig,
+        second: SolarSystemBodyConfig,
+        local_dt: datetime,
+        separation_deg: float,
+    ) -> tuple[str, str, str, str]:
+        observer = self._observer(location)
+        first_body = self._ephemeris[first.body_key]
+        second_body = self._ephemeris[second.body_key]
+        candidates: list[tuple[float, float, float, datetime, datetime]] = []
+
+        for night_window in self._calendar_nearby_night_windows(location, local_dt):
+            samples = self._window_datetime_samples(
+                night_window.start,
+                night_window.end,
+                step_minutes=PLANETARY_CONJUNCTION_WINDOW_SAMPLE_MINUTES,
+            )
+            if not samples:
+                continue
+            times = self._timescale.from_datetimes(
+                [sample.astimezone(UTC) for sample in samples]
+            )
+            first_altitudes, _, _ = observer.at(times).observe(first_body).apparent().altaz()
+            second_altitudes, _, _ = observer.at(times).observe(second_body).apparent().altaz()
+            common_altitudes = [
+                min(float(first_altitude), float(second_altitude))
+                for first_altitude, second_altitude in zip(
+                    first_altitudes.degrees,
+                    second_altitudes.degrees,
+                )
+            ]
+            current_group: list[tuple[datetime, float]] = []
+            for sample, common_altitude in zip(samples, common_altitudes):
+                if common_altitude >= PLANETARY_CONJUNCTION_ALTITUDE_THRESHOLD_DEG:
+                    current_group.append((sample, common_altitude))
+                    continue
+                self._append_planet_pair_window_candidate(
+                    candidates,
+                    current_group,
+                    local_dt,
+                )
+                current_group = []
+            self._append_planet_pair_window_candidate(candidates, current_group, local_dt)
+
+        separation_label = self._format_angular_separation(separation_deg)
+        if not candidates:
+            return (
+                "not_visible",
+                "Non visibili nella notte",
+                "Nelle notti vicine almeno uno dei due pianeti resta sotto la soglia "
+                f"locale di 8 gradi; separazione minima {separation_label}.",
+                "",
+            )
+
+        _, peak_altitude, duration_seconds, window_start, window_end = max(
+            candidates,
+            key=lambda candidate: (candidate[0], candidate[1], candidate[2]),
+        )
+        is_brief = duration_seconds < PLANETARY_CONJUNCTION_BRIEF_WINDOW_MINUTES * 60
+        if is_brief:
+            midpoint = window_start + (window_end - window_start) / 2
+            observing_window = f"Intorno alle {self._format_dt(midpoint)}"
+        else:
+            observing_window = (
+                f"{self._format_dt(window_start)} - {self._format_dt(window_end)}"
+            )
+        return (
+            "check" if is_brief else "visible",
+            "Finestra breve" if is_brief else "Visibili nella notte",
+            f"Entrambi superano 8 gradi nella finestra locale {observing_window}; "
+            f"altezza comune massima {peak_altitude:.0f} gradi e separazione minima "
+            f"{separation_label}.",
+            observing_window,
+        )
+
+    def _calendar_nearby_night_windows(
+        self,
+        location: ObserverLocation,
+        local_dt: datetime,
+    ) -> list[ObservingNightWindow]:
+        windows: list[ObservingNightWindow] = []
+        seen: set[tuple[datetime, datetime]] = set()
+        references = sorted(
+            {
+                local_dt - timedelta(hours=12),
+                local_dt,
+                local_dt + timedelta(hours=12),
+            }
+        )
+        for reference in references:
+            window = self.observing_night_window(location, reference=reference)
+            if not window.has_observing_window:
+                continue
+            key = (window.start, window.end)
+            if key in seen:
+                continue
+            seen.add(key)
+            windows.append(window)
+        return windows
+
+    @staticmethod
+    def _append_planet_pair_window_candidate(
+        candidates: list[tuple[float, float, float, datetime, datetime]],
+        group: list[tuple[datetime, float]],
+        local_dt: datetime,
+    ) -> None:
+        if not group:
+            return
+        window_start = group[0][0]
+        window_end = group[-1][0]
+        midpoint = window_start + (window_end - window_start) / 2
+        distance_seconds = abs((midpoint - local_dt).total_seconds())
+        peak_altitude = max(altitude for _, altitude in group)
+        duration_seconds = (window_end - window_start).total_seconds()
+        candidates.append(
+            (
+                -distance_seconds,
+                peak_altitude,
+                duration_seconds,
+                window_start,
+                window_end,
+            )
+        )
+
+    @staticmethod
+    def _planetary_conjunction_usefulness(separation_deg: float) -> int:
+        if separation_deg <= 0.5:
+            return 95
+        if separation_deg <= 1.0:
+            return 92
+        if separation_deg <= 2.0:
+            return 86
+        if separation_deg <= 4.0:
+            return 80
+        return 74
+
+    @staticmethod
+    def _planetary_conjunction_setup(
+        first: SolarSystemBodyConfig,
+        second: SolarSystemBodyConfig,
+    ) -> str:
+        participants = {first.object_id, second.object_id}
+        if "neptune" in participants:
+            return "Telescopio a campo largo; usa il pianeta più luminoso come riferimento"
+        if "uranus" in participants:
+            return "Binocolo stabile o telescopio a campo largo"
+        return "Occhio nudo o binocolo a campo largo"
+
+    @staticmethod
+    def _format_angular_separation(value: float) -> str:
+        precision = 2 if value < 1.0 else 1
+        return f"{value:.{precision}f}".replace(".", ",") + " gradi"
 
     def _calendar_phase_visibility(
         self,

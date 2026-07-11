@@ -32,13 +32,15 @@ Item {
             return theme.teal
         if (type === "Eclissi")
             return theme.coral
-        if (type === "Congiunzione")
+        if (type === "Congiunzione" || type === "Congiunzione planetaria")
             return theme.violet
+        if (type === "Congiunzione solare")
+            return theme.coral
         return theme.cyan
     }
 
     function chronologicalEvents(limit) {
-        return (root.calendarOverview.items || []).slice(0, limit)
+        return (root.calendarOverview.homeItems || root.calendarOverview.items || []).slice(0, limit)
     }
 
     function skyCompassRotation(direction) {

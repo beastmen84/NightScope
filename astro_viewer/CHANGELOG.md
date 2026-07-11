@@ -3,20 +3,30 @@
 ## NightScope 1.20.0 - 2026-07-11
 
 - Uniformato il Calendario a un orizzonte completo di 365 giorni: fasi
-  lunari, opposizioni, congiunzioni, eclissi lunari e sciami non subiscono piu'
-  il precedente taglio ai 18 eventi con utilita' maggiore.
+  lunari, opposizioni, congiunzioni planetarie e solari, eclissi lunari e sciami
+  non subiscono piu' il precedente taglio ai 18 eventi con utilita' maggiore.
 - Portate anche le fasi lunari da 90 a 365 giorni e le eclissi da 730 a 365,
   cosi' tutti i filtri condividono lo stesso confine temporale.
 - Aggiunti quattro sciami maggiori alla lista annuale e mantenuto il massimo
   del giorno corrente anche quando l'istante convenzionale di mezzanotte e'
   gia' trascorso.
 - Separati nel modello istante evento, tipo di timing, finestra osservativa,
-  visibilita' locale e target associato.
-- Calcolate finestre locali per opposizioni/congiunzioni e visibilita' del
-  massimo delle eclissi; gli eventi non osservabili restano nel calendario con
-  uno stato esplicito invece di essere rimossi.
-- Aggiunto il contratto score-free `calendarOverview`: `usefulness` resta
-  interno e diventa una priorita' descrittiva, senza entrare nel payload UI.
+  visibilita' locale, target associati e separazione angolare.
+- Aggiunti gli avvicinamenti tra tutte le 21 coppie dei sette pianeti tramite
+  `Skyfield.searchlib.find_minima()`: entrano nel Calendario quando la
+  separazione minima e' al massimo 6 gradi.
+- La finestra delle congiunzioni planetarie richiede che entrambi i pianeti
+  superino 8 gradi nella stessa notte locale; le opportunita' inferiori a 20
+  minuti restano presenti ma sono marcate `Finestra breve`.
+- Separate le congiunzioni col Sole come categoria informativa: titolo, stato,
+  setup e consigli dichiarano che non sono target visuali e impediscono di
+  suggerire strumenti ottici vicino al Sole.
+- Il massimo di un'eclissi sotto l'orizzonte o in luce diurna non produce piu'
+  una falsa finestra osservativa; il copy distingue il massimo dalle eventuali
+  fasi iniziali o finali da verificare.
+- Portato a v2 il contratto score-free `calendarOverview`: `usefulness` resta
+  interno, le evidenze applicano una penalita' alla non visibilita' locale e le
+  congiunzioni solari non occupano la preview osservativa Home.
 - Il setup di un evento futuro non usa piu' il seeing della sessione corrente e
   riusa i dati reali del target quando disponibili.
 - Collegati Calendario e card Home `Prossimi eventi` al nuovo contratto; la
@@ -24,19 +34,21 @@
   dettaglio dell'evento conservando la navigazione di ritorno.
 - La preview Home mantiene 4/8 righe per il layout ma offre `Vedi tutti`; il
   Calendario conserva l'intero dataset annuale senza cap.
-- Sostituito il numero grezzo nelle righe con lo stato di visibilita' locale e
-  resi i contatori coerenti con il filtro temporale attivo.
+- Separati contatori e filtri per congiunzioni planetarie e solari, mantenendo
+  lo stato locale al posto del numero grezzo nelle righe.
 - Il dettaglio evento mostra separatamente istante, finestra, visibilita',
-  priorita' descrittiva, setup e consigli; l'apertura del target dichiara che il
-  dettaglio oggetto riguarda stasera.
-- Aggiunte regressioni su orizzonte annuale completo, cronologia, congiunzioni,
-  visibilita' locale, assenza di score, QML e indipendenza dal seeing corrente.
-- Probe deterministico Addis Ababa: `71` eventi in `1,17 s` nel worker; 50 fasi
-  lunari, 5 opposizioni, 4 congiunzioni, 10 sciami e 2 eclissi.
-- Verificati `pip check`, ruff, compileall, `qmllint`, rendering offscreen,
-  test mirati e suite completa parallela: `714 passed`, `215 warnings`,
-  `7 subtests passed` in `33,51 s`. I warning sono la deprecazione
-  Skyfield/NumPy gia' nota, ripetuta dai nuovi casi annuali.
+  priorita' descrittiva, separazione, setup e consigli; per una coppia offre un
+  pulsante per ciascun pianeta e non usa piu' il fuorviante `per stasera`.
+- Compattati i timing lunghi nella tessera data/ora e nascosta la finestra
+  duplicata quando coincide gia' con il timing principale.
+- Probe deterministico Addis Ababa: `82` eventi in circa `2,80 s` nel worker;
+  50 fasi lunari, 5 opposizioni, 11 congiunzioni planetarie, 4 solari, 10
+  sciami e 2 eclissi. La ricerca delle 21 coppie richiede meno di un secondo.
+- Verificati `pip check`, ruff, compileall, smoke Python/QML, `qmllint` e
+  rendering offscreen a 1600 e 960 px senza sovrapposizioni.
+- Suite completa parallela: `716 passed`, `558 warnings`, `7 subtests passed`
+  in `40,03 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota,
+  ripetuta dalle ricerche astronomiche.
 - Distribuzione non rigenerata: sorgente `1.20.0`, dist `1.18.8`.
 
 ## NightScope 1.19.0 - 2026-07-11

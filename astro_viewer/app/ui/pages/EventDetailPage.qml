@@ -10,6 +10,14 @@ Item {
     property var eventData
     property color accentColor: "#65d6e8"
     property bool hasEvent: eventData && eventData.title !== undefined && eventData.title !== ""
+    readonly property string eventWindow: root.hasEvent
+                                                   ? (root.eventData.observingWindow || "").toString().trim()
+                                                   : ""
+    readonly property string eventTimingValue: root.hasEvent
+                                                      ? (root.eventData.timingValue || "").toString().trim()
+                                                      : ""
+    readonly property bool hasDistinctWindow: root.eventWindow.length > 0
+                                                      && root.eventWindow !== root.eventTimingValue
 
     signal backToCalendar()
     signal openObject(string objectId)
@@ -26,18 +34,21 @@ Item {
         return theme.coral
     }
 
-    function eventObjectId() {
+    function eventObjects() {
         if (!root.hasEvent)
-            return ""
+            return []
+        var provided = root.eventData.targetObjects || []
+        if (provided.length > 0)
+            return provided
         var targetId = (root.eventData.targetObjectId || "").toString().trim()
         if (targetId.length === 0)
-            return ""
+            return []
         var objects = root.controller.solarSystemObjects || []
         for (var index = 0; index < objects.length; index += 1) {
             if (objects[index].id === targetId)
-                return targetId
+                return [{ "id": targetId, "name": objects[index].name }]
         }
-        return ""
+        return []
     }
 
     ScrollView {
@@ -144,9 +155,26 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.hasEvent && root.eventData.observingWindow.length > 0
-                              ? "Finestra osservativa: " + root.eventData.observingWindow
-                              : "Nessuna finestra osservativa locale"
+                        visible: root.hasDistinctWindow
+                        text: "Finestra osservativa: " + root.eventWindow
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && root.eventWindow.length === 0
+                        text: "Nessuna finestra osservativa locale"
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.separationLabel || "").length > 0
+                        text: "Separazione minima: " + (root.eventData.separationLabel || "")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -164,8 +192,12 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 244
-                    title: "Con il tuo profilo"
-                    subtitle: "Configurazione consigliata per l'evento"
+                    title: root.hasEvent && root.eventData.type === "Congiunzione solare"
+                           ? "Indicazione di sicurezza"
+                           : "Con il tuo profilo"
+                    subtitle: root.hasEvent && root.eventData.type === "Congiunzione solare"
+                              ? "Evento informativo, non osservativo"
+                              : "Configurazione consigliata per l'evento"
                     accentColor: theme.cyan
 
                     Text {
@@ -185,12 +217,20 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    DarkButton {
-                        visible: root.eventObjectId().length > 0
-                        Layout.preferredWidth: 224
-                        text: "Apri oggetto per stasera"
-                        accentColor: root.accentColor
-                        onClicked: root.openObject(root.eventObjectId())
+                    Flow {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: implicitHeight
+                        spacing: 8
+
+                        Repeater {
+                            model: root.eventObjects()
+
+                            delegate: DarkButton {
+                                text: "Apri " + modelData.name
+                                accentColor: root.accentColor
+                                onClicked: root.openObject(modelData.id)
+                            }
+                        }
                     }
                 }
             }
