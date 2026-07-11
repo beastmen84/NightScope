@@ -109,8 +109,24 @@ class AstronomicalEvent:
     usefulness: int
     setup: str
     note: str
+    event_at: str = ""
+    timing_kind: str = "instant"
+    timing_label: str = "Istante evento"
+    observing_window: str = ""
+    visibility_state: str = "unknown"
+    visibility_label: str = "Da verificare"
+    visibility_detail: str = ""
+    target_object_id: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data["type"] = self.event_type
+        data["eventAt"] = self.event_at
+        data["timingKind"] = self.timing_kind
+        data["timingLabel"] = self.timing_label
+        data["observingWindow"] = self.observing_window
+        data["visibilityState"] = self.visibility_state
+        data["visibilityLabel"] = self.visibility_label
+        data["visibilityDetail"] = self.visibility_detail
+        data["targetObjectId"] = self.target_object_id
         return data

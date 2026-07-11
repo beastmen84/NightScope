@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 DEEP_SKY_USEFUL_ALTITUDE_DEG = 15.0
 CATALOGUE_MONTH_SAMPLE_MINUTES = 60
+CALENDAR_EVENT_HORIZON_DAYS = 365
 
 
 class EphemerisUnavailableError(RuntimeError):
@@ -534,24 +535,43 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         now = self._now(location)
+        end_datetime = now + timedelta(days=CALENDAR_EVENT_HORIZON_DAYS)
         start = self._to_skyfield_time(now)
-        end = self._to_skyfield_time(now + timedelta(days=365))
+        end = self._to_skyfield_time(end_datetime)
+        zone = self._zone(location)
         events: list[AstronomicalEvent] = []
 
-        moon_times, moon_indices = almanac.find_discrete(start, self._to_skyfield_time(now + timedelta(days=90)), almanac.moon_phases(self._ephemeris))
+        moon_times, moon_indices = almanac.find_discrete(
+            start,
+            end,
+            almanac.moon_phases(self._ephemeris),
+        )
         for event_time, index in zip(moon_times, moon_indices):
-            phase_name = self._moon_phase_event_name(int(index))
-            usefulness = 95 if int(index) == 0 else 42 if int(index) == 2 else 68
+            phase_index = int(index)
+            local_dt = event_time.utc_datetime().astimezone(zone)
+            phase_name = self._moon_phase_event_name(phase_index)
+            usefulness = 95 if phase_index == 0 else 42 if phase_index == 2 else 68
+            visibility_state, visibility_label, visibility_detail, observing_window = (
+                self._calendar_phase_visibility(location, local_dt, phase_index)
+            )
             events.append(
                 AstronomicalEvent(
                     id=f"moon-{event_time.tt}",
                     title=phase_name,
                     event_type="Luna",
-                    date_label=self._format_date(event_time.utc_datetime().astimezone(self._zone(location))),
-                    best_time=self._format_dt(event_time.utc_datetime().astimezone(self._zone(location))),
+                    date_label=self._format_date(local_dt),
+                    best_time=self._format_dt(local_dt),
                     usefulness=usefulness,
                     setup="Qualsiasi setup",
                     note="Evento calcolato con Skyfield.",
+                    event_at=local_dt.isoformat(),
+                    timing_kind="phase",
+                    timing_label="Istante della fase",
+                    observing_window=observing_window,
+                    visibility_state=visibility_state,
+                    visibility_label=visibility_label,
+                    visibility_detail=visibility_detail,
+                    target_object_id="moon",
                 )
             )
 
@@ -563,24 +583,43 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             times, kinds = almanac.find_discrete(start, end, function)
             for event_time, kind in zip(times, kinds):
                 is_opposition = int(kind) == 1
+                local_dt = event_time.utc_datetime().astimezone(zone)
+                visibility_state, visibility_label, visibility_detail, observing_window = (
+                    self._calendar_planet_visibility(location, config, local_dt)
+                )
                 events.append(
                     AstronomicalEvent(
                         id=f"{config.object_id}-{int(kind)}-{event_time.tt}",
                         title=f"{config.name} in {'opposizione' if is_opposition else 'congiunzione'}",
                         event_type="Opposizione" if is_opposition else "Congiunzione",
-                        date_label=self._format_date(event_time.utc_datetime().astimezone(self._zone(location))),
-                        best_time=self._format_dt(event_time.utc_datetime().astimezone(self._zone(location))),
+                        date_label=self._format_date(local_dt),
+                        best_time=self._format_dt(local_dt),
                         usefulness=92 if is_opposition else 38,
                         setup="Telescopio medio" if is_opposition else "Non prioritario",
                         note="Calcolato dalla longitudine eclittica relativa al Sole.",
+                        event_at=local_dt.isoformat(),
+                        timing_kind="instant",
+                        timing_label="Istante astronomico",
+                        observing_window=observing_window,
+                        visibility_state=visibility_state,
+                        visibility_label=visibility_label,
+                        visibility_detail=visibility_detail,
+                        target_object_id=config.object_id,
                     )
                 )
 
-        eclipse_times, eclipse_kinds, _ = eclipselib.lunar_eclipses(start, self._to_skyfield_time(now + timedelta(days=730)), self._ephemeris)
+        eclipse_times, eclipse_kinds, _ = eclipselib.lunar_eclipses(
+            start,
+            end,
+            self._ephemeris,
+        )
         for eclipse_time, eclipse_kind in zip(eclipse_times, eclipse_kinds):
             kind_name = eclipselib.LUNAR_ECLIPSES[int(eclipse_kind)]
             eclipse_label = _italian_lunar_eclipse_kind(kind_name)
-            local_dt = eclipse_time.utc_datetime().astimezone(self._zone(location))
+            local_dt = eclipse_time.utc_datetime().astimezone(zone)
+            visibility_state, visibility_label, visibility_detail = (
+                self._calendar_eclipse_visibility(location, local_dt)
+            )
             events.append(
                 AstronomicalEvent(
                     id=f"lunar-eclipse-{eclipse_time.tt}",
@@ -590,12 +629,125 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     best_time=self._format_dt(local_dt),
                     usefulness=86 if int(eclipse_kind) >= 1 else 62,
                     setup="Occhio nudo o teleobiettivo",
-                    note="Evento calcolato con Skyfield; visibilità locale da verificare sull'orizzonte.",
+                    note="Massimo dell'eclissi calcolato con Skyfield.",
+                    event_at=local_dt.isoformat(),
+                    timing_kind="instant",
+                    timing_label="Massimo dell'eclissi",
+                    observing_window=f"Intorno alle {self._format_dt(local_dt)}",
+                    visibility_state=visibility_state,
+                    visibility_label=visibility_label,
+                    visibility_detail=visibility_detail,
+                    target_object_id="moon",
                 )
             )
 
-        events.extend(self._recurring_meteor_showers(now))
-        return sorted(events, key=lambda event: (event.usefulness, event.date_label), reverse=True)[:18]
+        events.extend(self._recurring_meteor_showers(now, end_datetime))
+        return sorted(events, key=lambda event: event.event_at)
+
+    def _calendar_phase_visibility(
+        self,
+        location: ObserverLocation,
+        local_dt: datetime,
+        phase_index: int,
+    ) -> tuple[str, str, str, str]:
+        date_label = self._format_date(local_dt)
+        observing_window = f"Notte vicina al {date_label}"
+        if phase_index == 0:
+            return (
+                "favorable",
+                "Cielo profondo favorito",
+                "La Luna nuova riduce il fondo cielo nella notte vicina alla fase.",
+                observing_window,
+            )
+
+        state, _label, detail = self._calendar_instant_visibility(
+            location,
+            "moon",
+            local_dt,
+        )
+        if state == "visible":
+            return "visible", "Visibile all'istante", detail, observing_window
+        return (
+            "nearby_night",
+            "Osservabile nella notte",
+            f"L'istante esatto non coincide con una visibilità locale favorevole. {detail}",
+            observing_window,
+        )
+
+    def _calendar_planet_visibility(
+        self,
+        location: ObserverLocation,
+        config: SolarSystemBodyConfig,
+        local_dt: datetime,
+    ) -> tuple[str, str, str, str]:
+        night_window = self.observing_night_window(location, reference=local_dt)
+        target = self._body_details(
+            config,
+            location,
+            now=local_dt,
+            night_window=night_window,
+        )
+        observing_window = target.observing_window
+        if " - " in observing_window and not observing_window.startswith("Non"):
+            return (
+                "visible",
+                "Visibile nella notte",
+                f"Finestra locale {observing_window}; altezza massima {target.max_altitude}.",
+                observing_window,
+            )
+        return (
+            "not_visible",
+            "Non visibile nella notte",
+            f"Non supera la soglia utile locale di 8 gradi nella notte dell'evento; altezza massima {target.max_altitude}.",
+            "",
+        )
+
+    def _calendar_eclipse_visibility(
+        self,
+        location: ObserverLocation,
+        local_dt: datetime,
+    ) -> tuple[str, str, str]:
+        state, _label, detail = self._calendar_instant_visibility(
+            location,
+            "moon",
+            local_dt,
+        )
+        labels = {
+            "visible": "Visibile localmente",
+            "daylight": "Massimo in luce diurna",
+            "below_horizon": "Massimo sotto l'orizzonte",
+        }
+        return state, labels.get(state, "Da verificare"), detail
+
+    def _calendar_instant_visibility(
+        self,
+        location: ObserverLocation,
+        body_key: str,
+        local_dt: datetime,
+    ) -> tuple[str, str, str]:
+        observer = self._observer(location)
+        instant = self._to_skyfield_time(local_dt)
+        body_altitude, _, _ = observer.at(instant).observe(self._ephemeris[body_key]).apparent().altaz()
+        sun_altitude, _, _ = observer.at(instant).observe(self._ephemeris["sun"]).apparent().altaz()
+        body_degrees = float(body_altitude.degrees)
+        sun_degrees = float(sun_altitude.degrees)
+        if body_degrees >= 0.0 and sun_degrees < 0.0:
+            return (
+                "visible",
+                "Visibile",
+                f"Altezza locale {body_degrees:.0f} gradi con Sole sotto l'orizzonte.",
+            )
+        if body_degrees >= 0.0:
+            return (
+                "daylight",
+                "Luce diurna",
+                f"Altezza locale {body_degrees:.0f} gradi, ma il Sole è sopra l'orizzonte.",
+            )
+        return (
+            "below_horizon",
+            "Sotto l'orizzonte",
+            f"Altezza locale {body_degrees:.0f} gradi all'istante dell'evento.",
+        )
 
     def _body_details(
         self,
@@ -1211,20 +1363,29 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return "Luna luminosa: cielo profondo debole penalizzato."
 
     @staticmethod
-    def _recurring_meteor_showers(now: datetime) -> list[AstronomicalEvent]:
+    def _recurring_meteor_showers(
+        now: datetime,
+        end: datetime,
+    ) -> list[AstronomicalEvent]:
         showers = [
             ("Quadrantidi", 1, 3, "Nord-est prima dell'alba"),
             ("Liridi", 4, 22, "Dopo mezzanotte"),
             ("Eta Aquaridi", 5, 6, "Pre-alba"),
+            ("Delta Aquaridi meridionali", 7, 30, "Dopo mezzanotte"),
             ("Perseidi", 8, 12, "02:00 - 04:30"),
+            ("Draconidi", 10, 8, "Prima parte della notte"),
             ("Orionidi", 10, 21, "Dopo mezzanotte"),
+            ("Leonidi", 11, 17, "Dopo mezzanotte"),
             ("Geminidi", 12, 14, "22:00 - 03:00"),
+            ("Ursidi", 12, 22, "Dopo mezzanotte"),
         ]
         events = []
         for name, month, day, best_time in showers:
             event_date = datetime(now.year, month, day, 0, 0, tzinfo=now.tzinfo)
-            if event_date < now:
+            if event_date.date() < now.date():
                 event_date = datetime(now.year + 1, month, day, 0, 0, tzinfo=now.tzinfo)
+            if event_date > end:
+                continue
             events.append(
                 AstronomicalEvent(
                     id=f"shower-{name.lower()}-{event_date.year}",
@@ -1235,6 +1396,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     usefulness=78,
                     setup="Occhio nudo",
                     note="Evento ricorrente; verificare fase lunare e meteo.",
+                    event_at=event_date.isoformat(),
+                    timing_kind="window",
+                    timing_label="Finestra indicativa",
+                    observing_window=best_time,
+                    visibility_state="check",
+                    visibility_label="Da verificare",
+                    visibility_detail=(
+                        "La visibilità reale dipende da radiante, fase lunare, meteo e ostacoli locali."
+                    ),
                 )
             )
         return events

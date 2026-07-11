@@ -2,7 +2,7 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.19.0`
+Versione corrente sorgente: `1.20.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
@@ -290,6 +290,17 @@ Direzione consigliata prima di ridisegnare il QML:
    potranno entrare solo entro il reale orizzonte previsionale;
 6. collegare alla fine Calendario e card Home `Prossimi eventi` al nuovo
    contratto e verificarli graficamente.
+
+Implementazione `1.20.0` avviata dal backend:
+
+- orizzonte unico di 365 giorni e rimozione completa del cap a 18;
+- probe deterministico Addis Ababa dal 2026-07-11: 71 eventi, composti da 50
+  fasi lunari, 5 opposizioni, 4 congiunzioni, 10 sciami e 2 eclissi;
+- eventi ordinati cronologicamente e sempre conservati anche se non visibili
+  localmente;
+- nuovo `calendarOverview` score-free con timing, finestra, visibilita',
+  priorita' descrittiva, setup futuro senza seeing corrente e copy di dettaglio;
+- QML Calendario e card Home ancora da collegare nel secondo step.
 
 ## Superfici Backend NSOM Chiuse
 

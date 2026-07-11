@@ -66,6 +66,7 @@ from astro_viewer.app.services.nasa_aod_provider import NasaAodProvider, NasaAod
 from astro_viewer.app.services.best_object_nsom_ranking import (
     BestObjectNsomSelectionService,
 )
+from astro_viewer.app.services.calendar_overview import CalendarOverviewService
 from astro_viewer.app.services.detail_nsom_runtime import (
     DetailObjectNsomRuntimeService,
 )
@@ -297,6 +298,7 @@ class AppController(QObject):
         )
         self._home_observing_overview_service = HomeObservingOverviewService()
         self._home_night_plan_overview_service = HomeNightPlanOverviewService()
+        self._calendar_overview_service = CalendarOverviewService()
         self._night_planner_service = NightPlannerService()
         self._sky_compass_service = SkyCompassService()
         self._sky_compass_nsom_direction_service = (
@@ -609,6 +611,18 @@ class AppController(QObject):
     @Property("QVariant", notify=dataChanged)
     def events(self) -> list[dict]:
         return [self._event_to_qml(event) for event in self._events]
+
+    @Property("QVariant", notify=dataChanged)
+    def calendarOverview(self) -> dict:
+        assigned_equipment = self._profile_assigned_equipment()
+        return self._calendar_overview_service.build(
+            events=self.events,
+            now=datetime.now(self._zone()),
+            has_configured_equipment=any(
+                str(item.get("id", "")) != "preset:naked-eye"
+                for item in assigned_equipment
+            ),
+        )
 
     @Property("QVariant", notify=dataChanged)
     def upcomingHighlights(self) -> list[dict]:
@@ -4764,14 +4778,11 @@ class AppController(QObject):
     def _calendar_moon_setup(self, event: AstronomicalEvent) -> str:
         title = event.title.strip().lower()
         if "nuova" in title:
-            telescope = self._current_telescope()
-            if self._equipment_service.has_optical_telescope(telescope):
-                return (
-                    f"Con il tuo {telescope.name} questa è la notte migliore del mese "
-                    "per osservare galassie, nebulose e ammassi deboli."
-                )
-            return "Notte migliore del mese per cielo profondo: usa binocolo o telescopio se disponibili."
-        target = self._calendar_moon_target(event)
+            return (
+                "Notte migliore del mese per il cielo profondo: usa il setup più adatto "
+                "al singolo oggetto del tuo profilo."
+            )
+        target = self._calendar_event_target(event) or self._calendar_moon_target(event)
         return self._calendar_profile_setup(target, "Osservazione lunare")
 
     @staticmethod
@@ -4799,6 +4810,17 @@ class AppController(QObject):
     def _calendar_event_target(self, event: AstronomicalEvent) -> CelestialObject | None:
         event_type = event.event_type.strip().lower()
         title = event.title.strip().lower()
+        target_id = event.target_object_id.strip()
+        if target_id:
+            targets = list(getattr(self, "_base_solar_system_objects", []))
+            targets.extend(getattr(self, "_solar_system_objects", []))
+            for target in targets:
+                if target.id == target_id:
+                    return replace(
+                        target,
+                        best_time=event.best_time,
+                        observing_window=event.observing_window or event.best_time,
+                    )
         if event_type == "luna" or (event_type == "eclissi" and "lunare" in title):
             return self._calendar_moon_target(event)
         bodies = {
@@ -4860,7 +4882,7 @@ class AppController(QObject):
             telescopes,
             self._active_profile_eyepieces(),
             self._active_profile_barlows(),
-            self._seeing_transparency,
+            None,
             self._sky_quality,
             binoculars,
         )

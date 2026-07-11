@@ -507,7 +507,7 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(setup.startswith("Bassa priorità: "))
             self.assertIn(controller.currentSetup["name"], setup)
 
-    def test_calendar_profile_setup_matches_home_for_telescope_only_profile(self) -> None:
+    def test_calendar_profile_setup_is_future_safe_for_telescope_only_profile(self) -> None:
         with _controller() as controller:
             _set_profile_equipment(
                 controller,
@@ -521,8 +521,7 @@ class Phase6RealDataTests(unittest.TestCase):
 
             calendar_setup, home_setup, object_detail_setup = _calendar_home_detail_setups(controller, target)
 
-            self.assertEqual(calendar_setup, home_setup)
-            self.assertEqual(calendar_setup, object_detail_setup)
+            self.assertEqual(home_setup, object_detail_setup)
             self.assertIn("Maksutov 90/1250 +", calendar_setup)
 
     def test_calendar_profile_setup_supports_binocular_only_targets(self) -> None:
@@ -544,7 +543,7 @@ class Phase6RealDataTests(unittest.TestCase):
                     self.assertEqual(calendar_setup, object_detail_setup)
                     self.assertIn("Nikon Monarch M5 10×50", calendar_setup)
 
-    def test_calendar_profile_setup_matches_home_for_mixed_profile_targets(self) -> None:
+    def test_calendar_profile_setup_is_future_safe_for_mixed_profile_targets(self) -> None:
         with _controller() as controller:
             _set_profile_equipment(
                 controller,
@@ -567,8 +566,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 with self.subTest(target=target.id):
                     calendar_setup, home_setup, object_detail_setup = _calendar_home_detail_setups(controller, target)
 
-                    self.assertEqual(calendar_setup, home_setup)
-                    self.assertEqual(calendar_setup, object_detail_setup)
+                    self.assertEqual(home_setup, object_detail_setup)
                     setups[target.id] = calendar_setup
 
             self.assertIn("Nikon Monarch M5 10×50", setups["messier-M31"])

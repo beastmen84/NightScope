@@ -1,5 +1,27 @@
 # Changelog
 
+## NightScope 1.20.0 - 2026-07-11
+
+- Uniformato il Calendario a un orizzonte completo di 365 giorni: fasi
+  lunari, opposizioni, congiunzioni, eclissi lunari e sciami non subiscono piu'
+  il precedente taglio ai 18 eventi con utilita' maggiore.
+- Portate anche le fasi lunari da 90 a 365 giorni e le eclissi da 730 a 365,
+  cosi' tutti i filtri condividono lo stesso confine temporale.
+- Aggiunti quattro sciami maggiori alla lista annuale e mantenuto il massimo
+  del giorno corrente anche quando l'istante convenzionale di mezzanotte e'
+  gia' trascorso.
+- Separati nel modello istante evento, tipo di timing, finestra osservativa,
+  visibilita' locale e target associato.
+- Calcolate finestre locali per opposizioni/congiunzioni e visibilita' del
+  massimo delle eclissi; gli eventi non osservabili restano nel calendario con
+  uno stato esplicito invece di essere rimossi.
+- Aggiunto il contratto score-free `calendarOverview`: `usefulness` resta
+  interno e diventa una priorita' descrittiva, senza entrare nel payload UI.
+- Il setup di un evento futuro non usa piu' il seeing della sessione corrente e
+  riusa i dati reali del target quando disponibili.
+- Aggiunte regressioni su orizzonte annuale completo, cronologia, congiunzioni,
+  visibilita' locale, assenza di score e indipendenza dal seeing corrente.
+
 ## NightScope 1.19.0 - 2026-07-11
 
 - Qualificati nel dettaglio i badge `Sessione consigliata`, `Sessione da
