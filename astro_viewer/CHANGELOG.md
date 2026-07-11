@@ -15,6 +15,11 @@
   resta disponibile fuori dalla lista o quando il contenuto entra interamente.
 - Aggiunto un controllo del contratto QML del gestore annidato; verificati
   `qmllint`, test Home/release e caricamento offscreen dell'intera scena.
+- Verificati ruff e compileall completi, smoke Python, QML smoke e suite
+  parallela: `672 passed`, `27 warnings`, `7 subtests passed` in `33,58 s`;
+  restano soltanto i warning Skyfield/NumPy gia' noti.
+- La distribuzione Windows non e' ancora stata rigenerata in questo commit e
+  `dist/NightScope` resta alla versione `1.18.0`.
 
 ## NightScope 1.18.2 - 2026-07-11
 

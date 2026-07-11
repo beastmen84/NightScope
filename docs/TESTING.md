@@ -46,11 +46,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.18.2`:
+Measured on the current Windows development environment for `1.18.3`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `670 passed, 7 subtests passed` | `0:00:31` |
+| `python -m pytest -q -n auto` | `672 passed, 7 subtests passed` | `0:00:34` |
 
 The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
 subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield

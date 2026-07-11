@@ -2,10 +2,12 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.2`
+Versione corrente sorgente: `1.18.3`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `b57049f Keep Home list wheel scrolling contained`
+- `4f5cdec Remove residual Home target cap`
 - `167ac2a Release 1.18.2 astronomy performance hardening`
 - `02ea0c3 Move cold astronomy refresh off UI thread`
 - `e5825f5 Move Sky Compass live refresh off UI thread`
@@ -299,6 +301,34 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo le correzioni Home `1.18.3`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\HomePage.qml
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff completo: passed;
+- compileall completo: passed;
+- smoke sorgente: exit code `0`;
+- QML smoke sorgente: exit code `0`;
+- `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
+  qualificati della pagina;
+- regressione condizioni/Home/Sky Compass: `117 passed`;
+- integrazione Home/release QML: `43 passed`, oltre al controllo mirato
+  `6 passed`;
+- suite completa parallela: `672 passed, 27 warnings, 7 subtests passed` in
+  `33.58 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- la verifica visuale della rotella resta da eseguire sulla nuova distribuzione
+  richiesta dall'utente;
+- sorgente `1.18.3`, `dist/NightScope` ancora `1.18.0` prima della build.
+
 Dopo l'hardening prestazioni astronomiche `1.18.2`:
 
 ```powershell
@@ -566,7 +596,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: la sorgente e'
-   `1.18.2`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
+   `1.18.3`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
    stasera`.

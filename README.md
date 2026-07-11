@@ -33,7 +33,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.2`.
+Versione corrente sorgente: `1.18.3`.
 
 Distribuzione Windows corrente: `1.18.0`.
 
@@ -114,6 +114,13 @@ Planner e diagnostica; il refresh freddo costruisce in background uno snapshot
 con notte, oggetti, Luna, eventi e visibilita' mensile. Anche il tick live Sky
 Compass e il reload deep-sky VIIRS applicano soltanto risultati ancora validi
 per request id e posizione. Scoring, payload QML e UI visibile restano invariati.
+
+In `1.18.3` il condizionamento per inquinamento luminoso non tronca piu' a dieci
+gli oggetti deep-sky ancora utili: l'intero pool raggiunge Home e Sky Compass
+prima dell'esclusione dei quattro target del piano. La lista Home degli altri
+oggetti trattiene inoltre lo scroll di mouse e touchpad quando il puntatore e'
+sulla lista scrollabile, senza trasferirlo alla pagina quando raggiunge un
+estremo.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
