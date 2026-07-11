@@ -78,6 +78,9 @@ Current runtime status for `1.18.3`:
   forecast selection, global score, seeing/transparency, Home, Planner and Sky
   Compass. Skyfield owns sunset/sunrise calculation and caches one result per
   location/night.
+- The initial Open-Meteo lookup is a worker continuation of the asynchronous
+  astronomy snapshot. The controller keeps the full-refresh loading state until
+  the still-current weather result has been applied on the Qt thread.
 - `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
   projects Session state, a count-based multi-equipment summary, four compact
   plan rows and score-free alternative rows without changing Planner ranking.

@@ -341,6 +341,11 @@ by `ObservingScoreService`, seeing/transparency, the Home weather digest and the
 session-state calculation. Daytime samples are not used as a fallback when the
 astronomical window is unavailable.
 
+The initial lookup after an astronomy snapshot uses the same background worker
+boundary as manual and timer refreshes. Network retries and timeouts never run
+on the Qt thread; the full-refresh loading state ends only after the current
+location's result has been applied.
+
 The Home `Migliore finestra` remains the lowest-penalty relative block of up to
 three consecutive forecast hours. Candidate blocks are split whenever adjacent
 timestamps are more than 90 minutes apart, so samples from two different nights

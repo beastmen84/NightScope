@@ -132,6 +132,11 @@ limitata all'alba locale esatta, senza produrre label come `04:00-07:00` quando
 la notte termina alle `06:12`. La distribuzione Windows resta alla `1.18.3`
 finche' non viene richiesta una nuova build.
 
+Anche il primo recupero Open-Meteo successivo allo snapshot astronomico usa ora
+un worker: il thread QML mantiene lo stato di caricamento e applica il risultato
+solo al completamento, senza attendere i timeout di rete su un avvio senza
+cache.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e

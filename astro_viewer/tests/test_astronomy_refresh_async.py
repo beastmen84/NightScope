@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from datetime import UTC, datetime, timedelta
-from threading import get_ident
+from threading import Event, get_ident
 from unittest.mock import Mock
 
 from PySide6.QtCore import QCoreApplication, QObject
@@ -87,7 +87,7 @@ def test_full_astronomy_refresh_builds_snapshot_before_weather_continuation() ->
     tasks = []
     controller._start_background_task = tasks.append
     controller._apply_astronomy_snapshot = Mock()
-    controller._refresh_weather_and_conditions = Mock()
+    controller._refresh_weather_and_conditions = Mock(return_value=False)
     controller._complete_refresh_all = Mock()
 
     controller._start_astronomy_refresh(ASTRONOMY_REFRESH_FULL)
@@ -103,6 +103,92 @@ def test_full_astronomy_refresh_builds_snapshot_before_weather_continuation() ->
     }
     controller._refresh_weather_and_conditions.assert_called_once()
     controller._complete_refresh_all.assert_called_once()
+
+
+def test_initial_weather_continuation_delegates_network_work_to_worker() -> None:
+    controller, _engine = _controller()
+    controller._weather_refresh_request_id = 0
+    controller._weather_refresh_running = False
+    controller._weather_full_refresh_request_id = None
+    controller._weather_hours = []
+    controller._weather_status = ""
+    controller._moon = None
+    controller._weather_service = Mock()
+    controller._score_service = Mock()
+    controller._score_service.weather_score.return_value = Mock()
+    controller._light_pollution_service = Mock()
+    controller._light_pollution_service.sky_quality.return_value = Mock()
+    controller._seeing_service = Mock()
+    controller._refresh_local_atmosphere = Mock()
+    controller._schedule_viirs_sky_quality_refresh = Mock()
+    controller._schedule_nasa_aod_refresh = Mock()
+    controller._start_weather_refresh = Mock(return_value=True)
+
+    started = controller._refresh_weather_and_conditions()
+
+    assert started is True
+    controller._weather_service.hourly_forecast.assert_not_called()
+    controller._start_weather_refresh.assert_called_once_with(
+        force_refresh=False,
+        complete_full_refresh=True,
+    )
+
+
+def test_weather_service_call_runs_outside_controller_thread() -> None:
+    controller, _engine = _controller()
+    controller._weather_refresh_timer = Mock()
+    controller._startup_location_detection_running = False
+    controller._weather_retry_pending = False
+    controller._weather_refresh_request_id = 0
+    controller._weather_refresh_running = False
+    controller._weather_full_refresh_request_id = None
+    worker_started = Event()
+    worker_finished = Event()
+    worker_thread_ids = []
+
+    def hourly_forecast(_location, *, force_refresh=False):
+        worker_thread_ids.append(get_ident())
+        worker_started.set()
+        worker_finished.set()
+        return []
+
+    controller._weather_service = Mock(
+        hourly_forecast=Mock(side_effect=hourly_forecast),
+        last_error="",
+        retry_recommended=False,
+    )
+
+    started = controller._start_weather_refresh(force_refresh=False)
+
+    assert started is True
+    assert worker_started.wait(1.0)
+    assert worker_finished.wait(1.0)
+    assert len(worker_thread_ids) == 1
+    assert worker_thread_ids[0] != get_ident()
+
+
+def test_full_refresh_loading_finishes_after_weather_completion() -> None:
+    controller, _engine = _controller()
+    controller._weather_refresh_request_id = 12
+    controller._weather_full_refresh_request_id = 12
+    controller._weather_refresh_running = True
+    controller._weather_hours = []
+    controller._weather_status = ""
+    controller._update_observing_night_window = Mock(return_value=False)
+    controller._complete_weather_refresh = Mock()
+    controller._complete_refresh_all = Mock()
+
+    controller._finish_weather_refresh(
+        12,
+        "41.900:12.500:roma",
+        [],
+        "",
+        False,
+    )
+
+    controller._complete_weather_refresh.assert_called_once_with("", False)
+    controller._complete_refresh_all.assert_called_once_with()
+    assert controller._weather_full_refresh_request_id is None
 
 
 def test_night_rollover_continues_weather_refresh_after_snapshot_application() -> None:

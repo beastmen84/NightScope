@@ -12,6 +12,11 @@
   non alle `07:00`.
 - Aggiunte regressioni sul confine al secondo e sulla finestra meteo
   `04:00-06:12`. Distribuzione Windows non rigenerata.
+- Spostato su worker anche il primo recupero Open-Meteo successivo allo snapshot
+  astronomico: un avvio senza cache non occupa piu' il thread QML durante i
+  timeout di rete.
+- Mantenuto lo stato di caricamento generale fino all'applicazione del risultato
+  meteo e conservata la continuazione attraverso un eventuale cambio notte.
 
 ## NightScope 1.18.3 - 2026-07-11
 

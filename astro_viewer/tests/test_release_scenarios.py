@@ -553,9 +553,11 @@ class _ControllerContext:
         self._background_patcher = None
         self.weather_requests = None
         self.location_requests = None
+        self._app = None
         self._controller: AppController | None = None
 
     def __enter__(self) -> AppController:
+        self._app = QCoreApplication.instance() or QCoreApplication([])
         self._temp_dir = tempfile.TemporaryDirectory()
         base_dir = Path(__file__).resolve().parents[1]
         database_path = Path(self._temp_dir.name) / "nightscope.db"

@@ -240,6 +240,7 @@ class AppController(QObject):
         self._weather_status = ""
         self._weather_refresh_running = False
         self._weather_refresh_request_id = 0
+        self._weather_full_refresh_request_id: int | None = None
         self._weather_retry_pending = False
         self._astronomy_engine_lock = RLock()
         self._astronomy_refresh_running = False
@@ -1764,7 +1765,8 @@ class AppController(QObject):
                 if self._start_astronomy_refresh(ASTRONOMY_REFRESH_FULL):
                     return
                 self._refresh_astronomy()
-                self._refresh_weather_and_conditions()
+                if self._refresh_weather_and_conditions():
+                    return
             else:
                 self._refresh_no_location_context()
         except Exception:
@@ -2025,7 +2027,8 @@ class AppController(QObject):
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
         if purpose == ASTRONOMY_REFRESH_FULL:
             try:
-                self._refresh_weather_and_conditions()
+                if self._refresh_weather_and_conditions():
+                    return
             except Exception:
                 logger.exception("Unexpected refresh failure after astronomy completion.")
                 self._append_service_status(
@@ -2034,8 +2037,13 @@ class AppController(QObject):
             self._complete_refresh_all()
             return
         if purpose == ASTRONOMY_REFRESH_NIGHT_ROLLOVER:
-            error, retry_recommended = context if isinstance(context, tuple) else ("", False)
+            values = context if isinstance(context, tuple) else ("", False, False)
+            error = values[0] if len(values) >= 1 else ""
+            retry_recommended = bool(values[1]) if len(values) >= 2 else False
+            complete_full_refresh = bool(values[2]) if len(values) >= 3 else False
             self._complete_weather_refresh(str(error), bool(retry_recommended))
+            if complete_full_refresh:
+                self._complete_refresh_all()
 
     def _apply_astronomy_snapshot(self, snapshot: AstronomyRefreshSnapshot) -> None:
         self._moon_geometry_condition_cache = {}
@@ -2070,7 +2078,7 @@ class AppController(QObject):
         self._astronomy_refresh_running = False
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
 
-    def _refresh_weather_and_conditions(self) -> None:
+    def _refresh_weather_and_conditions(self) -> bool:
         self._mark_refresh_dirty(
             RefreshReason.LOCATION_CHANGED,
             (
@@ -2100,43 +2108,33 @@ class AppController(QObject):
                 RefreshDomain.PLANNER,
                 RefreshDomain.COMPASS,
             )
-            return
-        self._weather_hours = self._weather_service.hourly_forecast(self._location)
-        self._weather_status = self._weather_status_from_error(
-            getattr(self._weather_service, "last_error", "") or "",
-            self._weather_hours,
-        )
-        if self._weather_status:
-            self._append_service_status(self._weather_status)
-        observing_hours = self._observing_weather_hours()
-        self._weather_summary = self._score_service.weather_score(observing_hours, self._moon)
+            return False
+        self._weather_hours = []
+        self._weather_status = ""
+        self._weather_summary = self._score_service.weather_score([], self._moon)
         self._sky_quality = self._light_pollution_service.sky_quality(self._location)
-        self._seeing_transparency = self._seeing_service.estimate(observing_hours, self._sky_quality)
-        self._refresh_equipment_recommendations_for_current_objects()
-        self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-        self._refresh_conditioned_observing_candidates()
-        self._recalculate_observing_outputs()
+        self._seeing_transparency = self._seeing_service.estimate([], self._sky_quality)
         self._refresh_local_atmosphere()
         self._schedule_viirs_sky_quality_refresh()
         self._schedule_nasa_aod_refresh()
-        self._schedule_next_weather_refresh(
-            retry_soon=bool(self._weather_status)
-            and bool(getattr(self._weather_service, "retry_recommended", False))
-        )
-        self._clear_refresh_domains(
-            RefreshDomain.WEATHER,
-            RefreshDomain.EQUIPMENT,
-            RefreshDomain.PLANNER,
-            RefreshDomain.COMPASS,
+        return self._start_weather_refresh(
+            force_refresh=False,
+            complete_full_refresh=True,
         )
 
-    def _start_weather_refresh(self, force_refresh: bool = True, *, retry_attempt: bool = False) -> None:
+    def _start_weather_refresh(
+        self,
+        force_refresh: bool = True,
+        *,
+        retry_attempt: bool = False,
+        complete_full_refresh: bool = False,
+    ) -> bool:
         if force_refresh:
             self._weather_retry_pending = False
             self._weather_refresh_timer.stop()
         if self._startup_location_detection_running:
             self._schedule_next_weather_refresh()
-            return
+            return False
         if not self._has_valid_location():
             self._weather_refresh_request_id += 1
             self._weather_status = "Dati meteo non disponibili al momento."
@@ -2152,9 +2150,9 @@ class AppController(QObject):
                 RefreshDomain.PLANNER,
                 RefreshDomain.COMPASS,
             )
-            return
+            return False
         if self._weather_refresh_running:
-            return
+            return False
 
         self._mark_refresh_dirty(
             RefreshReason.MANUAL
@@ -2172,6 +2170,8 @@ class AppController(QObject):
         self._weather_refresh_request_id += 1
         request_id = self._weather_refresh_request_id
         self._weather_refresh_running = True
+        if complete_full_refresh:
+            self._weather_full_refresh_request_id = request_id
         self.weatherChanged.emit()
 
         def run_refresh() -> None:
@@ -2196,7 +2196,21 @@ class AppController(QObject):
                     True,
                 )
 
-        Thread(target=run_refresh, daemon=True).start()
+        try:
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._weather_refresh_running = False
+            if self._weather_full_refresh_request_id == request_id:
+                self._weather_full_refresh_request_id = None
+            self._clear_refresh_domains(
+                RefreshDomain.WEATHER,
+                RefreshDomain.EQUIPMENT,
+                RefreshDomain.PLANNER,
+                RefreshDomain.COMPASS,
+            )
+            logger.warning("Weather worker could not start.", exc_info=True)
+            return False
+        return True
 
     def _refresh_weather_from_timer(self) -> None:
         retry_attempt = self._weather_retry_pending
@@ -2216,7 +2230,12 @@ class AppController(QObject):
         retry_recommended: bool = False,
     ) -> None:
         if request_id != self._weather_refresh_request_id:
+            if request_id == getattr(self, "_weather_full_refresh_request_id", None):
+                self._weather_full_refresh_request_id = None
             return
+        complete_full_refresh = request_id == getattr(self, "_weather_full_refresh_request_id", None)
+        if complete_full_refresh:
+            self._weather_full_refresh_request_id = None
         self._weather_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
@@ -2245,12 +2264,14 @@ class AppController(QObject):
         if night_changed:
             if self._start_astronomy_refresh(
                 ASTRONOMY_REFRESH_NIGHT_ROLLOVER,
-                context=(error, retry_recommended),
+                context=(error, retry_recommended, complete_full_refresh),
             ):
                 return
             self._refresh_astronomy()
 
         self._complete_weather_refresh(error, retry_recommended)
+        if complete_full_refresh:
+            self._complete_refresh_all()
 
     def _complete_weather_refresh(
         self,

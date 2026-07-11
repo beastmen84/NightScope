@@ -148,6 +148,9 @@ Il closeout dichiara:
 - il primo step `1.18.4` conserva il minuto contenente il tramonto Skyfield nei
   clock `HH:MM` consumati da Home e Planner e limita la fine della migliore
   finestra meteo all'alba locale esatta;
+- il secondo step `1.18.4` sposta su worker anche il primo recupero Open-Meteo
+  dopo lo snapshot astronomico e chiude lo stato di caricamento soltanto dopo
+  l'applicazione del risultato ancora valido per localita' e request id;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
