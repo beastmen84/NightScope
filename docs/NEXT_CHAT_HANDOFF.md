@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.2`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `167ac2a Release 1.18.2 astronomy performance hardening`
 - `02ea0c3 Move cold astronomy refresh off UI thread`
 - `e5825f5 Move Sky Compass live refresh off UI thread`
 - `f62d6ab Batch Moon geometry calculations`
