@@ -124,8 +124,9 @@ VIIRS/light pollution:
 
 ### Hidden Assumptions
 
-- Night weather windows are hard-coded around evening/morning hours and vary
-  slightly by service.
+- Resolved in `1.18.1`: astronomy, weather, seeing, Home, Planner and Sky Compass
+  now share the Skyfield sunset-to-sunrise `ObservingNightWindow` instead of
+  separate evening/morning clock ranges.
 - VIIRS cache freshness uses a 7-day revalidation interval; the interval is a
   product-cadence policy rather than a guarantee that NASA has published a new
   monthly composite.

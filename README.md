@@ -33,7 +33,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente: `1.18.0`.
+Versione corrente sorgente: `1.18.1`.
+
+Distribuzione Windows corrente: `1.18.0`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -96,6 +98,15 @@ falsa sequenza numerata, e pianeti/cielo profondo fuori piano sono una tabella
 unica filtrabile senza score o motivazioni lunghe. La distribuzione Windows
 `dist/NightScope` e' stata rigenerata su richiesta con PyInstaller `6.21.0`:
 bundle `VERSION` `1.18.0`, smoke e QML smoke dell'eseguibile con exit code `0`.
+
+In `1.18.1` la notte osservativa non usa piu' fasce orarie generiche. Skyfield
+calcola per la posizione attiva il tramonto locale e l'alba successiva; lo
+stesso intervallo limita campionamento astronomico, meteo, seeing, score,
+Planner, Home e Sky Compass. Open-Meteo fornisce 48 ore e le ore vengono
+selezionate tramite timestamp completi, quindi finestre discontinue come
+`05:00-22:00` non possono essere costruite. Giorno polare e buio continuo sono
+stati espliciti. La distribuzione Windows non e' stata rigenerata in questo
+passaggio.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

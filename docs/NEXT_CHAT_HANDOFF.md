@@ -1,11 +1,14 @@
 # NightScope NSOM - Punto Della Situazione Per Nuova Chat
 
-Data: 2026-07-10  
+Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.0`
+Versione corrente sorgente: `1.18.1`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `b750f9f Harden local night regression coverage`
+- `669c150 Align observing logic to the local night`
+- `ea0b8b1 Use location-aware observing night`
 - `8765348 Document 1.18.0 Windows distribution build`
 - `da10990 Connect lower Home QML to night plan overview`
 - `d54e847 Add Home night plan overview contract`
@@ -98,6 +101,18 @@ Il closeout dichiara:
 - la distribuzione Windows `dist/NightScope` e' stata rigenerata su richiesta
   esplicita per `1.18.0`; bundle `VERSION` `1.18.0`, smoke e QML smoke
   dell'eseguibile passati, runtime utente preservati;
+- `1.18.1` sostituisce tutte le fasce notturne fisse con un unico
+  `ObservingNightWindow` Skyfield, dal tramonto locale all'alba successiva;
+- campionamento astronomico, meteo, seeing, score, Home, Planner e Sky Compass
+  consumano lo stesso confine; giorno polare, buio continuo ed effemeridi
+  indisponibili hanno stati espliciti;
+- Open-Meteo passa a 48 ore e le ore sono filtrate tramite timestamp completi;
+  gruppi separati da piu' di 90 minuti non possono produrre una finestra
+  discontinua come `05:00-22:00`;
+- la cache Skyfield per localita'/notte evita di ricalcolare gli eventi solari
+  per ogni target; la suite completa chiude con `658 passed, 7 subtests passed`;
+- nessuna modifica QML e nessuna nuova build Windows: la distribuzione resta
+  correttamente alla `1.18.0`;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -109,11 +124,12 @@ Nello screenshot Home caricato con `1.17.0`, lo stato `Consigliata` e'
 coerente con le soglie attuali: pioggia massima `61% < 65%`, indice meteo
 `45 > 25` e nuvolosita' media `40% < 85%`, quindi non scatta un blocker.
 
-La dicitura `Migliore finestra` indica pero' il blocco relativo di tre ore con
-penalita' minore, non una finestra in cui ogni ora supera il gate di usabilita'.
-Per questo puo' includere anche un'ora sfavorevole come il `100%` di nuvole
-mostrato alle `00:00`. Non e' stato cambiato alcun algoritmo: copy e policy
-andranno rivalutati sul prossimo screenshot solo con uno step esplicito.
+La dicitura `Migliore finestra` continua a indicare il blocco relativo di tre
+ore con penalita' minore, non una finestra in cui ogni ora supera il gate di
+usabilita'. Da `1.18.1` il blocco deve pero' essere consecutivo e interamente
+contenuto tra tramonto e alba della posizione attiva. Il difetto intermittente
+`05:00-22:00`, causato dall'unione di due porzioni di notti diverse in una
+previsione mobile di 24 ore, e' coperto da regressione e non e' piu' possibile.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -257,6 +273,35 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 ```
 
 ## Ultima Validazione Eseguita
+
+Dopo la correzione della notte locale `1.18.1`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall astro_viewer
+.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Risultati:
+
+- Python `3.14.5`, Skyfield `1.54`, PySide6 `6.11.1`, pytest `9.1.1` e
+  ruff `0.15.21` verificati nella `.venv`;
+- confine Addis Ababa del fixture `2026-07-10`: tramonto `18:48`, alba
+  `06:12`; lo stesso confine viene ritrovato correttamente dopo mezzanotte;
+- giorno polare e buio continuo verificati su Tromso;
+- regressione `05:00, 20:00, 21:00`: il salto diurno spezza il gruppo e non
+  produce `05:00-22:00`;
+- ruff completo: passed;
+- compileall completo: passed;
+- smoke sorgente: exit code `0`;
+- QML smoke sorgente: exit code `0`;
+- suite completa: `658 passed, 26 warnings, 7 subtests passed` in `152.80 s`;
+- i 26 warning sono la deprecazione Skyfield/NumPy gia' nota in
+  `skyfield.searchlib`;
+- QML non modificato e distribuzione Windows non rigenerata: sorgente
+  `1.18.1`, `dist/NightScope` ancora `1.18.0`.
 
 Dopo la rigenerazione Windows `1.18.0`:
 
@@ -467,8 +512,8 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Non rigenerare nuovamente la `dist` senza richiesta esplicita: sorgente e
-   distribuzione corrente sono entrambe `1.18.0`.
+1. Non rigenerare la `dist` senza richiesta esplicita: la sorgente e'
+   `1.18.1`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
    stasera`.

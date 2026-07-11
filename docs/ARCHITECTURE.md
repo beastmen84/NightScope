@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.18.0`:
+Current runtime status for `1.18.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -74,6 +74,10 @@ Current runtime status for `1.18.0`:
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
+- `ObservingNightWindow` is the shared temporal boundary for astronomy,
+  forecast selection, global score, seeing/transparency, Home, Planner and Sky
+  Compass. Skyfield owns sunset/sunrise calculation and caches one result per
+  location/night.
 - `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
   projects Session state, a count-based multi-equipment summary, four compact
   plan rows and score-free alternative rows without changing Planner ranking.
@@ -452,7 +456,8 @@ assignment and active-profile switching without restart.
 Weather cache:
 
 - Owner: `OpenMeteoWeatherService` plus `WeatherCacheRepository`.
-- Key: latitude, longitude, timezone and 24-hour forecast shape.
+- Key: latitude, longitude, timezone and 48-hour forecast shape. The previous
+  `24h` key is read only as a transitional stale-cache fallback.
 - Lifetime: 45 minutes.
 - Force refresh bypasses fresh cache.
 - On network failure, stale cached data may be reused when available.

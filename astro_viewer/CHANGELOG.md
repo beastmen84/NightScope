@@ -1,5 +1,35 @@
 # Changelog
 
+## NightScope 1.18.1 - 2026-07-11
+
+- Sostituita la notte fissa `18:00-07:00` con `ObservingNightWindow`, calcolata
+  da Skyfield tra tramonto locale e alba successiva per la posizione attiva.
+- Usato lo stesso intervallo per campionamento di pianeti e Messier, geometria
+  lunare, `observable_now`, Sky Compass, Home e Planner.
+- Gestiti esplicitamente giorno polare, buio continuo e indisponibilita' delle
+  effemeridi, senza ricadere silenziosamente su una fascia oraria generica.
+- Estesa da 24 a 48 ore la previsione Open-Meteo; la cache usa una nuova chiave
+  `48h` e puo' ancora leggere la precedente chiave `24h` come fallback durante
+  la transizione.
+- Selezionate le ore meteo tramite timestamp locali completi dentro la notte
+  astronomica, condividendole tra score globale, seeing/trasparenza, digest
+  Home e stato della sessione.
+- Impedito al selettore della migliore finestra di unire ore separate da un
+  intervallo diurno; aggiunta la regressione esplicita per `05:00-22:00`.
+- Resi i campioni della card Meteo rappresentativi dell'intera notte reale,
+  anziche' legati agli orari fissi `20`, `22`, `00`, `02`, `04`.
+- Allineati cronologia e label Planner alla posizione relativa del target nella
+  notte; le opportunita' gia' trascorse non vengono riproposte durante una
+  sessione in corso.
+- Conservato l'avviso meteo Sky Compass anche nello stato senza target
+  osservabili al momento.
+- Aggiunta una cache per localita'/notte degli eventi solari Skyfield, evitando
+  di ricalcolare tramonto e alba per ogni target e geometria lunare.
+- Verificati ruff, compileall e suite completa: `658 passed`, `7 subtests
+  passed`; restano solo i warning Skyfield/NumPy gia' noti.
+- Nessuna modifica QML e nessuna rigenerazione della distribuzione Windows;
+  `dist/NightScope` resta alla versione `1.18.0`.
+
 ## NightScope 1.18.0 - 2026-07-10
 
 - Avviata la messa a punto della parte bassa Home con il riallineamento del

@@ -33,7 +33,7 @@ All object visibility is observer-dependent.
 
 ### NSOM Input Availability Boundary
 
-As of `1.18.0`, NightScope keeps backend recommendation inputs separated by
+As of `1.18.1`, NightScope keeps backend recommendation inputs separated by
 availability and ownership:
 
 - Location is the minimum required input. It can come from manual coordinates,
@@ -148,11 +148,18 @@ For Sun, Moon and planets, the engine computes:
 - observing window above threshold,
 - score label and visibility flag.
 
-The current observing window used for sampling is evening to morning, roughly
-18:00 to 07:00 local time. Solar-system objects use an altitude threshold of
-about 8 degrees for useful night visibility. An object can be considered
-available if it is currently above the horizon or reaches the threshold during
-the sampled window.
+`SkyfieldAstronomyEngine` builds one location-aware `ObservingNightWindow` for
+the current or next night. In the normal case its boundaries are local sunset
+and the following local sunrise. Solar-system objects use an altitude threshold
+of about 8 degrees for useful night visibility, and their sampled observing
+window is always contained inside those solar boundaries.
+
+The same `ObservingNightWindow` gates current observability for Sky Compass.
+When Skyfield reports continuous daylight, no observing night is exposed. When
+it reports continuous darkness, NightScope uses an explicit rolling 24-hour
+planning horizon instead of pretending that sunset and sunrise occurred at
+fixed clock times. An ephemeris failure produces an unavailable window rather
+than a silent `18:00-07:00` fallback.
 
 ### Deep-Sky Objects
 
@@ -304,8 +311,17 @@ Inputs:
 - hourly weather forecast,
 - Moon summary.
 
-Night hours are selected from forecast hours with hour >= 19 or hour <= 5. If no
-night hours are found, the service falls back to the first available hours.
+Open-Meteo supplies a rolling 48-hour forecast. `AppController` parses the full
+local timestamp of each `WeatherHour` and keeps only samples contained in the
+current or upcoming `ObservingNightWindow`. The resulting ordered set is shared
+by `ObservingScoreService`, seeing/transparency, the Home weather digest and the
+session-state calculation. Daytime samples are not used as a fallback when the
+astronomical window is unavailable.
+
+The Home `Migliore finestra` remains the lowest-penalty relative block of up to
+three consecutive forecast hours. Candidate blocks are split whenever adjacent
+timestamps are more than 90 minutes apart, so samples from two different nights
+cannot form a label such as `05:00-22:00`.
 
 The score starts at 100 and applies:
 
