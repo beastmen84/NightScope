@@ -14,6 +14,7 @@ from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
+from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -175,6 +176,35 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         self.assertEqual(home_export["runtimeFields"]["score"], 82)
         self.assertEqual(home_export["observableTargetValue"]["value"], 82.0)
         self.assertEqual(controller._astronomy_engine.calls, 1)
+
+    def test_refresh_nsom_diagnostics_reuses_planner_moon_geometry_cache(self) -> None:
+        home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)
+        controller = _controller(
+            [home_target],
+            [_plan_item("messier-M13", "M13", score=82)],
+            best_object=home_target,
+        )
+        controller._night_planner_service = NightPlannerService()
+        controller._astronomy_engine = _MoonGeometryEngine(
+            MoonGeometrySummary(
+                object_id="messier-M13",
+                moon_altitude_deg=41.5,
+                moon_target_separation_deg=72.25,
+                moon_above_horizon=True,
+                moon_visible_during_target_window=True,
+                moon_set_before_target_window=False,
+            )
+        )
+
+        planner_geometry = controller._planner_moon_geometry_inputs([home_target])
+        controller._refresh_nsom_diagnostics()
+
+        self.assertIsNotNone(planner_geometry)
+        self.assertEqual(controller._astronomy_engine.calls, 1)
+        self.assertEqual(
+            controller._moon_geometry_condition_cache[home_target.id].moon_target_separation_deg,
+            72.25,
+        )
 
     def test_export_nsom_diagnostics_is_strict_json_compatible(self) -> None:
         home_target = _object("messier-M13", "M13", "Ammasso globulare", 82)

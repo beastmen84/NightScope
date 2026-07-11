@@ -2215,7 +2215,6 @@ class AppController(QObject):
     def _refresh_nsom_diagnostics(self) -> None:
         notes = ["diagnostic_only", "score_neutral"]
         try:
-            self._moon_geometry_condition_cache = {}
             candidate_targets = self._nsom_diagnostic_candidate_targets()
             moon_geometry_available = self._nsom_moon_geometry_available(candidate_targets)
             confidence = build_recommendation_confidence(

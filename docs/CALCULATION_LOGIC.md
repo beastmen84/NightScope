@@ -76,6 +76,12 @@ Moon geometry is local deterministic input. The runtime computes Moon altitude,
 Moon-target separation and Moon/window overlap from location, time and ephemeris
 data, not from weather, VIIRS, NASA AOD, OpenAQ or equipment.
 
+The controller keeps this geometry for the active location and observing night.
+Astronomy refresh is the invalidation boundary; provider-only AOD/OpenAQ updates
+reuse the existing values when rebuilding the private NSOM diagnostic snapshot.
+This avoids repeating the same ephemeris work without changing Planner scoring
+or any QML payload.
+
 Planner NSOM uses Moon geometry by default through
 `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. The generic
 `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
