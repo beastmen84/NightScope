@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.18.8`:
+Current runtime status for `1.19.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -101,6 +101,10 @@ Current runtime status for `1.18.8`:
 - Lower-Home alternatives are presented by observing-window start; shared best
   times and target category are tie-breaks, followed by a natural numeric name
   key suitable for Messier, Caldwell and future catalogue identifiers.
+- `ObservingObjectDetailService` owns the score-free read model used by the
+  observing detail opened from Home or Calendar. It combines live target
+  geometry, Session metadata and target-specific Equipment selection while
+  keeping the raw Catalogue branch on the existing `selectedObject` contract.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed

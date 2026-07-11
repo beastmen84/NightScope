@@ -103,6 +103,7 @@ from astro_viewer.app.services.observing_night_service import (
     weather_hours_for_next_24,
     weather_hours_for_night,
 )
+from astro_viewer.app.services.observing_object_detail import ObservingObjectDetailService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
 from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester, OpenAQCredentialStore
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
@@ -159,6 +160,7 @@ class AstronomyRefreshSnapshot:
 class AppController(QObject):
     dataChanged = Signal()
     selectedObjectChanged = Signal()
+    observingObjectDetailChanged = Signal()
     catalogueChanged = Signal()
     locationChanged = Signal()
     weatherChanged = Signal()
@@ -203,6 +205,10 @@ class AppController(QObject):
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
         self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
+        self.selectedObjectChanged.connect(self.observingObjectDetailChanged.emit)
+        self.weatherChanged.connect(self.observingObjectDetailChanged.emit)
+        self.equipmentChanged.connect(self.observingObjectDetailChanged.emit)
+        self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
         self._messier_repository = MessierRepository(database_path)
@@ -299,6 +305,7 @@ class AppController(QObject):
         self._detail_object_nsom_runtime_service = (
             detail_object_nsom_runtime_service or DetailObjectNsomRuntimeService()
         )
+        self._observing_object_detail_service = ObservingObjectDetailService()
         self._refresh_manager = RefreshManager()
 
         self._city_results = []
@@ -802,17 +809,81 @@ class AppController(QObject):
             return self._object_to_qml(self._selected_object)
         return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
 
+    @Property("QVariant", notify=observingObjectDetailChanged)
+    def observingObjectDetail(self) -> dict:
+        target = self._observing_detail_display_target()
+        if target is None:
+            return {}
+        adjusted_target = self._moon_adjusted_object(target)
+        payload = self._object_to_qml(adjusted_target)
+        status = str(payload.get("observingStatus", ""))
+        setup_model = getattr(self, "_equipment_setup_read_models_by_object_id", {}).get(target.id)
+        session = self.homeObservingOverview.get("session", {})
+        is_deep_sky = not self._is_planetary_or_lunar_target(target)
+        return self._observing_object_detail_service.build(
+            object_payload=payload,
+            geometry_state=self._observing_status_state(status),
+            session=session,
+            setup_model=setup_model,
+            altitude_threshold_deg=self._observing_altitude_threshold(target),
+            is_deep_sky=is_deep_sky,
+        )
+
     def _selected_object_nsom_payload(self) -> dict[str, object]:
         if not self._selected_object or not self._weather_summary or not self._sky_quality:
             return {}
+        target = self._observing_detail_nsom_target()
         return self._detail_object_nsom_runtime_service.payload(
-            self._selected_object,
+            target,
             source=self._selected_object_source or OBSERVING_SOURCE,
             weather=self._weather_summary,
             sky_quality=self._sky_quality,
-            telescope=self._current_telescope(),
+            telescope=self._detail_telescope_for_target(target.id),
             moon=self._moon,
         ).to_dict()
+
+    def _observing_detail_display_target(self) -> CelestialObject | None:
+        if not self._selected_object or self._selected_object_source == CATALOGUE_SOURCE:
+            return None
+        object_id = self._selected_object.id
+        live_target = next(
+            (
+                item
+                for item in getattr(self, "_sky_compass_candidate_snapshot", [])
+                if item.id == object_id
+            ),
+            None,
+        )
+        if live_target is not None:
+            return live_target
+        read_model = self._observing_detail_read_model(object_id)
+        return read_model.qml_display_target if read_model is not None else self._selected_object
+
+    def _observing_detail_nsom_target(self) -> CelestialObject:
+        if self._selected_object_source == CATALOGUE_SOURCE:
+            return self._selected_object
+        read_model = self._observing_detail_read_model(self._selected_object.id)
+        return read_model.nsom_target_input if read_model is not None else self._selected_object
+
+    def _observing_detail_read_model(
+        self, object_id: str
+    ) -> ObservationConditionedTargetReadModel | None:
+        return next(
+            (
+                model
+                for model in getattr(self, "_conditioned_home_read_model", [])
+                if model.object_id == object_id
+            ),
+            None,
+        )
+
+    def _detail_telescope_for_target(self, object_id: str) -> Telescope:
+        setup_model = getattr(self, "_equipment_setup_read_models_by_object_id", {}).get(object_id)
+        if setup_model is not None and setup_model.equipment_type == "Telescope" and setup_model.telescope_id:
+            telescope = self._find_telescope(setup_model.telescope_id)
+            if telescope is not None:
+                return telescope
+        return self._current_telescope()
 
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
@@ -4826,26 +4897,76 @@ class AppController(QObject):
         now = datetime.now(self._zone())
         night_window = getattr(self, "_observing_night_window", ObservingNightWindow.unavailable())
         is_observing_time = night_window.contains(now)
+        altitude_threshold = self._observing_altitude_threshold(item)
+        observable_now = item.observable_now
+        if observable_now is None:
+            observable_now = bool(
+                is_observing_time
+                and current_altitude is not None
+                and current_altitude >= altitude_threshold
+            )
         if self._is_solar_system_monthly_visibility_blocked(item):
             if current_altitude is not None and current_altitude > 0:
                 return "Sopra l'orizzonte", "Sopra l'orizzonte, ma non utile per l'osservazione questo mese."
             if useful_datetime:
                 return "Finestra marginale", "Finestra marginale: il target non raggiunge la visibilità utile mensile."
             return "Non utile questo mese", "Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile."
-        if current_altitude is not None and current_altitude >= 10:
-            if is_observing_time:
-                return "Osservabile ora", f"Attualmente a {current_altitude:.0f} gradi. Finestra migliore: {window}."
-            return "Sopra l'orizzonte", f"Attualmente a {current_altitude:.0f} gradi, ma fuori dalla fascia osservativa. Finestra migliore: {window}."
+        if observable_now:
+            altitude = f"{current_altitude:.0f} gradi" if current_altitude is not None else "quota utile"
+            return "Osservabile ora", f"Attualmente a {altitude}. Finestra utile: {window}."
+        if current_altitude is not None and current_altitude > 0 and not is_observing_time:
+            return (
+                "Sopra l'orizzonte",
+                f"Attualmente a {current_altitude:.0f} gradi, ma fuori dalla notte osservativa. "
+                f"Finestra utile: {window}.",
+            )
         if useful_datetime:
             label = self._format_home_datetime(useful_datetime)
             if "prima dell'alba" in label:
-                return "Meglio prima dell'alba", f"Attualmente sotto orizzonte o basso. Migliore prima dell'alba: {window}."
+                return "Meglio prima dell'alba", f"Attualmente sotto la soglia utile. Finestra prima dell'alba: {window}."
             if useful_datetime > now:
-                return "Meglio più tardi", f"Non prioritario ora. Migliore più tardi: {window}."
-            return "Dopo il tramonto", f"Finestra utile dopo il tramonto: {label}."
+                return "Meglio più tardi", f"Attualmente sotto la soglia utile. Finestra più tardi: {window}."
+        if current_altitude is not None and current_altitude > 0:
+            return (
+                "Troppo basso ora",
+                f"Attualmente a {current_altitude:.0f} gradi, sotto la soglia utile di "
+                f"{altitude_threshold:g} gradi. Finestra utile: {window}.",
+            )
+        if useful_datetime:
+            return "Finestra conclusa", f"La finestra utile di questa notte era {window}."
         if item.visible:
             return "Finestra utile", f"Finestra osservativa: {item.observing_window}."
         return "Non osservabile", "Nessuna finestra notturna utile per questa posizione."
+
+    @staticmethod
+    def _is_planetary_or_lunar_target(item: CelestialObject) -> bool:
+        return item.id in {
+            "sun",
+            "moon",
+            "mercury",
+            "venus",
+            "mars",
+            "jupiter",
+            "saturn",
+            "uranus",
+            "neptune",
+        } or item.object_type == "Pianeta"
+
+    @classmethod
+    def _observing_altitude_threshold(cls, item: CelestialObject) -> float:
+        return 8.0 if cls._is_planetary_or_lunar_target(item) else DEEP_SKY_USEFUL_ALTITUDE_DEG
+
+    @staticmethod
+    def _observing_status_state(status: str) -> str:
+        if status == "Osservabile ora":
+            return "observable_now"
+        if status == "Sopra l'orizzonte":
+            return "above_horizon"
+        if status in {"Meglio più tardi", "Meglio prima dell'alba", "Finestra utile"}:
+            return "later"
+        if status in {"Troppo basso ora", "Finestra marginale", "Non utile questo mese"}:
+            return "limited"
+        return "unavailable"
 
     def _is_solar_system_monthly_visibility_blocked(self, item: CelestialObject) -> bool:
         if item.object_type != "Pianeta":

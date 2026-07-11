@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.19.0 - 2026-07-11
+
+- Aggiunto il contratto read-only `observingObjectDetail` per il dettaglio
+  aperto da Home/Calendario, mantenendo `selectedObject` invariato per il ramo
+  Catalogo e per la compatibilita' esistente.
+- Separati nel payload stato geometrico, stato Session, finestra utile, momento
+  migliore, durata sopra soglia e setup specifico del target; nessuno score
+  grezzo viene esposto dal nuovo contratto.
+- Riutilizzata la geometria aggiornata ogni minuto dal worker Sky Compass per
+  pianeti e deep sky selezionati.
+- Corretto lo stato `Osservabile ora`: deep sky a 12 gradi non supera piu' la
+  soglia utile di 15 gradi, mentre pianeti e Luna mantengono la soglia di 8.
+- Allineato il runtime NSOM interno del dettaglio al raw target del read model e
+  al telescopio scelto per il singolo oggetto nei profili multi-equipment.
+- Aggiunte regressioni sul nuovo contratto, sulle soglie e sulla selezione del
+  target/setup. Distribuzione non rigenerata: sorgente `1.19.0`, dist `1.18.8`.
+
 ## NightScope 1.18.8 - 2026-07-11
 
 - Sostituita la vecchia card laterale di qualita' osservativa con un riepilogo

@@ -2,8 +2,8 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.8`
-Distribuzione Windows corrente: `1.18.7`
+Versione corrente sorgente: `1.19.0`
+Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `a0364ee Document 1.18.8 validation`
@@ -209,6 +209,11 @@ Il closeout dichiara:
   `homeObservingOverview.session`, centra le immagini delle righe piano, usa
   uno spareggio naturale per nomi Messier/Caldwell e porta la legenda notte
   nell'header del grafico Meteo;
+- la `dist` `1.18.8` e' stata rigenerata manualmente dall'utente per la verifica
+  visuale; il bundle `_internal/VERSION` risulta `1.18.8`;
+- il primo step `1.19.0` introduce `observingObjectDetail`: geometria live,
+  Session e setup target-specific restano separati dal ramo Catalogo e non
+  espongono score grezzi;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -773,9 +778,9 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.18.8` e `1.18.7`.
-2. Il prossimo capitolo UI concordato e' la review, prima di
-   qualunque modifica, della pagina di dettaglio osservativo.
+   sono rispettivamente `1.19.0` e `1.18.8`.
+2. Completare il collegamento QML del dettaglio osservativo al contratto
+   `observingObjectDetail`; il ramo Catalogo resta separato.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
