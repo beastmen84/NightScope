@@ -333,6 +333,10 @@ ApplicationWindow {
                 window.calendarEventId = eventId
                 window.currentPage = "calendar"
             }
+            onOpenCalendar: {
+                window.calendarEventId = ""
+                window.currentPage = "calendar"
+            }
         }
     }
 

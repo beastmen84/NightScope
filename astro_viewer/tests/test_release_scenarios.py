@@ -513,6 +513,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("root.eventData.tips", detail_qml)
         self.assertIn("property string calendarEventId", main_qml)
         self.assertIn("onOpenEvent: function(eventId)", main_qml)
+        self.assertIn("onOpenCalendar:", main_qml)
         self.assertIn("onOpenObject: function(objectId)", main_qml)
         self.assertIn('window.currentPage = "detail"', main_qml)
 

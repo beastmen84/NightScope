@@ -27,6 +27,8 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
     assert "equipmentExplanation" not in source
     assert "controller.events" not in source
     assert "signal openEvent(string eventId)" in source
+    assert "signal openCalendar()" in source
+    assert 'headerActionText: "Vedi tutti"' in source
 
 
 def test_home_alternatives_capture_wheel_events_while_the_list_can_scroll() -> None:

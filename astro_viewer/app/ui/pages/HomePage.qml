@@ -23,6 +23,7 @@ Item {
     property string targetFilter: "all"
     signal openObject(string objectId)
     signal openEvent(string eventId)
+    signal openCalendar()
 
     function eventAccent(type) {
         if (type === "Luna")
@@ -1519,6 +1520,9 @@ Item {
                 title: "Prossimi eventi"
                 subtitle: "Ordinati per data"
                 accentColor: theme.amber
+                headerActionText: "Vedi tutti"
+                headerActionAccentColor: theme.amber
+                onHeaderActionClicked: root.openCalendar()
 
                 GridLayout {
                     Layout.fillWidth: true

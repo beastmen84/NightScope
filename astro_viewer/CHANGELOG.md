@@ -22,6 +22,8 @@
 - Collegati Calendario e card Home `Prossimi eventi` al nuovo contratto; la
   timeline mostra l'intero periodo selezionato e la Home apre direttamente il
   dettaglio dell'evento conservando la navigazione di ritorno.
+- La preview Home mantiene 4/8 righe per il layout ma offre `Vedi tutti`; il
+  Calendario conserva l'intero dataset annuale senza cap.
 - Sostituito il numero grezzo nelle righe con lo stato di visibilita' locale e
   resi i contatori coerenti con il filtro temporale attivo.
 - Il dettaglio evento mostra separatamente istante, finestra, visibilita',
@@ -29,6 +31,13 @@
   dettaglio oggetto riguarda stasera.
 - Aggiunte regressioni su orizzonte annuale completo, cronologia, congiunzioni,
   visibilita' locale, assenza di score, QML e indipendenza dal seeing corrente.
+- Probe deterministico Addis Ababa: `71` eventi in `1,17 s` nel worker; 50 fasi
+  lunari, 5 opposizioni, 4 congiunzioni, 10 sciami e 2 eclissi.
+- Verificati `pip check`, ruff, compileall, `qmllint`, rendering offscreen,
+  test mirati e suite completa parallela: `714 passed`, `215 warnings`,
+  `7 subtests passed` in `33,51 s`. I warning sono la deprecazione
+  Skyfield/NumPy gia' nota, ripetuta dai nuovi casi annuali.
+- Distribuzione non rigenerata: sorgente `1.20.0`, dist `1.18.8`.
 
 ## NightScope 1.19.0 - 2026-07-11
 

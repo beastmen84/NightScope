@@ -6,6 +6,8 @@ Versione corrente sorgente: `1.20.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `4cd7024 Connect Calendar UI to annual events`
+- `679d41e Build complete annual Calendar contract`
 - `7d9a506 Polish observing detail session copy`
 - `b8844f7 Validate 1.19.0 object detail`
 - `a63124d Align observing object detail UI`
@@ -449,6 +451,29 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo il completamento Calendario `1.20.0`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\pages\HomePage.qml astro_viewer\app\ui\pages\CalendarPage.qml astro_viewer\app\ui\pages\EventDetailPage.qml astro_viewer\app\ui\components\EventRow.qml
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+```
+
+Risultati:
+
+- `pip check`, ruff e compileall: passed;
+- `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
+  qualificati;
+- rendering offscreen lista e dettaglio a `1440x1000`: completato senza
+  sovrapposizioni;
+- probe annuale Addis Ababa: 71 eventi completi in circa `1.17 s` nel worker;
+- suite completa parallela: `714 passed, 215 warnings, 7 subtests passed` in
+  `33.51 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota, ripetuta
+  dai nuovi casi annuali;
+- nessuna build Windows: sorgente `1.20.0`, `dist/NightScope` `1.18.8`.
+
 Dopo il riallineamento e le rifiniture finali del dettaglio osservativo
 `1.19.0`:
 
@@ -852,11 +877,12 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.19.0` e `1.18.8`.
+   sono rispettivamente `1.20.0` e `1.18.8`.
 2. Home e dettaglio osservativo `1.19.0` sono verificati; il ramo Catalogo
    resta separato e invariato.
-3. Il prossimo step UI consigliato e' il contratto backend Calendario descritto
-   in `Review Calendario Post 1.19.0`, prima di modificare il QML.
+3. Calendario `1.20.0` e card Home `Prossimi eventi` sono completati in
+   sorgente; la verifica visuale sulla distribuzione resta subordinata a una
+   richiesta esplicita di build.
 4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

@@ -192,7 +192,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 212
-                    title: "Prossimi 30 giorni"
+                    title: "In evidenza nei prossimi 30 giorni"
                     subtitle: "Eventi osservativi da controllare per primi"
                     accentColor: theme.amber
 
