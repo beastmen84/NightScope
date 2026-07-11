@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.8`
 Distribuzione Windows corrente: `1.18.7`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `6a369ed Polish Home and weather presentation`
 - `9b440e4 Document 1.18.7 validation`
 - `a091991 Fix Home chronology and weather selection`
 - `ce6f49c Document 1.18.6 validation`
@@ -368,13 +369,13 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo le rifiniture Home/Meteo `1.18.7`:
+Dopo le rifiniture finali Home/Meteo `1.18.8`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\WeatherPage.qml
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\components\HomePlanStepRow.qml astro_viewer\app\ui\pages\WeatherPage.qml
 .\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
 ```
 
@@ -385,12 +386,12 @@ Risultati:
 - compileall completo: passed;
 - `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
   qualificati;
-- test mirati Home/Meteo/release: `40 passed, 16 warnings`;
-- regressione cronologica: con `best_time=05:48` condiviso l'ordine e'
-  `M74, M76, M77, M45, M38, M37`, coerente con l'inizio finestra;
-- suite completa parallela: `699 passed, 27 warnings, 7 subtests passed` in
-  `37.05 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
-- nessuna build Windows: sorgente `1.18.7`, `dist/NightScope` `1.18.6`.
+- test mirati Home/Meteo/sidebar: `8 passed`;
+- regressione nomi: a parita' di finestra, momento migliore e categoria
+  l'ordine e' `C2, C14, M3, M40, M100`;
+- suite completa parallela: `700 passed, 27 warnings, 7 subtests passed` in
+  `41.25 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- nessuna build Windows: sorgente `1.18.8`, `dist/NightScope` `1.18.7`.
 
 Dopo la proiezione Meteo mobile `1.18.6`:
 

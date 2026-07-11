@@ -14,6 +14,9 @@
   nuvolosa, liberando spazio verticale per il grafico.
 - Aggiunte regressioni sul contratto QML e sull'ordinamento naturale.
   Distribuzione Windows non rigenerata: sorgente `1.18.8`, dist `1.18.7`.
+- Verificati `pip check`, ruff, compileall, `qmllint`, test mirati e suite
+  completa parallela: `700 passed`, `27 warnings`, `7 subtests passed` in
+  `41,25 s`.
 
 ## NightScope 1.18.7 - 2026-07-11
 
