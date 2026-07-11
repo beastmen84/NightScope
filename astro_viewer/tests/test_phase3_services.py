@@ -73,6 +73,34 @@ class Phase3ServiceTests(unittest.TestCase):
         self.assertGreaterEqual(estimate.seeing_score, 0)
         self.assertGreaterEqual(estimate.transparency_score, 0)
 
+    def test_transparency_keeps_atmosphere_separate_from_static_sky_background(self) -> None:
+        hours = [
+            WeatherHour(
+                "2026-06-21T22:00",
+                "22:00",
+                10,
+                0,
+                5,
+                50,
+                18.0,
+                visibility_m=20_000,
+            )
+        ]
+        sky_quality = type(
+            "SkyQualityStub",
+            (),
+            {"bortle_class": 8, "viirs_radiance": None},
+        )()
+
+        estimate = SeeingTransparencyService().estimate(hours, sky_quality)
+
+        self.assertIsNotNone(estimate.atmospheric_transparency_score)
+        self.assertGreater(
+            estimate.atmospheric_transparency_score,
+            estimate.transparency_score,
+        )
+        self.assertNotIn("atmospheric_transparency_score", estimate.to_qml())
+
     def test_night_planner_returns_ranked_items(self) -> None:
         target = CelestialObject(
             id="saturn",

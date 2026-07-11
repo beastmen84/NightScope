@@ -31,6 +31,7 @@ class NsomTargetClass(Enum):
     PLANETARY_NEBULA = "planetary_nebula"
     DIFFUSE_NEBULA = "diffuse_nebula"
     GALAXY = "galaxy"
+    DOUBLE_STAR = "double_star"
 
 
 @dataclass(frozen=True)
@@ -116,6 +117,16 @@ NSOM_TARGET_CLASS_PROFILES: Mapping[NsomTargetClass, NsomTargetClassProfile] = M
             max_moon_influence=40.0,
             max_sky_background_influence=35.0,
             max_total_visibility_influence=60.0,
+        ),
+        NsomTargetClass.DOUBLE_STAR: NsomTargetClassProfile(
+            target_class=NsomTargetClass.DOUBLE_STAR,
+            label="Double stars",
+            aod_sensitivity="low",
+            pm_role="none/minor",
+            max_aod_pm_influence=2.0,
+            max_moon_influence=0.0,
+            max_sky_background_influence=0.0,
+            max_total_visibility_influence=18.0,
         ),
     }
 )
@@ -205,6 +216,15 @@ OBSERVER_CAPABILITY_TARGET_WEIGHT_PROFILES: Mapping[NsomTargetClass, Mapping[str
             tracking_or_goto=0.08,
             experience_level=0.08,
             practical_comfort=0.12,
+        ),
+        NsomTargetClass.DOUBLE_STAR: _weight_profile(
+            light_grasp=0.08,
+            resolution=0.32,
+            field_of_view=0.05,
+            magnification_range=0.30,
+            tracking_or_goto=0.12,
+            experience_level=0.07,
+            practical_comfort=0.06,
         ),
     }
 )

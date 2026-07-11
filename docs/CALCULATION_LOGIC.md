@@ -265,9 +265,9 @@ and location, it does not reach at least 15 degrees during astronomical
 darkness. This keeps "above horizon now" separate from "usefully visible this
 month".
 
-### Object Score
+### Object Scores
 
-The raw object score is based on:
+`CelestialObject.score` is the compatibility/display score based on:
 
 - maximum altitude,
 - visual magnitude when known,
@@ -277,16 +277,18 @@ The raw object score is based on:
 Altitude contributes up to about 55 points. Magnitude contributes up to about
 35 points. Object type contributes a small bonus. Scores are clamped to 0-100.
 
-As of `1.13.9`, this raw prepared-object score is explicitly treated as an
-interim NSOM Universe/`IntrinsicTargetQuality` seed and as a backend
-compatibility field for existing services. It is not exposed as an `Oggetti
-celesti` catalogue UI score, and it is not the Home visible score, which is
-produced downstream after sky, observer, session and condition inputs are
-applied. It is not a final NSOM recommendation score and should not be tuned
-directly without a future catalogue/provenance read-model step. The
-ObservationConditions read model keeps raw target input separate from
-conditioned recommendation/display score so Moon/light-pollution presentation
-adjustments do not become intrinsic target physics.
+From `1.21.0`, Skyfield also prepares an internal `intrinsic_score`. It uses
+only magnitude and the object-type component, normalized to 0-100, and is
+therefore independent from observer location, current altitude, observing
+window and visibility threshold. `IntrinsicTargetQuality` consumes this value;
+runtime/test objects that do not carry it temporarily fall back to the
+compatibility score. `intrinsic_score` is deliberately omitted from the QML
+payload.
+
+The compatibility score is not exposed as an `Oggetti celesti` catalogue UI
+score and is not a final NSOM recommendation score. Geometry belongs to
+`ObservationEnvironment`; observer equipment, Session and Opportunity are
+applied only in their respective downstream NSOM layers.
 
 As of `1.14.0`, a runtime `UniverseTargetProfile` is intentionally deferred.
 The future contract is documented, but the current calculation path keeps
@@ -494,6 +496,13 @@ Transparency score inputs:
 
 Transparency starts at 100 and is reduced by cloud layers, humidity, reduced
 visibility and sky-quality penalty.
+
+From `1.21.0`, `SeeingTransparency` also carries an internal
+`atmospheric_transparency_score`: the same cloud/humidity/visibility estimate
+before the VIIRS/Bortle sky-background penalty. The visible
+`transparency_score` remains unchanged for UI compatibility, while NSOM can
+apply atmospheric transparency and static sky background once in separate
+environment components. The internal field is omitted from QML.
 
 Labels:
 

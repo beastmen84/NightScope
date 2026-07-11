@@ -1046,6 +1046,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         visible = altitude.degrees > 0.0 or max_altitude > 8.0
         observable_now = self._is_observable_now(night_window, now, altitude.degrees, threshold=8.0)
         score = self._object_score(max_altitude, magnitude, config.object_type, visible)
+        intrinsic_score = self._intrinsic_object_score(magnitude, config.object_type)
 
         return CelestialObject(
             id=config.object_id,
@@ -1073,6 +1074,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             current_altitude_degrees=float(altitude.degrees),
             current_azimuth_degrees=float(azimuth.degrees),
             score=score,
+            intrinsic_score=intrinsic_score,
             score_label=self._score_label(score),
             score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
         )
@@ -1116,6 +1118,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
         )
         score = self._object_score(max_altitude, magnitude, row["object_type"], visible)
+        intrinsic_score = self._intrinsic_object_score(magnitude, row["object_type"])
         setup = self._deep_sky_setup(row["object_type"], magnitude)
 
         return CelestialObject(
@@ -1144,6 +1147,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             current_altitude_degrees=float(altitude.degrees),
             current_azimuth_degrees=float(azimuth.degrees),
             score=score,
+            intrinsic_score=intrinsic_score,
             score_label=self._score_label(score),
             score_explanation=f"Massima altezza {max_altitude:.0f} gradi; magnitudine {self._format_magnitude(magnitude)}.",
             apparent_size=row.get("apparent_size") or "",
@@ -1452,12 +1456,29 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if not visible:
             return 0
         altitude_score = max(0.0, min(55.0, max_altitude * 0.75))
+        magnitude_score, type_bonus = SkyfieldAstronomyEngine._intrinsic_score_components(
+            magnitude,
+            object_type,
+        )
+        return round(max(0.0, min(100.0, altitude_score + magnitude_score + type_bonus)))
+
+    @staticmethod
+    def _intrinsic_object_score(magnitude: float | None, object_type: str) -> int:
+        magnitude_score, type_bonus = SkyfieldAstronomyEngine._intrinsic_score_components(
+            magnitude,
+            object_type,
+        )
+        maximum = 35.0 + type_bonus
+        return round(max(0.0, min(100.0, ((magnitude_score + type_bonus) / maximum) * 100.0)))
+
+    @staticmethod
+    def _intrinsic_score_components(magnitude: float | None, object_type: str) -> tuple[float, int]:
         if magnitude is None:
             magnitude_score = 18.0
         else:
             magnitude_score = max(0.0, min(35.0, (10.5 - magnitude) * 4.0))
         type_bonus = 10 if any(word in object_type.lower() for word in ["planet", "pianeta", "globular", "nebula"]) else 4
-        return round(max(0.0, min(100.0, altitude_score + magnitude_score + type_bonus)))
+        return magnitude_score, type_bonus
 
     @staticmethod
     def _score_label(score: int) -> str:

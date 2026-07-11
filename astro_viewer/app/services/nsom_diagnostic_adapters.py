@@ -7,10 +7,7 @@ from typing import Any
 
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
-    IntrinsicTargetQuality,
-    NsomDiagnosticScalar,
     NsomDiagnosticSnapshot,
-    NsomTargetClass,
     ObservableTargetValue,
     ObservationEnvironment,
     ObservationOpportunity,
@@ -19,62 +16,10 @@ from astro_viewer.app.models.nsom import (
     RecommendationConfidence,
     SessionViability,
 )
-
-
-_SOLAR_SYSTEM_IDS = frozenset(
-    {
-        "sun",
-        "sole",
-        "moon",
-        "luna",
-        "mercury",
-        "mercurio",
-        "venus",
-        "venere",
-        "mars",
-        "marte",
-        "jupiter",
-        "giove",
-        "saturn",
-        "saturno",
-        "uranus",
-        "urano",
-        "neptune",
-        "nettuno",
-    }
+from astro_viewer.app.services.nsom_target import (
+    build_intrinsic_target_quality,
+    target_class_from_runtime_target as target_class_from_runtime_target,
 )
-
-
-def build_intrinsic_target_quality(target: Any) -> IntrinsicTargetQuality:
-    """Build the Universe-owned NSOM target quality from an existing target DTO."""
-
-    object_id = _text_field(target, "id", "object_id")
-    name = _text_field(target, "name")
-    source_fields = tuple(
-        (key, scalar)
-        for key, value in (
-            ("object_id", object_id),
-            ("name", name),
-            ("object_type", _text_field(target, "object_type", "type")),
-            ("score", _value(target, "score")),
-            ("magnitude", _text_field(target, "magnitude")),
-            ("max_altitude", _text_field(target, "max_altitude")),
-            ("apparent_size", _text_field(target, "apparent_size")),
-            ("visible", _value(target, "visible")),
-        )
-        if (scalar := _diagnostic_scalar(value)) not in (None, "")
-    )
-    return IntrinsicTargetQuality.from_score(
-        _numeric_field(target, "score", default=0.0),
-        object_id=object_id,
-        name=name,
-        target_class=target_class_from_runtime_target(target),
-        altitude=_text_field(target, "max_altitude", "current_altitude"),
-        magnitude=_text_field(target, "magnitude"),
-        angular_size=_text_field(target, "apparent_size"),
-        astronomical_visibility=_bool_or_none(_value(target, "visible")),
-        source_fields=source_fields,
-    )
 
 
 def build_observation_environment(
@@ -310,29 +255,6 @@ def build_observation_opportunities_from_diagnostic_snapshot(
     return tuple(target.observation_opportunity for target in snapshot.targets)
 
 
-def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
-    target_id = _text_field(target, "id", "object_id").lower()
-    object_type = _text_field(target, "object_type", "type").lower()
-    name = _text_field(target, "name").lower()
-    text = f"{target_id} {object_type} {name}"
-
-    if target_id in {"moon", "luna"} or "luna" in text or "moon" in text:
-        return NsomTargetClass.MOON
-    if target_id in _SOLAR_SYSTEM_IDS or "pianeta" in text or "planet" in text:
-        return NsomTargetClass.PLANET
-    if "globular" in text or "globulare" in text:
-        return NsomTargetClass.GLOBULAR_CLUSTER
-    if "open cluster" in text or "ammasso aperto" in text:
-        return NsomTargetClass.OPEN_CLUSTER
-    if "planetary nebula" in text or "nebulosa planetaria" in text:
-        return NsomTargetClass.PLANETARY_NEBULA
-    if "nebula" in text or "nebulosa" in text:
-        return NsomTargetClass.DIFFUSE_NEBULA
-    if "galaxy" in text or "galassia" in text:
-        return NsomTargetClass.GALAXY
-    return None
-
-
 def _profile_with_option_context(
     profile: ObserverCapability,
     setup_options: Any,
@@ -381,20 +303,6 @@ def _session_from_inputs(
     if not math.isclose(requested_session.value, session.value, rel_tol=0.0, abs_tol=1e-9):
         raise ValueError("session_viability conflicts with session.value")
     return session
-
-
-def _diagnostic_scalar(value: Any) -> NsomDiagnosticScalar:
-    if value is None or isinstance(value, str | bool | int):
-        return value
-    if isinstance(value, float):
-        return value if math.isfinite(value) else None
-    return str(value)
-
-
-def _bool_or_none(value: Any) -> bool | None:
-    if value is None:
-        return None
-    return bool(value)
 
 
 def _note_from_source(label: str, item: Any | None, *names: str) -> str:

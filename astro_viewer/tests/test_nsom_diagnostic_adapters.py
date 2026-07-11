@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+from dataclasses import replace
 from datetime import date
 from types import SimpleNamespace
 
@@ -121,6 +122,22 @@ def test_adapter_builds_universe_sky_and_session_core_from_runtime_data() -> Non
     assert "weather_score=72" in environment.notes
     assert session.value == pytest.approx(0.72)
     assert session.state == "usable"
+
+
+def test_intrinsic_adapter_prefers_geometry_free_runtime_score() -> None:
+    target = _target(score=82)
+    target = replace(
+        target,
+        intrinsic_score=64,
+        max_altitude="12 gradi",
+        visible=False,
+    )
+
+    intrinsic = build_intrinsic_target_quality(target)
+
+    assert intrinsic.value == pytest.approx(64.0)
+    assert intrinsic.altitude == ""
+    assert "intrinsic_score" not in target.to_qml()
 
 
 def test_adapter_builds_observable_target_value_from_existing_score_and_neutral_observability() -> None:

@@ -41,11 +41,13 @@ class CelestialObject:
     observable_now: bool | None = None
     current_altitude_degrees: float | None = None
     current_azimuth_degrees: float | None = None
+    intrinsic_score: int | None = None
     condition_flags: tuple[str, ...] = field(default_factory=tuple, compare=False, repr=False)
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data.pop("condition_flags", None)
+        data.pop("intrinsic_score", None)
         data["type"] = self.object_type
         data["riseTime"] = self.rise_time
         data["setTime"] = self.set_time

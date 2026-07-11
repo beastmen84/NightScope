@@ -35,6 +35,7 @@ class SeeingTransparency:
     explanation: str
     source: str = "BasicForecastSeeingProvider"
     confidence: str = "medium"
+    atmospheric_transparency_score: int | None = None
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -44,6 +45,7 @@ class SeeingTransparency:
         data["transparencyScore"] = self.transparency_score
         data["source"] = _localized_source(self.source)
         data["confidence"] = _localized_confidence(self.confidence)
+        data.pop("atmospheric_transparency_score", None)
         return data
 
 

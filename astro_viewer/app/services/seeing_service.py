@@ -78,9 +78,10 @@ class BasicForecastSeeingProvider:
         transparency_score -= round(avg_mid_cloud * 0.18)
         transparency_score -= round(avg_high_cloud * 0.08)
         transparency_score -= max(0, round((avg_humidity - 65) * 0.45))
-        transparency_score -= self._pollution_transparency_penalty(sky_quality)
         if avg_visibility < 10_000:
             transparency_score -= 12
+        atmospheric_transparency_score = max(0, min(100, transparency_score))
+        transparency_score -= self._pollution_transparency_penalty(sky_quality)
         transparency_score = max(0, min(100, transparency_score))
 
         explanation = (
@@ -96,6 +97,7 @@ class BasicForecastSeeingProvider:
             explanation=explanation,
             source=self.name,
             confidence="medium" if visibility_count else "low",
+            atmospheric_transparency_score=atmospheric_transparency_score,
         )
 
     @staticmethod
@@ -169,6 +171,7 @@ class MeteoblueSeeingProviderPlaceholder:
             f"{result.explanation} Provider Meteoblue non configurato; usata stima base.",
             source=self.name,
             confidence="low",
+            atmospheric_transparency_score=result.atmospheric_transparency_score,
         )
 
 
