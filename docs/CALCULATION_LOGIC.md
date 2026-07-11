@@ -43,18 +43,20 @@ availability and ownership:
 - Equipment profile data is local and optional. If no profile is active, the
   backend falls back to naked-eye/default observer assumptions before applying
   ObserverCapability or PracticalTargetValue where those concepts are used.
-- Weather is an optional external provider input. When present, it belongs to
-  session viability and blocking policy. When absent, weather-dependent
-  conclusions remain unknown or fallback-safe rather than changing target
-  physics.
+- Weather is an optional external provider input. Seeing and atmospheric
+  transparency belong to the Sky layer; Session applies only the binary
+  usable/blocked policy. This prevents the same clouds, humidity and wind from
+  scaling a target once in `ObservationEnvironment` and again through a
+  continuous Session score.
 - VIIRS sky quality is optional/hybrid. Real `viirs_radiance` can feed
   sky-background calculations; local preprocessed/fallback sky-quality data must
   remain distinguishable in confidence and source notes.
 - NASA AOD and OpenAQ particulate data are optional external provider inputs.
-  They can affect condition-adjusted scores by default only when the data is
-  already available and provider-quality gates pass. AOD is the primary aerosol
-  column source; OpenAQ PM is fallback/context. Confidence/provider confidence
-  remains metadata and does not scale score.
+  They affect only the canonical atmospheric-transparency factor when already
+  available and provider-quality gates pass. They never mutate
+  `CelestialObject.score`: AOD is the primary aerosol-column source and OpenAQ
+  PM is its non-additive fallback/context. Confidence remains metadata and does
+  not scale score.
 
 Provider cache identity is deliberately distinct from refresh identity. AOD and
 VIIRS keep their existing exact rounded location keys for asynchronous refresh
@@ -77,10 +79,11 @@ Moon-target separation and Moon/window overlap from location, time and ephemeris
 data, not from weather, VIIRS, NASA AOD, OpenAQ or equipment.
 
 The controller keeps this geometry for the active location and observing night.
-Astronomy refresh is the invalidation boundary; provider-only AOD/OpenAQ updates
-reuse the existing values when rebuilding the private NSOM diagnostic snapshot.
-This avoids repeating the same ephemeris work without changing Planner scoring
-or any QML payload.
+Astronomy refresh is its invalidation boundary. Accepted AOD/OpenAQ completions
+reuse that geometry and recompute Home, Planner, Best Object and Sky Compass
+locally; they do not repeat ephemeris work or mutate QML payload contracts. If a
+weather refresh is already running, its completion performs the pending
+recalculation once with the newest provider values.
 
 When Planner needs several targets, Skyfield evaluates them on one shared
 30-minute timeline. Observer state, observing-night bounds and Moon apparent
@@ -88,10 +91,10 @@ position are computed once; target altitude and Moon separation remain
 target-specific. The single-target method uses the same batch implementation,
 so diagnostics and Planner preserve identical geometry semantics.
 
-Planner NSOM uses Moon geometry by default through
-`NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. The generic
-`ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default
-remains `False`, so non-Planner consumers are not implicitly rerouted.
+Moon geometry is enabled by default for every NSOM consumer through the shared
+`ObservationEnvironment`. The explicit feature flag can still force it off for
+diagnostic rollback, but Planner, Home, Best Object and Sky Compass no longer
+carry separate lunar formulas.
 
 `ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
 `True`. Passing `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`
@@ -850,7 +853,7 @@ Current limitations:
 - QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
   these values are used operationally for scoring.
 - Provider results are displayed in the Weather page and may influence
-  condition-adjusted recommendation scoring when `experimental_aerosol_scoring`
+  canonical atmospheric-transparency scoring when `experimental_aerosol_scoring`
   is enabled and provider-quality gates pass. Successful and failed lookups are
   logged with status, product, acquisition date, AOD value, method and cache-hit
   information.
@@ -903,6 +906,14 @@ VIIRS completion triggers:
 - deep-sky pollution context,
 - observing outputs and selected detail refresh.
 
+AOD/OpenAQ completion triggers:
+
+- acceptance only for the still-current location and credentials;
+- replacement of the provider input when its value changed;
+- local recomputation of Home, Planner, Best Object and Sky Compass using the
+  cached astronomy/Moon geometry;
+- no repeated ephemeris calculation and no cumulative score subtraction.
+
 Astronomy and VIIRS worker results carry both a monotonically increasing
 request id and the active location key. Results produced for an older request
 or location are discarded. The Qt thread keeps ownership of controller state,
@@ -910,9 +921,6 @@ signals, Equipment projections and Planner outputs.
 
 ## Known Limitations
 
-- Moon altitude is not used in scoring.
-- Moon/object separation is not used.
-- Moon rise/set timing is not used to vary deep-sky penalties by hour.
 - No local horizon mask is implemented.
 - No atmospheric extinction model is implemented.
 - No surface-brightness model for extended objects is implemented.
@@ -921,5 +929,3 @@ signals, Equipment projections and Planner outputs.
 - Seeing can remain high while observing quality is poor, because seeing and
   transparency/global weather are separate concepts.
 - Sky-quality cache has no broad TTL policy.
-- Best-object selection applies a weather-factor floor, so global blocked
-  session messaging is needed to avoid over-promising.

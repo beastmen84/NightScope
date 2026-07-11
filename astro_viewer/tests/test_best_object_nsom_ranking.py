@@ -458,6 +458,7 @@ class _CapturingBestObjectSelectionService:
         sky_quality: SkyQuality,
         telescope: Telescope,
         moon: MoonSummary | None,
+        **_kwargs: object,
     ) -> CelestialObject | None:
         self.candidates = list(candidates)
         return next((item for item in self.candidates if item.id == self.selected_id), None)

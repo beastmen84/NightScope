@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import math
-import re
+from dataclasses import replace
 
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import (
     EffectiveObservability,
-    NSOM_TARGET_CLASS_PROFILES,
-    NsomTargetClass,
     ObservableTargetValue,
-    ObservationEnvironment,
     ObservationOpportunity,
     ObserverCapability,
     PracticalTargetValue,
@@ -19,21 +16,22 @@ from astro_viewer.app.models.nsom import (
     project_observer_capability_for_target,
 )
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SkyQuality
+from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionFeatureFlags,
-    ObservationConditionsService,
+    ObservationConditionInputs,
+)
+from astro_viewer.app.services.nsom_observation_environment import (
+    NsomObservationEnvironmentService,
 )
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_intrinsic_target_quality,
-    build_observation_environment,
     build_observation_opportunity,
     build_practical_target_value,
     build_recommendation_confidence,
     build_session_viability,
-    target_class_from_runtime_target,
 )
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
@@ -71,6 +69,7 @@ class PlannerNsomScoringService:
         observing_window_quality: float = 1.0,
         chronology_fit: float = 1.0,
         practical_constraints: float | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
     ) -> ObservationOpportunity:
         practical = self.practical_target_value(
             item,
@@ -79,6 +78,7 @@ class PlannerNsomScoringService:
             telescope=telescope,
             moon=moon,
             moon_geometry=moon_geometry,
+            condition_inputs=condition_inputs,
         )
         return self.opportunity_from_practical_target_value(
             item,
@@ -102,6 +102,7 @@ class PlannerNsomScoringService:
         telescope: Telescope,
         moon: MoonSummary | None = None,
         moon_geometry: MoonGeometryConditionInput | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
     ) -> PracticalTargetValue:
         effective = self.effective_observability(
             item,
@@ -109,6 +110,7 @@ class PlannerNsomScoringService:
             sky_quality=sky_quality,
             moon=moon,
             moon_geometry=moon_geometry,
+            condition_inputs=condition_inputs,
         )
         intrinsic = build_intrinsic_target_quality(item)
         observable = ObservableTargetValue.from_intrinsic(
@@ -152,45 +154,49 @@ class PlannerNsomScoringService:
         sky_quality: SkyQuality,
         moon: MoonSummary | None = None,
         moon_geometry: MoonGeometryConditionInput | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
     ) -> EffectiveObservability:
-        runtime_environment = build_observation_environment(sky_quality=sky_quality)
-        target_class = target_class_from_runtime_target(item)
-        category_factor = self._category_factor(item, scores)
-        moon_geometry_factor = _moon_geometry_severity_factor(
-            moon_geometry,
-            self._feature_flags,
+        inputs = condition_inputs or self._compatibility_condition_inputs(
+            item,
+            scores=scores,
+            sky_quality=sky_quality,
+            moon=moon,
         )
-        moon_background = _moon_background_factor(
-            target_class,
-            moon,
-            moon_geometry_factor=moon_geometry_factor,
+        inputs = replace(
+            inputs,
+            moon_geometry=moon_geometry,
+            feature_flags=self._feature_flags,
         )
-        sky_background = _sky_background_factor(target_class, sky_quality)
-        horizon_context = _horizon_context(item)
-        environment = ObservationEnvironment.from_components(
-            geometric_visibility=1.0 if item.visible else 0.0,
-            lunar_sky_background=moon_background,
-            static_sky_background=sky_background,
-            atmospheric_transparency=category_factor,
-            horizon_context=horizon_context,
-            sky_quality_source=runtime_environment.sky_quality_source,
-            weather_source=runtime_environment.weather_source,
-            atmosphere_source=runtime_environment.atmosphere_source,
-            notes=(
-                "nsom:planner_experimental",
-                "nsom:planner_runtime_environment",
-                *runtime_environment.notes,
-                f"target_class={target_class.value if target_class else 'unknown'}",
-                f"moon_background_factor={moon_background:.3f}",
-                f"moon_geometry_scoring_enabled={self.uses_moon_geometry_scoring}",
-                f"moon_geometry_factor={moon_geometry_factor:.3f}",
-                f"moon_geometry_input={'available' if moon_geometry is not None else 'missing'}",
-                f"sky_background_factor={sky_background:.3f}",
-                f"advanced_score_factor={category_factor:.3f}",
-                f"horizon_context={horizon_context:.3f}",
-            ),
+        return NsomObservationEnvironmentService().effective_observability(item, inputs)
+
+    @staticmethod
+    def _compatibility_condition_inputs(
+        item: CelestialObject,
+        *,
+        scores: AdvancedObservingScores,
+        sky_quality: SkyQuality,
+        moon: MoonSummary | None,
+    ) -> ObservationConditionInputs:
+        category_score = (
+            scores.planetary_score
+            if item.object_type == "Pianeta"
+            else scores.deep_sky_score
         )
-        return EffectiveObservability.from_environment(environment)
+        seeing = SeeingTransparency(
+            seeing="Compatibility",
+            transparency="Compatibility",
+            seeing_score=category_score,
+            transparency_score=category_score,
+            explanation="Planner compatibility input.",
+            source="AdvancedObservingScoresCompatibility",
+            confidence="low",
+            atmospheric_transparency_score=category_score,
+        )
+        return ObservationConditionInputs(
+            moon=moon,
+            sky_quality=sky_quality,
+            seeing=seeing,
+        )
 
     def opportunity_from_practical_target_value(
         self,
@@ -305,11 +311,6 @@ class PlannerNsomScoringService:
             provider_fallback_used=getattr(sky_quality, "viirs_radiance", None) is None,
             notes=("nsom:planner_experimental",),
         )
-
-    @staticmethod
-    def _category_factor(item: CelestialObject, scores: AdvancedObservingScores) -> float:
-        score = scores.planetary_score if item.object_type == "Pianeta" else scores.deep_sky_score
-        return _unit_from_score(score)
 
     @staticmethod
     def _planner_practical_constraints(item: CelestialObject) -> float:
@@ -536,10 +537,6 @@ def _confidence_explanation(confidence: RecommendationConfidence | None) -> obje
     }
 
 
-def _unit_from_score(value: object) -> float:
-    return _clamp_unit(_finite_float(value, default=0.0) / 100.0)
-
-
 def _finite_float(value: object, *, default: float) -> float:
     try:
         number = float(value)
@@ -554,72 +551,3 @@ def _clamp_unit(value: object) -> float:
 
 def _difficulty_factor(item: CelestialObject) -> float:
     return {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85)
-
-
-def _profile_for_target_class(target_class: NsomTargetClass | None):
-    if target_class is None:
-        return None
-    return NSOM_TARGET_CLASS_PROFILES.get(target_class)
-
-
-def _moon_background_factor(
-    target_class: NsomTargetClass | None,
-    moon: MoonSummary | None,
-    *,
-    moon_geometry_factor: float = 1.0,
-) -> float:
-    profile = _profile_for_target_class(target_class)
-    if moon is None or profile is None:
-        return 1.0
-    max_influence = _clamp_unit(profile.max_moon_influence / 100.0)
-    if max_influence <= 0.0:
-        return 1.0
-    illumination = _unit_from_percentage_text(getattr(moon, "illumination", ""))
-    severity = _clamp_unit(((illumination - 0.2) / 0.8) * moon_geometry_factor)
-    return _clamp_unit(1.0 - (severity * max_influence))
-
-
-def _moon_geometry_severity_factor(
-    moon_geometry: MoonGeometryConditionInput | None,
-    feature_flags: ObservationConditionFeatureFlags,
-) -> float:
-    if not feature_flags.experimental_moon_geometry_scoring:
-        return 1.0
-    return max(0.0, ObservationConditionsService.intended_moon_geometry_factor(moon_geometry))
-
-
-def _sky_background_factor(target_class: NsomTargetClass | None, sky_quality: SkyQuality) -> float:
-    profile = _profile_for_target_class(target_class)
-    if profile is None:
-        return 1.0
-    max_influence = _clamp_unit(profile.max_sky_background_influence / 100.0)
-    if max_influence <= 0.0:
-        return 1.0
-
-    radiance = getattr(sky_quality, "viirs_radiance", None)
-    if radiance is not None:
-        radiance_value = max(0.0, _finite_float(radiance, default=0.0))
-        severity = _clamp_unit(math.log10(radiance_value + 1.0) / 3.0)
-    else:
-        bortle = _finite_float(getattr(sky_quality, "bortle_class", None), default=4.0)
-        severity = _clamp_unit((bortle - 3.0) / 6.0)
-    return _clamp_unit(1.0 - (severity * max_influence))
-
-
-def _horizon_context(item: CelestialObject) -> float:
-    altitude = _first_number(getattr(item, "max_altitude", ""))
-    if altitude is None:
-        return 1.0 if item.visible else 0.0
-    return _clamp_unit((altitude - 5.0) / 35.0)
-
-
-def _unit_from_percentage_text(value: object) -> float:
-    number = _first_number(value)
-    return _clamp_unit((number or 0.0) / 100.0)
-
-
-def _first_number(value: object) -> float | None:
-    match = re.search(r"-?\d+(?:[.,]\d+)?", str(value))
-    if not match:
-        return None
-    return _finite_float(match.group(0).replace(",", "."), default=0.0)

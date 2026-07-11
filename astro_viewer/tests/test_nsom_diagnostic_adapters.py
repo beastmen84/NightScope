@@ -120,7 +120,8 @@ def test_adapter_builds_universe_sky_and_session_core_from_runtime_data() -> Non
     assert intrinsic.target_class is NsomTargetClass.GALAXY
     assert environment.sky_quality_source == "NASA Black Marble VNP46A3"
     assert "weather_score=72" in environment.notes
-    assert session.value == pytest.approx(0.72)
+    assert session.value == pytest.approx(1.0)
+    assert session.notes == ("nsom:runtime_session", "session:binary_usability")
     assert session.state == "usable"
 
 

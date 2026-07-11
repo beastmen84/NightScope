@@ -368,6 +368,7 @@ class _CapturingRawScoreRankingService:
         *,
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
+        **_kwargs: object,
     ) -> list[CelestialObject]:
         self.candidates = list(candidates)
         return sorted(self.candidates, key=lambda item: item.score, reverse=True)

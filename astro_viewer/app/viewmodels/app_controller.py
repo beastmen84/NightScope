@@ -2447,13 +2447,21 @@ class AppController(QObject):
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
-        self._best_object = self._select_best_object(planning_objects)
         planner_moon_geometry = self._planner_moon_geometry_inputs(planning_objects)
+        planner_telescopes = self._planner_telescopes_by_object_id(planning_objects)
+        condition_inputs = self._build_observation_condition_inputs()
+        self._best_object = self._select_best_object(
+            planning_objects,
+            condition_inputs=condition_inputs,
+            moon_geometry_by_object_id=planner_moon_geometry,
+            telescope_by_object_id=planner_telescopes,
+        )
         planner_kwargs = {}
         if planner_moon_geometry is not None:
             planner_kwargs["moon_geometry_by_object_id"] = planner_moon_geometry
         if getattr(self._night_planner_service, "uses_target_equipment", False):
-            planner_kwargs["telescope_by_object_id"] = self._planner_telescopes_by_object_id(planning_objects)
+            planner_kwargs["telescope_by_object_id"] = planner_telescopes
+        planner_kwargs["condition_inputs"] = condition_inputs
         night_window = getattr(self, "_observing_night_window", None)
         if isinstance(night_window, ObservingNightWindow) and night_window.has_observing_window:
             planner_kwargs["night_window"] = night_window
@@ -2488,7 +2496,8 @@ class AppController(QObject):
         self,
         targets: list[CelestialObject],
     ) -> dict[str, MoonGeometryConditionInput] | None:
-        if not getattr(self._night_planner_service, "uses_moon_geometry_scoring", False):
+        planner = getattr(self, "_night_planner_service", None)
+        if not getattr(planner, "uses_moon_geometry_scoring", False):
             return None
         self._populate_moon_geometry_condition_cache(targets)
         geometry_by_id: dict[str, MoonGeometryConditionInput] = {}
@@ -2557,7 +2566,14 @@ class AppController(QObject):
     def _advanced_scores_for_planner(self) -> AdvancedObservingScores:
         return self._advanced_scores or self._select_advanced_observing_scores()
 
-    def _select_best_object(self, planning_objects: list[CelestialObject]) -> CelestialObject | None:
+    def _select_best_object(
+        self,
+        planning_objects: list[CelestialObject],
+        *,
+        condition_inputs: ObservationConditionInputs | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
+        telescope_by_object_id: Mapping[str, Telescope] | None = None,
+    ) -> CelestialObject | None:
         if not self._weather_summary:
             return None
         if not self._sky_quality:
@@ -2569,6 +2585,9 @@ class AppController(QObject):
             sky_quality=self._sky_quality,
             telescope=self._current_telescope(),
             moon=self._moon,
+            condition_inputs=condition_inputs or self._build_observation_condition_inputs(),
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
+            telescope_by_object_id=telescope_by_object_id,
         )
         if selected_raw_target is None:
             return None
@@ -3208,6 +3227,8 @@ class AppController(QObject):
                     has_location=has_location,
                     caution_text=caution_text,
                     observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
+                    condition_inputs=self._build_observation_condition_inputs(),
+                    moon_geometry_by_object_id=self._planner_moon_geometry_inputs(candidates),
                 )
             except Exception:
                 logger.warning(
@@ -3343,11 +3364,15 @@ class AppController(QObject):
             RefreshReason.AIR_QUALITY_COMPLETED,
             (RefreshDomain.AIR_QUALITY,),
         )
+        previous_atmosphere = self._local_atmosphere
         if isinstance(atmosphere, LocalAtmosphere):
             self._local_atmosphere = atmosphere
         else:
             self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
-        self._refresh_nsom_diagnostics()
+        if self._local_atmosphere != previous_atmosphere:
+            self._recalculate_after_condition_provider_refresh()
+        else:
+            self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
 
@@ -3497,9 +3522,13 @@ class AppController(QObject):
 
         cached = self._nasa_aod_provider.cached_aod(location)
         if cached is not None:
+            previous_result = self._nasa_aod_result
             self._nasa_aod_result = cached
             self._log_nasa_aod_result(cached)
-            self._refresh_nsom_diagnostics()
+            if cached != previous_result:
+                self._recalculate_after_condition_provider_refresh()
+            else:
+                self._refresh_nsom_diagnostics()
             self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.AOD)
             return
@@ -3545,12 +3574,16 @@ class AppController(QObject):
             return
 
         self._mark_refresh_dirty(RefreshReason.AOD_COMPLETED, (RefreshDomain.AOD,))
+        previous_result = self._nasa_aod_result
         if isinstance(result, NasaAodResult):
             self._nasa_aod_result = result
         else:
             self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
         self._log_nasa_aod_result(self._nasa_aod_result)
-        self._refresh_nsom_diagnostics()
+        if self._nasa_aod_result != previous_result:
+            self._recalculate_after_condition_provider_refresh()
+        else:
+            self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AOD)
 
@@ -3584,6 +3617,20 @@ class AppController(QObject):
             return
         self._is_loading = value
         self.statusChanged.emit()
+
+    def _recalculate_after_condition_provider_refresh(self) -> None:
+        if getattr(self, "_weather_refresh_running", False):
+            self._refresh_nsom_diagnostics()
+            return
+        if (
+            getattr(self, "_weather_summary", None) is None
+            or getattr(self, "_sky_quality", None) is None
+        ):
+            self._refresh_nsom_diagnostics()
+            return
+        self._recalculate_observing_outputs()
+        self.dataChanged.emit()
+        self.selectedObjectChanged.emit()
 
     def _append_service_status(self, message: str) -> None:
         if not message:
@@ -4537,6 +4584,10 @@ class AppController(QObject):
             [model.nsom_target_input for model in candidate_read_models],
             sky_quality=sky_quality,
             moon=getattr(self, "_moon", None),
+            condition_inputs=self._build_observation_condition_inputs(),
+            moon_geometry_by_object_id=self._planner_moon_geometry_inputs(
+                [model.nsom_target_input for model in candidate_read_models]
+            ),
         )
         models_by_raw_id = {model.nsom_target_input.id: model for model in candidate_read_models}
         return tuple(
@@ -4585,8 +4636,9 @@ class AppController(QObject):
         target: object | None = None,
     ) -> ObservationConditionInputs:
         return ObservationConditionInputs(
-            moon=self._moon if include_moon else None,
-            sky_quality=self._sky_quality if include_sky_quality else None,
+            moon=getattr(self, "_moon", None) if include_moon else None,
+            sky_quality=getattr(self, "_sky_quality", None) if include_sky_quality else None,
+            seeing=getattr(self, "_seeing_transparency", None),
             aod=self._aod_condition_input(),
             particulate=self._particulate_condition_input(),
             moon_geometry=self._moon_geometry_condition_input(target),

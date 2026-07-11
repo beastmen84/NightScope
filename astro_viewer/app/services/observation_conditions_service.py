@@ -6,7 +6,7 @@ from dataclasses import field
 from dataclasses import replace
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 
@@ -43,7 +43,7 @@ class ObservationConditionFeatureFlags:
     """Condition modifiers with explicit rollback flags."""
 
     experimental_aerosol_scoring: bool = True
-    experimental_moon_geometry_scoring: bool = False
+    experimental_moon_geometry_scoring: bool = True
 
 
 @dataclass(frozen=True)
@@ -90,6 +90,7 @@ class AerosolScoringBreakdown:
 class ObservationConditionInputs:
     moon: MoonSummary | None = None
     sky_quality: SkyQuality | None = None
+    seeing: SeeingTransparency | None = None
     aod: AodConditionInput | None = None
     particulate: ParticulateConditionInput | None = None
     moon_geometry: MoonGeometryConditionInput | None = None
@@ -295,17 +296,9 @@ class ObservationConditionsService:
             inputs.particulate,
             inputs.feature_flags,
         )
-        if aerosol.score_modifier < 0.0:
-            score = max(0, min(100, round(score + aerosol.score_modifier)))
-            if aerosol.primary_source == "aod":
-                aod_modifier = aerosol.score_modifier
-                applied_components.append("aod")
-            elif aerosol.primary_source == "particulate":
-                pm25_modifier = aerosol.score_modifier
-                applied_components.append("particulate")
+        if inputs.feature_flags.experimental_aerosol_scoring:
             diagnostic_notes.extend(aerosol.notes)
-        elif inputs.feature_flags.experimental_aerosol_scoring:
-            diagnostic_notes.extend(aerosol.notes)
+            diagnostic_notes.append("aerosol:canonical_environment_only")
 
         breakdown = self._breakdown(
             object_id=target.id,

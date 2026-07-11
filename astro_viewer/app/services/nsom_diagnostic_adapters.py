@@ -203,13 +203,15 @@ def build_session_viability(
 ) -> SessionViability:
     """Build session-owned viability metadata without changing target values."""
 
-    weather_score = _value(weather_summary, "score_value", "scoreValue")
-    weather_suitability = (
-        1.0
-        if weather_score is None
-        else _numeric_field(weather_summary, "score_value", default=0.0) / 100.0
-    )
-    blocks_plan = bool(_value(blocking_status, "blocks_plan", "blocksPlan", default=False))
+    if blocking_status is None:
+        blocks_plan = bool(
+            _numeric_field(weather_summary, "precipitation_probability", default=0.0) >= 65.0
+            or _numeric_field(weather_summary, "cloud_cover", default=0.0) >= 85.0
+            or _numeric_field(weather_summary, "score_value", default=100.0) <= 25.0
+        )
+    else:
+        blocks_plan = bool(_value(blocking_status, "blocks_plan", "blocksPlan", default=False))
+    weather_suitability = 0.0 if blocks_plan else 1.0
     state = "blocked" if blocks_plan else "usable"
     reason = _text_field(blocking_status, "reason", "detail")
     return SessionViability.from_components(
@@ -218,7 +220,7 @@ def build_session_viability(
         blocking_factor=0.0 if blocks_plan else 1.0,
         state=state,
         reason=reason,
-        notes=("nsom:runtime_session",),
+        notes=("nsom:runtime_session", "session:binary_usability"),
     )
 
 

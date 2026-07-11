@@ -10,6 +10,7 @@ from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, 
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
+    ObservationConditionInputs,
     TargetConditionBreakdown,
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
@@ -52,6 +53,7 @@ class NightPlannerService:
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
         night_window: ObservingNightWindow | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
@@ -75,6 +77,7 @@ class NightPlannerService:
             telescope_by_object_id=telescope_by_object_id,
             blocking_status=blocking_status,
             night_window=night_window,
+            condition_inputs=condition_inputs,
         )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
         start = self._start_time([item for item, _score in ranked], night_window)
@@ -123,6 +126,7 @@ class NightPlannerService:
         telescope_by_object_id: Mapping[str, Telescope] | None,
         blocking_status: WeatherBlockingStatus,
         night_window: ObservingNightWindow | None,
+        condition_inputs: ObservationConditionInputs | None,
     ) -> list[tuple[CelestialObject, float]]:
         opportunities = [
             (
@@ -141,6 +145,7 @@ class NightPlannerService:
                     observing_window_quality=self._observing_window_quality(item, night_window),
                     chronology_fit=self._chronology_fit(item, night_window),
                     practical_constraints=self._practical_constraints(item),
+                    condition_inputs=condition_inputs,
                 ),
             )
             for item in visible

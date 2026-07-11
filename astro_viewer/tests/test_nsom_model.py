@@ -84,6 +84,15 @@ def test_target_class_profiles_match_nsom_table() -> None:
             35.0,
             60.0,
         ),
+        NsomTargetClass.DOUBLE_STAR: (
+            "Double stars",
+            "low",
+            "none/minor",
+            2.0,
+            0.0,
+            0.0,
+            18.0,
+        ),
     }
 
     assert set(NSOM_TARGET_CLASS_PROFILES) == set(expected)

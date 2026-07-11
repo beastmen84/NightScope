@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 
 
 NSOM_SKY_COMPASS_ENABLED = True
@@ -50,6 +54,8 @@ class SkyCompassNsomDirectionService:
         has_location: bool,
         caution_text: str = "",
         observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
     ) -> dict:
         if not has_location:
             return self._legacy_service.empty(
@@ -67,6 +73,8 @@ class SkyCompassNsomDirectionService:
             sky_quality=sky_quality,
             moon=moon,
             observable_objects_by_id=observable_objects_by_id,
+            condition_inputs=condition_inputs,
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
         )
         if not targets:
             return self._legacy_service.empty(
@@ -124,9 +132,15 @@ class SkyCompassNsomDirectionService:
         sky_quality: SkyQuality,
         moon: MoonSummary | None,
         observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
+        condition_inputs: ObservationConditionInputs | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
     ) -> list[SkyCompassNsomTarget]:
         targets: list[SkyCompassNsomTarget] = []
         observable_objects = observable_objects_by_id or {}
+        common_inputs = condition_inputs or ObservationConditionInputs(
+            moon=moon,
+            sky_quality=sky_quality,
+        )
         seen_ids = set()
         for item in objects:
             if item.id in seen_ids or not item.visible or not self._legacy_service.is_observable_now(item):
@@ -135,7 +149,13 @@ class SkyCompassNsomDirectionService:
             if not direction:
                 continue
             observable_item = observable_objects.get(item.id, item)
-            observable = build_home_observable_target_value(observable_item, sky_quality=sky_quality, moon=moon)
+            observable = build_home_observable_target_value(
+                observable_item,
+                condition_inputs=replace(
+                    common_inputs,
+                    moon_geometry=(moon_geometry_by_object_id or {}).get(item.id),
+                ),
+            )
             in_plan = item.id in plan_ids
             is_best = item.id == best_id
             altitude_factor = self._legacy_service.current_altitude_factor(item)

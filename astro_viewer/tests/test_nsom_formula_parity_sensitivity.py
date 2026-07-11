@@ -67,7 +67,7 @@ def test_sensitivity_equipment_changes_practical_value_but_not_observable_value(
     assert large.value > small.value
 
 
-def test_sensitivity_session_viability_lowers_opportunity_only() -> None:
+def test_sensitivity_session_viability_blocks_opportunity_only() -> None:
     service = PlannerNsomScoringService()
     target = _target("galaxy", "Galaxy")
     practical = _practical(service, target)
@@ -81,16 +81,18 @@ def test_sensitivity_session_viability_lowers_opportunity_only() -> None:
         sky_quality=_sky_quality(2, radiance=1),
         moon=_moon(10),
     )
-    poor = service.opportunity_from_practical_target_value(
+    blocked = service.opportunity_from_practical_target_value(
         target,
         practical,
-        weather=_weather(35),
+        weather=_weather(20),
         sky_quality=_sky_quality(2, radiance=1),
         moon=_moon(10),
     )
 
-    assert poor.session.value < good.session.value
-    assert poor.value < good.value
+    assert blocked.session.value == 0.0
+    assert good.session.value == 1.0
+    assert blocked.value == 0.0
+    assert good.value > 0.0
     assert practical.observable_target_value.value == pytest.approx(observable_value)
     assert practical.value == pytest.approx(practical_value)
 

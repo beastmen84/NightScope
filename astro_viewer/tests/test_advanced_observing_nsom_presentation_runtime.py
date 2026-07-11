@@ -282,7 +282,7 @@ class _PlannerSpy:
     def __init__(self) -> None:
         self.received_scores: AdvancedObservingScores | None = None
 
-    def plan(self, _objects, _weather, scores, _sky_quality, _telescope, _moon):
+    def plan(self, _objects, _weather, scores, _sky_quality, _telescope, _moon, **_kwargs):
         self.received_scores = scores
         return []
 
@@ -309,7 +309,7 @@ def _controller(
     )
     controller._refresh_conditioned_observing_candidates = lambda: None
     controller._home_visible_objects = lambda objects: objects
-    controller._select_best_object = lambda _objects: None
+    controller._select_best_object = lambda _objects, **_kwargs: None
     controller._visible_planets = []
     controller._deep_sky = []
     controller._events = []

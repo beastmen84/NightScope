@@ -16,6 +16,9 @@ from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialS
 from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.nasa_aod_provider import NasaAodResult
 from astro_viewer.app.services.night_planner_service import NightPlannerService
+from astro_viewer.app.services.nsom_observation_environment import (
+    NsomObservationEnvironmentService,
+)
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     MoonGeometryConditionInput,
@@ -450,11 +453,12 @@ def test_aerosol_modifier_is_enabled_by_default_and_can_be_forced_off() -> None:
 
     assert default_flags.experimental_aerosol_scoring is True
     assert service.intended_aerosol_modifier(target, aod, particulate, default_flags) == -7.38
-    assert default_conditioned.target != target
-    assert default_conditioned.breakdown.adjusted_score == 75
-    assert default_conditioned.breakdown.aod_modifier == -7.38
+    assert default_conditioned.target == target
+    assert default_conditioned.breakdown.adjusted_score == 82
+    assert default_conditioned.breakdown.aod_modifier == 0.0
     assert default_conditioned.breakdown.pm25_modifier == 0.0
-    assert default_conditioned.breakdown.applied_components == ("aod",)
+    assert default_conditioned.breakdown.applied_components == ()
+    assert "aerosol:canonical_environment_only" in default_conditioned.breakdown.diagnostic_notes
     assert target.score == 82
 
     assert forced_off_flags.experimental_aerosol_scoring is False
@@ -466,7 +470,7 @@ def test_aerosol_modifier_is_enabled_by_default_and_can_be_forced_off() -> None:
     assert rollback_conditioned.breakdown.applied_components == ()
 
 
-def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
+def test_canonical_environment_uses_aod_when_policy_eligible() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
     aod = _scoring_aod(aod_550=0.44)
@@ -482,6 +486,14 @@ def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
             feature_flags=flags,
         ),
     )
+    environment = NsomObservationEnvironmentService().environment(
+        target,
+        ObservationConditionInputs(
+            aod=aod,
+            particulate=particulate,
+            feature_flags=flags,
+        ),
+    )
 
     assert breakdown.primary_source == "aod"
     assert breakdown.severity == 0.75
@@ -490,18 +502,19 @@ def test_experimental_aerosol_scoring_uses_aod_when_policy_eligible() -> None:
     assert breakdown.transparency_loss == 0.09
     assert breakdown.penalty_points == 7.38
     assert breakdown.score_modifier == -7.38
-    assert conditioned.breakdown.aod_modifier == -7.38
+    assert conditioned.breakdown.aod_modifier == 0.0
     assert conditioned.breakdown.pm25_modifier == 0.0
-    assert conditioned.breakdown.adjusted_score == 75
-    assert conditioned.breakdown.applied_components == ("aod",)
+    assert conditioned.breakdown.adjusted_score == 82
+    assert conditioned.breakdown.applied_components == ()
     assert "particulate" not in conditioned.breakdown.applied_components
     assert "aod:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:source=aod" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:target_score_scaled_transparency_loss" in conditioned.breakdown.diagnostic_notes
+    assert environment.atmospheric_transparency == 0.91
     assert target.score == 82
 
 
-def test_experimental_aerosol_scoring_uses_local_pm_fallback_when_aod_rejected() -> None:
+def test_canonical_environment_uses_local_pm_fallback_when_aod_rejected() -> None:
     service = ObservationConditionsService()
     target = _target("m42", "M42", "Diffuse Nebula", 82)
     rejected_aod = _scoring_aod(aod_550=0.44, uncertainty=0.24)
@@ -522,6 +535,14 @@ def test_experimental_aerosol_scoring_uses_local_pm_fallback_when_aod_rejected()
             feature_flags=flags,
         ),
     )
+    environment = NsomObservationEnvironmentService().environment(
+        target,
+        ObservationConditionInputs(
+            aod=rejected_aod,
+            particulate=particulate,
+            feature_flags=flags,
+        ),
+    )
 
     assert breakdown.primary_source == "particulate"
     assert breakdown.severity == 0.75
@@ -530,10 +551,11 @@ def test_experimental_aerosol_scoring_uses_local_pm_fallback_when_aod_rejected()
     assert breakdown.transparency_loss == 0.0306
     assert breakdown.score_modifier == -2.509
     assert conditioned.breakdown.aod_modifier == 0.0
-    assert conditioned.breakdown.pm25_modifier == -2.509
-    assert conditioned.breakdown.adjusted_score == 79
-    assert conditioned.breakdown.applied_components == ("particulate",)
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert conditioned.breakdown.adjusted_score == 82
+    assert conditioned.breakdown.applied_components == ()
     assert "aerosol_scoring:source=particulate" in conditioned.breakdown.diagnostic_notes
+    assert environment.atmospheric_transparency == 0.9694
 
 
 def test_experimental_aerosol_scoring_respects_target_class_caps_and_protection() -> None:
@@ -725,7 +747,7 @@ def test_future_moon_geometry_separation_factors_are_characterized() -> None:
 
 def test_future_moon_geometry_modifier_is_neutral_with_feature_flag_off() -> None:
     service = ObservationConditionsService()
-    flags = ObservationConditionFeatureFlags()
+    flags = ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)
     geometry = MoonGeometryConditionInput(
         moon_altitude_deg=50.0,
         moon_target_separation_deg=10.0,

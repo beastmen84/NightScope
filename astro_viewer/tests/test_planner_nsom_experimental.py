@@ -176,7 +176,7 @@ def test_planner_nsom_service_builds_full_observation_opportunity_from_candidate
     assert observable.intrinsic_target is not None
     assert observable.intrinsic_target.object_id == "galaxy"
     assert observable.effective_observability.environment is not None
-    assert "nsom:planner_experimental" in observable.effective_observability.environment.notes
+    assert "nsom:canonical_observation_environment" in observable.effective_observability.environment.notes
     assert opportunity.practical_target_value.observer_capability is not None
     assert opportunity.session.state == "usable"
     assert opportunity.confidence is not None
@@ -205,7 +205,7 @@ def test_moon_geometry_scoring_is_default_on_for_planner_and_changes_lunar_backg
     )
 
     assert NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED is True
-    assert ObservationConditionFeatureFlags().experimental_moon_geometry_scoring is False
+    assert ObservationConditionFeatureFlags().experimental_moon_geometry_scoring is True
     assert service.uses_moon_geometry_scoring is True
     assert NightPlannerService().uses_moon_geometry_scoring is True
     assert with_geometry.value < without_geometry.value
@@ -537,7 +537,7 @@ def test_changing_confidence_alone_does_not_change_nsom_planner_formula_score() 
     assert PlannerNsomScoringService.score(low_confidence) == PlannerNsomScoringService.score(high_confidence)
 
 
-def test_session_viability_changes_opportunity_without_mutating_target_values() -> None:
+def test_session_viability_is_binary_without_mutating_target_values() -> None:
     service = PlannerNsomScoringService()
     target = _target("galaxy", "Galaxy", 82, "Media", "21:00", "8.5")
     practical = service.practical_target_value(
@@ -550,10 +550,10 @@ def test_session_viability_changes_opportunity_without_mutating_target_values() 
     observable = practical.observable_target_value
     practical_before = deepcopy(practical)
 
-    poor_session = service.opportunity_from_practical_target_value(
+    blocked_session = service.opportunity_from_practical_target_value(
         target,
         practical,
-        weather=_weather(35),
+        weather=_weather(20),
         sky_quality=_sky_quality(3),
         moon=_moon(10),
     )
@@ -565,8 +565,10 @@ def test_session_viability_changes_opportunity_without_mutating_target_values() 
         moon=_moon(10),
     )
 
-    assert poor_session.session.value < good_session.session.value
-    assert poor_session.value < good_session.value
+    assert blocked_session.session.value == 0.0
+    assert good_session.session.value == 1.0
+    assert blocked_session.value == 0.0
+    assert good_session.value > 0.0
     assert practical == practical_before
     assert practical.observable_target_value is observable
     assert observable.value == practical_before.observable_target_value.value
