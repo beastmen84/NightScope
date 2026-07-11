@@ -34,6 +34,9 @@
 - Reso osservabile il fallback Sky Compass: un'eccezione della selezione NSOM
   produce ora un warning con traceback prima di usare il payload legacy
   invariato.
+- Vincolato `botocore>=1.42.90,<1.43.1` per rispettare il requisito dichiarato
+  da `aiobotocore 3.7.0`; riallineata la `.venv` a `botocore 1.43.0` e verificato
+  `pip check` senza dipendenze rotte.
 
 ## NightScope 1.18.3 - 2026-07-11
 

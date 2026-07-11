@@ -11,6 +11,12 @@ Fast syntax validation:
 .\.venv\Scripts\python.exe -m compileall astro_viewer
 ```
 
+Runtime dependency consistency:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+```
+
 Focused area validation:
 
 ```powershell
@@ -70,7 +76,7 @@ For small developer-only documentation or report updates:
 
 For shared runtime changes:
 
-1. Run `compileall astro_viewer`.
+1. Run `pip check` and `compileall astro_viewer`.
 2. Run focused tests for the touched area.
 3. Run `pytest -q -n auto`.
 

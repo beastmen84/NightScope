@@ -162,6 +162,9 @@ Il closeout dichiara:
   le 48 ore complete soltanto come contratto di compatibilita';
 - il sesto step `1.18.4` mantiene il fallback legacy Sky Compass ma registra un
   warning diagnostico quando la selezione NSOM solleva un'eccezione;
+- il settimo step `1.18.4` vincola `botocore` al range richiesto da
+  `aiobotocore 3.7.0`; `.venv` riallineata a `botocore 1.43.0`, `pip check`
+  pulito e test AOD/VIIRS passati;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -612,7 +615,8 @@ Snapshot controllato prima del prossimo step:
 - runtime/UI: `PySide6 6.11.1`, `astropy 8.0.1`, `skyfield 1.54`,
   `numpy 2.5.1`, `requests 2.34.2`, `keyring 25.7.0`, `tzdata 2026.2`;
 - AOD/Earthdata: `earthaccess 0.18.0`, `python-cmr 0.13.0`,
-  `h5py 3.16.0`, `netCDF4 1.7.4`, `s3fs 2026.6.0`, `aiohttp 3.14.1`;
+  `h5py 3.16.0`, `netCDF4 1.7.4`, `s3fs 2026.6.0`, `aiobotocore 3.7.0`,
+  `botocore 1.43.0`, `aiohttp 3.14.1`; `pip check` pulito;
 - test/build: `pytest 9.1.1`, `pytest-xdist 3.8.0`,
   `pytest-cov 7.1.0`, `ruff 0.15.21`, `pyinstaller 6.21.0`,
   `Nuitka 4.1.3`.

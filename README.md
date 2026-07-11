@@ -157,6 +157,10 @@ Il fallback legacy di Sky Compass resta disponibile se la selezione NSOM genera
 un errore, ma il passaggio viene ora registrato come warning diagnostico invece
 di essere silenzioso; forma e contenuto del payload QML di fallback non cambiano.
 
+Lo stack Earthaccess include inoltre un constraint `botocore` compatibile con
+`aiobotocore 3.7.x`; la `.venv` di riferimento usa `botocore 1.43.0` e supera
+`python -m pip check` senza dipendenze rotte.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
