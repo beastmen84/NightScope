@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.19.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `b8844f7 Validate 1.19.0 object detail`
 - `a63124d Align observing object detail UI`
 - `87893d2 Add observing detail presentation contract`
 - `a0364ee Document 1.18.8 validation`
