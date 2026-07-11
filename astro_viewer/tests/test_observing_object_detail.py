@@ -63,6 +63,8 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
     assert "scoreExplanation" not in payload
     assert "score" not in payload["setupOptions"][0]
     assert payload["geometry"]["windowLabel"] == "21:00 - 02:00"
+    assert payload["geometry"]["windowStart"] == "21:00"
+    assert payload["geometry"]["windowEnd"] == "02:00"
     assert payload["geometry"]["bestTimeLabel"] == "23:30 notte"
     assert payload["geometry"]["durationText"] == "5 h nella finestra utile, sopra 15 gradi"
     assert payload["geometry"]["showHorizonEvents"] is False

@@ -14,6 +14,19 @@
   soglia utile di 15 gradi, mentre pianeti e Luna mantengono la soglia di 8.
 - Allineato il runtime NSOM interno del dettaglio al raw target del read model e
   al telescopio scelto per il singolo oggetto nei profili multi-equipment.
+- Collegato `ObjectDetailPage.qml` al nuovo contratto soltanto per Home e
+  Calendario; il ramo Catalogo continua a usare il proprio payload raw.
+- Distinti badge geometrico e stato Session, corretta la semantica della durata
+  sopra soglia e sostituita la duplicazione `Finestra migliore` con il momento
+  migliore reale.
+- Nelle schede deep sky sostituiti i placeholder Sorge/Tramonta con inizio e
+  fine della finestra utile; pianeti e Luna mantengono gli eventi reali.
+- Resa completa la descrizione, trasformate le motivazioni in `Valutazione
+  osservativa` state-aware e mantenuta invariata la sezione del ciclo lunare.
+- Rimossa dalla pagina la card `Storico osservazioni`; persistenza e slot
+  backend restano disponibili per una futura pagina `Log Osservazioni`.
+- Reso responsive il blocco superiore: sotto 1180 px di area contenuto passa a
+  una colonna, evitando la compressione dell'immagine e dei testi.
 - Aggiunte regressioni sul nuovo contratto, sulle soglie e sulla selezione del
   target/setup. Distribuzione non rigenerata: sorgente `1.19.0`, dist `1.18.8`.
 

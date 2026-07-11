@@ -12,7 +12,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Home inferiore state-aware: separa sequenza consigliata, finestra da
   monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
   degli altri oggetti senza esporre score grezzi.
-- Dettaglio oggetto con finestra osservativa, descrizione, configurazione consigliata, motivazioni e ciclo lunare.
+- Dettaglio osservativo state-aware con finestra utile, momento migliore,
+  configurazione target-specific, valutazione locale e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
@@ -199,8 +200,12 @@ verifica visuale.
 In `1.19.0` il dettaglio aperto dalla Home dispone del contratto read-only
 `observingObjectDetail`, separato dal payload Catalogo. Il contratto distingue
 geometria dell'oggetto e stato della sessione, espone finestra e momento
-migliore senza score grezzi e usa il setup scelto per il singolo target. La
-distribuzione Windows resta alla `1.18.8`.
+migliore senza score grezzi e usa il setup scelto per il singolo target. La UI
+mostra stato geometrico e Session separati, sostituisce i placeholder deep sky
+con inizio/fine utile, mantiene il ciclo lunare e non tronca la descrizione. Lo
+storico e l'inserimento delle osservazioni sono stati rimossi dal dettaglio;
+repository e database restano disponibili per una futura pagina dedicata
+`Log Osservazioni`. La distribuzione Windows resta alla `1.18.8`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

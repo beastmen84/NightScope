@@ -214,6 +214,11 @@ Il closeout dichiara:
 - il primo step `1.19.0` introduce `observingObjectDetail`: geometria live,
   Session e setup target-specific restano separati dal ramo Catalogo e non
   espongono score grezzi;
+- il secondo step collega il QML, distingue finestra e momento migliore,
+  sostituisce i placeholder deep sky, conserva il ciclo lunare e rende il
+  blocco superiore responsive;
+- `Storico osservazioni` non e' piu' nel dettaglio; repository, tabella e slot
+  restano intenzionalmente disponibili per la futura pagina `Log Osservazioni`;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -779,8 +784,8 @@ Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
    sono rispettivamente `1.19.0` e `1.18.8`.
-2. Completare il collegamento QML del dettaglio osservativo al contratto
-   `observingObjectDetail`; il ramo Catalogo resta separato.
+2. Verificare visualmente la pagina di dettaglio osservativo dalla sorgente
+   `1.19.0`; il ramo Catalogo resta separato e invariato.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.

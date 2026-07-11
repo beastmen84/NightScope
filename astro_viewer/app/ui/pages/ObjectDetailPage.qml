@@ -7,9 +7,17 @@ Item {
     id: root
 
     property var controller
-    property var objectData: controller.selectedObject
+    property var selectedObjectData: controller ? (controller.selectedObject || ({})) : ({})
+    property bool selectedIsCatalogueDetail: selectedObjectData.catalogueObject === true
+    property var observingObjectData: controller ? (controller.observingObjectDetail || ({})) : ({})
+    property var objectData: selectedIsCatalogueDetail || !observingObjectData.name
+                             ? selectedObjectData : observingObjectData
+    readonly property var geometryData: objectData.geometry || ({})
+    readonly property var sessionData: objectData.session || ({})
+    readonly property var evaluationData: objectData.evaluation || ({})
+    readonly property var equipmentData: objectData.equipment || ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
-    property bool isCatalogueDetail: root.hasObject && objectData.catalogueObject === true
+    property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
     property int detailMetricHeight: 88
     property string backLabel: "Torna alla Home"
     signal backToHome()
@@ -18,6 +26,30 @@ Item {
         if (value === undefined || value === null || value === "")
             return "n/d"
         return String(value)
+    }
+
+    function geometryAccent(state) {
+        if (state === "observable_now")
+            return theme.green
+        if (state === "above_horizon")
+            return theme.cyan
+        if (state === "later")
+            return theme.amber
+        if (state === "limited")
+            return theme.coral
+        return theme.textMuted
+    }
+
+    function sessionAccent(state) {
+        if (state === "recommended")
+            return theme.teal
+        if (state === "monitor")
+            return theme.amber
+        if (state === "discouraged")
+            return theme.coral
+        if (state === "pending")
+            return theme.cyan
+        return theme.textMuted
     }
 
     function hasCatalogueDistance() {
@@ -273,15 +305,20 @@ Item {
                 }
             }
 
-            RowLayout {
+            GridLayout {
+                id: observingDetailGrid
                 visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                spacing: 18
+                columns: root.width > 1180 ? 2 : 1
+                columnSpacing: 18
+                rowSpacing: 18
 
                 ColumnLayout {
-                    Layout.preferredWidth: 420
+                    Layout.fillWidth: observingDetailGrid.columns === 1
+                    Layout.preferredWidth: observingDetailGrid.columns === 2 ? 420 : observingDetailGrid.width
+                    Layout.maximumWidth: observingDetailGrid.columns === 2 ? 420 : 16777215
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
@@ -310,15 +347,16 @@ Item {
                         Layout.fillHeight: true
                         Layout.minimumHeight: 118
                         title: "Finestra osservativa"
-                        subtitle: objectData.time_above_horizon + " sopra l'orizzonte"
+                        subtitle: root.geometryData.durationText || "Durata utile non disponibile"
                         accentColor: theme.teal
 
                         Text {
                             Layout.fillWidth: true
-                            text: objectData.homeWindowLabel
+                            text: root.geometryData.windowLabel || "n/d"
                             color: theme.textPrimary
                             font.pixelSize: 30
                             font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
@@ -328,11 +366,20 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     spacing: 14
 
-                    StatusPill {
-                        text: objectData.observingStatus
-                        accentColor: objectData.observingStatus === "Osservabile ora" ? theme.green
-                                     : objectData.observingStatus === "Non osservabile" ? theme.coral
-                                     : theme.amber
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        StatusPill {
+                            text: root.geometryData.status || objectData.observingStatus || "Da valutare"
+                            accentColor: root.geometryAccent(root.geometryData.state || "unavailable")
+                        }
+
+                        StatusPill {
+                            visible: (root.sessionData.badge || "").length > 0
+                            text: root.sessionData.badge || ""
+                            accentColor: root.sessionAccent(root.sessionData.state || "unavailable")
+                        }
                     }
 
                     Text {
@@ -346,7 +393,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: objectData.observingStatusDetail
+                        text: root.geometryData.detail || objectData.observingStatusDetail || ""
                         color: root.isCatalogueDetail ? theme.textSecondary : theme.amber
                         font.pixelSize: 18
                         font.weight: Font.DemiBold
@@ -371,11 +418,13 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue(); accentColor: theme.violet }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Finestra migliore"; value: objectData.homeWindowLabel; accentColor: theme.green }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Momento migliore"; value: root.geometryData.bestTimeLabel || "n/d"; accentColor: theme.green }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Azimut"; value: objectData.azimuth; accentColor: theme.coral }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza attuale"; value: objectData.currentAltitude; accentColor: theme.cyan }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: objectData.riseTime; accentColor: theme.teal }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: objectData.setTime; accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza attuale"; value: root.geometryData.currentAltitude || objectData.currentAltitude; accentColor: theme.cyan }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: root.geometryData.riseTime || "n/d"; accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: root.geometryData.setTime || "n/d"; accentColor: theme.amber }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: "Inizio utile"; value: root.geometryData.windowStart || "n/d"; accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: "Fine utile"; value: root.geometryData.windowEnd || "n/d"; accentColor: theme.amber }
                     }
                 }
             }
@@ -490,8 +539,6 @@ Item {
                     color: theme.textPrimary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
-                    maximumLineCount: 5
-                    elide: Text.ElideRight
                 }
             }
 
@@ -501,7 +548,9 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Configurazione consigliata"
-                subtitle: "Suggerimento operativo"
+                subtitle: (root.equipmentData.telescopeName || "").length > 0
+                          ? "Setup scelto per " + root.equipmentData.telescopeName
+                          : "Suggerimento operativo"
                 accentColor: theme.amber
 
                 Text {
@@ -693,12 +742,22 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Perché vale la pena osservarlo"
-                subtitle: "Condizioni locali e priorità osservativa"
-                accentColor: theme.green
+                title: root.evaluationData.title || "Valutazione osservativa"
+                subtitle: root.evaluationData.subtitle || "Geometria e condizioni locali"
+                accentColor: root.sessionAccent(root.sessionData.state || "unavailable")
+
+                Text {
+                    visible: (root.evaluationData.warning || "").length > 0
+                    Layout.fillWidth: true
+                    text: root.evaluationData.warning || ""
+                    color: root.sessionAccent(root.sessionData.state || "unavailable")
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                    wrapMode: Text.WordWrap
+                }
 
                 Repeater {
-                    model: objectData.observingReasons || []
+                    model: root.evaluationData.reasons || []
 
                     delegate: RowLayout {
                         Layout.fillWidth: true
@@ -722,61 +781,14 @@ Item {
                         }
                     }
                 }
-            }
 
-            GlassCard {
-                visible: root.hasObject && !root.isCatalogueDetail
-                Layout.fillWidth: true
-                Layout.leftMargin: 28
-                Layout.rightMargin: 28
-                title: "Storico osservazioni"
-                subtitle: "Note locali salvate nel database SQLite"
-                accentColor: theme.violet
-
-                RowLayout {
+                Text {
+                    visible: (root.evaluationData.reasons || []).length === 0
                     Layout.fillWidth: true
-                    spacing: 10
-
-                    DarkTextField {
-                        id: observationRating
-                        Layout.preferredWidth: 120
-                        placeholderText: "Rating 0-5"
-                        inputMethodHints: Qt.ImhDigitsOnly
-                    }
-
-                    DarkTextField {
-                        id: observationNotes
-                        Layout.fillWidth: true
-                        placeholderText: "Note osservazione"
-                    }
-
-                    DarkButton {
-                        text: "Salva"
-                        accentColor: theme.violet
-                        onClicked: controller.saveObservation(observationRating.text, observationNotes.text)
-                    }
-                }
-
-                Repeater {
-                    model: controller.observationHistory.slice(0, 4)
-
-                    delegate: RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 12
-
-                        StatusPill {
-                            text: modelData.rating + "/5"
-                            accentColor: theme.violet
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: modelData.date + "  -  " + modelData.object_name + "  -  " + modelData.notes
-                            color: theme.textSecondary
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
-                        }
-                    }
+                    text: "Valutazione specifica non disponibile."
+                    color: theme.textMuted
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
                 }
             }
 

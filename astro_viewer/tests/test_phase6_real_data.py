@@ -859,29 +859,37 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("objectData.catalogueUsefullyObservable", object_detail_qml)
         self.assertIn("objectData.catalogueVisibleThisMonthLabel", object_detail_qml)
         self.assertIn("objectData.catalogueVisibleThisMonth", object_detail_qml)
+        self.assertIn("controller.selectedObject", object_detail_qml)
+        self.assertIn("controller.observingObjectDetail", object_detail_qml)
 
         for observing_section in (
             'title: "Finestra osservativa"',
             'title: "Configurazione consigliata"',
-            'title: "Perché vale la pena osservarlo"',
-            'title: "Storico osservazioni"',
         ):
             self.assertIn(observing_section, object_detail_qml)
+        self.assertIn('title: root.evaluationData.title || "Valutazione osservativa"', object_detail_qml)
+        self.assertIn('label: "Momento migliore"', object_detail_qml)
+        self.assertIn('label: "Inizio utile"', object_detail_qml)
+        self.assertIn('label: "Fine utile"', object_detail_qml)
+        self.assertIn("root.geometryData.showHorizonEvents === true", object_detail_qml)
+        self.assertNotIn("Storico osservazioni", object_detail_qml)
+        self.assertNotIn("controller.observationHistory", object_detail_qml)
+        self.assertNotIn("controller.saveObservation", object_detail_qml)
+        description_start = object_detail_qml.index('title: "Descrizione"')
+        configuration_start = object_detail_qml.index('title: "Configurazione consigliata"')
+        self.assertNotIn("maximumLineCount", object_detail_qml[description_start:configuration_start])
         self.assertRegex(
             object_detail_qml,
-            r"RowLayout \{\s+visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]+"
+            r"GridLayout \{\s+id: observingDetailGrid\s+"
+            r"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]+"
             r'title: "Finestra osservativa"',
         )
-        for hidden_section in (
-            "Configurazione consigliata",
-            "Perché vale la pena osservarlo",
-            "Storico osservazioni",
-        ):
-            self.assertRegex(
-                object_detail_qml,
-                rf"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]{{0,180}}"
-                rf'title: "{re.escape(hidden_section)}"',
-            )
+        self.assertIn("columns: root.width > 1180 ? 2 : 1", object_detail_qml)
+        self.assertRegex(
+            object_detail_qml,
+            r"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]{0,180}"
+            r'title: "Configurazione consigliata"',
+        )
 
     def test_catalogue_objects_expose_all_messier_rows_sorted(self) -> None:
         with _controller() as controller:

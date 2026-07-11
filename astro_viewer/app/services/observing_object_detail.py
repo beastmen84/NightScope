@@ -32,12 +32,16 @@ class ObservingObjectDetailService:
         payload = _sanitized_object_payload(object_payload)
         session_payload = _session_payload(session)
         duration = _text(payload, "time_above_horizon")
+        window_label = _text(payload, "homeWindowLabel") or "n/d"
+        window_start, window_end = _window_edges(window_label)
         geometry = {
             "state": geometry_state,
             "status": _text(payload, "observingStatus"),
             "detail": _text(payload, "observingStatusDetail"),
             "observableNow": payload.get("observableNow") is True,
-            "windowLabel": _text(payload, "homeWindowLabel") or "n/d",
+            "windowLabel": window_label,
+            "windowStart": window_start,
+            "windowEnd": window_end,
             "bestTimeLabel": _text(payload, "homeTimeLabel") or "n/d",
             "duration": duration or "n/d",
             "durationText": _duration_text(duration, altitude_threshold_deg),
@@ -111,6 +115,13 @@ def _duration_text(duration: str, altitude_threshold_deg: float) -> str:
 def _has_real_horizon_events(payload: Mapping[str, object]) -> bool:
     invalid = {"", "n/d", "calcolato da finestra"}
     return _text(payload, "riseTime") not in invalid and _text(payload, "setTime") not in invalid
+
+
+def _window_edges(window_label: str) -> tuple[str, str]:
+    parts = [part.strip() for part in window_label.split(" - ", maxsplit=1)]
+    if len(parts) != 2:
+        return "n/d", "n/d"
+    return parts[0] or "n/d", parts[1] or "n/d"
 
 
 def _evaluation_subtitle(state: str) -> str:
