@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.4`
 Distribuzione Windows corrente: `1.18.3`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `7c90b43 Finalize 1.18.4 validation`
 - `bd1664b Align Earthaccess botocore dependency`
 - `6d25b5f Log Sky Compass NSOM fallback failures`
 - `8b2363e Show only observing-night weather hours`
