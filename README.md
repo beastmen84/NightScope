@@ -201,11 +201,13 @@ In `1.19.0` il dettaglio aperto dalla Home dispone del contratto read-only
 `observingObjectDetail`, separato dal payload Catalogo. Il contratto distingue
 geometria dell'oggetto e stato della sessione, espone finestra e momento
 migliore senza score grezzi e usa il setup scelto per il singolo target. La UI
-mostra stato geometrico e Session separati, sostituisce i placeholder deep sky
+mostra stato geometrico e Session separati con badge di sessione espliciti,
+sostituisce i placeholder deep sky
 con inizio/fine utile, mantiene il ciclo lunare e non tronca la descrizione. Lo
 storico e l'inserimento delle osservazioni sono stati rimossi dal dettaglio;
 repository e database restano disponibili per una futura pagina dedicata
-`Log Osservazioni`. La distribuzione Windows resta alla `1.18.8`.
+`Log Osservazioni`. Il testo del periodo migliore lunare e' corretto anche nei
+database gia' inizializzati. La distribuzione Windows resta alla `1.18.8`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

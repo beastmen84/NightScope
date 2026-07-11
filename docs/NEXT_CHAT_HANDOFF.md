@@ -220,6 +220,11 @@ Il closeout dichiara:
 - il secondo step collega il QML, distingue finestra e momento migliore,
   sostituisce i placeholder deep sky, conserva il ciclo lunare e rende il
   blocco superiore responsive;
+- la rifinitura finale qualifica soltanto nel dettaglio i badge di stato come
+  `Sessione consigliata`, `Sessione da monitorare` e `Sessione sconsigliata`:
+  il contratto e i badge compatti della Home restano invariati;
+- corretto nel seed il periodo migliore lunare e aggiunta una migrazione
+  idempotente per il solo valore legacy `Tutte le fasi tranne Luna piena piena`;
 - `Storico osservazioni` non e' piu' nel dettaglio; repository, tabella e slot
   restano intenzionalmente disponibili per la futura pagina `Log Osservazioni`;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
@@ -384,7 +389,8 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo il riallineamento del dettaglio osservativo `1.19.0`:
+Dopo il riallineamento e le rifiniture finali del dettaglio osservativo
+`1.19.0`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
@@ -401,11 +407,11 @@ Risultati:
 - compileall completo: passed;
 - `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
   qualificati;
-- test mirati contratto/QML/Luna/pianeti/deep sky/Catalogo: `25 passed`;
+- test mirati dettaglio/database, inclusi badge e migrazione Luna: `31 passed`;
 - rendering offscreen del dettaglio deep sky a `974x820`: completato, senza
   sovrapposizioni; sotto 1180 px il blocco superiore passa a una colonna;
-- suite completa parallela: `707 passed, 27 warnings, 7 subtests passed` in
-  `35.20 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- suite completa parallela: `709 passed, 27 warnings, 7 subtests passed` in
+  `32.32 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
 - nessuna build Windows: sorgente `1.19.0`, `dist/NightScope` `1.18.8`.
 
 Dopo la proiezione Meteo mobile `1.18.6`:

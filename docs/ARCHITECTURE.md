@@ -105,10 +105,13 @@ Current runtime status for `1.19.0`:
   observing detail opened from Home or Calendar. It combines live target
   geometry, Session metadata and target-specific Equipment selection while
   keeping the raw Catalogue branch on the existing `selectedObject` contract.
+  Its Session badge is qualified locally (`Sessione ...`), so the compact Home
+  payload and layout remain unchanged.
   `ObjectDetailPage.qml` switches between those contracts by source; the Moon
   cycle remains an observing-only extension. Observation persistence stays in
   the backend for a future dedicated log surface and is no longer embedded in
-  object detail.
+  object detail. Database bootstrap also corrects the exact legacy Moon
+  `best_seen` typo without overwriting other seeded or user-held values.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed

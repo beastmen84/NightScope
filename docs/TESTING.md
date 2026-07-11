@@ -56,7 +56,7 @@ Measured on the current Windows development environment for `1.19.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `707 passed, 7 subtests passed` | `0:00:35` |
+| `python -m pytest -q -n auto` | `709 passed, 7 subtests passed` | `0:00:32` |
 
 The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
 subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield

@@ -270,6 +270,14 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "verified": "INTEGER NOT NULL DEFAULT 0",
         },
     )
+    connection.execute(
+        """
+        UPDATE ObjectDescription
+        SET best_seen = 'Tutte le fasi tranne Luna piena'
+        WHERE object_id = 'moon'
+          AND best_seen = 'Tutte le fasi tranne Luna piena piena'
+        """
+    )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_search_name ON City(search_name)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_country_code ON City(country_code)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_coordinates ON City(latitude, longitude)")

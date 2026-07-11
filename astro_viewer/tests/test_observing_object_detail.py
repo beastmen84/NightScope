@@ -69,6 +69,7 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
     assert payload["geometry"]["durationText"] == "5 h nella finestra utile, sopra 15 gradi"
     assert payload["geometry"]["showHorizonEvents"] is False
     assert payload["session"]["state"] == "monitor"
+    assert payload["session"]["badge"] == "Sessione da monitorare"
     assert payload["evaluation"]["warning"] == "Fattore limitante: nuvolosità"
     assert payload["equipment"]["telescopeName"] == "Newton 200"
 
@@ -113,7 +114,25 @@ def test_lunar_detail_keeps_phase_fields_and_real_horizon_events() -> None:
     assert payload["moonPhase"] == "Primo quarto"
     assert payload["moonIllumination"] == "50%"
     assert payload["moonCycleDay"] == "Giorno 7,4 di 29,5"
+    assert payload["session"]["badge"] == "Sessione consigliata"
     assert payload["evaluation"]["warning"] == ""
+
+
+def test_observing_detail_qualifies_discouraged_session_badge() -> None:
+    payload = ObservingObjectDetailService().build(
+        object_payload=_target().to_qml(),
+        geometry_state="unavailable",
+        session={
+            "state": "discouraged",
+            "title": "Sessione sconsigliata",
+            "badge": "Sconsigliata",
+        },
+        setup_model=None,
+        altitude_threshold_deg=15.0,
+        is_deep_sky=True,
+    )
+
+    assert payload["session"]["badge"] == "Sessione sconsigliata"
 
 
 def test_deep_sky_detail_does_not_claim_observable_below_fifteen_degrees() -> None:

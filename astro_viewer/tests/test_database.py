@@ -219,6 +219,32 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(preserved_note, "modifica utente")
             self.assertEqual(preserved_count, telescope_count)
 
+    def test_bootstrap_corrects_legacy_moon_best_seen_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                initial_copy = connection.execute(
+                    "SELECT best_seen FROM ObjectDescription WHERE object_id = 'moon'"
+                ).fetchone()[0]
+                connection.execute(
+                    "UPDATE ObjectDescription SET best_seen = ? WHERE object_id = 'moon'",
+                    ("Tutte le fasi tranne Luna piena piena",),
+                )
+                connection.commit()
+
+            self.assertEqual(initial_copy, "Tutte le fasi tranne Luna piena")
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                migrated_copy = connection.execute(
+                    "SELECT best_seen FROM ObjectDescription WHERE object_id = 'moon'"
+                ).fetchone()[0]
+            self.assertEqual(migrated_copy, "Tutte le fasi tranne Luna piena")
+
     def test_binocular_catalog_persists_across_bootstrap(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"

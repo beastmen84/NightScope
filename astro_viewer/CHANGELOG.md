@@ -2,6 +2,11 @@
 
 ## NightScope 1.19.0 - 2026-07-11
 
+- Qualificati nel dettaglio i badge `Sessione consigliata`, `Sessione da
+  monitorare` e `Sessione sconsigliata`, senza modificare i badge compatti e il
+  contratto della Home.
+- Corretto il testo lunare `Tutte le fasi tranne Luna piena` nel seed e tramite
+  migrazione idempotente dei database che conservano il precedente refuso.
 - Aggiunto il contratto read-only `observingObjectDetail` per il dettaglio
   aperto da Home/Calendario, mantenendo `selectedObject` invariato per il ramo
   Catalogo e per la compatibilita' esistente.
@@ -27,11 +32,12 @@
   backend restano disponibili per una futura pagina `Log Osservazioni`.
 - Reso responsive il blocco superiore: sotto 1180 px di area contenuto passa a
   una colonna, evitando la compressione dell'immagine e dei testi.
-- Aggiunte regressioni sul nuovo contratto, sulle soglie e sulla selezione del
-  target/setup. Distribuzione non rigenerata: sorgente `1.19.0`, dist `1.18.8`.
+- Aggiunte regressioni sul nuovo contratto, sulle soglie, sulla selezione del
+  target/setup, sui badge qualificati e sulla migrazione del testo lunare.
+  Distribuzione non rigenerata: sorgente `1.19.0`, dist `1.18.8`.
 - Verificati `pip check`, ruff, compileall, `qmllint`, rendering offscreen,
-  `25` test mirati e suite completa parallela: `707 passed`, `27 warnings`,
-  `7 subtests passed` in `35,20 s`.
+  `31` test mirati e suite completa parallela: `709 passed`, `27 warnings`,
+  `7 subtests passed` in `32,32 s`.
 
 ## NightScope 1.18.8 - 2026-07-11
 

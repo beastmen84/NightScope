@@ -15,6 +15,12 @@ _SCORE_KEYS = {
     "scoreExplanation",
 }
 
+_SESSION_BADGES = {
+    "recommended": "Sessione consigliata",
+    "monitor": "Sessione da monitorare",
+    "discouraged": "Sessione sconsigliata",
+}
+
 
 class ObservingObjectDetailService:
     """Builds the score-free presentation contract for Home object detail."""
@@ -99,7 +105,7 @@ def _session_payload(session: Mapping[str, object]) -> dict[str, object]:
     return {
         "state": state,
         "title": _text(session, "title") or "Sessione non valutabile",
-        "badge": _text(session, "badge") or "Non disponibile",
+        "badge": _SESSION_BADGES.get(state, _text(session, "badge") or "Non disponibile"),
         "detail": _text(session, "detail"),
         "description": _text(session, "description"),
         "limitingFactor": _text(session, "limitingFactor"),
