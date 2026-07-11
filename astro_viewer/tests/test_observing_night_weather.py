@@ -7,7 +7,10 @@ from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.models.weather import WeatherHour
-from astro_viewer.app.services.observing_night_service import weather_hours_for_night
+from astro_viewer.app.services.observing_night_service import (
+    weather_hours_for_next_24,
+    weather_hours_for_night,
+)
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -112,6 +115,89 @@ def test_observing_weather_property_exposes_only_the_active_night() -> None:
 
     assert [hour["time"] for hour in controller.observingWeatherHourly] == [
         "19:00",
+        "06:00",
+    ]
+
+
+def test_next_24_weather_hours_follow_the_current_local_hour() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    forecast_start = datetime(2026, 7, 11, 10, 0)
+    hours = [_weather_hour(forecast_start + timedelta(hours=index)) for index in range(30)]
+
+    selected = weather_hours_for_next_24(
+        hours,
+        "Africa/Addis_Ababa",
+        datetime(2026, 7, 11, 12, 37, tzinfo=zone),
+    )
+
+    assert len(selected) == 24
+    assert selected[0].timestamp == "2026-07-11T12:00"
+    assert selected[-1].timestamp == "2026-07-12T11:00"
+
+    rolled = weather_hours_for_next_24(
+        hours,
+        "Africa/Addis_Ababa",
+        datetime(2026, 7, 11, 13, 0, tzinfo=zone),
+    )
+
+    assert len(rolled) == 24
+    assert rolled[0].timestamp == "2026-07-11T13:00"
+    assert rolled[-1].timestamp == "2026-07-12T12:00"
+
+
+def test_next_24_weather_property_marks_only_active_night_hours() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._location = ObserverLocation(
+        "Addis Ababa",
+        "Etiopia",
+        9.03,
+        38.74,
+        "Africa/Addis_Ababa",
+    )
+    controller._observing_night_window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 11, 18, 48, tzinfo=zone),
+        datetime(2026, 7, 12, 6, 12, tzinfo=zone),
+    )
+    forecast_start = datetime(2026, 7, 11, 10, 0)
+    controller._weather_hours = [
+        _weather_hour(forecast_start + timedelta(hours=index))
+        for index in range(40)
+    ]
+    controller._weather_display_now = lambda: datetime(2026, 7, 11, 12, 37, tzinfo=zone)
+
+    payload = controller.weatherNext24Hours
+
+    assert len(payload) == 24
+    assert payload[0]["timestamp"] == "2026-07-11T12:00"
+    assert payload[-1]["timestamp"] == "2026-07-12T11:00"
+    assert [item["time"] for item in payload if item["isObservingNight"]] == [
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+    ]
+    assert [hour["time"] for hour in controller.observingWeatherHourly] == [
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00",
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
         "06:00",
     ]
 

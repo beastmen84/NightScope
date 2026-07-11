@@ -354,10 +354,15 @@ boundary as manual and timer refreshes. Network retries and timeouts never run
 on the Qt thread; the full-refresh loading state ends only after the current
 location's result has been applied.
 
-The visible Weather chart and hourly selector consume the dedicated
-`observingWeatherHourly` projection, which contains only this filtered night.
-The complete 48-hour `weatherHourly` payload remains available as a compatibility
-contract but is not labelled as night-only data in QML.
+The visible Weather chart and hourly selector consume the separate
+`weatherNext24Hours` projection. It starts at the current local hourly bucket,
+ends 24 hours later and adds `isObservingNight` to samples contained in the
+active `ObservingNightWindow`; QML uses that flag only for color treatment.
+Selection is keyed by the forecast timestamp, so the selected hour remains
+stable when the existing top-of-hour refresh removes the elapsed bucket. The
+complete 48-hour `weatherHourly` payload remains available as a compatibility
+contract, while `observingWeatherHourly` remains the only input for score,
+seeing/transparency, Home digest, Session and NSOM ranking.
 
 The Home `Migliore finestra` remains the lowest-penalty relative block of up to
 three consecutive forecast hours. Candidate blocks are split whenever adjacent

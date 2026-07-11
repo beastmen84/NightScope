@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.18.6 - 2026-07-11
+
+- Aggiunta la property read-only `weatherNext24Hours`, che seleziona i campioni
+  dall'ora locale corrente fino all'estremo esclusivo delle 24 ore successive.
+- Annotato ogni campione visuale con `isObservingNight`, usando la stessa notte
+  astronomica attiva di `observingWeatherHourly`.
+- Riportati grafico della copertura nuvolosa e dettaglio orario a una previsione
+  mobile di 24 ore; ore diurne neutre e ore notturne con accento teal.
+- Conservata la selezione del dettaglio tramite timestamp durante il refresh
+  all'inizio di ogni ora; su viewport stretti grafico e selettore scorrono
+  orizzontalmente senza comprimere le etichette.
+- Nessuna modifica a score, seeing, trasparenza, stato sessione o ranking NSOM:
+  questi consumano ancora soltanto `observingWeatherHourly`.
+- Aggiunte regressioni su finestra mobile, marcatura notturna e contratto QML;
+  distribuzione Windows non rigenerata e ancora alla `1.18.4`.
+
 ## NightScope 1.18.5 - 2026-07-11
 
 - Incluso sempre l'estremo astronomico esatto nella timeline di altitudine dei

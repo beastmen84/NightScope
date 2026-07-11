@@ -2,7 +2,7 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.5`
+Versione corrente sorgente: `1.18.6`
 Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
@@ -185,6 +185,12 @@ Il closeout dichiara:
 - il secondo step `1.18.5` condivide la classificazione Bortle tra le due
   sezioni Home; Bortle 7 e' `transizione suburbana-urbana` sia nella card
   superiore sia nel messaggio della lista;
+- `1.18.6` espone `weatherNext24Hours`, una finestra visuale mobile dall'ora
+  corrente con `isObservingNight`; grafico e dettaglio Meteo mostrano 24 ore,
+  evidenziano la notte e mantengono la selezione per timestamp;
+- il timer Meteo gia' esistente aggiorna la proiezione all'inizio di ogni ora;
+  score, seeing, trasparenza, Home e NSOM restano sul payload notturno
+  `observingWeatherHourly`;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -701,17 +707,13 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.18.5` e `1.18.4`.
-2. Prossimo step Meteo proposto, da implementare solo dopo conferma:
-   `weatherNext24Hours` mobile dall'ora corrente, flag `isObservingNight` per
-   barre/schede, selezione stabile per timestamp; score, seeing, trasparenza e
-   ranking restano limitati a `observingWeatherHourly`.
-3. Dopo Meteo, il prossimo capitolo UI concordato e' la review, prima di
+   sono rispettivamente `1.18.6` e `1.18.4`.
+2. Il prossimo capitolo UI concordato e' la review, prima di
    qualunque modifica, della pagina di dettaglio osservativo.
-4. Capitoli da lasciare separati:
+3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
-5. Non fare tuning e non toccare altre UI senza uno step esplicito.
+4. Non fare tuning e non toccare altre UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 

@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -7,13 +9,23 @@ Item {
     id: root
 
     property var controller
-    property int selectedWeatherHourIndex: 0
+    property var displayWeatherHours: controller.weatherNext24Hours || []
+    property string selectedWeatherHourTimestamp: ""
+
+    function selectedWeatherHourIndex() {
+        if (root.displayWeatherHours.length === 0)
+            return -1
+        for (var index = 0; index < root.displayWeatherHours.length; index++) {
+            if (root.displayWeatherHours[index].timestamp === root.selectedWeatherHourTimestamp)
+                return index
+        }
+        return 0
+    }
 
     function selectedWeatherHour() {
-        if (controller.observingWeatherHourly.length === 0)
+        if (root.displayWeatherHours.length === 0)
             return null
-        var index = Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
-        return controller.observingWeatherHourly[index]
+        return root.displayWeatherHours[root.selectedWeatherHourIndex()]
     }
 
     function selectedHourText(key, suffix, fallbackText) {
@@ -263,18 +275,39 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Copertura nuvolosa oraria"
-                subtitle: "Percentuale prevista durante la finestra notturna"
+                subtitle: "Previsione mobile delle prossime 24 ore"
                 accentColor: theme.scoreColor(controller.weatherSummary.score)
 
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 7
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        Layout.preferredWidth: 11
+                        Layout.preferredHeight: 11
+                        radius: 3
+                        color: theme.teal
+                    }
+
+                    Text {
+                        text: "Notte osservativa"
+                        color: theme.textSecondary
+                        font.pixelSize: 11
+                    }
+                }
+
                 WeatherBars {
-                    visible: controller.observingWeatherHourly.length > 0
-                    hourly: controller.observingWeatherHourly
-                    barColor: theme.scoreColor(controller.weatherSummary.score)
+                    visible: root.displayWeatherHours.length > 0
+                    hourly: root.displayWeatherHours
+                    barColor: theme.textMuted
+                    nightBarColor: theme.teal
                 }
 
                 Text {
                     Layout.fillWidth: true
-                    visible: controller.observingWeatherHourly.length === 0
+                    visible: root.displayWeatherHours.length === 0
                     text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13
@@ -287,13 +320,13 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Dettaglio orario"
-                subtitle: "Seleziona un orario per leggere i dettagli"
+                subtitle: "Previsione mobile delle prossime 24 ore"
                 accentColor: theme.teal
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 86
-                    visible: controller.observingWeatherHourly.length > 0
+                    Layout.preferredHeight: 96
+                    visible: root.displayWeatherHours.length > 0
                     radius: 8
                     color: "#15181e"
                     border.color: "#303641"
@@ -301,23 +334,36 @@ Item {
                     clip: true
 
                     ListView {
+                        id: weatherHourList
+
                         anchors.fill: parent
                         anchors.margins: 8
                         orientation: ListView.Horizontal
                         spacing: 8
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
-                        model: controller.observingWeatherHourly
+                        model: root.displayWeatherHours
 
                         delegate: Rectangle {
+                            id: weatherHourDelegate
+
+                            required property int index
+                            required property var modelData
+
                             width: 94
                             height: ListView.view.height
                             radius: 8
-                            color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
+                            property bool selectedHour: weatherHourDelegate.index === root.selectedWeatherHourIndex()
+                            property bool nightHour: Boolean(weatherHourDelegate.modelData.isObservingNight)
+                            color: selectedHour
                                    ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.18)
+                                   : nightHour
+                                     ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.08)
                                    : "#1c222b"
-                            border.color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
+                            border.color: selectedHour
                                           ? theme.teal
+                                          : nightHour
+                                            ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.55)
                                           : "#303641"
                             border.width: 1
 
@@ -328,8 +374,8 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.time
-                                    color: theme.textPrimary
+                                    text: weatherHourDelegate.modelData.time
+                                    color: weatherHourDelegate.nightHour ? theme.teal : theme.textPrimary
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
@@ -338,7 +384,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.precipitationProbability + "% pioggia"
+                                    text: weatherHourDelegate.modelData.precipitationProbability + "% pioggia"
                                     color: theme.textSecondary
                                     font.pixelSize: 11
                                     horizontalAlignment: Text.AlignHCenter
@@ -347,7 +393,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.temperatureC + " °C"
+                                    text: weatherHourDelegate.modelData.temperatureC + " °C"
                                     color: theme.textMuted
                                     font.pixelSize: 11
                                     horizontalAlignment: Text.AlignHCenter
@@ -359,15 +405,21 @@ Item {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: root.selectedWeatherHourIndex = index
+                                onClicked: root.selectedWeatherHourTimestamp = weatherHourDelegate.modelData.timestamp
                             }
+                        }
+
+                        ScrollBar.horizontal: ScrollBar {
+                            policy: weatherHourList.contentWidth > weatherHourList.width
+                                    ? ScrollBar.AsNeeded
+                                    : ScrollBar.AlwaysOff
                         }
                     }
                 }
 
                 GridLayout {
                     Layout.fillWidth: true
-                    visible: controller.observingWeatherHourly.length > 0
+                    visible: root.displayWeatherHours.length > 0
                     columns: root.width > 980 ? 3 : 2
                     columnSpacing: 12
                     rowSpacing: 12
@@ -382,7 +434,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    visible: controller.observingWeatherHourly.length === 0
+                    visible: root.displayWeatherHours.length === 0
                     text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13

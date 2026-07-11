@@ -412,9 +412,15 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Configura una posizione per visualizzare il meteo.", qml)
         self.assertIn("ListView.Horizontal", qml)
         self.assertIn("selectedWeatherHourIndex", qml)
+        self.assertIn("selectedWeatherHourTimestamp", qml)
         self.assertIn("controller.refreshWeatherNow()", qml)
         self.assertIn("controller.weatherRefreshRunning", qml)
-        self.assertIn("controller.observingWeatherHourly", qml)
+        self.assertIn("controller.weatherNext24Hours", qml)
+        self.assertIn("root.displayWeatherHours", qml)
+        self.assertIn("isObservingNight", qml)
+        self.assertIn("Previsione mobile delle prossime 24 ore", qml)
+        self.assertIn("Notte osservativa", qml)
+        self.assertNotIn("controller.observingWeatherHourly", qml)
         self.assertNotIn("controller.weatherHourly", qml)
         self.assertIn("Radianza VIIRS", qml)
         self.assertIn("Osservazioni VIIRS", qml)
@@ -434,6 +440,13 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('MetricTile { label: "Fonte"', qml)
         self.assertIn("controller.localAtmosphere.sourceDetail", qml)
         self.assertNotIn("weatherLocationLayout", qml)
+
+        weather_bars = (
+            Path(__file__).resolve().parents[1] / "app" / "ui" / "components" / "WeatherBars.qml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("nightBarColor", weather_bars)
+        self.assertIn("minimumColumnWidth", weather_bars)
+        self.assertIn("Flickable.HorizontalFlick", weather_bars)
 
     def test_home_page_displays_active_location_context(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")

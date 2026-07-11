@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.18.5`:
+Current runtime status for `1.18.6`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -87,6 +87,10 @@ Current runtime status for `1.18.5`:
 - The initial Open-Meteo lookup is a worker continuation of the asynchronous
   astronomy snapshot. The controller keeps the full-refresh loading state until
   the still-current weather result has been applied on the Qt thread.
+- Weather presentation has a separate rolling boundary: `weatherNext24Hours`
+  exposes the current local hour plus the following 23 hourly slots and marks
+  active-night samples for QML. Observing score, seeing/transparency and NSOM
+  consumers remain on the night-only `observingWeatherHourly` boundary.
 - `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
   projects Session state, a count-based multi-equipment summary, four compact
   plan rows and score-free alternative rows without changing Planner ranking.

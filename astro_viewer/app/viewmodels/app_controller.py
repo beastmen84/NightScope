@@ -100,6 +100,7 @@ from astro_viewer.app.services.observing_score_service import ObservingScoreServ
 from astro_viewer.app.services.observing_night_service import (
     consecutive_weather_groups,
     weather_hour_datetime,
+    weather_hours_for_next_24,
     weather_hours_for_night,
 )
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
@@ -621,6 +622,16 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def observingWeatherHourly(self) -> list[dict]:
         return [hour.to_qml() for hour in self._observing_weather_hours()]
+
+    @Property("QVariant", notify=weatherChanged)
+    def weatherNext24Hours(self) -> list[dict]:
+        night_hours = set(self._observing_weather_hours())
+        payload = []
+        for hour in self._next_24_weather_hours():
+            item = hour.to_qml()
+            item["isObservingNight"] = hour in night_hours
+            payload.append(item)
+        return payload
 
     @Property("QVariant", notify=weatherChanged)
     def weatherSummary(self) -> dict:
@@ -4989,6 +5000,17 @@ class AppController(QObject):
             self._observing_night_window,
             self._location.timezone,
         )
+
+    def _next_24_weather_hours(self) -> list[WeatherHour]:
+        timezone = self._location.timezone if getattr(self, "_location", None) else "UTC"
+        return weather_hours_for_next_24(
+            list(getattr(self, "_weather_hours", [])),
+            timezone,
+            self._weather_display_now(),
+        )
+
+    def _weather_display_now(self) -> datetime:
+        return datetime.now(self._zone())
 
     def _weather_digest(self) -> dict:
         night_hours = self._observing_weather_hours()

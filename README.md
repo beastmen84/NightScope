@@ -33,7 +33,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.5`.
+Versione corrente sorgente: `1.18.6`.
 
 Distribuzione Windows corrente: `1.18.4`.
 
@@ -171,6 +171,13 @@ La descrizione Bortle della parte alta e della lista Home usa ora un'unica
 classificazione. Bortle 7 e' presentato coerentemente come `transizione
 suburbana-urbana`, senza alternare le precedenti etichette `cielo urbano` e
 `cielo suburbano luminoso`.
+
+In `1.18.6` grafico e dettaglio della pagina Meteo mostrano una finestra mobile
+delle prossime 24 ore a partire dall'ora locale corrente. Le ore appartenenti
+alla notte osservativa attiva hanno un accento distinto e la selezione del
+dettaglio resta legata al timestamp quando il timer orario fa scorrere la
+previsione. Score, seeing, trasparenza, Home e ranking NSOM continuano a usare
+soltanto `observingWeatherHourly`. La distribuzione Windows resta `1.18.4`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
