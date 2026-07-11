@@ -6,6 +6,8 @@ Versione corrente sorgente: `1.20.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `2172d20 Add observable planetary conjunctions`
+- `29fb424 Finalize 1.20.0 Calendar validation`
 - `4cd7024 Connect Calendar UI to annual events`
 - `679d41e Build complete annual Calendar contract`
 - `7d9a506 Polish observing detail session copy`
@@ -250,8 +252,9 @@ finale viene troncata all'alba esatta. Il difetto intermittente
 previsione mobile di 24 ore, e' coperto da regressione e non e' piu' possibile.
 
 La Home NSOM e' chiusa per parte alta, piano, alternative, Sky Compass e
-dettaglio osservativo. La sola card `Prossimi eventi` resta dipendente dal
-dataset Calendario e ne eredita i limiti descritti nella review seguente.
+dettaglio osservativo. La card `Prossimi eventi` usa ora la proiezione
+`calendarOverview.homeItems`: conserva la cronologia osservativa ma non porta
+in Home le congiunzioni col Sole, che restano disponibili nel Calendario.
 
 ## Review Calendario Post 1.19.0
 
@@ -293,20 +296,32 @@ Direzione consigliata prima di ridisegnare il QML:
 6. collegare alla fine Calendario e card Home `Prossimi eventi` al nuovo
    contratto e verificarli graficamente.
 
-Implementazione `1.20.0` avviata dal backend:
+Implementazione `1.20.0` completata:
 
 - orizzonte unico di 365 giorni e rimozione completa del cap a 18;
-- probe deterministico Addis Ababa dal 2026-07-11: 71 eventi, composti da 50
-  fasi lunari, 5 opposizioni, 4 congiunzioni, 10 sciami e 2 eclissi;
+- probe deterministico Addis Ababa dal 2026-07-11: 82 eventi, composti da 50
+  fasi lunari, 5 opposizioni, 11 congiunzioni planetarie, 4 congiunzioni
+  solari, 10 sciami e 2 eclissi;
+- le congiunzioni planetarie sono minimi di separazione apparente entro 6
+  gradi trovati con Skyfield sulle 21 coppie possibili; la finestra locale
+  richiede entrambi i pianeti sopra 8 gradi e marca come breve una durata
+  inferiore a 20 minuti;
+- le congiunzioni col Sole sono una categoria informativa separata, senza
+  suggerimenti ottici e con avvertenza di sicurezza;
+- un massimo di eclissi sotto l'orizzonte o in luce diurna non produce una
+  finestra locale fittizia; il dettaglio distingue il massimo dalle altre fasi;
 - eventi ordinati cronologicamente e sempre conservati anche se non visibili
   localmente;
-- nuovo `calendarOverview` score-free con timing, finestra, visibilita',
-  priorita' descrittiva, setup futuro senza seeing corrente e copy di dettaglio;
+- `calendarOverview_v2` score-free con timing compatto, finestra, visibilita',
+  separazione, partecipanti, priorita' descrittiva e setup futuro senza seeing
+  corrente;
 - QML Calendario e card Home collegati nel secondo step: filtri annuali senza
-  dataset nascosto, contatori period-aware, stato locale al posto del numero
-  grezzo e navigazione Home -> evento -> oggetto preservata;
-- rendering offscreen a `1440x1000` completato per timeline e dettaglio senza
-  sovrapposizioni; distribuzione Windows non rigenerata.
+  dataset nascosto, contatori planetari/solari separati, stato locale al posto
+  del numero grezzo e navigazione Home -> evento -> oggetto preservata;
+- il dettaglio apre entrambi i pianeti della coppia, non ripete una finestra
+  uguale al timing e non usa piu' il testo fuorviante `per stasera`;
+- rendering offscreen a `1600x1000` e `960x900` completato per timeline e
+  dettagli senza sovrapposizioni; distribuzione Windows non rigenerata.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -464,14 +479,16 @@ Dopo il completamento Calendario `1.20.0`:
 Risultati:
 
 - `pip check`, ruff e compileall: passed;
+- smoke Python e smoke QML sorgente: exit code `0`;
 - `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
   qualificati;
-- rendering offscreen lista e dettaglio a `1440x1000`: completato senza
-  sovrapposizioni;
-- probe annuale Addis Ababa: 71 eventi completi in circa `1.17 s` nel worker;
-- suite completa parallela: `714 passed, 215 warnings, 7 subtests passed` in
-  `33.51 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota, ripetuta
-  dai nuovi casi annuali;
+- rendering offscreen lista e dettagli a `1600x1000` e `960x900`: completato
+  senza sovrapposizioni;
+- probe annuale Addis Ababa: 82 eventi completi in circa `2.80 s` nel worker;
+  la ricerca delle 21 coppie richiede meno di un secondo;
+- suite completa parallela: `716 passed, 558 warnings, 7 subtests passed` in
+  `40.03 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota, ripetuta
+  dalle ricerche astronomiche;
 - nessuna build Windows: sorgente `1.20.0`, `dist/NightScope` `1.18.8`.
 
 Dopo il riallineamento e le rifiniture finali del dettaglio osservativo
