@@ -114,7 +114,9 @@ The lower-Home candidate pool contains every planet and deep-sky object with a
 useful window during the observing night. `visible` means useful at some point
 in that night; `observable_now` is a separate live geometry result. The Home
 alternatives projection removes the four plan IDs, combines planet and deep-sky
-rows and orders them by observing-night time.
+rows and orders them by observing-night time. Active Bortle/VIIRS context can
+penalize, reorder or remove a deep-sky target that is no longer useful after
+conditioning, but it does not truncate the surviving pool to a fixed count.
 
 `homeNightPlanOverview` is a presentation-only projection over those existing
 results. In `recommended` state it emits at most the four Planner items and

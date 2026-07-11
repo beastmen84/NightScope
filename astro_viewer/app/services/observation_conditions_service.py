@@ -218,7 +218,7 @@ class ObservationConditionsService:
             [item for item in updated if item.target.visible],
             key=lambda item: item.target.score,
             reverse=True,
-        )[:10]
+        )
 
     def apply_deep_sky_pollution_to_target(
         self,

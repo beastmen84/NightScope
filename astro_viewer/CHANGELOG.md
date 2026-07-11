@@ -1,5 +1,15 @@
 # Changelog
 
+## NightScope 1.18.3 - 2026-07-11
+
+- Rimosso il limite residuo di dieci target dal condizionamento deep-sky per
+  inquinamento luminoso: con contesto Bortle/VIIRS attivo restano applicati
+  penalita', filtro di utilita' e ordinamento, ma il pool Home non viene piu'
+  troncato prima dell'esclusione dei quattro oggetti del piano.
+- Aggiunta una regressione che attraversa servizio condizioni, read-model,
+  controller e payload `homeVisibleAlternatives` con sedici target e verifica
+  che i dodici oggetti fuori dal piano raggiungano la Home.
+
 ## NightScope 1.18.2 - 2026-07-11
 
 - Rimossa l'invalidazione della cache geometria Luna-target dallo snapshot

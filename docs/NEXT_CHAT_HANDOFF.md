@@ -130,6 +130,10 @@ Il closeout dichiara:
   sul thread UI;
 - nessuna modifica a scoring, ranking o QML in `1.18.2`; la distribuzione resta
   intenzionalmente alla `1.18.0`;
+- il primo step `1.18.3` corregge il limite residuo nel ramo di condizionamento
+  deep-sky con Bortle/VIIRS attivo: penalita', visibilita' e ordine restano
+  invariati, ma tutti i target ancora utili raggiungono il pool Home prima
+  dell'esclusione dei quattro oggetti del piano;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

@@ -3,7 +3,12 @@ from __future__ import annotations
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.observing import CelestialObject
-from astro_viewer.app.models.sky import NightPlanItem
+from astro_viewer.app.models.sky import NightPlanItem, SkyQuality
+from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionInputs,
+    ObservationConditionsService,
+)
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
@@ -54,6 +59,39 @@ def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten
 
     assert len(targets) == 60
     assert all(target.visible for target in targets)
+
+
+def test_home_alternatives_keep_more_than_ten_targets_with_active_pollution_context() -> None:
+    controller = AppController.__new__(AppController)
+    controller._conditions_service = ObservationConditionsService()
+    controller._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
+    controller._sky_quality = SkyQuality(
+        bortle_class=8,
+        limiting_magnitude=5.0,
+        sky_brightness=19.0,
+        source="fixture",
+        description="fixture",
+        viirs_radiance=140.0,
+    )
+    controller._build_observation_condition_inputs = lambda **_kwargs: ObservationConditionInputs(
+        sky_quality=controller._sky_quality
+    )
+    targets = [
+        _target(f"m-{index}", f"Target {index}", "Open cluster", "22:00", 95 - index)
+        for index in range(16)
+    ]
+
+    conditioned = controller._apply_deep_sky_pollution_context(targets)
+    controller._conditioned_deep_sky = conditioned
+    controller._visible_planets = []
+    controller._night_plan = [_plan_item(item) for item in conditioned[:4]]
+    controller._object_to_qml = lambda item: item.to_qml()
+
+    payload = AppController.__dict__["homeVisibleAlternatives"].fget(controller)
+
+    assert len(conditioned) == 16
+    assert len(payload) == 12
+    assert {item["id"] for item in payload} == {item.id for item in conditioned[4:]}
 
 
 class _MessierRows:

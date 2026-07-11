@@ -1427,16 +1427,16 @@ def test_condition_target_double_moon_application_is_currently_not_guarded() -> 
     assert second.target.score < first.target.score
 
 
-def test_deep_sky_object_ordering_matches_legacy_pollution_context() -> None:
+def test_deep_sky_pollution_context_keeps_every_visible_target_in_score_order() -> None:
     targets = [_target(f"m{i}", f"M{i}", "Galaxy", 95 - i * 3, magnitude="8.8") for i in range(12)]
     sky_quality = _sky_quality(bortle=8, radiance=140.0)
     service = ObservationConditionsService()
 
     updated = service.apply_deep_sky_pollution_context(targets, sky_quality)
-    legacy = _legacy_pollution_context(targets, sky_quality)
+    legacy_top_ten = _legacy_pollution_context(targets, sky_quality)
 
-    assert [item.id for item in updated] == [item.id for item in legacy]
-    assert len(updated) == len(legacy) == 10
+    assert [item.id for item in updated[:10]] == [item.id for item in legacy_top_ten]
+    assert [item.id for item in updated] == [f"m{i}" for i in range(11)]
 
 
 def test_app_controller_home_detail_conditioned_object_output_matches_legacy_formula() -> None:
