@@ -12,7 +12,7 @@ from skyfield import almanac, eclipselib, magnitudelib
 from skyfield.api import Loader, Star, wgs84
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
-from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation
+from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation, ObservingNightWindow
 from astro_viewer.app.database.messier_repository import MessierRepository
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
@@ -96,7 +96,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 ) from retry_exc
 
     def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
-        return [self._body_details(config, location) for config in self.BODY_CONFIGS]
+        now = self._now(location)
+        night_window = self.observing_night_window(location, reference=now)
+        return [
+            self._body_details(config, location, now=now, night_window=night_window)
+            for config in self.BODY_CONFIGS
+        ]
 
     def close(self) -> None:
         close_method = getattr(self._ephemeris, "close", None)
@@ -116,7 +121,54 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             if item.id in self.PLANET_IDS and item.visible
         ]
 
+    def observing_night_window(
+        self,
+        location: ObserverLocation,
+        reference: datetime | None = None,
+    ) -> ObservingNightWindow:
+        zone = self._zone(location)
+        now = reference.astimezone(zone) if reference else self._now(location)
+        topos = wgs84.latlon(latitude_degrees=location.latitude, longitude_degrees=location.longitude)
+        daylight_at = almanac.sunrise_sunset(self._ephemeris, topos)
+        search_start = now - timedelta(hours=36)
+        search_end = now + timedelta(hours=72)
+        try:
+            times, states = almanac.find_discrete(
+                self._to_skyfield_time(search_start),
+                self._to_skyfield_time(search_end),
+                daylight_at,
+            )
+            events = [
+                (event_time.utc_datetime().astimezone(zone), bool(state))
+                for event_time, state in zip(times, states)
+            ]
+            is_daylight = bool(daylight_at(self._to_skyfield_time(now)))
+        except Exception:
+            logger.warning("Skyfield night-window calculation failed.", exc_info=True)
+            return ObservingNightWindow.unavailable()
+
+        sunsets = [event_time for event_time, daylight in events if not daylight]
+        sunrises = [event_time for event_time, daylight in events if daylight]
+        if is_daylight:
+            sunset = next((event_time for event_time in sunsets if event_time > now), None)
+            if sunset is None:
+                return ObservingNightWindow.no_night()
+            sunrise = next((event_time for event_time in sunrises if event_time > sunset), None)
+            if sunrise is None:
+                return ObservingNightWindow.continuous_night(sunset)
+            return ObservingNightWindow.bounded(sunset, sunrise)
+
+        sunset = next((event_time for event_time in reversed(sunsets) if event_time <= now), None)
+        sunrise = next((event_time for event_time in sunrises if event_time > now), None)
+        if sunset is not None and sunrise is not None:
+            return ObservingNightWindow.bounded(sunset, sunrise)
+        if sunrise is not None:
+            return ObservingNightWindow.continuous_night(now, sunrise)
+        return ObservingNightWindow.continuous_night(sunset or now)
+
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
+        now = self._now(location)
+        night_window = self.observing_night_window(location, reference=now)
         candidates = []
         for row in self._messier_repository.list_objects():
             try:
@@ -132,7 +184,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         objects = []
         for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True):
             try:
-                objects.append(self._messier_details(row, location, dec_degrees=dec_degrees))
+                objects.append(
+                    self._messier_details(
+                        row,
+                        location,
+                        dec_degrees=dec_degrees,
+                        now=now,
+                        night_window=night_window,
+                    )
+                )
             except ValueError:
                 continue
         visible = [item for item in objects if item.visible]
@@ -148,8 +208,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         observer = self._observer(location)
         current_time = self._to_skyfield_time(now)
-        night_start, night_end = self._night_window(now)
-        is_observing_night = night_start <= now <= night_end
+        night_window = self.observing_night_window(location, reference=now)
+        is_observing_night = night_window.contains(now)
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
         updated = []
         for item in objects:
@@ -282,9 +342,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         skyfield_time = self._to_skyfield_time(now)
         phase_angle = almanac.moon_phase(self._ephemeris, skyfield_time).degrees
         illumination = (1.0 - math.cos(math.radians(phase_angle))) / 2.0
+        night_window = self.observing_night_window(location, reference=now)
         moon_details = self._body_details(
             SolarSystemBodyConfig("moon", "Luna", "moon", "Satellite naturale", "resources/images/moon.svg"),
             location,
+            now=now,
+            night_window=night_window,
         )
         return MoonSummary(
             phase=self._moon_phase_name(phase_angle),
@@ -305,7 +368,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         observer = self._observer(location)
         moon_body = self._ephemeris["moon"]
-        start, end = self._night_window(now)
+        night_window = self.observing_night_window(location, reference=now)
+        if not night_window.has_observing_window:
+            return None
+        start = night_window.start
+        end = night_window.end
         target_samples = self._sample_altitudes(
             observer,
             target_body,
@@ -434,8 +501,16 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         events.extend(self._recurring_meteor_showers(now))
         return sorted(events, key=lambda event: (event.usefulness, event.date_label), reverse=True)[:18]
 
-    def _body_details(self, config: SolarSystemBodyConfig, location: ObserverLocation) -> CelestialObject:
-        now = self._now(location)
+    def _body_details(
+        self,
+        config: SolarSystemBodyConfig,
+        location: ObserverLocation,
+        *,
+        now: datetime | None = None,
+        night_window: ObservingNightWindow | None = None,
+    ) -> CelestialObject:
+        now = now or self._now(location)
+        night_window = night_window or self.observing_night_window(location, reference=now)
         zone = self._zone(location)
         observer = self._observer(location)
         body = self._ephemeris[config.body_key]
@@ -445,11 +520,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         altitude, azimuth, distance = apparent.altaz()
 
         rise_time, culmination, set_time = self._ordered_event_labels(observer, body, now, zone)
-        sample = self._sample_altitudes(observer, body, *self._night_window(now))
+        sample = (
+            self._sample_altitudes(observer, body, night_window.start, night_window.end)
+            if night_window.has_observing_window
+            else []
+        )
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=8.0)
         magnitude = self._magnitude(astrometric, config.object_id)
         visible = altitude.degrees > 0.0 or max_altitude > 8.0
-        observable_now = self._is_observable_now(now, altitude.degrees, threshold=8.0)
+        observable_now = self._is_observable_now(night_window, now, altitude.degrees, threshold=8.0)
         score = self._object_score(max_altitude, magnitude, config.object_type, visible)
 
         return CelestialObject(
@@ -482,25 +561,40 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
         )
 
-    def _messier_details(self, row: dict, location: ObserverLocation, dec_degrees: float | None = None) -> CelestialObject:
+    def _messier_details(
+        self,
+        row: dict,
+        location: ObserverLocation,
+        dec_degrees: float | None = None,
+        *,
+        now: datetime | None = None,
+        night_window: ObservingNightWindow | None = None,
+    ) -> CelestialObject:
         ra_hours = parse_ra_hours(row["ra"])
         dec_degrees = dec_degrees if dec_degrees is not None else parse_dec_degrees(row["dec"])
         star = Star(ra_hours=ra_hours, dec_degrees=dec_degrees)
-        now = self._now(location)
+        now = now or self._now(location)
+        night_window = night_window or self.observing_night_window(location, reference=now)
         observer = self._observer(location)
         current_time = self._to_skyfield_time(now)
         apparent = observer.at(current_time).observe(star).apparent()
         altitude, azimuth, _ = apparent.altaz()
-        sample = self._sample_altitudes(
-            observer,
-            star,
-            *self._night_window(now),
-            step_minutes=30,
+        sample = (
+            self._sample_altitudes(
+                observer,
+                star,
+                night_window.start,
+                night_window.end,
+                step_minutes=30,
+            )
+            if night_window.has_observing_window
+            else []
         )
         max_altitude, best_dt, observing_window = self._sample_summary(sample, threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG)
         magnitude = row["magnitude"]
         visible = max_altitude >= DEEP_SKY_USEFUL_ALTITUDE_DEG
         observable_now = self._is_observable_now(
+            night_window,
             now,
             altitude.degrees,
             threshold=DEEP_SKY_USEFUL_ALTITUDE_DEG,
@@ -557,18 +651,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         except ZoneInfoNotFoundError:
             return ZoneInfo("UTC")
 
-    def _night_window(self, now: datetime) -> tuple[datetime, datetime]:
-        if now.hour < 8:
-            start_date = now.date() - timedelta(days=1)
-        else:
-            start_date = now.date()
-        start = datetime.combine(start_date, time(18, 0), tzinfo=now.tzinfo)
-        end = start + timedelta(hours=13)
-        return start, end
-
-    def _is_observable_now(self, now: datetime, altitude_degrees: float, *, threshold: float) -> bool:
-        start, end = self._night_window(now)
-        return start <= now <= end and altitude_degrees >= threshold
+    @staticmethod
+    def _is_observable_now(
+        night_window: ObservingNightWindow,
+        now: datetime,
+        altitude_degrees: float,
+        *,
+        threshold: float,
+    ) -> bool:
+        return night_window.contains(now) and altitude_degrees >= threshold
 
     def _sample_altitudes(
         self,

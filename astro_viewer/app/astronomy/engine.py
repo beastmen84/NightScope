@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Protocol
 
 from astro_viewer.app.astronomy.catalog import (
@@ -26,7 +27,48 @@ class ObserverLocation:
     timezone: str
 
 
+@dataclass(frozen=True)
+class ObservingNightWindow:
+    """Location-aware planning bounds for the current or next observing night."""
+
+    state: str
+    start: datetime | None = None
+    end: datetime | None = None
+
+    @classmethod
+    def bounded(cls, start: datetime, end: datetime) -> "ObservingNightWindow":
+        return cls("bounded", start, end)
+
+    @classmethod
+    def continuous_night(
+        cls,
+        start: datetime,
+        end: datetime | None = None,
+    ) -> "ObservingNightWindow":
+        return cls("continuous_night", start, end or start + timedelta(hours=24))
+
+    @classmethod
+    def no_night(cls) -> "ObservingNightWindow":
+        return cls("no_night")
+
+    @classmethod
+    def unavailable(cls) -> "ObservingNightWindow":
+        return cls("unavailable")
+
+    @property
+    def has_observing_window(self) -> bool:
+        return self.start is not None and self.end is not None and self.end > self.start
+
+    def contains(self, value: datetime) -> bool:
+        if not self.has_observing_window:
+            return False
+        return self.start <= value < self.end
+
+
 class AstronomyEngine(Protocol):
+    def observing_night_window(self, location: ObserverLocation) -> ObservingNightWindow:
+        ...
+
     def visible_planets(self, location: ObserverLocation) -> list[CelestialObject]:
         ...
 
@@ -62,6 +104,9 @@ class AstronomyEngine(Protocol):
 
 class MockAstronomyEngine:
     """First iteration engine. The public methods mirror the future Skyfield/Astropy boundary."""
+
+    def observing_night_window(self, location: ObserverLocation) -> ObservingNightWindow:
+        return ObservingNightWindow.unavailable()
 
     def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
         return mock_planets()
@@ -101,6 +146,9 @@ class MockAstronomyEngine:
 
 class SkyfieldAstropyEngine:
     """Real implementation placeholder for the next iteration."""
+
+    def observing_night_window(self, location: ObserverLocation) -> ObservingNightWindow:
+        raise NotImplementedError("Location-aware night calculations will be added in a later iteration.")
 
     def visible_planets(self, location: ObserverLocation) -> list[CelestialObject]:
         raise NotImplementedError("Skyfield planet calculations will be added in a later iteration.")
