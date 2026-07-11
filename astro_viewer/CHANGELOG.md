@@ -15,6 +15,9 @@
   questi consumano ancora soltanto `observingWeatherHourly`.
 - Aggiunte regressioni su finestra mobile, marcatura notturna e contratto QML;
   distribuzione Windows non rigenerata e ancora alla `1.18.4`.
+- Verificati `pip check`, ruff, compileall, `qmllint`, rendering offscreen di
+  `WeatherBars`/`WeatherPage` e suite completa parallela: `698 passed`,
+  `27 warnings`, `7 subtests passed` in `32,92 s`.
 
 ## NightScope 1.18.5 - 2026-07-11
 

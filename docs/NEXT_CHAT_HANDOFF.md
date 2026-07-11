@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.6`
 Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `39faaa7 Show rolling 24-hour weather forecast`
 - `be2ab2e Document 1.18.5 validation`
 - `8606f18 Keep moon geometry sampling unchanged`
 - `3a511a0 Unify Home Bortle presentation`
@@ -352,6 +353,30 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 ```
 
 ## Ultima Validazione Eseguita
+
+Dopo la proiezione Meteo mobile `1.18.6`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\WeatherPage.qml astro_viewer\app\ui\components\WeatherBars.qml
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+```
+
+Risultati:
+
+- `pip check`: nessuna dipendenza rotta;
+- ruff completo: passed;
+- compileall completo: passed;
+- `qmllint`: exit code `0`, restano soltanto i warning storici sugli accessi
+  QML non qualificati;
+- test Meteo/release mirati: `39 passed, 16 warnings`;
+- `WeatherBars` renderizzato offscreen a `960x220` e `WeatherPage` a
+  `1280x900` con controller fittizio, senza usare i file runtime;
+- suite completa parallela: `698 passed, 27 warnings, 7 subtests passed` in
+  `32.92 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- nessuna build Windows: sorgente `1.18.6`, `dist/NightScope` `1.18.4`.
 
 Dopo i due fix Home `1.18.5`:
 
