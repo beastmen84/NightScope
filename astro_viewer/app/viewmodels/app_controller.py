@@ -73,7 +73,10 @@ from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
 )
 from astro_viewer.app.services.home_night_plan_overview import HomeNightPlanOverviewService
-from astro_viewer.app.services.home_observing_overview import HomeObservingOverviewService
+from astro_viewer.app.services.home_observing_overview import (
+    HomeObservingOverviewService,
+    bortle_observing_warning,
+)
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_diagnostic_adapters import (
     build_observable_target_value,
@@ -766,11 +769,7 @@ class AppController(QObject):
     def skyQualityWarning(self) -> str:
         if not self._sky_quality:
             return ""
-        if self._sky_quality.bortle_class >= 8:
-            return "Cielo urbano: oggetti cielo profondo limitati. Preferire ammassi aperti, pianeti e Luna."
-        if self._sky_quality.bortle_class >= 7:
-            return "Cielo suburbano luminoso: privilegiare oggetti brillanti e pianeti."
-        return ""
+        return bortle_observing_warning(self._sky_quality.bortle_class)
 
     @Property("QVariant", notify=dataChanged)
     def bestObjectOfNight(self) -> dict:

@@ -178,6 +178,9 @@ Il closeout dichiara:
 - il primo step `1.18.5` elimina le finestre target a durata zero includendo
   l'alba esatta come solo confine e interpolando il passaggio della soglia tra
   campioni; un target utile soltanto al confine finale viene escluso;
+- il secondo step `1.18.5` condivide la classificazione Bortle tra le due
+  sezioni Home; Bortle 7 e' `transizione suburbana-urbana` sia nella card
+  superiore sia nel messaggio della lista;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from PySide6.QtCore import QObject
+
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import (
@@ -9,7 +11,11 @@ from astro_viewer.app.models.weather import (
     WeatherBlockingStatus,
     WeatherSummary,
 )
-from astro_viewer.app.services.home_observing_overview import HomeObservingOverviewService
+from astro_viewer.app.services.home_observing_overview import (
+    HomeObservingOverviewService,
+    bortle_observing_warning,
+)
+from astro_viewer.app.viewmodels.app_controller import AppController
 
 
 HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
@@ -48,7 +54,27 @@ def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
     assert payload["weather"]["scoreValue"] == 42
     assert payload["planetary"]["label"] == "Buona"
     assert payload["deepSky"]["label"] == "Discreta"
+    assert payload["deepSky"]["secondaryMetric"] == "Bortle 7 - transizione suburbana-urbana"
     assert payload["planetary"]["source"] == "nsom_category_diagnostic"
+
+
+def test_bortle_warning_uses_the_same_classification_as_the_upper_home() -> None:
+    assert bortle_observing_warning(7) == (
+        "Transizione suburbana-urbana: privilegiare oggetti brillanti e pianeti."
+    )
+    assert bortle_observing_warning(8) == (
+        "Cielo urbano: oggetti cielo profondo limitati. Preferire ammassi aperti, pianeti e Luna."
+    )
+
+
+def test_app_controller_exposes_the_shared_bortle_warning() -> None:
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._sky_quality = _sky_quality()
+
+    assert controller.skyQualityWarning == (
+        "Transizione suburbana-urbana: privilegiare oggetti brillanti e pianeti."
+    )
 
 
 def test_monitor_session_exposes_only_the_actionable_window() -> None:

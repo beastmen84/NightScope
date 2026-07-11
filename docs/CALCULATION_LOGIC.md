@@ -721,6 +721,10 @@ Radiance-to-Bortle conversion:
 - otherwise Bortle 9.
 
 Sky-brightness-to-Bortle conversion is also implemented for CSV/local sources.
+Home presentation uses one shared label map for both the deep-sky card and the
+alternative-target guidance. In particular, Bortle 7 is described as
+`transizione suburbana-urbana`; this copy does not alter the numeric class or
+any light-pollution scoring.
 
 Cache policy:
 

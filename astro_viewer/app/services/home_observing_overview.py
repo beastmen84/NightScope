@@ -176,7 +176,9 @@ def _deep_sky_payload(
             f"Trasparenza {transparency}" if transparency != "n/d" else "Trasparenza non disponibile"
         ),
         "secondaryMetric": (
-            f"Bortle {bortle} - {_bortle_label(bortle)}" if bortle else "Qualità del cielo non disponibile"
+            f"Bortle {bortle} - {bortle_sky_label(bortle)}"
+            if bortle
+            else "Qualità del cielo non disponibile"
         ),
         "hint": _deep_sky_hint(seeing, sky_quality),
         "source": source,
@@ -262,7 +264,7 @@ def _quality_label(value: str) -> str:
     }.get((value or "").strip().lower(), "n/d")
 
 
-def _bortle_label(bortle: int) -> str:
+def bortle_sky_label(bortle: int) -> str:
     return {
         1: "cielo eccezionalmente buio",
         2: "cielo molto buio",
@@ -270,10 +272,19 @@ def _bortle_label(bortle: int) -> str:
         4: "transizione rurale-suburbana",
         5: "cielo suburbano",
         6: "cielo suburbano luminoso",
-        7: "cielo urbano",
-        8: "cielo urbano luminoso",
+        7: "transizione suburbana-urbana",
+        8: "cielo urbano",
         9: "centro urbano",
     }.get(bortle, "qualità non classificata")
+
+
+def bortle_observing_warning(bortle: int) -> str:
+    label = bortle_sky_label(bortle).capitalize()
+    if bortle >= 8:
+        return f"{label}: oggetti cielo profondo limitati. Preferire ammassi aperti, pianeti e Luna."
+    if bortle >= 7:
+        return f"{label}: privilegiare oggetti brillanti e pianeti."
+    return ""
 
 
 def _percentage(value: str) -> float | None:

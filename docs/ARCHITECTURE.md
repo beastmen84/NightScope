@@ -117,6 +117,8 @@ Current runtime status for `1.18.5`:
   planetary/deep-sky cards expose descriptive category diagnostics. Sky Compass
   consumes the same Session state only for copy/actionability: its direction,
   target selection and NSOM ranking remain unchanged.
+- Upper-Home sky quality and lower-Home observing guidance share the same
+  Bortle presentation mapping; class 7 is the suburban-to-urban transition.
 - The overview boundary distinguishes startup location detection (`pending`)
   from a genuinely missing location (`unavailable`). Pending and no-data
   payloads are presentation-only states and cannot produce favourable category

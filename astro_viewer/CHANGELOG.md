@@ -12,6 +12,9 @@
 - Aggiunte regressioni per estremo non allineato, singolo campione utile,
   target crescente fino all'alba e target che raggiunge la soglia soltanto al
   confine finale. Distribuzione Windows non rigenerata: resta `1.18.4`.
+- Centralizzata la descrizione Bortle usata dalla Home: la classe 7 e' ora
+  `transizione suburbana-urbana` sia nella card cielo profondo sia nel messaggio
+  della lista, eliminando il contrasto `urbano`/`suburbano luminoso`.
 
 ## NightScope 1.18.4 - 2026-07-11
 

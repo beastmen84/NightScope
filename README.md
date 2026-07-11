@@ -167,6 +167,11 @@ mostrano quindi piu' intervalli nulli come `18:48-18:48` o `05:48-05:48`; il
 campione all'alba serve solo come confine e non puo' diventare il momento
 migliore dell'oggetto. La distribuzione Windows resta alla `1.18.4`.
 
+La descrizione Bortle della parte alta e della lista Home usa ora un'unica
+classificazione. Bortle 7 e' presentato coerentemente come `transizione
+suburbana-urbana`, senza alternare le precedenti etichette `cielo urbano` e
+`cielo suburbano luminoso`.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
