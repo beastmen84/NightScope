@@ -829,6 +829,24 @@ def test_app_controller_builds_planner_moon_geometry_inputs_when_experimental_fl
     assert controller._astronomy_engine.calls == 1
 
 
+def test_app_controller_builds_planner_moon_geometry_inputs_in_one_batch() -> None:
+    controller = AppController.__new__(AppController)
+    controller._night_planner_service = NightPlannerService()
+    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
+    controller._moon_geometry_condition_cache = {}
+    first = _target("m31", "M31", "Galaxy", 82)
+    second = _target("m42", "M42", "Nebula", 88)
+    controller._astronomy_engine = _BatchMoonGeometryEngine()
+
+    geometry_by_id = controller._planner_moon_geometry_inputs([first, second])
+
+    assert controller._astronomy_engine.batch_calls == 1
+    assert controller._astronomy_engine.scalar_calls == 0
+    assert set(geometry_by_id) == {"m31", "m42"}
+    assert geometry_by_id["m31"].moon_target_separation_deg == 71.0
+    assert geometry_by_id["m42"].moon_target_separation_deg == 72.0
+
+
 def test_app_controller_default_planner_builds_moon_geometry_inputs() -> None:
     controller = AppController.__new__(AppController)
     controller._night_planner_service = NightPlannerService()
@@ -1738,6 +1756,40 @@ class _MoonGeometryEngine:
         del location, target
         self.calls += 1
         return self._summary
+
+
+class _BatchMoonGeometryEngine:
+    def __init__(self) -> None:
+        self.batch_calls = 0
+        self.scalar_calls = 0
+
+    def moon_geometry_batch(
+        self,
+        location: ObserverLocation,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometrySummary]:
+        del location
+        self.batch_calls += 1
+        return {
+            target.id: MoonGeometrySummary(
+                object_id=target.id,
+                moon_altitude_deg=30.0,
+                moon_target_separation_deg=70.0 + index,
+                moon_above_horizon=True,
+                moon_visible_during_target_window=True,
+                moon_set_before_target_window=False,
+            )
+            for index, target in enumerate(targets, start=1)
+        }
+
+    def moon_geometry(
+        self,
+        location: ObserverLocation,
+        target: CelestialObject,
+    ) -> MoonGeometrySummary | None:
+        del location, target
+        self.scalar_calls += 1
+        raise AssertionError("scalar fallback should not run")
 
 
 class _PlannerFlagService:

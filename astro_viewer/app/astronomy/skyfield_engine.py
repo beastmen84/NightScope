@@ -76,6 +76,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             tuple[float, float, str],
             tuple[datetime, ObservingNightWindow],
         ] = {}
+        self._messier_star_cache: dict[str, Star | None] = {}
 
     def _load_ephemeris(self):
         ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
@@ -304,11 +305,17 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     def _star_for_current_position(self, item: CelestialObject):
         if not item.id.startswith("messier-"):
             return None
+        cached = self._messier_star_cache.get(item.id)
+        if item.id in self._messier_star_cache:
+            return cached
         messier_id = item.id.removeprefix("messier-").upper()
         row = self._messier_repository.get_by_messier_id(messier_id)
         if not row:
+            self._messier_star_cache[item.id] = None
             return None
-        return Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
+        star = Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
+        self._messier_star_cache[item.id] = star
+        return star
 
     def _geometry_target_body(self, target: CelestialObject):
         body_configs = {config.object_id: config for config in self.BODY_CONFIGS}
@@ -415,26 +422,69 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
         """Compute bounded local Moon-target geometry diagnostics without scoring."""
 
-        target_body = self._geometry_target_body(target)
-        if target_body is None:
-            return None
+        return self.moon_geometry_batch(location, [target]).get(target.id)
+
+    def moon_geometry_batch(
+        self,
+        location: ObserverLocation,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometrySummary | None]:
+        """Compute Moon geometry on one shared observing-night timeline."""
+
+        results: dict[str, MoonGeometrySummary | None] = {target.id: None for target in targets}
+        if not targets:
+            return results
         now = self._now(location)
         observer = self._observer(location)
         moon_body = self._ephemeris["moon"]
         night_window = self.observing_night_window(location, reference=now)
         if not night_window.has_observing_window:
-            return None
-        start = night_window.start
-        end = night_window.end
-        target_samples = self._sample_altitudes(
-            observer,
-            target_body,
-            start,
-            end,
-            step_minutes=30,
+            return results
+        samples = self._datetime_samples(night_window.start, night_window.end, step_minutes=30)
+        if not samples:
+            return results
+        times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
+        observer_at = observer.at(times)
+        moon_apparent = observer_at.observe(moon_body).apparent()
+        moon_altitudes = dict(
+            zip(samples, [float(value) for value in moon_apparent.altaz()[0].degrees])
         )
-        if not target_samples:
-            return None
+
+        for target in targets:
+            try:
+                target_body = self._geometry_target_body(target)
+                if target_body is None:
+                    continue
+                target_apparent = observer_at.observe(target_body).apparent()
+                target_altitudes = dict(
+                    zip(samples, [float(value) for value in target_apparent.altaz()[0].degrees])
+                )
+                separations = dict(
+                    zip(
+                        samples,
+                        [float(value) for value in moon_apparent.separation_from(target_apparent).degrees],
+                    )
+                )
+                results[target.id] = self._moon_geometry_summary_from_samples(
+                    target,
+                    samples,
+                    moon_altitudes,
+                    target_altitudes,
+                    separations,
+                )
+            except Exception:
+                logger.debug("Moon geometry batch skipped target %s.", target.id, exc_info=True)
+        return results
+
+    def _moon_geometry_summary_from_samples(
+        self,
+        target: CelestialObject,
+        samples: list[datetime],
+        moon_altitudes: dict[datetime, float],
+        target_altitudes: dict[datetime, float],
+        separations: dict[datetime, float],
+    ) -> MoonGeometrySummary | None:
+        target_samples = [(sample, target_altitudes[sample]) for sample in samples]
 
         threshold = self._geometry_altitude_threshold(target)
         visible_target_samples = [
@@ -446,10 +496,6 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         sample_times = self._bounded_moon_geometry_sample_times(meaningful_samples)
         if not sample_times:
             return None
-
-        moon_altitudes = dict(self._altitudes_for_samples(observer, moon_body, sample_times))
-        target_altitudes = dict(self._altitudes_for_samples(observer, target_body, sample_times))
-        separations = self._moon_target_separations(observer, moon_body, target_body, sample_times)
         if not moon_altitudes or not separations:
             return None
 
@@ -470,10 +516,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             for sample_time in sample_times
         )
         moon_set_before_target_window = self._moon_set_before_target_window(
-            observer,
-            moon_body,
-            start,
-            end,
+            moon_altitudes,
             visible_target_samples,
         )
 
@@ -722,12 +765,25 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         end: datetime,
         step_minutes: int = 15,
     ) -> list[tuple[datetime, float]]:
+        return self._altitudes_for_samples(
+            observer,
+            body,
+            self._datetime_samples(start, end, step_minutes=step_minutes),
+        )
+
+    @staticmethod
+    def _datetime_samples(
+        start: datetime,
+        end: datetime,
+        *,
+        step_minutes: int,
+    ) -> list[datetime]:
         samples: list[datetime] = []
         current = start
         while current <= end:
             samples.append(current)
             current += timedelta(minutes=step_minutes)
-        return self._altitudes_for_samples(observer, body, samples)
+        return samples
 
     def _altitudes_for_samples(self, observer, body, samples: list[datetime]) -> list[tuple[datetime, float]]:
         if not samples:
@@ -735,21 +791,6 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         times = self._timescale.from_datetimes([sample.astimezone(UTC) for sample in samples])
         altitudes, _, _ = observer.at(times).observe(body).apparent().altaz()
         return list(zip(samples, [float(value) for value in altitudes.degrees]))
-
-    def _moon_target_separations(
-        self,
-        observer,
-        moon_body,
-        target_body,
-        samples: list[datetime],
-    ) -> dict[datetime, float]:
-        separations: dict[datetime, float] = {}
-        for sample in samples:
-            skyfield_time = self._to_skyfield_time(sample)
-            moon_apparent = observer.at(skyfield_time).observe(moon_body).apparent()
-            target_apparent = observer.at(skyfield_time).observe(target_body).apparent()
-            separations[sample] = float(moon_apparent.separation_from(target_apparent).degrees)
-        return separations
 
     @staticmethod
     def _bounded_moon_geometry_sample_times(
@@ -769,32 +810,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 result.append(sample_time)
         return result
 
+    @staticmethod
     def _moon_set_before_target_window(
-        self,
-        observer,
-        moon_body,
-        start: datetime,
-        end: datetime,
+        moon_altitudes: dict[datetime, float],
         visible_target_samples: list[tuple[datetime, float]],
     ) -> bool | None:
         if not visible_target_samples:
             return None
         first_target_time = min(sample_time for sample_time, _altitude in visible_target_samples)
         last_target_time = max(sample_time for sample_time, _altitude in visible_target_samples)
-        moon_samples = self._sample_altitudes(
-            observer,
-            moon_body,
-            start,
-            end,
-            step_minutes=30,
-        )
         moon_above_before = any(
             sample_time < first_target_time and altitude > 0.0
-            for sample_time, altitude in moon_samples
+            for sample_time, altitude in moon_altitudes.items()
         )
         moon_above_during = any(
             first_target_time <= sample_time <= last_target_time and altitude > 0.0
-            for sample_time, altitude in moon_samples
+            for sample_time, altitude in moon_altitudes.items()
         )
         return moon_above_before and not moon_above_during
 

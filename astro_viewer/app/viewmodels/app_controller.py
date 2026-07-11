@@ -2124,12 +2124,37 @@ class AppController(QObject):
     ) -> dict[str, MoonGeometryConditionInput] | None:
         if not getattr(self._night_planner_service, "uses_moon_geometry_scoring", False):
             return None
+        self._populate_moon_geometry_condition_cache(targets)
         geometry_by_id: dict[str, MoonGeometryConditionInput] = {}
         for target in targets:
             geometry = self._moon_geometry_condition_input(target)
             if geometry is not None:
                 geometry_by_id[target.id] = geometry
         return geometry_by_id
+
+    def _populate_moon_geometry_condition_cache(self, targets: list[CelestialObject]) -> None:
+        cache = getattr(self, "_moon_geometry_condition_cache", None)
+        if cache is None:
+            cache = {}
+            self._moon_geometry_condition_cache = cache
+        missing = [target for target in targets if target.id not in cache]
+        batch_method = getattr(getattr(self, "_astronomy_engine", None), "moon_geometry_batch", None)
+        if not missing or not callable(batch_method):
+            return
+        try:
+            summaries = batch_method(self._location, missing)
+        except Exception:
+            logger.debug("Moon geometry batch failed; using per-target fallback.", exc_info=True)
+            return
+        if not isinstance(summaries, Mapping):
+            return
+        for target in missing:
+            if target.id not in summaries:
+                continue
+            summary = summaries[target.id]
+            cache[target.id] = self._moon_geometry_summary_to_condition_input(
+                summary if isinstance(summary, MoonGeometrySummary) else None
+            )
 
     def _select_advanced_observing_scores(self) -> AdvancedObservingScores:
         return self._advanced_observing_service.scores(

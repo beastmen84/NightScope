@@ -82,6 +82,12 @@ reuse the existing values when rebuilding the private NSOM diagnostic snapshot.
 This avoids repeating the same ephemeris work without changing Planner scoring
 or any QML payload.
 
+When Planner needs several targets, Skyfield evaluates them on one shared
+30-minute timeline. Observer state, observing-night bounds and Moon apparent
+position are computed once; target altitude and Moon separation remain
+target-specific. The single-target method uses the same batch implementation,
+so diagnostics and Planner preserve identical geometry semantics.
+
 Planner NSOM uses Moon geometry by default through
 `NSOM_PLANNER_MOON_GEOMETRY_SCORING_ENABLED = True`. The generic
 `ObservationConditionFeatureFlags.experimental_moon_geometry_scoring` default

@@ -42,3 +42,31 @@ def test_skyfield_moon_geometry_summary_is_bounded_local_and_json_compatible(tmp
     assert isinstance(summary.moon_visible_during_target_window, bool)
     assert summary.moon_set_before_target_window in (True, False, None)
     json.dumps(asdict(summary), allow_nan=False)
+
+
+def test_skyfield_moon_geometry_batch_preserves_planet_and_messier_results(tmp_path) -> None:
+    base_dir = Path(__file__).resolve().parents[1]
+    database_path = tmp_path / "nightscope.db"
+    initialize_database(database_path, base_dir / "data" / "schema.sql")
+    engine = SkyfieldAstronomyEngine(base_dir / "data", MessierRepository(database_path))
+    location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
+    fixed_now = datetime(2026, 7, 9, 22, 0, tzinfo=ZoneInfo("Europe/Rome"))
+    engine._now = lambda _location: fixed_now
+
+    try:
+        jupiter = next(item for item in engine.solar_system_objects(location) if item.id == "jupiter")
+        m13 = next(item for item in engine.recommended_deep_sky(location) if item.id == "messier-M13")
+        summaries = engine.moon_geometry_batch(location, [jupiter, m13])
+        jupiter_single = engine.moon_geometry(location, jupiter)
+        m13_single = engine.moon_geometry(location, m13)
+    finally:
+        engine.close()
+
+    assert summaries == {
+        "jupiter": jupiter_single,
+        "messier-M13": m13_single,
+    }
+    assert summaries["jupiter"].moon_target_separation_deg == 73.5
+    assert summaries["jupiter"].moon_visible_during_target_window is False
+    assert summaries["messier-M13"].moon_target_separation_deg == 116.56
+    assert summaries["messier-M13"].moon_visible_during_target_window is True

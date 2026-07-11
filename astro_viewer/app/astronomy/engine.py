@@ -113,6 +113,13 @@ class AstronomyEngine(Protocol):
     def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
         ...
 
+    def moon_geometry_batch(
+        self,
+        location: ObserverLocation,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometrySummary | None]:
+        ...
+
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         ...
 
@@ -155,6 +162,13 @@ class MockAstronomyEngine:
     def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
         return None
 
+    def moon_geometry_batch(
+        self,
+        location: ObserverLocation,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometrySummary | None]:
+        return {target.id: None for target in targets}
+
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         return mock_events()
 
@@ -175,6 +189,13 @@ class SkyfieldAstropyEngine:
         raise NotImplementedError("Moon phase calculations will be added in a later iteration.")
 
     def moon_geometry(self, location: ObserverLocation, target: CelestialObject) -> MoonGeometrySummary | None:
+        raise NotImplementedError("Moon geometry calculations will be added in a later iteration.")
+
+    def moon_geometry_batch(
+        self,
+        location: ObserverLocation,
+        targets: list[CelestialObject],
+    ) -> dict[str, MoonGeometrySummary | None]:
         raise NotImplementedError("Moon geometry calculations will be added in a later iteration.")
 
     def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
