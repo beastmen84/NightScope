@@ -3902,21 +3902,22 @@ class AppController(QObject):
             payload.append(data)
         return payload
 
-    def _home_alternative_sort_key(self, item: CelestialObject) -> tuple[int, int, str]:
-        target_time = self._first_observing_datetime(item.best_time)
-        if target_time is None:
-            target_time = self._first_observing_datetime(item.observing_window)
-        if target_time is None:
-            time_order = 10_000
-        else:
-            window = getattr(self, "_observing_night_window", None)
-            if window is not None and window.start is not None:
-                time_order = round((target_time - window.start).total_seconds() / 60)
-            else:
-                time_order = ((target_time.hour + 24) if target_time.hour < 12 else target_time.hour) * 60
-                time_order += target_time.minute
+    def _home_alternative_sort_key(self, item: CelestialObject) -> tuple[int, int, int, str]:
+        window_start = self._first_observing_datetime(item.observing_window)
+        best_time = self._first_observing_datetime(item.best_time)
+        window_order = self._home_alternative_time_order(window_start or best_time)
+        best_time_order = self._home_alternative_time_order(best_time)
         category_order = 0 if item.object_type == "Pianeta" else 1
-        return time_order, category_order, item.name.casefold()
+        return window_order, best_time_order, category_order, item.name.casefold()
+
+    def _home_alternative_time_order(self, target_time: datetime | None) -> int:
+        if target_time is None:
+            return 10_000
+        window = getattr(self, "_observing_night_window", None)
+        if window is not None and window.start is not None:
+            return round((target_time - window.start).total_seconds() / 60)
+        hour = (target_time.hour + 24) if target_time.hour < 12 else target_time.hour
+        return hour * 60 + target_time.minute
 
     def _solar_system_monthly_visible_for_home(self, item: CelestialObject) -> bool:
         visibility = self._catalogue_month_visible_for_object(item.id)

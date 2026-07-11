@@ -2,8 +2,8 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.6`
-Distribuzione Windows corrente: `1.18.4`
+Versione corrente sorgente: `1.18.7`
+Distribuzione Windows corrente: `1.18.6`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `ce6f49c Document 1.18.6 validation`
@@ -193,6 +193,11 @@ Il closeout dichiara:
 - il timer Meteo gia' esistente aggiorna la proiezione all'inizio di ogni ora;
   score, seeing, trasparenza, Home e NSOM restano sul payload notturno
   `observingWeatherHourly`;
+- la `dist` `1.18.6` e' stata rigenerata manualmente dall'utente per la verifica
+  visuale; il bundle `_internal/VERSION` risulta `1.18.6`;
+- `1.18.7` ordina le alternative Home per inizio finestra prima del `best_time`,
+  usa cyan per la selezione Meteo e teal per la notte, e rimuove la scrollbar
+  sovrapposta dal dettaglio orario;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -733,7 +738,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.18.6` e `1.18.4`.
+   sono rispettivamente `1.18.7` e `1.18.6`.
 2. Il prossimo capitolo UI concordato e' la review, prima di
    qualunque modifica, della pagina di dettaglio osservativo.
 3. Capitoli da lasciare separati:

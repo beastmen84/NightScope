@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.18.6`:
+Current runtime status for `1.18.7`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -94,6 +94,8 @@ Current runtime status for `1.18.6`:
 - `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
   projects Session state, a count-based multi-equipment summary, four compact
   plan rows and score-free alternative rows without changing Planner ranking.
+- Lower-Home alternatives are presented by observing-window start; shared best
+  times, target category and name are tie-breaks only.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed

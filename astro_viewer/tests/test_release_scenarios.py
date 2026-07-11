@@ -420,6 +420,8 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("isObservingNight", qml)
         self.assertIn("Previsione mobile delle prossime 24 ore", qml)
         self.assertIn("Notte osservativa", qml)
+        self.assertIn("? theme.cyan", qml)
+        self.assertNotIn("ScrollBar.horizontal", qml)
         self.assertNotIn("controller.observingWeatherHourly", qml)
         self.assertNotIn("controller.weatherHourly", qml)
         self.assertIn("Radianza VIIRS", qml)

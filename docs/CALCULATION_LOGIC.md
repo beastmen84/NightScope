@@ -114,7 +114,8 @@ The lower-Home candidate pool contains every planet and deep-sky object with a
 useful window during the observing night. `visible` means useful at some point
 in that night; `observable_now` is a separate live geometry result. The Home
 alternatives projection removes the four plan IDs, combines planet and deep-sky
-rows and orders them by observing-night time. Active Bortle/VIIRS context can
+rows and orders them first by the start of their observing window. Best time,
+category and name are deterministic tie-breaks. Active Bortle/VIIRS context can
 penalize, reorder or remove a deep-sky target that is no longer useful after
 conditioning, but it does not truncate the surviving pool to a fixed count.
 
@@ -360,6 +361,8 @@ ends 24 hours later and adds `isObservingNight` to samples contained in the
 active `ObservingNightWindow`; QML uses that flag only for color treatment.
 Selection is keyed by the forecast timestamp, so the selected hour remains
 stable when the existing top-of-hour refresh removes the elapsed bucket. The
+selected card uses cyan while `isObservingNight` uses teal, and the horizontal
+selector remains scrollable without a visible overlapping scrollbar. The
 complete 48-hour `weatherHourly` payload remains available as a compatibility
 contract, while `observingWeatherHourly` remains the only input for score,
 seeing/transparency, Home digest, Session and NSOM ranking.

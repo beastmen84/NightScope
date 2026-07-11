@@ -325,7 +325,7 @@ Item {
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 96
+                    Layout.preferredHeight: 86
                     visible: root.displayWeatherHours.length > 0
                     radius: 8
                     color: "#15181e"
@@ -356,12 +356,12 @@ Item {
                             property bool selectedHour: weatherHourDelegate.index === root.selectedWeatherHourIndex()
                             property bool nightHour: Boolean(weatherHourDelegate.modelData.isObservingNight)
                             color: selectedHour
-                                   ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.18)
+                                   ? Qt.rgba(theme.cyan.r, theme.cyan.g, theme.cyan.b, 0.18)
                                    : nightHour
                                      ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.08)
                                    : "#1c222b"
                             border.color: selectedHour
-                                          ? theme.teal
+                                          ? theme.cyan
                                           : nightHour
                                             ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.55)
                                           : "#303641"
@@ -375,7 +375,9 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     text: weatherHourDelegate.modelData.time
-                                    color: weatherHourDelegate.nightHour ? theme.teal : theme.textPrimary
+                                    color: weatherHourDelegate.selectedHour
+                                           ? theme.cyan
+                                           : weatherHourDelegate.nightHour ? theme.teal : theme.textPrimary
                                     font.pixelSize: 14
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
@@ -409,11 +411,6 @@ Item {
                             }
                         }
 
-                        ScrollBar.horizontal: ScrollBar {
-                            policy: weatherHourList.contentWidth > weatherHourList.width
-                                    ? ScrollBar.AsNeeded
-                                    : ScrollBar.AlwaysOff
-                        }
                     }
                 }
 
@@ -424,7 +421,7 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: "Orario"; value: root.selectedHourText("time", "", "-"); accentColor: theme.teal }
+                    MetricTile { label: "Orario"; value: root.selectedHourText("time", "", "-"); accentColor: theme.cyan }
                     MetricTile { label: "Nuvolosità"; value: root.selectedHourText("cloudCover", "%", "-"); accentColor: theme.cyan }
                     MetricTile { label: "Pioggia"; value: root.selectedHourText("precipitationProbability", "%", "-"); accentColor: theme.coral }
                     MetricTile { label: "Vento"; value: root.selectedHourText("windKmh", " km/h", "-"); accentColor: theme.teal }

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.models.observing import CelestialObject
@@ -29,6 +32,36 @@ def test_home_visible_alternatives_use_the_full_pool_minus_the_four_step_plan() 
     assert [item["id"] for item in payload] == ["m-early", "m-late", "mars"]
     assert [item["homeCategory"] for item in payload] == ["deep_sky", "deep_sky", "planet"]
     assert all(item["id"] != planned.id for item in payload)
+
+
+def test_home_alternatives_with_shared_best_time_follow_window_start() -> None:
+    controller = AppController.__new__(AppController)
+    controller._observing_night_window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 11, 18, 48, tzinfo=ZoneInfo("Africa/Addis_Ababa")),
+        datetime(2026, 7, 12, 6, 12, tzinfo=ZoneInfo("Africa/Addis_Ababa")),
+    )
+    controller._visible_planets = []
+    controller._conditioned_deep_sky_candidates = lambda: [
+        _target("m37", "M37", "Open cluster", "05:48", 70, "05:47 - 06:12"),
+        _target("m38", "M38", "Open cluster", "05:48", 70, "05:23 - 06:12"),
+        _target("m45", "M45", "Open cluster", "05:48", 70, "03:44 - 06:12"),
+        _target("m74", "M74", "Galaxy", "05:48", 70, "01:36 - 06:12"),
+        _target("m76", "M76", "Planetary nebula", "05:48", 70, "01:41 - 06:12"),
+        _target("m77", "M77", "Galaxy", "05:48", 70, "02:50 - 06:12"),
+    ]
+    controller._night_plan = []
+    controller._object_to_qml = lambda item: item.to_qml()
+
+    payload = AppController.__dict__["homeVisibleAlternatives"].fget(controller)
+
+    assert [item["id"] for item in payload] == [
+        "m74",
+        "m76",
+        "m77",
+        "m45",
+        "m38",
+        "m37",
+    ]
 
 
 def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten() -> None:
@@ -108,6 +141,7 @@ def _target(
     object_type: str,
     best_time: str,
     score: int,
+    observing_window: str | None = None,
 ) -> CelestialObject:
     return CelestialObject(
         id=object_id,
@@ -119,7 +153,7 @@ def _target(
         max_altitude="50 gradi",
         direction="Sud",
         best_time=best_time,
-        observing_window=f"{best_time} - 05:00",
+        observing_window=observing_window or f"{best_time} - 05:00",
         notes="Fixture",
         recommended_setup="Fixture setup",
         visibility_class="",

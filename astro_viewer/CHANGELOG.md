@@ -1,5 +1,19 @@
 # Changelog
 
+## NightScope 1.18.7 - 2026-07-11
+
+- Corretto l'ordinamento delle alternative Home: la chiave primaria e' ora
+  l'inizio della finestra osservativa, non il `best_time` condiviso da molti
+  oggetti crescenti verso l'alba.
+- Conservati come spareggi il momento migliore, la categoria e il nome; il
+  gruppo mostrato nello screenshot segue ora `M74, M76, M77, M45, M38, M37`.
+- Distinta la selezione del dettaglio Meteo con accento cyan, lasciando il teal
+  esclusivamente alla marcatura delle ore notturne.
+- Rimossa la scrollbar orizzontale visibile dal selettore orario e ripristinata
+  l'altezza compatta delle schede; lo scorrimento orizzontale resta attivo.
+- Aggiunte regressioni su ordine a `best_time` condiviso e contratto QML.
+  Distribuzione Windows non rigenerata: sorgente `1.18.7`, dist `1.18.6`.
+
 ## NightScope 1.18.6 - 2026-07-11
 
 - Aggiunta la property read-only `weatherNext24Hours`, che seleziona i campioni
