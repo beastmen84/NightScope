@@ -130,7 +130,10 @@ The lower Home QML consumes this projection directly. It renders the plan state
 card from the projected labels and shows non-plan planets/deep-sky rows in one
 filterable table. The table intentionally omits legacy target scores and
 Equipment explanations; selecting a row still opens the detail page, where the
-longer observing guidance belongs.
+longer observing guidance belongs. While that table overflows its bounded
+height, its wheel handler owns mouse-wheel and touchpad events over the list,
+including at either boundary; the outer Home page scroll remains active outside
+the list and when the table has no internal overflow.
 
 Sky Compass runs from the same prepared pool but filters `observable_now=False`.
 Its direction contribution is the NSOM `ObservableTargetValue` scaled by a

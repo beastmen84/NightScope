@@ -134,6 +134,10 @@ Il closeout dichiara:
   deep-sky con Bortle/VIIRS attivo: penalita', visibilita' e ordine restano
   invariati, ma tutti i target ancora utili raggiungono il pool Home prima
   dell'esclusione dei quattro oggetti del piano;
+- il secondo step `1.18.3` assegna la rotella alla lista Home degli altri
+  oggetti mentre il puntatore e' al suo interno e la lista e' scrollabile:
+  mouse e touchpad restano confinati anche a top/bottom, mentre fuori dalla
+  lista continua a scorrere la pagina;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

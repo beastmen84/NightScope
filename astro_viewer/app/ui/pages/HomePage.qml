@@ -1482,6 +1482,29 @@ Item {
                         boundsBehavior: Flickable.StopAtBounds
                         interactive: contentHeight > height
 
+                        WheelHandler {
+                            enabled: visibleTargetList.interactive
+                            target: null
+                            orientation: Qt.Vertical
+                            acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                            blocking: true
+
+                            onWheel: function(event) {
+                                var delta = event.pixelDelta.y
+                                if (delta === 0)
+                                    delta = event.angleDelta.y / 2
+                                var minimumY = visibleTargetList.originY
+                                var maximumY = Math.max(
+                                            minimumY,
+                                            minimumY + visibleTargetList.contentHeight - visibleTargetList.height)
+                                visibleTargetList.cancelFlick()
+                                visibleTargetList.contentY = Math.max(
+                                            minimumY,
+                                            Math.min(maximumY, visibleTargetList.contentY - delta))
+                                event.accepted = true
+                            }
+                        }
+
                         delegate: HomeVisibleTargetRow {
                             width: visibleTargetList.width
                             compact: root.width <= 760

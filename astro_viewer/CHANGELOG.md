@@ -9,6 +9,12 @@
 - Aggiunta una regressione che attraversa servizio condizioni, read-model,
   controller e payload `homeVisibleAlternatives` con sedici target e verifica
   che i dodici oggetti fuori dal piano raggiungano la Home.
+- La lista Home `Altri oggetti visibili stasera` trattiene ora gli eventi di
+  rotella di mouse e touchpad finche' il puntatore e' sulla lista scrollabile,
+  anche quando raggiunge il primo o l'ultimo elemento; lo scroll della pagina
+  resta disponibile fuori dalla lista o quando il contenuto entra interamente.
+- Aggiunto un controllo del contratto QML del gestore annidato; verificati
+  `qmllint`, test Home/release e caricamento offscreen dell'intera scena.
 
 ## NightScope 1.18.2 - 2026-07-11
 

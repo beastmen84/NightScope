@@ -26,6 +26,20 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
     assert "equipmentExplanation" not in source
 
 
+def test_home_alternatives_capture_wheel_events_while_the_list_can_scroll() -> None:
+    source = HOME_PAGE.read_text(encoding="utf-8")
+    visible_target_list = source.split("id: visibleTargetList", 1)[1].split(
+        "ScrollBar.vertical:", 1
+    )[0]
+
+    assert "WheelHandler {" in visible_target_list
+    assert "enabled: visibleTargetList.interactive" in visible_target_list
+    assert "acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad" in visible_target_list
+    assert "blocking: true" in visible_target_list
+    assert "visibleTargetList.contentY - delta" in visible_target_list
+    assert "event.accepted = true" in visible_target_list
+
+
 def test_home_backend_data_for_telescope_recommendation() -> None:
     suggestion = EquipmentService().suggest_for_profile(
         _object("messier-M57", "M57", "Planetary nebula", "8.8", "86 arcsec", 0.024, "HighMagnification"),
