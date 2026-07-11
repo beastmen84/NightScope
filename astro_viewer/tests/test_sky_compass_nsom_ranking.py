@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from copy import deepcopy
 from dataclasses import replace
 from inspect import signature
@@ -193,7 +194,7 @@ def test_controller_sky_compass_split_adapter_uses_raw_physics_and_display_live_
     assert controller._sky_compass_nsom_direction_service.compass.call_args.args[0] == [display]
 
 
-def test_missing_sky_quality_and_service_failure_fall_back_to_legacy_without_logging_or_shape_change() -> None:
+def test_missing_sky_quality_and_service_failure_fall_back_to_legacy_with_diagnostic_log(caplog) -> None:
     targets = _targets()
     legacy = _legacy_compass(targets)
     missing_quality = _controller(sky_quality=None)
@@ -205,8 +206,10 @@ def test_missing_sky_quality_and_service_failure_fall_back_to_legacy_without_log
     )
 
     assert missing_quality._select_sky_compass_payload(targets, has_location=True, caution_text="") == legacy
-    assert failing._select_sky_compass_payload(targets, has_location=True, caution_text="") == legacy
+    with caplog.at_level(logging.WARNING, logger="astro_viewer.app.viewmodels.app_controller"):
+        assert failing._select_sky_compass_payload(targets, has_location=True, caution_text="") == legacy
     failing_service.compass.assert_called_once()
+    assert "NSOM Sky Compass selection failed; using legacy fallback." in caplog.text
 
 
 def test_no_location_no_targets_and_original_objects_are_not_mutated() -> None:

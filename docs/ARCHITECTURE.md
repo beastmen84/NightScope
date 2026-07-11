@@ -74,6 +74,9 @@ Current runtime status for `1.18.3`:
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
+- If the NSOM Sky Compass selector raises unexpectedly, the controller logs the
+  failure and preserves the legacy payload fallback. Missing sky-quality input
+  remains a normal, non-error fallback.
 - `ObservingNightWindow` is the shared temporal boundary for astronomy,
   forecast selection, global score, seeing/transparency, Home, Planner and Sky
   Compass. Skyfield owns sunset/sunrise calculation and caches one result per

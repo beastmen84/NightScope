@@ -31,6 +31,9 @@
   dettaglio Meteo ai soli campioni compresi nella notte astronomica attiva.
 - Conservato `weatherHourly` come payload completo a 48 ore di compatibilita',
   senza piu' mostrarlo sotto il sottotitolo `finestra notturna`.
+- Reso osservabile il fallback Sky Compass: un'eccezione della selezione NSOM
+  produce ora un warning con traceback prima di usare il payload legacy
+  invariato.
 
 ## NightScope 1.18.3 - 2026-07-11
 

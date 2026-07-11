@@ -160,6 +160,8 @@ Il closeout dichiara:
 - il quinto step `1.18.4` collega grafico e dettaglio Meteo alla nuova property
   `observingWeatherHourly`, limitata alla notte attiva; `weatherHourly` conserva
   le 48 ore complete soltanto come contratto di compatibilita';
+- il sesto step `1.18.4` mantiene il fallback legacy Sky Compass ma registra un
+  warning diagnostico quando la selezione NSOM solleva un'eccezione;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

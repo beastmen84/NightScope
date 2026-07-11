@@ -3101,7 +3101,10 @@ class AppController(QObject):
                     observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
                 )
             except Exception:
-                pass
+                logger.warning(
+                    "NSOM Sky Compass selection failed; using legacy fallback.",
+                    exc_info=True,
+                )
         return self._sky_compass_service.compass(
             candidates,
             self._night_plan,
