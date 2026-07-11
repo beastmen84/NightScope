@@ -2088,7 +2088,9 @@ class AppController(QObject):
             planner_kwargs["moon_geometry_by_object_id"] = planner_moon_geometry
         if getattr(self._night_planner_service, "uses_target_equipment", False):
             planner_kwargs["telescope_by_object_id"] = self._planner_telescopes_by_object_id(planning_objects)
-        planner_kwargs["night_window"] = self._observing_night_window
+        night_window = getattr(self, "_observing_night_window", None)
+        if isinstance(night_window, ObservingNightWindow) and night_window.has_observing_window:
+            planner_kwargs["night_window"] = night_window
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
@@ -4568,6 +4570,8 @@ class AppController(QObject):
         )
 
     def _observing_weather_hours(self) -> list[WeatherHour]:
+        if not hasattr(self, "_location") or not hasattr(self, "_observing_night_window"):
+            return list(getattr(self, "_weather_hours", []))
         if not self._has_valid_location():
             return []
         return weather_hours_for_night(

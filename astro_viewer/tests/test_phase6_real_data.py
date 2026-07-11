@@ -6,14 +6,15 @@ import re
 import tempfile
 import unittest
 from contextlib import closing
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
+from zoneinfo import ZoneInfo
 
 import h5py
 import numpy as np
 
-from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
@@ -298,6 +299,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._visible_planets = []
             controller._deep_sky = [target]
             controller._selected_object = target
+            controller._observing_night_window = _test_night_window()
             controller._weather_hours = [
                 WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
             ]
@@ -1069,6 +1071,7 @@ class Phase6RealDataTests(unittest.TestCase):
             }
             controller._astronomy_engine = astronomy
             controller._location = ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa")
+            controller._observing_night_window = _test_night_window()
             controller._catalogue_year = 2026
             controller._catalogue_selected_month = 6
             controller._invalidate_catalogue_visibility_cache()
@@ -1644,6 +1647,14 @@ def _object(object_id: str, name: str, object_type: str, magnitude: str) -> Cele
     )
 
 
+def _test_night_window() -> ObservingNightWindow:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    now = datetime.now(zone)
+    start_date = now.date() - timedelta(days=1) if now.hour < 8 else now.date()
+    start = datetime.combine(start_date, datetime.min.time(), tzinfo=zone).replace(hour=18)
+    return ObservingNightWindow.bounded(start, start + timedelta(hours=13))
+
+
 def _planet(
     object_id: str,
     name: str,
@@ -1790,20 +1801,30 @@ class _controller:
         base_dir = Path(__file__).resolve().parents[1]
         response = Mock()
         response.raise_for_status.return_value = None
+        weather_start = datetime.now(ZoneInfo("Africa/Addis_Ababa")).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0,
+            tzinfo=None,
+        )
         response.json.return_value = {
             "hourly": {
-                "time": [f"2026-06-21T{hour:02d}:00" for hour in range(24)],
-                "cloud_cover": [20] * 24,
-                "precipitation_probability": [0] * 24,
-                "temperature_2m": [18.0] * 24,
-                "relative_humidity_2m": [55] * 24,
-                "wind_speed_10m": [6] * 24,
-                "wind_gusts_10m": [10] * 24,
-                "visibility": [20_000] * 24,
-                "dew_point_2m": [10.0] * 24,
-                "cloud_cover_low": [5] * 24,
-                "cloud_cover_mid": [10] * 24,
-                "cloud_cover_high": [15] * 24,
+                "time": [
+                    (weather_start + timedelta(hours=index)).isoformat(timespec="minutes")
+                    for index in range(48)
+                ],
+                "cloud_cover": [20] * 48,
+                "precipitation_probability": [0] * 48,
+                "temperature_2m": [18.0] * 48,
+                "relative_humidity_2m": [55] * 48,
+                "wind_speed_10m": [6] * 48,
+                "wind_gusts_10m": [10] * 48,
+                "visibility": [20_000] * 48,
+                "dew_point_2m": [10.0] * 48,
+                "cloud_cover_low": [5] * 48,
+                "cloud_cover_mid": [10] * 48,
+                "cloud_cover_high": [15] * 48,
             }
         }
         self._weather_patch = patch("astro_viewer.app.services.weather_service.requests.get", return_value=response)
