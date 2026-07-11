@@ -2,7 +2,7 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.3`
+Versione corrente sorgente: `1.18.4`
 Distribuzione Windows corrente: `1.18.3`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
@@ -145,6 +145,9 @@ Il closeout dichiara:
 - la distribuzione Windows `1.18.3` e' stata rigenerata su richiesta; versione
   e QML nel bundle, smoke eseguibile, QML smoke, integrita' database e
   conservazione dei cinque file runtime sono stati verificati;
+- il primo step `1.18.4` conserva il minuto contenente il tramonto Skyfield nei
+  clock `HH:MM` consumati da Home e Planner e limita la fine della migliore
+  finestra meteo all'alba locale esatta;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -159,7 +162,8 @@ coerente con le soglie attuali: pioggia massima `61% < 65%`, indice meteo
 La dicitura `Migliore finestra` continua a indicare il blocco relativo di tre
 ore con penalita' minore, non una finestra in cui ogni ora supera il gate di
 usabilita'. Da `1.18.1` il blocco deve pero' essere consecutivo e interamente
-contenuto tra tramonto e alba della posizione attiva. Il difetto intermittente
+contenuto tra tramonto e alba della posizione attiva; da `1.18.4` anche la label
+finale viene troncata all'alba esatta. Il difetto intermittente
 `05:00-22:00`, causato dall'unione di due porzioni di notti diverse in una
 previsione mobile di 24 ore, e' coperto da regressione e non e' piu' possibile.
 

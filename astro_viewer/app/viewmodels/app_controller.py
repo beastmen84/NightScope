@@ -96,6 +96,7 @@ from astro_viewer.app.services.observation_conditions_read_model import (
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.observing_night_service import (
     consecutive_weather_groups,
+    weather_hour_datetime,
     weather_hours_for_night,
 )
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere, OpenAQLocalAtmosphereService
@@ -4940,7 +4941,11 @@ class AppController(QObject):
         average_wind = round(sum(hour.wind_kmh for hour in night_hours) / len(night_hours))
         best_hours = self._best_weather_hours(night_hours)
         return {
-            "bestWindow": self._weather_window_label(best_hours),
+            "bestWindow": self._weather_window_label(
+                best_hours,
+                self._observing_night_window,
+                self._location.timezone,
+            ),
             "cloudAverage": average_cloud,
             "windLabel": self._wind_label(average_wind),
             "rainProbability": max_rain,
@@ -4992,7 +4997,11 @@ class AppController(QObject):
         if decision.state == "discouraged":
             return ""
         if decision.state == "monitor":
-            return self._weather_window_label(self._best_usable_observing_window()).replace(" - ", "–")
+            return self._weather_window_label(
+                self._best_usable_observing_window(),
+                self._observing_night_window,
+                self._location.timezone,
+            ).replace(" - ", "–")
         best_window = self._weather_digest().get("bestWindow", "")
         if not best_window or best_window == "n/d":
             return ""
@@ -5064,7 +5073,11 @@ class AppController(QObject):
         return [hours[index] for index in dict.fromkeys(indices)]
 
     @staticmethod
-    def _weather_window_label(hours: list[WeatherHour]) -> str:
+    def _weather_window_label(
+        hours: list[WeatherHour],
+        night_window: ObservingNightWindow | None = None,
+        timezone: str = "UTC",
+    ) -> str:
         if not hours:
             return "n/d"
         contiguous = consecutive_weather_groups(hours)
@@ -5072,10 +5085,16 @@ class AppController(QObject):
         if not selected:
             return "n/d"
         start = selected[0].time
-        parsed_end = AppController._parse_hour_minute(selected[-1].time)
-        if not parsed_end:
-            return start
-        end_dt = datetime(2000, 1, 1, parsed_end[0], parsed_end[1]) + timedelta(hours=1)
+        last_timestamp = weather_hour_datetime(selected[-1], timezone)
+        if last_timestamp is not None:
+            end_dt = last_timestamp + timedelta(hours=1)
+            if night_window is not None and night_window.end is not None:
+                end_dt = min(end_dt, night_window.end)
+        else:
+            parsed_end = AppController._parse_hour_minute(selected[-1].time)
+            if not parsed_end:
+                return start
+            end_dt = datetime(2000, 1, 1, parsed_end[0], parsed_end[1]) + timedelta(hours=1)
         return f"{start} - {end_dt.strftime('%H:%M')}"
 
     @staticmethod

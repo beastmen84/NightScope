@@ -1,5 +1,18 @@
 # Changelog
 
+## NightScope 1.18.4 - 2026-07-11
+
+- Trattati gli orari astronomici `HH:MM` come intervalli con precisione al
+  minuto: quando il tramonto Skyfield contiene secondi, il relativo minuto non
+  viene piu' escluso da Home e Planner.
+- Impedito al Planner di sostituire un `best_time` coincidente con il tramonto
+  con l'estremo finale della finestra dell'oggetto.
+- Limitata la label della migliore finestra meteo all'alba locale esatta; un
+  ultimo campione alle `06:00` con alba alle `06:12` termina ora alle `06:12`,
+  non alle `07:00`.
+- Aggiunte regressioni sul confine al secondo e sulla finestra meteo
+  `04:00-06:12`. Distribuzione Windows non rigenerata.
+
 ## NightScope 1.18.3 - 2026-07-11
 
 - Rimosso il limite residuo di dieci target dal condizionamento deep-sky per

@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock
 from zoneinfo import ZoneInfo
 
 import pytest
 
-from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
+from astro_viewer.app.services.night_planner_service import NightPlannerService
 
 
 @pytest.fixture(scope="module")
@@ -66,6 +68,35 @@ def test_addis_ababa_current_night_keeps_previous_sunset(
     assert window.start.date().isoformat() == "2026-07-10"
     assert window.end.date().isoformat() == "2026-07-11"
     assert window.contains(reference)
+
+
+def test_minute_clock_label_keeps_the_minute_containing_sunset() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    start = datetime(2026, 7, 10, 18, 48, 31, tzinfo=zone)
+    window = ObservingNightWindow.bounded(
+        start,
+        datetime(2026, 7, 11, 6, 12, 20, tzinfo=zone),
+    )
+
+    assert window.datetime_for_clock(18, 47) is None
+    assert window.datetime_for_clock(18, 48) == start
+    assert window.datetime_for_clock(18, 49) == datetime(2026, 7, 10, 18, 49, tzinfo=zone)
+
+
+def test_planner_does_not_replace_sunset_best_time_with_window_end() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    start = datetime(2026, 7, 10, 18, 48, 31, tzinfo=zone)
+    window = ObservingNightWindow.bounded(
+        start,
+        datetime(2026, 7, 11, 6, 12, 20, tzinfo=zone),
+    )
+    target = SimpleNamespace(
+        best_time="18:48",
+        observing_window="18:48 - 20:48",
+        visible=True,
+    )
+
+    assert NightPlannerService._observing_time(target, window) == start
 
 
 @pytest.mark.parametrize(

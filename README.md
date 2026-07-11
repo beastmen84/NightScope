@@ -33,7 +33,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.3`.
+Versione corrente sorgente: `1.18.4`.
 
 Distribuzione Windows corrente: `1.18.3`.
 
@@ -123,6 +123,14 @@ sulla lista scrollabile, senza trasferirlo alla pagina quando raggiunge un
 estremo. La distribuzione Windows e' stata rigenerata su richiesta con bundle
 `VERSION` `1.18.3`; smoke e QML smoke dell'eseguibile terminano con exit code
 `0`.
+
+In `1.18.4` gli orari astronomici esposti con precisione al minuto conservano
+anche il minuto che contiene il tramonto calcolato con secondi da Skyfield. Home
+e Planner non ripiegano quindi sulla fine della finestra quando il momento
+migliore coincide con il tramonto. La migliore finestra meteo viene inoltre
+limitata all'alba locale esatta, senza produrre label come `04:00-07:00` quando
+la notte termina alle `06:12`. La distribuzione Windows resta alla `1.18.3`
+finche' non viene richiesta una nuova build.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

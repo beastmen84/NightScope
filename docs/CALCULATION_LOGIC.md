@@ -171,6 +171,12 @@ and the following local sunrise. Solar-system objects use an altitude threshold
 of about 8 degrees for useful night visibility, and their sampled observing
 window is always contained inside those solar boundaries.
 
+Skyfield boundaries retain second precision while user-facing object times use
+`HH:MM`. A clock label therefore represents its complete minute: when that
+minute overlaps sunset, `ObservingNightWindow` resolves it to the exact sunset
+instant instead of rejecting it as earlier than the boundary. This same rule is
+used by Home ordering and Planner chronology.
+
 The same `ObservingNightWindow` gates current observability for Sky Compass.
 When Skyfield reports continuous daylight, no observing night is exposed. When
 it reports continuous darkness, NightScope uses an explicit rolling 24-hour
@@ -338,7 +344,9 @@ astronomical window is unavailable.
 The Home `Migliore finestra` remains the lowest-penalty relative block of up to
 three consecutive forecast hours. Candidate blocks are split whenever adjacent
 timestamps are more than 90 minutes apart, so samples from two different nights
-cannot form a label such as `05:00-22:00`.
+cannot form a label such as `05:00-22:00`. The displayed end is clamped to the
+exact `ObservingNightWindow.end`, so the final hourly sample never extends the
+label beyond local sunrise.
 
 The score starts at 100 and applies:
 

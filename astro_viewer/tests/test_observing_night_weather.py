@@ -66,6 +66,26 @@ def test_weather_selection_includes_last_hour_before_sunrise() -> None:
     assert [hour.time for hour in selected] == ["19:00", "06:00"]
 
 
+def test_best_weather_window_label_is_clamped_to_sunrise() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    night_window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 10, 18, 48, tzinfo=zone),
+        datetime(2026, 7, 11, 6, 12, tzinfo=zone),
+    )
+    hours = [
+        _weather_hour(datetime(2026, 7, 11, hour, 0))
+        for hour in (4, 5, 6)
+    ]
+
+    label = AppController._weather_window_label(
+        hours,
+        night_window,
+        "Africa/Addis_Ababa",
+    )
+
+    assert label == "04:00 - 06:12"
+
+
 def _weather_hour(timestamp: datetime) -> WeatherHour:
     return WeatherHour(
         timestamp=timestamp.isoformat(timespec="minutes"),

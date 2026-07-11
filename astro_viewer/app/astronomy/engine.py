@@ -74,8 +74,9 @@ class ObservingNightWindow:
                 time(hour, minute),
                 tzinfo=self.start.tzinfo,
             )
-            if self.contains(candidate):
-                return candidate
+            minute_end = candidate + timedelta(minutes=1)
+            if candidate < self.end and minute_end > self.start:
+                return max(candidate, self.start)
             current_date += timedelta(days=1)
         return None
 
