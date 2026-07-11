@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.1`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `8ea8a7a Release 1.18.1 local observing night`
 - `b750f9f Harden local night regression coverage`
 - `669c150 Align observing logic to the local night`
 - `ea0b8b1 Use location-aware observing night`
