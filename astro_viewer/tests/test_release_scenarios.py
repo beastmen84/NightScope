@@ -420,6 +420,12 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("isObservingNight", qml)
         self.assertIn("Previsione mobile delle prossime 24 ore", qml)
         self.assertIn("Notte osservativa", qml)
+        cloud_card_start = qml.index('title: "Copertura nuvolosa oraria"')
+        weather_bars_start = qml.index("WeatherBars {", cloud_card_start)
+        cloud_header = qml[cloud_card_start:weather_bars_start]
+        self.assertIn("headerContent: [", cloud_header)
+        self.assertIn('text: "Notte osservativa"', cloud_header)
+        self.assertEqual(qml.count('text: "Notte osservativa"'), 1)
         self.assertIn("? theme.cyan", qml)
         self.assertNotIn("ScrollBar.horizontal", qml)
         self.assertNotIn("controller.observingWeatherHourly", qml)
@@ -460,6 +466,12 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"', qml)
         self.assertIn("delegate: HomePlanStepRow", qml)
         self.assertIn("delegate: HomeVisibleTargetRow", qml)
+        plan_step_qml = (
+            Path(__file__).resolve().parents[1] / "app" / "ui" / "components" / "HomePlanStepRow.qml"
+        ).read_text(encoding="utf-8")
+        image_start = plan_step_qml.index("Layout.preferredWidth: 52")
+        text_start = plan_step_qml.index("ColumnLayout {", image_start)
+        self.assertIn("Layout.alignment: Qt.AlignVCenter", plan_step_qml[image_start:text_start])
         self.assertIn("model: root.filteredNightAlternatives()", qml)
         self.assertIn("Finestra", qml)
         self.assertIn("Direzione", qml)

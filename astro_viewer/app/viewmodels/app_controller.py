@@ -3902,13 +3902,28 @@ class AppController(QObject):
             payload.append(data)
         return payload
 
-    def _home_alternative_sort_key(self, item: CelestialObject) -> tuple[int, int, int, str]:
+    def _home_alternative_sort_key(
+        self, item: CelestialObject
+    ) -> tuple[int, int, int, tuple[tuple[int, int | str], ...]]:
         window_start = self._first_observing_datetime(item.observing_window)
         best_time = self._first_observing_datetime(item.best_time)
         window_order = self._home_alternative_time_order(window_start or best_time)
         best_time_order = self._home_alternative_time_order(best_time)
         category_order = 0 if item.object_type == "Pianeta" else 1
-        return window_order, best_time_order, category_order, item.name.casefold()
+        return (
+            window_order,
+            best_time_order,
+            category_order,
+            self._natural_name_sort_key(item.name),
+        )
+
+    @staticmethod
+    def _natural_name_sort_key(value: str) -> tuple[tuple[int, int | str], ...]:
+        return tuple(
+            (1, int(part)) if part.isdigit() else (0, part.casefold())
+            for part in re.split(r"(\d+)", value)
+            if part
+        )
 
     def _home_alternative_time_order(self, target_time: datetime | None) -> int:
         if target_time is None:

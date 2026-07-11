@@ -33,9 +33,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.7`.
+Versione corrente sorgente: `1.18.8`.
 
-Distribuzione Windows corrente: `1.18.6`.
+Distribuzione Windows corrente: `1.18.7`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -184,7 +184,16 @@ In `1.18.7` la lista Home fuori piano e' ordinata prima per inizio della
 finestra osservativa e soltanto a parita' per momento migliore, categoria e
 nome. Nel dettaglio Meteo il cyan distingue l'ora selezionata dal teal delle ore
 notturne e la scrollbar orizzontale sovrapposta alle schede non viene piu'
-mostrata. La distribuzione Windows resta alla `1.18.6`.
+mostrata. La distribuzione Windows `1.18.7` e' stata poi rigenerata manualmente
+per la verifica visuale.
+
+In `1.18.8` la card inferiore della navigazione usa lo stato Session NSOM della
+Home invece del vecchio indice meteo: mostra badge, finestra e fattore
+limitante, senza score numerico. Le immagini del piano sono centrate rispetto
+al blocco testuale e lo spareggio finale per nome usa un ordinamento naturale
+dei numeri di catalogo (`M3`, `M40`, `M100`; analogo per Caldwell). Nella pagina
+Meteo la legenda `Notte osservativa` e' nell'header del grafico. La
+distribuzione Windows resta alla `1.18.7`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

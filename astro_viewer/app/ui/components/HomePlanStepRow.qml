@@ -74,7 +74,7 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: 52
             Layout.preferredHeight: 52
-            Layout.alignment: Qt.AlignTop
+            Layout.alignment: Qt.AlignVCenter
             radius: 8
             color: "#111319"
             border.color: theme.border

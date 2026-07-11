@@ -2,8 +2,8 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.7`
-Distribuzione Windows corrente: `1.18.6`
+Versione corrente sorgente: `1.18.8`
+Distribuzione Windows corrente: `1.18.7`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `9b440e4 Document 1.18.7 validation`
@@ -200,6 +200,12 @@ Il closeout dichiara:
 - `1.18.7` ordina le alternative Home per inizio finestra prima del `best_time`,
   usa cyan per la selezione Meteo e teal per la notte, e rimuove la scrollbar
   sovrapposta dal dettaglio orario;
+- la `dist` `1.18.7` e' stata rigenerata manualmente dall'utente per il
+  confronto visuale; il bundle `_internal/VERSION` risulta `1.18.7`;
+- `1.18.8` collega la card inferiore della navigazione a
+  `homeObservingOverview.session`, centra le immagini delle righe piano, usa
+  uno spareggio naturale per nomi Messier/Caldwell e porta la legenda notte
+  nell'header del grafico Meteo;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -764,7 +770,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.18.7` e `1.18.6`.
+   sono rispettivamente `1.18.8` e `1.18.7`.
 2. Il prossimo capitolo UI concordato e' la review, prima di
    qualunque modifica, della pagina di dettaglio osservativo.
 3. Capitoli da lasciare separati:

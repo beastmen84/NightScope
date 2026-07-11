@@ -64,6 +64,28 @@ def test_home_alternatives_with_shared_best_time_follow_window_start() -> None:
     ]
 
 
+def test_home_alternatives_use_natural_catalogue_name_order_as_final_tie_break() -> None:
+    controller = AppController.__new__(AppController)
+    controller._observing_night_window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 11, 18, 48, tzinfo=ZoneInfo("Africa/Addis_Ababa")),
+        datetime(2026, 7, 12, 6, 12, tzinfo=ZoneInfo("Africa/Addis_Ababa")),
+    )
+    controller._visible_planets = []
+    controller._conditioned_deep_sky_candidates = lambda: [
+        _target("m100", "M100", "Galaxy", "22:30", 70, "22:00 - 23:00"),
+        _target("m40", "M40", "Double star", "22:30", 70, "22:00 - 23:00"),
+        _target("c14", "C14", "Double cluster", "22:30", 70, "22:00 - 23:00"),
+        _target("m3", "M3", "Globular cluster", "22:30", 70, "22:00 - 23:00"),
+        _target("c2", "C2", "Planetary nebula", "22:30", 70, "22:00 - 23:00"),
+    ]
+    controller._night_plan = []
+    controller._object_to_qml = lambda item: item.to_qml()
+
+    payload = AppController.__dict__["homeVisibleAlternatives"].fget(controller)
+
+    assert [item["id"] for item in payload] == ["c2", "c14", "m3", "m40", "m100"]
+
+
 def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten() -> None:
     rows = [
         {

@@ -28,6 +28,20 @@ ApplicationWindow {
 
     property string currentPage: "home"
     property string detailBackTarget: "home"
+    property var observingOverview: appController.homeObservingOverview || ({})
+    property var sidebarSession: observingOverview.session || ({})
+
+    function sidebarSessionAccent(state) {
+        if (state === "pending")
+            return theme.cyan
+        if (state === "recommended")
+            return theme.teal
+        if (state === "monitor")
+            return theme.amber
+        if (state === "discouraged")
+            return theme.red
+        return theme.textMuted
+    }
 
     AppTheme {
         id: theme
@@ -234,40 +248,48 @@ ApplicationWindow {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        anchors.margins: 14
-                        spacing: 8
+                        anchors.margins: 12
+                        spacing: 6
 
-                        Text {
+                        RowLayout {
                             Layout.fillWidth: true
-                            text: appController.weatherSummary.score
-                            color: theme.scoreColor(appController.weatherSummary.score)
-                            font.pixelSize: 20
-                            font.weight: Font.DemiBold
-                            elide: Text.ElideRight
-                        }
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: appController.weatherSummary.alert
-                            color: theme.textSecondary
-                            wrapMode: Text.WordWrap
-                            maximumLineCount: 3
-                            elide: Text.ElideRight
-                            font.pixelSize: 12
-                        }
-
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 6
-                            radius: 3
-                            color: "#252b34"
-
-                            Rectangle {
-                                width: parent.width * (appController.weatherSummary.scoreValue / 100)
-                                height: parent.height
-                                radius: 3
-                                color: theme.scoreColor(appController.weatherSummary.score)
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Stasera"
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                elide: Text.ElideRight
                             }
+
+                            StatusPill {
+                                text: window.sidebarSession.badge || "Da valutare"
+                                accentColor: window.sidebarSessionAccent(window.sidebarSession.state || "unavailable")
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: window.sidebarSession.windowText || "Finestra osservativa non disponibile"
+                            color: theme.textPrimary
+                            font.pixelSize: 12
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: window.sidebarSession.limitingFactor || "Condizioni della sessione non valutabili"
+                            color: theme.textMuted
+                            font.pixelSize: 11
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
                         }
                     }
                 }

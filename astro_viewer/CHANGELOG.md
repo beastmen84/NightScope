@@ -1,5 +1,20 @@
 # Changelog
 
+## NightScope 1.18.8 - 2026-07-11
+
+- Sostituita la vecchia card laterale di qualita' osservativa con un riepilogo
+  compatto della Session NSOM: stato, finestra e fattore limitante provengono
+  da `homeObservingOverview.session`, senza score o barra numerica legacy.
+- Centrata verticalmente l'immagine dell'oggetto rispetto al blocco testuale
+  nelle righe del piano osservativo consigliato.
+- Reso naturale lo spareggio finale per nome nella lista Home: gli identificativi
+  numerici seguono `M3, M40, M100` e la stessa regola supporta futuri nomi
+  Caldwell come `C2, C14`.
+- Spostata la legenda `Notte osservativa` nell'header della card di copertura
+  nuvolosa, liberando spazio verticale per il grafico.
+- Aggiunte regressioni sul contratto QML e sull'ordinamento naturale.
+  Distribuzione Windows non rigenerata: sorgente `1.18.8`, dist `1.18.7`.
+
 ## NightScope 1.18.7 - 2026-07-11
 
 - Corretto l'ordinamento delle alternative Home: la chiave primaria e' ora

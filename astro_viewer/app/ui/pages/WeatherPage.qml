@@ -277,26 +277,24 @@ Item {
                 title: "Copertura nuvolosa oraria"
                 subtitle: "Previsione mobile delle prossime 24 ore"
                 accentColor: theme.scoreColor(controller.weatherSummary.score)
+                headerContent: [
+                    RowLayout {
+                        spacing: 7
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 7
+                        Rectangle {
+                            Layout.preferredWidth: 11
+                            Layout.preferredHeight: 11
+                            radius: 3
+                            color: theme.teal
+                        }
 
-                    Item { Layout.fillWidth: true }
-
-                    Rectangle {
-                        Layout.preferredWidth: 11
-                        Layout.preferredHeight: 11
-                        radius: 3
-                        color: theme.teal
+                        Text {
+                            text: "Notte osservativa"
+                            color: theme.textSecondary
+                            font.pixelSize: 11
+                        }
                     }
-
-                    Text {
-                        text: "Notte osservativa"
-                        color: theme.textSecondary
-                        font.pixelSize: 11
-                    }
-                }
+                ]
 
                 WeatherBars {
                     visible: root.displayWeatherHours.length > 0

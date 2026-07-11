@@ -115,9 +115,12 @@ useful window during the observing night. `visible` means useful at some point
 in that night; `observable_now` is a separate live geometry result. The Home
 alternatives projection removes the four plan IDs, combines planet and deep-sky
 rows and orders them first by the start of their observing window. Best time,
-category and name are deterministic tie-breaks. Active Bortle/VIIRS context can
-penalize, reorder or remove a deep-sky target that is no longer useful after
-conditioning, but it does not truncate the surviving pool to a fixed count.
+category and a natural numeric name key are deterministic tie-breaks. The name
+key orders catalogue identifiers by their numeric component (`M3`, `M40`,
+`M100`, and equivalently `C2`, `C14`) instead of raw lexicographic text. Active
+Bortle/VIIRS context can penalize, reorder or remove a deep-sky target that is
+no longer useful after conditioning, but it does not truncate the surviving
+pool to a fixed count.
 
 `homeNightPlanOverview` is a presentation-only projection over those existing
 results. In `recommended` state it emits at most the four Planner items and
