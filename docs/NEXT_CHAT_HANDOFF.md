@@ -2,10 +2,11 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.20.0`
+Versione corrente sorgente: `1.20.1`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `e7ade3f Document completed 1.20.0 Calendar`
 - `2172d20 Add observable planetary conjunctions`
 - `29fb424 Finalize 1.20.0 Calendar validation`
 - `4cd7024 Connect Calendar UI to annual events`
@@ -232,6 +233,13 @@ Il closeout dichiara:
   idempotente per il solo valore legacy `Tutte le fasi tranne Luna piena piena`;
 - `Storico osservazioni` non e' piu' nel dettaglio; repository, tabella e slot
   restano intenzionalmente disponibili per la futura pagina `Log Osservazioni`;
+- `1.20.1` rimuove dalla lista Catalogo la colonna mensile ridondante ma
+  conserva checkbox, selettore e filtro sul mese scelto;
+- il dettaglio Catalogo calcola separatamente la visibilita' del solo oggetto
+  nel mese locale corrente, con cache dedicata e senza dipendere da flag o mese
+  selezionato nella lista;
+- tipi oggetto e modalita' osservative del Catalogo hanno label italiane in
+  lista, filtri e dettaglio, mantenendo invariati i valori canonici backend;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -322,6 +330,21 @@ Implementazione `1.20.0` completata:
   uguale al timing e non usa piu' il testo fuorviante `per stasera`;
 - rendering offscreen a `1600x1000` e `960x900` completato per timeline e
   dettagli senza sovrapposizioni; distribuzione Windows non rigenerata.
+
+Implementazione `1.20.1` completata:
+
+- rimossa soltanto la colonna `Visibile nel mese` dalla tabella; il filtro
+  mensile continua a usare l'intero catalogo e il mese selezionato;
+- il dettaglio espone `Visibile nel mese corrente` come `Sì`, `No` o `—` e
+  calcola un solo oggetto per posizione/mese corrente;
+- cache del dettaglio separata da quella completa della lista, con primo probe
+  M31 in circa `0,03 s` e accessi successivi cache-hit;
+- localizzati tipi e modalita' osservative nella sola presentazione; le combo
+  inviano ancora al backend i valori canonici;
+- rimossa dalla testata del dettaglio la frase tecnica inglese concatenata al
+  testo osservativo italiano;
+- nessuna modifica a score, ranking, Planner, Home, Equipment, Sky Compass o
+  dettaglio osservativo; distribuzione Windows non rigenerata.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -466,30 +489,31 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo il completamento Calendario `1.20.0`:
+Dopo la rifinitura Catalogo `1.20.1`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\pages\HomePage.qml astro_viewer\app\ui\pages\CalendarPage.qml astro_viewer\app\ui\pages\EventDetailPage.qml astro_viewer\app\ui\components\EventRow.qml
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\components\DarkComboBox.qml astro_viewer\app\ui\pages\ObjectCataloguePage.qml astro_viewer\app\ui\pages\ObjectDetailPage.qml
 .\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
 ```
 
 Risultati:
 
 - `pip check`, ruff e compileall: passed;
-- smoke Python e smoke QML sorgente: exit code `0`;
+- smoke Python e QML sorgente: exit code `0`;
 - `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
   qualificati;
-- rendering offscreen lista e dettagli a `1600x1000` e `960x900`: completato
-  senza sovrapposizioni;
-- probe annuale Addis Ababa: 82 eventi completi in circa `2.80 s` nel worker;
-  la ricerca delle 21 coppie richiede meno di un secondo;
-- suite completa parallela: `716 passed, 558 warnings, 7 subtests passed` in
-  `40.03 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota, ripetuta
-  dalle ricerche astronomiche;
-- nessuna build Windows: sorgente `1.20.0`, `dist/NightScope` `1.18.8`.
+- rendering offscreen lista e dettagli alle aree contenuto `1334x1000` e
+  `774x700`: completato senza sovrapposizioni;
+- probe QML delle combo: label `Ammasso aperto` -> valore backend `Open cluster`
+  e `Alto ingrandimento` -> `HighMagnification`;
+- probe dettaglio M31: circa `0,03 s` al primo calcolo mensile e cache-hit agli
+  accessi successivi;
+- suite completa parallela: `721 passed, 557 warnings, 7 subtests passed` in
+  `49.02 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- nessuna build Windows: sorgente `1.20.1`, `dist/NightScope` `1.18.8`.
 
 Dopo il riallineamento e le rifiniture finali del dettaglio osservativo
 `1.19.0`:
@@ -894,9 +918,9 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.20.0` e `1.18.8`.
+   sono rispettivamente `1.20.1` e `1.18.8`.
 2. Home e dettaglio osservativo `1.19.0` sono verificati; il ramo Catalogo
-   resta separato e invariato.
+   resta separato da NSOM ed e' stato rifinito in `1.20.1`.
 3. Calendario `1.20.0` e card Home `Prossimi eventi` sono completati in
    sorgente; la verifica visuale sulla distribuzione resta subordinata a una
    richiesta esplicita di build.

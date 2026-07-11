@@ -19,6 +19,15 @@ Item {
         return result
     }
 
+    function choiceModel(key) {
+        var options = controller.catalogueFilterOptions || {}
+        var source = options[key] || []
+        var result = [{ "label": root.allFilter, "value": root.allFilter }]
+        for (var i = 0; i < source.length; i++)
+            result.push({ "label": String(source[i].label), "value": String(source[i].value) })
+        return result
+    }
+
     function magnitudeText(item) {
         if (item.magnitude_label !== undefined && item.magnitude_label !== "")
             return item.magnitude_label
@@ -41,12 +50,6 @@ Item {
         if (value === null || value === undefined || String(value) === "")
             return "—"
         return String(value)
-    }
-
-    function visibleText(item) {
-        if (item.visible_this_month_label !== undefined && item.visible_this_month_label !== "")
-            return item.visible_this_month_label
-        return item.visible_this_month === true ? "Sì" : "—"
     }
 
     function usefulObservableText(item) {
@@ -162,8 +165,10 @@ Item {
                         DarkComboBox {
                             id: typeFilter
                             Layout.fillWidth: true
-                            model: root.optionModel("types")
-                            onActivated: controller.setCatalogueFilter("type", currentText)
+                            model: root.choiceModel("typeChoices")
+                            textRole: "label"
+                            valueRole: "value"
+                            onActivated: controller.setCatalogueFilter("type", currentValue)
                         }
                     }
 
@@ -190,8 +195,10 @@ Item {
                         DarkComboBox {
                             id: observationTypeFilter
                             Layout.fillWidth: true
-                            model: root.optionModel("observationTypes")
-                            onActivated: controller.setCatalogueFilter("observation_type", currentText)
+                            model: root.choiceModel("observationTypeChoices")
+                            textRole: "label"
+                            valueRole: "value"
+                            onActivated: controller.setCatalogueFilter("observation_type", currentValue)
                         }
                     }
 
@@ -276,9 +283,8 @@ Item {
                         TableHeader { text: "Costellazione"; Layout.preferredWidth: 112 }
                         TableHeader { text: "Magnitudine"; Layout.preferredWidth: 92 }
                         TableHeader { text: "Dimensione"; Layout.preferredWidth: 94 }
-                        TableHeader { text: "Osservazione"; Layout.preferredWidth: 116 }
+                        TableHeader { text: "Osservazione"; Layout.preferredWidth: 130 }
                         TableHeader { text: "Utile (≥15°)"; Layout.preferredWidth: 104 }
-                        TableHeader { text: "Visibile nel mese"; Layout.preferredWidth: 124 }
                     }
                 }
 
@@ -309,24 +315,17 @@ Item {
 
                                 TableCell { text: itemData.catalogue_id; color: theme.cyan; font.weight: Font.DemiBold; Layout.preferredWidth: 64 }
                                 TableCell { text: itemData.name; color: theme.textPrimary; Layout.fillWidth: true; Layout.minimumWidth: 120 }
-                                TableCell { text: itemData.type; Layout.preferredWidth: 164 }
+                                TableCell { text: root.textOrDash(itemData.type_label); Layout.preferredWidth: 164 }
                                 TableCell { text: root.textOrDash(itemData.constellation); Layout.preferredWidth: 112 }
                                 TableCell { text: root.magnitudeText(itemData); Layout.preferredWidth: 92 }
                                 TableCell { text: root.sizeText(itemData); Layout.preferredWidth: 94 }
-                                TableCell { text: root.textOrDash(itemData.recommended_observation_type); Layout.preferredWidth: 116 }
+                                TableCell { text: root.textOrDash(itemData.recommended_observation_type_label); Layout.preferredWidth: 130 }
                                 TableCell {
                                     text: root.usefulObservableText(itemData)
                                     color: itemData.is_usefully_observable === true ? theme.green : theme.textMuted
                                     font.weight: Font.DemiBold
                                     horizontalAlignment: Text.AlignHCenter
                                     Layout.preferredWidth: 104
-                                }
-                                TableCell {
-                                    text: root.visibleText(itemData)
-                                    color: itemData.visible_this_month === true ? theme.green : theme.textMuted
-                                    font.weight: Font.DemiBold
-                                    horizontalAlignment: Text.AlignHCenter
-                                    Layout.preferredWidth: 124
                                 }
                             }
 

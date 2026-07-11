@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.20.0`:
+Current runtime status for `1.20.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -112,6 +112,12 @@ Current runtime status for `1.20.0`:
   the backend for a future dedicated log surface and is no longer embedded in
   object detail. Database bootstrap also corrects the exact legacy Moon
   `best_seen` typo without overwriting other seeded or user-held values.
+- Catalogue list filtering keeps canonical English type/observation values but
+  exposes separate Italian presentation labels. Monthly filtering still uses
+  the selected list month; Catalogue detail instead calculates only the opened
+  object's visibility for the current local year/month and caches it by object
+  and location. The detail result is independent from list filter state and
+  uses unknown rather than `No` when location or calculation is unavailable.
 - `CalendarOverviewService` v2 projects the complete 365-day event set into a
   score-free read model. Event instant, observing window, local visibility,
   participants and angular separation are separate fields; future setups use

@@ -97,8 +97,8 @@ Item {
         var parts = []
         if (root.includeCatalogueMetric(objectData.catalogueId))
             parts.push(root.safeValue(objectData.catalogueId))
-        if (root.includeCatalogueMetric(objectData.type))
-            parts.push(root.safeValue(objectData.type))
+        if (root.includeCatalogueMetric(objectData.catalogueTypeLabel || objectData.type))
+            parts.push(root.safeValue(objectData.catalogueTypeLabel || objectData.type))
         if (root.includeCatalogueMetric(objectData.constellation))
             parts.push("Costellazione " + root.safeValue(objectData.constellation))
         return parts.join("  -  ")
@@ -108,12 +108,12 @@ Item {
         var source = [
             { "label": "Catalogo", "value": objectData.catalogue, "accent": theme.violet },
             { "label": "ID catalogo", "value": objectData.catalogueId, "accent": theme.cyan },
-            { "label": "Tipo", "value": objectData.type, "accent": theme.teal },
+            { "label": "Tipo", "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
             { "label": "Costellazione", "value": objectData.constellation, "accent": theme.amber },
             { "label": "Magnitudine", "value": objectData.magnitude, "accent": theme.cyan },
             { "label": "Dimensione", "value": objectData.apparentSize, "accent": theme.green },
             { "label": "Dim. max", "value": root.maxAngularSizeText(), "accent": theme.teal },
-            { "label": "Osservazione", "value": objectData.recommendedObservationType, "accent": theme.amber },
+            { "label": "Osservazione", "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType, "accent": theme.amber },
             { "label": "A.R.", "value": objectData.rightAscension, "accent": theme.violet },
             { "label": "Dec", "value": objectData.declination, "accent": theme.coral },
             { "label": "Alt. attuale", "value": objectData.currentAltitude, "accent": theme.cyan },
@@ -122,7 +122,7 @@ Item {
             { "label": "Transita", "value": objectData.culminationTime, "accent": theme.green },
             { "label": "Tramonta", "value": objectData.setTime, "accent": theme.amber },
             { "label": "Utile (≥15°)", "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
-            { "label": "Visibile nel mese", "value": objectData.catalogueVisibleThisMonthLabel, "accent": objectData.catalogueVisibleThisMonth === true ? theme.green : theme.textMuted }
+            { "label": "Visibile nel mese corrente", "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {
@@ -485,7 +485,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: objectData.notes
+                        text: objectData.catalogueIntroText || objectData.descriptionText || objectData.notes
                         color: theme.textSecondary
                         font.pixelSize: 15
                         wrapMode: Text.WordWrap
@@ -530,7 +530,9 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Descrizione"
-                subtitle: objectData.bestSeen && objectData.bestSeen.length > 0 ? "Periodo migliore: " + objectData.bestSeen : objectData.type
+                subtitle: objectData.bestSeen && objectData.bestSeen.length > 0
+                          ? "Periodo migliore: " + objectData.bestSeen
+                          : (root.isCatalogueDetail ? (objectData.catalogueTypeLabel || objectData.type) : objectData.type)
                 accentColor: theme.cyan
 
                 Text {

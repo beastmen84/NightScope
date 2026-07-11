@@ -21,7 +21,8 @@ ComboBox {
         highlighted: root.highlightedIndex === index
 
         contentItem: Text {
-            text: modelData
+            text: root.textRole.length > 0 && modelData !== undefined && modelData !== null
+                  ? String(modelData[root.textRole] || "") : String(modelData || "")
             color: parent.highlighted ? theme.textPrimary : theme.textSecondary
             font.pixelSize: 13
             verticalAlignment: Text.AlignVCenter

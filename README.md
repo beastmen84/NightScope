@@ -16,7 +16,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   configurazione target-specific, valutazione locale e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
-  colonna `Utile (≥15°)`, visibilità mensile e apertura del dettaglio oggetto.
+  colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
+  oggetto.
 - Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
 - Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
@@ -34,7 +35,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.20.0`.
+Versione corrente sorgente: `1.20.1`.
 
 Distribuzione Windows corrente: `1.18.8`.
 
@@ -220,6 +221,14 @@ finestra osservativa, separazione e visibilita' locale sono distinti; il numero
 presentato come finestra osservativa. La card Home `Prossimi eventi` usa lo
 stesso contratto, esclude le congiunzioni solari dalla preview e apre il
 relativo dettaglio. La distribuzione Windows resta alla `1.18.8`.
+
+In `1.20.1` la tabella `Oggetti celesti` conserva il filtro mensile ma rimuove
+la relativa colonna ridondante. Il dettaglio calcola invece sempre la
+visibilita' del solo oggetto nel mese corrente della localita', con cache
+dedicata e distinzione tra `No` e dato non disponibile. Tipi di oggetto e
+modalita' osservative hanno label italiane nella lista, nei filtri e nel
+dettaglio, mentre i valori canonici inglesi restano invariati nel backend. La
+distribuzione Windows resta alla `1.18.8`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

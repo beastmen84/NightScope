@@ -247,6 +247,17 @@ column because their coordinates are time-dependent; the catalogue shows `—`
 for them in `Utile (≥15°)` and uses the monthly visibility calculation
 instead.
 
+The list's `Visibili nel mese` control calculates the complete catalogue for
+the selected month and location, filters out negative results and deliberately
+does not repeat that result in a table column. Catalogue detail has a separate
+boundary: it evaluates only the opened object for the current local year and
+month, regardless of list filter state or selected list month. The result is
+cached by location, month and object. `No` is reserved for a calculated
+negative result; missing location, unsupported engines and calculation errors
+remain unknown (`—`). Italian object-type and observation-mode labels are a
+presentation mapping only; canonical catalogue values remain unchanged for
+filters and calculations.
+
 For Solar-System Home eligibility, the catalogue monthly visibility criterion is
 the source of truth. A planet can be above the horizon at a specific instant and
 still be excluded from Home recommendations if, in the active catalogue month

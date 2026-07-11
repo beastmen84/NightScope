@@ -1,5 +1,30 @@
 # Changelog
 
+## NightScope 1.20.1 - 2026-07-11
+
+- Rimossa dalla tabella `Oggetti celesti` la colonna ridondante `Visibile nel
+  mese`: checkbox e selettore del mese continuano a filtrare il catalogo senza
+  mostrare una colonna composta soltanto da trattini o risultati gia' filtrati.
+- Il dettaglio Catalogo mostra ora `Visibile nel mese corrente`, calcolato per
+  il solo oggetto aperto usando posizione, anno e mese locali correnti,
+  indipendentemente dal flag e dal mese selezionato nella lista.
+- Aggiunta una cache dedicata per oggetto e mese corrente; un probe locale sul
+  singolo M31 richiede circa `0,03 s` al primo accesso e riusa poi il risultato.
+- Distinti `No` e dato non disponibile: `No` indica un risultato astronomico
+  negativo, mentre posizione assente o calcolo fallito restano `—`.
+- Localizzati nella presentazione i tipi di oggetto e le modalita' osservative
+  del Catalogo (`Ammasso aperto`, `Campo largo`, `Alto ingrandimento`, ecc.);
+  valori canonici inglesi, filtri e logica backend restano invariati.
+- Il testo introduttivo della scheda usa la nota osservativa italiana e non
+  concatena piu' la descrizione tecnica inglese del seed. Il ramo dettaglio
+  osservativo condiviso resta invariato.
+- Verificati `pip check`, ruff, compileall, smoke Python/QML, `qmllint`,
+  interazione reale delle combo localizzate e rendering offscreen
+  desktop/compatto.
+- Suite completa parallela: `721 passed`, `557 warnings`, `7 subtests passed`
+  in `49,02 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota.
+- Distribuzione non rigenerata: sorgente `1.20.1`, dist `1.18.8`.
+
 ## NightScope 1.20.0 - 2026-07-11
 
 - Uniformato il Calendario a un orizzonte completo di 365 giorni: fasi
