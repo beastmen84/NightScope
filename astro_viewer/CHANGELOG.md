@@ -2,8 +2,9 @@
 
 ## NightScope 1.18.5 - 2026-07-11
 
-- Incluso sempre l'estremo astronomico esatto nella timeline campionata, anche
-  quando la cadenza da 15/30 minuti non coincide con l'alba.
+- Incluso sempre l'estremo astronomico esatto nella timeline di altitudine dei
+  target, anche quando la cadenza da 15/30 minuti non coincide con l'alba;
+  timeline e valori della diagnostica Luna-target restano invariati.
 - Escluso il campione finale dalla scelta del momento migliore e interpolato il
   passaggio della soglia di altitudine tra campioni adiacenti.
 - Rimosse le finestre Home a durata zero osservate nella `dist` `1.18.4`: nel

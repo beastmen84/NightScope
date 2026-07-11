@@ -768,8 +768,24 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return self._altitudes_for_samples(
             observer,
             body,
-            self._datetime_samples(start, end, step_minutes=step_minutes),
+            self._window_datetime_samples(start, end, step_minutes=step_minutes),
         )
+
+    @staticmethod
+    def _window_datetime_samples(
+        start: datetime,
+        end: datetime,
+        *,
+        step_minutes: int,
+    ) -> list[datetime]:
+        samples = SkyfieldAstronomyEngine._datetime_samples(
+            start,
+            end,
+            step_minutes=step_minutes,
+        )
+        if samples and samples[-1] < end:
+            samples.append(end)
+        return samples
 
     @staticmethod
     def _datetime_samples(
@@ -783,8 +799,6 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         while current <= end:
             samples.append(current)
             current += timedelta(minutes=step_minutes)
-        if samples and samples[-1] < end:
-            samples.append(end)
         return samples
 
     def _altitudes_for_samples(self, observer, body, samples: list[datetime]) -> list[tuple[datetime, float]]:

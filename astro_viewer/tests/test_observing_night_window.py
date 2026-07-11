@@ -104,7 +104,7 @@ def test_altitude_samples_always_include_the_exact_night_end() -> None:
     start = datetime(2026, 7, 10, 18, 48, tzinfo=zone)
     end = datetime(2026, 7, 11, 6, 12, tzinfo=zone)
 
-    samples = SkyfieldAstronomyEngine._datetime_samples(start, end, step_minutes=30)
+    samples = SkyfieldAstronomyEngine._window_datetime_samples(start, end, step_minutes=30)
 
     assert samples[-2] == datetime(2026, 7, 11, 5, 48, tzinfo=zone)
     assert samples[-1] == end
