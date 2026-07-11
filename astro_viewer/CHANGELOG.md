@@ -37,6 +37,12 @@
 - Vincolato `botocore>=1.42.90,<1.43.1` per rispettare il requisito dichiarato
   da `aiobotocore 3.7.0`; riallineata la `.venv` a `botocore 1.43.0` e verificato
   `pip check` senza dipendenze rotte.
+- Allineato il fixture minimale delle completion provider al nuovo controllo
+  credenziali OpenAQ, mantenendo coperta l'indipendenza dei domini di refresh.
+- Verificati `pip check`, ruff, compileall, `qmllint` e suite completa parallela:
+  `690 passed`, `27 warnings`, `7 subtests passed` in `37,58 s`; i warning QML
+  e Skyfield/NumPy sono quelli storici gia' noti. Distribuzione Windows non
+  rigenerata: sorgente `1.18.4`, bundle ancora `1.18.3`.
 
 ## NightScope 1.18.3 - 2026-07-11
 

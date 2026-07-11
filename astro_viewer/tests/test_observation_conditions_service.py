@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import replace
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 
 from PySide6.QtCore import QObject
 
@@ -25,6 +26,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
+from astro_viewer.app.services.openaq_credentials import OpenAQCredentialState
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager
 from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -1061,6 +1063,13 @@ def test_app_controller_air_quality_and_aod_completions_do_not_dirty_observing_d
     controller._nasa_aod_refresh_running = True
     controller._earthdata_credentials_state = EarthdataCredentialState(
         username="earth-user",
+        configured=True,
+        secure_store_available=True,
+        connection_verified=True,
+    )
+    controller._openaq_credential_store = Mock()
+    controller._openaq_credential_store.api_key.return_value = "openaq-secret"
+    controller._openaq_credentials_state = OpenAQCredentialState(
         configured=True,
         secure_store_available=True,
         connection_verified=True,

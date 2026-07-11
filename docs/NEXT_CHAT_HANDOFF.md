@@ -6,6 +6,13 @@ Versione corrente sorgente: `1.18.4`
 Distribuzione Windows corrente: `1.18.3`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `bd1664b Align Earthaccess botocore dependency`
+- `6d25b5f Log Sky Compass NSOM fallback failures`
+- `8b2363e Show only observing-night weather hours`
+- `b1ced9f Reschedule providers after location changes`
+- `2fda8da Refine practical planet difficulty`
+- `0ad23be Move initial weather lookup off UI thread`
+- `fb39ed0 Fix observing-night boundary precision`
 - `be9f5a7 Document 1.18.3 Windows distribution build`
 - `3c5aca7 Release 1.18.3 Home list fixes`
 - `b57049f Keep Home list wheel scrolling contained`
@@ -327,6 +334,30 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
+Dopo il completamento sorgente `1.18.4`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\HomePage.qml astro_viewer\app\ui\pages\WeatherPage.qml astro_viewer\app\ui\components\HomePlanStepRow.qml astro_viewer\app\ui\components\HomeVisibleTargetRow.qml astro_viewer\app\ui\components\GlassCard.qml
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+```
+
+Risultati:
+
+- `pip check`: nessuna dipendenza rotta;
+- ruff completo: passed;
+- compileall completo: passed;
+- `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
+  qualificati;
+- suite completa parallela: `690 passed, 27 warnings, 7 subtests passed` in
+  `37.58 s`; i warning Python sono la deprecazione Skyfield/NumPy gia' nota;
+- fixture minimale delle completion provider riallineato al controllo
+  credenziali OpenAQ e test mirato passato;
+- nessuna build o esecuzione della distribuzione: sorgente `1.18.4`,
+  `dist/NightScope` ancora `1.18.3`.
+
 Dopo le correzioni Home `1.18.3`:
 
 ```powershell
@@ -634,10 +665,9 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono gia' allineate alla `1.18.3`.
-2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
-   posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
-   stasera`.
+   sono rispettivamente `1.18.4` e `1.18.3`.
+2. Il prossimo capitolo UI concordato e' la review, prima di qualunque modifica,
+   della pagina di dettaglio osservativo.
 3. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
