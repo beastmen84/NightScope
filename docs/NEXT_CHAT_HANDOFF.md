@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.5`
 Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `be2ab2e Document 1.18.5 validation`
 - `8606f18 Keep moon geometry sampling unchanged`
 - `3a511a0 Unify Home Bortle presentation`
 - `f43b99a Fix sampled observing windows`
@@ -710,7 +711,7 @@ Sequenza consigliata:
 4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
-4. Non fare tuning e non toccare altre UI senza uno step esplicito.
+5. Non fare tuning e non toccare altre UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 
