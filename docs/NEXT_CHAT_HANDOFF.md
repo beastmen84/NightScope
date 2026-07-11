@@ -3,7 +3,7 @@
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
 Versione corrente sorgente: `1.20.1`
-Distribuzione Windows corrente: `1.18.8`
+Distribuzione Windows corrente: `1.20.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `f9d912f Refine catalogue visibility presentation`
@@ -345,7 +345,8 @@ Implementazione `1.20.1` completata:
 - rimossa dalla testata del dettaglio la frase tecnica inglese concatenata al
   testo osservativo italiano;
 - nessuna modifica a score, ranking, Planner, Home, Equipment, Sky Compass o
-  dettaglio osservativo; distribuzione Windows non rigenerata.
+  dettaglio osservativo; distribuzione Windows non rigenerata in questo step e
+  bundle esistente mantenuto alla `1.20.0`.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -514,7 +515,8 @@ Risultati:
   accessi successivi;
 - suite completa parallela: `721 passed, 557 warnings, 7 subtests passed` in
   `49.02 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
-- nessuna build Windows: sorgente `1.20.1`, `dist/NightScope` `1.18.8`.
+- nessuna build Windows in questo step: sorgente `1.20.1`, `dist/NightScope`
+  esistente `1.20.0`.
 
 Dopo il riallineamento e le rifiniture finali del dettaglio osservativo
 `1.19.0`:
@@ -919,7 +921,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.20.1` e `1.18.8`.
+   sono rispettivamente `1.20.1` e `1.20.0`.
 2. Home e dettaglio osservativo `1.19.0` sono verificati; il ramo Catalogo
    resta separato da NSOM ed e' stato rifinito in `1.20.1`.
 3. Calendario `1.20.0` e card Home `Prossimi eventi` sono completati in

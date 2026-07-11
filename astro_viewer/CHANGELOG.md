@@ -23,7 +23,8 @@
   desktop/compatto.
 - Suite completa parallela: `721 passed`, `557 warnings`, `7 subtests passed`
   in `49,02 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota.
-- Distribuzione non rigenerata: sorgente `1.20.1`, dist `1.18.8`.
+- Distribuzione non rigenerata in questo step: sorgente `1.20.1`, dist
+  esistente `1.20.0`.
 
 ## NightScope 1.20.0 - 2026-07-11
 

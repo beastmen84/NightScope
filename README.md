@@ -37,7 +37,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 Versione corrente sorgente: `1.20.1`.
 
-Distribuzione Windows corrente: `1.18.8`.
+Distribuzione Windows corrente: `1.20.0`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -220,7 +220,8 @@ finestra osservativa, separazione e visibilita' locale sono distinti; il numero
 `usefulness` non e' mostrato. Un massimo di eclissi non visibile non viene piu'
 presentato come finestra osservativa. La card Home `Prossimi eventi` usa lo
 stesso contratto, esclude le congiunzioni solari dalla preview e apre il
-relativo dettaglio. La distribuzione Windows resta alla `1.18.8`.
+relativo dettaglio. Il bundle Windows presente e' stato successivamente
+rigenerato alla `1.20.0`.
 
 In `1.20.1` la tabella `Oggetti celesti` conserva il filtro mensile ma rimuove
 la relativa colonna ridondante. Il dettaglio calcola invece sempre la
@@ -228,7 +229,7 @@ visibilita' del solo oggetto nel mese corrente della localita', con cache
 dedicata e distinzione tra `No` e dato non disponibile. Tipi di oggetto e
 modalita' osservative hanno label italiane nella lista, nei filtri e nel
 dettaglio, mentre i valori canonici inglesi restano invariati nel backend. La
-distribuzione Windows resta alla `1.18.8`.
+distribuzione Windows resta alla `1.20.0`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
