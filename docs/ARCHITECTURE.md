@@ -448,6 +448,11 @@ live tick never calls `_sky_compass_candidates()`: it uses
 altitude, azimuth, direction and `observable_now` for the stored snapshot, emits only
 `skyCompassChanged` and clears `COMPASS_LIVE` after the update.
 
+The position calculation runs on a daemon worker. A Qt completion signal applies
+the result on the controller thread only when request id and location key are
+still current. Shared Skyfield access is serialized, so a live tick cannot
+overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
+
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart.
 

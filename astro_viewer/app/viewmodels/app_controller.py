@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 import math
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
-from threading import Thread
+from threading import RLock, Thread
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
@@ -155,6 +155,7 @@ class AppController(QObject):
     _weatherRefreshFinished = Signal(int, str, object, str, bool)
     _localAtmosphereRefreshFinished = Signal(str, object)
     _nasaAodRefreshFinished = Signal(str, object)
+    _skyCompassLiveRefreshFinished = Signal(int, str, object)
 
     def __init__(
         self,
@@ -175,6 +176,7 @@ class AppController(QObject):
         self._weatherRefreshFinished.connect(self._finish_weather_refresh)
         self._localAtmosphereRefreshFinished.connect(self._finish_local_atmosphere_refresh)
         self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
+        self._skyCompassLiveRefreshFinished.connect(self._finish_sky_compass_live_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
         self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
@@ -220,12 +222,15 @@ class AppController(QObject):
         self._weather_refresh_running = False
         self._weather_refresh_request_id = 0
         self._weather_retry_pending = False
+        self._astronomy_engine_lock = RLock()
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
         self._sky_compass_live_timer = QTimer(self)
         self._sky_compass_live_timer.setInterval(60_000)
         self._sky_compass_live_timer.timeout.connect(self._refresh_sky_compass_live)
+        self._sky_compass_live_refresh_running = False
+        self._sky_compass_live_refresh_request_id = 0
         try:
             self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
         except EphemerisUnavailableError:
@@ -1819,6 +1824,7 @@ class AppController(QObject):
         self._best_object = None
         self._night_plan = []
         self._sky_compass_candidate_snapshot = []
+        self._cancel_sky_compass_live_refresh()
         self._set_sky_compass(SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass."))
         self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
         self._invalidate_catalogue_visibility_cache()
@@ -1832,12 +1838,13 @@ class AppController(QObject):
         )
         self._moon_geometry_condition_cache = {}
         try:
-            self._update_observing_night_window()
-            self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
-            self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+            with self._astronomy_engine_lock_instance():
+                self._update_observing_night_window()
+                self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
+                self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+                self._moon = self._astronomy_engine.moon_summary(self._location)
+                self._events = self._astronomy_engine.upcoming_events(self._location)
             self._refresh_equipment_recommendations_for_current_objects()
-            self._moon = self._astronomy_engine.moon_summary(self._location)
-            self._events = self._astronomy_engine.upcoming_events(self._location)
         except Exception:
             logger.exception("Astronomy refresh failed.")
             self._base_solar_system_objects = []
@@ -2142,7 +2149,8 @@ class AppController(QObject):
         if not missing or not callable(batch_method):
             return
         try:
-            summaries = batch_method(self._location, missing)
+            with self._astronomy_engine_lock_instance():
+                summaries = batch_method(self._location, missing)
         except Exception:
             logger.debug("Moon geometry batch failed; using per-target fallback.", exc_info=True)
             return
@@ -2470,7 +2478,8 @@ class AppController(QObject):
         if not callable(method):
             return None
         try:
-            summary = method(location, target)
+            with self._astronomy_engine_lock_instance():
+                summary = method(location, target)
         except Exception:
             return None
         return summary if isinstance(summary, MoonGeometrySummary) else None
@@ -2717,6 +2726,7 @@ class AppController(QObject):
         return str(value)
 
     def _refresh_sky_compass(self) -> None:
+        self._cancel_sky_compass_live_refresh()
         candidates = self._sky_compass_candidates()
         self._sky_compass_candidate_snapshot = list(candidates)
         self._set_sky_compass(
@@ -2728,17 +2738,64 @@ class AppController(QObject):
         )
 
     def _refresh_sky_compass_live(self) -> None:
+        if getattr(self, "_sky_compass_live_refresh_running", False):
+            return
+        if not self._has_valid_location():
+            self._update_sky_compass_live_timer()
+            return
+        candidates = list(getattr(self, "_sky_compass_candidate_snapshot", []))
+        if not candidates:
+            self._update_sky_compass_live_timer()
+            return
+        position_method = getattr(self._astronomy_engine, "refresh_current_positions", None)
+        if not callable(position_method):
+            self._update_sky_compass_live_timer()
+            return
+
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        self._sky_compass_live_refresh_request_id += 1
+        request_id = self._sky_compass_live_refresh_request_id
+        self._sky_compass_live_refresh_running = True
         self._mark_refresh_dirty(RefreshReason.LIVE_TICK)
+
+        def run_refresh() -> None:
+            try:
+                with self._astronomy_engine_lock_instance():
+                    updated_candidates = position_method(candidates, location)
+                self._skyCompassLiveRefreshFinished.emit(
+                    request_id,
+                    location_key,
+                    updated_candidates,
+                )
+            except Exception:
+                logger.warning("Sky Compass live refresh failed.", exc_info=True)
+                self._skyCompassLiveRefreshFinished.emit(request_id, location_key, None)
+
         try:
-            if not self._has_valid_location():
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._sky_compass_live_refresh_running = False
+            self._clear_refresh_domains(RefreshDomain.COMPASS_LIVE)
+            logger.warning("Sky Compass live worker could not start.", exc_info=True)
+
+    @Slot(int, str, object)
+    def _finish_sky_compass_live_refresh(
+        self,
+        request_id: int,
+        location_key: str,
+        updated_candidates: object,
+    ) -> None:
+        if request_id != self._sky_compass_live_refresh_request_id:
+            return
+        self._sky_compass_live_refresh_running = False
+        try:
+            if (
+                not self._has_valid_location()
+                or location_key != LightPollutionService._location_key(self._location)
+                or not isinstance(updated_candidates, list)
+            ):
                 return
-            candidates = list(getattr(self, "_sky_compass_candidate_snapshot", []))
-            if not candidates:
-                return
-            position_method = getattr(self._astronomy_engine, "refresh_current_positions", None)
-            if not callable(position_method):
-                return
-            updated_candidates = position_method(candidates, self._location)
             self._sky_compass_candidate_snapshot = list(updated_candidates)
             self._set_sky_compass(
                 self._select_sky_compass_payload(
@@ -2747,11 +2804,27 @@ class AppController(QObject):
                     caution_text=self._sky_compass_caution_text(),
                 )
             )
-        except Exception:
-            logger.warning("Sky Compass live refresh failed.", exc_info=True)
         finally:
             self._clear_refresh_domains(RefreshDomain.COMPASS_LIVE)
             self._update_sky_compass_live_timer()
+
+    def _cancel_sky_compass_live_refresh(self) -> None:
+        if not getattr(self, "_sky_compass_live_refresh_running", False):
+            return
+        self._sky_compass_live_refresh_request_id += 1
+        self._sky_compass_live_refresh_running = False
+        self._clear_refresh_domains(RefreshDomain.COMPASS_LIVE)
+
+    @staticmethod
+    def _start_background_task(target: Callable[[], None]) -> None:
+        Thread(target=target, daemon=True).start()
+
+    def _astronomy_engine_lock_instance(self):
+        lock = getattr(self, "_astronomy_engine_lock", None)
+        if lock is None:
+            lock = RLock()
+            self._astronomy_engine_lock = lock
+        return lock
 
     def _set_sky_compass(self, value: dict) -> None:
         self._sky_compass = value
@@ -2985,7 +3058,8 @@ class AppController(QObject):
             )
             self._sky_quality = quality
             try:
-                self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
+                with self._astronomy_engine_lock_instance():
+                    self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
                 self._refresh_equipment_recommendations_for_current_objects()
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
                 self._refresh_conditioned_observing_candidates()
@@ -3206,6 +3280,7 @@ class AppController(QObject):
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
+        self._cancel_sky_compass_live_refresh()
         self._location_detection_result = result
         self._location = result.location
         self._location_message = result.message
@@ -3707,13 +3782,14 @@ class AppController(QObject):
             self._catalogue_visibility_cache[cache_key] = {}
             return {}
         try:
-            visibility = visibility_method(
-                self._catalogue_objects,
-                self._location,
-                self._catalogue_year,
-                self._catalogue_selected_month,
-                CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
-            )
+            with self._astronomy_engine_lock_instance():
+                visibility = visibility_method(
+                    self._catalogue_objects,
+                    self._location,
+                    self._catalogue_year,
+                    self._catalogue_selected_month,
+                    CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
+                )
         except Exception:
             logger.warning("Catalogue monthly visibility calculation failed.", exc_info=True)
             visibility = {}
@@ -4570,7 +4646,11 @@ class AppController(QObject):
         else:
             method = getattr(self._astronomy_engine, "observing_night_window", None)
             try:
-                current = method(self._location) if callable(method) else ObservingNightWindow.unavailable()
+                if callable(method):
+                    with self._astronomy_engine_lock_instance():
+                        current = method(self._location)
+                else:
+                    current = ObservingNightWindow.unavailable()
             except Exception:
                 logger.warning("Observing night window refresh failed.", exc_info=True)
                 current = ObservingNightWindow.unavailable()

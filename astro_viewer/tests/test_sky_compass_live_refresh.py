@@ -152,6 +152,50 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         self.assertEqual(controller._sky_compass["direction"], "Est")
         self.assertEqual(controller._sky_compass["primaryTargets"][0]["name"], "Marte")
 
+    def test_live_refresh_schedules_work_without_running_engine_inline(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, engine, _timer = _controller([target])
+        tasks = []
+        controller._start_background_task = tasks.append
+
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(engine.calls, 0)
+        self.assertTrue(controller._sky_compass_live_refresh_running)
+        self.assertEqual(len(tasks), 1)
+
+        tasks[0]()
+
+        self.assertEqual(engine.calls, 1)
+        self.assertFalse(controller._sky_compass_live_refresh_running)
+        self.assertEqual(controller._sky_compass["direction"], "Est")
+
+    def test_live_refresh_skips_duplicate_tick_while_worker_is_running(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, engine, _timer = _controller([target])
+        tasks = []
+        controller._start_background_task = tasks.append
+
+        controller._refresh_sky_compass_live()
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(engine.calls, 0)
+        self.assertEqual(len(tasks), 1)
+
+    def test_full_refresh_discards_in_flight_live_result(self) -> None:
+        target = _object("mars", "Marte", "Pianeta", "Sud", 80)
+        controller, _engine, _timer = _controller([target])
+        tasks = []
+        controller._start_background_task = tasks.append
+
+        controller._refresh_sky_compass_live()
+        controller._refresh_sky_compass()
+        tasks[0]()
+
+        self.assertFalse(controller._sky_compass_live_refresh_running)
+        self.assertEqual(controller._sky_compass_candidate_snapshot[0].direction, "Sud")
+        self.assertEqual(controller._sky_compass["direction"], "Sud")
+
     def test_live_refresh_is_safe_without_targets(self) -> None:
         controller, engine, _timer = _controller([])
         signal_events = []
@@ -268,6 +312,7 @@ class _FakeTimer:
 def _controller(candidates: list[CelestialObject]) -> tuple[AppController, _PositionEngine, _FakeTimer]:
     controller = AppController.__new__(AppController)
     QObject.__init__(controller)
+    controller._skyCompassLiveRefreshFinished.connect(controller._finish_sky_compass_live_refresh)
     engine = _PositionEngine()
     timer = _FakeTimer()
     controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
@@ -278,6 +323,9 @@ def _controller(candidates: list[CelestialObject]) -> tuple[AppController, _Posi
     controller._moon = None
     controller._sky_compass_nsom_direction_service = SkyCompassNsomDirectionService()
     controller._sky_compass_live_timer = timer
+    controller._sky_compass_live_refresh_running = False
+    controller._sky_compass_live_refresh_request_id = 0
+    controller._start_background_task = lambda target: target()
     controller._night_plan = []
     controller._best_object = candidates[0] if candidates else None
     controller._weather_summary = None
