@@ -346,6 +346,11 @@ boundary as manual and timer refreshes. Network retries and timeouts never run
 on the Qt thread; the full-refresh loading state ends only after the current
 location's result has been applied.
 
+The visible Weather chart and hourly selector consume the dedicated
+`observingWeatherHourly` projection, which contains only this filtered night.
+The complete 48-hour `weatherHourly` payload remains available as a compatibility
+contract but is not labelled as night-only data in QML.
+
 The Home `Migliore finestra` remains the lowest-penalty relative block of up to
 three consecutive forecast hours. Candidate blocks are split whenever adjacent
 timestamps are more than 90 minutes apart, so samples from two different nights

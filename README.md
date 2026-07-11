@@ -148,6 +148,11 @@ con chiave obsoleta avvia automaticamente il recupero per la localita' corrente.
 OpenAQ ricontrolla inoltre la validita' delle credenziali prima di applicare il
 risultato.
 
+Il grafico e il dettaglio orario della pagina Meteo consumano ora
+`observingWeatherHourly`, cioe' soltanto i campioni della notte astronomica
+attiva. Il payload completo a 48 ore resta disponibile internamente per
+compatibilita', ma non viene piu' presentato sotto una label notturna.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e

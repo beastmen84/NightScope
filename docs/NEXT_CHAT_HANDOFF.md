@@ -157,6 +157,9 @@ Il closeout dichiara:
 - il quarto step `1.18.4` rende location-safe i completamenti AOD/OpenAQ:
   presentazioni precedenti azzerate al cambio posizione, risultato obsoleto
   scartato e nuovo recupero programmato automaticamente;
+- il quinto step `1.18.4` collega grafico e dettaglio Meteo alla nuova property
+  `observingWeatherHourly`, limitata alla notte attiva; `weatherHourly` conserva
+  le 48 ore complete soltanto come contratto di compatibilita';
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

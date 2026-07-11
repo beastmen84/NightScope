@@ -27,6 +27,10 @@
   scartato prima di riprogrammare il provider sulla localita' corrente.
 - Impedito a un risultato OpenAQ gia' in volo di riapparire dopo rimozione o
   invalidazione delle credenziali.
+- Aggiunta la property read-only `observingWeatherHourly` e collegati grafico e
+  dettaglio Meteo ai soli campioni compresi nella notte astronomica attiva.
+- Conservato `weatherHourly` come payload completo a 48 ore di compatibilita',
+  senza piu' mostrarlo sotto il sottotitolo `finestra notturna`.
 
 ## NightScope 1.18.3 - 2026-07-11
 

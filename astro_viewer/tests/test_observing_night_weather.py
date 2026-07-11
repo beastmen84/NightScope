@@ -3,7 +3,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from astro_viewer.app.astronomy.engine import ObservingNightWindow
+from PySide6.QtCore import QObject
+
+from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
 from astro_viewer.app.models.weather import WeatherHour
 from astro_viewer.app.services.observing_night_service import weather_hours_for_night
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -84,6 +86,34 @@ def test_best_weather_window_label_is_clamped_to_sunrise() -> None:
     )
 
     assert label == "04:00 - 06:12"
+
+
+def test_observing_weather_property_exposes_only_the_active_night() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._location = ObserverLocation(
+        "Addis Ababa",
+        "Etiopia",
+        9.03,
+        38.74,
+        "Africa/Addis_Ababa",
+    )
+    controller._observing_night_window = ObservingNightWindow.bounded(
+        datetime(2026, 7, 10, 18, 48, tzinfo=zone),
+        datetime(2026, 7, 11, 6, 12, tzinfo=zone),
+    )
+    controller._weather_hours = [
+        _weather_hour(datetime(2026, 7, 10, 18, 0)),
+        _weather_hour(datetime(2026, 7, 10, 19, 0)),
+        _weather_hour(datetime(2026, 7, 11, 6, 0)),
+        _weather_hour(datetime(2026, 7, 11, 7, 0)),
+    ]
+
+    assert [hour["time"] for hour in controller.observingWeatherHourly] == [
+        "19:00",
+        "06:00",
+    ]
 
 
 def _weather_hour(timestamp: datetime) -> WeatherHour:

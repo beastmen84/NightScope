@@ -414,6 +414,8 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("selectedWeatherHourIndex", qml)
         self.assertIn("controller.refreshWeatherNow()", qml)
         self.assertIn("controller.weatherRefreshRunning", qml)
+        self.assertIn("controller.observingWeatherHourly", qml)
+        self.assertNotIn("controller.weatherHourly", qml)
         self.assertIn("Radianza VIIRS", qml)
         self.assertIn("Osservazioni VIIRS", qml)
         self.assertIn("SQM stimato", qml)

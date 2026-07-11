@@ -10,10 +10,10 @@ Item {
     property int selectedWeatherHourIndex: 0
 
     function selectedWeatherHour() {
-        if (controller.weatherHourly.length === 0)
+        if (controller.observingWeatherHourly.length === 0)
             return null
-        var index = Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
-        return controller.weatherHourly[index]
+        var index = Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
+        return controller.observingWeatherHourly[index]
     }
 
     function selectedHourText(key, suffix, fallbackText) {
@@ -267,14 +267,14 @@ Item {
                 accentColor: theme.scoreColor(controller.weatherSummary.score)
 
                 WeatherBars {
-                    visible: controller.weatherHourly.length > 0
-                    hourly: controller.weatherHourly
+                    visible: controller.observingWeatherHourly.length > 0
+                    hourly: controller.observingWeatherHourly
                     barColor: theme.scoreColor(controller.weatherSummary.score)
                 }
 
                 Text {
                     Layout.fillWidth: true
-                    visible: controller.weatherHourly.length === 0
+                    visible: controller.observingWeatherHourly.length === 0
                     text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13
@@ -293,7 +293,7 @@ Item {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 86
-                    visible: controller.weatherHourly.length > 0
+                    visible: controller.observingWeatherHourly.length > 0
                     radius: 8
                     color: "#15181e"
                     border.color: "#303641"
@@ -307,16 +307,16 @@ Item {
                         spacing: 8
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
-                        model: controller.weatherHourly
+                        model: controller.observingWeatherHourly
 
                         delegate: Rectangle {
                             width: 94
                             height: ListView.view.height
                             radius: 8
-                            color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
+                            color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
                                    ? Qt.rgba(theme.teal.r, theme.teal.g, theme.teal.b, 0.18)
                                    : "#1c222b"
-                            border.color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.weatherHourly.length - 1))
+                            border.color: index === Math.max(0, Math.min(root.selectedWeatherHourIndex, controller.observingWeatherHourly.length - 1))
                                           ? theme.teal
                                           : "#303641"
                             border.width: 1
@@ -367,7 +367,7 @@ Item {
 
                 GridLayout {
                     Layout.fillWidth: true
-                    visible: controller.weatherHourly.length > 0
+                    visible: controller.observingWeatherHourly.length > 0
                     columns: root.width > 980 ? 3 : 2
                     columnSpacing: 12
                     rowSpacing: 12
@@ -382,7 +382,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    visible: controller.weatherHourly.length === 0
+                    visible: controller.observingWeatherHourly.length === 0
                     text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
                     color: theme.textSecondary
                     font.pixelSize: 13

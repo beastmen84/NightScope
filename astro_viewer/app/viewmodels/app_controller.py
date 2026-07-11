@@ -616,6 +616,10 @@ class AppController(QObject):
         return [hour.to_qml() for hour in self._weather_hours]
 
     @Property("QVariant", notify=weatherChanged)
+    def observingWeatherHourly(self) -> list[dict]:
+        return [hour.to_qml() for hour in self._observing_weather_hours()]
+
+    @Property("QVariant", notify=weatherChanged)
     def weatherSummary(self) -> dict:
         return self._weather_summary.to_qml() if self._weather_summary else {}
 
