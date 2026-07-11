@@ -3,7 +3,7 @@
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
 Versione corrente sorgente: `1.18.3`
-Distribuzione Windows corrente: `1.18.0`
+Distribuzione Windows corrente: `1.18.3`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `3c5aca7 Release 1.18.3 Home list fixes`
@@ -141,6 +141,9 @@ Il closeout dichiara:
   oggetti mentre il puntatore e' al suo interno e la lista e' scrollabile:
   mouse e touchpad restano confinati anche a top/bottom, mentre fuori dalla
   lista continua a scorrere la pagina;
+- la distribuzione Windows `1.18.3` e' stata rigenerata su richiesta; versione
+  e QML nel bundle, smoke eseguibile, QML smoke, integrita' database e
+  conservazione dei cinque file runtime sono stati verificati;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -328,7 +331,18 @@ Risultati:
   `33.58 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
 - la verifica visuale della rotella resta da eseguire sulla nuova distribuzione
   richiesta dall'utente;
-- sorgente `1.18.3`, `dist/NightScope` ancora `1.18.0` prima della build.
+- build PyInstaller `6.21.0`: passed in circa `203 s`;
+- bundle `_internal/VERSION`: `1.18.3` e nuovo `WheelHandler` presente nel QML
+  Home impacchettato;
+- bundled smoke: exit code `0` in circa `49 s`;
+- bundled QML smoke: exit code `0` in circa `8 s`;
+- `NightScope.exe` SHA-256:
+  `E849EEDB6CCE3A99E94DC74AAC7D0BF39F53F8AB0D95B2F74BC63EE511A2671E`;
+- `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
+  `location_cache.json` e `nasa_aod_cache.json` ripristinati dopo build e smoke
+  con corrispondenza SHA-256 rispetto al backup iniziale;
+- database finale: `integrity_check=ok`, `user_version=6`;
+- sorgente e `dist/NightScope` allineate alla `1.18.3`.
 
 Dopo l'hardening prestazioni astronomiche `1.18.2`:
 
@@ -559,12 +573,12 @@ Risultati:
 
 Distribuzione Windows:
 
-- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.18.0` con
+- `dist/NightScope` e' stata rigenerata su richiesta esplicita per `1.18.3` con
   PyInstaller `6.21.0`;
-- `VERSION` incorporato sotto `_internal/VERSION`: `1.18.0`; QML Home inferiore
-  `homeNightPlanOverview` verificato nel bundle;
+- `VERSION` incorporato sotto `_internal/VERSION`: `1.18.3`; QML Home con
+  `WheelHandler` annidato verificato nel bundle;
 - `NightScope.exe` SHA-256:
-  `EF47CAF138C16EF7C14FCF4233D0DD3B5FB0FF02F5D4108795C2448F9D01E18A`;
+  `E849EEDB6CCE3A99E94DC74AAC7D0BF39F53F8AB0D95B2F74BC63EE511A2671E`;
 - `nightscope.db`, `nightscope.db.backup`, `user_preferences.json`,
   `location_cache.json` e `nasa_aod_cache.json` sono stati salvati prima del
   `COLLECT`, ripristinati, ricontrollati via SHA-256 e ripristinati nuovamente
@@ -596,8 +610,8 @@ Primo contesto da leggere:
 
 Sequenza consigliata:
 
-1. Non rigenerare la `dist` senza richiesta esplicita: la sorgente e'
-   `1.18.3`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
+1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
+   sono gia' allineate alla `1.18.3`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
    stasera`.

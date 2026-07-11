@@ -35,7 +35,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 Versione corrente sorgente: `1.18.3`.
 
-Distribuzione Windows corrente: `1.18.0`.
+Distribuzione Windows corrente: `1.18.3`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -120,7 +120,9 @@ gli oggetti deep-sky ancora utili: l'intero pool raggiunge Home e Sky Compass
 prima dell'esclusione dei quattro target del piano. La lista Home degli altri
 oggetti trattiene inoltre lo scroll di mouse e touchpad quando il puntatore e'
 sulla lista scrollabile, senza trasferirlo alla pagina quando raggiunge un
-estremo.
+estremo. La distribuzione Windows e' stata rigenerata su richiesta con bundle
+`VERSION` `1.18.3`; smoke e QML smoke dell'eseguibile terminano con exit code
+`0`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

@@ -18,8 +18,13 @@
 - Verificati ruff e compileall completi, smoke Python, QML smoke e suite
   parallela: `672 passed`, `27 warnings`, `7 subtests passed` in `33,58 s`;
   restano soltanto i warning Skyfield/NumPy gia' noti.
-- La distribuzione Windows non e' ancora stata rigenerata in questo commit e
-  `dist/NightScope` resta alla versione `1.18.0`.
+- Rigenerata su richiesta la distribuzione Windows `dist/NightScope` con
+  PyInstaller `6.21.0`; verificati bundle `VERSION` `1.18.3`, presenza del nuovo
+  gestore QML, smoke e QML smoke dell'eseguibile con exit code `0`.
+- Ripristinati dopo build e smoke i cinque file runtime con confronto SHA-256;
+  database finale `integrity_check=ok`, `user_version=6`. SHA-256 di
+  `NightScope.exe`:
+  `E849EEDB6CCE3A99E94DC74AAC7D0BF39F53F8AB0D95B2F74BC63EE511A2671E`.
 
 ## NightScope 1.18.2 - 2026-07-11
 
