@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import pytest
+
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
@@ -97,6 +101,51 @@ def test_presenter_serializes_missing_eyepiece_fallback() -> None:
     assert dto["setupText"] == "Aggiungi oculari per suggerimenti completi"
     assert dto["difficulty"] == "Limitata"
     assert dto["setupOptions"] == []
+
+
+@pytest.mark.parametrize(
+    ("object_id", "aperture_mm", "expected"),
+    (
+        ("jupiter", 100, "Facile"),
+        ("mars", 100, "Media"),
+        ("mercury", 100, "Difficile"),
+        ("uranus", 100, "Media"),
+        ("neptune", 100, "Difficile"),
+        ("neptune", 150, "Media"),
+        ("uranus", 220, "Facile"),
+    ),
+)
+def test_planet_telescope_difficulty_respects_target_and_aperture(
+    object_id: str,
+    aperture_mm: int,
+    expected: str,
+) -> None:
+    target = _object(object_id, object_id.title(), "Pianeta", "5.7", "4 arcsec", 0.002, "HighMagnification")
+    telescope = Telescope("scope", "Scope", aperture_mm, 1000, "Reflector", "manuale")
+
+    difficulty = RecommendationPresenter()._difficulty_for_object(target, telescope)
+
+    assert difficulty == expected
+
+
+def test_outer_planets_are_not_easy_with_binoculars() -> None:
+    target = _object("neptune", "Nettuno", "Pianeta", "7.8", "2 arcsec", 0.001, "HighMagnification")
+
+    difficulty = RecommendationPresenter()._difficulty_for_binocular(
+        target,
+        SimpleNamespace(score=90.0),
+    )
+
+    assert difficulty == "Difficile"
+
+
+def test_mercury_naked_eye_is_realistic_but_difficult() -> None:
+    target = _object("mercury", "Mercurio", "Pianeta", "-0.5", "8 arcsec", 0.002, "HighMagnification")
+
+    dto = RecommendationPresenter().naked_eye(target, EquipmentService.NAKED_EYE_ID)
+
+    assert dto["setupText"] == "Occhio nudo"
+    assert dto["difficulty"] == "Difficile"
 
 
 def test_presenter_disambiguates_same_eyepiece_label_across_telescopes() -> None:

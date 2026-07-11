@@ -151,6 +151,9 @@ Il closeout dichiara:
 - il secondo step `1.18.4` sposta su worker anche il primo recupero Open-Meteo
   dopo lo snapshot astronomico e chiude lo stato di caricamento soltanto dopo
   l'applicazione del risultato ancora valido per localita' e request id;
+- il terzo step `1.18.4` rende target-specifica la difficolta' dei pianeti per
+  telescopio, binocolo e occhio nudo; Urano e Nettuno non risultano piu'
+  automaticamente `Facile` e il Planner riceve la classe pratica corretta;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

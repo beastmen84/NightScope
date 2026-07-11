@@ -565,6 +565,13 @@ the selected telescope for that target instead of the first telescope in the
 profile. Binocular and naked-eye recommendations retain their own capability
 projection and are not mixed with an unrelated telescope.
 
+Planet difficulty is target-specific as well. Moon, Venus and Jupiter remain
+the accessible reference targets, while Mercury, Mars, Uranus and Neptune use
+separate telescope-aperture classes consistent with their practical observing
+requirements. A maximum altitude below 25 degrees degrades the resulting class.
+Binocular and naked-eye projections use their own planet matrix. This value is
+presentation data and also feeds Planner's practical-constraint factor.
+
 Planner score:
 
 `(object_score * 0.48 + category_score * 0.34 + weather_score * 0.18 + aperture_bonus - pollution_penalty - moon_penalty) * difficulty_factor * weather_factor`

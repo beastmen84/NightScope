@@ -17,6 +17,11 @@
   timeout di rete.
 - Mantenuto lo stato di caricamento generale fino all'applicazione del risultato
   meteo e conservata la continuazione attraverso un eventuale cambio notte.
+- Sostituita la difficolta' unica dei pianeti con una policy per target e
+  strumento: Mercurio, Marte, Urano e Nettuno considerano apertura e altezza e
+  non vengono piu' classificati automaticamente `Facile` come Giove.
+- Allineate anche le proiezioni binocolo, occhio nudo e telescopio senza oculari;
+  la difficolta' risultante continua ad alimentare il vincolo pratico NSOM.
 
 ## NightScope 1.18.3 - 2026-07-11
 

@@ -7,6 +7,18 @@ from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 
 
+PLANET_BINOCULAR_DIFFICULTY = {
+    "moon": "Facile",
+    "mercury": "Difficile",
+    "venus": "Facile",
+    "mars": "Media",
+    "jupiter": "Facile",
+    "saturn": "Media",
+    "uranus": "Difficile",
+    "neptune": "Difficile",
+}
+
+
 class RecommendationPresenter:
     def from_candidates(
         self,
@@ -25,7 +37,7 @@ class RecommendationPresenter:
         if prefix_telescope and recommended.equipment_type == "Telescope" and telescope:
             setup_text = f"{recommended.telescope_name} + {setup_text}"
         if recommended.equipment_type == "Binocular":
-            difficulty = self._difficulty_for_binocular(recommended)
+            difficulty = self._difficulty_for_binocular(celestial_object, recommended)
             explanation = self._binocular_explanation(celestial_object, recommended)
             best_eyepiece = "Non richiesto"
             telescope_id = binocular.id if binocular else ""
@@ -99,11 +111,19 @@ class RecommendationPresenter:
             and magnitude <= 5.5
             and not any(fragment in lower_type for fragment in ("galaxy", "nebula", "globular"))
         )
+        naked_eye_difficulty = {
+            "moon": "Facile",
+            "mercury": "Difficile",
+            "venus": "Facile",
+            "mars": "Media",
+            "jupiter": "Facile",
+            "saturn": "Media",
+        }.get(celestial_object.id, "Facile")
         return {
             "bestEyepiece": "",
             "suggestedPosition": "",
             "barlow": "No",
-            "difficulty": "Facile" if naked_eye_realistic else "Non adatto a occhio nudo",
+            "difficulty": naked_eye_difficulty if naked_eye_realistic else "Non adatto a occhio nudo",
             "alternative": "Binocolo o telescopio consigliato" if not naked_eye_realistic else "Occhio nudo",
             "setupText": "Occhio nudo" if naked_eye_realistic else "Serve almeno un binocolo o telescopio",
             "setupOptions": [],
@@ -224,8 +244,12 @@ class RecommendationPresenter:
         max_altitude = traits.max_altitude_deg
         if max_altitude < 15:
             return "Difficile"
-        if "pianeta" in lower_type or celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
-            return "Facile" if telescope.aperture_mm >= 80 and max_altitude >= 25 else "Media"
+        if traits.is_planetary_or_lunar:
+            return self._planet_telescope_difficulty(
+                celestial_object.id,
+                telescope.aperture_mm,
+                max_altitude,
+            )
         if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
             if sky_quality and sky_quality.bortle_class >= 8:
                 return "Difficile"
@@ -240,13 +264,43 @@ class RecommendationPresenter:
         return "Media"
 
     @staticmethod
-    def _difficulty_for_binocular(candidate: RecommendationCandidate) -> str:
+    def _planet_telescope_difficulty(
+        object_id: str,
+        aperture_mm: int,
+        max_altitude: float,
+    ) -> str:
+        if object_id == "mercury":
+            difficulty = "Difficile" if aperture_mm < 130 else "Media"
+        elif object_id == "mars":
+            difficulty = "Media" if aperture_mm < 130 else "Facile"
+        elif object_id == "uranus":
+            difficulty = "Facile" if aperture_mm >= 200 else "Media"
+        elif object_id == "neptune":
+            difficulty = "Difficile" if aperture_mm < 130 else "Media"
+        else:
+            difficulty = "Facile" if aperture_mm >= 80 else "Media"
+        if max_altitude < 25:
+            return {"Facile": "Media", "Media": "Difficile"}.get(difficulty, difficulty)
+        return difficulty
+
+    @staticmethod
+    def _difficulty_for_binocular(
+        celestial_object: CelestialObject,
+        candidate: RecommendationCandidate,
+    ) -> str:
         score = candidate.score
-        if score >= 75.0:
-            return "Facile"
-        if score >= 45.0:
+        difficulty = PLANET_BINOCULAR_DIFFICULTY.get(celestial_object.id)
+        if difficulty is None:
+            if score >= 75.0:
+                return "Facile"
+            if score >= 45.0:
+                return "Media"
+            return "Difficile"
+        if score < 45.0:
+            return "Difficile"
+        if score < 75.0 and difficulty == "Facile":
             return "Media"
-        return "Difficile"
+        return difficulty
 
     def _binocular_explanation(self, celestial_object: CelestialObject, candidate: RecommendationCandidate) -> str:
         observation_type = TargetObservationTraits.from_object(celestial_object).recommended_observation_type
@@ -291,6 +345,8 @@ class RecommendationPresenter:
         lower_type = TargetObservationTraits.from_object(celestial_object).object_type_lower
         if celestial_object.id in {"moon", "venus", "jupiter", "saturn"}:
             return "Limitata"
+        if celestial_object.id in {"mercury", "uranus", "neptune"}:
+            return "Difficile"
         if "galaxy" in lower_type or "nebula" in lower_type:
             return "Difficile"
         return "Media"

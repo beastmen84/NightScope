@@ -137,6 +137,11 @@ un worker: il thread QML mantiene lo stato di caricamento e applica il risultato
 solo al completamento, senza attendere i timeout di rete su un avvio senza
 cache.
 
+La difficolta' osservativa dei pianeti distingue inoltre i target: Mercurio,
+Marte, Urano e Nettuno non ereditano piu' automaticamente `Facile` dalla sola
+categoria Pianeta. La classe considera target, apertura, altezza e tipo di
+strumento e continua a entrare nel vincolo pratico del Planner NSOM.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
