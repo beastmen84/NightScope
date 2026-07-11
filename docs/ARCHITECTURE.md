@@ -93,6 +93,9 @@ Current runtime status for `1.18.3`:
   freshness is visible, and no NSOM ranking explanation panel is exposed.
 - VIIRS cache hardening is active: cached Black Marble values are revalidated
   every 7 days while stale data remains available if NASA cannot be reached.
+- AOD and OpenAQ worker completions carry a location key. A stale-location
+  result is discarded and the current location is scheduled immediately; old
+  provider presentation data is cleared as soon as the active location changes.
 - AOD and VIIRS provider-cache lookups reuse a valid observation within 500
   metres to absorb normal Windows geolocation jitter. Exact location keys remain
   unchanged for asynchronous refresh identity and stale-result rejection. AOD

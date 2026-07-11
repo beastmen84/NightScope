@@ -3212,6 +3212,16 @@ class AppController(QObject):
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
+            if self._has_valid_location():
+                self._refresh_local_atmosphere()
+            return
+        if (
+            not self._openaq_credential_store.api_key()
+            or not self._openaq_credentials_state.connection_verified
+        ):
+            self._local_atmosphere = LocalAtmosphere.not_configured()
+            self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
             return
         self._mark_refresh_dirty(
             RefreshReason.AIR_QUALITY_COMPLETED,
@@ -3409,6 +3419,8 @@ class AppController(QObject):
             logger.info("NASA AOD refresh result discarded for stale location %s.", location_key)
             self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.AOD)
+            if self._has_valid_location():
+                self._schedule_nasa_aod_refresh()
             return
         if not self._earthdata_credentials_state.connection_verified:
             logger.info("NASA AOD refresh result discarded because Earthdata credentials are no longer verified.")
@@ -3544,15 +3556,40 @@ class AppController(QObject):
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._cancel_astronomy_refresh()
         self._cancel_sky_compass_live_refresh()
+        previous_location = self._location
         self._location_detection_result = result
         self._location = result.location
         self._location_message = result.message
         self._offer_online_location_fallback = False
+        if (
+            not isinstance(previous_location, ObserverLocation)
+            or LightPollutionService._location_key(previous_location)
+            != LightPollutionService._location_key(result.location)
+        ):
+            self._reset_location_provider_presentations()
         self._invalidate_catalogue_visibility_cache()
         if persist:
             self._location_preferences.save_location(result)
         self.catalogueChanged.emit()
         self._clear_refresh_domains(RefreshDomain.LOCATION)
+
+    def _reset_location_provider_presentations(self) -> None:
+        if self._earthdata_credentials_state.connection_verified:
+            self._nasa_aod_result = NasaAodResult.failure(
+                "pending",
+                "Aggiornamento dati NASA AOD per la nuova posizione.",
+            )
+        else:
+            self._nasa_aod_result = NasaAodResult.no_credentials()
+        if (
+            self._openaq_credentials_state.connection_verified
+            and self._openaq_credential_store.api_key()
+        ):
+            self._local_atmosphere = LocalAtmosphere.failure(
+                "Aggiornamento dati OpenAQ per la nuova posizione."
+            )
+        else:
+            self._local_atmosphere = LocalAtmosphere.not_configured()
 
     def _has_valid_location(self) -> bool:
         location = self._location

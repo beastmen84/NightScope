@@ -336,6 +336,9 @@ class NsomRuntimeSnapshotTests(unittest.TestCase):
         )
         controller._refresh_sky_compass = Mock(side_effect=AssertionError("no compass recompute"))
         controller._night_planner_service = Mock()
+        controller._openaq_credential_store = Mock()
+        controller._openaq_credential_store.api_key.return_value = "openaq-secret"
+        controller._openaq_credentials_state = Mock(connection_verified=True)
         location_key = LightPollutionService._location_key(controller._location)
 
         controller._finish_local_atmosphere_refresh(location_key, LocalAtmosphere.no_data())

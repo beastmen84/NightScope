@@ -154,6 +154,9 @@ Il closeout dichiara:
 - il terzo step `1.18.4` rende target-specifica la difficolta' dei pianeti per
   telescopio, binocolo e occhio nudo; Urano e Nettuno non risultano piu'
   automaticamente `Facile` e il Planner riceve la classe pratica corretta;
+- il quarto step `1.18.4` rende location-safe i completamenti AOD/OpenAQ:
+  presentazioni precedenti azzerate al cambio posizione, risultato obsoleto
+  scartato e nuovo recupero programmato automaticamente;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti

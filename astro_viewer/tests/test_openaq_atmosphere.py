@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 import unittest
+from unittest.mock import Mock
+
+from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
@@ -288,6 +291,50 @@ class OpenAQLocalAtmosphereControllerTests(unittest.TestCase):
 
         self.assertFalse(controller._local_atmosphere.visible)
         self.assertEqual(fake_service.calls, 0)
+
+    def test_stale_location_completion_reschedules_current_location(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._openaq_credential_store = _FakeOpenAQCredentialStore("openaq-secret")
+        controller._openaq_credentials_state = OpenAQCredentialState(
+            configured=True,
+            secure_store_available=True,
+            connection_verified=True,
+        )
+        previous = LocalAtmosphere.no_data()
+        controller._local_atmosphere = previous
+        controller._local_atmosphere_refresh_running = True
+        controller._location = _location()
+        controller._refresh_local_atmosphere = Mock()
+
+        controller._finish_local_atmosphere_refresh(
+            "44.495:11.343:bologna",
+            LocalAtmosphere.failure(),
+        )
+
+        self.assertFalse(controller._local_atmosphere_refresh_running)
+        self.assertIs(controller._local_atmosphere, previous)
+        controller._refresh_local_atmosphere.assert_called_once_with()
+
+    def test_completion_after_credentials_removal_stays_hidden(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._openaq_credential_store = _FakeOpenAQCredentialStore(None)
+        controller._openaq_credentials_state = OpenAQCredentialState(
+            configured=False,
+            secure_store_available=True,
+            connection_verified=False,
+        )
+        controller._local_atmosphere = LocalAtmosphere.no_data()
+        controller._local_atmosphere_refresh_running = True
+        controller._location = _location()
+
+        controller._finish_local_atmosphere_refresh(
+            "9.030:38.740:addis ababa",
+            LocalAtmosphere.failure(),
+        )
+
+        self.assertFalse(controller._local_atmosphere.visible)
 
 
 class _FakeOpenAQCredentialStore:

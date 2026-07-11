@@ -22,6 +22,11 @@
   non vengono piu' classificati automaticamente `Facile` come Giove.
 - Allineate anche le proiezioni binocolo, occhio nudo e telescopio senza oculari;
   la difficolta' risultante continua ad alimentare il vincolo pratico NSOM.
+- Resi location-safe i completamenti AOD e OpenAQ: il cambio posizione rimuove
+  subito la presentazione precedente e un risultato con chiave obsoleta viene
+  scartato prima di riprogrammare il provider sulla localita' corrente.
+- Impedito a un risultato OpenAQ gia' in volo di riapparire dopo rimozione o
+  invalidazione delle credenziali.
 
 ## NightScope 1.18.3 - 2026-07-11
 

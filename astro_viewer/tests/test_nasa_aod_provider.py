@@ -548,6 +548,7 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         previous = NasaAodResult.no_location()
         controller._nasa_aod_result = previous
         controller._nasa_aod_refresh_running = True
+        controller._schedule_nasa_aod_refresh = Mock()
 
         with self.assertLogs("astro_viewer.app.viewmodels.app_controller", level="INFO") as logs:
             controller._finish_nasa_aod_refresh("44.495:11.343:bologna", NasaAodResult.failure("no_valid_pixel", "No data"))
@@ -555,6 +556,7 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertFalse(controller._nasa_aod_refresh_running)
         self.assertIs(controller._nasa_aod_result, previous)
         self.assertIn("stale location", "\n".join(logs.output))
+        controller._schedule_nasa_aod_refresh.assert_called_once_with()
 
     def test_finished_refresh_discards_result_after_credentials_are_unverified(self) -> None:
         controller = _aod_controller(verified=False)

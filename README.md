@@ -142,6 +142,12 @@ Marte, Urano e Nettuno non ereditano piu' automaticamente `Facile` dalla sola
 categoria Pianeta. La classe considera target, apertura, altezza e tipo di
 strumento e continua a entrare nel vincolo pratico del Planner NSOM.
 
+I refresh AOD e OpenAQ in volo sono ora location-safe anche durante un cambio
+posizione: la presentazione precedente viene rimossa subito e un completamento
+con chiave obsoleta avvia automaticamente il recupero per la localita' corrente.
+OpenAQ ricontrolla inoltre la validita' delle credenziali prima di applicare il
+risultato.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
