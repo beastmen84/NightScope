@@ -6,6 +6,8 @@ Versione corrente sorgente: `1.19.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `a63124d Align observing object detail UI`
+- `87893d2 Add observing detail presentation contract`
 - `a0364ee Document 1.18.8 validation`
 - `6a369ed Polish Home and weather presentation`
 - `2b66704 Record 1.18.7 validation commit`
@@ -381,13 +383,13 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 
 ## Ultima Validazione Eseguita
 
-Dopo le rifiniture finali Home/Meteo `1.18.8`:
+Dopo il riallineamento del dettaglio osservativo `1.19.0`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\components\HomePlanStepRow.qml astro_viewer\app\ui\pages\WeatherPage.qml
+.\.venv\Scripts\pyside6-qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\main.qml astro_viewer\app\ui\pages\ObjectDetailPage.qml
 .\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
 ```
 
@@ -398,12 +400,12 @@ Risultati:
 - compileall completo: passed;
 - `qmllint`: exit code `0`, con i warning storici sugli accessi QML non
   qualificati;
-- test mirati Home/Meteo/sidebar: `8 passed`;
-- regressione nomi: a parita' di finestra, momento migliore e categoria
-  l'ordine e' `C2, C14, M3, M40, M100`;
-- suite completa parallela: `700 passed, 27 warnings, 7 subtests passed` in
-  `41.25 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
-- nessuna build Windows: sorgente `1.18.8`, `dist/NightScope` `1.18.7`.
+- test mirati contratto/QML/Luna/pianeti/deep sky/Catalogo: `25 passed`;
+- rendering offscreen del dettaglio deep sky a `974x820`: completato, senza
+  sovrapposizioni; sotto 1180 px il blocco superiore passa a una colonna;
+- suite completa parallela: `707 passed, 27 warnings, 7 subtests passed` in
+  `35.20 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota;
+- nessuna build Windows: sorgente `1.19.0`, `dist/NightScope` `1.18.8`.
 
 Dopo la proiezione Meteo mobile `1.18.6`:
 

@@ -29,6 +29,9 @@
   una colonna, evitando la compressione dell'immagine e dei testi.
 - Aggiunte regressioni sul nuovo contratto, sulle soglie e sulla selezione del
   target/setup. Distribuzione non rigenerata: sorgente `1.19.0`, dist `1.18.8`.
+- Verificati `pip check`, ruff, compileall, `qmllint`, rendering offscreen,
+  `25` test mirati e suite completa parallela: `707 passed`, `27 warnings`,
+  `7 subtests passed` in `35,20 s`.
 
 ## NightScope 1.18.8 - 2026-07-11
 

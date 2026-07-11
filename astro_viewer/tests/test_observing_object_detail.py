@@ -73,6 +73,49 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
     assert payload["equipment"]["telescopeName"] == "Newton 200"
 
 
+def test_lunar_detail_keeps_phase_fields_and_real_horizon_events() -> None:
+    target = replace(
+        _target(),
+        id="moon",
+        name="Luna",
+        object_type="Luna",
+        rise_time="18:04",
+        set_time="06:21",
+    )
+
+    payload = ObservingObjectDetailService().build(
+        object_payload={
+            **target.to_qml(),
+            "homeWindowLabel": "19:00 - 05:30",
+            "homeTimeLabel": "23:40 notte",
+            "observingStatus": "Osservabile ora",
+            "observingStatusDetail": "Attualmente in quota utile.",
+            "observingReasons": ["Fase lunare favorevole."],
+            "moonPhase": "Primo quarto",
+            "moonIllumination": "50%",
+            "moonCycleDay": "Giorno 7,4 di 29,5",
+        },
+        geometry_state="observable_now",
+        session={
+            "state": "recommended",
+            "title": "Sessione consigliata",
+            "badge": "Consigliata",
+            "limitingFactor": "Nessun fattore bloccante",
+        },
+        setup_model=None,
+        altitude_threshold_deg=8.0,
+        is_deep_sky=False,
+    )
+
+    assert payload["geometry"]["showHorizonEvents"] is True
+    assert payload["geometry"]["riseTime"] == "18:04"
+    assert payload["geometry"]["setTime"] == "06:21"
+    assert payload["moonPhase"] == "Primo quarto"
+    assert payload["moonIllumination"] == "50%"
+    assert payload["moonCycleDay"] == "Giorno 7,4 di 29,5"
+    assert payload["evaluation"]["warning"] == ""
+
+
 def test_deep_sky_detail_does_not_claim_observable_below_fifteen_degrees() -> None:
     controller = AppController.__new__(AppController)
     zone = ZoneInfo("Africa/Addis_Ababa")
@@ -138,6 +181,16 @@ def test_observing_detail_uses_live_display_target_and_raw_nsom_target() -> None
 
     assert controller._observing_detail_display_target() is live
     assert controller._observing_detail_nsom_target() is raw
+
+
+def test_catalogue_selection_does_not_use_observing_detail_contract() -> None:
+    controller = AppController.__new__(AppController)
+    selected = replace(_target(), visibility_class="Catalogo Messier")
+    controller._selected_object = selected
+    controller._selected_object_source = "catalogue"
+
+    assert controller._observing_detail_display_target() is None
+    assert controller._observing_detail_nsom_target() is selected
 
 
 def test_observing_detail_uses_target_specific_telescope() -> None:

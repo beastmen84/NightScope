@@ -139,6 +139,22 @@ height, its wheel handler owns mouse-wheel and touchpad events over the list,
 including at either boundary; the outer Home page scroll remains active outside
 the list and when the table has no internal overflow.
 
+The observing detail opened from Home or Calendar consumes the score-free
+`observingObjectDetail` projection. Its display target prefers the geometry
+snapshot refreshed every minute for Sky Compass, while NSOM keeps using the raw
+target from the condition read model. Deep-sky observability uses the same
+15-degree useful-altitude threshold as Skyfield; planets and Moon use 8 degrees.
+The full useful window, its duration and the best instant remain separate
+fields. Deep-sky rows expose useful-window start/end instead of placeholder
+horizon events, while Solar-System targets retain real rise/set data. Session
+state is metadata and never changes target geometry or score. Equipment labels
+come from the setup selected for that target, including multi-telescope
+profiles. Catalogue detail remains on the raw `selectedObject` contract.
+
+Observation persistence is intentionally not part of object detail. The
+SQLite repository and controller slot remain available for a future dedicated
+`Log Osservazioni` surface.
+
 Sky Compass runs from the same prepared pool but filters `observable_now=False`.
 Its direction contribution is the NSOM `ObservableTargetValue` scaled by a
 bounded current-altitude factor, plus a fixed per-target presence term. The
