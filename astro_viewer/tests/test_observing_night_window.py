@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -97,6 +97,69 @@ def test_planner_does_not_replace_sunset_best_time_with_window_end() -> None:
     )
 
     assert NightPlannerService._observing_time(target, window) == start
+
+
+def test_altitude_samples_always_include_the_exact_night_end() -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    start = datetime(2026, 7, 10, 18, 48, tzinfo=zone)
+    end = datetime(2026, 7, 11, 6, 12, tzinfo=zone)
+
+    samples = SkyfieldAstronomyEngine._datetime_samples(start, end, step_minutes=30)
+
+    assert samples[-2] == datetime(2026, 7, 11, 5, 48, tzinfo=zone)
+    assert samples[-1] == end
+
+
+def test_single_useful_sample_produces_an_interpolated_window(
+    astronomy_engine: SkyfieldAstronomyEngine,
+) -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    start = datetime(2026, 7, 10, 18, 48, tzinfo=zone)
+    samples = [
+        (start, 25.0),
+        (start + timedelta(minutes=30), 15.0),
+    ]
+
+    _maximum, best_time, window = astronomy_engine._sample_summary(samples, threshold=20.0)
+
+    assert best_time == start
+    assert window == "18:48 - 19:03"
+
+
+def test_rising_target_window_extends_to_exact_sunrise(
+    astronomy_engine: SkyfieldAstronomyEngine,
+) -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    first = datetime(2026, 7, 11, 5, 18, tzinfo=zone)
+    sunrise = datetime(2026, 7, 11, 6, 12, tzinfo=zone)
+    samples = [
+        (first, 15.0),
+        (first + timedelta(minutes=30), 25.0),
+        (sunrise, 30.0),
+    ]
+
+    _maximum, best_time, window = astronomy_engine._sample_summary(samples, threshold=20.0)
+
+    assert best_time == first + timedelta(minutes=30)
+    assert window == "05:33 - 06:12"
+
+
+def test_target_reaching_threshold_only_at_sunrise_is_not_useful(
+    astronomy_engine: SkyfieldAstronomyEngine,
+) -> None:
+    zone = ZoneInfo("Africa/Addis_Ababa")
+    first = datetime(2026, 7, 11, 5, 18, tzinfo=zone)
+    samples = [
+        (first, 15.0),
+        (first + timedelta(minutes=30), 18.0),
+        (datetime(2026, 7, 11, 6, 12, tzinfo=zone), 25.0),
+    ]
+
+    maximum, best_time, window = astronomy_engine._sample_summary(samples, threshold=20.0)
+
+    assert maximum == 18.0
+    assert best_time == first + timedelta(minutes=30)
+    assert window == "Non sopra la soglia osservativa"
 
 
 @pytest.mark.parametrize(

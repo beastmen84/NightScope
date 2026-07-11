@@ -33,9 +33,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.4`.
+Versione corrente sorgente: `1.18.5`.
 
-Distribuzione Windows corrente: `1.18.3`.
+Distribuzione Windows corrente: `1.18.4`.
 
 Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
 ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
@@ -129,8 +129,8 @@ anche il minuto che contiene il tramonto calcolato con secondi da Skyfield. Home
 e Planner non ripiegano quindi sulla fine della finestra quando il momento
 migliore coincide con il tramonto. La migliore finestra meteo viene inoltre
 limitata all'alba locale esatta, senza produrre label come `04:00-07:00` quando
-la notte termina alle `06:12`. La distribuzione Windows resta alla `1.18.3`
-finche' non viene richiesta una nuova build.
+la notte termina alle `06:12`. La distribuzione Windows `1.18.4` e' stata poi
+rigenerata manualmente per la verifica visuale.
 
 Anche il primo recupero Open-Meteo successivo allo snapshot astronomico usa ora
 un worker: il thread QML mantiene lo stato di caricamento e applica il risultato
@@ -160,6 +160,12 @@ di essere silenzioso; forma e contenuto del payload QML di fallback non cambiano
 Lo stack Earthaccess include inoltre un constraint `botocore` compatibile con
 `aiobotocore 3.7.x`; la `.venv` di riferimento usa `botocore 1.43.0` e supera
 `python -m pip check` senza dipendenze rotte.
+
+In `1.18.5` le finestre dei target campionati includono l'estremo astronomico
+esatto e stimano il passaggio della soglia tra due campioni. Le righe Home non
+mostrano quindi piu' intervalli nulli come `18:48-18:48` o `05:48-05:48`; il
+campione all'alba serve solo come confine e non puo' diventare il momento
+migliore dell'oggetto. La distribuzione Windows resta alla `1.18.4`.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

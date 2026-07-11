@@ -1,5 +1,18 @@
 # Changelog
 
+## NightScope 1.18.5 - 2026-07-11
+
+- Incluso sempre l'estremo astronomico esatto nella timeline campionata, anche
+  quando la cadenza da 15/30 minuti non coincide con l'alba.
+- Escluso il campione finale dalla scelta del momento migliore e interpolato il
+  passaggio della soglia di altitudine tra campioni adiacenti.
+- Rimosse le finestre Home a durata zero osservate nella `dist` `1.18.4`: nel
+  probe Addis Ababa M44 passa da `18:48-18:48` a `18:48-18:57`, mentre
+  M36/M37/M38/M42 terminano all'alba reale `06:12`.
+- Aggiunte regressioni per estremo non allineato, singolo campione utile,
+  target crescente fino all'alba e target che raggiunge la soglia soltanto al
+  confine finale. Distribuzione Windows non rigenerata: resta `1.18.4`.
+
 ## NightScope 1.18.4 - 2026-07-11
 
 - Trattati gli orari astronomici `HH:MM` come intervalli con precisione al

@@ -783,6 +783,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         while current <= end:
             samples.append(current)
             current += timedelta(minutes=step_minutes)
+        if samples and samples[-1] < end:
+            samples.append(end)
         return samples
 
     def _altitudes_for_samples(self, observer, body, samples: list[datetime]) -> list[tuple[datetime, float]]:
@@ -888,11 +890,63 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     def _sample_summary(self, samples: list[tuple[datetime, float]], threshold: float) -> tuple[float, datetime | None, str]:
         if not samples:
             return 0.0, None, "n/d"
-        best_dt, max_altitude = max(samples, key=lambda item: item[1])
-        above = [sample for sample in samples if sample[1] >= threshold]
-        if not above:
+
+        ordered = sorted(samples, key=lambda item: item[0])
+        usable_samples = ordered[:-1] if len(ordered) > 1 else ordered
+        best_dt, max_altitude = max(usable_samples, key=lambda item: item[1])
+        if max_altitude < threshold:
             return max_altitude, best_dt, "Non sopra la soglia osservativa"
-        return max_altitude, best_dt, f"{self._format_dt(above[0][0])} - {self._format_dt(above[-1][0])}"
+
+        best_index = ordered.index((best_dt, max_altitude))
+        first_index = best_index
+        while first_index > 0 and ordered[first_index - 1][1] >= threshold:
+            first_index -= 1
+        last_index = best_index
+        while last_index + 1 < len(ordered) and ordered[last_index + 1][1] >= threshold:
+            last_index += 1
+
+        start_dt = ordered[first_index][0]
+        if first_index > 0:
+            start_dt = self._threshold_crossing(
+                ordered[first_index - 1],
+                ordered[first_index],
+                threshold,
+            )
+
+        end_dt = ordered[last_index][0]
+        if last_index + 1 < len(ordered):
+            end_dt = self._threshold_crossing(
+                ordered[last_index],
+                ordered[last_index + 1],
+                threshold,
+            )
+
+        if end_dt <= start_dt:
+            return max_altitude, best_dt, "Non sopra la soglia osservativa"
+        return max_altitude, best_dt, self._sampled_window_label(start_dt, end_dt)
+
+    @staticmethod
+    def _threshold_crossing(
+        first: tuple[datetime, float],
+        second: tuple[datetime, float],
+        threshold: float,
+    ) -> datetime:
+        first_dt, first_altitude = first
+        second_dt, second_altitude = second
+        altitude_delta = second_altitude - first_altitude
+        if math.isclose(altitude_delta, 0.0):
+            return second_dt
+        fraction = (threshold - first_altitude) / altitude_delta
+        bounded_fraction = max(0.0, min(1.0, fraction))
+        return first_dt + (second_dt - first_dt) * bounded_fraction
+
+    def _sampled_window_label(self, start: datetime, end: datetime) -> str:
+        start_label = self._format_dt(start)
+        end_label = self._format_dt(end)
+        if start_label == end_label and end > start:
+            rounded_end = (end + timedelta(minutes=1)).replace(second=0, microsecond=0)
+            end_label = self._format_dt(rounded_end)
+        return f"{start_label} - {end_label}"
 
     def _ordered_event_labels(self, observer, body, now: datetime, zone: ZoneInfo) -> tuple[str, str, str]:
         start = datetime.combine(now.date(), time(0, 0), tzinfo=zone)

@@ -2,8 +2,8 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.4`
-Distribuzione Windows corrente: `1.18.3`
+Versione corrente sorgente: `1.18.5`
+Distribuzione Windows corrente: `1.18.4`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
 - `7c90b43 Finalize 1.18.4 validation`
@@ -173,6 +173,11 @@ Il closeout dichiara:
 - il settimo step `1.18.4` vincola `botocore` al range richiesto da
   `aiobotocore 3.7.0`; `.venv` riallineata a `botocore 1.43.0`, `pip check`
   pulito e test AOD/VIIRS passati;
+- la `dist` `1.18.4` e' stata rigenerata manualmente dall'utente per il
+  confronto visuale; il bundle `_internal/VERSION` risulta `1.18.4`;
+- il primo step `1.18.5` elimina le finestre target a durata zero includendo
+  l'alba esatta come solo confine e interpolando il passaggio della soglia tra
+  campioni; un target utile soltanto al confine finale viene escluso;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -666,7 +671,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
-   sono rispettivamente `1.18.4` e `1.18.3`.
+   sono rispettivamente `1.18.5` e `1.18.4`.
 2. Il prossimo capitolo UI concordato e' la review, prima di qualunque modifica,
    della pagina di dettaglio osservativo.
 3. Capitoli da lasciare separati:

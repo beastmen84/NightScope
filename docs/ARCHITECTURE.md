@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.18.4`:
+Current runtime status for `1.18.5`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
   internal payload are NSOM-backed by default.
@@ -81,6 +81,9 @@ Current runtime status for `1.18.4`:
   forecast selection, global score, seeing/transparency, Home, Planner and Sky
   Compass. Skyfield owns sunset/sunrise calculation and caches one result per
   location/night.
+- Sampled target windows include the exact astronomical end as a boundary,
+  interpolate altitude-threshold crossings and never use the sunrise boundary
+  itself as a best-observation instant.
 - The initial Open-Meteo lookup is a worker continuation of the asynchronous
   astronomy snapshot. The controller keeps the full-refresh loading state until
   the still-current weather result has been applied on the Qt thread.

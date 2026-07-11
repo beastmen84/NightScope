@@ -177,6 +177,14 @@ minute overlaps sunset, `ObservingNightWindow` resolves it to the exact sunset
 instant instead of rejecting it as earlier than the boundary. This same rule is
 used by Home ordering and Planner chronology.
 
+Altitude sampling always includes the exact end of the observing night, even
+when the 15/30-minute cadence does not land on sunrise. That final point is a
+boundary sample only: it can extend a valid window to sunrise but cannot become
+the target's best time by itself. Window start/end values are estimated by
+linear interpolation where adjacent samples cross the useful-altitude
+threshold. A target that reaches the threshold only at sunrise is not exposed
+as a useful zero-duration opportunity.
+
 The same `ObservingNightWindow` gates current observability for Sky Compass.
 When Skyfield reports continuous daylight, no observing night is exposed. When
 it reports continuous darkness, NightScope uses an explicit rolling 24-hour
