@@ -2,10 +2,14 @@
 
 Data: 2026-07-11
 Workspace: `C:\Users\beast\PycharmProjects\NightScope`  
-Versione corrente sorgente: `1.18.1`
+Versione corrente sorgente: `1.18.2`
 Distribuzione Windows corrente: `1.18.0`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `02ea0c3 Move cold astronomy refresh off UI thread`
+- `e5825f5 Move Sky Compass live refresh off UI thread`
+- `f62d6ab Batch Moon geometry calculations`
+- `d67699f Reuse moon geometry across NSOM refreshes`
 - `8ea8a7a Release 1.18.1 local observing night`
 - `b750f9f Harden local night regression coverage`
 - `669c150 Align observing logic to the local night`
@@ -114,6 +118,17 @@ Il closeout dichiara:
   per ogni target; la suite completa chiude con `658 passed, 7 subtests passed`;
 - nessuna modifica QML e nessuna nuova build Windows: la distribuzione resta
   correttamente alla `1.18.0`;
+- `1.18.2` riusa la geometria Luna-target tra Planner e diagnostica, la calcola
+  in batch su una timeline Skyfield condivisa e mantiene in cache le coordinate
+  stellari Messier gia' risolte;
+- il tick Sky Compass, il refresh astronomico freddo, il cambio notte e il
+  reload deep-sky VIIRS lavorano ora fuori dal thread Qt; request id e chiave
+  posizione scartano i risultati superati;
+- lo snapshot astronomico include anche visibilita' mensile del catalogo e
+  geometria Luna-target, cosi' Equipment e Planner non riaprono calcoli pesanti
+  sul thread UI;
+- nessuna modifica a scoring, ranking o QML in `1.18.2`; la distribuzione resta
+  intenzionalmente alla `1.18.0`;
 - report/tooling storici di migrazione rimossi in `1.15.2`;
 - il closeout backend non introduce rete, logging automatico o scritture
   runtime; `1.16.1` cambia separatamente solo quando i provider gia' esistenti
@@ -274,6 +289,34 @@ d3a6534 Add AOD OpenAQ field calibration fixtures
 ```
 
 ## Ultima Validazione Eseguita
+
+Dopo l'hardening prestazioni astronomiche `1.18.2`:
+
+```powershell
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
+.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\python.exe -m pytest -q -n auto
+```
+
+Risultati:
+
+- ruff completo: passed;
+- compileall completo: passed;
+- smoke sorgente: exit code `0`;
+- QML smoke sorgente: exit code `0`;
+- suite completa parallela: `670 passed, 28 warnings, 7 subtests passed` in
+  `31.14 s`;
+- i 28 warning sono la deprecazione Skyfield/NumPy gia' nota in
+  `skyfield.searchlib`;
+- benchmark Roma/102 target: geometria Luna-target `3.06 s -> 0.30 s`, refresh
+  Sky Compass a cache calda circa `0.15 s`;
+- probe runtime asincrono: costruttore controller circa `0.22 s`,
+  `isLoading=True` durante il worker, snapshot completo circa `3.25 s` senza
+  bloccare l'event loop;
+- QML non modificato e distribuzione Windows non rigenerata: sorgente
+  `1.18.2`, `dist/NightScope` ancora `1.18.0`.
 
 Dopo la correzione della notte locale `1.18.1`:
 
@@ -514,7 +557,7 @@ Primo contesto da leggere:
 Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: la sorgente e'
-   `1.18.1`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
+   `1.18.2`, mentre la distribuzione corrente resta intenzionalmente `1.18.0`.
 2. Confrontare lo screenshot Home aggiornato, inclusi stato iniziale di ricerca
    posizione, wrapping, piano state-aware e tabella `Altri oggetti visibili
    stasera`.

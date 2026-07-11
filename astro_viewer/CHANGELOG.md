@@ -1,5 +1,33 @@
 # Changelog
 
+## NightScope 1.18.2 - 2026-07-11
+
+- Rimossa l'invalidazione della cache geometria Luna-target dallo snapshot
+  diagnostico NSOM: Planner, AOD e OpenAQ riusano i dati della stessa posizione
+  e notte senza ripetere calcoli Skyfield identici.
+- Aggiunto `moon_geometry_batch`, che valuta tutti i target sulla stessa
+  timeline notturna da 30 minuti e riusa osservatore e posizione apparente
+  della Luna; il metodo singolo conserva la stessa semantica tramite il batch.
+- Memorizzate le coordinate stellari Messier gia' risolte, evitando una nuova
+  query SQLite per ogni tick geometrico.
+- Spostato il refresh live Sky Compass da 60 secondi su worker daemon; request
+  id e chiave posizione impediscono a risultati obsoleti di sostituire lo
+  snapshot corrente.
+- Serializzati gli accessi condivisi al motore astronomico tra Sky Compass,
+  geometria lunare, catalogo, cambio notte e refresh completi.
+- Spostati su worker anche i refresh astronomici freddi di avvio/localita', il
+  cambio notte e il reload deep-sky successivo a VIIRS. Lo snapshot immutabile
+  include notte osservativa, Sistema Solare, cielo profondo, Luna, eventi,
+  geometria batch e visibilita' mensile del catalogo.
+- Benchmark locale su 102 target: geometria Luna-target da circa `3,06 s` a
+  `0,30 s`; Sky Compass a cache calda circa `0,15 s`. Il controller ritorna
+  dall'inizializzazione in circa `0,22 s` e completa lo snapshot in background.
+- Verificati ruff, compileall, smoke Python, QML smoke e suite completa
+  parallela: `670 passed`, `7 subtests passed` in `31,14 s`; restano soltanto i
+  warning Skyfield/NumPy gia' noti.
+- Nessuna modifica a scoring, ranking, payload QML o UI visibile; distribuzione
+  Windows non rigenerata e `dist/NightScope` ancora alla versione `1.18.0`.
+
 ## NightScope 1.18.1 - 2026-07-11
 
 - Sostituita la notte fissa `18:00-07:00` con `ObservingNightWindow`, calcolata

@@ -33,7 +33,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.18.1`.
+Versione corrente sorgente: `1.18.2`.
 
 Distribuzione Windows corrente: `1.18.0`.
 
@@ -107,6 +107,13 @@ selezionate tramite timestamp completi, quindi finestre discontinue come
 `05:00-22:00` non possono essere costruite. Giorno polare e buio continuo sono
 stati espliciti. La distribuzione Windows non e' stata rigenerata in questo
 passaggio.
+
+In `1.18.2` i calcoli astronomici pesanti non occupano piu' il thread Qt. La
+geometria Luna-target usa una timeline Skyfield batch e viene riutilizzata tra
+Planner e diagnostica; il refresh freddo costruisce in background uno snapshot
+con notte, oggetti, Luna, eventi e visibilita' mensile. Anche il tick live Sky
+Compass e il reload deep-sky VIIRS applicano soltanto risultati ancora validi
+per request id e posizione. Scoring, payload QML e UI visibile restano invariati.
 
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra

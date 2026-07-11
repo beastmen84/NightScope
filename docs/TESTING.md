@@ -1,8 +1,7 @@
 # NightScope Testing Workflow
 
-NightScope has more than one thousand tests. The full serial suite is useful
-before releases and high-risk runtime changes, but it is too slow for every
-small NSOM commit.
+NightScope has several hundred tests. The full serial suite remains a diagnostic
+fallback, but it is too slow for every small NSOM commit.
 
 ## Recommended Commands
 
@@ -47,17 +46,20 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment:
+Measured on the current Windows development environment for `1.18.2`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q` | `1036 passed, 7 subtests passed` | `0:06:06` |
-| `python -m pytest -q -n auto` | `1036 passed, 7 subtests passed` | `0:01:14` |
+| `python -m pytest -q -n auto` | `670 passed, 7 subtests passed` | `0:00:31` |
+
+The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
+subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield
+calculation, not as the normal validation path.
 
 Use the parallel full suite for normal pre-commit validation when the change
-touches shared runtime services. Use the serial suite only as a fallback if a
-parallel-only failure appears or before a release build where maximum
-conservatism is preferred.
+touches shared runtime services. Use the serial suite only to isolate a
+parallel/order-dependent failure or to diagnose timing in one deterministic
+process.
 
 ## Validation Policy
 
