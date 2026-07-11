@@ -550,6 +550,7 @@ class _ControllerContext:
         self._temp_dir: tempfile.TemporaryDirectory[str] | None = None
         self._patcher = None
         self._location_patcher = None
+        self._background_patcher = None
         self.weather_requests = None
         self.location_requests = None
         self._controller: AppController | None = None
@@ -573,6 +574,12 @@ class _ControllerContext:
                 side_effect=self._side_effect,
             )
             self.location_requests = self._location_patcher.start()
+        self._background_patcher = patch.object(
+            AppController,
+            "_start_background_task",
+            new=staticmethod(lambda target: target()),
+        )
+        self._background_patcher.start()
         self._controller = AppController(base_dir=base_dir, database_path=database_path)
         return self._controller
 
@@ -585,6 +592,8 @@ class _ControllerContext:
             self._patcher.stop()
         if self._location_patcher:
             self._location_patcher.stop()
+        if self._background_patcher:
+            self._background_patcher.stop()
         if self._temp_dir:
             self._temp_dir.cleanup()
 

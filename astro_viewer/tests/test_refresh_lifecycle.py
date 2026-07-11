@@ -206,6 +206,7 @@ class RefreshManagerTest(unittest.TestCase):
         controller._refresh_equipment_recommendations_for_current_objects = lambda: None
         controller._apply_deep_sky_pollution_context = lambda objects: objects
         controller._recalculate_observing_outputs = lambda: None
+        controller._start_astronomy_refresh = Mock(return_value=False)
         controller._deep_sky = []
 
         with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:

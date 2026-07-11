@@ -258,8 +258,8 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
     def test_full_refresh_still_uses_existing_heavy_refresh_branches(self) -> None:
         source = inspect.getsource(AppController._refresh_all)
 
+        self.assertIn("self._start_astronomy_refresh(ASTRONOMY_REFRESH_FULL)", source)
         self.assertIn("self._refresh_astronomy()", source)
-        self.assertIn("self._refresh_weather_and_conditions()", source)
         self.assertIn("self._refresh_no_location_context()", source)
         self.assertNotIn("_refresh_sky_compass_live", source)
 

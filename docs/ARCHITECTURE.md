@@ -438,6 +438,14 @@ page and logs product/date/value/status. It does not recompute Home, Planner,
 Sky Compass, seeing/transparency, weather score, observing scores or
 recommendation outputs.
 
+Cold astronomy work is isolated from the Qt thread. Location/startup and night
+rollover refreshes build an immutable snapshot containing the observing-night
+window, Solar System objects, deep-sky objects, Moon summary, events, batched
+Moon geometry and monthly catalogue visibility when required. The controller
+accepts the snapshot only when its request id and location key are current,
+then applies Equipment, weather and Planner continuations on the Qt thread.
+VIIRS completion uses the same worker boundary for its deep-sky-only reload.
+
 Sky Compass live refresh is controller-owned and runs on a 60-second `QTimer`
 when a valid location and a stored nightly candidate snapshot exist. It keeps
 running when the current compass DTO has no observable target, allowing later

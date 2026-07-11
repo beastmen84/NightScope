@@ -5,7 +5,7 @@ import math
 import re
 from collections.abc import Callable, Mapping
 from copy import deepcopy
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import RLock, Thread
@@ -133,6 +133,22 @@ CATALOGUE_MONTH_NAMES = [
     "Dicembre",
 ]
 CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG = DEEP_SKY_USEFUL_ALTITUDE_DEG
+ASTRONOMY_REFRESH_FULL = "full_refresh"
+ASTRONOMY_REFRESH_NIGHT_ROLLOVER = "night_rollover"
+ASTRONOMY_REFRESH_VIIRS_DEEP_SKY = "viirs_deep_sky"
+
+
+@dataclass(frozen=True)
+class AstronomyRefreshSnapshot:
+    observing_night_window: ObservingNightWindow | None = None
+    solar_system_objects: tuple[CelestialObject, ...] = ()
+    deep_sky: tuple[CelestialObject, ...] = ()
+    moon: MoonSummary | None = None
+    events: tuple[AstronomicalEvent, ...] = ()
+    moon_geometry: tuple[tuple[str, MoonGeometrySummary | None], ...] = ()
+    catalogue_visibility_cache_key: tuple[float, float, str, int, int, float] | None = None
+    catalogue_visibility: tuple[tuple[str, bool], ...] = ()
+    failed: bool = False
 
 
 class AppController(QObject):
@@ -156,6 +172,7 @@ class AppController(QObject):
     _localAtmosphereRefreshFinished = Signal(str, object)
     _nasaAodRefreshFinished = Signal(str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
+    _astronomyRefreshFinished = Signal(int, str, str, object, object)
 
     def __init__(
         self,
@@ -177,6 +194,7 @@ class AppController(QObject):
         self._localAtmosphereRefreshFinished.connect(self._finish_local_atmosphere_refresh)
         self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
         self._skyCompassLiveRefreshFinished.connect(self._finish_sky_compass_live_refresh)
+        self._astronomyRefreshFinished.connect(self._finish_astronomy_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
         self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
@@ -223,6 +241,8 @@ class AppController(QObject):
         self._weather_refresh_request_id = 0
         self._weather_retry_pending = False
         self._astronomy_engine_lock = RLock()
+        self._astronomy_refresh_running = False
+        self._astronomy_refresh_request_id = 0
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
@@ -1740,6 +1760,8 @@ class AppController(QObject):
             if self._startup_location_detection_running:
                 self._refresh_startup_location_pending_context()
             elif self._has_valid_location():
+                if self._start_astronomy_refresh(ASTRONOMY_REFRESH_FULL):
+                    return
                 self._refresh_astronomy()
                 self._refresh_weather_and_conditions()
             else:
@@ -1747,9 +1769,11 @@ class AppController(QObject):
         except Exception:
             logger.exception("Unexpected refresh failure.")
             self._append_service_status("NightScope could not update all data. Existing data remains available.")
-        finally:
-            self._set_loading(False)
 
+        self._complete_refresh_all()
+
+    def _complete_refresh_all(self) -> None:
+        self._set_loading(False)
         if self._selected_object and self._selected_object_source == CATALOGUE_SOURCE:
             pass
         elif self._selected_object:
@@ -1773,6 +1797,7 @@ class AppController(QObject):
         self._service_status = "Ricerca della posizione in corso."
 
     def _refresh_no_location_context(self) -> None:
+        self._cancel_astronomy_refresh()
         self._weather_refresh_timer.stop()
         self._weather_retry_pending = False
         self._weather_refresh_running = False
@@ -1837,16 +1862,183 @@ class AppController(QObject):
             (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
         )
         self._moon_geometry_condition_cache = {}
+        snapshot = self._calculate_astronomy_snapshot(
+            self._location,
+            ASTRONOMY_REFRESH_FULL,
+            catalogue_objects=tuple(dict(item) for item in self._catalogue_objects),
+            catalogue_year=self._catalogue_year,
+            catalogue_month=self._catalogue_selected_month,
+            catalogue_visibility_cache_key=self._catalogue_visibility_cache_key(),
+        )
+        self._apply_astronomy_snapshot(snapshot)
+        self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+
+    def _start_astronomy_refresh(
+        self,
+        purpose: str,
+        context: object = None,
+    ) -> bool:
+        if not self._has_valid_location():
+            return False
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        catalogue_objects: tuple[dict, ...] = ()
+        catalogue_year = 0
+        catalogue_month = 0
+        catalogue_visibility_cache_key = None
+        if purpose == ASTRONOMY_REFRESH_FULL:
+            catalogue_objects = tuple(dict(item) for item in self._catalogue_objects)
+            catalogue_year = self._catalogue_year
+            catalogue_month = self._catalogue_selected_month
+            catalogue_visibility_cache_key = self._catalogue_visibility_cache_key()
+
+        self._cancel_sky_compass_live_refresh()
+        if purpose in {ASTRONOMY_REFRESH_FULL, ASTRONOMY_REFRESH_NIGHT_ROLLOVER}:
+            self._mark_refresh_dirty(
+                RefreshReason.LOCATION_CHANGED,
+                (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
+            )
+            self._moon_geometry_condition_cache = {}
+        self._astronomy_refresh_request_id += 1
+        request_id = self._astronomy_refresh_request_id
+        self._astronomy_refresh_running = True
+
+        def run_refresh() -> None:
+            snapshot = self._calculate_astronomy_snapshot(
+                location,
+                purpose,
+                catalogue_objects=catalogue_objects,
+                catalogue_year=catalogue_year,
+                catalogue_month=catalogue_month,
+                catalogue_visibility_cache_key=catalogue_visibility_cache_key,
+            )
+            self._astronomyRefreshFinished.emit(
+                request_id,
+                location_key,
+                purpose,
+                snapshot,
+                context,
+            )
+
+        try:
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._astronomy_refresh_running = False
+            self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+            logger.warning("Astronomy worker could not start.", exc_info=True)
+            return False
+        return True
+
+    def _calculate_astronomy_snapshot(
+        self,
+        location: ObserverLocation,
+        purpose: str,
+        *,
+        catalogue_objects: tuple[dict, ...] = (),
+        catalogue_year: int = 0,
+        catalogue_month: int = 0,
+        catalogue_visibility_cache_key: tuple[float, float, str, int, int, float] | None = None,
+    ) -> AstronomyRefreshSnapshot:
         try:
             with self._astronomy_engine_lock_instance():
-                self._update_observing_night_window()
-                self._base_solar_system_objects = self._astronomy_engine.solar_system_objects(self._location)
-                self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
-                self._moon = self._astronomy_engine.moon_summary(self._location)
-                self._events = self._astronomy_engine.upcoming_events(self._location)
-            self._refresh_equipment_recommendations_for_current_objects()
+                if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
+                    return AstronomyRefreshSnapshot(
+                        deep_sky=tuple(self._astronomy_engine.recommended_deep_sky(location)),
+                    )
+
+                night_method = getattr(self._astronomy_engine, "observing_night_window", None)
+                night_window = (
+                    night_method(location)
+                    if callable(night_method)
+                    else ObservingNightWindow.unavailable()
+                )
+                solar_system_objects = tuple(self._astronomy_engine.solar_system_objects(location))
+                deep_sky = tuple(self._astronomy_engine.recommended_deep_sky(location))
+                moon = self._astronomy_engine.moon_summary(location)
+                events = tuple(self._astronomy_engine.upcoming_events(location))
+                geometry_targets = tuple(
+                    item for item in solar_system_objects if item.id not in {"sun", "moon"}
+                ) + deep_sky
+                geometry_method = getattr(self._astronomy_engine, "moon_geometry_batch", None)
+                moon_geometry = (
+                    geometry_method(location, list(geometry_targets))
+                    if callable(geometry_method)
+                    else {}
+                )
+                catalogue_visibility = {}
+                visibility_method = getattr(self._astronomy_engine, "catalogue_month_visibility", None)
+                if (
+                    purpose == ASTRONOMY_REFRESH_FULL
+                    and catalogue_objects
+                    and callable(visibility_method)
+                ):
+                    catalogue_visibility = visibility_method(
+                        list(catalogue_objects),
+                        location,
+                        catalogue_year,
+                        catalogue_month,
+                        CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG,
+                    )
+            return AstronomyRefreshSnapshot(
+                observing_night_window=night_window,
+                solar_system_objects=solar_system_objects,
+                deep_sky=deep_sky,
+                moon=moon,
+                events=events,
+                moon_geometry=tuple(
+                    (target.id, moon_geometry.get(target.id)) for target in geometry_targets
+                ),
+                catalogue_visibility_cache_key=catalogue_visibility_cache_key,
+                catalogue_visibility=tuple(
+                    (str(object_id), bool(visible))
+                    for object_id, visible in catalogue_visibility.items()
+                ),
+            )
         except Exception:
-            logger.exception("Astronomy refresh failed.")
+            logger.exception("Astronomy snapshot calculation failed.")
+            return AstronomyRefreshSnapshot(failed=True)
+
+    @Slot(int, str, str, object, object)
+    def _finish_astronomy_refresh(
+        self,
+        request_id: int,
+        location_key: str,
+        purpose: str,
+        snapshot: object,
+        context: object,
+    ) -> None:
+        if request_id != self._astronomy_refresh_request_id:
+            return
+        self._astronomy_refresh_running = False
+        if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
+            self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+            return
+        if not isinstance(snapshot, AstronomyRefreshSnapshot):
+            snapshot = AstronomyRefreshSnapshot(failed=True)
+
+        if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
+            self._finish_viirs_deep_sky_refresh(snapshot, str(context or ""))
+            return
+
+        self._apply_astronomy_snapshot(snapshot)
+        self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+        if purpose == ASTRONOMY_REFRESH_FULL:
+            try:
+                self._refresh_weather_and_conditions()
+            except Exception:
+                logger.exception("Unexpected refresh failure after astronomy completion.")
+                self._append_service_status(
+                    "NightScope could not update all data. Existing data remains available."
+                )
+            self._complete_refresh_all()
+            return
+        if purpose == ASTRONOMY_REFRESH_NIGHT_ROLLOVER:
+            error, retry_recommended = context if isinstance(context, tuple) else ("", False)
+            self._complete_weather_refresh(str(error), bool(retry_recommended))
+
+    def _apply_astronomy_snapshot(self, snapshot: AstronomyRefreshSnapshot) -> None:
+        self._moon_geometry_condition_cache = {}
+        if snapshot.failed:
             self._base_solar_system_objects = []
             self._base_deep_sky = []
             self._solar_system_objects = []
@@ -1855,8 +2047,27 @@ class AppController(QObject):
             self._events = []
             self._observing_night_window = ObservingNightWindow.unavailable()
             self._append_service_status("Dati astronomici temporaneamente non disponibili.")
-        finally:
-            self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+            return
+
+        self._observing_night_window = snapshot.observing_night_window or ObservingNightWindow.unavailable()
+        self._base_solar_system_objects = list(snapshot.solar_system_objects)
+        self._base_deep_sky = list(snapshot.deep_sky)
+        self._moon = snapshot.moon
+        self._events = list(snapshot.events)
+        for object_id, summary in snapshot.moon_geometry:
+            self._moon_geometry_condition_cache[object_id] = self._moon_geometry_summary_to_condition_input(summary)
+        if snapshot.catalogue_visibility_cache_key is not None:
+            self._catalogue_visibility_cache[snapshot.catalogue_visibility_cache_key] = dict(
+                snapshot.catalogue_visibility
+            )
+        self._refresh_equipment_recommendations_for_current_objects()
+
+    def _cancel_astronomy_refresh(self) -> None:
+        if not getattr(self, "_astronomy_refresh_running", False):
+            return
+        self._astronomy_refresh_request_id += 1
+        self._astronomy_refresh_running = False
+        self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
 
     def _refresh_weather_and_conditions(self) -> None:
         self._mark_refresh_dirty(
@@ -2031,7 +2242,20 @@ class AppController(QObject):
 
         night_changed = self._update_observing_night_window()
         if night_changed:
+            if self._start_astronomy_refresh(
+                ASTRONOMY_REFRESH_NIGHT_ROLLOVER,
+                context=(error, retry_recommended),
+            ):
+                return
             self._refresh_astronomy()
+
+        self._complete_weather_refresh(error, retry_recommended)
+
+    def _complete_weather_refresh(
+        self,
+        error: str,
+        retry_recommended: bool,
+    ) -> None:
         observing_hours = self._observing_weather_hours()
         self._weather_status = self._weather_status_from_error(error, self._weather_hours)
         self._weather_summary = self._score_service.weather_score(observing_hours, self._moon)
@@ -3057,30 +3281,46 @@ class AppController(QObject):
                 ),
             )
             self._sky_quality = quality
-            try:
-                with self._astronomy_engine_lock_instance():
-                    self._base_deep_sky = self._astronomy_engine.recommended_deep_sky(self._location)
-                self._refresh_equipment_recommendations_for_current_objects()
-                self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-                self._refresh_conditioned_observing_candidates()
-            except Exception:
-                logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
-            self._light_pollution_status = message
-            self._recalculate_observing_outputs()
-            self.dataChanged.emit()
-            self.weatherChanged.emit()
-            self.selectedObjectChanged.emit()
-            self._clear_refresh_domains(
-                RefreshDomain.SKY_QUALITY,
-                RefreshDomain.EQUIPMENT,
-                RefreshDomain.PLANNER,
-                RefreshDomain.COMPASS,
+            if self._start_astronomy_refresh(
+                ASTRONOMY_REFRESH_VIIRS_DEEP_SKY,
+                context=message,
+            ):
+                return
+            snapshot = self._calculate_astronomy_snapshot(
+                self._location,
+                ASTRONOMY_REFRESH_VIIRS_DEEP_SKY,
             )
+            self._finish_viirs_deep_sky_refresh(snapshot, message)
             return
 
         self._light_pollution_status = message
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
+
+    def _finish_viirs_deep_sky_refresh(
+        self,
+        snapshot: AstronomyRefreshSnapshot,
+        message: str,
+    ) -> None:
+        if not snapshot.failed:
+            try:
+                self._base_deep_sky = list(snapshot.deep_sky)
+                self._refresh_equipment_recommendations_for_current_objects()
+                self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
+                self._refresh_conditioned_observing_candidates()
+            except Exception:
+                logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
+        self._light_pollution_status = message
+        self._recalculate_observing_outputs()
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.selectedObjectChanged.emit()
+        self._clear_refresh_domains(
+            RefreshDomain.SKY_QUALITY,
+            RefreshDomain.EQUIPMENT,
+            RefreshDomain.PLANNER,
+            RefreshDomain.COMPASS,
+        )
 
     def _schedule_nasa_aod_refresh(self) -> None:
         if not self._has_valid_location():
@@ -3280,6 +3520,7 @@ class AppController(QObject):
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
+        self._cancel_astronomy_refresh()
         self._cancel_sky_compass_live_refresh()
         self._location_detection_result = result
         self._location = result.location

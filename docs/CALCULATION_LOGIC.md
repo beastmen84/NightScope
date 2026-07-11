@@ -799,7 +799,8 @@ Weather changes trigger:
 
 Location changes trigger:
 
-- astronomy data reload,
+- a background astronomy snapshot containing night bounds, object geometry,
+  Moon data, events and monthly catalogue visibility,
 - weather refresh,
 - sky-quality refresh,
 - diagnostic NASA AOD backend refresh when Earthdata credentials are verified,
@@ -808,10 +809,15 @@ Location changes trigger:
 VIIRS completion triggers:
 
 - sky-quality update,
-- deep-sky reload,
+- background deep-sky reload,
 - equipment recommendation refresh,
 - deep-sky pollution context,
 - observing outputs and selected detail refresh.
+
+Astronomy and VIIRS worker results carry both a monotonically increasing
+request id and the active location key. Results produced for an older request
+or location are discarded. The Qt thread keeps ownership of controller state,
+signals, Equipment projections and Planner outputs.
 
 ## Known Limitations
 

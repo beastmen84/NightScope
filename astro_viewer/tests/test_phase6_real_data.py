@@ -1440,6 +1440,7 @@ class Phase6RealDataTests(unittest.TestCase):
             ]
             fake_weather.last_error = ""
             controller._weather_service = fake_weather
+            controller._start_background_task = lambda target: target()
 
             controller.setManualLocation("41.9028", "12.4964", "Roma")
 
