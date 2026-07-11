@@ -112,6 +112,11 @@ Current runtime status for `1.19.0`:
   the backend for a future dedicated log surface and is no longer embedded in
   object detail. Database bootstrap also corrects the exact legacy Moon
   `best_seen` typo without overwriting other seeded or user-held values.
+- Calendar still consumes the legacy `AstronomicalEvent` payload directly.
+  Its event horizon, local visibility, timing semantics and presentation score
+  have not yet been migrated to a dedicated read model. Future Calendar work
+  must evaluate geometry at the event date and must not reuse tonight's
+  Session or current seeing as if they described a future event.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed

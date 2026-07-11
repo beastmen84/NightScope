@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.19.0`
 Distribuzione Windows corrente: `1.18.8`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `7d9a506 Polish observing detail session copy`
 - `b8844f7 Validate 1.19.0 object detail`
 - `a63124d Align observing object detail UI`
 - `87893d2 Add observing detail presentation contract`
@@ -245,6 +246,50 @@ contenuto tra tramonto e alba della posizione attiva; da `1.18.4` anche la label
 finale viene troncata all'alba esatta. Il difetto intermittente
 `05:00-22:00`, causato dall'unione di due porzioni di notti diverse in una
 previsione mobile di 24 ore, e' coperto da regressione e non e' piu' possibile.
+
+La Home NSOM e' chiusa per parte alta, piano, alternative, Sky Compass e
+dettaglio osservativo. La sola card `Prossimi eventi` resta dipendente dal
+dataset Calendario e ne eredita i limiti descritti nella review seguente.
+
+## Review Calendario Post 1.19.0
+
+Review eseguita senza modificare runtime o QML del Calendario.
+
+Problemi concreti trovati:
+
+- `SkyfieldAstronomyEngine.upcoming_events()` calcola le fasi lunari per soli
+  90 giorni, opposizioni/congiunzioni per 365 giorni ed eclissi lunari per 730
+  giorni, poi conserva soltanto i 18 eventi con `usefulness` maggiore;
+- i filtri QML `6 mesi`, `12 mesi` e `Tutti` non descrivono quindi un dataset
+  completo. Un probe Addis Ababa del 2026-07-11 restituisce 18 eventi: 4 fasi
+  lunari, 5 opposizioni, 3 eclissi e 6 sciami, nessuna congiunzione; due eclissi
+  del 2028 occupano il cap pur essendo fuori dalla vista annuale;
+- `EventRow.qml` espone il numero grezzo `usefulness` senza significato
+  dichiarato. E' una priorita' legacy per tipo evento, non uno score NSOM;
+- `best_time` mescola istante astronomico esatto e finestra osservativa. Per
+  esempio l'ora della Luna nuova puo' cadere di giorno ma viene presentata
+  accanto alle vere finestre degli sciami;
+- la visibilita' locale dell'evento non e' calcolata: le eclissi chiedono
+  esplicitamente di verificare l'orizzonte e gli eventi planetari possono
+  cadere sotto l'orizzonte o in luce diurna;
+- il setup di eventi futuri usa target sintetici e il seeing della sessione
+  corrente, quindi puo' descrivere le condizioni di oggi come se fossero
+  quelle della data futura;
+- i contatori `Panoramica` ignorano il filtro temporale attivo e i test coprono
+  soprattutto wiring QML/setup, non completezza e cronologia del provider.
+
+Direzione consigliata prima di ridisegnare il QML:
+
+1. introdurre un read model Calendario con orizzonte temporale unico e nessun
+   cap per utilita';
+2. separare istante evento, finestra osservativa e visibilita' locale;
+3. mantenere `usefulness` interno e mostrare al massimo una priorita'
+   descrittiva;
+4. usare profilo/equipment senza seeing corrente per eventi futuri;
+5. non applicare la Session NSOM di stasera a date future; meteo e Session
+   potranno entrare solo entro il reale orizzonte previsionale;
+6. collegare alla fine Calendario e card Home `Prossimi eventi` al nuovo
+   contratto e verificarli graficamente.
 
 ## Superfici Backend NSOM Chiuse
 
@@ -793,12 +838,14 @@ Sequenza consigliata:
 
 1. Non rigenerare la `dist` senza richiesta esplicita: sorgente e distribuzione
    sono rispettivamente `1.19.0` e `1.18.8`.
-2. Verificare visualmente la pagina di dettaglio osservativo dalla sorgente
-   `1.19.0`; il ramo Catalogo resta separato e invariato.
-3. Capitoli da lasciare separati:
+2. Home e dettaglio osservativo `1.19.0` sono verificati; il ramo Catalogo
+   resta separato e invariato.
+3. Il prossimo step UI consigliato e' il contratto backend Calendario descritto
+   in `Review Calendario Post 1.19.0`, prima di modificare il QML.
+4. Capitoli da lasciare separati:
    - monitoraggio AOD/OpenAQ reale;
    - eventuale design UI/explanations.
-4. Non fare tuning e non toccare altre UI senza uno step esplicito.
+5. Non fare tuning e non toccare altre UI senza uno step esplicito.
 
 ## Regole Di Scope Da Mantenere
 
