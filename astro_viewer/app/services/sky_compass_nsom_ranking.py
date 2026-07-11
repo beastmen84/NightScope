@@ -52,7 +52,11 @@ class SkyCompassNsomDirectionService:
         observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
     ) -> dict:
         if not has_location:
-            return self._legacy_service.empty("no_location", "Configura una località per usare Sky Compass.")
+            return self._legacy_service.empty(
+                "no_location",
+                "Configura una località per usare Sky Compass.",
+                caution_text=caution_text,
+            )
 
         plan_ids = {item.object_id for item in night_plan}
         best_id = best_object.id if best_object else ""
@@ -65,7 +69,11 @@ class SkyCompassNsomDirectionService:
             observable_objects_by_id=observable_objects_by_id,
         )
         if not targets:
-            return self._legacy_service.empty("no_targets", "Nessun target osservabile in questo momento.")
+            return self._legacy_service.empty(
+                "no_targets",
+                "Nessun target osservabile in questo momento.",
+                caution_text=caution_text,
+            )
 
         grouped = self._group_targets(targets)
         ranked_groups = sorted(

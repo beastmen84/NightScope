@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from typing import Protocol
 
 from astro_viewer.app.astronomy.catalog import (
@@ -63,6 +63,21 @@ class ObservingNightWindow:
         if not self.has_observing_window:
             return False
         return self.start <= value < self.end
+
+    def datetime_for_clock(self, hour: int, minute: int) -> datetime | None:
+        if not self.has_observing_window or not (0 <= hour <= 23 and 0 <= minute <= 59):
+            return None
+        current_date = self.start.date()
+        while current_date <= self.end.date():
+            candidate = datetime.combine(
+                current_date,
+                time(hour, minute),
+                tzinfo=self.start.tzinfo,
+            )
+            if self.contains(candidate):
+                return candidate
+            current_date += timedelta(days=1)
+        return None
 
 
 class AstronomyEngine(Protocol):

@@ -35,8 +35,8 @@ class BasicForecastSeeingProvider:
     name = "BasicForecastSeeingProvider"
 
     def estimate(self, hours: list[WeatherHour], sky_quality: SkyQuality) -> SeeingTransparency:
-        night_hours = self._night_hours(hours)
-        if not night_hours:
+        observing_hours = list(hours)
+        if not observing_hours:
             return SeeingTransparency(
                 "Average",
                 "Average",
@@ -47,17 +47,17 @@ class BasicForecastSeeingProvider:
                 confidence="low",
             )
 
-        avg_wind = self._average_weather_value(night_hours, "wind_kmh")
-        avg_gust = sum(self._gust_value(hour) for hour in night_hours) / len(night_hours)
-        avg_cloud = self._average_weather_value(night_hours, "cloud_cover")
-        avg_low_cloud = self._average_weather_value(night_hours, "cloud_cover_low")
-        avg_mid_cloud = self._average_weather_value(night_hours, "cloud_cover_mid")
-        avg_high_cloud = self._average_weather_value(night_hours, "cloud_cover_high")
-        avg_humidity = self._average_weather_value(night_hours, "humidity")
-        avg_dew_gap = self._average_dew_gap(night_hours)
+        avg_wind = self._average_weather_value(observing_hours, "wind_kmh")
+        avg_gust = sum(self._gust_value(hour) for hour in observing_hours) / len(observing_hours)
+        avg_cloud = self._average_weather_value(observing_hours, "cloud_cover")
+        avg_low_cloud = self._average_weather_value(observing_hours, "cloud_cover_low")
+        avg_mid_cloud = self._average_weather_value(observing_hours, "cloud_cover_mid")
+        avg_high_cloud = self._average_weather_value(observing_hours, "cloud_cover_high")
+        avg_humidity = self._average_weather_value(observing_hours, "humidity")
+        avg_dew_gap = self._average_dew_gap(observing_hours)
         visibility_values = [
             visibility
-            for hour in night_hours
+            for hour in observing_hours
             if (visibility := self._optional_weather_value(hour, "visibility_m")) is not None and visibility > 0
         ]
         visibility_count = len(visibility_values)
@@ -114,18 +114,6 @@ class BasicForecastSeeingProvider:
         if radiance is not None:
             return min(48, round(math.log10(max(0.0, radiance) + 1.0) * 14))
         return max(0, (sky_quality.bortle_class - 3) * 6)
-
-    @staticmethod
-    def _night_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
-        selected = []
-        for hour in hours:
-            try:
-                hour_value = int(hour.time[:2])
-            except (TypeError, ValueError):
-                continue
-            if hour_value >= 19 or hour_value <= 5:
-                selected.append(hour)
-        return selected or hours[:8]
 
     @classmethod
     def _average_dew_gap(cls, hours: list[WeatherHour]) -> float | None:

@@ -3,8 +3,10 @@ from __future__ import annotations
 import tempfile
 import time
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
+from zoneinfo import ZoneInfo
 
 from PySide6.QtCore import QCoreApplication
 
@@ -666,15 +668,23 @@ def _wait_for_weather_refresh(controller: AppController, timeout_seconds: float 
 def _valid_weather_response() -> Mock:
     response = Mock()
     response.raise_for_status.return_value = None
+    start = datetime.now(ZoneInfo("Africa/Addis_Ababa")).replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+        tzinfo=None,
+    )
+    timestamps = [(start + timedelta(hours=index)).isoformat(timespec="minutes") for index in range(48)]
     response.json.return_value = {
         "hourly": {
-            "time": [f"2026-06-21T{hour:02d}:00" for hour in range(24)],
-            "cloud_cover": [18] * 24,
-            "precipitation_probability": [0] * 24,
-            "temperature_2m": [17.5] * 24,
-            "relative_humidity_2m": [56] * 24,
-            "wind_speed_10m": [7] * 24,
-            "visibility": [18000] * 24,
+            "time": timestamps,
+            "cloud_cover": [18] * 48,
+            "precipitation_probability": [0] * 48,
+            "temperature_2m": [17.5] * 48,
+            "relative_humidity_2m": [56] * 48,
+            "wind_speed_10m": [7] * 48,
+            "visibility": [18000] * 48,
         }
     }
     return response
@@ -682,20 +692,21 @@ def _valid_weather_response() -> Mock:
 
 def _rainy_weather_response() -> Mock:
     response = _valid_weather_response()
-    response.json.return_value["hourly"]["precipitation_probability"] = [80] * 24
+    response.json.return_value["hourly"]["precipitation_probability"] = [80] * 48
     return response
 
 
 def _monitoring_weather_response() -> Mock:
     response = _valid_weather_response()
     hourly = response.json.return_value["hourly"]
-    hourly["cloud_cover"] = [88] * 24
-    hourly["precipitation_probability"] = [80] * 24
-    hourly["wind_speed_10m"] = [9] * 24
-    hourly["relative_humidity_2m"] = [64] * 24
-    for hour in [3, 4, 5]:
-        hourly["cloud_cover"][hour] = 24
-        hourly["precipitation_probability"][hour] = 0
+    hourly["cloud_cover"] = [88] * 48
+    hourly["precipitation_probability"] = [80] * 48
+    hourly["wind_speed_10m"] = [9] * 48
+    hourly["relative_humidity_2m"] = [64] * 48
+    for index, timestamp in enumerate(hourly["time"]):
+        if datetime.fromisoformat(timestamp).hour in {3, 4, 5}:
+            hourly["cloud_cover"][index] = 24
+            hourly["precipitation_probability"][index] = 0
     return response
 
 

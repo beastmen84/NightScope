@@ -72,6 +72,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         self._loader = Loader(str(data_dir / "skyfield"))
         self._timescale = self._loader.timescale()
         self._ephemeris = self._load_ephemeris()
+        self._night_window_cache: dict[
+            tuple[float, float, str],
+            tuple[datetime, ObservingNightWindow],
+        ] = {}
 
     def _load_ephemeris(self):
         ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
@@ -128,6 +132,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> ObservingNightWindow:
         zone = self._zone(location)
         now = reference.astimezone(zone) if reference else self._now(location)
+        cache_key = (round(location.latitude, 6), round(location.longitude, 6), location.timezone)
+        cached = getattr(self, "_night_window_cache", {}).get(cache_key)
+        if cached is not None and self._night_window_cache_is_current(cached, now):
+            return cached[1]
         topos = wgs84.latlon(latitude_degrees=location.latitude, longitude_degrees=location.longitude)
         daylight_at = almanac.sunrise_sunset(self._ephemeris, topos)
         search_start = now - timedelta(hours=36)
@@ -145,26 +153,71 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             is_daylight = bool(daylight_at(self._to_skyfield_time(now)))
         except Exception:
             logger.warning("Skyfield night-window calculation failed.", exc_info=True)
-            return ObservingNightWindow.unavailable()
+            return self._cache_night_window(cache_key, now, ObservingNightWindow.unavailable())
 
         sunsets = [event_time for event_time, daylight in events if not daylight]
         sunrises = [event_time for event_time, daylight in events if daylight]
         if is_daylight:
             sunset = next((event_time for event_time in sunsets if event_time > now), None)
             if sunset is None:
-                return ObservingNightWindow.no_night()
+                return self._cache_night_window(cache_key, now, ObservingNightWindow.no_night())
             sunrise = next((event_time for event_time in sunrises if event_time > sunset), None)
             if sunrise is None:
-                return ObservingNightWindow.continuous_night(sunset)
-            return ObservingNightWindow.bounded(sunset, sunrise)
+                return self._cache_night_window(
+                    cache_key,
+                    now,
+                    ObservingNightWindow.continuous_night(sunset),
+                )
+            return self._cache_night_window(
+                cache_key,
+                now,
+                ObservingNightWindow.bounded(sunset, sunrise),
+            )
 
         sunset = next((event_time for event_time in reversed(sunsets) if event_time <= now), None)
         sunrise = next((event_time for event_time in sunrises if event_time > now), None)
         if sunset is not None and sunrise is not None:
-            return ObservingNightWindow.bounded(sunset, sunrise)
+            return self._cache_night_window(
+                cache_key,
+                now,
+                ObservingNightWindow.bounded(sunset, sunrise),
+            )
         if sunrise is not None:
-            return ObservingNightWindow.continuous_night(now, sunrise)
-        return ObservingNightWindow.continuous_night(sunset or now)
+            return self._cache_night_window(
+                cache_key,
+                now,
+                ObservingNightWindow.continuous_night(now, sunrise),
+            )
+        return self._cache_night_window(
+            cache_key,
+            now,
+            ObservingNightWindow.continuous_night(sunset or now),
+        )
+
+    def _cache_night_window(
+        self,
+        key: tuple[float, float, str],
+        calculated_at: datetime,
+        window: ObservingNightWindow,
+    ) -> ObservingNightWindow:
+        cache = getattr(self, "_night_window_cache", None)
+        if cache is None:
+            cache = {}
+            self._night_window_cache = cache
+        cache[key] = (calculated_at, window)
+        return window
+
+    @staticmethod
+    def _night_window_cache_is_current(
+        cached: tuple[datetime, ObservingNightWindow],
+        reference: datetime,
+    ) -> bool:
+        calculated_at, window = cached
+        if reference < calculated_at:
+            return False
+        if window.has_observing_window:
+            return reference < window.end
+        return reference - calculated_at < timedelta(minutes=30)
 
     def recommended_deep_sky(self, location: ObserverLocation) -> list[CelestialObject]:
         now = self._now(location)

@@ -8,8 +8,8 @@ class ObservingScoreService:
     """Combines weather and Moon conditions into a compact astronomy score."""
 
     def weather_score(self, hours: list[WeatherHour], moon: MoonSummary | None = None) -> WeatherSummary:
-        night_hours = self._night_hours(hours)
-        if not night_hours:
+        observing_hours = list(hours)
+        if not observing_hours:
             return WeatherSummary(
                 score="Pessima",
                 score_value=0,
@@ -22,11 +22,11 @@ class ObservingScoreService:
                 alert="Meteo non disponibile: uso dei dati astronomici possibile, ma senza valutazione del cielo.",
             )
 
-        avg_cloud = round(sum(hour.cloud_cover for hour in night_hours) / len(night_hours))
-        max_rain = max(hour.precipitation_probability for hour in night_hours)
-        avg_wind = round(sum(hour.wind_kmh for hour in night_hours) / len(night_hours))
-        avg_humidity = round(sum(hour.humidity for hour in night_hours) / len(night_hours))
-        avg_temp = round(sum(hour.temperature_c for hour in night_hours) / len(night_hours), 1)
+        avg_cloud = round(sum(hour.cloud_cover for hour in observing_hours) / len(observing_hours))
+        max_rain = max(hour.precipitation_probability for hour in observing_hours)
+        avg_wind = round(sum(hour.wind_kmh for hour in observing_hours) / len(observing_hours))
+        avg_humidity = round(sum(hour.humidity for hour in observing_hours) / len(observing_hours))
+        avg_temp = round(sum(hour.temperature_c for hour in observing_hours) / len(observing_hours), 1)
         moon_penalty = self._moon_penalty(moon)
 
         score = 100
@@ -79,18 +79,6 @@ class ObservingScoreService:
         if score <= 85:
             return "Buona"
         return "Ottima"
-
-    @staticmethod
-    def _night_hours(hours: list[WeatherHour]) -> list[WeatherHour]:
-        selected = []
-        for hour in hours:
-            try:
-                hour_value = int(hour.time[:2])
-            except ValueError:
-                continue
-            if hour_value >= 19 or hour_value <= 5:
-                selected.append(hour)
-        return selected or hours[:8]
 
     @staticmethod
     def _moon_penalty(moon: MoonSummary | None) -> int:

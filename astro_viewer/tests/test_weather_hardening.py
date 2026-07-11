@@ -54,6 +54,7 @@ class WeatherHardeningTests(unittest.TestCase):
         self.assertEqual(weather_get.call_count, 2)
         self.assertEqual(weather_get.call_args_list[0].kwargs["timeout"], 3)
         self.assertEqual(weather_get.call_args_list[1].kwargs["timeout"], 8)
+        self.assertEqual(weather_get.call_args_list[1].kwargs["params"]["forecast_hours"], 48)
         self.assertIn("retrying", "\n".join(logs.output))
 
     def test_malformed_json_returns_empty_forecast_without_traceback(self) -> None:

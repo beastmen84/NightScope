@@ -576,12 +576,12 @@ def test_app_controller_conditioned_cache_matches_existing_moon_adjusted_deep_sk
         _target("cluster", "Open Cluster", 76, "Facile", "22:00", "5.0"),
     ]
 
-    expected_deep_sky = controller._moon_adjusted_objects(AppController._home_visible_objects(controller._deep_sky))
+    expected_deep_sky = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
 
     controller._refresh_conditioned_observing_candidates()
 
     assert controller._conditioned_deep_sky == expected_deep_sky
-    assert controller._conditioned_home_objects == AppController._home_visible_objects(
+    assert controller._conditioned_home_objects == controller._home_visible_objects(
         controller._visible_planets
     ) + expected_deep_sky
 

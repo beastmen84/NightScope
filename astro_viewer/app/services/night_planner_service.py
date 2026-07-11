@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from datetime import datetime, timedelta
 
+from astro_viewer.app.astronomy.engine import ObservingNightWindow
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
@@ -50,12 +51,17 @@ class NightPlannerService:
         moon: MoonSummary | None = None,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
+        night_window: ObservingNightWindow | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
             return []
 
-        visible = [item for item in objects if item.visible and item.score > 0 and self._has_useful_window(item)]
+        visible = [
+            item
+            for item in objects
+            if item.visible and item.score > 0 and self._has_useful_window(item, night_window)
+        ]
         if not visible:
             visible = [item for item in objects if item.visible and item.score > 0]
         scored_visible = self._scored_visible(
@@ -68,9 +74,10 @@ class NightPlannerService:
             moon_geometry_by_object_id=moon_geometry_by_object_id,
             telescope_by_object_id=telescope_by_object_id,
             blocking_status=blocking_status,
+            night_window=night_window,
         )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
-        start = self._start_time([item for item, _score in ranked])
+        start = self._start_time([item for item, _score in ranked], night_window)
         selected = []
         used_names = set()
         for item, score in ranked:
@@ -84,7 +91,11 @@ class NightPlannerService:
         items = []
         for item, raw_score in selected:
             score = round(raw_score)
-            time_label = self._time_for_item(item, start + timedelta(minutes=45 * len(items)))
+            time_label = self._time_for_item(
+                item,
+                start + timedelta(minutes=45 * len(items)),
+                night_window,
+            )
             items.append(
                 NightPlanItem(
                     time_label=time_label,
@@ -97,7 +108,7 @@ class NightPlannerService:
                     image=item.image,
                 )
             )
-        return self._sort_plan_items(items)
+        return self._sort_plan_items(items, night_window)
 
     def _scored_visible(
         self,
@@ -111,6 +122,7 @@ class NightPlannerService:
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
         telescope_by_object_id: Mapping[str, Telescope] | None,
         blocking_status: WeatherBlockingStatus,
+        night_window: ObservingNightWindow | None,
     ) -> list[tuple[CelestialObject, float]]:
         opportunities = [
             (
@@ -126,8 +138,8 @@ class NightPlannerService:
                     if moon_geometry_by_object_id is not None
                     else None,
                     blocking_status=blocking_status,
-                    observing_window_quality=self._observing_window_quality(item),
-                    chronology_fit=self._chronology_fit(item),
+                    observing_window_quality=self._observing_window_quality(item, night_window),
+                    chronology_fit=self._chronology_fit(item, night_window),
                     practical_constraints=self._practical_constraints(item),
                 ),
             )
@@ -219,70 +231,108 @@ class NightPlannerService:
         return PlannerScoringService().condition_breakdown(item, sky_quality, moon)
 
     @staticmethod
-    def _observing_window_quality(item: CelestialObject) -> float:
-        if NightPlannerService._observing_time(item) is not None:
+    def _observing_window_quality(
+        item: CelestialObject,
+        night_window: ObservingNightWindow | None = None,
+    ) -> float:
+        if NightPlannerService._observing_time(item, night_window) is not None:
             return 1.0
         return 0.5 if item.visible else 0.0
 
     @staticmethod
-    def _chronology_fit(item: CelestialObject) -> float:
-        parsed = NightPlannerService._observing_time(item)
+    def _chronology_fit(
+        item: CelestialObject,
+        night_window: ObservingNightWindow | None = None,
+    ) -> float:
+        parsed = NightPlannerService._observing_time(item, night_window)
         if parsed is None:
             return 0.8
-        if 21 <= parsed.hour <= 23:
+        if night_window is None or not night_window.has_observing_window:
+            if 21 <= parsed.hour <= 23:
+                return 1.0
+            if parsed.hour == 20 or 0 <= parsed.hour <= 2:
+                return 0.95
+            if 3 <= parsed.hour <= 5:
+                return 0.85
+            return 0.75
+        duration = (night_window.end - night_window.start).total_seconds()
+        progress = (parsed - night_window.start).total_seconds() / duration
+        if progress <= 0.35:
             return 1.0
-        if parsed.hour == 20 or 0 <= parsed.hour <= 2:
+        if progress <= 0.7:
             return 0.95
-        if 3 <= parsed.hour <= 5:
-            return 0.85
-        return 0.75
+        return 0.85
 
     @staticmethod
     def _practical_constraints(item: CelestialObject) -> float:
         return min(1.0, {"Facile": 1.08, "Media": 0.95, "Difficile": 0.75}.get(item.difficulty, 0.85))
 
     @staticmethod
-    def _start_time(objects: list[CelestialObject]) -> datetime:
-        now = datetime.now()
+    def _start_time(
+        objects: list[CelestialObject],
+        night_window: ObservingNightWindow | None = None,
+    ) -> datetime:
+        now = datetime.now(night_window.start.tzinfo) if night_window and night_window.start else datetime.now()
         for item in objects:
-            parsed = NightPlannerService._parse_time(item.best_time)
+            parsed = NightPlannerService._parse_time(item.best_time, night_window)
             if parsed:
                 return parsed
+        if night_window is not None and night_window.start is not None:
+            return max(now, night_window.start)
         return now.replace(hour=21, minute=0, second=0, microsecond=0)
 
     @staticmethod
-    def _time_for_item(item: CelestialObject, fallback: datetime) -> str:
-        parsed = NightPlannerService._observing_time(item) or fallback
-        return NightPlannerService._format_observing_time(parsed)
+    def _time_for_item(
+        item: CelestialObject,
+        fallback: datetime,
+        night_window: ObservingNightWindow | None = None,
+    ) -> str:
+        parsed = NightPlannerService._observing_time(item, night_window) or fallback
+        return NightPlannerService._format_observing_time(parsed, night_window)
 
     @staticmethod
-    def _parse_time(value: str) -> datetime | None:
+    def _parse_time(
+        value: str,
+        night_window: ObservingNightWindow | None = None,
+    ) -> datetime | None:
         try:
             hour, minute = [int(part) for part in value.split(":")[:2]]
         except (ValueError, IndexError):
             return None
+        if night_window is not None:
+            parsed = night_window.datetime_for_clock(hour, minute)
+            if parsed is None:
+                return None
+            now = datetime.now(parsed.tzinfo)
+            if night_window.contains(now) and parsed < now:
+                return None
+            return parsed
         now = datetime.now()
         parsed = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
         if parsed.hour < 12 and now.hour > 12:
             parsed += timedelta(days=1)
-        if not NightPlannerService._is_useful_hour(parsed.hour, parsed.minute):
-            return None
         return parsed
 
     @staticmethod
-    def _observing_time(item: CelestialObject) -> datetime | None:
-        parsed_best = NightPlannerService._parse_time(item.best_time)
+    def _observing_time(
+        item: CelestialObject,
+        night_window: ObservingNightWindow | None = None,
+    ) -> datetime | None:
+        parsed_best = NightPlannerService._parse_time(item.best_time, night_window)
         if parsed_best:
             return parsed_best
         for value in NightPlannerService._window_times(item.observing_window):
-            parsed = NightPlannerService._parse_time(value)
+            parsed = NightPlannerService._parse_time(value, night_window)
             if parsed:
                 return parsed
         return None
 
     @staticmethod
-    def _has_useful_window(item: CelestialObject) -> bool:
-        return NightPlannerService._observing_time(item) is not None
+    def _has_useful_window(
+        item: CelestialObject,
+        night_window: ObservingNightWindow | None = None,
+    ) -> bool:
+        return NightPlannerService._observing_time(item, night_window) is not None
 
     @staticmethod
     def _window_times(value: str) -> list[str]:
@@ -293,31 +343,51 @@ class NightPlannerService:
         return parts
 
     @staticmethod
-    def _is_useful_hour(hour: int, minute: int) -> bool:
-        return hour >= 20 or hour <= 5
-
-    @staticmethod
-    def _format_observing_time(value: datetime) -> str:
-        label = "sera"
-        if 0 <= value.hour <= 2:
+    def _format_observing_time(
+        value: datetime,
+        night_window: ObservingNightWindow | None = None,
+    ) -> str:
+        if night_window is None:
+            label = "sera" if value.hour >= 12 else "notte"
+            if 3 <= value.hour <= 5:
+                label = "prima dell'alba"
+        else:
             label = "notte"
-        elif 3 <= value.hour <= 5:
-            label = "prima dell'alba"
+        if night_window is not None and night_window.state == "bounded":
+            if night_window.start is not None and value.date() == night_window.start.date():
+                label = "sera"
+            elif night_window.end is not None and night_window.end - value <= timedelta(hours=3):
+                label = "prima dell'alba"
         return f"{value.strftime('%H:%M')} {label}"
 
     @staticmethod
-    def _sort_plan_items(items: list[NightPlanItem]) -> list[NightPlanItem]:
+    def _sort_plan_items(
+        items: list[NightPlanItem],
+        night_window: ObservingNightWindow | None = None,
+    ) -> list[NightPlanItem]:
         indexed = list(enumerate(items))
-        indexed.sort(key=lambda item: (NightPlannerService._time_label_order(item[1].time_label), item[0]))
+        indexed.sort(
+            key=lambda item: (
+                NightPlannerService._time_label_order(item[1].time_label, night_window),
+                item[0],
+            )
+        )
         return [item for _, item in indexed]
 
     @staticmethod
-    def _time_label_order(value: str) -> int:
+    def _time_label_order(
+        value: str,
+        night_window: ObservingNightWindow | None = None,
+    ) -> int:
         for token in value.replace("–", " ").replace("-", " ").split():
             parsed = NightPlannerService._parse_clock_token(token)
             if parsed is None:
                 continue
             hour, minute = parsed
+            if night_window is not None and night_window.start is not None:
+                candidate = night_window.datetime_for_clock(hour, minute)
+                if candidate is not None:
+                    return round((candidate - night_window.start).total_seconds() / 60)
             if hour >= 12:
                 return (hour - 12) * 60 + minute
             return (hour + 12) * 60 + minute

@@ -35,7 +35,7 @@ class SkyCompassService:
     ]
 
     @classmethod
-    def empty(cls, reason: str, message: str) -> dict:
+    def empty(cls, reason: str, message: str, *, caution_text: str = "") -> dict:
         return {
             "available": False,
             "reason": reason,
@@ -50,7 +50,7 @@ class SkyCompassService:
             "otherTargetCountLabel": "",
             "decisionReasons": [],
             "alternatives": [],
-            "cautionText": "",
+            "cautionText": caution_text,
         }
 
     def compass(
@@ -63,13 +63,21 @@ class SkyCompassService:
         caution_text: str = "",
     ) -> dict:
         if not has_location:
-            return self.empty("no_location", "Configura una località per usare Sky Compass.")
+            return self.empty(
+                "no_location",
+                "Configura una località per usare Sky Compass.",
+                caution_text=caution_text,
+            )
 
         plan_ids = {item.object_id for item in night_plan}
         best_id = best_object.id if best_object else ""
         targets = self._targets(objects, plan_ids, best_id)
         if not targets:
-            return self.empty("no_targets", "Nessun target osservabile in questo momento.")
+            return self.empty(
+                "no_targets",
+                "Nessun target osservabile in questo momento.",
+                caution_text=caution_text,
+            )
 
         grouped = self._group_targets(targets)
         ranked_groups = sorted(

@@ -54,6 +54,7 @@ class OpenMeteoWeatherService:
     BASE_URL = "https://api.open-meteo.com/v1/forecast"
     CACHE_TTL = timedelta(minutes=45)
     REQUEST_TIMEOUT_SECONDS = (3, 8)
+    FORECAST_HOURS = 48
 
     def __init__(self, cache_repository: WeatherCacheRepository | None = None):
         self._cache_repository = cache_repository
@@ -66,7 +67,7 @@ class OpenMeteoWeatherService:
         self.last_http_status = None
         self.retry_recommended = False
         cache_key = self._cache_key(location)
-        cached = self._read_cache(cache_key)
+        cached = self._read_cache(cache_key) or self._read_cache(self._legacy_cache_key(location))
         if not force_refresh and cached and datetime.now(UTC) - cached[0] < self.CACHE_TTL:
             return self._parse_payload(cached[1])
 
@@ -88,7 +89,7 @@ class OpenMeteoWeatherService:
                     "cloud_cover_high",
                 ]
             ),
-            "forecast_hours": 24,
+            "forecast_hours": self.FORECAST_HOURS,
             "timezone": location.timezone,
         }
         try:
@@ -195,12 +196,12 @@ class OpenMeteoWeatherService:
             logger.warning("Weather cache is invalid and will be ignored.", exc_info=True)
             return None
 
-    @staticmethod
-    def _parse_payload(payload: dict) -> list[WeatherHour]:
+    @classmethod
+    def _parse_payload(cls, payload: dict) -> list[WeatherHour]:
         hourly = payload.get("hourly", {})
         hours: list[WeatherHour] = []
         timestamps = hourly.get("time", [])
-        for index, timestamp in enumerate(timestamps[:24]):
+        for index, timestamp in enumerate(timestamps[: cls.FORECAST_HOURS]):
             time_label = str(timestamp)[-5:]
             hours.append(
                 WeatherHour(
@@ -225,6 +226,10 @@ class OpenMeteoWeatherService:
 
     @staticmethod
     def _cache_key(location: ObserverLocation) -> str:
+        return f"{location.latitude:.4f}:{location.longitude:.4f}:{location.timezone}:48h"
+
+    @staticmethod
+    def _legacy_cache_key(location: ObserverLocation) -> str:
         return f"{location.latitude:.4f}:{location.longitude:.4f}:{location.timezone}:24h"
 
 
