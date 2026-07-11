@@ -6,6 +6,7 @@ Versione corrente sorgente: `1.18.7`
 Distribuzione Windows corrente: `1.18.6`
 Commit rilevanti prima di questo aggiornamento del handoff:
 
+- `9b440e4 Document 1.18.7 validation`
 - `a091991 Fix Home chronology and weather selection`
 - `ce6f49c Document 1.18.6 validation`
 - `39faaa7 Show rolling 24-hour weather forecast`
