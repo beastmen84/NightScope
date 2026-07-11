@@ -213,8 +213,9 @@ def run_smoke_test() -> int:
     print(f"events={len(controller.events)}")
     print(f"weather_hours={len(controller.weatherHourly)}")
     print(f"observing_quality={controller.observingQuality.get('scoreValue', 0)}/100")
-    print(f"planetary_score={controller.advancedScores.get('planetaryScore', 0)}/100")
-    print(f"deep_sky_score={controller.advancedScores.get('deepSkyScore', 0)}/100")
+    overview = controller.homeObservingOverview
+    print(f"planetary_conditions={overview.get('planetary', {}).get('label', 'n/d')}")
+    print(f"deep_sky_conditions={overview.get('deepSky', {}).get('label', 'n/d')}")
     print(f"bortle={controller.skyQuality.get('bortleClass', 'n/d')}")
     print(f"night_plan={len(controller.nightPlan)}")
     print(f"best_object={controller.bestObjectOfNight.get('name', 'n/d')}")

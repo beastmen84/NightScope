@@ -18,7 +18,7 @@ from astro_viewer.app.services.observer_capability_adapter import (
     build_observer_capability_for_target,
     project_observer_capability_profile,
 )
-from astro_viewer.app.services.nsom_diagnostic_adapters import (
+from astro_viewer.app.services.nsom_runtime_builders import (
     build_observer_capability_profile_from_recommendation,
 )
 

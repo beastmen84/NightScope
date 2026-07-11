@@ -23,7 +23,7 @@ Focused area validation:
 .\.venv\Scripts\python.exe -m pytest -q astro_viewer/tests/test_observation_conditions_service.py
 ```
 
-Focused NSOM/report validation:
+Focused NSOM validation:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q astro_viewer/tests/test_nsom*.py
@@ -52,11 +52,15 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.20.1`:
+Measured on the current Windows development environment for `1.21.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `721 passed, 7 subtests passed` | `0:00:49` |
+| `python -m pytest -q -n auto` | `610 passed, 7 subtests passed` | `0:00:41` |
+
+The lower count is intentional: `1.21.0` removes migration-only comparison,
+rollback, shadow-payload and automatic-diagnostic tests together with the
+retired production paths they exercised.
 
 The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
 subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield
@@ -87,7 +91,7 @@ For shared runtime changes:
 2. Run focused tests for the touched area.
 3. Run `pytest -q -n auto`.
 
-For default-on switches, release candidates or broad refactors:
+For release candidates or broad refactors:
 
 1. Run `compileall astro_viewer`.
 2. Run focused tests for the touched area.

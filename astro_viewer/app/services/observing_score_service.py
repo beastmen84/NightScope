@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
+from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 
 
@@ -58,16 +58,6 @@ class ObservingScoreService:
         alert = f"Qualità osservativa stanotte: {score}/100, {label.lower()}. {explanation}"
         return WeatherSummary(label, score, explanation, avg_cloud, max_rain, avg_wind, avg_humidity, avg_temp, alert)
 
-    def best_object(self, objects: list[CelestialObject], weather_summary: WeatherSummary) -> CelestialObject | None:
-        visible_objects = [item for item in objects if item.visible]
-        if not visible_objects:
-            return None
-        weather_factor = max(0.25, weather_summary.score_value / 100.0)
-        return max(
-            visible_objects,
-            key=lambda item: item.score * weather_factor * self._difficulty_factor(item.difficulty),
-        )
-
     @staticmethod
     def score_label(score: int) -> str:
         if score <= 25:
@@ -90,11 +80,3 @@ class ObservingScoreService:
         except ValueError:
             return 0
         return round(max(0.0, value - 35.0) * 0.28)
-
-    @staticmethod
-    def _difficulty_factor(difficulty: str) -> float:
-        return {
-            "Facile": 1.12,
-            "Media": 0.94,
-            "Difficile": 0.68,
-        }.get(difficulty, 0.85)

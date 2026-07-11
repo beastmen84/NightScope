@@ -11,17 +11,15 @@ from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
-    NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED,
 )
-from astro_viewer.app.services.observation_conditions_service import ObservationConditionsService
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionInputs,
+    ObservationConditionsService,
+)
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_home_nsom_recommended_deep_sky_flag_defaults_on() -> None:
-    assert NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED is True
-
-
-def test_controller_constructor_default_uses_current_home_nsom_flag() -> None:
+def test_home_ranking_has_no_legacy_rollback_parameter() -> None:
     assert "use_nsom_home_recommended_deep_sky" not in signature(AppController.__init__).parameters
 
 
@@ -41,38 +39,18 @@ def test_default_path_uses_nsom_observable_target_value_order() -> None:
     ]
 
 
-def test_no_constructor_rollback_parameter_remains_for_home_recommended_deep_sky() -> None:
-    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
-    expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
+def test_missing_sky_quality_keeps_canonical_nsom_ordering() -> None:
+    controller = _controller(sky_quality=None, moon=_moon(95))
 
     controller._refresh_conditioned_observing_candidates()
 
-    assert _ids(controller._conditioned_deep_sky) != _ids(expected)
-    assert "use_nsom_home_recommended_deep_sky" not in signature(AppController.__init__).parameters
-
-
-def test_missing_sky_quality_falls_back_to_legacy_moon_adjusted_order() -> None:
-    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
-    controller._sky_quality = None
-    expected = controller._moon_adjusted_objects(controller._home_visible_objects(controller._deep_sky))
-
-    controller._refresh_conditioned_observing_candidates()
-
-    assert _ids(controller._conditioned_deep_sky) == _ids(expected)
-    assert controller._conditioned_deep_sky == expected
-
-
-def test_flag_on_uses_observable_target_value_order_under_high_light_pollution() -> None:
-    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
-
-    controller._refresh_conditioned_observing_candidates()
-
-    assert _ids(controller._conditioned_deep_sky) == [
-        "globular_cluster",
-        "open_cluster",
-        "diffuse_nebula",
+    assert set(_ids(controller._conditioned_deep_sky)) == {
         "galaxy",
-    ]
+        "diffuse_nebula",
+        "open_cluster",
+        "globular_cluster",
+    }
+    assert controller._home_recommended_deep_sky_nsom_ranking_service is not None
 
 
 def test_default_path_ranks_raw_read_model_targets_and_returns_display_targets() -> None:
@@ -104,7 +82,7 @@ def test_default_path_ranks_raw_read_model_targets_and_returns_display_targets()
     assert [item.score for item in controller._conditioned_deep_sky] == [10, 99]
 
 
-def test_flag_on_does_not_mutate_original_celestial_objects() -> None:
+def test_nsom_ranking_does_not_mutate_original_celestial_objects() -> None:
     controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
     original = deepcopy(controller._deep_sky)
 
@@ -169,75 +147,59 @@ def test_best_object_and_sky_compass_are_unchanged_by_home_ranking_refresh() -> 
 
 
 def test_qml_payload_shape_remains_compatible() -> None:
-    legacy = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
-    legacy._sky_quality = None
-    nsom = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
+    without_sky = _controller(sky_quality=None, moon=_moon(95))
+    with_sky = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
 
-    legacy._refresh_conditioned_observing_candidates()
-    nsom._refresh_conditioned_observing_candidates()
+    without_sky._refresh_conditioned_observing_candidates()
+    with_sky._refresh_conditioned_observing_candidates()
 
-    legacy_keys = set(legacy._conditioned_deep_sky[0].to_qml())
-    for item in nsom._conditioned_deep_sky:
+    public_keys = set(without_sky._conditioned_deep_sky[0].to_qml())
+    for item in with_sky._conditioned_deep_sky:
         payload = item.to_qml()
-        assert set(payload) == legacy_keys
+        assert set(payload) == public_keys
         assert "nsom" not in payload
         assert "observableTargetValue" not in payload
 
 
 def test_recommended_deep_sky_property_preserves_payload_shape_and_scores() -> None:
-    legacy = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
-    legacy._sky_quality = None
-    nsom = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
+    without_sky = _controller(sky_quality=None, moon=_moon(20))
+    with_sky = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(20))
 
-    legacy_payload = _recommended_deep_sky_payload(legacy)
-    nsom_payload = _recommended_deep_sky_payload(nsom)
+    without_sky_payload = _recommended_deep_sky_payload(without_sky)
+    with_sky_payload = _recommended_deep_sky_payload(with_sky)
 
-    assert _payload_ids(legacy_payload) == [
-        "galaxy",
-        "diffuse_nebula",
-        "globular_cluster",
-        "open_cluster",
-    ]
-    assert _payload_ids(nsom_payload) == [
+    assert _payload_ids(with_sky_payload) == [
         "globular_cluster",
         "open_cluster",
         "diffuse_nebula",
         "galaxy",
     ]
 
-    legacy_by_id = {item["id"]: item for item in legacy_payload}
-    nsom_by_id = {item["id"]: item for item in nsom_payload}
-    assert legacy_by_id.keys() == nsom_by_id.keys()
-    for object_id, legacy_item in legacy_by_id.items():
-        nsom_item = nsom_by_id[object_id]
-        assert set(nsom_item) == set(legacy_item)
-        assert nsom_item["score"] == legacy_item["score"]
-        assert nsom_item["scoreLabel"] == legacy_item["scoreLabel"]
-        assert "nsom" not in nsom_item
-        assert "observableTargetValue" not in nsom_item
-        assert "practicalTargetValue" not in nsom_item
+    without_sky_by_id = {item["id"]: item for item in without_sky_payload}
+    with_sky_by_id = {item["id"]: item for item in with_sky_payload}
+    assert without_sky_by_id.keys() == with_sky_by_id.keys()
+    for object_id, without_sky_item in without_sky_by_id.items():
+        with_sky_item = with_sky_by_id[object_id]
+        assert set(with_sky_item) == set(without_sky_item)
+        assert with_sky_item["score"] == without_sky_item["score"]
+        assert with_sky_item["scoreLabel"] == without_sky_item["scoreLabel"]
+        assert "nsom" not in with_sky_item
+        assert "observableTargetValue" not in with_sky_item
+        assert "practicalTargetValue" not in with_sky_item
 
 
-def test_missing_sky_quality_recommended_deep_sky_property_payload_uses_fallback() -> None:
-    controller = _controller(sky_quality=_sky_quality(9, radiance=120.0), moon=_moon(95))
-    controller._sky_quality = None
+def test_missing_sky_quality_recommended_deep_sky_property_uses_nsom() -> None:
+    controller = _controller(sky_quality=None, moon=_moon(95))
 
     payload = _recommended_deep_sky_payload(controller)
-    direct = [controller._object_to_qml(item) for item in controller._moon_adjusted_objects(controller._deep_sky)]
 
-    assert payload == direct
-
-
-def test_current_status_docs_preserve_home_score_semantics_and_runtime_safety() -> None:
-    docs_root = Path(__file__).parents[2] / "docs"
-    closeout = (docs_root / "NSOM_BACKEND_MIGRATION_CLOSEOUT.md").read_text(encoding="utf-8")
-    cleanup = (docs_root / "NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md").read_text(encoding="utf-8")
-
-    assert "Home recommendedDeepSky" in closeout
-    assert "ObservableTargetValue ordering" in closeout
-    assert "runtime_report_imports_absent" in closeout
-    assert "qml_report_exposure_absent" in closeout
-    assert "report-only tests" in cleanup
+    assert {item["id"] for item in payload} == {
+        "galaxy",
+        "diffuse_nebula",
+        "open_cluster",
+        "globular_cluster",
+    }
+    assert all("observableTargetValue" not in item for item in payload)
 
 
 def test_no_home_nsom_ranking_qml_exposure_or_report_runtime_wiring() -> None:
@@ -253,7 +215,7 @@ def test_no_home_nsom_ranking_qml_exposure_or_report_runtime_wiring() -> None:
     assert "HOME_NSOM_COMPARISON_REPORT" not in controller_text
 
 
-def _controller(*, sky_quality: SkyQuality, moon: MoonSummary) -> AppController:
+def _controller(*, sky_quality: SkyQuality | None, moon: MoonSummary) -> AppController:
     controller = AppController.__new__(AppController)
     controller._conditions_service = ObservationConditionsService()
     controller._home_recommended_deep_sky_nsom_ranking_service = HomeRecommendedDeepSkyNsomRankingService()
@@ -366,9 +328,9 @@ class _CapturingRawScoreRankingService:
         self,
         candidates: list[CelestialObject],
         *,
-        sky_quality: SkyQuality,
-        moon: MoonSummary | None,
+        condition_inputs: ObservationConditionInputs,
         **_kwargs: object,
     ) -> list[CelestialObject]:
+        del condition_inputs
         self.candidates = list(candidates)
         return sorted(self.candidates, key=lambda item: item.score, reverse=True)

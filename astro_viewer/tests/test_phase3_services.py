@@ -10,8 +10,12 @@ from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency
-from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
+from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency
+from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
+from astro_viewer.app.services.observation_conditions_service import (
+    ObservationConditionInputs,
+    ObservationConditionsService,
+)
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.light_pollution_service import LightPollutionService
 from astro_viewer.app.services.night_planner_service import NightPlannerService
@@ -123,16 +127,15 @@ class Phase3ServiceTests(unittest.TestCase):
             difficulty="Facile",
         )
         weather = WeatherSummary("Ottima", 88, "Poche nuvole.", 10, 0, 8, 55, 18.0, "")
-        scores = AdvancedObservingScores(92, 58, "Ottima", "Buona", "")
+        scores = ObservingCategoryScores(92, 58, "Ottima", "Buona", "")
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 5})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
         plan = NightPlannerService().plan(
             [target],
             weather,
-            scores,
-            sky_quality,
             telescope,
+            condition_inputs=_planner_inputs(scores, sky_quality),
         )
 
         self.assertEqual(len(plan), 1)
@@ -150,11 +153,16 @@ class Phase3ServiceTests(unittest.TestCase):
             _planned_target("mercury", "Mercurio", "Pianeta", "20:00", 12),
         ]
         weather = WeatherSummary("Ottima", 88, "Poche nuvole.", 10, 0, 8, 55, 18.0, "")
-        scores = AdvancedObservingScores(90, 90, "Ottima", "Ottima", "")
+        scores = ObservingCategoryScores(90, 90, "Ottima", "Ottima", "")
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        plan = NightPlannerService().plan(objects, weather, scores, sky_quality, telescope)
+        plan = NightPlannerService().plan(
+            objects,
+            weather,
+            telescope,
+            condition_inputs=_planner_inputs(scores, sky_quality),
+        )
 
         names = [item.name for item in plan]
         self.assertNotIn("Mercurio", names)
@@ -180,25 +188,32 @@ class Phase3ServiceTests(unittest.TestCase):
 
         self.assertEqual(ordered, ["18:45 sera", "20:45 sera", "00:30 notte", "05:30 prima dell'alba"])
 
-    def test_advanced_scores_are_capped_by_blocking_weather(self) -> None:
+    def test_category_scores_keep_session_blocking_separate(self) -> None:
         weather = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 99, 8, 78, 16.0, "")
         seeing = SeeingTransparency("Excellent", "Poor", 96, 20, "Vento debole.")
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 6, "viirs_radiance": None})()
         moon = MoonSummary("Gibbosa crescente", "72%", "", "", "", "")
 
-        scores = AdvancedObservingService().scores(weather, seeing, sky_quality, moon)
+        scores = NsomCategoryScoreService().scores(
+            ObservationConditionInputs(moon=moon, sky_quality=sky_quality, seeing=seeing)
+        )
 
-        self.assertLessEqual(scores.planetary_score, 25)
-        self.assertEqual(scores.planetary_label, "Pessima")
+        self.assertGreater(scores.planetary_score, 25)
+        self.assertTrue(NightPlannerService.weather_blocking_status(weather).blocks_plan)
 
     def test_night_planner_suspends_plan_when_weather_is_blocking(self) -> None:
         target = _deep_sky_target("saturn", "Saturno", "Pianeta")
         weather = WeatherSummary("Pessima", 13, "Nuvolosità elevata.", 74, 99, 8, 78, 16.0, "")
-        scores = AdvancedObservingScores(23, 23, "Pessima", "Pessima", "")
+        scores = ObservingCategoryScores(23, 23, "Pessima", "Pessima", "")
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 5})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
-        plan = NightPlannerService().plan([target], weather, scores, sky_quality, telescope)
+        plan = NightPlannerService().plan(
+            [target],
+            weather,
+            telescope,
+            condition_inputs=_planner_inputs(scores, sky_quality),
+        )
 
         self.assertEqual(plan, [])
 
@@ -229,28 +244,30 @@ class Phase3ServiceTests(unittest.TestCase):
         globular = _deep_sky_target("messier-13", "M13", "Globular cluster")
         galaxy = _deep_sky_target("messier-31", "M31", "Spiral galaxy")
         diffuse_nebula = _deep_sky_target("messier-78", "M78", "Diffuse nebula")
+        conditions = ObservationConditionsService()
 
-        self.assertEqual(NightPlannerService.moon_adjusted_score(galaxy, new_moon), 80)
-        self.assertEqual(NightPlannerService.moon_adjusted_score(open_cluster, full_moon), 70)
-        self.assertEqual(NightPlannerService.moon_adjusted_score(globular, full_moon), 62)
-        self.assertEqual(NightPlannerService.moon_adjusted_score(galaxy, full_moon), 42)
-        self.assertEqual(NightPlannerService.moon_adjusted_score(diffuse_nebula, full_moon), 38)
+        self.assertEqual(conditions.moon_adjusted_score(galaxy, new_moon).adjusted_score, 80)
+        self.assertEqual(conditions.moon_adjusted_score(open_cluster, full_moon).adjusted_score, 70)
+        self.assertEqual(conditions.moon_adjusted_score(globular, full_moon).adjusted_score, 62)
+        self.assertEqual(conditions.moon_adjusted_score(galaxy, full_moon).adjusted_score, 42)
+        self.assertEqual(conditions.moon_adjusted_score(diffuse_nebula, full_moon).adjusted_score, 38)
 
         self.assertGreater(
-            NightPlannerService.moon_adjusted_score(open_cluster, bright_moon),
-            NightPlannerService.moon_adjusted_score(globular, bright_moon),
+            conditions.moon_adjusted_score(open_cluster, bright_moon).adjusted_score,
+            conditions.moon_adjusted_score(globular, bright_moon).adjusted_score,
         )
         self.assertGreater(
-            NightPlannerService.moon_adjusted_score(globular, bright_moon),
-            NightPlannerService.moon_adjusted_score(galaxy, bright_moon),
+            conditions.moon_adjusted_score(globular, bright_moon).adjusted_score,
+            conditions.moon_adjusted_score(galaxy, bright_moon).adjusted_score,
         )
 
     def test_moon_penalty_does_not_affect_planets(self) -> None:
         full_moon = MoonSummary("Piena", "100%", "", "", "", "")
         saturn = _deep_sky_target("saturn", "Saturno", "Pianeta")
+        conditions = ObservationConditionsService()
 
-        self.assertEqual(NightPlannerService.moon_penalty(saturn, full_moon), 0)
-        self.assertEqual(NightPlannerService.moon_adjusted_score(saturn, full_moon), 80)
+        self.assertEqual(conditions.moon_penalty(saturn, full_moon), 0)
+        self.assertEqual(conditions.moon_adjusted_score(saturn, full_moon).adjusted_score, 80)
 
     def test_night_planner_reorders_deep_sky_under_bright_moon(self) -> None:
         objects = [
@@ -259,7 +276,7 @@ class Phase3ServiceTests(unittest.TestCase):
             _deep_sky_target("messier-11", "M11", "Open cluster"),
         ]
         weather = WeatherSummary("Ottima", 88, "Poche nuvole.", 10, 0, 8, 55, 18.0, "")
-        scores = AdvancedObservingScores(92, 70, "Ottima", "Buona", "")
+        scores = ObservingCategoryScores(92, 70, "Ottima", "Buona", "")
         sky_quality = type("SkyQualityStub", (), {"bortle_class": 4})()
         telescope = Telescope("scope", "Dobson 200", 200, 1200, "Newton", "Dobson")
 
@@ -267,18 +284,22 @@ class Phase3ServiceTests(unittest.TestCase):
         new_moon_plan = planner.plan(
             objects,
             weather,
-            scores,
-            sky_quality,
             telescope,
-            MoonSummary("Nuova", "0%", "", "", "", ""),
+            condition_inputs=_planner_inputs(
+                scores,
+                sky_quality,
+                MoonSummary("Nuova", "0%", "", "", "", ""),
+            ),
         )
         full_moon_plan = planner.plan(
             objects,
             weather,
-            scores,
-            sky_quality,
             telescope,
-            MoonSummary("Piena", "100%", "", "", "", ""),
+            condition_inputs=_planner_inputs(
+                scores,
+                sky_quality,
+                MoonSummary("Piena", "100%", "", "", "", ""),
+            ),
         )
 
         self.assertEqual(new_moon_plan[0].name, "M11")
@@ -315,6 +336,26 @@ def _planned_target(object_id: str, name: str, object_type: str, best_time: str,
         best_time=best_time,
         observing_window=f"{best_time} - {best_time}",
         score=score,
+    )
+
+
+def _planner_inputs(
+    scores: ObservingCategoryScores,
+    sky_quality,
+    moon: MoonSummary | None = None,
+) -> ObservationConditionInputs:
+    seeing = SeeingTransparency(
+        scores.planetary_label,
+        scores.deep_sky_label,
+        scores.planetary_score,
+        scores.deep_sky_score,
+        "Fixture",
+        atmospheric_transparency_score=scores.deep_sky_score,
+    )
+    return ObservationConditionInputs(
+        moon=moon,
+        sky_quality=sky_quality,
+        seeing=seeing,
     )
 
 

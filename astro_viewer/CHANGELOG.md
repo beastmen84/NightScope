@@ -1,5 +1,36 @@
 # Changelog
 
+## NightScope 1.21.0 - 2026-07-11
+
+- Consolidato `NsomObservationEnvironmentService` come unico proprietario di
+  geometria, Luna, fondo cielo VIIRS/Bortle, seeing/trasparenza e AOD/OpenAQ.
+- Separati definitivamente qualita' intrinseca e condizioni runtime:
+  `intrinsic_score` e `atmospheric_transparency_score` restano interni e non
+  cambiano il payload QML.
+- Unificati Home, Best Object, Planner e Sky Compass sugli stessi
+  `ObservationConditionInputs`; i dati provider mancanti sono fattori neutrali,
+  non selezionano un algoritmo alternativo.
+- Corretto il Planner per considerare una finestra gia' iniziata come
+  osservabile adesso e per usare lo strumento selezionato per ogni target.
+- Rimossi `PlannerScoringService`, il ranking Sky Compass parallelo, i servizi
+  Advanced Observing/Detail ombra, i flag AOD/Luna e il fallback Best Object del
+  vecchio `ObservingScoreService`.
+- Rimossi snapshot diagnostici automatici, export/controller wiring e test di
+  comparazione o rollback non piu' rappresentativi del runtime.
+- Rinominato il modello attivo delle categorie Home in
+  `ObservingCategoryScores`; il contratto QML resta invariato.
+- Allineato lo smoke Python a `homeObservingOverview`, eliminando l'ultimo
+  accesso alla property rimossa `advancedScores`.
+- Rimossa la componente QML inutilizzata `ObjectRow.qml`.
+- Aggiornati architettura, logica di calcolo, modello NSOM, closeout e audit di
+  cleanup alla topologia runtime effettiva.
+- Suite completa parallela: `610 passed`, `558 warnings`, `7 subtests passed`
+  in `41,05 s`; i warning sono la deprecazione Skyfield/NumPy gia' nota.
+- Verificati `pip check`, Ruff, `compileall`, smoke Python, smoke QML e
+  `qmllint`; quest'ultimo mantiene le warning QML statiche gia' note ma termina
+  con exit code `0`.
+- Distribuzione non rigenerata: sorgente `1.21.0`, dist esistente `1.20.0`.
+
 ## NightScope 1.20.1 - 2026-07-11
 
 - Rimossa dalla tabella `Oggetti celesti` la colonna ridondante `Visibile nel

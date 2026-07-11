@@ -516,14 +516,14 @@ they are not ordinary equipment recommendations.
 
 Planner items receive the `recommended_setup` already attached to
 `CelestialObject` after `AppController._apply_equipment()` has run. Planner
-ranking itself is not yet fully configuration-aware.
+also receives the telescope selected for each target from the equipment setup
+read model.
 
-Planner ranking math is isolated in `PlannerScoringService`. It owns the
-Planner-specific score aggregation, weather factor, difficulty factor and
-Planner light-pollution penalty, while reusing shared Moon-condition primitives
-from `ObservationConditionsService`. `NightPlannerService` remains responsible
-for weather blocking, candidate selection, duplicate-name suppression and
-chronological plan presentation.
+Planner ranking is owned by `PlannerNsomScoringService`. It combines canonical
+observable target value with target-specific observer capability, timing and
+binary Session viability. `NightPlannerService` remains responsible for weather
+blocking, candidate selection, duplicate-name suppression and chronological
+plan presentation.
 
 ## Profile Capabilities
 
@@ -562,14 +562,15 @@ Possible future cleanup: extract a dedicated `ConfigurationScorer` or separate
 telescope/binocular scorer classes while preserving the same
 `RecommendationCandidate` inputs.
 
-### Planner Ranking Is Not Fully Configuration-Aware
+### Planner Capability Is Telescope-Centric
 
 Severity: Medium.
 
-Planner recommendation text comes from the profile-aware path, but Planner
-ranking still primarily reflects object/weather/moon/sky-quality logic. The
-math is now isolated in `PlannerScoringService`, but it does not yet rank
-observing plans by best available `ObservationConfiguration`.
+Planner uses the target-specific selected telescope in observer capability.
+Binocular and naked-eye recommendations preserve their setup presentation, but
+the scalar observer projection remains less detailed than the full
+`ObservationConfiguration` candidate model. A future extension can project
+those configuration types without changing Universe or Sky factors.
 
 ### QML Must Remain Presentation-Only
 

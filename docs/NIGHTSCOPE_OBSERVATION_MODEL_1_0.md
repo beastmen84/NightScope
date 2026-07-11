@@ -10,12 +10,12 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.18.0`:
+Current runtime status for `1.21.0`:
 
-- Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
-  internal payload use NSOM-backed paths by default.
-- Advanced Observing has a backend/internal NSOM projection with unchanged
-  visible UI contract.
+- Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
+  category summaries use one canonical NSOM environment.
+- Migration flags, shadow Detail/Advanced payloads and parallel ranking
+  services have been removed.
 - ObservationConditions owns calibrated AOD/OpenAQ condition scoring by default
   when provider-quality gates pass.
 - Equipment remains setup-local with explicit ObserverCapability boundaries.
@@ -274,33 +274,27 @@ receive the same `ObservableTargetValue` and different `PracticalTargetValue`.
 
 ## 1. Current Scoring Pipeline
 
-NightScope currently has several partially overlapping scoring layers.
+NightScope has one canonical target-ranking flow plus separate presentation and
+equipment outputs.
 
 ```text
 SkyfieldAstronomyEngine raw objects
-    -> AppController Home filtering and condition presentation
-    -> ObservationConditionsService moon/light-pollution presentation context
-    -> EquipmentService optical setup recommendation
-    -> ObservingScoreService global observing score and legacy fallback
-    -> BestObjectNsomSelectionService default Best Object
-    -> SeeingTransparencyService seeing/transparency estimates
-    -> AdvancedObservingService planetary/deep-sky category scores
-    -> PlannerNsomScoringService default observing-plan ranking
-    -> SkyCompassService broad direction ranking
+    -> IntrinsicTargetQuality
+    -> NsomObservationEnvironmentService
+    -> ObservableTargetValue
+    -> ObserverCapability / PracticalTargetValue where required
+    -> ObservationOpportunity for Planner and Best Object
+    -> Home, Best Object, Planner and SkyCompassService projections
     -> QML presentation
 ```
 
-The architecture is workable, but it is not yet a single mathematical model.
-The same physical phenomena can influence multiple downstream scores:
+Presentation compatibility remains intentionally separate:
 
-- Moon illumination affects global observing score, advanced scores, Home/Detail
-  deep-sky conditioning and Planner penalties.
-- VIIRS/Bortle affects transparency, advanced deep-sky score, Home/Detail
-  deep-sky conditioning, Planner pollution penalty and equipment difficulty.
-- Weather affects global observing score, advanced scores, Planner direct
-  contribution, Planner weather factor and weather blocking.
-- Seeing affects advanced planetary score and equipment magnification limits.
-- Difficulty affects best-object selection, Planner ranking and UI labels.
+- `ObservationConditionsService` can adjust card/detail display scores and copy.
+- `ObservingScoreService` builds the weather-specific Home summary.
+- `EquipmentService` chooses optical setups and constrains magnification.
+- Ranking always starts from raw/intrinsic target inputs, so presentation
+  adjustments are not applied a second time.
 
 Some overlap is intentional because one measurement can be used for separate
 decisions. For example, seeing can constrain usable magnification even when it
@@ -313,20 +307,19 @@ of the same physical effect inside the same mathematical decision.
 | Score or factor | Current owner | Physical meaning | Current consumers | Overlap risk |
 | --- | --- | --- | --- | --- |
 | Raw object score | `SkyfieldAstronomyEngine` | altitude, magnitude, object type, visibility | Home, Planner, Sky Compass, best object | Low |
-| Global observing score | `ObservingScoreService` | weather plus Moon illumination | Home, best object fallback/display compatibility, Planner rollback, advanced scores | High: includes Moon and weather |
-| Best object | `BestObjectNsomSelectionService` default; `ObservingScoreService` rollback/fallback | Home-specific `ObservationOpportunity` from practical value and session viability | Home | Managed: legacy displayed score remains compatibility data |
-| Seeing score | `SeeingTransparencyService` | atmospheric steadiness | Advanced scores, equipment | Medium but acceptable if separated by dimension |
-| Transparency score | `SeeingTransparencyService` | cloud layers, humidity, visibility, VIIRS/Bortle | Advanced deep-sky score | High if AOD/PM are added elsewhere |
-| Advanced planetary score | `AdvancedObservingService` | weather, seeing, wind, Moon | Planner category score, UI | High: weather and Moon already exist |
-| Advanced deep-sky score | `AdvancedObservingService` | weather, transparency, VIIRS/Bortle, Moon | Planner category score, UI | High |
+| Observing-weather score | `ObservingScoreService` | forecast plus Moon illumination | Home weather card and Session policy inputs | Managed: it is presentation/session data, not target rank |
+| Best object | `BestObjectNsomSelectionService` | Home-specific `ObservationOpportunity` from practical value and session viability | Home | Displayed object score remains compatibility data |
+| Seeing score | `SeeingTransparencyService` | atmospheric steadiness | canonical environment, equipment | Low when kept separate from transparency |
+| Transparency score | `SeeingTransparencyService` | cloud layers, humidity and visibility | canonical environment | Managed: static VIIRS/Bortle background is excluded |
+| Planetary/deep-sky category score | `NsomCategoryScoreService` | representative canonical environment by target class | upper Home summaries | Low: not a target-ranking input |
 | Home/Detail Moon adjustment | `ObservationConditionsService` | object-specific Moon sensitivity | Home, Detail, Sky Compass candidates | Medium |
 | Home/Detail pollution context | `ObservationConditionsService` | presentation/context adjustment for bright skies | Home, Detail, Sky Compass candidates | Medium |
-| Planner score | `PlannerNsomScoringService` default; `PlannerScoringService` rollback | NSOM `ObservationOpportunity` by default, legacy plan-specific aggregation as rollback | Night Planner | Managed: legacy path retained only as rollback |
+| Planner score | `PlannerNsomScoringService` | NSOM `ObservationOpportunity` | Night Planner | Low: single ranking owner |
 | Equipment score | `EquipmentService` | current observer capability / optical suitability | Home, Detail, Planner setup | Acceptable if it feeds observer capability instead of target physics |
 | Recommendation presentation | `RecommendationPresenter` | serialization and labels | QML | Low |
-| Sky Compass score | `SkyCompassNsomDirectionService` | current direction grouping from prepared target value, altitude and density | Home | Low: plan/Best flags are metadata/tie-breaks, not score bonuses |
-| NASA AOD diagnostics | `ObservationConditionsService` | column aerosol proxy | diagnostics only | Low today, future risk |
-| OpenAQ PM diagnostics | `ObservationConditionsService` | ground particulate proxy | diagnostics only | Low today, future risk |
+| Sky Compass score | `SkyCompassService` | current direction grouping from canonical target value, altitude and density | Home | Low: plan/Best flags are annotations, not score bonuses |
+| NASA AOD factor | `NsomObservationEnvironmentService` plus provider policy | column aerosol proxy | atmospheric transparency | Low: primary, gated and non-additive |
+| OpenAQ PM factor | `NsomObservationEnvironmentService` plus provider policy | ground particulate proxy | atmospheric fallback/context | Low: never additive with eligible AOD |
 
 ## 3. Proposed Global Mathematical Flow
 
@@ -609,8 +602,8 @@ the Observer.
 
 ### 3.6 Practical Target Value
 
-Owner: long-term `PlannerScoringService` should consume it; the capability
-component should come from `EquipmentService` or a future
+Owner: `PlannerNsomScoringService` consumes it; the capability component comes
+from `EquipmentService` and the observer-capability adapter (or a future
 `ObserverCapabilityService`.
 
 Purpose: combine objective observable value with this observer's capability.
@@ -647,7 +640,7 @@ How observable is this target under the sky?
 
 ### 3.7 Observation Opportunity
 
-Owner: `PlannerScoringService` should build and rank this concept; upstream
+Owner: `PlannerNsomScoringService` builds and ranks this concept; upstream
 services provide its ingredients.
 
 Purpose: represent one concrete thing the Planner can choose.
@@ -1365,7 +1358,7 @@ It should not own:
 - Sky Compass direction ranking;
 - UI presentation strings beyond diagnostic identifiers.
 
-`PlannerScoringService` should own:
+`PlannerNsomScoringService` owns:
 
 - construction and ranking of `ObservationOpportunity` items;
 - how practical target value is combined with observing-window quality;
@@ -1393,17 +1386,18 @@ A future `ObserverCapabilityService` should own:
 
 ## 11. Current Backend Status
 
-The current backend recommendation-surface migration is closed for the `1.15.2`
-scope.
+The backend recommendation-surface migration and cleanup are complete in
+`1.21.0`.
 
-Closed/default-on surfaces:
+Canonical surfaces:
 
 - Planner ranks `ObservationOpportunity` objects.
 - Home `recommendedDeepSky` ranks by `ObservableTargetValue`.
 - Best Object uses a Home-specific NSOM opportunity policy.
 - Sky Compass uses an `ObservableTargetValue` direction policy.
-- Detail/Object builds a separate internal NSOM payload.
-- Advanced Observing builds a backend/internal NSOM category projection.
+- Upper Home categories use representative canonical NSOM environments.
+- Detail pages use dedicated score-free presentation read models rather than a
+  shadow NSOM payload.
 - ObservationConditions applies calibrated AOD/OpenAQ condition scoring when
   eligible provider data is already available.
 
@@ -1419,7 +1413,7 @@ Explicit boundaries that remain by design:
   observability, Home display payloads and NSOM ranking inputs are already
   separated enough that no new runtime `UniverseTargetProfile` is needed now.
 - Visible UI explanations are not part of this backend migration. The current
-  UI is intentionally legacy-compatible: it keeps existing QML payload shapes
+  UI intentionally keeps existing QML payload shapes
   and display fields, and those fields may not fully explain NSOM ordering.
   A future NSOM-aware UI should first define explicit explanation, score,
   confidence and provider-source semantics before changing QML.
@@ -1430,13 +1424,13 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
 `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
 `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
 
-## 12. Tests Required Before Enablement
+## 12. Required Regression Tests
 
 ### Characterization tests
 
-- Legacy formula comparisons remain developer-only where still useful.
-- Home/Detail/Best Object fallback behaviour remains limited to missing inputs
-  or explicit data-safety policies, not selectable rollback flags.
+- No parallel legacy formula or selectable rollback path may be reintroduced.
+- Missing inputs remain neutral or use explicit provider/astronomy safety
+  policies.
 - Current equipment recommendations remain unchanged because Equipment is
   setup-local and has no replacement runtime flag.
 - Observable target value remains identical for two observers under the same sky.
@@ -1456,11 +1450,11 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
 - PM acts only as fallback or small correction.
 - PM is ignored when AOD exists and correction cap is reached.
 - AOD/PM influence caps per target type.
-- AOD/PM modifiers remain zero with feature flag off.
+- AOD/PM affect canonical atmospheric transparency once and never mutate the
+  target display score.
 - AOD/PM do not feed transparency, weather, Planner and target score
   simultaneously.
-- AOD/PM freshness can lower confidence without lowering score when scoring is
-  disabled.
+- AOD/PM freshness can lower confidence without scaling score.
 
 ### Moon tests
 
@@ -1509,22 +1503,18 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
 
 ## 13. Recommendation
 
-The `1.15.2` backend state is that the current NSOM recommendation-surface
-migration scope is closed and the historical migration artifact set has been
-removed. AOD/OpenAQ scoring remains enabled by default after stale/current
-provider policy was accepted.
+The `1.21.0` backend state has one NSOM recommendation path and no migration
+artifact in production wiring. AOD/OpenAQ scoring is canonical after
+provider-quality and stale/current policy gates.
 
 The safe operating policy is:
 
-1. keep `experimental_aerosol_scoring` default on;
-2. keep rollback explicit with
-   `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`;
-3. keep AOD/PM confidence metadata separate from score;
-4. keep VIIRS sky background, weather transparency and Moon geometry as separate
+1. keep AOD/PM confidence metadata separate from score;
+2. keep VIIRS sky background, weather transparency and Moon geometry as separate
    owners;
-5. collect future real observing feedback before any further aerosol weight
+3. collect future real observing feedback before any further aerosol weight
    tuning;
-6. treat Catalogue/Universe raw-score semantics and visible UI explanations as
+4. treat Catalogue/Universe raw-score semantics and visible UI explanations as
    separate future work, not as backend migration blockers.
 
 This preserves NightScope's current stable behavior while moving toward a

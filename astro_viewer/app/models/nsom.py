@@ -716,33 +716,6 @@ class ObservationOpportunity:
         )
 
 
-@dataclass(frozen=True)
-class NsomTargetDiagnostic:
-    """Internal runtime diagnostic projection for one prepared target."""
-
-    object_id: str
-    name: str
-    source: str
-    observable_target_value: ObservableTargetValue
-    observer_capability: ObserverCapability
-    practical_target_value: PracticalTargetValue
-    observation_opportunity: ObservationOpportunity
-    runtime_fields: NsomDiagnosticFields = field(default_factory=tuple)
-
-
-@dataclass(frozen=True)
-class NsomDiagnosticSnapshot:
-    """Internal best-effort NSOM runtime snapshot; never exposed to QML."""
-
-    generated_at: str
-    targets: tuple[NsomTargetDiagnostic, ...] = field(default_factory=tuple)
-    confidence: RecommendationConfidence | None = None
-    location: NsomDiagnosticFields = field(default_factory=tuple)
-    confidence_inputs: NsomDiagnosticFields = field(default_factory=tuple)
-    metadata: NsomDiagnosticFields = field(default_factory=tuple)
-    notes: tuple[str, ...] = field(default_factory=tuple)
-
-
 def nsom_to_json_compatible(value: object) -> object:
     """Return a strict-JSON-compatible projection of internal NSOM objects."""
 

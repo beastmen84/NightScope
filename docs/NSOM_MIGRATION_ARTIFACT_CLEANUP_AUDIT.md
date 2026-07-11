@@ -1,95 +1,65 @@
 # NSOM Migration Artifact Cleanup Audit
 
-Version: `1.15.1`
+Audit date: 2026-07-11
+Result: complete in source `1.21.0`.
 
-Cleanup applied: `1.15.2`
+## Scope
 
-## Verdict
+The audit checked production Python, QML, active tests and current documents for
+parallel ranking paths, migration flags, automatic diagnostics, shadow payloads
+and unused UI components.
 
-The backend NSOM migration is closed for the current recommendation surfaces, so
-the historical migration evidence can be reduced. The repository should keep the
-runtime NSOM code, behavioural regression tests and base architecture/model
-documentation, while removing one-off migration reports, report generators and
-tests that only validate those historical reports.
+## Removed
 
-This audit does not change runtime behaviour, scoring, QML, logging, provider
-access or file-writing behaviour.
+- Advanced Observing legacy/shadow services and tests.
+- Detail/Object NSOM shadow runtime and tests.
+- Planner legacy scorer and comparison/characterization tests.
+- Separate Sky Compass NSOM ranking service.
+- `NsomDiagnosticSnapshot`, target snapshot models and automatic controller
+  refresh/export wiring.
+- AOD/OpenAQ and Moon-geometry feature flags.
+- Redundant Best Object fallback scorer.
+- Obsolete controller Qt properties/state for shadow data.
+- Unused `ObjectRow.qml`.
 
-## Keep
+## Retained Intentionally
 
-Keep these as current project state:
+- Display `score` fields required by the current QML contract. NSOM ranking uses
+  raw intrinsic inputs and does not treat these fields as a full explanation.
+- Display-only Moon/light-pollution conditioning used by existing cards and
+  detail copy. Internal condition flags prevent double application and are not
+  exported to QML.
+- Explicit JSON conversion and diagnostic notes used by active read models and
+  developer-invoked explanation helpers. There is no automatic file output.
+- Provider and astronomy fallbacks required when external data or ephemerides
+  are unavailable.
 
-- Runtime NSOM model and adapters:
-  - `astro_viewer/app/models/nsom.py`
-  - `astro_viewer/app/services/nsom_diagnostic_adapters.py`
-  - runtime NSOM services used by `AppController`, Planner, Home, Best Object,
-    Advanced Observing, Sky Compass, Detail/Object and ObservationConditions.
-- Runtime read-model and ownership boundaries:
-  - `observation_conditions_read_model.py`
-  - `equipment_setup_read_model.py`
-  - `equipment_setup_score_read_model.py`
-  - `observer_capability_adapter.py`
-- Behavioural tests for active runtime paths:
-  - NSOM DTO immutability and JSON compatibility;
-  - Planner/Home/Best Object/Sky Compass/Detail runtime ranking;
-  - Advanced Observing internal runtime payload;
-  - ObservationConditions AOD/OpenAQ behaviour;
-  - Equipment setup/read-model boundaries.
-- Base documentation:
-  - `README.md`
-  - `astro_viewer/CHANGELOG.md`
-  - `VERSION`
-  - `docs/ARCHITECTURE.md`
-  - `docs/CALCULATION_LOGIC.md`
-  - `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`
-  - `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`
-  - `docs/NEXT_CHAT_HANDOFF.md` while the chat handoff is useful.
+## Static Checks
 
-## Remove In 1.15.2
+No production references remain to:
 
-Remove closed migration artifacts that are no longer the source of truth:
+- `PlannerScoringService`;
+- `SkyCompassNsomDirectionService`;
+- `advancedObservingNsom`;
+- Detail NSOM shadow payload services;
+- `ObservationConditionFeatureFlags`;
+- `NsomDiagnosticSnapshot` or `NsomTargetDiagnostic`;
+- configurable `use_nsom_*` constructor parameters.
 
-- Historical report Markdown files under `docs/` with prefixes such as
-  `NSOM_*_AUDIT`, `NSOM_*_REPORT`, `HOME_NSOM_*`, `BEST_OBJECT_NSOM_*`,
-  `ADVANCED_OBSERVING_NSOM_*`, `SKY_COMPASS_NSOM_*`, `DETAIL_OBJECT_NSOM_*`,
-  `EQUIPMENT_NSOM_*`, `OBSERVATION_CONDITIONS_*`, `NOTIFICATIONS_*`,
-  `SKY_COMPASS_READ_MODEL_*` and `HOME_REFRESH_*`.
-- Developer-only report/audit generators under `astro_viewer/tools/` matching
-  the same migration families.
-- Tests whose only purpose is validating those report generators or historical
-  report files.
-- Developer-only comparison/calibration services that are not imported by
-  runtime code and only exist to feed deleted reports.
+## Behavioral Checks
 
-## Do Not Remove
+- Planner chooses the four highest NSOM opportunities and then presents them
+  chronologically.
+- Active target windows schedule at the current time, never at the interval end.
+- Home, Best Object and Sky Compass keep canonical ranking active when optional
+  sky/provider data is missing.
+- Target-specific telescope selection and Moon geometry reach all relevant
+  NSOM consumers.
+- AOD/OpenAQ affects atmospheric transparency once and never mutates the base
+  object score.
+- QML payload shapes remain unchanged and do not expose internal NSOM models.
 
-- Provider implementations, cache code, repositories or runtime services.
-- QML/UI files.
-- Runtime NSOM flags and service integrations.
-- Active behavioural tests that prove current default-on NSOM behaviour.
-- The real-provider probe should not be executed during cleanup. It may be
-  removed as historical tooling, but cleanup must not make network calls.
+## Verification
 
-## Base Documentation Policy
-
-After 1.15.2, base documentation should stop acting like a full migration
-journal. It should describe the current architecture and link only to live
-reference documents. The detailed step-by-step migration remains available in
-Git history instead of being duplicated across dozens of checked-in reports.
-
-## Cleanup Safety Checks
-
-Before committing 1.15.2:
-
-- `python -m compileall astro_viewer`
-- focused runtime NSOM tests
-- full pytest with `-n auto` if collection changes are broad
-- `rg` check for references to deleted report paths
-
-## 1.15.2 Result
-
-The cleanup removes the historical migration reports, report generators,
-report-only tests and unused developer-only comparison/calibration services.
-The active source of truth is now the runtime NSOM code, behavioural regression
-tests and base documentation. No runtime scoring, QML/UI, provider calls,
-logging or runtime file writes are changed by the cleanup.
+The full parallel suite passes with `610 passed` and `7 subtests passed`.
+`ruff`, `compileall` and `pip check` are part of the release validation ladder.

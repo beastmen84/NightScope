@@ -16,8 +16,6 @@ from astro_viewer.app.models.nsom import (
     PLANET_OBSERVABLE_MIN_DIMENSION,
     PLANET_OBSERVABLE_Q_TARGET_FLOOR,
     EffectiveObservability,
-    NsomDiagnosticSnapshot,
-    NsomTargetDiagnostic,
     NsomTargetClass,
     NsomOwnershipBoundary,
     ObservableTargetValue,
@@ -675,61 +673,6 @@ def test_core_model_exports_to_strict_json_compatible_shape() -> None:
     assert exported["intrinsic"]["value"] == 0.0
     assert exported["environment"]["static_sky_background"] == 0.0
     assert exported["opportunity"]["confidence"]["viirs_confidence"] == 1.0
-
-
-def test_full_nsom_diagnostic_snapshot_exports_to_strict_json() -> None:
-    intrinsic = IntrinsicTargetQuality.from_score(
-        81,
-        object_id="messier-M31",
-        name="M31",
-        target_class=NsomTargetClass.GALAXY,
-        source_fields=(("raw_score", float("inf")),),
-    )
-    observable = ObservableTargetValue.from_intrinsic(
-        intrinsic_target_quality=intrinsic,
-        effective_observability=EffectiveObservability.from_components(),
-    )
-    observer = ObserverCapability(light_grasp=0.8, resolution=0.7)
-    practical = PracticalTargetValue.from_observable(
-        observable_target_value=observable,
-        observer_capability=observer,
-        capability_summary=0.75,
-    )
-    confidence = RecommendationConfidence(
-        weather_confidence=0.9,
-        aod_confidence=float("nan"),
-        notes=("strict-json",),
-    )
-    opportunity = ObservationOpportunity(
-        practical_target_value=practical,
-        session=SessionViability.from_components(value=0.6),
-        confidence=confidence,
-    )
-    diagnostic = NsomTargetDiagnostic(
-        object_id="messier-M31",
-        name="M31",
-        source="planner",
-        observable_target_value=observable,
-        observer_capability=observer,
-        practical_target_value=practical,
-        observation_opportunity=opportunity,
-        runtime_fields=(("score", float("-inf")),),
-    )
-    snapshot = NsomDiagnosticSnapshot(
-        generated_at="2026-06-30T00:00:00+03:00",
-        targets=(diagnostic,),
-        confidence=confidence,
-        metadata=(("schema", "nsom_diagnostic_snapshot"), ("invalid", float("inf"))),
-        notes=("diagnostic_only",),
-    )
-
-    exported = nsom_to_json_compatible(snapshot)
-
-    json.dumps(exported, allow_nan=False)
-    assert exported["targets"][0]["runtime_fields"][0][1] is None
-    assert exported["targets"][0]["observable_target_value"]["intrinsic_target"]["source_fields"][0][1] is None
-    assert exported["confidence"]["aod_confidence"] is None
-    assert exported["metadata"][1][1] is None
 
 
 def test_nsom_core_is_not_exposed_to_qml_or_runtime_qml_payloads() -> None:

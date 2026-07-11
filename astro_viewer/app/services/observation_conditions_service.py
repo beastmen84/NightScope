@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from dataclasses import field
 from dataclasses import replace
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
@@ -39,16 +38,8 @@ class ParticulateConditionInput:
 
 
 @dataclass(frozen=True)
-class ObservationConditionFeatureFlags:
-    """Condition modifiers with explicit rollback flags."""
-
-    experimental_aerosol_scoring: bool = True
-    experimental_moon_geometry_scoring: bool = True
-
-
-@dataclass(frozen=True)
 class MoonGeometryConditionInput:
-    """Future Moon geometry diagnostics for score-neutral characterization."""
+    """Target-specific Moon geometry used by the canonical NSOM environment."""
 
     moon_altitude_deg: float | None = None
     moon_target_separation_deg: float | None = None
@@ -59,7 +50,7 @@ class MoonGeometryConditionInput:
 
 @dataclass(frozen=True)
 class AtmosphericSensitivityProfile:
-    """Intended future aerosol/particulate sensitivity for a target class."""
+    """Aerosol/particulate sensitivity for a target class."""
 
     target_class: str
     sensitivity: float
@@ -94,16 +85,6 @@ class ObservationConditionInputs:
     aod: AodConditionInput | None = None
     particulate: ParticulateConditionInput | None = None
     moon_geometry: MoonGeometryConditionInput | None = None
-    feature_flags: ObservationConditionFeatureFlags = field(default_factory=ObservationConditionFeatureFlags)
-
-    @classmethod
-    def diagnostic_only(
-        cls,
-        *,
-        aod: AodConditionInput | None = None,
-        particulate: ParticulateConditionInput | None = None,
-    ) -> ObservationConditionInputs:
-        return cls(aod=aod, particulate=particulate)
 
 
 @dataclass(frozen=True)
@@ -290,21 +271,19 @@ class ObservationConditionsService:
         else:
             diagnostic_notes.append("light_pollution:not_requested")
 
-        aerosol = self.experimental_aerosol_scoring_breakdown(
+        aerosol = self.aerosol_scoring_breakdown(
             target,
             inputs.aod,
             inputs.particulate,
-            inputs.feature_flags,
         )
-        if inputs.feature_flags.experimental_aerosol_scoring:
-            diagnostic_notes.extend(aerosol.notes)
-            diagnostic_notes.append("aerosol:canonical_environment_only")
+        diagnostic_notes.extend(aerosol.notes)
+        diagnostic_notes.append("aerosol:canonical_environment_only")
 
         breakdown = self._breakdown(
             object_id=target.id,
             base_score=target.score,
             moon_penalty=moon_penalty,
-            moon_geometry_factor=self.intended_moon_geometry_factor(inputs.moon_geometry),
+            moon_geometry_factor=self.moon_geometry_factor(inputs.moon_geometry),
             pollution_penalty=pollution_penalty,
             aod_modifier=aod_modifier,
             pm25_modifier=pm25_modifier,
@@ -485,36 +464,31 @@ class ObservationConditionsService:
     ) -> str:
         """AOD dominates PM only when the provider-quality policy accepts it."""
 
-        flags = ObservationConditionFeatureFlags()
-        return cls._aerosol_provider_policy(aod, particulate, flags).primary_source
+        return cls._aerosol_provider_policy(aod, particulate).primary_source
 
     @staticmethod
-    def intended_aerosol_modifier(
+    def aerosol_modifier(
         target: CelestialObject,
         aod: AodConditionInput | None,
         particulate: ParticulateConditionInput | None,
-        feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> float:
         """Target-specific AOD/OpenAQ score modifier."""
 
-        return ObservationConditionsService.experimental_aerosol_scoring_breakdown(
+        return ObservationConditionsService.aerosol_scoring_breakdown(
             target,
             aod,
             particulate,
-            feature_flags,
         ).score_modifier
 
     @classmethod
-    def experimental_aerosol_scoring_breakdown(
+    def aerosol_scoring_breakdown(
         cls,
         target: CelestialObject,
         aod: AodConditionInput | None,
         particulate: ParticulateConditionInput | None,
-        feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> AerosolScoringBreakdown:
-        """Compute the explicit aerosol modifier when enabled."""
+        """Compute the canonical target-specific aerosol modifier."""
 
-        flags = feature_flags or ObservationConditionFeatureFlags()
         profile = cls.atmospheric_sensitivity_profile(target)
         max_transparency_loss = round(max(0.0, profile.penalty_cap / 100.0), 5)
         formula = (
@@ -522,25 +496,7 @@ class ObservationConditionsService:
             "max_transparency_loss * sensitivity * severity * freshness_weight * source_weight); "
             "penalty_points = target_score * transparency_loss"
         )
-        if not flags.experimental_aerosol_scoring:
-            return AerosolScoringBreakdown(
-                primary_source="none",
-                target_class=profile.target_class,
-                sensitivity=profile.sensitivity,
-                penalty_cap=profile.penalty_cap,
-                max_transparency_loss=max_transparency_loss,
-                severity=0.0,
-                freshness_weight=0.0,
-                source_weight=0.0,
-                transparency_loss=0.0,
-                penalty_points=0.0,
-                score_modifier=0.0,
-                atmospheric_transparency_factor=1.0,
-                formula=formula,
-                notes=("aerosol_scoring:flag_off",),
-            )
-
-        policy = cls._aerosol_provider_policy(aod, particulate, flags)
+        policy = cls._aerosol_provider_policy(aod, particulate)
         if policy.primary_source == "aod" and aod is not None:
             severity = cls.aod_severity(aod.aod_550)
             freshness_weight = policy.aod.freshness_weight
@@ -683,28 +639,27 @@ class ObservationConditionsService:
     def _aerosol_provider_policy(
         aod: AodConditionInput | None,
         particulate: ParticulateConditionInput | None,
-        flags: ObservationConditionFeatureFlags,
     ):
         from astro_viewer.app.services.aerosol_provider_quality_policy import (
             AerosolProviderQualityPolicyService,
         )
 
-        return AerosolProviderQualityPolicyService().policy(aod, particulate, flags)
+        return AerosolProviderQualityPolicyService().policy(aod, particulate)
 
     @classmethod
-    def intended_moon_geometry_factor(cls, geometry: MoonGeometryConditionInput | None) -> float:
-        """Future Moon geometry factor used for diagnostics only in this milestone."""
+    def moon_geometry_factor(cls, geometry: MoonGeometryConditionInput | None) -> float:
+        """Return Moon influence from altitude and target separation."""
 
         if geometry is None:
             return 1.0
         if geometry.moon_set_before_target_window is True:
             return 0.0
-        altitude_factor = cls.moon_altitude_future_factor(geometry)
-        separation_factor = cls.moon_separation_future_factor(geometry)
+        altitude_factor = cls.moon_altitude_factor(geometry)
+        separation_factor = cls.moon_separation_factor(geometry)
         return altitude_factor * separation_factor
 
     @staticmethod
-    def moon_altitude_future_factor(geometry: MoonGeometryConditionInput | None) -> float:
+    def moon_altitude_factor(geometry: MoonGeometryConditionInput | None) -> float:
         if geometry is None:
             return 1.0
         if geometry.moon_set_before_target_window is True:
@@ -723,7 +678,7 @@ class ObservationConditionsService:
         return 1.0
 
     @staticmethod
-    def moon_separation_future_factor(geometry: MoonGeometryConditionInput | None) -> float:
+    def moon_separation_factor(geometry: MoonGeometryConditionInput | None) -> float:
         if geometry is None or geometry.moon_target_separation_deg is None:
             return 1.0
         separation = max(0.0, geometry.moon_target_separation_deg)
@@ -734,19 +689,6 @@ class ObservationConditionsService:
         if separation < 90.0:
             return 0.65
         return 0.35
-
-    @staticmethod
-    def intended_moon_geometry_modifier(
-        geometry: MoonGeometryConditionInput | None,
-        feature_flags: ObservationConditionFeatureFlags | None = None,
-    ) -> float:
-        """Future scoring hook; intentionally neutral until an experimental flag is wired."""
-
-        del geometry
-        flags = feature_flags or ObservationConditionFeatureFlags()
-        if not flags.experimental_moon_geometry_scoring:
-            return 0.0
-        return 0.0
 
     @staticmethod
     def _breakdown(
@@ -801,11 +743,9 @@ class ObservationConditionsService:
             "equipment:identity_placeholder",
             *cls._aod_diagnostics(
                 inputs.aod,
-                score_neutral=not inputs.feature_flags.experimental_aerosol_scoring,
             ),
             *cls._particulate_diagnostics(
                 inputs.particulate,
-                score_neutral=not inputs.feature_flags.experimental_aerosol_scoring,
             ),
             *cls._moon_geometry_diagnostics(inputs.moon_geometry),
         )
@@ -828,15 +768,13 @@ class ObservationConditionsService:
             )
         if geometry.moon_set_before_target_window is not None:
             notes.append(f"moon_geometry:set_before_window={str(geometry.moon_set_before_target_window).lower()}")
-        notes.append(f"moon_geometry:future_factor={cls.intended_moon_geometry_factor(geometry):g}")
-        notes.append("moon_geometry:score_neutral")
+        notes.append(f"moon_geometry:factor={cls.moon_geometry_factor(geometry):g}")
+        notes.append("moon_geometry:canonical_environment_only")
         return tuple(notes)
 
     @staticmethod
     def _aod_diagnostics(
         aod: AodConditionInput | None,
-        *,
-        score_neutral: bool = True,
     ) -> tuple[str, ...]:
         if aod is None:
             return ("aod:identity_placeholder",)
@@ -854,14 +792,12 @@ class ObservationConditionsService:
             notes.append(f"aod:value={aod.aod_550:g}")
         if aod.age_days is not None:
             notes.append(f"aod:age_days={aod.age_days:g}")
-        notes.append("aod:score_neutral" if score_neutral else "aod:experimental_scoring_enabled")
+        notes.append("aod:canonical_environment_only")
         return tuple(notes)
 
     @staticmethod
     def _particulate_diagnostics(
         particulate: ParticulateConditionInput | None,
-        *,
-        score_neutral: bool = True,
     ) -> tuple[str, ...]:
         if particulate is None:
             return ("pm25:identity_placeholder",)
@@ -880,11 +816,7 @@ class ObservationConditionsService:
             notes.append(f"particulate:pm10={particulate.pm10:g}")
         if particulate.age_days is not None:
             notes.append(f"particulate:age_days={particulate.age_days:g}")
-        notes.append(
-            "particulate:score_neutral"
-            if score_neutral
-            else "particulate:experimental_scoring_enabled"
-        )
+        notes.append("particulate:canonical_environment_only")
         return tuple(notes)
 
     @staticmethod

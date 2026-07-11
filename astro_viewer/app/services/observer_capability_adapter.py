@@ -15,7 +15,7 @@ from astro_viewer.app.models.nsom import (
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
-from astro_viewer.app.services.nsom_diagnostic_adapters import (
+from astro_viewer.app.services.nsom_runtime_builders import (
     build_observer_capability_profile_from_recommendation,
 )
 

@@ -52,8 +52,6 @@ class NsomObservationEnvironmentService:
                 "nsom:canonical_observation_environment",
                 f"target_class={target_class_name}",
                 f"moon_background_factor={moon_background:.5f}",
-                "moon_geometry_scoring_enabled="
-                f"{inputs.feature_flags.experimental_moon_geometry_scoring}",
                 "moon_geometry_input="
                 f"{'available' if inputs.moon_geometry is not None else 'missing'}",
                 f"static_sky_background_factor={sky_background:.5f}",
@@ -94,10 +92,8 @@ class NsomObservationEnvironmentService:
         if max_influence <= 0.0:
             return 1.0
         illumination = _unit_from_percentage_text(inputs.moon.illumination)
-        geometry_factor = (
-            ObservationConditionsService.intended_moon_geometry_factor(inputs.moon_geometry)
-            if inputs.feature_flags.experimental_moon_geometry_scoring
-            else 1.0
+        geometry_factor = ObservationConditionsService.moon_geometry_factor(
+            inputs.moon_geometry
         )
         severity = _clamp_unit(((illumination - 0.2) / 0.8) * geometry_factor)
         return _clamp_unit(1.0 - (severity * max_influence))
@@ -157,11 +153,10 @@ class NsomObservationEnvironmentService:
                 fallback_note,
             )
 
-        aerosol = ObservationConditionsService.experimental_aerosol_scoring_breakdown(
+        aerosol = ObservationConditionsService.aerosol_scoring_breakdown(
             target,
             inputs.aod,
             inputs.particulate,
-            inputs.feature_flags,
         )
         factor = _clamp_unit(base_factor * aerosol.atmospheric_transparency_factor)
         source = getattr(seeing, "source", "") if seeing else ""

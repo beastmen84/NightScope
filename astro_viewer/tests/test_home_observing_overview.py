@@ -5,7 +5,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject
 
 from astro_viewer.app.models.observing import MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import (
     ObservingSessionDecision,
     WeatherBlockingStatus,
@@ -31,7 +31,7 @@ def test_discouraged_session_stays_separate_from_category_diagnostics() -> None:
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("21%"),
-        category_scores=AdvancedObservingScores(82, 58, "Buona", "Discreta", "NSOM categories"),
+        category_scores=ObservingCategoryScores(82, 58, "Buona", "Discreta", "NSOM categories"),
         session=ObservingSessionDecision(
             state="discouraged",
             title="Sessione sconsigliata",
@@ -86,7 +86,7 @@ def test_monitor_session_exposes_only_the_actionable_window() -> None:
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("45%"),
-        category_scores=AdvancedObservingScores(70, 55, "Discreta", "Discreta", "NSOM categories"),
+        category_scores=ObservingCategoryScores(70, 55, "Discreta", "Discreta", "NSOM categories"),
         session=ObservingSessionDecision(
             state="monitor",
             title="Sessione da monitorare",
@@ -120,7 +120,7 @@ def test_moon_summary_describes_only_lunar_impact() -> None:
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("21%"),
-        category_scores=AdvancedObservingScores(80, 60, "Buona", "Discreta", "NSOM categories"),
+        category_scores=ObservingCategoryScores(80, 60, "Buona", "Discreta", "NSOM categories"),
         session=ObservingSessionDecision(state="recommended"),
         blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
         suggested_window="22:00–01:00",
@@ -171,7 +171,7 @@ def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("n/d"),
-        category_scores=AdvancedObservingScores(0, 0, "n/d", "n/d", "No data"),
+        category_scores=ObservingCategoryScores(0, 0, "n/d", "n/d", "No data"),
         session=ObservingSessionDecision(state="recommended"),
         blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
         suggested_window="",
@@ -222,7 +222,7 @@ def test_missing_location_does_not_claim_favourable_conditions() -> None:
         seeing=_seeing(),
         sky_quality=_sky_quality(),
         moon=_moon("21%"),
-        category_scores=AdvancedObservingScores(82, 58, "Buona", "Discreta", "NSOM categories"),
+        category_scores=ObservingCategoryScores(82, 58, "Buona", "Discreta", "NSOM categories"),
         session=ObservingSessionDecision(state="recommended"),
         blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
         suggested_window="23:00–02:00",

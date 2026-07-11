@@ -34,8 +34,8 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertGreater(len(controller.solarSystemObjects), 0)
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertNotIn("NightScope could not update all data", controller.serviceStatus)
-            self.assertGreater(controller.advancedScores["planetaryScore"], 0)
-            self.assertGreater(controller.advancedScores["deepSkyScore"], 0)
+            self.assertEqual(controller.homeObservingOverview["planetary"]["state"], "available")
+            self.assertEqual(controller.homeObservingOverview["deepSky"]["state"], "available")
 
     def test_home_overview_separates_session_weather_and_category_diagnostics(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:
@@ -47,8 +47,8 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(overview["schemaVersion"], "home_observing_overview_v1")
             self.assertIn(overview["session"]["state"], {"recommended", "monitor", "discouraged"})
             self.assertEqual(overview["weather"]["scoreValue"], controller.weatherSummary["scoreValue"])
-            self.assertEqual(overview["planetary"]["source"], "nsom_category_diagnostic")
-            self.assertEqual(overview["deepSky"]["source"], "nsom_category_diagnostic")
+            self.assertEqual(overview["planetary"]["source"], "nsom_canonical_environment")
+            self.assertEqual(overview["deepSky"]["source"], "nsom_canonical_environment")
             self.assertEqual(night_overview["schemaVersion"], "home_night_plan_overview_v1")
             self.assertEqual(night_overview["plan"]["state"], overview["session"]["state"])
             self.assertTrue(night_overview["profile"]["summary"].startswith("Profilo attivo:"))

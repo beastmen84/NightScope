@@ -181,10 +181,9 @@ def test_planet_detail_fallback_uses_eight_degree_threshold() -> None:
     assert controller._observing_altitude_threshold(target) == 8.0
 
 
-def test_observing_detail_uses_live_display_target_and_raw_nsom_target() -> None:
+def test_observing_detail_prefers_live_target_over_conditioned_display_target() -> None:
     controller = AppController.__new__(AppController)
     selected = _target()
-    raw = replace(selected, score=91)
     display = replace(selected, score=63)
     live = replace(display, current_altitude="28.0 gradi", observable_now=True)
     controller._selected_object = selected
@@ -193,13 +192,11 @@ def test_observing_detail_uses_live_display_target_and_raw_nsom_target() -> None
     controller._conditioned_home_read_model = [
         SimpleNamespace(
             object_id=selected.id,
-            nsom_target_input=raw,
             qml_display_target=display,
         )
     ]
 
     assert controller._observing_detail_display_target() is live
-    assert controller._observing_detail_nsom_target() is raw
 
 
 def test_catalogue_selection_does_not_use_observing_detail_contract() -> None:
@@ -209,7 +206,6 @@ def test_catalogue_selection_does_not_use_observing_detail_contract() -> None:
     controller._selected_object_source = "catalogue"
 
     assert controller._observing_detail_display_target() is None
-    assert controller._observing_detail_nsom_target() is selected
 
 
 def test_observing_detail_uses_target_specific_telescope() -> None:

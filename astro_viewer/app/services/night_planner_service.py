@@ -5,23 +5,14 @@ from datetime import datetime, timedelta
 
 from astro_viewer.app.astronomy.engine import ObservingNightWindow
 from astro_viewer.app.models.equipment import Telescope
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, NightPlanItem, SkyQuality
+from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
-    TargetConditionBreakdown,
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
-from astro_viewer.app.services.planner_scoring_service import (
-    PlannerConditionBreakdown,
-    PlannerScoreBreakdown,
-    PlannerScoringService,
-)
-
-
-NSOM_PLANNER_SCORING_ENABLED = True
 
 
 class NightPlannerService:
@@ -35,10 +26,6 @@ class NightPlannerService:
         self._nsom_scoring_service = nsom_scoring_service or PlannerNsomScoringService()
 
     @property
-    def uses_moon_geometry_scoring(self) -> bool:
-        return bool(getattr(self._nsom_scoring_service, "uses_moon_geometry_scoring", False))
-
-    @property
     def uses_target_equipment(self) -> bool:
         return True
 
@@ -46,14 +33,12 @@ class NightPlannerService:
         self,
         objects: list[CelestialObject],
         weather: WeatherSummary,
-        scores: AdvancedObservingScores,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None = None,
+        *,
+        condition_inputs: ObservationConditionInputs,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
         night_window: ObservingNightWindow | None = None,
-        condition_inputs: ObservationConditionInputs | None = None,
     ) -> list[NightPlanItem]:
         blocking_status = self.weather_blocking_status(weather)
         if blocking_status.blocks_plan:
@@ -69,15 +54,12 @@ class NightPlannerService:
         scored_visible = self._scored_visible(
             visible,
             weather=weather,
-            scores=scores,
-            sky_quality=sky_quality,
             telescope=telescope,
-            moon=moon,
+            condition_inputs=condition_inputs,
             moon_geometry_by_object_id=moon_geometry_by_object_id,
             telescope_by_object_id=telescope_by_object_id,
             blocking_status=blocking_status,
             night_window=night_window,
-            condition_inputs=condition_inputs,
         )
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
         start = self._start_time([item for item, _score in ranked], night_window)
@@ -118,15 +100,12 @@ class NightPlannerService:
         visible: list[CelestialObject],
         *,
         weather: WeatherSummary,
-        scores: AdvancedObservingScores,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None,
+        condition_inputs: ObservationConditionInputs,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
         telescope_by_object_id: Mapping[str, Telescope] | None,
         blocking_status: WeatherBlockingStatus,
         night_window: ObservingNightWindow | None,
-        condition_inputs: ObservationConditionInputs | None,
     ) -> list[tuple[CelestialObject, float]]:
         opportunities = [
             (
@@ -134,10 +113,8 @@ class NightPlannerService:
                 self._nsom_scoring_service.opportunity(
                     item,
                     weather=weather,
-                    scores=scores,
-                    sky_quality=sky_quality,
                     telescope=(telescope_by_object_id or {}).get(item.id, telescope),
-                    moon=moon,
+                    condition_inputs=condition_inputs,
                     moon_geometry=moon_geometry_by_object_id.get(item.id)
                     if moon_geometry_by_object_id is not None
                     else None,
@@ -145,41 +122,11 @@ class NightPlannerService:
                     observing_window_quality=self._observing_window_quality(item, night_window),
                     chronology_fit=self._chronology_fit(item, night_window),
                     practical_constraints=self._practical_constraints(item),
-                    condition_inputs=condition_inputs,
                 ),
             )
             for item in visible
         ]
         return [(item, self._nsom_scoring_service.score(opportunity)) for item, opportunity in opportunities]
-
-    @staticmethod
-    def _planner_score(
-        item: CelestialObject,
-        weather: WeatherSummary,
-        scores: AdvancedObservingScores,
-        sky_quality: SkyQuality,
-        telescope: Telescope,
-        moon: MoonSummary | None = None,
-    ) -> float:
-        return NightPlannerService._planner_score_breakdown(
-            item,
-            weather,
-            scores,
-            sky_quality,
-            telescope,
-            moon,
-        ).final_score
-
-    @staticmethod
-    def _planner_score_breakdown(
-        item: CelestialObject,
-        weather: WeatherSummary,
-        scores: AdvancedObservingScores,
-        sky_quality: SkyQuality,
-        telescope: Telescope,
-        moon: MoonSummary | None = None,
-    ) -> PlannerScoreBreakdown:
-        return PlannerScoringService().score_breakdown(item, weather, scores, sky_quality, telescope, moon)
 
     @staticmethod
     def weather_blocking_status(weather: WeatherSummary) -> WeatherBlockingStatus:
@@ -206,34 +153,6 @@ class NightPlannerService:
                 detail="Punteggio osservativo sotto la soglia minima." if show_warning else "",
             )
         return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
-
-    @staticmethod
-    def _weather_factor(weather: WeatherSummary) -> float:
-        return PlannerScoringService.weather_factor(weather)
-
-    @staticmethod
-    def moon_adjusted_score(item: CelestialObject, moon: MoonSummary | None) -> int:
-        return PlannerScoringService().moon_adjusted_score(item, moon)
-
-    @staticmethod
-    def moon_penalty(item: CelestialObject, moon: MoonSummary | None) -> float:
-        return PlannerScoringService().moon_penalty(item, moon)
-
-    @staticmethod
-    def _moon_condition_breakdown(item: CelestialObject, moon: MoonSummary | None) -> TargetConditionBreakdown:
-        return PlannerScoringService().moon_condition_breakdown(item, moon)
-
-    @staticmethod
-    def _pollution_penalty(item: CelestialObject, sky_quality: SkyQuality) -> float:
-        return PlannerScoringService().pollution_penalty(item, sky_quality)
-
-    @staticmethod
-    def _planner_condition_breakdown(
-        item: CelestialObject,
-        sky_quality: SkyQuality,
-        moon: MoonSummary | None,
-    ) -> PlannerConditionBreakdown:
-        return PlannerScoringService().condition_breakdown(item, sky_quality, moon)
 
     @staticmethod
     def _observing_window_quality(

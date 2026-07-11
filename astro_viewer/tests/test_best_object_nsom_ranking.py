@@ -11,20 +11,17 @@ import pytest
 from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.nsom import RecommendationConfidence
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
-from astro_viewer.app.services.best_object_nsom_ranking import (
-    NSOM_BEST_OBJECT_ENABLED,
-    BestObjectNsomSelectionService,
-)
-from astro_viewer.app.services.advanced_observing_nsom_service import AdvancedObservingNsomService
+from astro_viewer.app.services.best_object_nsom_ranking import BestObjectNsomSelectionService
 from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
+from astro_viewer.app.services.observation_conditions_service import ObservationConditionInputs
+from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
 
 
-def test_best_object_nsom_flag_is_default_on() -> None:
-    assert NSOM_BEST_OBJECT_ENABLED is True
+def test_best_object_has_no_legacy_rollback_parameter() -> None:
     assert "use_nsom_best_object" not in signature(AppController.__init__).parameters
 
 
@@ -35,20 +32,17 @@ def test_best_object_nsom_service_ranks_by_observation_opportunity() -> None:
     ranked = service.ranked_candidates(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     )
 
     assert ranked[0].target.id == "galaxy"
     assert service.best_object(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     ).id == "galaxy"
-    assert ObservingScoreService().best_object(targets, _weather(90)).id == "jupiter"
     assert ranked[0].opportunity.context == ("best_object", "nsom_runtime")
     assert ranked[0].opportunity.value == pytest.approx(ranked[0].score)
 
@@ -59,9 +53,8 @@ def test_best_object_nsom_score_formula_uses_practical_value_and_session_only() 
     candidate = service.ranked_candidates(
         [_target("galaxy", "Galaxy", 90, difficulty="Media")],
         weather=_weather(73),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     )[0]
 
     opportunity = candidate.opportunity
@@ -79,9 +72,8 @@ def test_best_object_nsom_observer_capability_uses_best_object_context() -> None
     candidate = service.ranked_candidates(
         [_target("galaxy", "Galaxy", 90, difficulty="Media")],
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     )[0]
 
     notes = candidate.practical_target_value.observer_capability.notes
@@ -101,10 +93,9 @@ def test_best_object_uses_target_specific_telescope_mapping() -> None:
     ranked = BestObjectNsomSelectionService().ranked_candidates(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=fallback,
+        condition_inputs=_inputs(3, moon=10),
         telescope_by_object_id={"galaxy": wide_field, "jupiter": planetary},
-        moon=_moon(10),
     )
     by_id = {candidate.target.id: candidate for candidate in ranked}
 
@@ -119,17 +110,15 @@ def test_best_object_nsom_blocked_session_is_non_actionable_with_preserved_order
     ranked = service.ranked_candidates(
         targets,
         weather=_weather(10, cloud_cover=95, precipitation_probability=80),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     )
 
     assert service.best_object(
         targets,
         weather=_weather(10, cloud_cover=95, precipitation_probability=80),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     ) is None
     assert {candidate.actionability for candidate in ranked} == {"non_actionable_hard_block"}
     assert {candidate.score for candidate in ranked} == {0.0}
@@ -147,9 +136,8 @@ def test_best_object_nsom_invisible_targets_are_non_actionable() -> None:
     ranked = service.ranked_candidates(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     )
 
     hidden = next(candidate for candidate in ranked if candidate.target.id == "hidden_galaxy")
@@ -157,9 +145,8 @@ def test_best_object_nsom_invisible_targets_are_non_actionable() -> None:
     assert service.best_object(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
     ).id == "open_cluster"
 
 
@@ -170,17 +157,15 @@ def test_best_object_nsom_confidence_is_score_neutral() -> None:
     low = service.ranked_candidates(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
         confidence=RecommendationConfidence(weather_confidence=0.1, viirs_confidence=0.0),
     )
     high = service.ranked_candidates(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(3),
         telescope=_telescope(),
-        moon=_moon(10),
+        condition_inputs=_inputs(3, moon=10),
         confidence=RecommendationConfidence(weather_confidence=1.0, viirs_confidence=1.0),
     )
 
@@ -196,37 +181,19 @@ def test_best_object_nsom_does_not_mutate_runtime_objects() -> None:
     BestObjectNsomSelectionService().best_object(
         targets,
         weather=_weather(90),
-        sky_quality=_sky_quality(8, radiance=45.0),
         telescope=_telescope(aperture_mm=220, focal_length_mm=1800, mount="GoTo EQ"),
-        moon=_moon(85),
+        condition_inputs=_inputs(8, moon=85, radiance=45.0),
     )
 
     assert targets == before
 
 
-def test_app_controller_runtime_uses_nsom_without_constructor_rollback() -> None:
+def test_app_controller_runtime_uses_canonical_nsom() -> None:
     controller = _controller()
 
     selected = controller._select_best_object(_targets())
 
     assert selected.id == "galaxy"
-
-
-def test_app_controller_default_flag_uses_nsom_best_object_path() -> None:
-    controller = _controller()
-
-    selected = controller._select_best_object(_targets())
-
-    assert selected.id == "galaxy"
-
-
-def test_app_controller_forced_nsom_path_selects_nsom_best_object() -> None:
-    controller = _controller()
-
-    selected = controller._select_best_object(_targets())
-
-    assert selected.id == "galaxy"
-
 
 def test_app_controller_nsom_path_scores_raw_read_model_targets_and_returns_display_target() -> None:
     controller = _controller()
@@ -255,13 +222,13 @@ def test_app_controller_nsom_path_scores_raw_read_model_targets_and_returns_disp
     assert selected.score == 10
 
 
-def test_app_controller_nsom_path_falls_back_without_sky_quality() -> None:
+def test_app_controller_nsom_path_stays_active_without_sky_quality() -> None:
     controller = _controller()
     controller._sky_quality = None
 
     selected = controller._select_best_object(_targets())
 
-    assert selected.id == "jupiter"
+    assert selected.id == "galaxy"
 
 
 def test_app_controller_nsom_blocked_session_returns_no_best_object() -> None:
@@ -288,20 +255,11 @@ def test_app_controller_recalculate_outputs_uses_nsom_best_object_path() -> None
         80,
         "Fixture",
     )
-    controller._advanced_observing_service = Mock()
-    controller._advanced_observing_nsom_service = AdvancedObservingNsomService()
-    controller._advanced_observing_service.scores.return_value = AdvancedObservingScores(
-        planetary_score=80,
-        deep_sky_score=80,
-        planetary_label="Fixture",
-        deep_sky_label="Fixture",
-        explanation="Fixture",
-    )
+    controller._nsom_category_score_service = NsomCategoryScoreService()
     controller._night_planner_service = Mock()
     controller._night_planner_service.plan.return_value = []
     controller._refresh_sky_compass = Mock()
     controller._events = []
-    controller._refresh_nsom_diagnostics = Mock()
 
     controller._recalculate_observing_outputs()
 
@@ -309,10 +267,9 @@ def test_app_controller_recalculate_outputs_uses_nsom_best_object_path() -> None
     assert AppController.bestObjectOfNight.fget(controller)["id"] == "galaxy"
     controller._night_planner_service.plan.assert_called_once()
     controller._refresh_sky_compass.assert_called_once()
-    controller._refresh_nsom_diagnostics.assert_called_once()
 
 
-def test_best_object_qml_payload_shape_stays_legacy_compatible() -> None:
+def test_best_object_qml_payload_keeps_public_contract() -> None:
     controller = _controller()
     selected = controller._select_best_object(_targets())
     controller._best_object = selected
@@ -452,6 +409,18 @@ def _moon(illumination: int) -> MoonSummary:
     )
 
 
+def _inputs(
+    bortle: int | None,
+    *,
+    moon: int,
+    radiance: float | None = None,
+) -> ObservationConditionInputs:
+    return ObservationConditionInputs(
+        moon=_moon(moon),
+        sky_quality=_sky_quality(bortle, radiance) if bortle is not None else None,
+    )
+
+
 def _telescope(
     *,
     aperture_mm: int = 127,
@@ -478,10 +447,10 @@ class _CapturingBestObjectSelectionService:
         candidates: list[CelestialObject],
         *,
         weather: WeatherSummary,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None,
+        condition_inputs: ObservationConditionInputs,
         **_kwargs: object,
     ) -> CelestialObject | None:
+        del weather, telescope, condition_inputs
         self.candidates = list(candidates)
         return next((item for item in self.candidates if item.id == self.selected_id), None)

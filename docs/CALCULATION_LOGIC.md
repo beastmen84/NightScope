@@ -91,21 +91,16 @@ position are computed once; target altitude and Moon separation remain
 target-specific. The single-target method uses the same batch implementation,
 so diagnostics and Planner preserve identical geometry semantics.
 
-Moon geometry is enabled by default for every NSOM consumer through the shared
-`ObservationEnvironment`. The explicit feature flag can still force it off for
-diagnostic rollback, but Planner, Home, Best Object and Sky Compass no longer
-carry separate lunar formulas.
-
-`ObservationConditionFeatureFlags.experimental_aerosol_scoring` defaults to
-`True`. Passing `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`
-preserves the AOD/OpenAQ rollback path.
+Moon geometry is part of every NSOM consumer through the shared
+`ObservationEnvironment`. AOD/OpenAQ atmospheric influence is also canonical
+when provider-quality gates pass. Neither path has a selectable runtime flag.
 
 The read-only `homeObservingOverview` contract is a presentation projection of
-existing Session, weather, Advanced Observing category, sky-quality and Moon
+existing Session, weather, NSOM category, sky-quality and Moon
 outputs. It does not recompute those values and does not feed Planner, Home
 target ranking, Best Object or Sky Compass ranking. The upper Home QML consumes
 the projection without displaying the numeric category diagnostics; only the
-legacy weather index remains numeric and is labelled as weather-specific.
+weather index remains numeric and is labelled as weather-specific.
 
 Sky Compass direction ranking remains independent from this presentation
 projection. The Home QML uses the projected Session state only to label the
@@ -336,8 +331,8 @@ Not implemented:
 - atmospheric extinction modeling,
 - horizon masks or local obstructions,
 - object surface-brightness visibility modeling in the astronomy engine,
-- Moon/object angular separation,
-- Moon altitude in deep-sky visibility,
+- Moon/object angular separation in the astronomy visibility window itself,
+- Moon altitude in the astronomy visibility threshold itself,
 - continuous minute-level optimization of observing windows.
 
 ## Moon
@@ -349,23 +344,19 @@ The Moon implementation includes:
 - phase angle,
 - rise/set/transit from the same solar-system machinery,
 - global observing score penalty,
-- advanced-score contribution,
-- object-dependent deep-sky penalty in planning and presentation.
+- object-dependent deep-sky presentation adjustment,
+- target-specific NSOM Moon background from illumination, altitude, separation
+  and target-window overlap.
 
-Object-dependent Moon sensitivity is implemented in
-`ObservationConditionsService`. Planets, the Moon and the Sun have no Moon
-penalty. Diffuse objects and galaxies are penalized more strongly. Globular
-clusters are penalized less. Open clusters are penalized lightly.
-
-`PlannerScoringService` reuses the same Moon-condition primitive, but owns how
-that penalty is combined with Planner-specific weather, difficulty, aperture
-and light-pollution factors.
+Object-dependent presentation sensitivity remains in
+`ObservationConditionsService`. Ranking sensitivity is owned by target-class
+profiles and composed once by `NsomObservationEnvironmentService`; Planner then
+adds observer capability, timing and binary Session viability.
 
 Known limitations:
 
-- Moon altitude is not used in the score.
-- Moon/object angular separation is not used.
-- Moon rise/set timing is not integrated into per-object deep-sky penalties.
+- The presentation compatibility score still uses illumination-only Moon
+  adjustment; altitude/separation belong to NSOM ranking.
 - No sky-surface-brightness model is used.
 - No object angular-size-specific lunar scattering model is used.
 
@@ -519,34 +510,21 @@ mathematical contradiction: seeing estimates atmospheric steadiness, while the
 global score also considers cloud cover and precipitation. The UI should keep
 the global blocked-session warning prominent when weather is unusable.
 
-## Advanced Observing Scores
+## Home Category Scores
 
-`AdvancedObservingService` computes separate planetary and deep-sky scores.
+`NsomCategoryScoreService` projects broad planetary and deep-sky conditions
+through `NsomObservationEnvironmentService`.
 
-Planetary score:
+- Planetary conditions use a representative intrinsic-quality 100 planet.
+- Deep-sky conditions are the rounded mean of representative galaxy, diffuse
+  nebula, open-cluster and globular-cluster observable values.
+- Geometry, Moon, static sky background and atmospheric transparency use the
+  same target-class profiles as runtime ranking.
+- Session blocking and equipment do not enter these category summaries.
 
-`weather * 0.36 + seeing * 0.42 + wind_component * 0.12 + moon_component * 0.10`
-
-where:
-
-- `wind_component = 100 - min(55, wind_kmh * 1.4)`,
-- `moon_component = 100 - min(25, moon_illumination * 0.15)`.
-
-Deep-sky score:
-
-`weather * 0.34 + transparency * 0.30 + light_pollution_quality * 0.24 + (100 - moon_illumination) * 0.12`
-
-Both scores are capped by blocking weather:
-
-- precipitation >= 70 caps at 25,
-- precipitation >= 45 caps at 40,
-- cloud >= 85 caps at 30,
-- cloud >= 70 caps at 45,
-- observing score <= 25 caps near the current observing score,
-- observing score <= 50 caps near the current observing score.
-
-This prevents high planetary/deep-sky scores under unusable weather, although
-the independent seeing label may still be high.
+The numeric values remain internal to the Home overview contract; QML presents
+descriptive labels so they are not confused with a target score or Planner
+opportunity.
 
 ## Planetary Recommendations
 
@@ -584,20 +562,20 @@ Deep-sky recommendations depend on:
 Galaxies are penalized more than globular clusters under strong moonlight.
 Current Moon sensitivity is shared through `ObservationConditionsService`.
 Light-pollution presentation filtering also uses a stronger galaxy multiplier
-than globular clusters, while Planner-specific light-pollution ranking remains
-owned by `PlannerScoringService`.
+than globular clusters. NSOM ranking instead applies target-class sensitivity
+once through the canonical static-sky-background factor.
 
 `ObservationConditionsService` also accepts provider-gated NASA AOD and OpenAQ
-particulate inputs, including freshness categories. In the current default
-runtime, AOD and PM modifiers can affect condition-adjusted target scores only
-when `experimental_aerosol_scoring` is enabled and provider-quality gates pass.
+particulate inputs, including freshness categories. AOD and PM influence the
+canonical atmospheric-transparency factor only when provider-quality gates pass;
+they do not mutate display `CelestialObject.score` values.
 AOD owns column aerosol when policy eligible, OpenAQ PM remains fallback/context
 only, and VIIRS sky background, weather transparency and Moon geometry remain
 separate owners. The 1.14.11 calibration audit kept the formula disabled while
 score-scale plus penalty-cap/transparency shape were reviewed; 1.14.12 resolved
 the shape item by using transparency loss as the mathematical owner and
-preserving a derived score modifier only for compatibility. The path was later
-accepted for default-on use with explicit rollback.
+preserving a derived score modifier only for diagnostics. The accepted formula
+is now part of the canonical environment without a runtime switch.
 
 The Home/Detail deep-sky pollution context keeps a user-facing note for
 backward compatibility and also sets an internal target condition flag. The flag
@@ -618,8 +596,7 @@ to visible scored objects when no useful-window candidates exist.
 The default runtime ranking is owned by `PlannerNsomScoringService`, which
 builds one `ObservationOpportunity` per candidate. `NightPlannerService`
 selects the four highest-valued unique targets and only then orders those four
-chronologically for display. `PlannerScoringService` remains a legacy formula
-and diagnostic comparison helper, not the default ranking owner.
+chronologically for display. No parallel legacy Planner formula remains.
 
 An observing window is an interval, not two candidate instants. If its best
 time has passed but the current local time is still inside the interval, the
@@ -855,11 +832,11 @@ Cache policy:
 
 Current limitations:
 
-- QA filtering is basic; formal `AOD_QA` bit decoding should be improved before
-  these values are used operationally for scoring.
+- QA filtering is conservative but not a complete scientific `AOD_QA` bit
+  interpretation; low-quality or insufficiently local values remain ineligible.
 - Provider results are displayed in the Weather page and may influence
-  canonical atmospheric-transparency scoring when `experimental_aerosol_scoring`
-  is enabled and provider-quality gates pass. Successful and failed lookups are
+  canonical atmospheric-transparency scoring when provider-quality gates pass.
+  Successful and failed lookups are
   logged with status, product, acquisition date, AOD value, method and cache-hit
   information.
 - MODIS fallback depends on `netCDF4` native binaries. A PyInstaller probe passed

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import logging
-import math
 import re
 from collections.abc import Callable, Mapping
-from copy import deepcopy
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -28,22 +26,14 @@ from astro_viewer.app.database.observation_repository import ObservationReposito
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
-from astro_viewer.app.models.nsom import NsomDiagnosticSnapshot, NsomTargetDiagnostic
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
     MoonGeometrySummary,
     MoonSummary,
 )
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import ObservingSessionDecision, WeatherBlockingStatus, WeatherHour, WeatherSummary
-from astro_viewer.app.services.advanced_observing_service import AdvancedObservingService
-from astro_viewer.app.services.advanced_observing_nsom_service import (
-    AdvancedObservingNsomService,
-)
-from astro_viewer.app.services.advanced_observing_nsom_presentation import (
-    build_advanced_observing_nsom_presentation,
-)
 from astro_viewer.app.services.earthdata_credentials import (
     EARTHDATA_LAADS_AUTHORIZATION_URL,
     EarthdataConnectionTester,
@@ -71,9 +61,6 @@ from astro_viewer.app.services.catalogue_presentation import (
     catalogue_object_type_label,
     catalogue_observation_type_label,
 )
-from astro_viewer.app.services.detail_nsom_runtime import (
-    DetailObjectNsomRuntimeService,
-)
 from astro_viewer.app.services.home_nsom_ranking import (
     HomeRecommendedDeepSkyNsomRankingService,
 )
@@ -83,13 +70,7 @@ from astro_viewer.app.services.home_observing_overview import (
     bortle_observing_warning,
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
-from astro_viewer.app.services.nsom_diagnostic_adapters import (
-    build_observable_target_value,
-    build_observation_opportunity,
-    build_observer_capability_profile_from_recommendation,
-    build_practical_target_value,
-    build_recommendation_confidence,
-)
+from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     MoonGeometryConditionInput,
@@ -114,9 +95,6 @@ from astro_viewer.app.services.openaq_credentials import OpenAQConnectionTester,
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager, RefreshReason
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 from astro_viewer.app.services.sky_compass_service import SkyCompassService
-from astro_viewer.app.services.sky_compass_nsom_ranking import (
-    SkyCompassNsomDirectionService,
-)
 from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAGE, OpenMeteoWeatherService
 
 
@@ -193,9 +171,8 @@ class AppController(QObject):
         *,
         best_object_nsom_selection_service: BestObjectNsomSelectionService | None = None,
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
-        advanced_observing_nsom_service: AdvancedObservingNsomService | None = None,
-        sky_compass_nsom_direction_service: SkyCompassNsomDirectionService | None = None,
-        detail_object_nsom_runtime_service: DetailObjectNsomRuntimeService | None = None,
+        nsom_category_score_service: NsomCategoryScoreService | None = None,
+        sky_compass_service: SkyCompassService | None = None,
     ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
@@ -288,10 +265,7 @@ class AppController(QObject):
             cache_path=database_path.parent / "nasa_aod_cache.json",
         )
         self._seeing_service = SeeingTransparencyService()
-        self._advanced_observing_service = AdvancedObservingService()
-        self._advanced_observing_nsom_service = (
-            advanced_observing_nsom_service or AdvancedObservingNsomService()
-        )
+        self._nsom_category_score_service = nsom_category_score_service or NsomCategoryScoreService()
         self._conditions_service = ObservationConditionsService()
         self._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
         self._best_object_nsom_selection_service = (
@@ -304,13 +278,7 @@ class AppController(QObject):
         self._home_night_plan_overview_service = HomeNightPlanOverviewService()
         self._calendar_overview_service = CalendarOverviewService()
         self._night_planner_service = NightPlannerService()
-        self._sky_compass_service = SkyCompassService()
-        self._sky_compass_nsom_direction_service = (
-            sky_compass_nsom_direction_service or SkyCompassNsomDirectionService()
-        )
-        self._detail_object_nsom_runtime_service = (
-            detail_object_nsom_runtime_service or DetailObjectNsomRuntimeService()
-        )
+        self._sky_compass_service = sky_compass_service or SkyCompassService()
         self._observing_object_detail_service = ObservingObjectDetailService()
         self._refresh_manager = RefreshManager()
 
@@ -345,17 +313,10 @@ class AppController(QObject):
         self._local_atmosphere = LocalAtmosphere.not_configured()
         self._nasa_aod_result = NasaAodResult.no_location()
         self._seeing_transparency = None
-        self._advanced_scores = None
-        self._advanced_observing_nsom_scores = None
-        self._advanced_observing_nsom_presentation = None
+        self._category_scores = None
         self._night_plan = []
         self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
-        self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
-            generated_at="",
-            metadata=self._nsom_snapshot_metadata(),
-            notes=("not_initialized", "diagnostic_only"),
-        )
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
         self._best_object: CelestialObject | None = None
@@ -679,7 +640,6 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def homeObservingOverview(self) -> dict:
         digest = self._weather_digest()
-        category_scores = self._advanced_observing_nsom_scores or self._advanced_scores
         return self._home_observing_overview_service.build(
             location_available=self._has_valid_location(),
             location_pending=self._startup_location_detection_running,
@@ -688,16 +648,12 @@ class AppController(QObject):
             seeing=self._seeing_transparency,
             sky_quality=self._sky_quality,
             moon=self._moon,
-            category_scores=category_scores,
+            category_scores=self._category_scores,
             session=self._observing_session_decision(),
             blocking=self._weather_blocking_status(),
             suggested_window=self._suggested_observing_window(),
             wind_label=str(digest.get("windLabel") or "n/d"),
-            category_source=(
-                "nsom_category_diagnostic"
-                if self._advanced_observing_nsom_scores is not None
-                else "legacy_category_fallback"
-            ),
+            category_source="nsom_canonical_environment",
         )
 
     @Property("QVariant", notify=homeNightPlanChanged)
@@ -753,19 +709,6 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def seeingTransparency(self) -> dict:
         return self._seeing_transparency.to_qml() if self._seeing_transparency else {}
-
-    @Property("QVariant", notify=weatherChanged)
-    def advancedScores(self) -> dict:
-        return self._advanced_scores.to_qml() if self._advanced_scores else {}
-
-    @Property("QVariant", notify=weatherChanged)
-    def advancedObservingNsom(self) -> dict:
-        return self._advanced_observing_nsom_payload()
-
-    def _advanced_observing_nsom_payload(self) -> dict:
-        if not self._advanced_observing_nsom_presentation:
-            return {}
-        return deepcopy(self._advanced_observing_nsom_presentation)
 
     @Property("QVariant", notify=weatherChanged)
     def weatherDigest(self) -> dict:
@@ -857,19 +800,6 @@ class AppController(QObject):
             is_deep_sky=is_deep_sky,
         )
 
-    def _selected_object_nsom_payload(self) -> dict[str, object]:
-        if not self._selected_object or not self._weather_summary or not self._sky_quality:
-            return {}
-        target = self._observing_detail_nsom_target()
-        return self._detail_object_nsom_runtime_service.payload(
-            target,
-            source=self._selected_object_source or OBSERVING_SOURCE,
-            weather=self._weather_summary,
-            sky_quality=self._sky_quality,
-            telescope=self._detail_telescope_for_target(target.id),
-            moon=self._moon,
-        ).to_dict()
-
     def _observing_detail_display_target(self) -> CelestialObject | None:
         if not self._selected_object or self._selected_object_source == CATALOGUE_SOURCE:
             return None
@@ -886,12 +816,6 @@ class AppController(QObject):
             return live_target
         read_model = self._observing_detail_read_model(object_id)
         return read_model.qml_display_target if read_model is not None else self._selected_object
-
-    def _observing_detail_nsom_target(self) -> CelestialObject:
-        if self._selected_object_source == CATALOGUE_SOURCE:
-            return self._selected_object
-        read_model = self._observing_detail_read_model(self._selected_object.id)
-        return read_model.nsom_target_input if read_model is not None else self._selected_object
 
     def _observing_detail_read_model(
         self, object_id: str
@@ -1959,9 +1883,7 @@ class AppController(QObject):
         )
         self._sky_quality = SkyQuality(0, 0.0, 0.0, "Nessuna fonte", "n/d", "n/d")
         self._seeing_transparency = SeeingTransparency("n/d", "n/d", 0, 0, "Configura una posizione.", "n/d", "n/d")
-        self._advanced_scores = AdvancedObservingScores(0, 0, "n/d", "n/d", "Configura una posizione.")
-        self._advanced_observing_nsom_scores = None
-        self._advanced_observing_nsom_presentation = None
+        self._category_scores = ObservingCategoryScores(0, 0, "n/d", "n/d", "Configura una posizione.")
         self._best_object = None
         self._night_plan = []
         self._sky_compass_candidate_snapshot = []
@@ -2441,9 +2363,9 @@ class AppController(QObject):
             self._observing_weather_hours(),
             self._sky_quality,
         )
-        self._advanced_scores = self._select_advanced_observing_scores()
-        self._advanced_observing_nsom_scores = self._select_advanced_observing_nsom_scores()
-        self._advanced_observing_nsom_presentation = self._select_advanced_observing_nsom_presentation()
+        self._category_scores = self._nsom_category_score_service.scores(
+            self._build_observation_condition_inputs()
+        )
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
         planning_objects = planning_objects or self._visible_planets + self._deep_sky
@@ -2468,14 +2390,10 @@ class AppController(QObject):
         self._night_plan = self._night_planner_service.plan(
             planning_objects,
             self._weather_summary,
-            self._advanced_scores_for_planner(),
-            self._sky_quality,
             self._current_telescope(),
-            self._moon,
             **planner_kwargs,
         )
         self._refresh_sky_compass()
-        self._refresh_nsom_diagnostics()
 
     def _planner_telescopes_by_object_id(
         self,
@@ -2495,10 +2413,7 @@ class AppController(QObject):
     def _planner_moon_geometry_inputs(
         self,
         targets: list[CelestialObject],
-    ) -> dict[str, MoonGeometryConditionInput] | None:
-        planner = getattr(self, "_night_planner_service", None)
-        if not getattr(planner, "uses_moon_geometry_scoring", False):
-            return None
+    ) -> dict[str, MoonGeometryConditionInput]:
         self._populate_moon_geometry_condition_cache(targets)
         geometry_by_id: dict[str, MoonGeometryConditionInput] = {}
         for target in targets:
@@ -2532,40 +2447,6 @@ class AppController(QObject):
                 summary if isinstance(summary, MoonGeometrySummary) else None
             )
 
-    def _select_advanced_observing_scores(self) -> AdvancedObservingScores:
-        return self._advanced_observing_service.scores(
-            self._weather_summary,
-            self._seeing_transparency,
-            self._sky_quality,
-            self._moon,
-        )
-
-    def _select_advanced_observing_nsom_scores(self) -> AdvancedObservingScores | None:
-        return self._advanced_observing_nsom_service.scores(
-            self._weather_summary,
-            self._seeing_transparency,
-            self._sky_quality,
-            self._moon,
-        )
-
-    def _select_advanced_observing_nsom_presentation(self) -> dict[str, object] | None:
-        return build_advanced_observing_nsom_presentation(
-            self._advanced_observing_nsom_scores,
-            self._advanced_scores,
-            session_state=self._advanced_observing_nsom_session_state(),
-        )
-
-    def _advanced_observing_nsom_session_state(self) -> str:
-        if not self._weather_summary:
-            return ""
-        blocking = NightPlannerService.weather_blocking_status(self._weather_summary)
-        if not blocking.show_warning:
-            return "recommended"
-        return "monitor" if self._best_usable_observing_window() else "discouraged"
-
-    def _advanced_scores_for_planner(self) -> AdvancedObservingScores:
-        return self._advanced_scores or self._select_advanced_observing_scores()
-
     def _select_best_object(
         self,
         planning_objects: list[CelestialObject],
@@ -2576,15 +2457,11 @@ class AppController(QObject):
     ) -> CelestialObject | None:
         if not self._weather_summary:
             return None
-        if not self._sky_quality:
-            return self._score_service.best_object(planning_objects, self._weather_summary)
         candidate_read_models = self._best_object_read_models(planning_objects)
         selected_raw_target = self._best_object_nsom_selection_service.best_object(
             [model.nsom_target_input for model in candidate_read_models],
             weather=self._weather_summary,
-            sky_quality=self._sky_quality,
             telescope=self._current_telescope(),
-            moon=self._moon,
             condition_inputs=condition_inputs or self._build_observation_condition_inputs(),
             moon_geometry_by_object_id=moon_geometry_by_object_id,
             telescope_by_object_id=telescope_by_object_id,
@@ -2622,206 +2499,6 @@ class AppController(QObject):
             for item in planning_objects
             if item.id in existing_models
         )
-
-    def _refresh_nsom_diagnostics(self) -> None:
-        notes = ["diagnostic_only", "score_neutral"]
-        try:
-            candidate_targets = self._nsom_diagnostic_candidate_targets()
-            moon_geometry_available = self._nsom_moon_geometry_available(candidate_targets)
-            confidence = build_recommendation_confidence(
-                weather_summary=self._weather_summary,
-                aod_result=self._nasa_aod_result,
-                local_atmosphere=self._local_atmosphere,
-                viirs_available=self._nsom_viirs_available(),
-                moon_geometry_available=moon_geometry_available,
-                provider_fallback_used=self._nsom_provider_fallback_used(),
-                today=datetime.now(self._zone()).date(),
-                notes=("runtime_snapshot", "diagnostic_only"),
-            )
-            diagnostics = []
-            for source, target in candidate_targets:
-                try:
-                    diagnostics.append(self._nsom_target_diagnostic(source, target, confidence))
-                except Exception:
-                    target_id = self._nsom_runtime_target_text(target, "id", "object_id")
-                    notes.append(f"target_skipped={target_id or 'unknown'}")
-                    logger.debug("Skipping NSOM diagnostic target.", exc_info=True)
-
-            self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
-                generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
-                targets=tuple(diagnostics),
-                confidence=confidence,
-                location=self._nsom_location_fields(),
-                confidence_inputs=self._nsom_confidence_input_fields(),
-                metadata=self._nsom_snapshot_metadata(),
-                notes=tuple(notes),
-            )
-        except Exception:
-            logger.debug("NSOM diagnostic snapshot refresh failed.", exc_info=True)
-            self._nsom_diagnostic_snapshot = NsomDiagnosticSnapshot(
-                generated_at=datetime.now(self._zone()).isoformat(timespec="seconds"),
-                location=self._nsom_location_fields(),
-                metadata=self._nsom_snapshot_metadata(),
-                notes=("diagnostic_only", "refresh_failed"),
-            )
-
-    def _nsom_target_diagnostic(
-        self,
-        source: str,
-        target: object,
-        confidence,
-    ) -> NsomTargetDiagnostic:
-        observable = build_observable_target_value(target)
-        observer_capability = build_observer_capability_profile_from_recommendation(target)
-        practical = build_practical_target_value(observable, observer_capability)
-        opportunity = build_observation_opportunity(
-            practical,
-            observing_window_quality=self._nsom_observing_window_quality(target),
-            chronology_fit=1.0,
-            session_viability=self._nsom_session_viability(),
-            practical_constraints=1.0 if self._nsom_runtime_target_visible(target) else 0.0,
-            confidence=confidence,
-            context=(source, "runtime_snapshot", "diagnostic_only"),
-        )
-        return NsomTargetDiagnostic(
-            object_id=self._nsom_runtime_target_text(target, "id", "object_id"),
-            name=self._nsom_runtime_target_text(target, "name"),
-            source=source,
-            observable_target_value=observable,
-            observer_capability=observer_capability,
-            practical_target_value=practical,
-            observation_opportunity=opportunity,
-            runtime_fields=self._nsom_runtime_fields(source, target),
-        )
-
-    def _nsom_diagnostic_candidate_targets(self) -> list[tuple[str, object]]:
-        candidates: list[tuple[str, object]] = []
-        seen: set[tuple[str, str]] = set()
-
-        def add(source: str, target: object | None) -> None:
-            if target is None:
-                return
-            object_id = self._nsom_runtime_target_text(target, "id", "object_id")
-            if not object_id:
-                return
-            key = (source, object_id)
-            if key in seen:
-                return
-            seen.add(key)
-            candidates.append((source, target))
-
-        for item in getattr(self, "_conditioned_home_objects", []):
-            add("home", item)
-
-        prepared_by_id = self._nsom_prepared_object_by_id()
-        for plan_item in getattr(self, "_night_plan", []):
-            plan_object_id = self._nsom_runtime_target_text(plan_item, "object_id", "id")
-            add("planner", self._nsom_planner_diagnostic_target(plan_item, prepared_by_id.get(plan_object_id)))
-
-        add("best_object", getattr(self, "_best_object", None))
-        return candidates
-
-    def _nsom_planner_diagnostic_target(
-        self,
-        plan_item: object,
-        prepared_target: object | None,
-    ) -> dict[str, str | int | float | bool | None]:
-        target: dict[str, str | int | float | bool | None] = {
-            "runtime_object": "planner_item",
-            "planner_state": "planned",
-            "object_id": self._nsom_runtime_target_value(plan_item, "object_id", "id"),
-            "name": self._nsom_runtime_target_value(plan_item, "name"),
-            "score": self._nsom_runtime_target_value(plan_item, "score"),
-            "difficulty": self._nsom_runtime_target_value(plan_item, "difficulty"),
-            "setup": self._nsom_runtime_target_value(plan_item, "setup"),
-            "time_label": self._nsom_runtime_target_value(plan_item, "time_label"),
-            "direction": self._nsom_runtime_target_value(plan_item, "direction"),
-            "image": self._nsom_runtime_target_value(plan_item, "image"),
-            "visible": True,
-        }
-        if prepared_target is not None:
-            target.update(
-                {
-                    "object_type": self._nsom_runtime_target_value(prepared_target, "object_type"),
-                    "recommended_setup_type": self._nsom_runtime_target_value(prepared_target, "recommended_setup_type"),
-                    "best_time": self._nsom_runtime_target_value(prepared_target, "best_time"),
-                    "observing_window": self._nsom_runtime_target_value(prepared_target, "observing_window"),
-                    "prepared_target_id": self._nsom_runtime_target_value(prepared_target, "id", "object_id"),
-                    "prepared_target_score": self._nsom_runtime_target_value(prepared_target, "score"),
-                }
-            )
-        return {key: value for key, value in target.items() if value not in (None, "")}
-
-    def _nsom_prepared_object_by_id(self) -> dict[str, CelestialObject]:
-        by_id = {}
-        for collection in (
-            getattr(self, "_conditioned_home_objects", []),
-            getattr(self, "_visible_planets", []),
-            getattr(self, "_conditioned_deep_sky", []),
-            getattr(self, "_deep_sky", []),
-            getattr(self, "_solar_system_objects", []),
-        ):
-            for item in collection:
-                by_id.setdefault(item.id, item)
-        best_object = getattr(self, "_best_object", None)
-        if best_object is not None:
-            by_id.setdefault(best_object.id, best_object)
-        return by_id
-
-    def _nsom_observing_window_quality(self, target: object) -> float:
-        for value in (
-            self._nsom_runtime_target_text(target, "best_time"),
-            self._nsom_runtime_target_text(target, "observing_window"),
-            self._nsom_runtime_target_text(target, "time_label"),
-        ):
-            if self._first_useful_time(value):
-                return 1.0
-        return 0.0 if not self._nsom_runtime_target_visible(target) else 0.5
-
-    def _nsom_session_viability(self) -> float:
-        summary = getattr(self, "_weather_summary", None)
-        score_value = getattr(summary, "score_value", None)
-        if score_value is None:
-            return 1.0
-        try:
-            return max(0.0, min(1.0, float(score_value) / 100.0))
-        except (TypeError, ValueError):
-            return 1.0
-
-    @staticmethod
-    def _nsom_runtime_target_text(target: object, *names: str) -> str:
-        value = AppController._nsom_runtime_target_value(target, *names)
-        return "" if value is None else str(value)
-
-    @staticmethod
-    def _nsom_runtime_target_value(target: object, *names: str) -> object:
-        for name in names:
-            if isinstance(target, Mapping):
-                value = target.get(name)
-            else:
-                value = getattr(target, name, None)
-            if value is not None:
-                return value
-        return None
-
-    @staticmethod
-    def _nsom_runtime_target_visible(target: object) -> bool:
-        value = AppController._nsom_runtime_target_value(target, "visible")
-        if value is None:
-            return True
-        return bool(value)
-
-    def _nsom_moon_geometry_available(
-        self,
-        candidate_targets: list[tuple[str, object]] | None = None,
-    ) -> bool | None:
-        candidates = candidate_targets if candidate_targets is not None else self._nsom_diagnostic_candidate_targets()
-        if not candidates:
-            return None
-        for _source, target in candidates:
-            if self._moon_geometry_condition_input(target) is not None:
-                return True
-        return None
 
     def _moon_geometry_condition_input(self, target: object | None = None) -> MoonGeometryConditionInput | None:
         if target is None:
@@ -2875,233 +2552,6 @@ class AppController(QObject):
             moon_visible_during_target_window=summary.moon_visible_during_target_window,
             moon_set_before_target_window=summary.moon_set_before_target_window,
         )
-
-    def _nsom_viirs_available(self) -> bool | None:
-        source_type = self._nsom_viirs_source_type()
-        if source_type == "provider":
-            return True
-        if source_type in {"local_preprocessed", "fallback"}:
-            return False
-        return None
-
-    def _nsom_viirs_source_type(self) -> str:
-        sky_quality = getattr(self, "_sky_quality", None)
-        if sky_quality is None:
-            return "missing"
-        if getattr(sky_quality, "viirs_radiance", None) is not None:
-            return "provider"
-        source = str(getattr(sky_quality, "source", ""))
-        if "NASA Black Marble VNP46A3" in source:
-            return "provider"
-        if "VIIRS preprocessed" in source or "World Atlas / VIIRS" in source:
-            return "local_preprocessed"
-        return "fallback"
-
-    def _nsom_provider_fallback_used(self) -> bool | None:
-        source_type = self._nsom_viirs_source_type()
-        if source_type in {"local_preprocessed", "fallback"}:
-            return True
-        return None
-
-    def _nsom_location_fields(self) -> tuple[tuple[str, str | int | float | bool | None], ...]:
-        location = getattr(self, "_location", None)
-        if location is None:
-            return ()
-        return tuple(
-            item
-            for item in (
-                ("city", location.city),
-                ("country", location.country),
-                ("latitude", location.latitude),
-                ("longitude", location.longitude),
-                ("timezone", location.timezone),
-            )
-            if item[1] is not None
-        )
-
-    def _nsom_confidence_input_fields(self) -> tuple[tuple[str, str | int | float | bool | None], ...]:
-        weather = getattr(self, "_weather_summary", None)
-        aod = getattr(self, "_nasa_aod_result", None)
-        atmosphere = getattr(self, "_local_atmosphere", None)
-        sky_quality = getattr(self, "_sky_quality", None)
-        fields = [
-            ("weather_score_value", getattr(weather, "score_value", None)),
-            ("aod_status", getattr(aod, "status", None)),
-            ("aod_available", getattr(aod, "available", None)),
-            ("aod_product", getattr(aod, "product", None)),
-            ("aod_acquisition_date", getattr(aod, "acquisition_date", None)),
-            ("aod_cache_hit", getattr(aod, "cache_hit", None)),
-            ("openaq_has_data", getattr(atmosphere, "has_data", None)),
-            ("openaq_freshness_category", getattr(atmosphere, "freshness_category", None)),
-            ("openaq_source", getattr(atmosphere, "source", None)),
-            ("viirs_available", self._nsom_viirs_available()),
-            ("viirs_source_type", self._nsom_viirs_source_type()),
-            ("sky_quality_source", getattr(sky_quality, "source", None)),
-            ("moon_geometry_available", self._nsom_moon_geometry_available()),
-        ]
-        return tuple((key, value) for key, value in fields if value not in (None, ""))
-
-    @staticmethod
-    def _nsom_snapshot_metadata() -> tuple[tuple[str, str | int | float | bool | None], ...]:
-        return (
-            ("schema", "nsom_diagnostic_snapshot"),
-            ("schema_version", "1.0"),
-            ("diagnostic_only", True),
-            ("score_neutral", True),
-            ("qml_exposed", False),
-        )
-
-    def _nsom_runtime_fields(self, source: str, target: object) -> tuple[tuple[str, str | int | float | bool | None], ...]:
-        field_names = (
-            "id",
-            "object_id",
-            "name",
-            "object_type",
-            "runtime_object",
-            "planner_state",
-            "score",
-            "difficulty",
-            "recommended_setup",
-            "recommended_setup_type",
-            "setup",
-            "best_time",
-            "observing_window",
-            "time_label",
-            "direction",
-            "image",
-            "visible",
-            "prepared_target_id",
-            "prepared_target_score",
-        )
-        fields = [("source", source)]
-        for name in field_names:
-            value = self._nsom_runtime_target_value(target, name)
-            if value not in (None, ""):
-                fields.append((name, value))
-        geometry = self._moon_geometry_condition_input(target)
-        if geometry is not None:
-            for name, value in (
-                ("moon_geometry_available", True),
-                ("moon_altitude_deg", geometry.moon_altitude_deg),
-                ("moon_target_separation_deg", geometry.moon_target_separation_deg),
-                ("moon_above_horizon", geometry.moon_above_horizon),
-                ("moon_visible_during_target_window", geometry.moon_visible_during_target_window),
-                ("moon_set_before_target_window", geometry.moon_set_before_target_window),
-                ("moon_geometry_future_factor", ObservationConditionsService.intended_moon_geometry_factor(geometry)),
-                ("moon_geometry_score_effect", 0.0),
-            ):
-                if value not in (None, ""):
-                    fields.append((name, value))
-        return tuple(fields)
-
-    def _export_nsom_diagnostics(self) -> dict[str, object]:
-        snapshot = getattr(
-            self,
-            "_nsom_diagnostic_snapshot",
-            NsomDiagnosticSnapshot(
-                generated_at="",
-                metadata=self._nsom_snapshot_metadata(),
-                notes=("not_initialized", "diagnostic_only"),
-            ),
-        )
-        targets = [self._nsom_target_diagnostic_to_export(target) for target in snapshot.targets]
-        planner_targets = [target for target in targets if target.get("source") == "planner"]
-        payload = {
-            "metadata": self._nsom_fields_to_dict(snapshot.metadata),
-            "timestamp": snapshot.generated_at,
-            "location": self._nsom_fields_to_dict(snapshot.location),
-            "confidence": self._nsom_confidence_to_export(snapshot.confidence),
-            "confidenceInputs": self._nsom_fields_to_dict(snapshot.confidence_inputs),
-            "notes": list(snapshot.notes),
-            "targets": targets,
-            "planner": {"targets": planner_targets},
-        }
-        compatible = self._nsom_json_compatible(payload)
-        return compatible if isinstance(compatible, dict) else {}
-
-    def _nsom_target_diagnostic_to_export(self, target: NsomTargetDiagnostic) -> dict[str, object]:
-        return {
-            "objectId": target.object_id,
-            "name": target.name,
-            "source": target.source,
-            "runtimeFields": self._nsom_fields_to_dict(target.runtime_fields),
-            "observableTargetValue": {
-                "intrinsicTargetQuality": target.observable_target_value.intrinsic_target_quality,
-                "effectiveObservability": {
-                    "value": target.observable_target_value.effective_observability.value,
-                    "geometricVisibility": target.observable_target_value.effective_observability.geometric_visibility,
-                    "lunarSkyBackground": target.observable_target_value.effective_observability.lunar_sky_background,
-                    "staticSkyBackground": target.observable_target_value.effective_observability.static_sky_background,
-                    "atmosphericTransparency": target.observable_target_value.effective_observability.atmospheric_transparency,
-                    "horizonContext": target.observable_target_value.effective_observability.horizon_context,
-                    "notes": list(target.observable_target_value.effective_observability.notes),
-                },
-                "value": target.observable_target_value.value,
-                "targetClass": target.observable_target_value.target_class.value
-                if target.observable_target_value.target_class
-                else None,
-            },
-            "observerCapability": {
-                "lightGrasp": target.observer_capability.light_grasp,
-                "resolution": target.observer_capability.resolution,
-                "fieldOfView": target.observer_capability.field_of_view,
-                "magnificationRange": target.observer_capability.magnification_range,
-                "trackingOrGoto": target.observer_capability.tracking_or_goto,
-                "automationOrEaa": target.observer_capability.automation_or_eaa,
-                "filters": list(target.observer_capability.filters),
-                "experienceLevel": target.observer_capability.experience_level,
-                "observingStyle": target.observer_capability.observing_style,
-                "practicalComfort": target.observer_capability.practical_comfort,
-                "summaryForPlanning": target.practical_target_value.observer_capability_summary,
-                "notes": list(target.observer_capability.notes),
-            },
-            "practicalTargetValue": {
-                "value": target.practical_target_value.value,
-                "observerCapabilitySummary": target.practical_target_value.observer_capability_summary,
-            },
-            "observationOpportunity": {
-                "value": target.observation_opportunity.value,
-                "observingWindowQuality": target.observation_opportunity.observing_window_quality,
-                "chronologyFit": target.observation_opportunity.chronology_fit,
-                "sessionViability": target.observation_opportunity.session_viability,
-                "practicalConstraints": target.observation_opportunity.practical_constraints,
-                "context": list(target.observation_opportunity.context),
-                "confidence": self._nsom_confidence_to_export(target.observation_opportunity.confidence),
-            },
-        }
-
-    @staticmethod
-    def _nsom_confidence_to_export(confidence) -> dict[str, object]:
-        if confidence is None:
-            return {}
-        return {
-            "value": confidence.value,
-            "weather": confidence.weather_confidence,
-            "aod": confidence.aod_confidence,
-            "openaq": confidence.openaq_confidence,
-            "viirs": confidence.viirs_confidence,
-            "moonGeometry": confidence.moon_geometry_confidence,
-            "providerFallback": confidence.provider_fallback_confidence,
-            "notes": list(confidence.notes),
-        }
-
-    @staticmethod
-    def _nsom_fields_to_dict(fields: tuple[tuple[str, str | int | float | bool | None], ...]) -> dict[str, object]:
-        return {key: value for key, value in fields}
-
-    @staticmethod
-    def _nsom_json_compatible(value: object) -> object:
-        if value is None or isinstance(value, str | bool):
-            return value
-        if isinstance(value, int):
-            return value
-        if isinstance(value, float):
-            return value if math.isfinite(value) else None
-        if isinstance(value, Mapping):
-            return {str(key): AppController._nsom_json_compatible(item) for key, item in value.items()}
-        if isinstance(value, list | tuple):
-            return [AppController._nsom_json_compatible(item) for item in value]
-        return str(value)
 
     def _refresh_sky_compass(self) -> None:
         self._cancel_sky_compass_live_refresh()
@@ -3216,25 +2666,22 @@ class AppController(QObject):
         has_location: bool,
         caution_text: str,
     ) -> dict:
-        if self._sky_quality:
-            try:
-                return self._sky_compass_nsom_direction_service.compass(
-                    candidates,
-                    self._night_plan,
-                    self._best_object,
-                    sky_quality=self._sky_quality,
-                    moon=self._moon,
-                    has_location=has_location,
-                    caution_text=caution_text,
-                    observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
-                    condition_inputs=self._build_observation_condition_inputs(),
-                    moon_geometry_by_object_id=self._planner_moon_geometry_inputs(candidates),
-                )
-            except Exception:
-                logger.warning(
-                    "NSOM Sky Compass selection failed; using legacy fallback.",
-                    exc_info=True,
-                )
+        try:
+            return self._sky_compass_service.compass(
+                candidates,
+                self._night_plan,
+                self._best_object,
+                has_location=has_location,
+                caution_text=caution_text,
+                observable_objects_by_id=self._sky_compass_observable_targets_by_id(candidates),
+                condition_inputs=self._build_observation_condition_inputs(),
+                moon_geometry_by_object_id=self._planner_moon_geometry_inputs(candidates),
+            )
+        except Exception:
+            logger.warning(
+                "NSOM Sky Compass selection failed; using geometry fallback.",
+                exc_info=True,
+            )
         return self._sky_compass_service.compass(
             candidates,
             self._night_plan,
@@ -3371,8 +2818,6 @@ class AppController(QObject):
             self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
         if self._local_atmosphere != previous_atmosphere:
             self._recalculate_after_condition_provider_refresh()
-        else:
-            self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
 
@@ -3527,8 +2972,6 @@ class AppController(QObject):
             self._log_nasa_aod_result(cached)
             if cached != previous_result:
                 self._recalculate_after_condition_provider_refresh()
-            else:
-                self._refresh_nsom_diagnostics()
             self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.AOD)
             return
@@ -3582,8 +3025,6 @@ class AppController(QObject):
         self._log_nasa_aod_result(self._nasa_aod_result)
         if self._nasa_aod_result != previous_result:
             self._recalculate_after_condition_provider_refresh()
-        else:
-            self._refresh_nsom_diagnostics()
         self.weatherChanged.emit()
         self._clear_refresh_domains(RefreshDomain.AOD)
 
@@ -3620,13 +3061,11 @@ class AppController(QObject):
 
     def _recalculate_after_condition_provider_refresh(self) -> None:
         if getattr(self, "_weather_refresh_running", False):
-            self._refresh_nsom_diagnostics()
             return
         if (
             getattr(self, "_weather_summary", None) is None
             or getattr(self, "_sky_quality", None) is None
         ):
-            self._refresh_nsom_diagnostics()
             return
         self._recalculate_observing_outputs()
         self.dataChanged.emit()
@@ -4562,19 +4001,6 @@ class AppController(QObject):
     ) -> tuple[ObservationConditionedTargetReadModel, ...]:
         raw_targets_by_id = self._conditioned_raw_targets_by_id()
         builder = self._conditions_read_model_builder_instance()
-        sky_quality = getattr(self, "_sky_quality", None)
-        if sky_quality is None:
-            conditioned = self._conditions_service.condition_targets(
-                objects,
-                self._build_observation_condition_inputs(include_sky_quality=False),
-                apply_moon=True,
-            )
-            ranked = sorted(conditioned, key=lambda item: item.target.score, reverse=True)
-            return builder.from_conditioned_targets(
-                ranked,
-                source="home_recommended_deep_sky_missing_sky_quality_fallback",
-                raw_targets_by_id=raw_targets_by_id,
-            )
         candidate_read_models = builder.from_display_targets(
             objects,
             source="home_recommended_deep_sky_nsom_raw_observable_order",
@@ -4582,8 +4008,6 @@ class AppController(QObject):
         )
         ranked_nsom_targets = self._home_recommended_deep_sky_nsom_ranking_service.rank_by_observable_target_value(
             [model.nsom_target_input for model in candidate_read_models],
-            sky_quality=sky_quality,
-            moon=getattr(self, "_moon", None),
             condition_inputs=self._build_observation_condition_inputs(),
             moon_geometry_by_object_id=self._planner_moon_geometry_inputs(
                 [model.nsom_target_input for model in candidate_read_models]

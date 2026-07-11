@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
+from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 
 
 @dataclass(frozen=True)
@@ -13,15 +19,15 @@ class SkyCompassTarget:
     name: str
     object_type: str
     direction: str
-    score: int
-    priority: float
-    current_altitude_factor: float
+    display_score: int
+    observable_value: float
+    direction_score_contribution: float
     in_plan: bool
     is_best: bool
 
 
 class SkyCompassService:
-    """Ranks broad observing directions from already prepared Home targets."""
+    """Ranks current directions with NSOM and a geometry-only fallback."""
 
     DIRECTIONS = [
         "Nord",
@@ -33,6 +39,7 @@ class SkyCompassService:
         "Ovest",
         "Nord-Ovest",
     ]
+    TARGET_PRESENCE_BONUS = 10.0
 
     @classmethod
     def empty(cls, reason: str, message: str, *, caution_text: str = "") -> dict:
@@ -61,6 +68,9 @@ class SkyCompassService:
         *,
         has_location: bool,
         caution_text: str = "",
+        condition_inputs: ObservationConditionInputs | None = None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
+        observable_objects_by_id: Mapping[str, CelestialObject] | None = None,
     ) -> dict:
         if not has_location:
             return self.empty(
@@ -71,7 +81,14 @@ class SkyCompassService:
 
         plan_ids = {item.object_id for item in night_plan}
         best_id = best_object.id if best_object else ""
-        targets = self._targets(objects, plan_ids, best_id)
+        targets = self._targets(
+            objects,
+            plan_ids,
+            best_id,
+            condition_inputs=condition_inputs,
+            moon_geometry_by_object_id=moon_geometry_by_object_id,
+            observable_objects_by_id=observable_objects_by_id,
+        )
         if not targets:
             return self.empty(
                 "no_targets",
@@ -82,7 +99,11 @@ class SkyCompassService:
         grouped = self._group_targets(targets)
         ranked_groups = sorted(
             grouped,
-            key=lambda group: (group["directionScore"], group["targetCount"]),
+            key=lambda group: (
+                group["directionScore"],
+                group["targetCount"],
+                -self.DIRECTIONS.index(group["direction"]),
+            ),
             reverse=True,
         )
         top = ranked_groups[0]
@@ -93,11 +114,9 @@ class SkyCompassService:
                 "targetCountLabel": self._target_count_label(group["targetCount"]),
             }
             for group in ranked_groups[1:3]
-            if group["targetCount"] > 0
         ]
         primary_targets = top["targets"][:3]
         other_target_count = max(0, top["targetCount"] - len(primary_targets))
-
         return {
             "available": True,
             "reason": "ready",
@@ -115,30 +134,52 @@ class SkyCompassService:
             "cautionText": caution_text,
         }
 
-    def _targets(self, objects: list[CelestialObject], plan_ids: set[str], best_id: str) -> list[SkyCompassTarget]:
+    def _targets(
+        self,
+        objects: list[CelestialObject],
+        plan_ids: set[str],
+        best_id: str,
+        *,
+        condition_inputs: ObservationConditionInputs | None,
+        moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None,
+        observable_objects_by_id: Mapping[str, CelestialObject] | None,
+    ) -> list[SkyCompassTarget]:
         targets = []
         seen_ids = set()
+        observable_objects = observable_objects_by_id or {}
+        use_nsom = condition_inputs is not None
         for item in objects:
             if item.id in seen_ids or not item.visible or not self.is_observable_now(item):
                 continue
             direction = self.normalize_direction(item.direction)
             if not direction:
                 continue
-            in_plan = item.id in plan_ids
-            is_best = item.id == best_id
             altitude_factor = self.current_altitude_factor(item)
-            priority = item.score * altitude_factor
+            if use_nsom:
+                observable_item = observable_objects.get(item.id, item)
+                observable_value = build_home_observable_target_value(
+                    observable_item,
+                    condition_inputs=replace(
+                        condition_inputs,
+                        moon_geometry=(moon_geometry_by_object_id or {}).get(item.id),
+                    ),
+                ).value
+            else:
+                observable_value = float(item.score)
             targets.append(
                 SkyCompassTarget(
                     id=item.id,
                     name=item.name,
                     object_type=item.object_type,
                     direction=direction,
-                    score=item.score,
-                    priority=priority,
-                    current_altitude_factor=altitude_factor,
-                    in_plan=in_plan,
-                    is_best=is_best,
+                    display_score=item.score,
+                    observable_value=observable_value,
+                    direction_score_contribution=(
+                        observable_value * altitude_factor
+                    )
+                    + self.TARGET_PRESENCE_BONUS,
+                    in_plan=item.id in plan_ids,
+                    is_best=item.id == best_id,
                 )
             )
             seen_ids.add(item.id)
@@ -148,39 +189,44 @@ class SkyCompassService:
         grouped = {
             direction: {
                 "direction": direction,
-                "directionScore": 0,
+                "directionScore": 0.0,
                 "targetCount": 0,
-                "targets": [],
+                "_targets": [],
             }
             for direction in self.DIRECTIONS
         }
         for target in targets:
             group = grouped[target.direction]
-            group["directionScore"] += target.priority + 10
+            group["directionScore"] += target.direction_score_contribution
             group["targetCount"] += 1
-            group["targets"].append(
-                {
-                    "id": target.id,
-                    "name": target.name,
-                    "type": target.object_type,
-                    "score": target.score,
-                    "inPlan": target.in_plan,
-                    "isBest": target.is_best,
-                    "_priority": target.priority,
-                }
+            group["_targets"].append(
+                (
+                    {
+                        "id": target.id,
+                        "name": target.name,
+                        "type": target.object_type,
+                        "score": target.display_score,
+                        "inPlan": target.in_plan,
+                        "isBest": target.is_best,
+                    },
+                    target.observable_value,
+                    target.direction_score_contribution,
+                )
             )
         for group in grouped.values():
-            group["targets"].sort(
-                key=lambda item: (
-                    item["_priority"],
-                    item["isBest"],
-                    item["inPlan"],
-                    item["score"],
+            ranked_targets = sorted(
+                group["_targets"],
+                key=lambda row: (
+                    row[2],
+                    row[1],
+                    row[0]["isBest"],
+                    row[0]["inPlan"],
+                    row[0]["score"],
                 ),
                 reverse=True,
             )
-            for item in group["targets"]:
-                del item["_priority"]
+            group["targets"] = [row[0] for row in ranked_targets]
+            del group["_targets"]
         return [group for group in grouped.values() if group["targetCount"] > 0]
 
     @staticmethod
@@ -228,22 +274,15 @@ class SkyCompassService:
 
     @staticmethod
     def _available_count_label(count: int) -> str:
-        if count == 1:
-            return "1 target osservabile ora"
-        return f"{count} target osservabili ora"
+        return "1 target osservabile ora" if count == 1 else f"{count} target osservabili ora"
 
-    @staticmethod
-    def _target_count_label(count: int) -> str:
-        if count == 1:
-            return "1 target osservabile ora"
-        return f"{count} target osservabili ora"
+    _target_count_label = _available_count_label
 
     def _decision_reasons(self, top_group: dict, ranked_groups: list[dict]) -> list[str]:
         reasons = []
         targets = top_group["targets"]
         if not targets:
             return reasons
-
         first = targets[0]
         reasons.append(f"{first['name']} guida la scelta in questo momento")
 
@@ -264,10 +303,8 @@ class SkyCompassService:
             reasons.append("Maggiore concentrazione di target osservabili ora")
         elif top_group["targetCount"] > 1:
             reasons.append("Più target osservabili ora nella stessa zona")
-
         if any(item["inPlan"] for item in targets):
             reasons.append("Include una tappa del piano attualmente osservabile")
-
         return reasons[:3]
 
     @staticmethod
@@ -279,6 +316,4 @@ class SkyCompassService:
     def _other_target_count_label(count: int) -> str:
         if count <= 0:
             return ""
-        if count == 1:
-            return "+1 altro target"
-        return f"+{count} altri target"
+        return "+1 altro target" if count == 1 else f"+{count} altri target"

@@ -35,12 +35,11 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.20.1`.
+Versione corrente sorgente: `1.21.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
-Il backend NSOM e' chiuso per lo scope corrente. Le superfici principali usano
-ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
+Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 
 - Planner: ranking `ObservationOpportunity`.
 - Home `recommendedDeepSky`: tutti i target utili della notte, ordinati per
@@ -49,24 +48,26 @@ ora i rispettivi percorsi NSOM o boundary NSOM espliciti:
 - Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
   multi-equipment, piano compatto e righe alternative lette direttamente dalla
   QML della Home.
-- Best Object: selezione Home-specific basata su concetti NSOM.
-- Advanced Observing: snapshot backend NSOM parallelo.
+- Best Object: selezione Home-specific basata su `ObservationOpportunity`.
+- Categorie Home: condizioni planetarie e cielo profondo proiettate dallo
+  stesso ambiente NSOM usato dagli altri consumer.
 - Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine
   corrente e densita' dei target osservabili ora.
-- Detail/Object: payload interno NSOM separato.
-- ObservationConditions: AOD/OpenAQ default-on quando i dati provider sono gia'
-  disponibili e passano i gate di qualita'.
+- Detail/Object: read model osservativo score-free, senza payload NSOM ombra.
+- ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
+  quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
   replacement path NSOM separato.
 
 `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e' il riepilogo corrente dello stato
-backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta la
-rimozione dei report/tool/test storici di migrazione eseguita in `1.15.2`.
+backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta il
+cleanup finale `1.21.0` di servizi ombra, rollback, diagnostica automatica e
+test di migrazione.
 
 La UI/QML visibile resta compatibility-first fuori dalle superfici riviste. In
 `1.16.0` la pagina Meteo ha ricevuto un primo passaggio semantico sui dati
 condizioni AOD/OpenAQ, senza nuovi pannelli NSOM e senza spiegazioni visibili del
-ranking. I punteggi display legacy/base restano campi di compatibilita' dove
+ranking. I punteggi display restano campi di compatibilita' dove
 servono alla presentazione. Eventuali spiegazioni NSOM complete sono lavoro
 futuro di design.
 

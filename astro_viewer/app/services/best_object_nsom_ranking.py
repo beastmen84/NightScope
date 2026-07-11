@@ -11,12 +11,11 @@ from astro_viewer.app.models.nsom import (
     RecommendationConfidence,
     project_observer_capability_for_target,
 )
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.weather import WeatherBlockingStatus, WeatherSummary
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 from astro_viewer.app.services.night_planner_service import NightPlannerService
-from astro_viewer.app.services.nsom_diagnostic_adapters import (
+from astro_viewer.app.services.nsom_runtime_builders import (
     build_observation_opportunity,
     build_practical_target_value,
     build_recommendation_confidence,
@@ -27,9 +26,6 @@ from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
 )
-
-
-NSOM_BEST_OBJECT_ENABLED = True
 
 
 @dataclass(frozen=True)
@@ -53,7 +49,7 @@ class BestObjectNsomCandidate:
 
 
 class BestObjectNsomSelectionService:
-    """Default NSOM Best Object selector with explicit controller rollback.
+    """Canonical NSOM Best Object selector.
 
     The service consumes caller-supplied runtime state only. It does not write
     files, log, fetch data, expose QML fields or mutate CelestialObject inputs.
@@ -64,24 +60,20 @@ class BestObjectNsomSelectionService:
         candidates: Iterable[CelestialObject],
         *,
         weather: WeatherSummary,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None = None,
+        condition_inputs: ObservationConditionInputs,
         confidence: RecommendationConfidence | None = None,
         blocking_status: WeatherBlockingStatus | None = None,
-        condition_inputs: ObservationConditionInputs | None = None,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
     ) -> CelestialObject | None:
         for candidate in self.ranked_candidates(
             candidates,
             weather=weather,
-            sky_quality=sky_quality,
             telescope=telescope,
-            moon=moon,
+            condition_inputs=condition_inputs,
             confidence=confidence,
             blocking_status=blocking_status,
-            condition_inputs=condition_inputs,
             moon_geometry_by_object_id=moon_geometry_by_object_id,
             telescope_by_object_id=telescope_by_object_id,
         ):
@@ -94,22 +86,28 @@ class BestObjectNsomSelectionService:
         candidates: Iterable[CelestialObject],
         *,
         weather: WeatherSummary,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None = None,
+        condition_inputs: ObservationConditionInputs,
         confidence: RecommendationConfidence | None = None,
         blocking_status: WeatherBlockingStatus | None = None,
-        condition_inputs: ObservationConditionInputs | None = None,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
     ) -> tuple[BestObjectNsomCandidate, ...]:
         items = tuple(candidates)
         blocking = blocking_status or NightPlannerService.weather_blocking_status(weather)
+        sky_quality = condition_inputs.sky_quality
         recommendation_confidence = confidence or build_recommendation_confidence(
             weather_summary=weather,
-            viirs_available=getattr(sky_quality, "viirs_radiance", None) is not None,
-            moon_geometry_available=moon is not None,
-            provider_fallback_used=getattr(sky_quality, "viirs_radiance", None) is None,
+            viirs_available=(
+                getattr(sky_quality, "viirs_radiance", None) is not None
+                if sky_quality is not None
+                else False
+            ),
+            moon_geometry_available=bool(moon_geometry_by_object_id),
+            provider_fallback_used=(
+                sky_quality is None
+                or getattr(sky_quality, "viirs_radiance", None) is None
+            ),
             notes=("nsom:best_object_runtime", "confidence:metadata_only"),
         )
         projected = tuple(
@@ -117,9 +115,7 @@ class BestObjectNsomSelectionService:
                 item,
                 stable_order_index=index,
                 weather=weather,
-                sky_quality=sky_quality,
                 telescope=(telescope_by_object_id or {}).get(item.id, telescope),
-                moon=moon,
                 blocking_status=blocking,
                 confidence=recommendation_confidence,
                 condition_inputs=condition_inputs,
@@ -135,21 +131,15 @@ class BestObjectNsomSelectionService:
         *,
         stable_order_index: int,
         weather: WeatherSummary,
-        sky_quality: SkyQuality,
         telescope: Telescope,
-        moon: MoonSummary | None,
         blocking_status: WeatherBlockingStatus,
         confidence: RecommendationConfidence,
-        condition_inputs: ObservationConditionInputs | None,
+        condition_inputs: ObservationConditionInputs,
         moon_geometry: MoonGeometryConditionInput | None,
     ) -> BestObjectNsomCandidate:
-        inputs = condition_inputs or ObservationConditionInputs(
-            moon=moon,
-            sky_quality=sky_quality,
-        )
         observable = build_home_observable_target_value(
             item,
-            condition_inputs=replace(inputs, moon_geometry=moon_geometry),
+            condition_inputs=replace(condition_inputs, moon_geometry=moon_geometry),
         )
         observer = build_observer_capability_for_target(
             item,

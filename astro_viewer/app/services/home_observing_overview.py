@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from astro_viewer.app.models.observing import MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import ObservingCategoryScores, SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import (
     ObservingSessionDecision,
     WeatherBlockingStatus,
@@ -25,7 +25,7 @@ class HomeObservingOverviewService:
         seeing: SeeingTransparency | None,
         sky_quality: SkyQuality | None,
         moon: MoonSummary | None,
-        category_scores: AdvancedObservingScores | None,
+        category_scores: ObservingCategoryScores | None,
         session: ObservingSessionDecision,
         blocking: WeatherBlockingStatus,
         suggested_window: str,
@@ -144,7 +144,7 @@ def _weather_payload(weather: WeatherSummary | None, session: dict[str, object])
 
 def _planetary_payload(
     seeing: SeeingTransparency | None,
-    scores: AdvancedObservingScores | None,
+    scores: ObservingCategoryScores | None,
     wind_label: str,
     source: str,
 ) -> dict[str, object]:
@@ -163,7 +163,7 @@ def _planetary_payload(
 def _deep_sky_payload(
     seeing: SeeingTransparency | None,
     sky_quality: SkyQuality | None,
-    scores: AdvancedObservingScores | None,
+    scores: ObservingCategoryScores | None,
     source: str,
 ) -> dict[str, object]:
     transparency = _quality_label(seeing.transparency if seeing else "")

@@ -6,96 +6,17 @@ from datetime import date
 from typing import Any
 
 from astro_viewer.app.models.nsom import (
-    EffectiveObservability,
-    NsomDiagnosticSnapshot,
     ObservableTargetValue,
-    ObservationEnvironment,
     ObservationOpportunity,
     ObserverCapability,
     PracticalTargetValue,
     RecommendationConfidence,
     SessionViability,
 )
-from astro_viewer.app.services.nsom_target import (
-    build_intrinsic_target_quality,
-    target_class_from_runtime_target as target_class_from_runtime_target,
-)
-
-
-def build_observation_environment(
-    *,
-    weather_summary: Any | None = None,
-    sky_quality: Any | None = None,
-    seeing_transparency: Any | None = None,
-    local_atmosphere: Any | None = None,
-    aod_result: Any | None = None,
-) -> ObservationEnvironment:
-    """Build the Sky-owned NSOM environment from already available runtime data."""
-
-    notes = tuple(
-        item
-        for item in (
-            _note_from_source("sky_quality", sky_quality, "source"),
-            _note_from_source("seeing", seeing_transparency, "source"),
-            _note_from_source("openaq", local_atmosphere, "source"),
-            _note_from_source("aod", aod_result, "source"),
-            _note_from_value("bortle", _value(sky_quality, "bortle_class")),
-            _note_from_value("weather_score", _value(weather_summary, "score_value", "scoreValue")),
-        )
-        if item
-    )
-    return ObservationEnvironment.from_components(
-        sky_quality_source=_text_field(sky_quality, "source"),
-        weather_source=_text_field(weather_summary, "source"),
-        atmosphere_source=_first_text(
-            _text_field(aod_result, "source"),
-            _text_field(local_atmosphere, "source"),
-        ),
-        notes=("nsom:runtime_environment", *notes),
-    )
-
-
-def build_effective_observability_from_breakdown(breakdown: Any) -> EffectiveObservability:
-    """Build an NSOM diagnostic observability DTO from an existing breakdown."""
-
-    base_score = _numeric_field(breakdown, "base_score", default=0.0)
-    moon_penalty = _numeric_field(breakdown, "moon_penalty", default=0.0)
-    pollution_penalty = _numeric_field(breakdown, "pollution_penalty", default=0.0)
-    aod_modifier = _numeric_field(breakdown, "aod_modifier", default=0.0)
-    pm_modifier = _numeric_field(breakdown, "pm25_modifier", default=0.0)
-    transparency_factor = _numeric_field(breakdown, "transparency_factor", default=1.0)
-    notes = tuple(_value(breakdown, "diagnostic_notes", default=()) or ())
-
-    environment = ObservationEnvironment.from_components(
-        lunar_sky_background=_component_from_delta(base_score, moon_penalty),
-        static_sky_background=_component_from_delta(base_score, pollution_penalty),
-        atmospheric_transparency=_component_from_delta(
-            base_score,
-            aod_modifier + pm_modifier,
-            base_component=transparency_factor,
-        ),
-        notes=("nsom:from_condition_breakdown", *notes),
-    )
-    return EffectiveObservability.from_environment(environment)
-
-
-def build_observable_target_value(
-    target: Any,
-    effective_observability: EffectiveObservability | None = None,
-) -> ObservableTargetValue:
-    """Build objective NSOM target value from an already scored target."""
-
-    effective = effective_observability or EffectiveObservability.from_components()
-    intrinsic = build_intrinsic_target_quality(target)
-    return ObservableTargetValue.from_intrinsic(
-        intrinsic_target_quality=intrinsic,
-        effective_observability=effective,
-        target_class=intrinsic.target_class,
-    )
 
 
 def build_observer_capability_profile_from_recommendation(recommendation: Any) -> ObserverCapability:
-    """Translate an existing recommendation/presenter output into observer capability diagnostics."""
+    """Translate an existing recommendation output into observer capability."""
 
     setup_type = _text_field(recommendation, "setupType", "recommended_setup_type", "equipmentType")
     setup_text = _text_field(recommendation, "setupText", "recommended_setup", "setup")
@@ -235,7 +156,7 @@ def build_observation_opportunity(
     confidence: RecommendationConfidence | None = None,
     context: tuple[str, ...] = (),
 ) -> ObservationOpportunity:
-    """Build a diagnostic NSOM opportunity without changing upstream DTOs."""
+    """Build an NSOM opportunity without changing upstream DTOs."""
 
     session_context = _session_from_inputs(session_viability=session_viability, session=session)
     return ObservationOpportunity(
@@ -247,14 +168,6 @@ def build_observation_opportunity(
         confidence=confidence,
         context=tuple(context),
     )
-
-
-def build_observation_opportunities_from_diagnostic_snapshot(
-    snapshot: NsomDiagnosticSnapshot,
-) -> tuple[ObservationOpportunity, ...]:
-    """Adapt a diagnostic snapshot back into first-class NSOM opportunities."""
-
-    return tuple(target.observation_opportunity for target in snapshot.targets)
 
 
 def _profile_with_option_context(
@@ -305,27 +218,6 @@ def _session_from_inputs(
     if not math.isclose(requested_session.value, session.value, rel_tol=0.0, abs_tol=1e-9):
         raise ValueError("session_viability conflicts with session.value")
     return session
-
-
-def _note_from_source(label: str, item: Any | None, *names: str) -> str:
-    source = _text_field(item, *(names or ("source",)))
-    return f"{label}_source={source}" if source else ""
-
-
-def _note_from_value(label: str, value: Any) -> str:
-    return f"{label}={value}" if value not in (None, "") else ""
-
-
-def _first_text(*values: str) -> str:
-    return next((value for value in values if value), "")
-
-
-def _component_from_delta(base_score: float, delta: float, *, base_component: float = 1.0) -> float:
-    if base_score <= 0.0:
-        component = 1.0 if delta <= 0.0 else 0.0
-    else:
-        component = (base_score - max(0.0, delta)) / base_score
-    return max(0.0, min(1.0, component * max(0.0, min(1.0, base_component))))
 
 
 def _weather_confidence(weather_summary: Any | None) -> float | None:

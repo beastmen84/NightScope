@@ -50,7 +50,7 @@ class SeeingTransparency:
 
 
 @dataclass(frozen=True)
-class AdvancedObservingScores:
+class ObservingCategoryScores:
     planetary_score: int
     deep_sky_score: int
     planetary_label: str

@@ -1,177 +1,115 @@
-# NSOM Backend Migration Closeout
+# NSOM Backend Closeout
 
-## Executive Summary
+Status: complete for NightScope `1.21.0`.
 
-This developer-only closeout records that the backend NSOM migration for recommendation surfaces is complete for the current scope. It does not change scoring, Planner, Home, Best Object, Advanced Observing, Sky Compass, Detail/Object, Equipment, QML, logging, network access or runtime file writes.
+This document is the current backend status, not a migration plan. NSOM has one
+production path. There are no runtime migration flags, shadow QML payloads or
+legacy ranking implementations.
 
-## Verdict
+## Canonical Model
 
-- Verdict: `backend_nsom_recommendation_surfaces_closed`.
-- Migration status: `closed_for_backend_recommendation_surfaces`.
-- Runtime behaviour changed by closeout: `False`.
-- Ready for visible UI redesign: `False`.
-- Backend default-on blockers: `[]`.
-- Recommended next step: Review this closeout, then perform the separate visible UI verification/design step. Monitor AOD/OpenAQ real observing feedback after real program use before tuning.
-- Reason: Planner, Home recommendedDeepSky, Best Object, Advanced Observing backend, Sky Compass and Detail/Object are default-on NSOM surfaces. AOD/OpenAQ condition scoring is also default-on after the 1.14.19 switch. Equipment remains intentionally setup-local, ObservationConditions remains an active raw/display compatibility boundary, and Catalogue raw scores have been reviewed as upstream backend Universe input policy rather than a ranking hotfix or visible UI score.
+The runtime composition is:
 
-## Visible UI Readiness Meaning
+1. Universe: `IntrinsicTargetQuality` from catalogue/astronomy data. The
+   internal `CelestialObject.intrinsic_score` is independent from current
+   altitude, visibility and provider conditions.
+2. Sky: `NsomObservationEnvironmentService` composes geometric visibility,
+   target-specific Moon background, VIIRS/Bortle sky background,
+   seeing/transparency, AOD/OpenAQ and horizon context.
+3. Observer: target-specific equipment becomes `ObserverCapability` and
+   `PracticalTargetValue`.
+4. Session: weather policy is binary usable/blocked. Weather already contributes
+   to the Sky layer and is not multiplied again as a continuous Session score.
+5. Opportunity: Planner and Best Object add timing and practical constraints.
+6. Confidence: provider availability and freshness remain metadata; confidence
+   does not scale recommendation scores.
 
-`Ready for visible UI redesign: False` does not mean the UI is broken and does
-not block the backend NSOM closeout. It means the current visible UI remains a
-compatibility presentation surface rather than a designed NSOM-aware
-explanation surface.
+Target classification is shared by all consumers through `nsom_target.py`,
+including planets, Moon, galaxies, diffuse/planetary nebulae, open/globular
+clusters and double stars.
 
-Current UI contract:
+## Runtime Consumers
 
-- QML keeps the same pages, blocks and payload keys for Home, Planner, Best
-  Object, Sky Compass and Detail/Object.
-- No NSOM panels, labels or diagnostic fields are displayed.
-- Existing display fields such as object `score` remain compatibility/base
-  presentation fields where the current UI needs them.
-- Those display fields are not guaranteed to explain the NSOM order. For
-  example, Home may order candidates by `ObservableTargetValue` while the card
-  still shows the legacy-compatible `CelestialObject.score` field.
-
-A visible NSOM-aware UI needs a separate design/data-contract step before QML
-changes. That step should decide which explanations to show, whether to replace
-or hide legacy display scores, how to present confidence and provider sources,
-and how to describe limiting factors such as Moon, AOD/OpenAQ freshness, seeing
-or transparency without exposing internal model jargon.
-
-## 1.16.0 Weather UI Semantics Follow-Up
-
-`1.16.0` starts with a limited Weather page copy/semantics pass. It labels NASA
-AOD as aerosol data, OpenAQ as local particulate data and exposes provider
-freshness more clearly. This does not add NSOM ranking explanations, does not
-change the Home/Planner/Best Object/Sky Compass payload contracts and does not
-change scoring formulas or provider refresh behavior.
-
-## 1.16.1 VIIRS Cache Follow-Up
-
-`1.16.1` is a provider-cache hardening step outside NSOM ranking policy. NASA
-Black Marble VIIRS cache entries are revalidated every 7 days while stale data
-remains available on lookup failure. The Weather `Aggiorna` command schedules
-cache-aware VIIRS and AOD checks; AOD keeps its 18-hour TTL. This changes
-provider refresh timing only and does not change scoring formulas, ranking,
-confidence weighting or QML payload contracts.
-
-## 1.17.0 Upper Home Presentation Follow-Up
-
-The first `1.17.0` step adds the read-only `homeObservingOverview` presentation
-contract. It separates Session actionability, legacy weather index, NSOM
-planetary/deep-sky category diagnostics and scoped Moon impact copy. The second
-step connects the upper Home cards to that contract, removes the visible numeric
-category diagnostics and handles missing weather/Moon data explicitly. Neither
-step alters scoring, ranking or provider inputs. The final upper-Home step makes
-Sky Compass copy Session-aware, localizes displayed target types and keeps its
-direction ranking and target selection unchanged. `Piano della notte` remains a
-separate UI chapter.
-
-## 1.17.1 Provider Cache Follow-Up
-
-`1.17.1` reuses fresh NASA AOD and Black Marble VIIRS provider results within a
-500-metre radius so normal Windows location jitter does not create duplicate
-fetches. Exact location keys still identify asynchronous refreshes and reject
-stale completions. AOD also checks the processed cache before starting its
-worker. This provider-cache substep changes lifecycle behavior only; scoring
-formulas, NSOM ranking and provider payloads are unchanged.
-
-The same patch makes the existing upper-Home presentation contract explicit
-about location startup: `pending` means automatic detection is still running,
-while `unavailable` means no valid location exists. The upper cards use neutral
-copy and two-line wrapping for these states. This does not change NSOM Session,
-category diagnostics or recommendation ranking.
-
-## 1.17.2 Open-Meteo Retry Follow-Up
-
-`1.17.2` records Open-Meteo HTTP status codes and schedules a forced refresh
-after five minutes for timeout, network, HTTP `408`/`425`/`5xx` and malformed
-or empty provider responses. Permanent HTTP `4xx` errors and `429` remain on
-the normal hourly path. Existing cached forecasts stay active throughout. This
-is refresh lifecycle hardening only and does not change weather scoring,
-Session policy, NSOM ranking or QML contracts.
-
-## 1.18.0 Lower Home Contract Follow-Up
-
-The explicitly authorized lower-Home work starts by aligning runtime contracts
-before changing QML. Planner now selects four `ObservationOpportunity` items
-and then orders them chronologically. The controller keeps the setup-local
-Equipment read-model per target and supplies the telescope selected for that
-target to Planner capability projection; binocular and naked-eye setups remain
-independent from the first telescope assigned to a profile. This is a
-post-closeout product-contract correction and does not reopen the historical
-NSOM migration or replace `EquipmentService` scoring.
-
-The second `1.18.0` step removes the Home-only ten-object deep-sky cap and
-defines the complete useful-night pool shared by Home alternatives and Sky
-Compass. Live compass ranking now filters structured `observable_now` geometry
-and combines precomputed `ObservableTargetValue` with current altitude and
-target density. Plan and Best Object membership are retained as context only;
-the 60-second geometry tick remains isolated from provider, Equipment and
-Planner refresh paths and continues across temporarily empty current windows.
-
-The third `1.18.0` step adds the presentation-only
-`homeNightPlanOverview_v1` contract. It exposes a
-count-based active-profile summary, at most four compact plan rows and the full
-score-free alternatives table payload. Only a `recommended` Session can expose
-the numbered sequence; `monitor` and `discouraged` remain explicit non-plan
-states. Full Equipment explanations stay in object detail, and this projection
-does not feed any NSOM score or ranking.
-
-The fourth `1.18.0` step connects that contract to the lower Home QML. The
-visible Home now uses a state-aware plan card, keeps non-recommended states from
-showing a numbered plan and merges the old planet/deep-sky "other" cards into a
-single filterable alternatives table without numeric scores or long Equipment
-reasoning.
-
-## Closed Backend Surfaces
-
-| Surface | Status | Default flag | NSOM role |
-| --- | --- | --- | --- |
-| `Planner` | `default_on_closed` | `NSOM_PLANNER_SCORING_ENABLED = True` | ObservationOpportunity ranking |
-| `Home recommendedDeepSky` | `default_on_closed` | `NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED = True` | ObservableTargetValue ordering |
-| `Best Object` | `default_on_closed` | `NSOM_BEST_OBJECT_ENABLED = True` | Home-specific ObservationOpportunity selection |
-| `Advanced Observing backend` | `default_on_closed_backend_only` | `NSOM_ADVANCED_OBSERVING_ENABLED = True` | category ObservableTargetValue projection |
-| `Sky Compass` | `default_on_closed` | `NSOM_SKY_COMPASS_ENABLED = True` | ObservableTargetValue based direction policy |
-| `Detail/Object internal payload` | `default_on_closed_backend_only` | `NSOM_DETAIL_OBJECT_ENABLED = True` | separate internal Detail/Object payload |
-
-## AOD/OpenAQ Switch State
-
-- Default flag: `ObservationConditionFeatureFlags.experimental_aerosol_scoring = True`.
-- Rollback: `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
-- Formula changed: `False`.
-- Weights changed: `False`.
-- Provider calls changed: `False`.
-- Confidence metadata does not scale score: `True`.
-
-## Remaining Non-Blocking Items
-
-| Area | Status | Recommended handling |
+| Consumer | Ranking/input owner | Visible contract |
 | --- | --- | --- |
-| `Equipment recommendations` | `equipment_nsom_migration_closed_setup_local` | Keep Equipment as a setup-local service; rollback cleanup is complete, so visible UI/explanation or Universe/catalogue policy can be considered separately. |
-| `ObservationConditions prepared-object cache` | `observation_conditions_consumer_reroute_closed` | Keep the read-model boundary as active compatibility code; no ObservationConditions consumer reroute work remains open. |
-| `Catalogue / raw object score` | `evaluated_backend_input` | Keep as backend Universe/read-model input for the current scope; do not treat it as a ranking hotfix or visible catalogue/Home score. |
+| Upper Home categories | `NsomCategoryScoreService` | descriptive planetary/deep-sky summaries |
+| Home recommended deep sky | `HomeRecommendedDeepSkyNsomRankingService` | existing object cards and display fields |
+| Best Object | `BestObjectNsomSelectionService` | existing `bestObjectOfNight` object payload |
+| Planner | `NightPlannerService` plus `PlannerNsomScoringService` | four best opportunities, then chronological order |
+| Sky Compass | `SkyCompassService` | existing direction/target payload |
+| Observing detail | `ObservingObjectDetailService` | score-free detail read model |
+| Catalogue detail | catalogue/astronomy presentation path | current-month local visibility, no NSOM ranking panel |
 
-## Follow-Up Policy
+Home, Planner, Best Object and Sky Compass use the same primitive condition
+inputs. Provider completion recomputes these consumers without repeating local
+astronomy or Moon-geometry calculations.
 
-| Area | Status | Blocks backend closeout | Policy |
-| --- | --- | --- | --- |
-| `AOD/OpenAQ real observing feedback` | `monitor_before_tuning` | `False` | Do not tune weights until enough real observing outcomes are reviewed. |
-| `Catalogue / Universe raw score semantics` | `current_policy_evaluated` | `False` | Existing separation is sufficient for current backend scope; defer a new `UniverseTargetProfile` until multi-catalogue provenance, intrinsic calibration or visible score explanations require it. |
-| `Visible UI explanations` | `future_design_step` | `False` | `1.16.0` only clarifies Weather condition-data semantics. Keep full NSOM explanations, score semantics, confidence/source copy and QML payload contracts separate until designed explicitly. |
+## Condition Ownership
 
-## Checks
+- VIIRS/Bortle affects static sky background.
+- Forecast seeing and atmospheric transparency affect the weather-derived
+  atmospheric component.
+- AOD is the primary aerosol-column input when its quality policy accepts it.
+- OpenAQ particulate is a non-additive fallback/context input.
+- Moon illumination is combined with target-window altitude and angular
+  separation.
+- Target-specific equipment is applied only in the Observer layer.
+- AOD/OpenAQ never mutates `CelestialObject.score`.
 
-| Check | Result |
-| --- | --- |
-| `strict_json_compatible` | `True` |
-| `backend_status_has_no_blockers` | `True` |
-| `all_current_default_on_surfaces_closed` | `True` |
-| `aod_openaq_default_on` | `True` |
-| `aod_openaq_rollback_documented` | `True` |
-| `aod_openaq_confidence_score_neutral` | `True` |
-| `catalogue_universe_raw_score_policy_evaluated` | `True` |
-| `remaining_items_are_non_blocking` | `True` |
-| `visible_ui_redesign_not_started` | `True` |
-| `runtime_report_imports_absent` | `True` |
-| `qml_report_exposure_absent` | `True` |
+Missing optional providers produce neutral factors and lower confidence. They
+do not select another ranking implementation.
+
+## Retired Migration Surfaces
+
+The `1.21.0` cleanup removed:
+
+- `PlannerScoringService` and Planner formula rollback APIs;
+- the separate `SkyCompassNsomDirectionService`;
+- Advanced Observing shadow services and `advancedObservingNsom`;
+- Detail/Object shadow payload generation;
+- automatic `NsomDiagnosticSnapshot` refresh/export wiring;
+- aerosol and Moon-geometry feature flags;
+- `ObservingScoreService.best_object()`;
+- obsolete comparison/characterization tests tied to retired paths;
+- unused `ObjectRow.qml`.
+
+The remaining `nsom_to_json_compatible()` and diagnostic notes support explicit
+read-model/explanation data. They do not write files, emit signals or expose a
+second runtime recommendation path.
+
+## Fallback Policy
+
+Fallbacks are data/runtime safety boundaries only:
+
+- missing ephemeris can use `MockAstronomyEngine` to keep the application open;
+- missing provider data is neutral in the canonical environment;
+- Sky Compass catches an unexpected canonical-ranking exception and returns a
+  geometry-only payload with the same QML shape;
+- cached provider data follows each provider's freshness policy.
+
+There is no configurable NSOM rollback.
+
+## UI Boundary
+
+QML does not receive raw `ObservableTargetValue`, `PracticalTargetValue`,
+`ObservationOpportunity` or `RecommendationConfidence` objects. Existing
+display `score` fields remain presentation compatibility data and are not a
+complete explanation of ranking order.
+
+Any future visible explanation work must define a stable presentation contract
+for factors, confidence and limiting conditions before adding QML panels.
+
+## Validation
+
+Closeout validation on Windows/Python 3.14 uses:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\python.exe -m pytest -n auto -q
+```
+
+The `1.21.0` implementation suite completed with `610 passed` and `7 subtests
+passed`. Skyfield currently emits upstream NumPy dtype deprecation warnings;
+they are not test failures.

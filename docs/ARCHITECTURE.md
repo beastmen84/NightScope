@@ -58,12 +58,13 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.20.1`:
+Current runtime status for `1.21.0`:
 
-- Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and Detail/Object
-  internal payload are NSOM-backed by default.
-- Advanced Observing computes a backend/internal NSOM projection while preserving
-  its existing visible contract.
+- Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
+  category summaries consume the canonical NSOM observation environment.
+- There are no selectable NSOM feature flags, parallel shadow payloads or
+  legacy ranking services. Detail pages consume their dedicated presentation
+  read models and do not maintain a second internal NSOM payload.
 - ObservationConditions applies the calibrated AOD/OpenAQ modifier by default
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
@@ -74,9 +75,9 @@ Current runtime status for `1.20.1`:
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
-- If the NSOM Sky Compass selector raises unexpectedly, the controller logs the
-  failure and preserves the legacy payload fallback. Missing sky-quality input
-  remains a normal, non-error fallback.
+- If Sky Compass ranking raises unexpectedly, the controller logs the failure
+  and uses a geometry-only payload. Missing sky-quality input is neutral inside
+  the canonical environment and does not switch ranking implementation.
 - `ObservingNightWindow` is the shared temporal boundary for astronomy,
   forecast selection, global score, seeing/transparency, Home, Planner and Sky
   Compass. Skyfield owns sunset/sunrise calculation and caches one result per
@@ -138,10 +139,10 @@ Current runtime status for `1.20.1`:
   daylight or below the local horizon has no observing window; the UI asks the
   observer to verify individual phase contacts instead of implying that the
   whole eclipse is either visible or invisible.
-- The checked-in source of truth is now the runtime code, active regression
-  tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
-  documentation. Historical migration reports and report generators were removed
-  in `1.15.2` per `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
+- The checked-in source of truth is the runtime code, active regression tests,
+  `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
+  documentation. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` records the
+  final removal of migration-only runtime surfaces.
 - The first visible follow-up is limited to Weather page condition-data
   semantics: AOD is labelled as aerosol data, OpenAQ as local particulate data,
   freshness is visible, and no NSOM ranking explanation panel is exposed.
@@ -253,17 +254,19 @@ It also coordinates:
 
 Services hold business logic:
 
-- `ObservingScoreService`: global observing score and best-object selection.
-- `AdvancedObservingService`: separate planetary and deep-sky quality scores.
+- `ObservingScoreService`: forecast/Moon observing-weather summary and labels.
+- `NsomCategoryScoreService`: upper-Home planetary and deep-sky category
+  summaries from the canonical observation environment.
 - `SeeingTransparencyService`: seeing/transparency estimation from forecast
   fields and sky quality.
 - `NightPlannerService`: four-item observing plan, weather blocking and
   chronological plan presentation. It delegates default ranking to
   `PlannerNsomScoringService` and accepts selected telescopes by target.
-- `PlannerScoringService`: Planner-specific score aggregation, diagnostic
-  breakdown, weather factor, difficulty factor and Planner-specific
-  light-pollution penalty. It reuses shared Moon-condition primitives from
-  `ObservationConditionsService`.
+- `PlannerNsomScoringService`: practical target value, binary session viability,
+  timing factors and final `ObservationOpportunity` ranking.
+- `NsomObservationEnvironmentService`: the single target-specific composition
+  of geometry, Moon background, VIIRS/Bortle background,
+  seeing/transparency and provider-gated AOD/OpenAQ conditions.
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
@@ -278,35 +281,22 @@ Services hold business logic:
 - `ObservationConditionsService`: shared equivalence layer for observing
   condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
   deep-sky light-pollution context formerly implemented inside `AppController`,
-  batch conditioning for Home/Sky Compass candidates and diagnostic placeholders
-  for future weather/seeing/transparency/equipment inputs.
-  It accepts provider-gated NASA AOD and particulate inputs with freshness
-  notes. Since 1.14.19, the calibrated aerosol modifier is enabled by default
-  through `ObservationConditionFeatureFlags.experimental_aerosol_scoring=True`;
-  rollback is explicit by passing
-  `ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)`.
+  batch conditioning for visible Home/detail display payloads and structured
+  condition inputs for NSOM consumers. It accepts provider-gated NASA AOD and
+  particulate inputs with freshness notes. The calibrated aerosol factor and
+  target-specific Moon geometry are canonical and have no runtime feature
+  flags.
   Runtime diagnostic freshness is explicit: NASA AOD older than seven days is
   omitted from condition inputs; fresh/recent NASA AOD is included when
   provider-quality gates accept it. OpenAQ data is included as fallback/context
   when the `LocalAtmosphere` result has usable data, including
   stale-but-present readings, and omitted when historical, failed, unavailable
-  or unconfigured. The 1.14.7
-  readiness audit documents fresh AOD as the future primary aerosol-column source
-  and OpenAQ PM as fallback/context. The 1.14.8 policy hardens provider-quality
-  and double-counting gates; 1.14.9 implements the target-specific default-off
-  formula; 1.14.11 audits its calibration without tuning weights or enabling it;
-  1.14.12 maps the class cap to transparency loss before deriving the score
-  modifier; 1.14.13 records default-on readiness as blocked only by score-scale
-  acceptance; 1.14.14 records field-like calibration fixtures for that scale,
-  1.14.15 records a real-provider probe across five mixed locations,
-  1.14.16 expands it to 15 mixed locations with policy reasons, and 1.14.17
-  accepts the observed score scale while deferring default-on for temporal AOD
-  freshness/repeatability evidence. 1.14.18 replays those same real AOD values
-  as current and accepts the stale/current freshness policy without enabling the
-  flag.
+  or unconfigured. AOD is primary when quality-eligible; local OpenAQ PM is a
+  non-additive fallback/context source. Target-class caps are expressed as
+  atmospheric-transparency loss before deriving diagnostic penalty points.
   These inputs are not exposed as NSOM fields in QML. WeatherPage may display
-  their provider values and freshness, while condition-adjusted scores use them
-  only through the explicit aerosol feature flag and provider-quality policy.
+  provider values and freshness; ranking uses them only through the canonical
+  environment and provider-quality policy.
   Deep-sky light-pollution conditioning marks targets with an internal condition
   flag so repeated passes do not reapply the same presentation penalty; the flag
   is intentionally removed from the QML payload.
@@ -343,7 +333,7 @@ Startup flow:
 2. `AppController` initializes database-backed catalogs and profiles.
 3. The astronomy engine builds base solar-system, Moon, calendar and deep-sky
    data for the current location if one is available.
-4. Weather, sky quality, seeing, advanced scores, equipment recommendations and
+4. Weather, sky quality, seeing, NSOM category summaries, equipment recommendations and
    planning are layered on top.
 5. QML receives property change signals and renders dictionaries exposed by the
    controller.
@@ -354,12 +344,10 @@ Home recommendation flow:
 2. `AppController` applies active-profile equipment recommendations.
 3. Deep-sky objects may be adjusted by light-pollution context and Home/Detail
    Moon context through `ObservationConditionsService`.
-4. `BestObjectNsomSelectionService` selects Best Object by default when weather
-   and sky quality are available; `ObservingScoreService` remains only the
-   missing-sky fallback after internal rollback cleanup.
+4. `BestObjectNsomSelectionService` always selects Best Object from canonical
+   observation opportunities. Missing provider inputs are neutral factors.
 5. `NightPlannerService` produces the observing plan unless weather is
-   blocking, using the NSOM Planner path by default. `PlannerScoringService`
-   remains available for developer-only legacy formula comparison. The four
+   blocking, using `PlannerNsomScoringService`. The four
    highest `ObservationOpportunity` values are selected before chronological
    ordering, using the setup telescope selected for each target.
 6. `AppController` exposes the centralized blocking state to QML.
@@ -572,7 +560,7 @@ In-memory controller caches:
 - weather hours,
 - sky quality,
 - seeing/transparency,
-- advanced scores,
+- NSOM category scores,
 - night plan,
 - Sky Compass,
 - selected-object dictionary.
@@ -593,14 +581,13 @@ The following duplication or concentration of responsibility should be tracked:
 - Night-hour selection is repeated in observing score, seeing estimation and
   home weather digest logic with slightly different ranges.
 - Moon parsing from string percentages is repeated in multiple services.
-- Light-pollution handling intentionally has two current contexts:
-  Home/Detail deep-sky presentation context in `ObservationConditionsService`
-  and Planner-specific ranking penalty in `PlannerScoringService`. These
-  formulas are behavior-preserving and should not be merged without dedicated
-  equivalence tests.
-- Moon sensitivity is centralized in `ObservationConditionsService`, while
-  `PlannerScoringService` owns how that penalty is combined with Planner
-  weather, difficulty and aperture factors.
+- Light-pollution handling has two explicit outputs: display compatibility in
+  `ObservationConditionsService` and physical sky background in
+  `NsomObservationEnvironmentService`. Raw target inputs prevent double
+  application in ranking.
+- Moon illumination and target geometry are composed once by
+  `NsomObservationEnvironmentService`; Planner adds only observer, timing and
+  session layers.
 - `AppController` is oversized and mixes controller, presenter and orchestration
   responsibilities.
 - `HomePage.qml` is also large. Upper-Home and lower-Home decisions are moving

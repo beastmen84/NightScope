@@ -519,7 +519,6 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertIs(controller._nasa_aod_result, cached)
         self.assertEqual(provider.cache_checks, 1)
         self.assertEqual(provider.calls, 0)
-        controller._refresh_nsom_diagnostics.assert_called_once_with()
 
     def test_finished_refresh_stores_and_logs_result(self) -> None:
         controller = _aod_controller(verified=True)
@@ -713,7 +712,6 @@ def _aod_controller(
     controller._nasa_aod_refresh_running = False
     controller._nasa_aod_result = NasaAodResult.no_location()
     controller._nasa_aod_provider = provider or _FakeControllerAodProvider()
-    controller._refresh_nsom_diagnostics = Mock()
     return controller
 
 

@@ -3,8 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import replace
 
-from astro_viewer.app.models.observing import CelestialObject, MoonSummary
-from astro_viewer.app.models.sky import SkyQuality
+from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
@@ -12,14 +11,11 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 
 
-NSOM_HOME_RECOMMENDED_DEEP_SKY_ENABLED = True
-
-
 class HomeRecommendedDeepSkyNsomRankingService:
     """Ranks Home recommendedDeepSky candidates by NSOM ObservableTargetValue.
 
-    This default-off service intentionally stays inside the Home object/sky
-    layer. It does not use PracticalTargetValue, ObserverCapability,
+    This service intentionally stays inside the Home object/sky layer. It does
+    not use PracticalTargetValue, ObserverCapability,
     SessionViability, RecommendationConfidence or ObservationOpportunity.
     """
 
@@ -27,22 +23,16 @@ class HomeRecommendedDeepSkyNsomRankingService:
         self,
         candidates: Iterable[CelestialObject],
         *,
-        sky_quality: SkyQuality,
-        moon: MoonSummary | None,
-        condition_inputs: ObservationConditionInputs | None = None,
+        condition_inputs: ObservationConditionInputs,
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
     ) -> list[CelestialObject]:
-        common_inputs = condition_inputs or ObservationConditionInputs(
-            moon=moon,
-            sky_quality=sky_quality,
-        )
         scored = [
             (
                 item,
                 build_home_observable_target_value(
                     item,
                     condition_inputs=replace(
-                        common_inputs,
+                        condition_inputs,
                         moon_geometry=(moon_geometry_by_object_id or {}).get(item.id),
                     ),
                 ).value,

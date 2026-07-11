@@ -10,7 +10,7 @@ from PySide6.QtCore import QObject
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.models.equipment import Eyepiece, Telescope
 from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary, MoonSummary
-from astro_viewer.app.models.sky import AdvancedObservingScores, SeeingTransparency, SkyQuality
+from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
@@ -23,7 +23,6 @@ from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     MoonGeometryConditionInput,
     ObservationConditionInputs,
-    ObservationConditionFeatureFlags,
     ObservationConditionsService,
     ParticulateConditionInput,
 )
@@ -32,6 +31,14 @@ from astro_viewer.app.services.openaq_atmosphere_service import LocalAtmosphere
 from astro_viewer.app.services.openaq_credentials import OpenAQCredentialState
 from astro_viewer.app.services.refresh_lifecycle import RefreshDomain, RefreshManager
 from astro_viewer.app.viewmodels.app_controller import AppController
+
+
+def _moon_adjusted_score(target: CelestialObject, moon: MoonSummary | None) -> int:
+    return ObservationConditionsService().moon_adjusted_score(target, moon).adjusted_score
+
+
+def _moon_penalty(target: CelestialObject, moon: MoonSummary | None) -> float:
+    return ObservationConditionsService().moon_penalty(target, moon)
 
 
 def test_moon_adjustment_matches_existing_planner_formula_for_target_types() -> None:
@@ -48,7 +55,7 @@ def test_moon_adjustment_matches_existing_planner_formula_for_target_types() -> 
     for target in targets:
         breakdown = service.moon_adjusted_score(target, moon)
 
-        assert breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, moon)
+        assert breakdown.adjusted_score == _moon_adjusted_score(target, moon)
         assert service.apply_moon_adjustment(target, moon).target.score == breakdown.adjusted_score
         if target.object_type == "Pianeta":
             assert breakdown.applied_components == ()
@@ -97,7 +104,7 @@ def test_moon_adjusted_score_diagnostics_include_illumination_when_applied() -> 
 
     breakdown = service.moon_adjusted_score(target, moon)
 
-    assert breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, moon)
+    assert breakdown.adjusted_score == _moon_adjusted_score(target, moon)
     assert breakdown.applied_components == ("moon",)
     assert "moon:illumination=86" in breakdown.diagnostic_notes
     assert "light_pollution:not_requested" in breakdown.diagnostic_notes
@@ -150,7 +157,7 @@ def test_aod_diagnostic_inputs_are_freshness_aware_and_score_neutral() -> None:
         assert f"aod:{category}" in breakdown.diagnostic_notes
         assert "aod:available" in breakdown.diagnostic_notes
         assert "aod:550=0.18" in breakdown.diagnostic_notes
-        assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
+        assert "aod:canonical_environment_only" in breakdown.diagnostic_notes
         assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
         assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
@@ -184,7 +191,7 @@ def test_particulate_diagnostic_inputs_are_freshness_aware_and_score_neutral() -
         assert "particulate:available" in breakdown.diagnostic_notes
         assert "pm25=9.5" in breakdown.diagnostic_notes
         assert "pm10=22" in breakdown.diagnostic_notes
-        assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+        assert "particulate:canonical_environment_only" in breakdown.diagnostic_notes
         assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
         assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
@@ -213,16 +220,16 @@ def test_unavailable_atmospheric_diagnostics_remain_score_neutral() -> None:
     assert breakdown.applied_components == ()
     assert "aod:unavailable:no_credentials" in breakdown.diagnostic_notes
     assert "particulate:unavailable:no_measurements" in breakdown.diagnostic_notes
-    assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
-    assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "aod:canonical_environment_only" in breakdown.diagnostic_notes
+    assert "particulate:canonical_environment_only" in breakdown.diagnostic_notes
     assert "aerosol_scoring:no_policy_eligible_provider" in breakdown.diagnostic_notes
     assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
-def test_diagnostic_only_inputs_prepare_runtime_aod_and_openaq_boundary() -> None:
+def test_condition_inputs_prepare_runtime_aod_and_openaq_boundary() -> None:
     service = ObservationConditionsService()
     target = _target("m13", "M13", "Globular Cluster", 78)
-    inputs = ObservationConditionInputs.diagnostic_only(
+    inputs = ObservationConditionInputs(
         aod=AodConditionInput(available=True, freshness_category="recent", aod_550=0.16),
         particulate=ParticulateConditionInput(available=True, freshness_category="current", pm25=7.0),
     )
@@ -241,7 +248,7 @@ def test_diagnostic_only_inputs_prepare_runtime_aod_and_openaq_boundary() -> Non
 def test_runtime_aod_and_particulate_diagnostics_include_status_source_and_values() -> None:
     service = ObservationConditionsService()
     target = _target("m13", "M13", "Globular Cluster", 78)
-    inputs = ObservationConditionInputs.diagnostic_only(
+    inputs = ObservationConditionInputs(
         aod=AodConditionInput(
             available=True,
             freshness_category="current",
@@ -286,7 +293,7 @@ def test_atmospheric_diagnostic_inputs_do_not_change_adjusted_score() -> None:
     baseline = service.condition_target(target)
     with_atmosphere = service.condition_target(
         target,
-        ObservationConditionInputs.diagnostic_only(
+        ObservationConditionInputs(
             aod=AodConditionInput(
                 available=True,
                 freshness_category="stale",
@@ -333,7 +340,7 @@ def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_compon
         apply_pollution=True,
     )
     breakdown = conditioned.breakdown
-    moon_adjusted = NightPlannerService.moon_adjusted_score(target, moon)
+    moon_adjusted = _moon_adjusted_score(target, moon)
     expected_score = max(0, round(moon_adjusted - service.deep_sky_pollution_penalty(target, sky_quality)))
 
     assert breakdown.adjusted_score == expected_score
@@ -341,12 +348,12 @@ def test_atmospheric_diagnostics_do_not_change_existing_moon_or_pollution_compon
     assert breakdown.applied_components == ("moon", "light_pollution")
     assert breakdown.aod_modifier == 0.0
     assert breakdown.pm25_modifier == 0.0
-    assert "aod:experimental_scoring_enabled" in breakdown.diagnostic_notes
-    assert "particulate:experimental_scoring_enabled" in breakdown.diagnostic_notes
+    assert "aod:canonical_environment_only" in breakdown.diagnostic_notes
+    assert "particulate:canonical_environment_only" in breakdown.diagnostic_notes
     assert "aerosol_scoring:score_neutral" in breakdown.diagnostic_notes
 
 
-def test_future_aod_freshness_weights_are_characterized() -> None:
+def test_aod_freshness_weights_are_characterized() -> None:
     service = ObservationConditionsService()
 
     assert service.aod_freshness_weight(age_days=0.0) == 1.0
@@ -423,11 +430,9 @@ def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:
     assert service.aerosol_primary_source(historical_aod, None) == "none"
 
 
-def test_aerosol_modifier_is_enabled_by_default_and_can_be_forced_off() -> None:
+def test_aerosol_modifier_is_canonical_and_display_score_remains_unchanged() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
-    default_flags = ObservationConditionFeatureFlags()
-    forced_off_flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=False)
     aod = _scoring_aod(aod_550=0.44)
     particulate = ParticulateConditionInput(
         available=True,
@@ -438,36 +443,19 @@ def test_aerosol_modifier_is_enabled_by_default_and_can_be_forced_off() -> None:
         distance_km=5.0,
     )
 
-    default_conditioned = service.condition_target(
+    conditioned = service.condition_target(
         target,
-        ObservationConditionInputs.diagnostic_only(aod=aod, particulate=particulate),
-    )
-    rollback_conditioned = service.condition_target(
-        target,
-        ObservationConditionInputs(
-            aod=aod,
-            particulate=particulate,
-            feature_flags=forced_off_flags,
-        ),
+        ObservationConditionInputs(aod=aod, particulate=particulate),
     )
 
-    assert default_flags.experimental_aerosol_scoring is True
-    assert service.intended_aerosol_modifier(target, aod, particulate, default_flags) == -7.38
-    assert default_conditioned.target == target
-    assert default_conditioned.breakdown.adjusted_score == 82
-    assert default_conditioned.breakdown.aod_modifier == 0.0
-    assert default_conditioned.breakdown.pm25_modifier == 0.0
-    assert default_conditioned.breakdown.applied_components == ()
-    assert "aerosol:canonical_environment_only" in default_conditioned.breakdown.diagnostic_notes
+    assert service.aerosol_modifier(target, aod, particulate) == -7.38
+    assert conditioned.target == target
+    assert conditioned.breakdown.adjusted_score == 82
+    assert conditioned.breakdown.aod_modifier == 0.0
+    assert conditioned.breakdown.pm25_modifier == 0.0
+    assert conditioned.breakdown.applied_components == ()
+    assert "aerosol:canonical_environment_only" in conditioned.breakdown.diagnostic_notes
     assert target.score == 82
-
-    assert forced_off_flags.experimental_aerosol_scoring is False
-    assert service.intended_aerosol_modifier(target, aod, particulate, forced_off_flags) == 0.0
-    assert rollback_conditioned.target == target
-    assert rollback_conditioned.breakdown.adjusted_score == target.score
-    assert rollback_conditioned.breakdown.aod_modifier == 0.0
-    assert rollback_conditioned.breakdown.pm25_modifier == 0.0
-    assert rollback_conditioned.breakdown.applied_components == ()
 
 
 def test_canonical_environment_uses_aod_when_policy_eligible() -> None:
@@ -475,15 +463,12 @@ def test_canonical_environment_uses_aod_when_policy_eligible() -> None:
     target = _target("m31", "M31", "Galaxy", 82)
     aod = _scoring_aod(aod_550=0.44)
     particulate = _scoring_pm(pm25=55.0, pm10=120.0)
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
-
-    breakdown = service.experimental_aerosol_scoring_breakdown(target, aod, particulate, flags)
+    breakdown = service.aerosol_scoring_breakdown(target, aod, particulate)
     conditioned = service.condition_target(
         target,
         ObservationConditionInputs(
             aod=aod,
             particulate=particulate,
-            feature_flags=flags,
         ),
     )
     environment = NsomObservationEnvironmentService().environment(
@@ -491,7 +476,6 @@ def test_canonical_environment_uses_aod_when_policy_eligible() -> None:
         ObservationConditionInputs(
             aod=aod,
             particulate=particulate,
-            feature_flags=flags,
         ),
     )
 
@@ -507,7 +491,7 @@ def test_canonical_environment_uses_aod_when_policy_eligible() -> None:
     assert conditioned.breakdown.adjusted_score == 82
     assert conditioned.breakdown.applied_components == ()
     assert "particulate" not in conditioned.breakdown.applied_components
-    assert "aod:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
+    assert "aod:canonical_environment_only" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:source=aod" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:target_score_scaled_transparency_loss" in conditioned.breakdown.diagnostic_notes
     assert environment.atmospheric_transparency == 0.91
@@ -519,20 +503,16 @@ def test_canonical_environment_uses_local_pm_fallback_when_aod_rejected() -> Non
     target = _target("m42", "M42", "Diffuse Nebula", 82)
     rejected_aod = _scoring_aod(aod_550=0.44, uncertainty=0.24)
     particulate = _scoring_pm(pm25=55.0, pm10=120.0)
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
-
-    breakdown = service.experimental_aerosol_scoring_breakdown(
+    breakdown = service.aerosol_scoring_breakdown(
         target,
         rejected_aod,
         particulate,
-        flags,
     )
     conditioned = service.condition_target(
         target,
         ObservationConditionInputs(
             aod=rejected_aod,
             particulate=particulate,
-            feature_flags=flags,
         ),
     )
     environment = NsomObservationEnvironmentService().environment(
@@ -540,7 +520,6 @@ def test_canonical_environment_uses_local_pm_fallback_when_aod_rejected() -> Non
         ObservationConditionInputs(
             aod=rejected_aod,
             particulate=particulate,
-            feature_flags=flags,
         ),
     )
 
@@ -558,35 +537,30 @@ def test_canonical_environment_uses_local_pm_fallback_when_aod_rejected() -> Non
     assert environment.atmospheric_transparency == 0.9694
 
 
-def test_experimental_aerosol_scoring_respects_target_class_caps_and_protection() -> None:
+def test_aerosol_scoring_respects_target_class_caps_and_protection() -> None:
     service = ObservationConditionsService()
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
     aod = _scoring_aod(aod_550=0.75)
     particulate = _scoring_pm(pm25=70.0, pm10=180.0)
 
-    galaxy = service.experimental_aerosol_scoring_breakdown(
+    galaxy = service.aerosol_scoring_breakdown(
         _target("m31", "M31", "Galaxy", 82),
         aod,
         particulate,
-        flags,
     )
-    diffuse = service.experimental_aerosol_scoring_breakdown(
+    diffuse = service.aerosol_scoring_breakdown(
         _target("m42", "M42", "Diffuse Nebula", 82),
         aod,
         particulate,
-        flags,
     )
-    planet = service.experimental_aerosol_scoring_breakdown(
+    planet = service.aerosol_scoring_breakdown(
         _target("mars", "Marte", "Pianeta", 82),
         aod,
         particulate,
-        flags,
     )
-    moon = service.experimental_aerosol_scoring_breakdown(
+    moon = service.aerosol_scoring_breakdown(
         _target("moon", "Luna", "Satellite naturale", 82),
         aod,
         particulate,
-        flags,
     )
 
     assert galaxy.score_modifier == -9.84
@@ -600,13 +574,12 @@ def test_experimental_aerosol_scoring_respects_target_class_caps_and_protection(
     assert galaxy.penalty_points > diffuse.penalty_points > planet.penalty_points > moon.penalty_points
 
 
-def test_experimental_aerosol_scoring_uses_transparency_loss_shape() -> None:
+def test_aerosol_scoring_uses_transparency_loss_shape() -> None:
     service = ObservationConditionsService()
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
     target = _target("m31", "M31", "Galaxy", 82)
     aod = _scoring_aod(aod_550=0.75)
 
-    breakdown = service.experimental_aerosol_scoring_breakdown(target, aod, None, flags)
+    breakdown = service.aerosol_scoring_breakdown(target, aod, None)
 
     assert breakdown.max_transparency_loss == 0.12
     assert breakdown.transparency_loss == 0.12
@@ -616,25 +589,22 @@ def test_experimental_aerosol_scoring_uses_transparency_loss_shape() -> None:
     assert "target_score * transparency_loss" in breakdown.formula
 
 
-def test_experimental_aerosol_scoring_rejects_non_policy_eligible_sources() -> None:
+def test_aerosol_scoring_rejects_non_policy_eligible_sources() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
     missing_qa = _scoring_aod(aod_550=0.44, qa_raw=None)
     context_only_pm = _scoring_pm(pm25=55.0, pm10=120.0, distance_km=35.0)
 
-    breakdown = service.experimental_aerosol_scoring_breakdown(
+    breakdown = service.aerosol_scoring_breakdown(
         target,
         missing_qa,
         context_only_pm,
-        flags,
     )
     conditioned = service.condition_target(
         target,
         ObservationConditionInputs(
             aod=missing_qa,
             particulate=context_only_pm,
-            feature_flags=flags,
         ),
     )
 
@@ -647,15 +617,14 @@ def test_experimental_aerosol_scoring_rejects_non_policy_eligible_sources() -> N
     assert "aerosol_scoring:score_neutral" in conditioned.breakdown.diagnostic_notes
 
 
-def test_experimental_aerosol_scoring_confidence_metadata_does_not_scale_score() -> None:
+def test_aerosol_scoring_confidence_metadata_does_not_scale_score() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
-    flags = ObservationConditionFeatureFlags(experimental_aerosol_scoring=True)
     viirs = _scoring_aod(aod_550=0.44, product="VNP19A2.002")
     modis = _scoring_aod(aod_550=0.44, product="MCD19A2.061")
 
-    viirs_breakdown = service.experimental_aerosol_scoring_breakdown(target, viirs, None, flags)
-    modis_breakdown = service.experimental_aerosol_scoring_breakdown(target, modis, None, flags)
+    viirs_breakdown = service.aerosol_scoring_breakdown(target, viirs, None)
+    modis_breakdown = service.aerosol_scoring_breakdown(target, modis, None)
 
     assert viirs_breakdown.score_modifier == modis_breakdown.score_modifier == -7.38
 
@@ -675,7 +644,7 @@ def test_aerosol_severity_steps_are_explicit() -> None:
     assert service.particulate_severity(56.0, 151.0) == 1.0
 
 
-def test_future_moon_geometry_fields_are_represented_diagnostically() -> None:
+def test_moon_geometry_fields_are_represented_diagnostically() -> None:
     service = ObservationConditionsService()
     target = _target("m31", "M31", "Galaxy", 82)
     geometry = MoonGeometryConditionInput(
@@ -698,11 +667,11 @@ def test_future_moon_geometry_fields_are_represented_diagnostically() -> None:
     assert "moon_geometry:above_horizon=true" in notes
     assert "moon_geometry:visible_during_window=true" in notes
     assert "moon_geometry:set_before_window=false" in notes
-    assert "moon_geometry:future_factor=1.35" in notes
-    assert "moon_geometry:score_neutral" in notes
+    assert "moon_geometry:factor=1.35" in notes
+    assert "moon_geometry:canonical_environment_only" in notes
 
 
-def test_future_moon_geometry_altitude_and_timing_factors_are_characterized() -> None:
+def test_moon_geometry_altitude_and_timing_factors_are_characterized() -> None:
     service = ObservationConditionsService()
     below_horizon = MoonGeometryConditionInput(
         moon_altitude_deg=-4.0,
@@ -726,38 +695,23 @@ def test_future_moon_geometry_altitude_and_timing_factors_are_characterized() ->
         moon_set_before_target_window=True,
     )
 
-    assert service.moon_altitude_future_factor(below_horizon) == 0.0
-    assert service.moon_altitude_future_factor(low_altitude) == 0.25
-    assert service.moon_altitude_future_factor(high_altitude) == 1.0
-    assert service.intended_moon_geometry_factor(below_horizon) < service.intended_moon_geometry_factor(high_altitude)
-    assert service.intended_moon_geometry_factor(set_before_window) == 0.0
+    assert service.moon_altitude_factor(below_horizon) == 0.0
+    assert service.moon_altitude_factor(low_altitude) == 0.25
+    assert service.moon_altitude_factor(high_altitude) == 1.0
+    assert service.moon_geometry_factor(below_horizon) < service.moon_geometry_factor(high_altitude)
+    assert service.moon_geometry_factor(set_before_window) == 0.0
 
 
-def test_future_moon_geometry_separation_factors_are_characterized() -> None:
+def test_moon_geometry_separation_factors_are_characterized() -> None:
     service = ObservationConditionsService()
     close = MoonGeometryConditionInput(moon_target_separation_deg=12.0)
     mid = MoonGeometryConditionInput(moon_target_separation_deg=55.0)
     far = MoonGeometryConditionInput(moon_target_separation_deg=125.0)
 
-    assert service.moon_separation_future_factor(close) == 1.35
-    assert service.moon_separation_future_factor(mid) == 0.65
-    assert service.moon_separation_future_factor(far) == 0.35
-    assert service.moon_separation_future_factor(close) > service.moon_separation_future_factor(far)
-
-
-def test_future_moon_geometry_modifier_is_neutral_with_feature_flag_off() -> None:
-    service = ObservationConditionsService()
-    flags = ObservationConditionFeatureFlags(experimental_moon_geometry_scoring=False)
-    geometry = MoonGeometryConditionInput(
-        moon_altitude_deg=50.0,
-        moon_target_separation_deg=10.0,
-        moon_above_horizon=True,
-        moon_visible_during_target_window=True,
-    )
-
-    assert flags.experimental_moon_geometry_scoring is False
-    assert service.intended_moon_geometry_factor(geometry) > 1.0
-    assert service.intended_moon_geometry_modifier(geometry, flags) == 0.0
+    assert service.moon_separation_factor(close) == 1.35
+    assert service.moon_separation_factor(mid) == 0.65
+    assert service.moon_separation_factor(far) == 0.35
+    assert service.moon_separation_factor(close) > service.moon_separation_factor(far)
 
 
 def test_app_controller_builds_local_moon_geometry_diagnostic_input_score_neutrally() -> None:
@@ -795,36 +749,14 @@ def test_app_controller_builds_local_moon_geometry_diagnostic_input_score_neutra
         moon_set_before_target_window=False,
     )
     assert conditioned.breakdown.moon_geometry_factor > 1.0
-    assert conditioned.breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, controller._moon)
+    assert conditioned.breakdown.adjusted_score == _moon_adjusted_score(target, controller._moon)
     assert conditioned.breakdown.applied_components == ("moon",)
-    assert "moon_geometry:score_neutral" in conditioned.breakdown.diagnostic_notes
+    assert "moon_geometry:canonical_environment_only" in conditioned.breakdown.diagnostic_notes
     assert controller._astronomy_engine.calls == 1
 
 
-def test_app_controller_skips_planner_moon_geometry_inputs_when_experimental_flag_is_off() -> None:
+def test_app_controller_builds_planner_moon_geometry_inputs() -> None:
     controller = AppController.__new__(AppController)
-    controller._night_planner_service = _PlannerFlagService(uses_moon_geometry_scoring=False)
-    controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
-    controller._moon_geometry_condition_cache = {}
-    controller._astronomy_engine = _MoonGeometryEngine(
-        MoonGeometrySummary(
-            object_id="m31",
-            moon_altitude_deg=37.0,
-            moon_target_separation_deg=18.0,
-            moon_above_horizon=True,
-            moon_visible_during_target_window=True,
-            moon_set_before_target_window=False,
-        )
-    )
-    target = _target("m31", "M31", "Galaxy", 82)
-
-    assert controller._planner_moon_geometry_inputs([target]) is None
-    assert controller._astronomy_engine.calls == 0
-
-
-def test_app_controller_builds_planner_moon_geometry_inputs_when_experimental_flag_is_on() -> None:
-    controller = AppController.__new__(AppController)
-    controller._night_planner_service = _PlannerFlagService(uses_moon_geometry_scoring=True)
     controller._location = ObserverLocation("Test", "Earth", 0.0, 0.0, "UTC")
     controller._moon_geometry_condition_cache = {}
     controller._astronomy_engine = _MoonGeometryEngine(
@@ -890,8 +822,6 @@ def test_app_controller_default_planner_builds_moon_geometry_inputs() -> None:
 
     geometry_by_id = controller._planner_moon_geometry_inputs([target])
 
-    assert controller._night_planner_service.uses_moon_geometry_scoring is True
-    assert geometry_by_id is not None
     assert geometry_by_id["m31"].moon_target_separation_deg == 18.0
     assert controller._astronomy_engine.calls == 1
 
@@ -1014,7 +944,7 @@ def test_app_controller_stale_openaq_runtime_input_remains_score_neutral() -> No
     assert conditioned.breakdown.pm25_modifier == 0.0
     assert conditioned.breakdown.applied_components == ()
     assert "particulate:stale" in conditioned.breakdown.diagnostic_notes
-    assert "particulate:experimental_scoring_enabled" in conditioned.breakdown.diagnostic_notes
+    assert "particulate:canonical_environment_only" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:no_policy_eligible_provider" in conditioned.breakdown.diagnostic_notes
     assert "aerosol_scoring:score_neutral" in conditioned.breakdown.diagnostic_notes
 
@@ -1141,7 +1071,7 @@ def test_app_controller_home_detail_output_unchanged_with_runtime_diagnostics() 
     target = _target("m31", "M31", "Galassia", 82)
 
     conditioned = controller._moon_adjusted_object(target)
-    expected_score = NightPlannerService.moon_adjusted_score(target, controller._moon)
+    expected_score = _moon_adjusted_score(target, controller._moon)
 
     assert conditioned == replace(
         target,
@@ -1186,8 +1116,8 @@ def test_condition_target_moon_breakdown_matches_previous_implementation() -> No
     )
     breakdown = conditioned.breakdown
 
-    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(target, moon)
-    assert breakdown.adjusted_score == NightPlannerService.moon_adjusted_score(target, moon)
+    assert breakdown.moon_penalty == _moon_penalty(target, moon)
+    assert breakdown.adjusted_score == _moon_adjusted_score(target, moon)
     assert conditioned.target == service.apply_moon_adjustment(target, moon).target
     assert breakdown.applied_components == ("moon",)
     assert "moon:illumination=86" in breakdown.diagnostic_notes
@@ -1250,10 +1180,10 @@ def test_condition_target_combined_breakdown_records_existing_components_without
         apply_pollution=True,
     )
     breakdown = conditioned.breakdown
-    moon_adjusted = NightPlannerService.moon_adjusted_score(target, moon)
+    moon_adjusted = _moon_adjusted_score(target, moon)
     expected_score = max(0, round(moon_adjusted - service.deep_sky_pollution_penalty(target, sky_quality)))
 
-    assert breakdown.moon_penalty == NightPlannerService.moon_penalty(target, moon)
+    assert breakdown.moon_penalty == _moon_penalty(target, moon)
     assert breakdown.pollution_penalty == service.deep_sky_pollution_penalty(target, sky_quality)
     assert breakdown.adjusted_score == expected_score
     assert conditioned.target.score == expected_score
@@ -1354,7 +1284,7 @@ def test_non_numeric_magnitude_is_safe_for_pollution_and_moon_adjustment() -> No
 
     assert polluted.target.score < target.score
     assert polluted.target.score_label == ObservingScoreService.score_label(polluted.target.score)
-    assert moon_adjusted.target.score == NightPlannerService.moon_adjusted_score(target, _moon("91%"))
+    assert moon_adjusted.target.score == _moon_adjusted_score(target, _moon("91%"))
 
 
 def test_deep_sky_pollution_context_is_not_applied_twice_to_same_target() -> None:
@@ -1436,11 +1366,11 @@ def test_condition_target_applies_moon_but_not_pollution_when_pollution_already_
         apply_pollution=True,
     )
 
-    assert conditioned.breakdown.moon_penalty == NightPlannerService.moon_penalty(polluted.target, moon)
+    assert conditioned.breakdown.moon_penalty == _moon_penalty(polluted.target, moon)
     assert conditioned.breakdown.pollution_penalty == 0.0
     assert conditioned.breakdown.applied_components == ("moon",)
     assert conditioned.breakdown.already_adjusted_flags == ("light_pollution",)
-    assert conditioned.target.score == NightPlannerService.moon_adjusted_score(polluted.target, moon)
+    assert conditioned.target.score == _moon_adjusted_score(polluted.target, moon)
     assert "light_pollution:already_applied" in conditioned.breakdown.diagnostic_notes
 
 
@@ -1454,7 +1384,7 @@ def test_condition_target_double_moon_application_is_currently_not_guarded() -> 
 
     assert second.breakdown.already_adjusted_flags == ()
     assert second.breakdown.applied_components == ("moon",)
-    assert second.target.score == NightPlannerService.moon_adjusted_score(first.target, moon)
+    assert second.target.score == _moon_adjusted_score(first.target, moon)
     assert second.target.score < first.target.score
 
 
@@ -1477,7 +1407,7 @@ def test_app_controller_home_detail_conditioned_object_output_matches_legacy_for
     target = _target("m31", "M31", "Galassia", 82)
 
     conditioned = controller._moon_adjusted_object(target)
-    expected_score = NightPlannerService.moon_adjusted_score(target, controller._moon)
+    expected_score = _moon_adjusted_score(target, controller._moon)
     expected = replace(
         target,
         score=expected_score,
@@ -1507,31 +1437,27 @@ def test_planner_output_characterization_is_unchanged_on_fixture() -> None:
         _target("saturn", "Saturno", "Pianeta", 88, best_time="01:30", difficulty="Facile"),
     ]
 
+    sky_quality = _sky_quality(bortle=5)
     plan = planner.plan(
         objects,
         _weather_summary(score=82),
-        AdvancedObservingScores(80, 76, "Buona", "Buona", "fixture"),
-        _sky_quality(bortle=5),
         _telescope(),
-        _moon("24%"),
+        condition_inputs=ObservationConditionInputs(
+            moon=_moon("24%"),
+            sky_quality=sky_quality,
+            seeing=SeeingTransparency(
+                "Buona",
+                "Buona",
+                80,
+                76,
+                "fixture",
+                atmospheric_transparency_score=76,
+            ),
+        ),
     )
 
     assert [item.object_id for item in plan] == ["venus", "m24", "saturn"]
     assert [item.time_label for item in plan] == ["20:45 sera", "00:30 notte", "01:30 notte"]
-
-
-def test_best_object_characterization_is_unchanged_on_fixture() -> None:
-    service = ObservingScoreService()
-    objects = [
-        _target("easy", "Easy", "Open Cluster", 70, difficulty="Facile"),
-        _target("hard", "Hard", "Galaxy", 90, difficulty="Difficile"),
-        _target("medium", "Medium", "Globular Cluster", 78, difficulty="Media"),
-    ]
-
-    best = service.best_object(objects, _weather_summary(score=70))
-
-    assert best is not None
-    assert best.id == "easy"
 
 
 def test_equipment_recommendation_characterization_is_unchanged_on_fixture() -> None:
@@ -1821,8 +1747,3 @@ class _BatchMoonGeometryEngine:
         del location, target
         self.scalar_calls += 1
         raise AssertionError("scalar fallback should not run")
-
-
-class _PlannerFlagService:
-    def __init__(self, *, uses_moon_geometry_scoring: bool) -> None:
-        self.uses_moon_geometry_scoring = uses_moon_geometry_scoring

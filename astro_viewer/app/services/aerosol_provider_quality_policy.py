@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
-    ObservationConditionFeatureFlags,
     ObservationConditionsService,
     ParticulateConditionInput,
 )
@@ -16,15 +15,12 @@ AOD_MAX_UNCERTAINTY_FOR_POLICY = 0.15
 AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS = 3
 OPENAQ_LOCAL_REPRESENTATIVE_KM = 25.0
 OPENAQ_CONTEXT_ONLY_KM = 50.0
-AEROSOL_SCORING_FORMULA_IMPLEMENTED = True
-
-
 @dataclass(frozen=True)
 class AodProviderQualityDecision:
     """Formal AOD quality gate for aerosol condition scoring."""
 
     available: bool
-    eligible_for_future_scoring: bool
+    eligible_for_scoring: bool
     role: str
     freshness_weight: float
     uncertainty_weight: float
@@ -41,7 +37,7 @@ class ParticulateProviderQualityDecision:
     """Formal OpenAQ particulate representativeness gate for fallback/context use."""
 
     available: bool
-    eligible_for_future_fallback: bool
+    eligible_for_fallback: bool
     role: str
     freshness_weight: float
     locality_weight: float
@@ -56,15 +52,11 @@ class AerosolProviderQualityPolicy:
     """Combined source-precedence and double-counting policy.
 
     This object is target-neutral. It defines whether AOD/PM data is
-    trustworthy enough for aerosol condition scoring; target-specific
-    score modifiers are computed by ObservationConditionsService only when the
-    explicit aerosol feature flag is enabled.
+    trustworthy enough for aerosol condition scoring. Target-specific score
+    modifiers are computed by ObservationConditionsService.
     """
 
     primary_source: str
-    score_modifier: float
-    scoring_formula_enabled: bool
-    ready_for_default_off_experiment: bool
     aod: AodProviderQualityDecision
     particulate: ParticulateProviderQualityDecision
     double_counting_rules: tuple[str, ...]
@@ -78,7 +70,7 @@ class AerosolProviderQualityPolicyService:
         if aod is None:
             return AodProviderQualityDecision(
                 available=False,
-                eligible_for_future_scoring=False,
+                eligible_for_scoring=False,
                 role="missing",
                 freshness_weight=0.0,
                 uncertainty_weight=0.0,
@@ -144,7 +136,7 @@ class AerosolProviderQualityPolicyService:
         eligible = not reasons and confidence_weight > 0.0
         return AodProviderQualityDecision(
             available=bool(aod.available),
-            eligible_for_future_scoring=eligible,
+            eligible_for_scoring=eligible,
             role="primary_aerosol_column" if eligible else "metadata_only",
             freshness_weight=freshness_weight,
             uncertainty_weight=uncertainty_weight,
@@ -163,7 +155,7 @@ class AerosolProviderQualityPolicyService:
         if particulate is None:
             return ParticulateProviderQualityDecision(
                 available=False,
-                eligible_for_future_fallback=False,
+                eligible_for_fallback=False,
                 role="missing",
                 freshness_weight=0.0,
                 locality_weight=0.0,
@@ -210,7 +202,7 @@ class AerosolProviderQualityPolicyService:
         eligible = not reasons and confidence_weight > 0.0
         return ParticulateProviderQualityDecision(
             available=bool(particulate.available),
-            eligible_for_future_fallback=eligible,
+            eligible_for_fallback=eligible,
             role="fallback_ground_particulate" if eligible else "metadata_only",
             freshness_weight=freshness_weight,
             locality_weight=locality_weight,
@@ -224,24 +216,18 @@ class AerosolProviderQualityPolicyService:
         self,
         aod: AodConditionInput | None,
         particulate: ParticulateConditionInput | None,
-        feature_flags: ObservationConditionFeatureFlags | None = None,
     ) -> AerosolProviderQualityPolicy:
         aod_quality = self.aod_quality(aod)
         particulate_quality = self.particulate_quality(particulate)
-        flags = feature_flags or ObservationConditionFeatureFlags()
 
-        if aod_quality.eligible_for_future_scoring:
+        if aod_quality.eligible_for_scoring:
             primary_source = "aod"
-        elif particulate_quality.eligible_for_future_fallback:
+        elif particulate_quality.eligible_for_fallback:
             primary_source = "particulate"
         else:
             primary_source = "none"
         return AerosolProviderQualityPolicy(
             primary_source=primary_source,
-            score_modifier=0.0,
-            scoring_formula_enabled=AEROSOL_SCORING_FORMULA_IMPLEMENTED
-            and flags.experimental_aerosol_scoring,
-            ready_for_default_off_experiment=True,
             aod=aod_quality,
             particulate=particulate_quality,
             double_counting_rules=(
