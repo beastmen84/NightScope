@@ -6,12 +6,13 @@ Rectangle {
 
     property var eventData
     property color accentColor: "#f6c768"
+    property color visibilityAccentColor: "#6ee7b7"
     property bool hovered: false
 
     signal clicked()
 
     Layout.fillWidth: true
-    implicitHeight: 112
+    implicitHeight: 124
     radius: 8
     color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.12) : "#171a20"
     border.color: root.hovered ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.55) : "#303641"
@@ -45,7 +46,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.eventData.date_label
+                    text: root.eventData.dateLabel
                     color: root.accentColor
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -56,7 +57,7 @@ Rectangle {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.eventData.best_time
+                    text: root.eventData.timingValue
                     color: "#aeb7c4"
                     font.pixelSize: 11
                     horizontalAlignment: Text.AlignHCenter
@@ -88,39 +89,23 @@ Rectangle {
                     accentColor: root.accentColor
                 }
 
-                Text {
-                    Layout.fillWidth: true
-                    text: root.eventData.setup
-                    color: "#aeb7c4"
-                    font.pixelSize: 12
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
+                StatusPill {
+                    text: root.eventData.visibilityLabel
+                    accentColor: root.visibilityAccentColor
                 }
+
+                Item { Layout.fillWidth: true }
             }
 
             Text {
                 Layout.fillWidth: true
-                text: root.eventData.note
+                text: root.eventData.observingWindow.length > 0
+                      ? root.eventData.observingWindow
+                      : root.eventData.visibilityDetail
                 color: "#788391"
                 font.pixelSize: 12
                 elide: Text.ElideRight
                 maximumLineCount: 1
-            }
-        }
-
-        Rectangle {
-            Layout.preferredWidth: 44
-            Layout.preferredHeight: 44
-            radius: 8
-            color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.10)
-            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.35)
-
-            Text {
-                anchors.centerIn: parent
-                text: root.eventData.usefulness
-                color: root.accentColor
-                font.pixelSize: 15
-                font.weight: Font.DemiBold
             }
         }
     }

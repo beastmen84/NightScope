@@ -115,8 +115,9 @@ Current runtime status for `1.20.0`:
 - `CalendarOverviewService` projects the complete 365-day event set into a
   score-free read model. Event instant, observing window and local visibility
   are separate fields; future setups use profile capability without reusing
-  tonight's seeing. The legacy `events` property remains available during the
-  QML migration but no event is removed by a usefulness cap.
+  tonight's seeing. Calendar QML and the Home event strip consume this read
+  model; the legacy `events` property remains available only for compatibility
+  and no event is removed by a usefulness cap.
 - The checked-in source of truth is now the runtime code, active regression
   tests, `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and this architecture/model
   documentation. Historical migration reports and report generators were removed

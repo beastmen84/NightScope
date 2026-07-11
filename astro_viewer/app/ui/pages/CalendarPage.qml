@@ -10,9 +10,14 @@ Item {
     property string selectedDateFilter: "30 giorni"
     property string selectedTypeFilter: "Tutti"
     property string selectedEventId: ""
+    property string initialEventId: ""
+    readonly property var calendarOverview: controller ? (controller.calendarOverview || ({})) : ({})
+    readonly property var calendarEvents: calendarOverview.items || []
     property var selectedEventData: selectedEventById(selectedEventId)
 
     signal openObject(string objectId)
+    signal eventSelected(string eventId)
+    signal eventSelectionCleared()
 
     AppTheme {
         id: theme
@@ -30,29 +35,16 @@ Item {
         return theme.cyan
     }
 
-    function parseEventDate(label) {
-        if (!label)
-            return null
-        var parts = label.split("/")
-        if (parts.length !== 3)
-            return null
-        return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10))
-    }
-
-    function daysUntil(eventData) {
-        var eventDate = parseEventDate(eventData.date_label)
-        if (!eventDate)
-            return 999999
-        var today = new Date()
-        today.setHours(0, 0, 0, 0)
-        eventDate.setHours(0, 0, 0, 0)
-        return Math.floor((eventDate - today) / 86400000)
+    function visibilityAccent(state) {
+        if (state === "visible" || state === "favorable" || state === "nearby_night")
+            return theme.teal
+        if (state === "check" || state === "unknown")
+            return theme.amber
+        return theme.coral
     }
 
     function matchesDateFilter(eventData) {
-        if (selectedDateFilter === "Tutti")
-            return true
-        var days = daysUntil(eventData)
+        var days = Number(eventData.daysUntil)
         if (days < 0)
             return false
         if (selectedDateFilter === "30 giorni")
@@ -60,7 +52,7 @@ Item {
         if (selectedDateFilter === "6 mesi")
             return days <= 183
         if (selectedDateFilter === "12 mesi")
-            return days <= 366
+            return days <= 365
         return true
     }
 
@@ -70,25 +62,28 @@ Item {
 
     function filteredEvents() {
         var result = []
-        for (var index = 0; index < controller.events.length; index += 1) {
-            var item = controller.events[index]
+        for (var index = 0; index < root.calendarEvents.length; index += 1) {
+            var item = root.calendarEvents[index]
             if (matchesDateFilter(item) && matchesTypeFilter(item))
                 result.push(item)
         }
-        result.sort(function(left, right) {
-            var leftDate = parseEventDate(left.date_label)
-            var rightDate = parseEventDate(right.date_label)
-            if (leftDate && rightDate && leftDate.getTime() !== rightDate.getTime())
-                return leftDate - rightDate
-            return right.usefulness - left.usefulness
-        })
+        return result
+    }
+
+    function periodEvents() {
+        var result = []
+        for (var index = 0; index < root.calendarEvents.length; index += 1) {
+            if (matchesDateFilter(root.calendarEvents[index]))
+                result.push(root.calendarEvents[index])
+        }
         return result
     }
 
     function countEvents(type) {
         var total = 0
-        for (var index = 0; index < controller.events.length; index += 1) {
-            if (type === "Tutti" || controller.events[index].type === type)
+        var events = periodEvents()
+        for (var index = 0; index < events.length; index += 1) {
+            if (type === "Tutti" || events[index].type === type)
                 total += 1
         }
         return total
@@ -98,7 +93,7 @@ Item {
         var events = filteredEvents()
         if (events.length === 0)
             return "-"
-        return events[0].date_label
+        return events[0].dateLabel
     }
 
     function hasSelectedEvent() {
@@ -108,11 +103,26 @@ Item {
     function selectedEventById(eventId) {
         if (!eventId)
             return null
-        for (var index = 0; index < controller.events.length; index += 1) {
-            if (controller.events[index].id === eventId)
-                return controller.events[index]
+        for (var index = 0; index < root.calendarEvents.length; index += 1) {
+            if (root.calendarEvents[index].id === eventId)
+                return root.calendarEvents[index]
         }
         return null
+    }
+
+    function showEvent(eventId) {
+        root.selectedEventId = eventId
+        root.eventSelected(eventId)
+    }
+
+    Component.onCompleted: {
+        if (root.initialEventId.length > 0)
+            root.showEvent(root.initialEventId)
+    }
+
+    onInitialEventIdChanged: {
+        if (root.initialEventId.length > 0)
+            root.showEvent(root.initialEventId)
     }
 
     EventDetailPage {
@@ -121,7 +131,10 @@ Item {
         controller: root.controller
         eventData: root.selectedEventData
         accentColor: root.hasSelectedEvent() ? root.eventAccent(root.selectedEventData.type) : theme.cyan
-        onBackToCalendar: root.selectedEventId = ""
+        onBackToCalendar: {
+            root.selectedEventId = ""
+            root.eventSelectionCleared()
+        }
         onOpenObject: function(objectId) {
             root.openObject(objectId)
         }
@@ -185,7 +198,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        visible: controller.upcomingHighlights.length === 0
+                        visible: (root.calendarOverview.highlights || []).length === 0
                         text: "Nessun evento rilevante nei prossimi 30 giorni."
                         color: theme.textSecondary
                         font.pixelSize: 13
@@ -193,14 +206,14 @@ Item {
                     }
 
                     Repeater {
-                        model: controller.upcomingHighlights
+                        model: root.calendarOverview.highlights || []
 
                         delegate: RowLayout {
                             Layout.fillWidth: true
                             spacing: 12
 
                             StatusPill {
-                                text: modelData.date_label
+                                text: modelData.dateLabel
                                 accentColor: root.eventAccent(modelData.type)
                             }
 
@@ -219,7 +232,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: modelData.best_time + "  -  " + modelData.setup
+                                    text: modelData.timingValue + "  -  " + modelData.visibilityLabel
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     elide: Text.ElideRight
@@ -238,7 +251,7 @@ Item {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: scroll.availableWidth >= 1420 ? 4 : 2
+                        columns: scroll.availableWidth >= 1420 ? 3 : 2
                         columnSpacing: 10
                         rowSpacing: 10
 
@@ -252,6 +265,18 @@ Item {
                             label: "Luna"
                             value: root.countEvents("Luna").toString()
                             accentColor: theme.amber
+                        }
+
+                        MetricTile {
+                            label: "Opposizioni"
+                            value: root.countEvents("Opposizione").toString()
+                            accentColor: theme.cyan
+                        }
+
+                        MetricTile {
+                            label: "Congiunzioni"
+                            value: root.countEvents("Congiunzione").toString()
+                            accentColor: theme.violet
                         }
 
                         MetricTile {
@@ -274,7 +299,7 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: "Vista calendario"
-                subtitle: root.filteredEvents().length + " di " + controller.events.length + " eventi"
+                subtitle: root.filteredEvents().length + " di " + root.calendarEvents.length + " eventi"
                 accentColor: theme.violet
 
                 ColumnLayout {
@@ -295,7 +320,7 @@ Item {
                         spacing: 8
 
                         Repeater {
-                            model: ["30 giorni", "6 mesi", "12 mesi", "Tutti"]
+                            model: ["30 giorni", "6 mesi", "12 mesi"]
 
                             delegate: DarkButton {
                                 text: modelData
@@ -380,7 +405,8 @@ Item {
                         Layout.preferredWidth: (eventGrid.width - eventGrid.columnSpacing * (eventGrid.columns - 1)) / eventGrid.columns
                         eventData: modelData
                         accentColor: root.eventAccent(modelData.type)
-                        onClicked: root.selectedEventId = modelData.id
+                        visibilityAccentColor: root.visibilityAccent(modelData.visibilityState)
+                        onClicked: root.showEvent(modelData.id)
                     }
                 }
             }

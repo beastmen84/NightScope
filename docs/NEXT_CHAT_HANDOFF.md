@@ -300,7 +300,11 @@ Implementazione `1.20.0` avviata dal backend:
   localmente;
 - nuovo `calendarOverview` score-free con timing, finestra, visibilita',
   priorita' descrittiva, setup futuro senza seeing corrente e copy di dettaglio;
-- QML Calendario e card Home ancora da collegare nel secondo step.
+- QML Calendario e card Home collegati nel secondo step: filtri annuali senza
+  dataset nascosto, contatori period-aware, stato locale al posto del numero
+  grezzo e navigazione Home -> evento -> oggetto preservata;
+- rendering offscreen a `1440x1000` completato per timeline e dettaglio senza
+  sovrapposizioni; distribuzione Windows non rigenerata.
 
 ## Superfici Backend NSOM Chiuse
 

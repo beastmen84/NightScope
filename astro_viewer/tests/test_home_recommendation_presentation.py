@@ -14,6 +14,7 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
 
     assert "controller.homeNightPlanOverview" in source
+    assert "controller.calendarOverview" in source
     assert "model: root.nightPlanOverview.items || []" in source
     assert "model: root.filteredNightAlternatives()" in source
     assert "HomePlanStepRow" in source
@@ -24,6 +25,8 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
     assert "controller.nightPlan.slice" not in source
     assert "scoreText:" not in source
     assert "equipmentExplanation" not in source
+    assert "controller.events" not in source
+    assert "signal openEvent(string eventId)" in source
 
 
 def test_home_alternatives_capture_wheel_events_while_the_list_can_scroll() -> None:

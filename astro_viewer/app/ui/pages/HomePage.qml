@@ -19,18 +19,10 @@ Item {
     readonly property var nightProfileOverview: nightOverview.profile || ({})
     readonly property var nightPlanOverview: nightOverview.plan || ({})
     readonly property var nightAlternativesOverview: nightOverview.alternatives || ({})
+    readonly property var calendarOverview: controller ? (controller.calendarOverview || ({})) : ({})
     property string targetFilter: "all"
     signal openObject(string objectId)
-
-    function eventDateValue(eventData) {
-        var parts = (eventData.date_label || "").split("/")
-        if (parts.length !== 3)
-            return 9999999999999
-        var day = Number(parts[0])
-        var month = Number(parts[1]) - 1
-        var year = Number(parts[2])
-        return new Date(year, month, day).getTime()
-    }
+    signal openEvent(string eventId)
 
     function eventAccent(type) {
         if (type === "Luna")
@@ -45,20 +37,7 @@ Item {
     }
 
     function chronologicalEvents(limit) {
-        var events = (controller.events || []).slice(0)
-        events.sort(function(left, right) {
-            return root.eventDateValue(left) - root.eventDateValue(right)
-        })
-        var result = []
-        var seenTitles = {}
-        for (var i = 0; i < events.length && result.length < limit; i++) {
-            var titleKey = (events[i].title || "").toLowerCase()
-            if (seenTitles[titleKey])
-                continue
-            seenTitles[titleKey] = true
-            result.push(events[i])
-        }
-        return result
+        return (root.calendarOverview.items || []).slice(0, limit)
     }
 
     function skyCompassRotation(direction) {
@@ -1551,12 +1530,23 @@ Item {
                         model: root.chronologicalEvents(root.width > 900 ? 8 : 4)
 
                         delegate: Rectangle {
+                            property bool hovered: false
+
                             Layout.fillWidth: true
                             Layout.preferredHeight: 74
                             radius: 8
-                            color: "#151a20"
-                            border.color: "#29313b"
+                            color: hovered ? "#1b222a" : "#151a20"
+                            border.color: hovered ? root.eventAccent(modelData.type) : "#29313b"
                             border.width: 1
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onEntered: parent.hovered = true
+                                onExited: parent.hovered = false
+                                onClicked: root.openEvent(modelData.id)
+                            }
 
                             RowLayout {
                                 anchors.fill: parent
@@ -1564,7 +1554,7 @@ Item {
                                 spacing: 10
 
                                 StatusPill {
-                                    text: modelData.date_label
+                                    text: modelData.dateLabel
                                     accentColor: root.eventAccent(modelData.type)
                                     Layout.alignment: Qt.AlignVCenter
                                 }
@@ -1585,7 +1575,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: modelData.type + "  -  " + modelData.best_time
+                                        text: modelData.timingValue + "  -  " + modelData.visibilityLabel
                                         color: theme.textSecondary
                                         font.pixelSize: 12
                                         maximumLineCount: 1

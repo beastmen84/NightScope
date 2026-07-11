@@ -209,6 +209,14 @@ repository e database restano disponibili per una futura pagina dedicata
 `Log Osservazioni`. Il testo del periodo migliore lunare e' corretto anche nei
 database gia' inizializzati. La distribuzione Windows resta alla `1.18.8`.
 
+In `1.20.0` il Calendario usa un orizzonte unico di 365 giorni senza tagli per
+priorita': fasi lunari, opposizioni, congiunzioni, eclissi e sciami restano
+tutti disponibili e ordinati cronologicamente. Istante astronomico, finestra
+osservativa e visibilita' locale sono distinti; il numero `usefulness` non e'
+piu' mostrato. Setup e consigli per eventi futuri non riusano il seeing di oggi.
+La card Home `Prossimi eventi` usa lo stesso contratto e apre il relativo
+dettaglio. La distribuzione Windows resta alla `1.18.8`.
+
 `1.17.0` avvia la revisione della parte alta della Home con un contratto
 `homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
 della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e

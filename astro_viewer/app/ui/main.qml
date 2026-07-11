@@ -28,6 +28,7 @@ ApplicationWindow {
 
     property string currentPage: "home"
     property string detailBackTarget: "home"
+    property string calendarEventId: ""
     property var observingOverview: appController.homeObservingOverview || ({})
     property var sidebarSession: observingOverview.session || ({})
 
@@ -146,7 +147,10 @@ ApplicationWindow {
                         text: "Calendario"
                         iconSource: appController.assetBaseUrl + "/resources/icons/calendar.svg"
                         selected: window.currentPage === "calendar" || (window.currentPage === "detail" && window.detailBackTarget === "calendar")
-                        onClicked: window.currentPage = "calendar"
+                        onClicked: {
+                            window.calendarEventId = ""
+                            window.currentPage = "calendar"
+                        }
                     }
 
                     NavButton {
@@ -325,6 +329,10 @@ ApplicationWindow {
                 window.detailBackTarget = "home"
                 window.currentPage = "detail"
             }
+            onOpenEvent: function(eventId) {
+                window.calendarEventId = eventId
+                window.currentPage = "calendar"
+            }
         }
     }
 
@@ -355,6 +363,11 @@ ApplicationWindow {
         id: calendarPage
         CalendarPage {
             controller: appController
+            initialEventId: window.calendarEventId
+            onEventSelected: function(eventId) {
+                window.calendarEventId = eventId
+            }
+            onEventSelectionCleared: window.calendarEventId = ""
             onOpenObject: function(objectId) {
                 appController.selectObject(objectId)
                 window.detailBackTarget = "calendar"

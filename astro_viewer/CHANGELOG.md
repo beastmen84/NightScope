@@ -19,8 +19,16 @@
   interno e diventa una priorita' descrittiva, senza entrare nel payload UI.
 - Il setup di un evento futuro non usa piu' il seeing della sessione corrente e
   riusa i dati reali del target quando disponibili.
+- Collegati Calendario e card Home `Prossimi eventi` al nuovo contratto; la
+  timeline mostra l'intero periodo selezionato e la Home apre direttamente il
+  dettaglio dell'evento conservando la navigazione di ritorno.
+- Sostituito il numero grezzo nelle righe con lo stato di visibilita' locale e
+  resi i contatori coerenti con il filtro temporale attivo.
+- Il dettaglio evento mostra separatamente istante, finestra, visibilita',
+  priorita' descrittiva, setup e consigli; l'apertura del target dichiara che il
+  dettaglio oggetto riguarda stasera.
 - Aggiunte regressioni su orizzonte annuale completo, cronologia, congiunzioni,
-  visibilita' locale, assenza di score e indipendenza dal seeing corrente.
+  visibilita' locale, assenza di score, QML e indipendenza dal seeing corrente.
 
 ## NightScope 1.19.0 - 2026-07-11
 

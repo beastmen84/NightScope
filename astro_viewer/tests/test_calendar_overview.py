@@ -121,6 +121,23 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
     assert overview["counts"]["conjunctions"] == 1
 
 
+def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
+    ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
+    calendar_qml = (ui_dir / "pages" / "CalendarPage.qml").read_text(encoding="utf-8")
+    event_row_qml = (ui_dir / "components" / "EventRow.qml").read_text(encoding="utf-8")
+    home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+
+    assert "controller.calendarOverview" in calendar_qml
+    assert "root.calendarEvents" in calendar_qml
+    assert 'model: ["30 giorni", "6 mesi", "12 mesi"]' in calendar_qml
+    assert "function periodEvents()" in calendar_qml
+    assert "controller.events" not in calendar_qml
+    assert "usefulness" not in event_row_qml
+    assert "root.eventData.visibilityLabel" in event_row_qml
+    assert "controller.calendarOverview" in home_qml
+    assert "controller.events" not in home_qml
+
+
 def test_calendar_future_setup_does_not_consume_current_seeing() -> None:
     controller = AppController.__new__(AppController)
     telescope = Telescope("scope", "Scope", 150, 750, "Newton", "Dobson")
