@@ -545,6 +545,37 @@ Item {
             }
 
             GlassCard {
+                visible: root.hasObject && (objectData.curiosityText || "").length > 0
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                title: "Curiosità"
+                subtitle: "Storia, scienza e contesto"
+                accentColor: theme.violet
+
+                Text {
+                    Layout.fillWidth: true
+                    text: objectData.curiosityText || ""
+                    color: theme.textPrimary
+                    font.pixelSize: 14
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    visible: (objectData.curiositySourceUrl || "").length > 0
+                    Layout.fillWidth: true
+                    text: "Fonte: <a href=\"" + (objectData.curiositySourceUrl || "") + "\">"
+                          + (objectData.curiositySourceLabel || "Apri la fonte") + "</a>"
+                    textFormat: Text.RichText
+                    color: theme.textSecondary
+                    linkColor: theme.cyan
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                    onLinkActivated: function(link) { Qt.openUrlExternally(link) }
+                }
+            }
+
+            GlassCard {
                 visible: root.hasObject && !root.isCatalogueDetail
                 Layout.fillWidth: true
                 Layout.leftMargin: 28

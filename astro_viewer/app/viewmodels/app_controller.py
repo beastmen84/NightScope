@@ -333,6 +333,7 @@ class AppController(QObject):
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
         self._object_descriptions = self._object_image_repository.descriptions()
+        self._object_curiosities = self._object_image_repository.curiosities()
         self._catalogue_objects = self._load_catalogue_objects()
         self._catalogue_identifier_index = self._build_catalogue_identifier_index(
             self._catalogue_objects
@@ -4268,6 +4269,8 @@ class AppController(QObject):
     def _object_to_qml(self, item: CelestialObject) -> dict:
         data = item.to_qml()
         description = self._object_descriptions.get(item.id) or {}
+        curiosity = getattr(self, "_object_curiosities", {}).get(item.id) or {}
+        image_metadata = getattr(self, "_object_image_map", {}).get(item.id) or {}
         if self._is_catalogue_detail_object(item):
             metadata = self._catalogue_detail_metadata(item)
             data["catalogueObject"] = True
@@ -4312,6 +4315,14 @@ class AppController(QObject):
         data["observingReasons"] = self._observing_reasons(item)
         data["descriptionText"] = description.get("short_description", "").strip() or item.notes
         data["bestSeen"] = description.get("best_seen", "").strip()
+        data["curiosityText"] = curiosity.get("curiosity_text", "").strip()
+        data["curiositySourceLabel"] = curiosity.get("source_label", "").strip()
+        data["curiositySourceUrl"] = curiosity.get("source_url", "").strip()
+        data["curiosityVerified"] = bool(curiosity.get("verified", False))
+        data["imageAttribution"] = image_metadata.get("attribution", "").strip()
+        data["imageSourceUrl"] = image_metadata.get("source_url", "").strip()
+        data["imageLicense"] = image_metadata.get("license", "").strip()
+        data["imageVerified"] = bool(image_metadata.get("verified", False))
         data["setupReason"] = self._setup_reason(item)
         if item.id == "moon" and self._moon:
             data["moonPhase"] = self._moon.phase

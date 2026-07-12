@@ -193,6 +193,14 @@ CREATE TABLE IF NOT EXISTS ObjectDescription (
     difficulty_large_scope TEXT
 );
 
+CREATE TABLE IF NOT EXISTS ObjectCuriosity (
+    object_id TEXT PRIMARY KEY,
+    curiosity_text TEXT NOT NULL,
+    source_label TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    verified INTEGER NOT NULL DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS EquipmentProfile (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     profile_name TEXT NOT NULL UNIQUE,

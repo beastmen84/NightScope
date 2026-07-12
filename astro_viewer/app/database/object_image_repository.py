@@ -53,3 +53,14 @@ class ObjectImageRepository:
                 """
             ).fetchall()
         return {row["object_id"]: dict(row) for row in rows}
+
+    def curiosities(self) -> dict[str, dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT object_id, curiosity_text, source_label, source_url, verified
+                FROM ObjectCuriosity
+                ORDER BY object_id
+                """
+            ).fetchall()
+        return {row["object_id"]: dict(row) for row in rows}

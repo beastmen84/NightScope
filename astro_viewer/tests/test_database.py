@@ -5,7 +5,9 @@ import sqlite3
 import shutil
 import tempfile
 import unittest
+from collections import Counter
 from contextlib import closing
+from itertools import combinations
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,6 +22,7 @@ from astro_viewer.app.database.bootstrap import (
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
+from astro_viewer.app.database.object_image_repository import ObjectImageRepository
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
@@ -126,6 +129,51 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertEqual(images["caldwell-C1"]["image_path"], "resources/images/m13.svg")
         self.assertEqual(images["caldwell-C23"]["image_path"], "resources/images/m31.svg")
         self.assertEqual(images["caldwell-C33"]["image_path"], "resources/images/m57.svg")
+
+    def test_curiosity_seed_is_complete_source_backed_and_editorially_distinct(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        with (data_dir / "object_descriptions_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            description_ids = {row["object_id"] for row in csv.DictReader(file)}
+        with (data_dir / "object_curiosities_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            rows = list(csv.DictReader(file))
+
+        self.assertEqual(len(rows), 227)
+        self.assertEqual({row["object_id"] for row in rows}, description_ids)
+        texts = [row["curiosity_text"].strip() for row in rows]
+        self.assertEqual(len(set(texts)), len(texts))
+        self.assertGreaterEqual(min(map(len, texts)), 150)
+        self.assertTrue(all(row["source_label"].strip() for row in rows))
+        self.assertTrue(all(row["source_url"].startswith("https://") for row in rows))
+        self.assertTrue(all(row["verified"] == "1" for row in rows))
+
+        prefixes = Counter(" ".join(text.lower().split()[:4]) for text in texts)
+        self.assertLessEqual(max(prefixes.values()), 2)
+        token_sets = [
+            {token.strip(".,:;!?()") for token in text.lower().split() if token.strip(".,:;!?()")}
+            for text in texts
+        ]
+        max_similarity = max(
+            len(left & right) / len(left | right)
+            for left, right in combinations(token_sets, 2)
+        )
+        self.assertLess(max_similarity, 0.5)
+
+    def test_object_content_repository_returns_seeded_curiosity_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            curiosities = ObjectImageRepository(database_path).curiosities()
+
+            self.assertEqual(len(curiosities), 227)
+            self.assertIn("stella di neutroni", curiosities["messier-M1"]["curiosity_text"])
+            self.assertEqual(curiosities["caldwell-C23"]["source_label"], "NASA Hubble")
+            self.assertTrue(curiosities["moon"]["verified"])
 
     def test_catalogue_seed_contains_all_messier_and_caldwell_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

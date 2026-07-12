@@ -63,7 +63,7 @@ When Earthdata credentials are configured, authorized and connection-verified, t
 
 If Earthdata is not configured, the network is unavailable, NASA does not expose the matching product tile, or the returned subset cannot be parsed, NightScope keeps using the local CSV/cache fallback chain. Full raster products still require external preprocessing before packaging. NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
-## Object Images And Descriptions
+## Object Images, Descriptions And Curiosities
 
 `object_images_seed.csv` contains an explicit row for every Messier and Caldwell
 target. Rows without a dedicated asset point to one of the local typed
@@ -76,9 +76,19 @@ ready for a future licensed replacement.
 separate observing notes for the Moon, planets, all 110 Messier entries and all
 109 Caldwell entries. Caldwell observing copy is derived conservatively from
 the verified catalogue type, coordinates, magnitude and apparent size; it does
-not yet include the separate mythology/history/curiosities content planned for
-a later pass. Messier descriptions are derived from the local Messier catalog
+not mix in the separate editorial content. Messier descriptions are derived from the local Messier catalog
 attributes and checked against NASA's Hubble Messier Catalog overview
 (`https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/`);
 Solar System descriptions are checked against NASA planetary overview pages
 such as Uranus (`https://science.nasa.gov/uranus/`).
+
+`object_curiosities_seed.csv` is a separate, source-backed presentation layer
+for the same 227 selectable targets (Moon, eight planets, 110 Messier and 109
+Caldwell objects). Every row contains an object-specific historical or
+scientific fact, a visible source label and an HTTPS source URL. The primary
+references are NASA's Hubble Messier and Caldwell catalogues and NASA Solar
+System fact pages; objects without a dedicated NASA catalogue page use a
+linked Wikipedia article as a secondary factual reference. All 226 distinct
+URLs were checked successfully on 2026-07-12. The seed deliberately remains
+separate from observing notes and does not participate in NSOM, Equipment or
+ranking calculations.

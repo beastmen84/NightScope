@@ -21,6 +21,7 @@ datas = [
     (str(APP_DIR / "data" / "light_pollution_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "object_images_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "object_descriptions_seed.csv"), "astro_viewer/data"),
+    (str(APP_DIR / "data" / "object_curiosities_seed.csv"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "cities15000.txt"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "countryInfo.txt"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "admin1CodesASCII.txt"), "astro_viewer/data"),

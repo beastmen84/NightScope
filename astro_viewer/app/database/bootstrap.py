@@ -14,7 +14,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -32,6 +32,7 @@ REQUIRED_TABLES = {
     "SkyQualityEstimate",
     "ObjectImages",
     "ObjectDescription",
+    "ObjectCuriosity",
     "EquipmentProfile",
     "EquipmentProfileTelescope",
     "EquipmentProfileEyepiece",
@@ -48,6 +49,7 @@ SEEDED_TABLES = {
     "BinocularCatalog": "binocular_catalog_seed.csv",
     "ObjectImages": "object_images_seed.csv",
     "ObjectDescription": "object_descriptions_seed.csv",
+    "ObjectCuriosity": "object_curiosities_seed.csv",
     "EquipmentProfile": "",
 }
 
@@ -179,6 +181,7 @@ def _build_database(
         _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
+        _seed_object_curiosities(connection, data_dir / "object_curiosities_seed.csv")
         _seed_default_profiles(connection)
         _notify_progress(progress_callback, "Finalizzazione...")
         connection.commit()
@@ -968,6 +971,32 @@ def _seed_object_descriptions(connection: sqlite3.Connection, descriptions_path:
             difficulty_medium_scope, difficulty_large_scope
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(object_id) DO NOTHING
+        """,
+        rows,
+    )
+
+
+def _seed_object_curiosities(connection: sqlite3.Connection, curiosities_path: Path | None = None) -> None:
+    if not curiosities_path or not curiosities_path.exists():
+        return
+    with curiosities_path.open("r", encoding="utf-8", newline="") as file:
+        rows = [
+            (
+                row["object_id"],
+                row["curiosity_text"],
+                row["source_label"],
+                row["source_url"],
+                1 if str(row.get("verified", "")).strip().lower() in {"1", "true", "yes"} else 0,
+            )
+            for row in csv.DictReader(file)
+        ]
+    connection.executemany(
+        """
+        INSERT INTO ObjectCuriosity (
+            object_id, curiosity_text, source_label, source_url, verified
+        )
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(object_id) DO NOTHING
         """,
         rows,
