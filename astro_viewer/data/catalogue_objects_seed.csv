@@ -1,0 +1,111 @@
+object_id,nome,tipo,costellazione,magnitudine,ascensione_retta,declinazione,dimensione_apparente,max_angular_size_deg,recommended_observation_type,descrizione
+messier-M1,Crab Nebula,Supernova remnant,Taurus,8.4,05h 34m 31.9s,+22° 00′ 52.2″,420″ × 290″,0.117,General,M1 (NGC 1952) - Supernova remnant in Taurus.
+messier-M2,M2,Globular cluster,Aquarius,6.5,21h 33m 27.0s,-00° 49′ 23.7″,16′,0.267,General,M2 (NGC 7089) - Globular cluster in Aquarius.
+messier-M3,M3,Globular cluster,Canes Venatici,6.2,13h 42m 11.6s,+28° 22′ 38.2″,18′,0.300,General,M3 (NGC 5272) - Globular cluster in Canes Venatici.
+messier-M4,Spider Globular Cluster,Globular cluster,Scorpius,5.6,16h 23m 35.2s,-26° 31′ 32.7″,26′,0.433,General,M4 (NGC 6121) - Globular cluster in Scorpius.
+messier-M5,Rose Cluster,Globular cluster,Serpens,5.6,15h 18m 33.2s,+02° 04′ 51.7″,23′,0.383,General,M5 (NGC 5904) - Globular cluster in Serpens.
+messier-M6,Butterfly Cluster,Open cluster,Scorpius,4.2,17h 40.1m,-32° 13′,25′,0.417,WideField,M6 (NGC 6405) - Open cluster in Scorpius.
+messier-M7,Ptolemy's Cluster,Open cluster,Scorpius,3.3,17h 53m 51.2s,-34° 47′ 34″,80′,1.333,WideField,M7 (NGC 6475) - Open cluster in Scorpius.
+messier-M8,Lagoon Nebula,Nebula with cluster,Sagittarius,4.6,18h 03m 37s,-24° 23′ 12″,90′ × 40′,1.500,WideField,M8 (NGC 6523) - Nebula with cluster in Sagittarius.
+messier-M9,M9,Globular cluster,Ophiuchus,7.7,17h 19m 11.8s,-18° 30′ 58.5″,9.3′,0.155,HighMagnification,M9 (NGC 6333) - Globular cluster in Ophiuchus.
+messier-M10,M10,Globular cluster,Ophiuchus,6.6,16h 57m 8.9s,-04° 05′ 58.1″,20′,0.333,General,M10 (NGC 6254) - Globular cluster in Ophiuchus.
+messier-M11,Wild Duck Cluster,Open cluster,Scutum,5.8,18h 51.1m,-06° 16′,22.8′,0.380,WideField,M11 (NGC 6705) - Open cluster in Scutum.
+messier-M12,M12,Globular cluster,Ophiuchus,6.7,16h 47m 14.2s,-01° 56′ 54.7″,16′,0.267,General,M12 (NGC 6218) - Globular cluster in Ophiuchus.
+messier-M13,Great Hercules Cluster,Globular cluster,Hercules,5.8,16h 41m 41.2s,+36° 27′ 35.5″,20′,0.333,General,M13 (NGC 6205) - Globular cluster in Hercules.
+messier-M14,M14,Globular cluster,Ophiuchus,7.6,17h 37m 36.2s,-03° 14′ 45.3″,11′,0.183,General,M14 (NGC 6402) - Globular cluster in Ophiuchus.
+messier-M15,Great Pegasus Cluster,Globular cluster,Pegasus,6.2,21h 29m 58.3s,+12° 10′ 01.2″,18′,0.300,General,M15 (NGC 7078) - Globular cluster in Pegasus.
+messier-M16,Eagle Nebula,H II region nebula with cluster,Serpens,6.4,18h 18m 48s,-13° 49′,70′ × 50′,1.167,WideField,M16 (NGC 6611) - H II region nebula with cluster in Serpens.
+messier-M17,"Omega, Swan, Horseshoe, Lobster, or Checkmark Nebula",H II region nebula with cluster,Sagittarius,6.0,18h 20m 26s,-16° 10′ 36″,11′,0.183,General,M17 (NGC 6618) - H II region nebula with cluster in Sagittarius.
+messier-M18,Black Swan Cluster,Open cluster,Sagittarius,7.5,18h 19.9m,-17° 08′,9.8′,0.163,General,M18 (NGC 6613) - Open cluster in Sagittarius.
+messier-M19,M19,Globular cluster,Ophiuchus,6.8,17h 02m 37.7s,-26° 16′ 04.6″,17′,0.283,General,M19 (NGC 6273) - Globular cluster in Ophiuchus.
+messier-M20,Trifid Nebula,H II region nebula with cluster,Sagittarius,6.3,18h 02m 23s,-23° 01′ 48″,28′,0.467,WideField,M20 (NGC 6514) - H II region nebula with cluster in Sagittarius.
+messier-M21,Webb's Cross Cluster,Open cluster,Sagittarius,6.5,18h 04.6m,-22° 30′,14′,0.233,General,M21 (NGC 6531) - Open cluster in Sagittarius.
+messier-M22,Great Sagittarius Cluster,Globular cluster,Sagittarius,5.1,18h 36m 23.9s,-23° 54′ 17.1″,32′,0.533,General,M22 (NGC 6656) - Globular cluster in Sagittarius.
+messier-M23,M23,Open cluster,Sagittarius,5.5,17h 56.8m,-19° 01′,35′,0.583,WideField,M23 (NGC 6494) - Open cluster in Sagittarius.
+messier-M24,Small Sagittarius Star Cloud,Milky Way star cloud,Sagittarius,2.5,18h 17m,-18° 33′,2°x1°,2.000,WideField,M24 (IC 4715) - Milky Way star cloud in Sagittarius.
+messier-M25,M25,Open cluster,Sagittarius,4.6,18h 31.6m,-19° 15′,36′,0.600,WideField,M25 (IC 4725) - Open cluster in Sagittarius.
+messier-M26,M26,Open cluster,Scutum,8.0,18h 45.2m,-09° 24′,14′,0.233,General,M26 (NGC 6694) - Open cluster in Scutum.
+messier-M27,Dumbbell Nebula,Planetary nebula,Vulpecula,7.4,19h 59m 36.3s,+22° 43′ 16.1″,8.0′ × 5.6′,0.133,General,M27 (NGC 6853) - Planetary nebula in Vulpecula.
+messier-M28,M28,Globular cluster,Sagittarius,6.8,18h 24m 32.9s,-24° 52′ 11.4″,11.2′,0.187,General,M28 (NGC 6626) - Globular cluster in Sagittarius.
+messier-M29,Cooling Tower Cluster,Open cluster,Cygnus,7.1,20h 23m 56s,+38° 31′ 24″,7′,0.117,General,M29 (NGC 6913) - Open cluster in Cygnus.
+messier-M30,Jellyfish Cluster,Globular cluster,Capricornus,7.2,21h 40m 22.1s,-23° 10′ 47.5″,12′,0.200,General,M30 (NGC 7099) - Globular cluster in Capricornus.
+messier-M31,Andromeda Galaxy,Spiral galaxy,Andromeda,3.4,00h 42m 44.3s,+41° 16′ 09″,3.17° × 1°,3.170,WideField,M31 (NGC 224) - Spiral galaxy in Andromeda.
+messier-M32,Andromeda Satellite #1,Dwarf elliptical galaxy,Andromeda,8.1,00h 42m 41.8s,+40° 51′ 55″,8.7′ × 6.5′,0.145,General,M32 (NGC 221) - Dwarf elliptical galaxy in Andromeda.
+messier-M33,Triangulum/Pinwheel Galaxy,Spiral galaxy,Triangulum,5.7,01h 33m 50.0s,+30° 39′ 36.7″,70.8′ × 41.7′,1.180,WideField,M33 (NGC 598) - Spiral galaxy in Triangulum.
+messier-M34,Spiral Cluster,Open cluster,Perseus,5.5,02h 42.1m,+42° 46′,35′,0.583,WideField,M34 (NGC 1039) - Open cluster in Perseus.
+messier-M35,Shoe-Buckle Cluster,Open cluster,Gemini,5.3,06h 09.1m,+24° 21′,28′,0.467,WideField,M35 (NGC 2168) - Open cluster in Gemini.
+messier-M36,Pinwheel Cluster,Open cluster,Auriga,6.3,05h 36m 12s,+34° 08′ 04″,12′,0.200,General,M36 (NGC 1960) - Open cluster in Auriga.
+messier-M37,Salt and Pepper Cluster,Open cluster,Auriga,6.2,05h 52m 18s,+32° 33′ 02″,24′,0.400,WideField,M37 (NGC 2099) - Open cluster in Auriga.
+messier-M38,Starfish Cluster,Open cluster,Auriga,7.4,05h 28m 42s,+35° 51′ 18″,21′,0.350,WideField,M38 (NGC 1912) - Open cluster in Auriga.
+messier-M39,Pyramid Cluster,Open cluster,Cygnus,4.6,21h 31m 42s,+48° 26′ 00″,29′,0.483,WideField,M39 (NGC 7092) - Open cluster in Cygnus.
+messier-M40,Winnecke 4,Optical Double,Ursa Major,8.4,12h 22m 12.5s,+58° 04′ 59″,51.7″,0.014,HighMagnification,M40 - Optical Double in Ursa Major.
+messier-M41,Little Beehive Cluster,Open cluster,Canis Major,4.5,06h 46.0m,-20° 46′,38′,0.633,WideField,M41 (NGC 2287) - Open cluster in Canis Major.
+messier-M42,Great Orion Nebula,H II region nebula,Orion,4.0,05h 35m 17.3s,-05° 23′ 28″,65′ × 60′,1.083,WideField,M42 (NGC 1976) - H II region nebula in Orion.
+messier-M43,De Mairan's Nebula,H II region nebula (part of the Orion Nebula),Orion,9.0,05h 35.6m,-05° 16′,20′ × 15′,0.333,WideField,M43 (NGC 1982) - H II region nebula (part of the Orion Nebula) in Orion.
+messier-M44,Beehive Cluster or Praesepe,Open cluster,Cancer,3.7,08h 40.4m,+19° 59′,95′,1.583,WideField,M44 (NGC 2632) - Open cluster in Cancer.
+messier-M45,"Pleiades, Seven Sisters or Subaru",Open cluster,Taurus,1.6,03h 47m 24s,+24° 07′ 00″,2°,2.000,WideField,M45 - Open cluster in Taurus.
+messier-M46,M46,Open cluster,Puppis,6.0,07h 41.8m,-14° 49′,22.8′,0.380,WideField,M46 (NGC 2437) - Open cluster in Puppis.
+messier-M47,M47,Open cluster,Puppis,4.4,07h 36.6m,-14° 30′,30′,0.500,WideField,M47 (NGC 2422) - Open cluster in Puppis.
+messier-M48,M48,Open cluster,Hydra,5.5,08h 13.7m,-05° 45′,30′,0.500,WideField,M48 (NGC 2548) - Open cluster in Hydra.
+messier-M49,M49,Elliptical galaxy,Virgo,8.4,12h 29m 46.7s,+08° 00′ 02″,10.2′ × 8.3′,0.170,General,M49 (NGC 4472) - Elliptical galaxy in Virgo.
+messier-M50,Heart-Shaped Cluster,Open cluster,Monoceros,5.9,07h 03.2m,-08° 20′,16′,0.267,General,M50 (NGC 2323) - Open cluster in Monoceros.
+messier-M51,Whirlpool Galaxy,Spiral galaxy,Canes Venatici,8.4,13h 29m 52.7s,+47° 11′ 43″,11.2′ × 6.9′,0.187,General,"M51 (NGC 5194,NGC 5195) - Spiral galaxy in Canes Venatici."
+messier-M52,Scorpion Cluster,Open cluster,Cassiopeia,7.3,23h 24.2m,+61° 35′,13′,0.217,General,M52 (NGC 7654) - Open cluster in Cassiopeia.
+messier-M53,M53,Globular cluster,Coma Berenices,7.6,13h 12m 55.3s,+18° 10′ 05.4″,13′,0.217,General,M53 (NGC 5024) - Globular cluster in Coma Berenices.
+messier-M54,M54,Globular cluster,Sagittarius,7.6,18h 55m 03.3s,-30° 28′ 47.5″,12′,0.200,General,M54 (NGC 6715) - Globular cluster in Sagittarius.
+messier-M55,Specter Cluster,Globular cluster,Sagittarius,6.3,19h 39m 59.7s,-30° 57′ 53.1″,19′,0.317,General,M55 (NGC 6809) - Globular cluster in Sagittarius.
+messier-M56,M56,Globular cluster,Lyra,8.3,19h 16m 35.6s,+30° 11′ 00.5″,8.8′,0.147,HighMagnification,M56 (NGC 6779) - Globular cluster in Lyra.
+messier-M57,Ring Nebula,Planetary nebula,Lyra,8.8,18h 53m 35.1s,+33° 01′ 45.0″,230″ × 230″,0.064,HighMagnification,M57 (NGC 6720) - Planetary nebula in Lyra.
+messier-M58,M58,Barred Spiral galaxy,Virgo,9.7,12h 37m 43.5s,+11° 49′ 05″,5.9′ × 4.7′,0.098,General,M58 (NGC 4579) - Barred Spiral galaxy in Virgo.
+messier-M59,M59,Elliptical galaxy,Virgo,9.6,12h 42m 02.3s,+11° 38′ 49″,5.4′ × 3.7′,0.090,General,M59 (NGC 4621) - Elliptical galaxy in Virgo.
+messier-M60,M60,Elliptical galaxy,Virgo,8.8,12h 43m 39.6s,+11° 33′ 09″,7.4′ × 6.0′,0.123,General,M60 (NGC 4649) - Elliptical galaxy in Virgo.
+messier-M61,Swelling Spiral Galaxy,Spiral galaxy,Virgo,9.7,12h 21m 54.9s,+04° 28′ 25″,6.5′ × 5.8′,0.108,General,M61 (NGC 4303) - Spiral galaxy in Virgo.
+messier-M62,Flickering Globular,Globular cluster,Ophiuchus,6.5,17h 01m 12.6s,-30° 06′ 44.5″,15′,0.250,General,M62 (NGC 6266) - Globular cluster in Ophiuchus.
+messier-M63,Sunflower Galaxy,Spiral galaxy,Canes Venatici,8.6,13h 15m 49.3s,+42° 01′ 45″,12.6′ × 7.2′,0.210,General,M63 (NGC 5055) - Spiral galaxy in Canes Venatici.
+messier-M64,Black Eye Galaxy,Spiral galaxy,Coma Berenices,8.5,12h 56m 43.7s,+21° 40′ 58″,10.7′ × 5.1′,0.178,General,M64 (NGC 4826) - Spiral galaxy in Coma Berenices.
+messier-M65,Leo Triplet,Barred Spiral galaxy,Leo,9.3,11h 18m 55.9s,+13° 05′ 32″,8.7′ × 2.5′,0.145,General,M65 (NGC 3623) - Barred Spiral galaxy in Leo.
+messier-M66,Leo Triplet,Barred Spiral galaxy,Leo,8.9,11h 20m 15.0s,+12° 59′ 30″,9.1′ × 4.2′,0.152,General,M66 (NGC 3627) - Barred Spiral galaxy in Leo.
+messier-M67,King Cobra or Golden Eye Cluster,Open cluster,Cancer,6.1,08h 51.3m,+11° 49′,30′,0.500,WideField,M67 (NGC 2682) - Open cluster in Cancer.
+messier-M68,M68,Globular cluster,Hydra,7.8,12h 39m 28.0s,-26° 44′ 38.6″,11′,0.183,General,M68 (NGC 4590) - Globular cluster in Hydra.
+messier-M69,M69,Globular cluster,Sagittarius,7.6,18h 31m 23.1s,-32° 20′ 53.1″,10.8′,0.180,General,M69 (NGC 6637) - Globular cluster in Sagittarius.
+messier-M70,M70,Globular cluster,Sagittarius,7.9,18h 43m 12.8s,-32° 17′ 31.6″,8′,0.133,HighMagnification,M70 (NGC 6681) - Globular cluster in Sagittarius.
+messier-M71,Angelfish Cluster,Globular cluster,Sagitta,8.2,19h 53m 46.5s,+18° 46′ 45.1″,7.2′,0.120,HighMagnification,M71 (NGC 6838) - Globular cluster in Sagitta.
+messier-M72,M72,Globular cluster,Aquarius,9.3,20h 53m 27.7s,-12° 32′ 14.3″,6.6′,0.110,HighMagnification,M72 (NGC 6981) - Globular cluster in Aquarius.
+messier-M73,M73,Asterism,Aquarius,9.0,20h 58m 54s,-12° 38′,2.8′,0.047,HighMagnification,M73 (NGC 6994) - Asterism in Aquarius.
+messier-M74,Phantom Galaxy,Spiral galaxy,Pisces,9.4,01h 36m 41.8s,+15° 47′ 01″,10.5′ × 9.5′,0.175,General,M74 (NGC 628) - Spiral galaxy in Pisces.
+messier-M75,M75,Globular cluster,Sagittarius,8.5,20h 06m 04.8s,-21° 55′ 16.2″,6.8′,0.113,HighMagnification,M75 (NGC 6864) - Globular cluster in Sagittarius.
+messier-M76,Little Dumbbell Nebula,Planetary nebula,Perseus,10.1,01h 42.4m,+51° 34′ 31″,2.7′ × 1.8′,0.045,HighMagnification,"M76 (NGC 650,NGC 651) - Planetary nebula in Perseus."
+messier-M77,Cetus A or Squid Galaxy,Spiral galaxy,Cetus,8.9,02h 42m 40.7s,-00° 00′ 48″,7.1′ × 6.0′,0.118,General,M77 (NGC 1068) - Spiral galaxy in Cetus.
+messier-M78,M78,Diffuse nebula,Orion,8.3,05h 46m 46.7s,+00° 00′ 50″,8′ × 6′,0.133,General,M78 (NGC 2068) - Diffuse nebula in Orion.
+messier-M79,M79,Globular cluster,Lepus,7.7,05h 24m 10.6s,-24° 31′ 27.3″,8.7′,0.145,HighMagnification,M79 (NGC 1904) - Globular cluster in Lepus.
+messier-M80,M80,Globular cluster,Scorpius,7.3,16h 17m 02.4s,-22° 58′ 33.9″,10′,0.167,HighMagnification,M80 (NGC 6093) - Globular cluster in Scorpius.
+messier-M81,Bode's Galaxy,Spiral galaxy,Ursa Major,6.9,09h 55m 33.2s,+69° 03′ 55″,26.9′ × 14.1′,0.448,General,M81 (NGC 3031) - Spiral galaxy in Ursa Major.
+messier-M82,Cigar Galaxy,Starburst galaxy,Ursa Major,8.4,09h 55m 52.2s,+69° 40′ 47″,11.2′ × 4.3′,0.187,General,M82 (NGC 3034) - Starburst galaxy in Ursa Major.
+messier-M83,Southern Pinwheel Galaxy,Barred Spiral galaxy,Hydra,7.6,13h 37m 00.9s,-29° 51′ 57″,12.9′ × 11.5′,0.215,General,M83 (NGC 5236) - Barred Spiral galaxy in Hydra.
+messier-M84,M84,Lenticular galaxy,Virgo,9.1,12h 25m 03.7s,+12° 53′ 13″,6.5′ × 5.6′,0.108,General,M84 (NGC 4374) - Lenticular galaxy in Virgo.
+messier-M85,M85,Lenticular galaxy,Coma Berenices,9.1,12h 25m 24.0s,+18° 11′ 28″,7.1′ × 5.5′,0.118,General,M85 (NGC 4382) - Lenticular galaxy in Coma Berenices.
+messier-M86,M86,Lenticular galaxy,Virgo,8.9,12h 26m 11.7s,+12° 56′ 46″,8.9′ × 5.8′,0.148,General,M86 (NGC 4406) - Lenticular galaxy in Virgo.
+messier-M87,Virgo A,Elliptical galaxy,Virgo,8.6,12h 30m 49.4s,+12° 23′ 28.0″,7.2′ × 6.8′,0.120,General,M87 (NGC 4486) - Elliptical galaxy in Virgo.
+messier-M88,M88,Spiral galaxy,Coma Berenices,9.6,12h 31m 59.2s,+14° 25′ 14″,6.9′ × 3.7′,0.115,General,M88 (NGC 4501) - Spiral galaxy in Coma Berenices.
+messier-M89,M89,Elliptical galaxy,Virgo,9.8,12h 35m 39.8s,+12° 33′ 23″,5.1′ × 4.7′,0.085,General,M89 (NGC 4552) - Elliptical galaxy in Virgo.
+messier-M90,Carabin Galaxy,Spiral galaxy,Virgo,9.5,12h 36m 49.8s,+13° 09′ 46″,9.5′ × 4.4′,0.158,General,M90 (NGC 4569) - Spiral galaxy in Virgo.
+messier-M91,M91,Barred Spiral galaxy,Coma Berenices,10.2,12h 35m 26.4s,+14° 29′ 47″,5.4′ × 4.3′,0.090,General,M91 (NGC 4548) - Barred Spiral galaxy in Coma Berenices.
+messier-M92,M92,Globular cluster,Hercules,6.4,17h 17m 07.4s,+43° 08′ 09.4″,14′,0.233,General,M92 (NGC 6341) - Globular cluster in Hercules.
+messier-M93,Critter Cluster,Open cluster,Puppis,6.0,07h 44.6m,-23° 52′,10′,0.167,General,M93 (NGC 2447) - Open cluster in Puppis.
+messier-M94,Crocodile Eye or Cat's Eye Galaxy,Spiral galaxy,Canes Venatici,8.2,12h 50m 53.1s,+41° 07′ 14″,11.2′ × 9.1′,0.187,General,M94 (NGC 4736) - Spiral galaxy in Canes Venatici.
+messier-M95,M95,Barred Spiral galaxy,Leo,9.7,10h 43m 57.7s,+11° 42′ 14″,3.1′ × 2.9′,0.052,General,M95 (NGC 3351) - Barred Spiral galaxy in Leo.
+messier-M96,M96,Spiral galaxy,Leo,9.2,10h 46m 45.7s,+11° 49′ 12″,7.6′ × 5.2′,0.127,General,M96 (NGC 3368) - Spiral galaxy in Leo.
+messier-M97,Owl Nebula,Planetary nebula,Ursa Major,9.9,11h 14m 47.7s,+55° 01′ 08.5″,3.4′ × 3.3′,0.057,General,M97 (NGC 3587) - Planetary nebula in Ursa Major.
+messier-M98,M98,Spiral galaxy,Coma Berenices,10.1,12h 13m 48.3s,+14° 54′ 01.7″,9.8′ × 2.8′,0.163,General,M98 (NGC 4192) - Spiral galaxy in Coma Berenices.
+messier-M99,St. Catherine's Wheel,Spiral galaxy,Coma Berenices,9.9,12h 18m 49.6s,+14° 24′ 59″,5.4′ × 4.7′,0.090,General,M99 (NGC 4254) - Spiral galaxy in Coma Berenices.
+messier-M100,Mirror Galaxy,Spiral galaxy,Coma Berenices,9.3,12h 22m 54.9s,+15° 49′ 21″,7.4′ × 6.3′,0.123,General,M100 (NGC 4321) - Spiral galaxy in Coma Berenices.
+messier-M101,Pinwheel Galaxy,Spiral galaxy,Ursa Major,7.9,14h 03m 12.6s,+54° 20′ 57″,28.8′ × 26.9′,0.480,WideField,M101 (NGC 5457) - Spiral galaxy in Ursa Major.
+messier-M102,Spindle Galaxy,Lenticular galaxy,Draco,9.9,15h 06m 29.5s,+55° 45′ 48″,4.7′ × 1.9′,0.078,General,M102 (NGC 5866) - Lenticular galaxy in Draco.
+messier-M103,M103,Open cluster,Cassiopeia,7.4,01h 33.2m,+60° 42′,6′,0.100,General,M103 (NGC 581) - Open cluster in Cassiopeia.
+messier-M104,Sombrero Galaxy,Spiral galaxy,Virgo,8.0,12h 39m 59.4s,-11° 37′ 23″,9′ × 4′,0.150,General,M104 (NGC 4594) - Spiral galaxy in Virgo.
+messier-M105,M105,Elliptical galaxy,Leo,9.3,10h 47m 49.6s,+12° 34′ 54″,5.4′ × 4.8′,0.090,General,M105 (NGC 3379) - Elliptical galaxy in Leo.
+messier-M106,M106,Spiral galaxy,Canes Venatici,8.4,12h 18m 57.5s,+47° 18′ 14″,18.6′ × 7.2′,0.310,General,M106 (NGC 4258) - Spiral galaxy in Canes Venatici.
+messier-M107,Crucifix Cluster,Globular cluster,Ophiuchus,7.9,16h 32m 31.9s,-13° 03′ 13.6″,10′,0.167,General,M107 (NGC 6171) - Globular cluster in Ophiuchus.
+messier-M108,Surfboard Galaxy,Barred Spiral galaxy,Ursa Major,10.0,11h 11m 31.0s,+55° 40′ 27″,8.7′ × 2.2′,0.145,General,M108 (NGC 3556) - Barred Spiral galaxy in Ursa Major.
+messier-M109,Vacuum Cleaner Galaxy,Barred Spiral galaxy,Ursa Major,9.8,11h 57m 36.0s,+53° 22′ 28″,7.6′ × 4.7′,0.127,General,M109 (NGC 3992) - Barred Spiral galaxy in Ursa Major.
+messier-M110,Andromeda Satellite #2,Dwarf elliptical galaxy,Andromeda,8.5,00h 40m 22.1s,+41° 41′ 07″,21.9′ × 11.0′,0.365,General,M110 (NGC 205) - Dwarf elliptical galaxy in Andromeda.

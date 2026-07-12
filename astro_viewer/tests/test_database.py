@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from astro_viewer.app.database.bootstrap import SCHEMA_VERSION, database_initialization_required, initialize_database
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.services.location_preferences import LocationPreferenceStore
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
@@ -21,9 +21,9 @@ MESSIER_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 
 
 class DatabaseBootstrapTests(unittest.TestCase):
-    def test_messier_seed_observation_metadata_is_complete(self) -> None:
+    def test_catalogue_seed_observation_metadata_is_complete(self) -> None:
         data_dir = Path(__file__).resolve().parents[1] / "data"
-        with (data_dir / "messier_seed.csv").open("r", encoding="utf-8", newline="") as file:
+        with (data_dir / "catalogue_objects_seed.csv").open("r", encoding="utf-8", newline="") as file:
             reader = csv.DictReader(file)
             self.assertIn("max_angular_size_deg", reader.fieldnames or [])
             self.assertIn("recommended_observation_type", reader.fieldnames or [])
@@ -31,19 +31,27 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 110)
         for row in rows:
-            self.assertGreater(float(row["max_angular_size_deg"]), 0.0, row["messier_id"])
+            self.assertGreater(float(row["max_angular_size_deg"]), 0.0, row["object_id"])
             self.assertIn(
                 row["recommended_observation_type"],
                 MESSIER_OBSERVATION_TYPES,
-                row["messier_id"],
+                row["object_id"],
             )
         observation_types = {
-            row["messier_id"]: row["recommended_observation_type"]
+            row["object_id"]: row["recommended_observation_type"]
             for row in rows
         }
-        self.assertEqual(observation_types["M27"], "General")
-        self.assertEqual(observation_types["M97"], "General")
-        self.assertEqual(observation_types["M107"], "General")
+        self.assertEqual(observation_types["messier-M27"], "General")
+        self.assertEqual(observation_types["messier-M97"], "General")
+        self.assertEqual(observation_types["messier-M107"], "General")
+
+        with (data_dir / "catalogue_designations_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            designations = list(csv.DictReader(file))
+        self.assertEqual(len(designations), 110)
+        self.assertTrue(all(row["catalogue"] == "Messier" for row in designations))
+        self.assertEqual(len({row["object_id"] for row in designations}), 110)
 
     def test_messier_seed_contains_all_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -52,15 +60,45 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             initialize_database(database_path, schema_path)
 
-            repository = MessierRepository(database_path)
+            repository = CatalogueRepository(database_path)
             objects = repository.list_objects()
             self.assertEqual(len(objects), 110)
-            self.assertEqual(objects[0]["messier_id"], "M1")
+            self.assertEqual(objects[0]["primary_designation"], "M1")
             self.assertEqual(objects[0]["max_angular_size_deg"], 0.117)
             self.assertEqual(objects[0]["recommended_observation_type"], "General")
-            self.assertEqual(objects[-1]["messier_id"], "M110")
+            self.assertEqual(objects[-1]["primary_designation"], "M110")
             self.assertGreater(objects[-1]["max_angular_size_deg"], 0.0)
             self.assertIn(objects[-1]["recommended_observation_type"], MESSIER_OBSERVATION_TYPES)
+
+    def test_catalogue_repository_keeps_one_object_for_multiple_designations(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    INSERT INTO CatalogueDesignation (
+                        catalogue, designation, object_id, sort_index, is_primary
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    ("Caldwell", "C23", "messier-M31", 23, 0),
+                )
+                connection.commit()
+
+            repository = CatalogueRepository(database_path)
+            self.assertEqual(len(repository.list_objects()), 110)
+            self.assertEqual(len(repository.list_objects("Caldwell")), 1)
+            by_designation = repository.get_by_designation("caldwell", "c23")
+            self.assertIsNotNone(by_designation)
+            assert by_designation is not None
+            self.assertEqual(by_designation["object_id"], "messier-M31")
+            self.assertEqual(by_designation["catalogues"], ["Messier", "Caldwell"])
+            self.assertEqual(
+                [item["designation"] for item in by_designation["designations"]],
+                ["M31", "C23"],
+            )
 
     def test_equipment_catalog_seed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -126,7 +164,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             initialize_database(database_path, schema_path)
 
             self.assertTrue(database_path.exists())
-            self.assertEqual(len(MessierRepository(database_path).list_objects()), 110)
+            self.assertEqual(len(CatalogueRepository(database_path).list_objects()), 110)
 
     def test_initialization_preflight_detects_first_launch_and_ready_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -146,7 +184,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             initialize_database(database_path, schema_path)
 
             with closing(sqlite3.connect(database_path)) as connection:
-                connection.execute("DELETE FROM MessierObject")
+                connection.execute("DELETE FROM CatalogueObject")
                 connection.commit()
 
             self.assertTrue(database_initialization_required(database_path, schema_path))
@@ -434,7 +472,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIsNotNone(table)
             self.assertEqual(version, SCHEMA_VERSION)
 
-    def test_messier_seed_restores_missing_rows_without_overwriting(self) -> None:
+    def test_catalogue_seed_restores_missing_rows_without_overwriting(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -442,29 +480,32 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             with closing(sqlite3.connect(database_path)) as connection:
                 connection.execute(
-                    "UPDATE MessierObject SET descrizione = ? WHERE messier_id = ?",
-                    ("nota locale", "M1"),
+                    "UPDATE CatalogueObject SET descrizione = ? WHERE object_id = ?",
+                    ("nota locale", "messier-M1"),
                 )
-                connection.execute("DELETE FROM MessierObject WHERE messier_id = ?", ("M110",))
+                connection.execute(
+                    "DELETE FROM CatalogueObject WHERE object_id = ?",
+                    ("messier-M110",),
+                )
                 connection.commit()
 
             initialize_database(database_path, schema_path)
 
             with closing(sqlite3.connect(database_path)) as connection:
-                row_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
+                row_count = connection.execute("SELECT COUNT(*) FROM CatalogueObject").fetchone()[0]
                 preserved_description = connection.execute(
-                    "SELECT descrizione FROM MessierObject WHERE messier_id = ?",
-                    ("M1",),
+                    "SELECT descrizione FROM CatalogueObject WHERE object_id = ?",
+                    ("messier-M1",),
                 ).fetchone()[0]
                 restored_object = connection.execute(
-                    "SELECT messier_id FROM MessierObject WHERE messier_id = ?",
-                    ("M110",),
+                    "SELECT object_id FROM CatalogueObject WHERE object_id = ?",
+                    ("messier-M110",),
                 ).fetchone()
             self.assertEqual(row_count, 110)
             self.assertEqual(preserved_description, "nota locale")
             self.assertIsNotNone(restored_object)
 
-    def test_messier_metadata_is_added_to_existing_database(self) -> None:
+    def test_legacy_messier_table_migrates_to_generic_catalogue(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -512,27 +553,35 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             with closing(sqlite3.connect(database_path)) as connection:
                 connection.row_factory = sqlite3.Row
-                columns = [
-                    row[1]
-                    for row in connection.execute("PRAGMA table_info(MessierObject)").fetchall()
-                ]
+                legacy_table = connection.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'MessierObject'"
+                ).fetchone()
                 version = connection.execute("PRAGMA user_version").fetchone()[0]
                 row = connection.execute(
                     """
                     SELECT descrizione, max_angular_size_deg, recommended_observation_type
-                    FROM MessierObject
-                    WHERE messier_id = ?
+                    FROM CatalogueObject
+                    WHERE object_id = ?
                     """,
-                    ("M1",),
+                    ("messier-M1",),
                 ).fetchone()
-                row_count = connection.execute("SELECT COUNT(*) FROM MessierObject").fetchone()[0]
+                row_count = connection.execute("SELECT COUNT(*) FROM CatalogueObject").fetchone()[0]
+                designation = connection.execute(
+                    """
+                    SELECT catalogue, designation, object_id
+                    FROM CatalogueDesignation
+                    WHERE catalogue = ? AND designation = ?
+                    """,
+                    ("Messier", "M1"),
+                ).fetchone()
 
-            self.assertIn("max_angular_size_deg", columns)
-            self.assertIn("recommended_observation_type", columns)
+            self.assertIsNone(legacy_table)
             self.assertEqual(version, SCHEMA_VERSION)
             self.assertEqual(row_count, 110)
             self.assertEqual(row["descrizione"], "nota locale")
             self.assertEqual(row["max_angular_size_deg"], 0.117)
+            self.assertEqual(row["recommended_observation_type"], "General")
+            self.assertEqual(tuple(designation), ("Messier", "M1", "messier-M1"))
             self.assertEqual(row["recommended_observation_type"], "General")
 
     def test_existing_user_data_survives_update_bootstrap(self) -> None:
@@ -590,7 +639,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
         spec = (Path(__file__).resolve().parents[2] / "packaging" / "NightScope.spec").read_text(encoding="utf-8")
         self.assertNotIn("nightscope.db", spec)
         self.assertIn("schema.sql", spec)
-        self.assertIn("messier_seed.csv", spec)
+        self.assertIn("catalogue_objects_seed.csv", spec)
+        self.assertIn("catalogue_designations_seed.csv", spec)
         self.assertIn("binocular_catalog_seed.csv", spec)
 
     def test_runtime_database_path_is_portable_and_copies_legacy_database(self) -> None:
@@ -627,7 +677,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             quarantined = list(Path(temp_dir).glob("nightscope.db.corrupt-*.bak"))
             self.assertEqual(len(quarantined), 1)
-            self.assertEqual(len(MessierRepository(database_path).list_objects()), 110)
+            self.assertEqual(len(CatalogueRepository(database_path).list_objects()), 110)
 
 
 if __name__ == "__main__":

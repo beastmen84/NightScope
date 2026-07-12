@@ -39,9 +39,8 @@ CREATE TABLE IF NOT EXISTS DataImportLog (
     report_json TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS MessierObject (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    messier_id TEXT NOT NULL UNIQUE,
+CREATE TABLE IF NOT EXISTS CatalogueObject (
+    object_id TEXT PRIMARY KEY,
     nome TEXT NOT NULL,
     tipo TEXT NOT NULL,
     costellazione TEXT NOT NULL,
@@ -54,9 +53,22 @@ CREATE TABLE IF NOT EXISTS MessierObject (
     descrizione TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_messier_id ON MessierObject(messier_id);
-CREATE INDEX IF NOT EXISTS idx_messier_type ON MessierObject(tipo);
-CREATE INDEX IF NOT EXISTS idx_messier_constellation ON MessierObject(costellazione);
+CREATE INDEX IF NOT EXISTS idx_catalogue_object_type ON CatalogueObject(tipo);
+CREATE INDEX IF NOT EXISTS idx_catalogue_object_constellation ON CatalogueObject(costellazione);
+
+CREATE TABLE IF NOT EXISTS CatalogueDesignation (
+    catalogue TEXT NOT NULL,
+    designation TEXT NOT NULL,
+    object_id TEXT NOT NULL,
+    sort_index INTEGER,
+    is_primary INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (catalogue, designation),
+    UNIQUE (object_id, catalogue),
+    FOREIGN KEY (object_id) REFERENCES CatalogueObject(object_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_catalogue_designation_object ON CatalogueDesignation(object_id);
+CREATE INDEX IF NOT EXISTS idx_catalogue_designation_catalogue ON CatalogueDesignation(catalogue, sort_index);
 
 CREATE TABLE IF NOT EXISTS WeatherCache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

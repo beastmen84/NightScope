@@ -13,12 +13,13 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
     "DataImportLog",
-    "MessierObject",
+    "CatalogueObject",
+    "CatalogueDesignation",
     "WeatherCache",
     "ObservationHistory",
     "TelescopeBrand",
@@ -36,7 +37,8 @@ REQUIRED_TABLES = {
     "EquipmentProfileBinocular",
 }
 SEEDED_TABLES = {
-    "MessierObject": "messier_seed.csv",
+    "CatalogueObject": "catalogue_objects_seed.csv",
+    "CatalogueDesignation": "catalogue_designations_seed.csv",
     "TelescopeBrand": "telescope_catalog_seed.csv",
     "TelescopeModel": "telescope_catalog_seed.csv",
     "EyepieceCatalog": "eyepiece_catalog_seed.csv",
@@ -72,7 +74,7 @@ def initialize_database(
     _notify_progress(progress_callback, "Creazione database...")
     database_path.parent.mkdir(parents=True, exist_ok=True)
     schema_sql = schema_path.read_text(encoding="utf-8")
-    seed_path = schema_path.with_name("messier_seed.csv")
+    catalogue_objects_path = schema_path.with_name("catalogue_objects_seed.csv")
 
     if database_path.exists() and not _database_is_healthy(database_path):
         _notify_progress(progress_callback, "Ricostruzione database locale...")
@@ -84,7 +86,7 @@ def initialize_database(
         _build_database(
             database_path,
             schema_sql,
-            seed_path,
+            catalogue_objects_path,
             progress_callback=progress_callback,
             geonames_data_dir=geonames_data_dir,
         )
@@ -98,7 +100,7 @@ def initialize_database(
         _build_database(
             database_path,
             schema_sql,
-            seed_path,
+            catalogue_objects_path,
             progress_callback=progress_callback,
             geonames_data_dir=geonames_data_dir,
         )
@@ -140,7 +142,7 @@ def database_initialization_required(
 def _build_database(
     database_path: Path,
     schema_sql: str,
-    seed_path: Path,
+    catalogue_objects_path: Path,
     progress_callback: ProgressCallback | None = None,
     geonames_data_dir: Path | None = None,
 ) -> None:
@@ -151,7 +153,7 @@ def _build_database(
         _migrate_database(connection)
         if existing_schema_version <= SCHEMA_VERSION:
             connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
-        data_dir = seed_path.parent
+        data_dir = catalogue_objects_path.parent
         geonames_source_dir = geonames_data_dir or database_path.parent
         _notify_progress(progress_callback, "Importazione cataloghi...")
         _import_geonames_cities_if_available(
@@ -160,46 +162,11 @@ def _build_database(
             warn_if_missing=geonames_source_dir == data_dir,
             progress_callback=progress_callback,
         )
-        if seed_path.exists():
-            with seed_path.open("r", encoding="utf-8", newline="") as file:
-                rows = [
-                    (
-                        row["messier_id"],
-                        row["nome"],
-                        row["tipo"],
-                        row["costellazione"],
-                        _optional_float(row["magnitudine"]),
-                        row["ascensione_retta"],
-                        row["declinazione"],
-                        row["dimensione_apparente"],
-                        _optional_float(row["max_angular_size_deg"]),
-                        row["recommended_observation_type"],
-                        row["descrizione"],
-                    )
-                    for row in csv.DictReader(file)
-                ]
-            connection.executemany(
-                """
-                INSERT INTO MessierObject (
-                    messier_id,
-                    nome,
-                    tipo,
-                    costellazione,
-                    magnitudine,
-                    ascensione_retta,
-                    declinazione,
-                    dimensione_apparente,
-                    max_angular_size_deg,
-                    recommended_observation_type,
-                    descrizione
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(messier_id) DO UPDATE SET
-                    max_angular_size_deg = excluded.max_angular_size_deg,
-                    recommended_observation_type = excluded.recommended_observation_type
-                """,
-                rows,
-            )
+        _seed_catalogue(
+            connection,
+            catalogue_objects_path,
+            data_dir / "catalogue_designations_seed.csv",
+        )
         _seed_telescope_catalog(connection, data_dir / "telescope_catalog_seed.csv")
         _seed_optics_catalog(
             connection,
@@ -249,14 +216,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         },
     )
     _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
-    _add_columns(
-        connection,
-        "MessierObject",
-        {
-            "max_angular_size_deg": "REAL",
-            "recommended_observation_type": "TEXT",
-        },
-    )
+    _migrate_catalogue_tables(connection)
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
@@ -323,6 +283,52 @@ def _add_columns(connection: sqlite3.Connection, table_name: str, columns: dict[
     for column_name, definition in columns.items():
         if column_name not in existing:
             connection.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")
+
+
+def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
+    if not _table_exists(connection, "MessierObject"):
+        return
+    _add_columns(
+        connection,
+        "MessierObject",
+        {
+            "max_angular_size_deg": "REAL",
+            "recommended_observation_type": "TEXT",
+        },
+    )
+    connection.execute(
+        """
+        INSERT OR IGNORE INTO CatalogueObject (
+            object_id, nome, tipo, costellazione, magnitudine,
+            ascensione_retta, declinazione, dimensione_apparente,
+            max_angular_size_deg, recommended_observation_type, descrizione
+        )
+        SELECT
+            'messier-' || messier_id, nome, tipo, costellazione, magnitudine,
+            ascensione_retta, declinazione, dimensione_apparente,
+            max_angular_size_deg, recommended_observation_type, descrizione
+        FROM MessierObject
+        """
+    )
+    connection.execute(
+        """
+        INSERT OR IGNORE INTO CatalogueDesignation (
+            catalogue, designation, object_id, sort_index, is_primary
+        )
+        SELECT
+            'Messier', messier_id, 'messier-' || messier_id,
+            CAST(SUBSTR(messier_id, 2) AS INTEGER), 1
+        FROM MessierObject
+        """
+    )
+    connection.execute("DROP TABLE MessierObject")
+
+
+def _table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
+    return connection.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (table_name,),
+    ).fetchone() is not None
 
 
 def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
@@ -616,6 +622,71 @@ def _database_size_bytes(connection: sqlite3.Connection) -> int:
         return database_path.stat().st_size
     except OSError:
         return 0
+
+
+def _seed_catalogue(
+    connection: sqlite3.Connection,
+    objects_path: Path,
+    designations_path: Path,
+) -> None:
+    if not objects_path.exists() or not designations_path.exists():
+        raise FileNotFoundError("Missing generic catalogue seed CSV.")
+    with objects_path.open("r", encoding="utf-8", newline="") as file:
+        object_rows = [
+            (
+                row["object_id"],
+                row["nome"],
+                row["tipo"],
+                row["costellazione"],
+                _optional_float(row["magnitudine"]),
+                row["ascensione_retta"],
+                row["declinazione"],
+                row["dimensione_apparente"],
+                _optional_float(row["max_angular_size_deg"]),
+                row["recommended_observation_type"],
+                row["descrizione"],
+            )
+            for row in csv.DictReader(file)
+        ]
+    connection.executemany(
+        """
+        INSERT INTO CatalogueObject (
+            object_id, nome, tipo, costellazione, magnitudine,
+            ascensione_retta, declinazione, dimensione_apparente,
+            max_angular_size_deg, recommended_observation_type, descrizione
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(object_id) DO UPDATE SET
+            max_angular_size_deg = excluded.max_angular_size_deg,
+            recommended_observation_type = excluded.recommended_observation_type
+        """,
+        object_rows,
+    )
+
+    with designations_path.open("r", encoding="utf-8", newline="") as file:
+        designation_rows = [
+            (
+                row["catalogue"],
+                row["designation"],
+                row["object_id"],
+                int(row["sort_index"]) if row["sort_index"].strip() else None,
+                1 if row["is_primary"].strip().casefold() in {"1", "true", "yes"} else 0,
+            )
+            for row in csv.DictReader(file)
+        ]
+    connection.executemany(
+        """
+        INSERT INTO CatalogueDesignation (
+            catalogue, designation, object_id, sort_index, is_primary
+        )
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(catalogue, designation) DO UPDATE SET
+            object_id = excluded.object_id,
+            sort_index = excluded.sort_index,
+            is_primary = excluded.is_primary
+        """,
+        designation_rows,
+    )
 
 
 def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:
