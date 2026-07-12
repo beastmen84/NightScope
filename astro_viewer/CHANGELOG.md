@@ -1,5 +1,30 @@
 # Changelog
 
+## NightScope 1.22.0 - 2026-07-12
+
+- Separata l'identita' fisica degli oggetti dalle designazioni catalografiche:
+  `CatalogueObject` contiene il target unico e `CatalogueDesignation` associa
+  uno o piu' codici di catalogo allo stesso `object_id`.
+- Portato lo schema SQLite alla versione `7`; la migrazione copia i dati dal
+  vecchio `MessierObject`, conserva descrizioni locali e ID `messier-Mxx`, crea
+  le designazioni Messier e rimuove la tabella ritirata.
+- Sostituito `MessierRepository` con `CatalogueRepository`; controller, motore
+  Skyfield e strumenti di validazione consumano ora il repository generico.
+- Separati i seed fisici `catalogue_objects_seed.csv` e le designazioni
+  `catalogue_designations_seed.csv`, entrambi inclusi nel package PyInstaller.
+- La lista generale conta ogni oggetto fisico una volta. Ricerca, lookup e filtro
+  di catalogo riconoscono anche designazioni secondarie; il filtro cambia codice
+  e ordinamento mostrati senza cambiare l'ID runtime.
+- Aggiunti vincoli e test per una sola designazione primaria, alias
+  case-insensitive e sovrapposizione simulata `C23 -> messier-M31`: il totale
+  resta 110 anziche' diventare 111.
+- Caldwell non e' ancora importato; questa release prepara il contratto dati
+  necessario per aggiungerlo senza duplicare gli oggetti condivisi con Messier.
+- Verificati dipendenze, Ruff, compileall, smoke Python, QML smoke e `qmllint`;
+  suite completa parallela: `625 passed`, `558 warnings`, `7 subtests passed`
+  in `43,56 s`. Le warning restano quelle Skyfield/NumPy gia' note.
+- Dist `1.22.0` non rigenerata.
+
 ## NightScope 1.21.1 - 2026-07-12
 
 - Verificata l'intera composizione NSOM: qualita' intrinseca, ambiente,

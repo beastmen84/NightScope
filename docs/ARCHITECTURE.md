@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.21.1`:
+Current runtime status for `1.22.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -78,6 +78,9 @@ Current runtime status for `1.21.1`:
 - Runtime target identity is the normalized non-empty object ID. Home, Best
   Object, Planner and Sky Compass keep the first occurrence before scoring;
   lower-Home plan/alternative counts use the same invariant.
+- Catalogue identity is physical-object based: `CatalogueObject.object_id` is
+  stable and `CatalogueDesignation` owns one or more catalogue codes. A
+  secondary designation never creates another runtime target.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
@@ -321,7 +324,7 @@ Services hold business logic:
 Repositories own SQLite persistence:
 
 - `CityRepository`: city search and reverse lookup.
-- `MessierRepository`: Messier catalog rows.
+- `CatalogueRepository`: physical catalogue targets and their designations.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow and equipment
   profile CRUD and profile assignments.
 - `WeatherCacheRepository`: weather response cache.
@@ -364,10 +367,12 @@ Home recommendation flow:
 
 Catalogue browsing flow:
 
-1. `AppController` loads catalogue rows from repository-backed local data.
-2. The current implementation maps Messier rows into a generic catalogue item
-   shape with `catalogue`, `object_id`, `catalogue_id`, type, constellation,
-   magnitude, size, observation-type metadata and description.
+1. `AppController` loads one row per physical target from repository-backed
+   local data.
+2. `CatalogueRepository` attaches every designation to that target. The
+   presentation keeps compatibility fields `catalogue` and `catalogue_id`, plus
+   `catalogues` and `designations`; selecting a catalogue projects its code
+   without changing `object_id`.
 3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
    catalogue, object type, constellation and observation type.
 4. `selectCatalogueObject` resolves the catalogue object and creates a

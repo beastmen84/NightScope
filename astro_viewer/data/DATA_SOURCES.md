@@ -22,6 +22,19 @@ The equipment seeds were audited against manufacturer catalog pages on 2026-06-2
 
 No API keys or vendor-specific private data are included.
 
+## Celestial Object Catalogues
+
+`catalogue_objects_seed.csv` is the canonical source for physical deep-sky
+targets. `catalogue_designations_seed.csv` associates each physical `object_id`
+with one or more catalogue designations and marks exactly one primary
+designation. The initial dataset contains the 110 Messier objects.
+
+The split is intentional: a future Caldwell designation such as `C23` can point
+to the existing physical target `messier-M31` without creating a second
+Andromeda Galaxy, a second astronomy calculation or an inflated catalogue
+count. Existing `messier-Mxx` IDs remain stable for backward compatibility with
+images, descriptions and persisted references.
+
 ## Light Pollution
 
 `light_pollution_seed.csv` is a small local lookup dataset for provider plumbing and common cities. It is not a replacement for a real World Atlas or VIIRS raster import.

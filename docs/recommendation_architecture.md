@@ -416,9 +416,10 @@ This allows:
 - telescopes to win for high-magnification and detail-oriented targets
 - general objects to remain conservative
 
-## Messier Observation Metadata
+## Catalogue Observation Metadata
 
-Messier catalogue entries include two machine-readable recommendation fields.
+Physical catalogue objects include two machine-readable recommendation fields,
+independently from their Messier, Caldwell or future designations.
 
 ### max_angular_size_deg
 

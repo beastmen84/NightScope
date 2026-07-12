@@ -35,7 +35,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.21.1`.
+Versione corrente sorgente: `1.22.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -58,6 +58,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
   replacement path NSOM separato.
+- Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
+  solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
+  proiettano la designazione richiesta senza duplicare righe o conteggi.
 
 L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
 Object, Planner, Sky Compass e i conteggi della Home conservano una sola
@@ -303,7 +306,8 @@ La build usa `packaging/NightScope.spec` e include:
 - UI QML e componenti;
 - `resources/` con icone e immagini locali;
 - `data/schema.sql`;
-- seed CSV per Messier, immagini, descrizioni, telescopi, oculari, Barlow e inquinamento luminoso;
+- seed CSV separati per oggetti e designazioni catalografiche, immagini,
+  descrizioni, telescopi, oculari, Barlow e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
 - ephemeris `data/skyfield/de421.bsp`;
 - `manuale.html`;
@@ -343,7 +347,7 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 
 - città e alias GeoNames importati;
 - cataloghi strumenti importati;
-- oggetti Messier, immagini e descrizioni importati;
+- oggetti catalografici, designazioni, immagini e descrizioni importati;
 - un solo profilo predefinito `Occhio nudo`;
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
@@ -363,7 +367,8 @@ I seed locali vivono in `astro_viewer/data/`:
 
 - `cities15000.txt`: dump GeoNames incluso nel package.
 - `countryInfo.txt`, `admin1CodesASCII.txt`: arricchimento paesi e regioni GeoNames.
-- `messier_seed.csv`: catalogo Messier.
+- `catalogue_objects_seed.csv`: identita' fisiche e metadati astronomici.
+- `catalogue_designations_seed.csv`: designazioni e ordinamento per catalogo.
 - `telescope_catalog_seed.csv`: catalogo telescopi.
 - `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
 - `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.

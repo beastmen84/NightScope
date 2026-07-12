@@ -4,14 +4,22 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.21.1`
-- Distribuzione Windows esistente: `1.20.0`
-- Dist non rigenerata per questo lavoro.
-- Commit sorgente validato: `67b7023 Harden presentation counts`
+- Versione sorgente: `1.22.0`
+- Dist `1.22.0` non rigenerata.
+- Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
+  assumerne l'esito senza una conferma successiva.
+- Commit sorgente validato: `2256899 Migrate recommendation matrix seed reader`
 
 Il commit che aggiunge questo handoff contiene solo release metadata e
-documentazione. Per lo stato del codice usare `67b7023`; non sostituire questo
+documentazione. Per lo stato del codice usare `2256899`; non sostituire questo
 hash con un valore previsto prima del commit.
+
+## Commit Catalogo Recenti
+
+- `2256899 Migrate recommendation matrix seed reader`
+- `f45e3eb Update catalogue maintenance seeds`
+- `d4877c4 Migrate catalogue consumers to canonical IDs`
+- `4312c14 Introduce generic catalogue persistence`
 
 ## Commit NSOM Recenti
 
@@ -31,13 +39,32 @@ corrente. Home, Meteo, dettaglio osservativo, Calendario e dettaglio Catalogo
 sono stati verificati e rifiniti. La UI mantiene payload compatibili e non
 espone modelli/scalari NSOM grezzi.
 
-La prossima funzionalita' prevista dall'utente e' l'estensione del Catalogo,
-partendo da Caldwell. Non iniziarla automaticamente: prima concordare scope,
-fonte dati, immagini e strategia di import.
+Il punto 1 della roadmap finale, identita' canonica e supporto multi-catalogo,
+e' concluso. Il prossimo punto e' l'import Caldwell; non iniziarlo
+automaticamente senza la richiesta dell'utente e senza fissare fonte e mapping
+degli oggetti sovrapposti.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
+
+## Catalogo Canonico 1.22.0
+
+- `CatalogueObject` contiene una riga per target fisico.
+- `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
+  `object_id`; un indice parziale consente una sola designazione primaria.
+- Gli ID Messier esistenti restano `messier-Mxx` per non rompere asset,
+  descrizioni o riferimenti persistiti.
+- `CatalogueRepository` restituisce ogni oggetto una volta con `designations`,
+  `catalogues`, `primary_catalogue` e `primary_designation`.
+- Ricerca e lookup riconoscono ID fisico, codice breve e forma qualificata, per
+  esempio `messier-M31`, `M31`, `C23` e `Caldwell-C23`.
+- Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
+  incrementa `catalogueTotalCount`.
+- Lo schema SQLite e' `7`; il bootstrap migra e rimuove `MessierObject` senza
+  perdere descrizioni locali.
+- I seed correnti sono `catalogue_objects_seed.csv` e
+  `catalogue_designations_seed.csv`. Caldwell non e' ancora incluso.
 
 ## NSOM Canonico
 
@@ -164,7 +191,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.21.1
+## Validazione 1.22.0
 
 Eseguita nella venv corrente:
 
@@ -182,7 +209,7 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `621 passed`, `558 warnings`, `7 subtests passed` in `38,23 s`.
+- Suite: `625 passed`, `558 warnings`, `7 subtests passed` in `43,56 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.

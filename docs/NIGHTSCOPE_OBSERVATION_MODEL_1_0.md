@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.21.1`:
+Current runtime status for `1.22.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -22,6 +22,8 @@ Current runtime status for `1.21.1`:
 - `RecommendationConfidence` remains parallel metadata and never modifies score.
 - Runtime consumers normalize target identity and score/count each non-empty
   object ID at most once while retaining stable first-occurrence order.
+- `1.22.0` separates physical catalogue targets from their designations; this
+  preserves canonical NSOM identity and does not change scoring or ranking.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
