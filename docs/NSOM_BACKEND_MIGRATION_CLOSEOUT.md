@@ -1,6 +1,6 @@
 # NSOM Backend Closeout
 
-Status: complete for NightScope `1.21.0`.
+Status: complete for NightScope `1.21.1`.
 
 This document is the current backend status, not a migration plan. NSOM has one
 production path. There are no runtime migration flags, shadow QML payloads or
@@ -28,6 +28,10 @@ Target classification is shared by all consumers through `nsom_target.py`,
 including planets, Moon, galaxies, diffuse/planetary nebulae, open/globular
 clusters and double stars.
 
+Target identity is shared there as well. Every non-empty ID is normalized for
+case and surrounding whitespace, the first occurrence is retained, and each
+runtime consumer scores or counts it at most once.
+
 ## Runtime Consumers
 
 | Consumer | Ranking/input owner | Visible contract |
@@ -35,7 +39,7 @@ clusters and double stars.
 | Upper Home categories | `NsomCategoryScoreService` | descriptive planetary/deep-sky summaries |
 | Home recommended deep sky | `HomeRecommendedDeepSkyNsomRankingService` | existing object cards and display fields |
 | Best Object | `BestObjectNsomSelectionService` | existing `bestObjectOfNight` object payload |
-| Planner | `NightPlannerService` plus `PlannerNsomScoringService` | four best opportunities, then chronological order |
+| Planner | `NightPlannerService` plus `PlannerNsomScoringService` | up to four unique best opportunities, then chronological order |
 | Sky Compass | `SkyCompassService` | existing direction/target payload |
 | Observing detail | `ObservingObjectDetailService` | score-free detail read model |
 | Catalogue detail | catalogue/astronomy presentation path | current-month local visibility, no NSOM ranking panel |
@@ -58,6 +62,19 @@ astronomy or Moon-geometry calculations.
 
 Missing optional providers produce neutral factors and lower confidence. They
 do not select another ranking implementation.
+
+## Post-Closeout Invariants
+
+The `1.21.1` audit verifies these runtime boundaries:
+
+- intrinsic target quality is built once per observable-value construction;
+- every continuous NSOM component occurs once in its owning layer;
+- VIIRS absence and provider fallback are not duplicate confidence entries;
+- Moon-geometry confidence is target-specific;
+- seeing/transparency is recomputed once per weather/VIIRS data change and is
+  reused by generic observing-output refreshes;
+- Home, Best Object, Planner, Sky Compass, plan rows, alternatives and profile
+  counts reject repeated identified inputs while preserving stable order.
 
 ## Retired Migration Surfaces
 
@@ -110,6 +127,6 @@ Closeout validation on Windows/Python 3.14 uses:
 .\.venv\Scripts\python.exe -m pytest -n auto -q
 ```
 
-The `1.21.0` implementation suite completed with `610 passed` and `7 subtests
+The `1.21.1` implementation suite completed with `621 passed` and `7 subtests
 passed`. Skyfield currently emits upstream NumPy dtype deprecation warnings;
 they are not test failures.

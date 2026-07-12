@@ -52,15 +52,17 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.21.0`:
+Measured on the current Windows development environment for `1.21.1`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `610 passed, 7 subtests passed` | `0:00:41` |
+| `python -m pytest -q -n auto` | `621 passed, 7 subtests passed` | `0:00:38` |
 
-The lower count is intentional: `1.21.0` removes migration-only comparison,
-rollback, shadow-payload and automatic-diagnostic tests together with the
-retired production paths they exercised.
+The post-cleanup count includes new invariants for single-pass factor
+construction, canonical target identity and defensive Home/Planner/Sky Compass
+counts. The earlier reduction in `1.21.0` was intentional: migration-only
+comparison, rollback, shadow-payload and automatic-diagnostic tests were
+removed with the retired production paths they exercised.
 
 The latest serial diagnostic baseline before `1.18.2` was `658 passed, 7
 subtests passed` in `0:02:33`; it was used to isolate a repeated Skyfield

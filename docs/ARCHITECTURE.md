@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.21.0`:
+Current runtime status for `1.21.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -70,11 +70,14 @@ Current runtime status for `1.21.0`:
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
 - Planner now consumes the telescope selected by `EquipmentService` for each
-  target in a multi-instrument profile and emits four selected opportunities
-  before chronological presentation.
+  target in a multi-instrument profile and emits up to four selected
+  opportunities before chronological presentation.
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
+- Runtime target identity is the normalized non-empty object ID. Home, Best
+  Object, Planner and Sky Compass keep the first occurrence before scoring;
+  lower-Home plan/alternative counts use the same invariant.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
@@ -97,8 +100,10 @@ Current runtime status for `1.21.0`:
   compact evening status. It does not expose the legacy weather score or feed
   any recommendation calculation.
 - `HomeNightPlanOverviewService` owns the lower-Home presentation contract. It
-  projects Session state, a count-based multi-equipment summary, four compact
-  plan rows and score-free alternative rows without changing Planner ranking.
+  projects Session state, a count-based multi-equipment summary, up to four
+  compact plan rows and score-free alternative rows without changing Planner
+  ranking.
+  Repeated equipment rows are counted once per normalized `(kind, id)` pair.
 - Lower-Home alternatives are presented by observing-window start; shared best
   times and target category are tie-breaks, followed by a natural numeric name
   key suitable for Messier, Caldwell and future catalogue identifiers.
@@ -124,6 +129,8 @@ Current runtime status for `1.21.0`:
   participants and angular separation are separate fields; future setups use
   profile capability without reusing tonight's seeing. Highlight selection
   combines intrinsic event priority with a bounded local-visibility penalty.
+  Event and participant IDs are normalized before presentation counts so an
+  identified event cannot appear twice; id-less events remain untouched.
   Calendar QML and the Home event strip consume this read model; the Home
   projection excludes solar conjunctions while the complete Calendar keeps
   them. The legacy `events` property remains available only for compatibility
@@ -233,7 +240,7 @@ Important pages:
 - Moon summary,
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
-- sky quality, seeing/transparency and advanced scores,
+- sky quality, seeing/transparency and NSOM category scores,
 - night plan and Sky Compass,
 - generic catalogue object dictionaries and catalogue filter state,
 - selected object and detail dictionaries,
@@ -259,8 +266,8 @@ Services hold business logic:
   summaries from the canonical observation environment.
 - `SeeingTransparencyService`: seeing/transparency estimation from forecast
   fields and sky quality.
-- `NightPlannerService`: four-item observing plan, weather blocking and
-  chronological plan presentation. It delegates default ranking to
+- `NightPlannerService`: observing plan capped at four unique targets, weather
+  blocking and chronological plan presentation. It delegates default ranking to
   `PlannerNsomScoringService` and accepts selected telescopes by target.
 - `PlannerNsomScoringService`: practical target value, binary session viability,
   timing factors and final `ObservationOpportunity` ranking.
@@ -347,7 +354,7 @@ Home recommendation flow:
 4. `BestObjectNsomSelectionService` always selects Best Object from canonical
    observation opportunities. Missing provider inputs are neutral factors.
 5. `NightPlannerService` produces the observing plan unless weather is
-   blocking, using `PlannerNsomScoringService`. The four
+   blocking, using `PlannerNsomScoringService`. Up to four
    highest `ObservationOpportunity` values are selected before chronological
    ordering, using the setup telescope selected for each target.
 6. `AppController` exposes the centralized blocking state to QML.
@@ -437,10 +444,11 @@ Current refresh reasons are:
 - `LIVE_TICK`
 
 The generic `TTL_EXPIRED` and `ASYNC_COMPLETED` reasons are intentionally
-neutral. Operational refresh dispatch should use the domain-specific reasons so
-OpenAQ/AOD Weather updates do not dirty Planner, equipment or Sky Compass state
-by accident. Condition scoring consumes already available provider DTOs through
-ObservationConditions rather than triggering provider refreshes from scoring.
+neutral. Operational refresh dispatch uses domain-specific reasons. Accepted
+OpenAQ/AOD completions recompute condition-dependent NSOM consumers only when
+their DTO changed; they do not repeat astronomy, Equipment selection or seeing
+estimation. Condition scoring consumes already available provider DTOs rather
+than triggering provider refreshes itself.
 
 `LIVE_TICK` is the Sky Compass live refresh lane. It maps only to
 `COMPASS_LIVE`, which is separate from the broader `COMPASS` domain used by
@@ -459,6 +467,7 @@ The following changes are expected to trigger dependent recomputation:
 - valid weather refresh,
 - sky-quality refresh,
 - VIIRS refresh completion,
+- accepted AOD/OpenAQ refresh completion when provider data changed,
 - astronomy catalog reload caused by location or sky-quality context,
 - selected object change.
 
@@ -466,6 +475,8 @@ Important methods:
 
 - `_refresh_weather_and_conditions`
 - `_finish_weather_refresh`
+- `_complete_weather_refresh`
+- `_finish_local_atmosphere_refresh`
 - `_finish_viirs_sky_quality_refresh`
 - `_finish_nasa_aod_refresh`
 - `_refresh_active_profile_dependencies`
@@ -479,15 +490,15 @@ The refresh chain currently recomputes:
 - observing plan,
 - visible planets,
 - visible deep-sky objects,
-- sky map,
-- observing scores,
+- Sky Compass,
+- NSOM category scores,
 - recommended setups,
 - selected-object setup/detail data.
 
-NASA AOD refresh completion updates only the display DTO consumed by the Weather
-page and logs product/date/value/status. It does not recompute Home, Planner,
-Sky Compass, seeing/transparency, weather score, observing scores or
-recommendation outputs.
+NASA AOD and OpenAQ completion update their Weather-page DTO and, when the
+accepted value changed, recompute Home ranking, Best Object, Planner, category
+scores and Sky Compass from the existing astronomy/seeing state. The provider
+completion does not repeat ephemerides, Moon geometry, weather score or seeing.
 
 Cold astronomy work is isolated from the Qt thread. Location/startup and night
 rollover refreshes build an immutable snapshot containing the observing-night
@@ -578,8 +589,9 @@ The following duplication or concentration of responsibility should be tracked:
   without duplicating the thresholds.
 - Score labels are implemented in `ObservingScoreService` and also separately
   in the astronomy engine for raw object scores.
-- Night-hour selection is repeated in observing score, seeing estimation and
-  home weather digest logic with slightly different ranges.
+- Observing score, seeing estimation and Home weather digest consume the same
+  centralized night-hour selection; their downstream summaries remain
+  intentionally different.
 - Moon parsing from string percentages is repeated in multiple services.
 - Light-pollution handling has two explicit outputs: display compatibility in
   `ObservationConditionsService` and physical sky background in

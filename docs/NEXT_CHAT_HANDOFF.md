@@ -1,20 +1,24 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-11
+Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.21.0`
+- Versione sorgente: `1.21.1`
 - Distribuzione Windows esistente: `1.20.0`
 - Dist non rigenerata per questo lavoro.
-- Commit sorgente validato: `7658a65 Complete NSOM backend consolidation`
+- Commit sorgente validato: `67b7023 Harden presentation counts`
 
-Il commit che aggiunge questo handoff e' solo documentale. Per lo stato del
-codice usare `7658a65`; non sostituire questo hash con un valore previsto prima
-del commit.
+Il commit che aggiunge questo handoff contiene solo release metadata e
+documentazione. Per lo stato del codice usare `67b7023`; non sostituire questo
+hash con un valore previsto prima del commit.
 
 ## Commit NSOM Recenti
 
+- `67b7023 Harden presentation counts`
+- `ce43d94 Align seeing refresh fixtures`
+- `bbba6af Deduplicate NSOM runtime targets`
+- `1b1895a Fix NSOM factor accounting`
 - `7658a65 Complete NSOM backend consolidation`
 - `f1294c5 Fix NSOM target timing and equipment context`
 - `021187e Unify NSOM observation environment`
@@ -57,6 +61,16 @@ Consumer attivi:
 - Planner: `NightPlannerService` + `PlannerNsomScoringService`.
 - Sky Compass: unico `SkyCompassService`.
 
+Audit invarianti `1.21.1`:
+
+- ogni ID target canonico viene valutato/conteggiato una sola volta;
+- la prima occorrenza resta stabile e gli elementi senza ID non sono rimossi;
+- piano e alternative Home, Sky Compass e conteggi Equipment sono difensivi
+  anche se ricevono input ripetuti;
+- intrinseco e seeing non vengono ricostruiti due volte nello stesso passaggio;
+- confidence OpenAQ usa il campo runtime corretto, la geometria lunare e' per
+  target e l'assenza VIIRS non viene duplicata come fallback generico.
+
 I provider opzionali mancanti producono fattori neutrali e confidence minore;
 non selezionano un vecchio algoritmo. Solo un'eccezione inattesa in Sky Compass
 usa il fallback geometrico con lo stesso payload QML.
@@ -98,7 +112,7 @@ Rimossi:
 - Parte alta usa `homeObservingOverview` con Sessione, Meteo, condizioni
   planetarie, cielo profondo e Luna.
 - Parte bassa usa `homeNightPlanOverview`.
-- Piano: quattro opportunita' migliori, poi ordine cronologico.
+- Piano: fino a quattro opportunita' migliori, poi ordine cronologico.
 - Altri oggetti: lista completa scrollabile, ordinamento temporale e nome
   naturale (`M3`, `M40`, `M100`).
 - Scroll interno non propaga alla pagina quando il puntatore e' nella lista.
@@ -122,6 +136,8 @@ Rimossi:
 ### Calendario
 
 - Orizzonte unico di 365 giorni, senza cap agli eventi.
+- Eventi e partecipanti con lo stesso ID normalizzato sono contati una volta;
+  gli eventi senza ID restano nel dataset.
 - Include congiunzioni tra pianeti osservabili e conserva le congiunzioni
   solari come categoria informativa separata.
 - Eventi, finestre, visibilita', partecipanti e separazione sono campi distinti.
@@ -148,7 +164,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.21.0
+## Validazione 1.21.1
 
 Eseguita nella venv corrente:
 
@@ -166,7 +182,7 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `610 passed`, `558 warnings`, `7 subtests passed` in `41,05 s`.
+- Suite: `621 passed`, `558 warnings`, `7 subtests passed` in `38,23 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.

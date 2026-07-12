@@ -111,7 +111,7 @@ copy.
 The lower-Home candidate pool contains every planet and deep-sky object with a
 useful window during the observing night. `visible` means useful at some point
 in that night; `observable_now` is a separate live geometry result. The Home
-alternatives projection removes the four plan IDs, combines planet and deep-sky
+alternatives projection removes the plan IDs, combines planet and deep-sky
 rows and orders them first by the start of their observing window. Best time,
 category and a natural numeric name key are deterministic tie-breaks. The name
 key orders catalogue identifiers by their numeric component (`M3`, `M40`,
@@ -119,6 +119,13 @@ key orders catalogue identifiers by their numeric component (`M3`, `M40`,
 Bortle/VIIRS context can penalize, reorder or remove a deep-sky target that is
 no longer useful after conditioning, but it does not truncate the surviving
 pool to a fixed count.
+
+All runtime target pools use the normalized non-empty object ID as identity.
+Whitespace and case differences do not create a second target; the first
+occurrence is retained so ordering remains stable. Objects without an ID are
+not discarded by this guard. Planner, Best Object, Home ranking, Sky Compass
+and the lower-Home presentation apply the same invariant before scoring or
+counting.
 
 `homeNightPlanOverview` is a presentation-only projection over those existing
 results. In `recommended` state it emits at most the four Planner items and
@@ -595,8 +602,9 @@ to visible scored objects when no useful-window candidates exist.
 
 The default runtime ranking is owned by `PlannerNsomScoringService`, which
 builds one `ObservationOpportunity` per candidate. `NightPlannerService`
-selects the four highest-valued unique targets and only then orders those four
-chronologically for display. No parallel legacy Planner formula remains.
+selects up to four highest-valued unique targets and only then orders that
+selection chronologically for display. No parallel legacy Planner formula
+remains.
 
 An observing window is an interval, not two candidate instants. If its best
 time has passed but the current local time is still inside the interval, the
@@ -618,24 +626,25 @@ requirements. A maximum altitude below 25 degrees degrades the resulting class.
 Binocular and naked-eye projections use their own planet matrix. This value is
 presentation data and also feeds Planner's practical-constraint factor.
 
-Planner score:
+Planner composition:
 
-`(object_score * 0.48 + category_score * 0.34 + weather_score * 0.18 + aperture_bonus - pollution_penalty - moon_penalty) * difficulty_factor * weather_factor`
+`E = geometric_visibility * lunar_sky_background * static_sky_background * atmospheric_transparency * horizon_context`
 
-Factors:
+`O = intrinsic_target_quality * E`
 
-- object score comes from astronomy plus later adjustments,
-- category score is planetary or deep-sky advanced score,
-- weather score is global observing quality,
-- aperture bonus is limited by telescope aperture,
-- pollution penalty is object-type dependent,
-- Moon penalty is object-type dependent,
-- difficulty factor favors easier objects,
-- weather factor reduces ranking under weaker weather.
+`P = O * target_specific_observer_capability`
 
-The final plan contains exactly four selected opportunities and schedules items
-in roughly 45-minute increments from their useful time when no explicit target
-time is available.
+`Opportunity = P * observing_window_quality * chronology_fit * session_viability * practical_constraints`
+
+Each component appears once. `SessionViability` is binary and does not multiply
+the continuous weather contribution a second time. `RecommendationConfidence`
+is attached as metadata and is not part of `Opportunity`.
+
+The final plan contains up to four unique selected opportunities and schedules
+items in roughly 45-minute increments from their useful time when no explicit
+target time is available. Candidate identity is the canonical object ID; a
+normalized-name guard also prevents aliases of the same display target from
+occupying multiple plan rows.
 
 ## Best Object Selection
 
@@ -647,8 +656,8 @@ no actionable Best Object.
 For profiles with multiple instruments, Best Object receives the telescope
 selected by `EquipmentService` for each target. It does not evaluate every
 candidate with the first/current telescope; binocular and naked-eye targets
-retain their non-telescope capability projection. `ObservingScoreService` is
-kept only as the missing-sky-quality fallback.
+retain their non-telescope capability projection. Missing sky-quality data is
+neutral in the canonical environment and does not switch selection service.
 
 ## Equipment Calculations
 
@@ -862,14 +871,17 @@ Profile/equipment changes trigger:
 Weather changes trigger:
 
 - weather score,
-- sky quality lookup,
 - seeing/transparency,
 - equipment recommendations,
-- advanced scores,
+- NSOM category scores,
 - best object,
 - plan,
-- sky map,
+- Sky Compass,
 - selected object detail refresh.
+
+Seeing/transparency is computed once when weather or VIIRS sky quality changes.
+Generic observing-output recomputation reuses that value, so profile, month and
+AOD/OpenAQ refreshes do not repeat the same estimate.
 
 Location changes trigger:
 
@@ -877,7 +889,7 @@ Location changes trigger:
   Moon data, events and monthly catalogue visibility,
 - weather refresh,
 - sky-quality refresh,
-- diagnostic NASA AOD backend refresh when Earthdata credentials are verified,
+- NASA AOD refresh when Earthdata credentials are verified,
 - profile-dependent recommendation refresh.
 
 VIIRS completion triggers:

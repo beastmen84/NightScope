@@ -8,7 +8,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
 - Sky Compass come guida live della Home: ogni minuto valuta gli oggetti realmente osservabili adesso, combina qualità e concentrazione per direzione e mantiene piano/Best Object come contesto, non come bonus dominante.
-- Piano osservativo consigliato: quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
+- Piano osservativo consigliato: fino a quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
 - Home inferiore state-aware: separa sequenza consigliata, finestra da
   monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
   degli altri oggetti senza esporre score grezzi.
@@ -35,7 +35,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.21.0`.
+Versione corrente sorgente: `1.21.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -44,7 +44,7 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - Planner: ranking `ObservationOpportunity`.
 - Home `recommendedDeepSky`: tutti i target utili della notte, ordinati per
   `ObservableTargetValue`; `homeVisibleAlternatives` unifica pianeti e cielo
-  profondo escludendo le quattro tappe del piano.
+  profondo escludendo gli ID presenti nel piano.
 - Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
   multi-equipment, piano compatto e righe alternative lette direttamente dalla
   QML della Home.
@@ -58,6 +58,12 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
   replacement path NSOM separato.
+
+L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
+Object, Planner, Sky Compass e i conteggi della Home conservano una sola
+occorrenza per ID canonico, mantenendo stabile la prima. Intrinseco, seeing e
+confidence provider vengono costruiti una sola volta nel rispettivo passaggio;
+la confidence resta separata dal valore usato per il ranking.
 
 `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e' il riepilogo corrente dello stato
 backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta il
@@ -120,7 +126,7 @@ per request id e posizione. Scoring, payload QML e UI visibile restano invariati
 
 In `1.18.3` il condizionamento per inquinamento luminoso non tronca piu' a dieci
 gli oggetti deep-sky ancora utili: l'intero pool raggiunge Home e Sky Compass
-prima dell'esclusione dei quattro target del piano. La lista Home degli altri
+prima dell'esclusione degli ID selezionati nel piano. La lista Home degli altri
 oggetti trattiene inoltre lo scroll di mouse e touchpad quando il puntatore e'
 sulla lista scrollabile, senza trasferirlo alla pagina quando raggiunge un
 estremo. La distribuzione Windows e' stata rigenerata su richiesta con bundle

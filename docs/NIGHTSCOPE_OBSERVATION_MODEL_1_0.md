@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.21.0`:
+Current runtime status for `1.21.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -20,6 +20,8 @@ Current runtime status for `1.21.0`:
   when provider-quality gates pass.
 - Equipment remains setup-local with explicit ObserverCapability boundaries.
 - `RecommendationConfidence` remains parallel metadata and never modifies score.
+- Runtime consumers normalize target identity and score/count each non-empty
+  object ID at most once while retaining stable first-occurrence order.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
@@ -1386,8 +1388,8 @@ A future `ObserverCapabilityService` should own:
 
 ## 11. Current Backend Status
 
-The backend recommendation-surface migration and cleanup are complete in
-`1.21.0`.
+The backend recommendation-surface migration, cleanup and invariant audit are
+complete in `1.21.1`.
 
 Canonical surfaces:
 
@@ -1400,6 +1402,8 @@ Canonical surfaces:
   shadow NSOM payload.
 - ObservationConditions applies calibrated AOD/OpenAQ condition scoring when
   eligible provider data is already available.
+- Home, Best Object, Planner and Sky Compass deduplicate normalized target IDs
+  before scoring; presentation counts apply the same identity rule.
 
 Explicit boundaries that remain by design:
 
@@ -1503,7 +1507,7 @@ truth is limited to runtime code, active behavioural tests, this NSOM model,
 
 ## 13. Recommendation
 
-The `1.21.0` backend state has one NSOM recommendation path and no migration
+The `1.21.1` backend state has one NSOM recommendation path and no migration
 artifact in production wiring. AOD/OpenAQ scoring is canonical after
 provider-quality and stale/current policy gates.
 

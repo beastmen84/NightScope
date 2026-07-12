@@ -1,5 +1,34 @@
 # Changelog
 
+## NightScope 1.21.1 - 2026-07-12
+
+- Verificata l'intera composizione NSOM: qualita' intrinseca, ambiente,
+  capacita' osservatore, finestra, cronologia, Session e vincoli pratici
+  entrano una sola volta nei rispettivi livelli.
+- Rimossa la seconda costruzione dell'intrinseco durante
+  `ObservableTargetValue` e il secondo calcolo seeing nello stesso refresh
+  meteo; VIIRS aggiorna seeing prima delle raccomandazioni Equipment.
+- Corretta la confidence runtime: OpenAQ riconosce il campo canonico
+  `available`, la geometria lunare e' valutata per singolo target e la mancanza
+  VIIRS non viene duplicata come fallback generico.
+- Centralizzata la deduplicazione per ID canonico, stabile e case-insensitive,
+  nei pool Home, ranking Home/Best Object, Planner e Sky Compass.
+- Resi difensivi anche piano Home, alternative e conteggi Equipment: una stessa
+  riga identificata non puo' incrementare due volte sequenze o contatori.
+- Resi difensivi i contatori annuali del Calendario e i partecipanti degli
+  eventi: stesso ID normalizzato compare una volta, senza introdurre cap e
+  senza eliminare eventi privi di ID.
+- Il Planner valuta al massimo una volta ogni target e presenta fino a quattro
+  opportunita' uniche; l'ordinamento cronologico avviene solo dopo la selezione.
+- Corretta la documentazione che riportava ancora la formula Planner ritirata e
+  la dicitura fuorviante `esattamente quattro`.
+- Suite completa parallela: `621 passed`, `558 warnings`, `7 subtests passed`
+  in `38,23 s`; le warning sono la deprecazione Skyfield/NumPy gia' nota.
+- Verificati `pip check`, Ruff, `compileall`, smoke Python, smoke QML e
+  `pyside6-qmllint`; il lint QML termina con exit `0` e conserva le warning
+  statiche gia' note.
+- Distribuzione non rigenerata: sorgente `1.21.1`, dist esistente `1.20.0`.
+
 ## NightScope 1.21.0 - 2026-07-11
 
 - Consolidato `NsomObservationEnvironmentService` come unico proprietario di
