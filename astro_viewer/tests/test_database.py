@@ -88,6 +88,45 @@ class DatabaseBootstrapTests(unittest.TestCase):
             28,
         )
 
+    def test_catalogue_content_seeds_cover_every_deep_sky_target(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        with (data_dir / "catalogue_objects_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            object_rows = list(csv.DictReader(file))
+        with (data_dir / "object_descriptions_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            description_rows = list(csv.DictReader(file))
+        with (data_dir / "object_images_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            image_rows = list(csv.DictReader(file))
+
+        object_ids = {row["object_id"] for row in object_rows}
+        descriptions = {row["object_id"]: row for row in description_rows}
+        images = {row["object_id"]: row for row in image_rows}
+        self.assertEqual(len(object_ids), CATALOGUE_OBJECT_COUNT)
+        self.assertTrue(object_ids.issubset(descriptions))
+        self.assertTrue(object_ids.issubset(images))
+
+        caldwell_ids = {f"caldwell-C{index}" for index in range(1, 110)}
+        self.assertEqual(len(caldwell_ids & descriptions.keys()), CALDWELL_OBJECT_COUNT)
+        self.assertEqual(len(caldwell_ids & images.keys()), CALDWELL_OBJECT_COUNT)
+        for object_id in caldwell_ids:
+            description = descriptions[object_id]
+            self.assertTrue(description["short_description"].strip(), object_id)
+            self.assertTrue(description["observing_notes"].strip(), object_id)
+            self.assertTrue(description["best_seen"].strip(), object_id)
+            self.assertTrue(description["difficulty_small_scope"].strip(), object_id)
+            image = images[object_id]
+            self.assertTrue((data_dir.parent / image["image_path"]).exists(), object_id)
+            self.assertEqual(image["verified"], "1")
+
+        self.assertEqual(images["caldwell-C1"]["image_path"], "resources/images/m13.svg")
+        self.assertEqual(images["caldwell-C23"]["image_path"], "resources/images/m31.svg")
+        self.assertEqual(images["caldwell-C33"]["image_path"], "resources/images/m57.svg")
+
     def test_catalogue_seed_contains_all_messier_and_caldwell_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
@@ -386,6 +425,46 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 preserved_count = connection.execute("SELECT COUNT(*) FROM TelescopeModel").fetchone()[0]
             self.assertEqual(preserved_note, "modifica utente")
             self.assertEqual(preserved_count, telescope_count)
+
+    def test_catalogue_content_seed_restores_missing_rows_without_overwriting(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    "UPDATE ObjectDescription SET short_description = ? WHERE object_id = ?",
+                    ("contenuto locale", "messier-M1"),
+                )
+                connection.execute(
+                    "DELETE FROM ObjectDescription WHERE object_id = ?",
+                    ("caldwell-C109",),
+                )
+                connection.execute(
+                    "DELETE FROM ObjectImages WHERE object_id = ?",
+                    ("caldwell-C109",),
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                preserved = connection.execute(
+                    "SELECT short_description FROM ObjectDescription WHERE object_id = ?",
+                    ("messier-M1",),
+                ).fetchone()[0]
+                restored_description = connection.execute(
+                    "SELECT short_description FROM ObjectDescription WHERE object_id = ?",
+                    ("caldwell-C109",),
+                ).fetchone()
+                restored_image = connection.execute(
+                    "SELECT image_path FROM ObjectImages WHERE object_id = ?",
+                    ("caldwell-C109",),
+                ).fetchone()
+            self.assertEqual(preserved, "contenuto locale")
+            self.assertIsNotNone(restored_description)
+            self.assertIsNotNone(restored_image)
 
     def test_bootstrap_corrects_legacy_moon_best_seen_copy(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

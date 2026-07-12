@@ -1561,6 +1561,10 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(selected["rightAscension"], "02h 22.6m")
             self.assertEqual(selected["declination"], "+42° 21′")
             self.assertIn("NGC 891", selected["descriptionText"])
+            self.assertIn("visione distolta", selected["descriptionText"])
+            self.assertTrue(selected["catalogueIntroText"])
+            self.assertEqual(selected["bestSeen"], "Inverno")
+            self.assertEqual(selected["image"], "resources/images/m31.svg")
             self.assertEqual(selected["observingStatus"], "Catalogo Caldwell")
 
             controller.selectCatalogueObject("C33")
