@@ -21,6 +21,7 @@ class CalendarOverviewService:
         has_configured_equipment: bool,
     ) -> dict[str, object]:
         candidates: list[tuple[datetime, int, dict[str, object]]] = []
+        seen_event_ids: set[str] = set()
         for event in events:
             event_at = _event_datetime(event, now)
             if event_at is None:
@@ -28,6 +29,11 @@ class CalendarOverviewService:
             days_until = (event_at.date() - now.date()).days
             if not 0 <= days_until <= CALENDAR_HORIZON_DAYS:
                 continue
+            event_id = _text(event, "id").casefold()
+            if event_id:
+                if event_id in seen_event_ids:
+                    continue
+                seen_event_ids.add(event_id)
             usefulness = _integer(event.get("usefulness"))
             candidates.append(
                 (
@@ -135,7 +141,8 @@ def _event_payload(
         event,
         "target_object_id",
     )
-    if primary_target_id and primary_target_id not in target_object_ids:
+    normalized_target_ids = {item.casefold() for item in target_object_ids}
+    if primary_target_id and primary_target_id.casefold() not in normalized_target_ids:
         target_object_ids.insert(0, primary_target_id)
     priority_state, priority_label = _priority(usefulness)
     return {
@@ -499,17 +506,32 @@ def _text_list(value: object) -> list[str]:
     if not isinstance(value, Sequence):
         return []
     result: list[str] = []
+    seen: set[str] = set()
     for item in value:
         text = str(item).strip()
-        if text and text not in result:
+        canonical = text.casefold()
+        if text and canonical not in seen:
             result.append(text)
+            seen.add(canonical)
     return result
 
 
 def _mapping_list(value: object) -> list[dict[str, object]]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
         return []
-    return [dict(item) for item in value if isinstance(item, Mapping)]
+    result: list[dict[str, object]] = []
+    seen_ids: set[str] = set()
+    for item in value:
+        if not isinstance(item, Mapping):
+            continue
+        mapped = dict(item)
+        object_id = (_text(mapped, "id") or _text(mapped, "objectId")).casefold()
+        if object_id:
+            if object_id in seen_ids:
+                continue
+            seen_ids.add(object_id)
+        result.append(mapped)
+    return result
 
 
 def _text(payload: Mapping[str, object], key: str) -> str:

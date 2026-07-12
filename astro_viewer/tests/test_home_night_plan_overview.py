@@ -125,7 +125,7 @@ def test_overview_deduplicates_plan_alternatives_and_equipment_counts() -> None:
         night_plan=[plan, plan],
         assigned_equipment=[
             {"kind": "telescope", "id": "scope-a"},
-            {"kind": "telescope", "id": " SCOPE-A "},
+            {"kind": "TELESCOPE", "id": " SCOPE-A "},
             {"kind": "eyepiece", "id": "scope-a"},
             {"kind": "eyepiece", "id": "ep-1"},
             {"kind": "eyepiece", "id": "EP-1"},

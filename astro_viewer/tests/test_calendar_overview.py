@@ -48,6 +48,7 @@ def test_skyfield_calendar_keeps_every_event_in_the_annual_horizon() -> None:
     assert counts["Sciame meteorico"] == 10
     assert counts["Eclissi"] >= 1
     assert event_datetimes == sorted(event_datetimes)
+    assert len({event.id.strip().casefold() for event in events}) == len(events)
     assert all(0 <= (event_at.date() - NOW.date()).days <= CALENDAR_EVENT_HORIZON_DAYS for event_at in event_datetimes)
 
 
@@ -140,6 +141,43 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
     assert [item["id"] for item in overview["homeItems"]] == [
         "moon-new",
         "saturn-opposition",
+    ]
+
+
+def test_calendar_counts_event_and_participant_ids_once() -> None:
+    event = _event(
+        event_id="mars-jupiter-conjunction",
+        title="Marte e Giove in congiunzione",
+        event_type="Congiunzione planetaria",
+        event_at="2026-08-14T22:00:00+03:00",
+        usefulness=80,
+        visibility_state="visible",
+        visibility_label="Visibile nella notte",
+    ).to_qml()
+    event["targetObjectId"] = "mars"
+    event["targetObjectIds"] = ["mars", " MARS ", "jupiter"]
+    event["targetObjects"] = [
+        {"id": "mars", "name": "Marte"},
+        {"id": " MARS ", "name": "Marte duplicate"},
+        {"id": "jupiter", "name": "Giove"},
+    ]
+    duplicate = dict(event)
+    duplicate["id"] = " MARS-JUPITER-CONJUNCTION "
+    out_of_range_duplicate = dict(event)
+    out_of_range_duplicate["eventAt"] = "2025-08-14T22:00:00+03:00"
+
+    overview = CalendarOverviewService().build(
+        events=[out_of_range_duplicate, event, duplicate],
+        now=NOW,
+        has_configured_equipment=False,
+    )
+
+    assert overview["totalCount"] == 1
+    assert overview["counts"]["planetaryConjunctions"] == 1
+    assert overview["items"][0]["targetObjectIds"] == ["mars", "jupiter"]
+    assert [item["id"] for item in overview["items"][0]["targetObjects"]] == [
+        "mars",
+        "jupiter",
     ]
 
 

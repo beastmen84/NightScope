@@ -57,7 +57,8 @@ def _profile_payload(
     assigned_equipment: Sequence[Mapping[str, object]],
 ) -> dict[str, object]:
     counts = Counter(
-        _text(item, "kind") for item in _unique_assigned_equipment(assigned_equipment)
+        _text(item, "kind").strip().casefold()
+        for item in _unique_assigned_equipment(assigned_equipment)
     )
     telescope_count = counts["telescope"]
     eyepiece_count = counts["eyepiece"]
