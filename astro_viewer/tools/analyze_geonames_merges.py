@@ -118,10 +118,12 @@ def _copy_baseline_schema(base_dir: Path, temp_path: Path) -> Path:
     schema_path = temp_path / "schema.sql"
     seed_files = (
         "schema.sql",
-        "messier_seed.csv",
+        "catalogue_objects_seed.csv",
+        "catalogue_designations_seed.csv",
         "telescope_catalog_seed.csv",
         "eyepiece_catalog_seed.csv",
         "barlow_catalog_seed.csv",
+        "binocular_catalog_seed.csv",
         "object_images_seed.csv",
         "object_descriptions_seed.csv",
     )
