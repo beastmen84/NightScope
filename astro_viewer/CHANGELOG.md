@@ -1,5 +1,33 @@
 # Changelog
 
+## NightScope 1.24.0 - 2026-07-12
+
+- Aggiunta la tabella `ObjectCuriosity` e il seed dedicato con 227 curiosita'
+  italiane per Luna, pianeti, Messier e Caldwell. Ogni testo descrive un fatto
+  specifico, conserva una fonte apribile e resta separato da descrizioni
+  osservative, Equipment e NSOM.
+- Verificate le 226 URL distinte; i 227 testi sono unici, lunghi almeno 158
+  caratteri e superano i controlli automatici contro duplicati e formulazioni
+  eccessivamente simili.
+- Aggiunta nel dettaglio Home e Catalogo la card `Curiosita'`, con collegamento
+  esplicito alla fonte.
+- Sostituiti tutti i placeholder dei 219 target cielo profondo con JPEG RGB
+  dedicati `512 x 512`: 200 cutout 2MASS, 15 Pan-STARRS1 e 4 SkyMapper DR4,
+  generati da CDS `hips2fits` e verificati anche visivamente per le categorie
+  in cui il solo infrarosso non rappresentava bene il soggetto.
+- Ogni immagine conserva URL esatta, attribuzione e dichiarazione di licenza;
+  il credito e' visibile e cliccabile nel dettaglio. La policy esclude DSS e
+  asset editoriali privi di diritti di ridistribuzione chiari.
+- Il bootstrap aggiorna i vecchi asset deep-sky gestiti da NightScope senza
+  sostituire immagini personalizzate dall'utente. Lo schema SQLite passa a `9`.
+- Aggiunti tool ripetibili per sincronizzare/verificare gli asset e controllare
+  le fonti delle curiosita'; Pillow resta una dipendenza solo di sviluppo.
+- Verificati `pip check`, Ruff, compileall, smoke Python/QML, `qmllint`, 219
+  asset e 226 fonti. Suite completa parallela: `667 passed`, `558 warnings`,
+  `7 subtests passed` in `58,91 s`; le warning restano quelle Skyfield/NumPy
+  gia' note.
+- Dist `1.24.0` non rigenerata.
+
 ## NightScope 1.23.3 - 2026-07-12
 
 - Revisionate esternamente le due colonne editoriali del catalogo:

@@ -13,7 +13,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
   degli altri oggetti senza esporre score grezzi.
 - Dettaglio osservativo state-aware con finestra utile, momento migliore,
-  configurazione target-specific, valutazione locale e ciclo lunare.
+  configurazione target-specific, valutazione locale, curiosita' documentata e
+  ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
@@ -36,7 +37,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.23.3`.
+Versione corrente sorgente: `1.24.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -66,8 +67,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   dal catalogo originale; ricerca per codice Caldwell e identificativo NGC/IC,
   ordinamento naturale e dettaglio usano il contratto catalogo esistente.
 - Contenuti catalogo: tutti i 219 target Messier/Caldwell hanno descrizione
-  osservativa e mapping immagine espliciti; gli asset non ancora dedicati usano
-  placeholder locali tipizzati in attesa del passaggio immagini/licenze.
+  osservativa, curiosita' con fonte e immagine scientifica dedicata. I 219 JPEG
+  locali provengono da cutout 2MASS, Pan-STARRS1 o SkyMapper tramite CDS; fonte,
+  attribuzione e licenza sono visibili nel dettaglio.
 
 L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
 Object, Planner, Sky Compass e i conteggi della Home conservano una sola
@@ -314,7 +316,7 @@ La build usa `packaging/NightScope.spec` e include:
 - `resources/` con icone e immagini locali;
 - `data/schema.sql`;
 - seed CSV separati per oggetti e designazioni catalografiche, immagini,
-  descrizioni, telescopi, oculari, Barlow e inquinamento luminoso;
+  descrizioni, curiosita', telescopi, oculari, Barlow e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
 - ephemeris `data/skyfield/de421.bsp`;
 - `manuale.html`;
@@ -354,7 +356,8 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 
 - città e alias GeoNames importati;
 - cataloghi strumenti importati;
-- oggetti catalografici, designazioni, immagini e descrizioni importati;
+- oggetti catalografici, designazioni, immagini, descrizioni e curiosita'
+  importati;
 - un solo profilo predefinito `Occhio nudo`;
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
@@ -382,7 +385,9 @@ I seed locali vivono in `astro_viewer/data/`:
 - `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
 - `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.
 - `light_pollution_seed.csv`: fallback locale per qualità cielo.
-- `object_images_seed.csv`, `object_descriptions_seed.csv`: asset e contenuti osservativi.
+- `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
+- `object_descriptions_seed.csv`: descrizioni e note osservative.
+- `object_curiosities_seed.csv`: fatti storici/scientifici con fonte verificata.
 
 Le fonti e i limiti sono documentati in `astro_viewer/data/DATA_SOURCES.md`.
 
@@ -397,7 +402,12 @@ Gli import CLI usano upsert/deduplicazione:
 .\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\barlow_catalog_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_light_pollution.py astro_viewer\data\light_pollution_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
 ```
+
+La provenienza e la policy di ridistribuzione delle immagini sono documentate
+in `docs/IMAGE_ASSET_POLICY.md`.
 
 I report generati dagli strumenti sono output locali e non vengono versionati. Se necessari, gli script li ricreano in `astro_viewer/reports/`.
 

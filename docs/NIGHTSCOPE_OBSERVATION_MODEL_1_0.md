@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.23.3`:
+Current runtime status for `1.24.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -33,6 +33,9 @@ Current runtime status for `1.23.3`:
   use `DIFFUSE_NEBULA`. No class, factor, formula or weight was added.
 - `1.23.3` revises only descriptive and observing-note copy. Target identity,
   season, difficulty, NSOM inputs, formulas and ranking are unchanged.
+- `1.24.0` adds source-backed curiosities and licensed local survey cutouts as
+  presentation content. Neither table supplies an NSOM factor, changes target
+  identity or affects scoring, ranking and counts.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.

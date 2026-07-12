@@ -4,18 +4,20 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.23.3`
-- Dist `1.23.3` non rigenerata.
+- Versione sorgente: `1.24.0`
+- Dist `1.24.0` non rigenerata.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `0cb9222 Refresh catalogue observing descriptions`
+- Commit sorgente validato: `7de6a6f Replace catalogue placeholder images`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `0cb9222`; non sostituire questo
+documentazione. Per lo stato del codice usare `7de6a6f`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `7de6a6f Replace catalogue placeholder images`
+- `f30bc17 Add source-backed object curiosities`
 - `0cb9222 Refresh catalogue observing descriptions`
 - `ce77d6d Fix catalogue NSOM target taxonomy`
 - `f2b8f90 Align Caldwell detail content test`
@@ -45,16 +47,21 @@ corrente. Home, Meteo, dettaglio osservativo, Calendario e dettaglio Catalogo
 sono stati verificati e rifiniti. La UI mantiene payload compatibili e non
 espone modelli/scalari NSOM grezzi.
 
-I punti 1 e 2 della roadmap finale sono conclusi: identita' canonica,
-supporto multi-catalogo e import Caldwell. Anche il testo descrittivo e le note
-osservative sono stati revisionati; restano futuri curiosita' e nuovi asset
-immagine. Non iniziarli automaticamente.
+I punti 1, 2 e 3 della roadmap catalogo sono conclusi: identita' canonica,
+supporto multi-catalogo/import Caldwell e contenuti visibili con curiosita' e
+asset scientifici dedicati. Testo descrittivo e note osservative restano
+separati dai nuovi contenuti editoriali.
+
+Restano futuri i cataloghi Filtri e Riduttori con la relativa integrazione
+Equipment/dettaglio. Non implementarli automaticamente: per i filtri era stato
+ipotizzato un ruolo solo consultivo, mentre l'effetto dei riduttori sullo score
+deve essere progettato prima del codice.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.23.3
+## Catalogo Canonico 1.24.0
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -68,7 +75,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `8`; il bootstrap migra e rimuove `MessierObject` senza
+- Lo schema SQLite e' `9`; il bootstrap migra e rimuove `MessierObject` senza
   perdere descrizioni locali e valida identita', riferimenti e primarie dei
   seed prima dell'import.
 - I seed correnti sono `catalogue_objects_seed.csv` e
@@ -84,9 +91,18 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - Le due colonne editoriali coprono 227 target complessivi e sono state
   revisionate in `1.23.3`; ID, ordine, `best_seen` e difficolta' sono invariati.
   Il CSV deve restare UTF-8 senza BOM per il loader `csv.DictReader` corrente.
-- `object_images_seed.csv` copre esplicitamente gli stessi 219 ID. Le righe
-  senza asset dedicato dichiarano un placeholder locale tipizzato; il passaggio
-  futuro sulle immagini dovra' sostituirle con fonte e licenza verificabili.
+- `ObjectCuriosity` e `object_curiosities_seed.csv` coprono gli stessi 227
+  target descritti con testi italiani specifici, fonte e URL: 227 testi unici,
+  226 URL verificate e nessun ingresso in NSOM, Equipment o ranking.
+- `object_images_seed.csv` usa un JPEG RGB locale `512 x 512` dedicato per
+  ognuno dei 219 target profondi: 200 2MASS, 15 Pan-STARRS1 e 4 SkyMapper DR4,
+  tutti da CDS `hips2fits` con URL esatta, attribuzione e licenza ODbL nel seed.
+- Il dettaglio Home e Catalogo mostra curiosita', fonte e credito immagine
+  cliccabili. Il bootstrap sostituisce i vecchi SVG deep-sky gestiti da
+  NightScope ma conserva righe immagine personalizzate dall'utente.
+- `sync_catalogue_images.py --check` valida offline tutti gli asset;
+  `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
+  e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
 
 ## NSOM Canonico
 
@@ -213,7 +229,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.23.3
+## Validazione 1.24.0
 
 Eseguita nella venv corrente:
 
@@ -224,6 +240,8 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pytest -n auto -q
 .\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 12
 ```
 
 Risultati:
@@ -231,10 +249,12 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `664 passed`, `558 warnings`, `7 subtests passed` in `53,45 s`.
+- Suite: `667 passed`, `558 warnings`, `7 subtests passed` in `58,91 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
+- Asset: 219 JPEG RGB `512 x 512`, seed e file coerenti.
+- Fonti curiosita': 226 URL distinte raggiungibili con HTTP `200`.
 
 Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
@@ -258,6 +278,7 @@ Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 - `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`
 - `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`
 - `docs/TESTING.md`
+- `docs/IMAGE_ASSET_POLICY.md`
 
 Il changelog conserva la cronologia delle vecchie fasi di migrazione; non usare
 quelle entry come descrizione del runtime corrente.
