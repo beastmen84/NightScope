@@ -21,6 +21,7 @@ from astro_viewer.app.models.observing import (
     MoonGeometrySummary,
     MoonSummary,
 )
+from astro_viewer.app.models.target_observation_traits import is_supernova_remnant_type
 
 
 logger = logging.getLogger(__name__)
@@ -1487,7 +1488,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             magnitude_score = 18.0
         else:
             magnitude_score = max(0.0, min(35.0, (10.5 - magnitude) * 4.0))
-        type_bonus = 10 if any(word in object_type.lower() for word in ["planet", "pianeta", "globular", "nebula"]) else 4
+        type_bonus = 10 if (
+            is_supernova_remnant_type(object_type)
+            or any(word in object_type.lower() for word in ["planet", "pianeta", "globular", "nebula"])
+        ) else 4
         return magnitude_score, type_bonus
 
     @staticmethod

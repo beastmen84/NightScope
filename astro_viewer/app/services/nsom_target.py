@@ -9,6 +9,7 @@ from astro_viewer.app.models.nsom import (
     NsomDiagnosticScalar,
     NsomTargetClass,
 )
+from astro_viewer.app.models.target_observation_traits import is_supernova_remnant_type
 
 
 _SOLAR_SYSTEM_IDS = frozenset(
@@ -62,6 +63,8 @@ def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
 
     if target_id in {"moon", "luna"} or "luna" in text or "moon" in text:
         return NsomTargetClass.MOON
+    if "planetary nebula" in text or "nebulosa planetaria" in text:
+        return NsomTargetClass.PLANETARY_NEBULA
     if target_id in _SOLAR_SYSTEM_IDS or "pianeta" in text or "planet" in text:
         return NsomTargetClass.PLANET
     if "double star" in text or "optical double" in text or "stella doppia" in text:
@@ -76,8 +79,8 @@ def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:
         or "asterismo" in text
     ):
         return NsomTargetClass.OPEN_CLUSTER
-    if "planetary nebula" in text or "nebulosa planetaria" in text:
-        return NsomTargetClass.PLANETARY_NEBULA
+    if is_supernova_remnant_type(text):
+        return NsomTargetClass.DIFFUSE_NEBULA
     if "nebula" in text or "nebulosa" in text:
         return NsomTargetClass.DIFFUSE_NEBULA
     if "galaxy" in text or "galassia" in text:

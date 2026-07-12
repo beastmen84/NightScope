@@ -51,6 +51,16 @@ def test_traits_identify_high_magnification_target() -> None:
     assert traits.angular_size_deg == pytest.approx(86 / 3600)
 
 
+def test_traits_identify_supernova_remnant_as_deep_sky() -> None:
+    traits = TargetObservationTraits.from_object(
+        _object("caldwell-C34", "C34", "Supernova remnant", "7.0", "8 deg", 8.0, "WideField"),
+    )
+
+    assert traits.is_deep_sky
+    assert not traits.is_planetary_or_lunar
+    assert traits.is_wide_field
+
+
 def test_traits_fallback_to_object_type_and_textual_size() -> None:
     traits = TargetObservationTraits.from_object(
         _object("messier-M44", "M44", "Open cluster", "3.1", "95 arcmin", None, ""),

@@ -4,7 +4,10 @@ from astro_viewer.app.models.equipment import Telescope
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.recommendation_candidate import RecommendationCandidate
 from astro_viewer.app.models.sky import SkyQuality
-from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
+from astro_viewer.app.models.target_observation_traits import (
+    TargetObservationTraits,
+    is_supernova_remnant_type,
+)
 
 
 PLANET_BINOCULAR_DIFFICULTY = {
@@ -109,6 +112,7 @@ class RecommendationPresenter:
             celestial_object.id in {"moon", "mercury", "venus", "mars", "jupiter", "saturn"}
             or magnitude is not None
             and magnitude <= 5.5
+            and not is_supernova_remnant_type(lower_type)
             and not any(fragment in lower_type for fragment in ("galaxy", "nebula", "globular"))
         )
         naked_eye_difficulty = {
@@ -250,7 +254,12 @@ class RecommendationPresenter:
                 telescope.aperture_mm,
                 max_altitude,
             )
-        if "galaxy" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
+        if (
+            "galaxy" in lower_type
+            or "nebula" in lower_type
+            or "nebul" in lower_type
+            or is_supernova_remnant_type(lower_type)
+        ):
             if sky_quality and sky_quality.bortle_class >= 8:
                 return "Difficile"
             surface_brightness = traits.surface_brightness_proxy
@@ -347,6 +356,6 @@ class RecommendationPresenter:
             return "Limitata"
         if celestial_object.id in {"mercury", "uranus", "neptune"}:
             return "Difficile"
-        if "galaxy" in lower_type or "nebula" in lower_type:
+        if "galaxy" in lower_type or "nebula" in lower_type or is_supernova_remnant_type(lower_type):
             return "Difficile"
         return "Media"

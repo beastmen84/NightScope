@@ -6,7 +6,10 @@ from dataclasses import replace
 
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
-from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
+from astro_viewer.app.models.target_observation_traits import (
+    TargetObservationTraits,
+    is_supernova_remnant_type,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 
 
@@ -343,7 +346,11 @@ class ObservationConditionsService:
         penalty = cls.deep_sky_pollution_base_penalty(sky_quality)
         if "galaxy" in lower_type or "galassia" in lower_type:
             penalty *= 2.0
-        elif "nebula" in lower_type and "cluster" not in lower_type:
+        elif (
+            "nebula" in lower_type
+            or "nebul" in lower_type
+            or is_supernova_remnant_type(lower_type)
+        ) and "cluster" not in lower_type:
             penalty *= 1.6
         elif "globular" in lower_type:
             penalty *= 1.15
@@ -446,6 +453,8 @@ class ObservationConditionsService:
             return AtmosphericSensitivityProfile("galaxy", 1.0, 12.0)
         if "diffuse" in lower_type:
             return AtmosphericSensitivityProfile("diffuse_nebula", 0.85, 8.0)
+        if is_supernova_remnant_type(lower_type):
+            return AtmosphericSensitivityProfile("diffuse_nebula", 0.75, 8.0)
         if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
             return AtmosphericSensitivityProfile("planetary_nebula", 0.55, 5.0)
         if "nebula" in lower_type or "nebul" in lower_type:
@@ -860,7 +869,13 @@ class ObservationConditionsService:
             return 38.0
         if "planetary nebula" in lower_type or "nebulosa planetaria" in lower_type:
             return 18.0
-        if "h ii" in lower_type or "emission" in lower_type or "supernova" in lower_type or "nebula" in lower_type or "nebul" in lower_type:
+        if (
+            "h ii" in lower_type
+            or "emission" in lower_type
+            or is_supernova_remnant_type(lower_type)
+            or "nebula" in lower_type
+            or "nebul" in lower_type
+        ):
             return 26.0
         if "globular" in lower_type or "ammasso globulare" in lower_type:
             return 18.0

@@ -391,6 +391,9 @@ def test_future_aerosol_target_sensitivity_order_and_caps_are_characterized() ->
     open_cluster = service.atmospheric_sensitivity_profile(_target("m45", "M45", "Open Cluster", 90))
     planetary = service.atmospheric_sensitivity_profile(_target("m57", "M57", "Planetary Nebula", 90))
     diffuse = service.atmospheric_sensitivity_profile(_target("m42", "M42", "Diffuse Nebula", 90))
+    supernova_remnant = service.atmospheric_sensitivity_profile(
+        _target("m1", "M1", "Supernova remnant", 90),
+    )
     galaxy = service.atmospheric_sensitivity_profile(_target("m31", "M31", "Galaxy", 90))
 
     assert moon.target_class == "moon"
@@ -399,6 +402,7 @@ def test_future_aerosol_target_sensitivity_order_and_caps_are_characterized() ->
     assert open_cluster.target_class == "open_cluster"
     assert planetary.target_class == "planetary_nebula"
     assert diffuse.target_class == "diffuse_nebula"
+    assert supernova_remnant.target_class == "diffuse_nebula"
     assert galaxy.target_class == "galaxy"
 
     assert galaxy.sensitivity > diffuse.sensitivity > open_cluster.sensitivity > planet.sensitivity > moon.sensitivity
@@ -410,7 +414,22 @@ def test_future_aerosol_target_sensitivity_order_and_caps_are_characterized() ->
     assert globular.penalty_cap == 4.0
     assert planetary.penalty_cap == 5.0
     assert diffuse.penalty_cap == 8.0
+    assert supernova_remnant.penalty_cap == 8.0
     assert galaxy.penalty_cap == 12.0
+
+
+def test_supernova_remnant_uses_nebula_pollution_and_moon_rules() -> None:
+    service = ObservationConditionsService()
+    remnant = _target("m1", "M1", "Supernova remnant", 80)
+    nebula = _target("nebula", "Nebula", "Nebula", 80)
+    sky_quality = _sky_quality(7, 80.0)
+    moon = _moon("82%")
+
+    assert service.deep_sky_pollution_penalty(remnant, sky_quality) == service.deep_sky_pollution_penalty(
+        nebula,
+        sky_quality,
+    )
+    assert service.moon_penalty(remnant, moon) == service.moon_penalty(nebula, moon)
 
 
 def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:

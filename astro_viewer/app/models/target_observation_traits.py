@@ -7,6 +7,16 @@ from astro_viewer.app.models.observing import CelestialObject
 
 ALLOWED_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 PLANETARY_OR_LUNAR_IDS = {"moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}
+SUPERNOVA_REMNANT_TYPE_FRAGMENTS = (
+    "supernova remnant",
+    "resto di supernova",
+    "remanente di supernova",
+)
+
+
+def is_supernova_remnant_type(object_type: str) -> bool:
+    normalized = object_type.casefold()
+    return any(fragment in normalized for fragment in SUPERNOVA_REMNANT_TYPE_FRAGMENTS)
 
 
 @dataclass(frozen=True)
@@ -48,9 +58,20 @@ class TargetObservationTraits:
             angular_size_deg,
         )
         surface_brightness_proxy = _surface_brightness_proxy(magnitude, apparent_size_arcmin)
-        is_deep_sky = not is_planetary_or_lunar and any(
-            fragment in object_type_lower
-            for fragment in ("galaxy", "galassia", "nebula", "nebul", "cluster", "ammasso", "globular")
+        is_deep_sky = not is_planetary_or_lunar and (
+            is_supernova_remnant_type(object_type_lower)
+            or any(
+                fragment in object_type_lower
+                for fragment in (
+                    "galaxy",
+                    "galassia",
+                    "nebula",
+                    "nebul",
+                    "cluster",
+                    "ammasso",
+                    "globular",
+                )
+            )
         )
         return cls(
             object_type=object_type,

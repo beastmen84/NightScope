@@ -148,6 +148,23 @@ def test_mercury_naked_eye_is_realistic_but_difficult() -> None:
     assert dto["difficulty"] == "Difficile"
 
 
+def test_supernova_remnant_is_not_inferred_as_naked_eye_target_from_integrated_magnitude() -> None:
+    target = _object(
+        "remnant-test",
+        "Remnant",
+        "Supernova remnant",
+        "4.0",
+        "3 deg",
+        3.0,
+        "WideField",
+    )
+
+    dto = RecommendationPresenter().naked_eye(target, EquipmentService.NAKED_EYE_ID)
+
+    assert dto["setupText"] == "Serve almeno un binocolo o telescopio"
+    assert dto["difficulty"] == "Non adatto a occhio nudo"
+
+
 def test_presenter_disambiguates_same_eyepiece_label_across_telescopes() -> None:
     service = EquipmentService()
     target = _object(
