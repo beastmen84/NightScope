@@ -334,10 +334,38 @@ Item {
                         Image {
                             anchors.fill: parent
                             anchors.margins: 30
-                            source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
+                            anchors.bottomMargin: observingImageCredit.visible ? 56 : 30
+                            source: root.hasObject ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                             fillMode: Image.PreserveAspectFit
                             sourceSize.width: 520
                             sourceSize.height: 520
+                        }
+
+                        Text {
+                            id: observingImageCredit
+                            visible: (root.objectData.imageSourceUrl || "").length > 0
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            anchors.margins: 14
+                            text: root.objectData.imageAttribution || "Fonte immagine"
+                            color: theme.cyan
+                            font.pixelSize: 10
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignHCenter
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)
+                                ToolTip.visible: containsMouse
+                                ToolTip.delay: 500
+                                ToolTip.text: (root.objectData.imageAttribution || "") + "\n"
+                                              + (root.objectData.imageLicense || "")
+                            }
                         }
                     }
 
@@ -448,10 +476,38 @@ Item {
                     Image {
                         anchors.fill: parent
                         anchors.margins: 30
-                        source: root.hasObject ? controller.assetBaseUrl + "/" + objectData.image : ""
+                        anchors.bottomMargin: catalogueImageCredit.visible ? 56 : 30
+                        source: root.hasObject ? root.controller.assetBaseUrl + "/" + root.objectData.image : ""
                         fillMode: Image.PreserveAspectFit
                         sourceSize.width: 520
                         sourceSize.height: 520
+                    }
+
+                    Text {
+                        id: catalogueImageCredit
+                        visible: (root.objectData.imageSourceUrl || "").length > 0
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.margins: 14
+                        text: root.objectData.imageAttribution || "Fonte immagine"
+                        color: theme.cyan
+                        font.pixelSize: 10
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Qt.openUrlExternally(root.objectData.imageSourceUrl)
+                            ToolTip.visible: containsMouse
+                            ToolTip.delay: 500
+                            ToolTip.text: (root.objectData.imageAttribution || "") + "\n"
+                                          + (root.objectData.imageLicense || "")
+                        }
                     }
                 }
 
@@ -545,7 +601,7 @@ Item {
             }
 
             GlassCard {
-                visible: root.hasObject && (objectData.curiosityText || "").length > 0
+                visible: root.hasObject && (root.objectData.curiosityText || "").length > 0
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
@@ -555,17 +611,17 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: objectData.curiosityText || ""
+                    text: root.objectData.curiosityText || ""
                     color: theme.textPrimary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
                 }
 
                 Text {
-                    visible: (objectData.curiositySourceUrl || "").length > 0
+                    visible: (root.objectData.curiositySourceUrl || "").length > 0
                     Layout.fillWidth: true
-                    text: "Fonte: <a href=\"" + (objectData.curiositySourceUrl || "") + "\">"
-                          + (objectData.curiositySourceLabel || "Apri la fonte") + "</a>"
+                    text: "Fonte: <a href=\"" + (root.objectData.curiositySourceUrl || "") + "\">"
+                          + (root.objectData.curiositySourceLabel || "Apri la fonte") + "</a>"
                     textFormat: Text.RichText
                     color: theme.textSecondary
                     linkColor: theme.cyan

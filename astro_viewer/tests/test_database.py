@@ -11,6 +11,8 @@ from itertools import combinations
 from pathlib import Path
 from unittest.mock import patch
 
+from PIL import Image
+
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
 from astro_viewer.app.database.bootstrap import (
     CATALOGUE_OBSERVATION_TYPES,
@@ -112,6 +114,26 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertEqual(len(object_ids), CATALOGUE_OBJECT_COUNT)
         self.assertTrue(object_ids.issubset(descriptions))
         self.assertTrue(object_ids.issubset(images))
+        catalogue_image_paths = {images[object_id]["image_path"] for object_id in object_ids}
+        self.assertEqual(len(catalogue_image_paths), CATALOGUE_OBJECT_COUNT)
+        self.assertEqual(
+            len({images[object_id]["source_url"] for object_id in object_ids}),
+            CATALOGUE_OBJECT_COUNT,
+        )
+        for object_id in object_ids:
+            image = images[object_id]
+            image_path = data_dir.parent / image["image_path"]
+            self.assertTrue(image_path.exists(), object_id)
+            self.assertEqual(image_path.suffix.lower(), ".jpg", object_id)
+            self.assertTrue(image["source_url"].startswith("https://alasky.cds.unistra.fr/"))
+            self.assertIn("hips2fits", image["source_url"])
+            self.assertIn("CDS", image["attribution"])
+            self.assertIn("ODbL-1.0", image["license"])
+            self.assertEqual(image["verified"], "1")
+            with Image.open(image_path) as opened_image:
+                self.assertEqual(opened_image.format, "JPEG", object_id)
+                self.assertEqual(opened_image.mode, "RGB", object_id)
+                self.assertEqual(opened_image.size, (512, 512), object_id)
 
         caldwell_ids = {f"caldwell-C{index}" for index in range(1, 110)}
         self.assertEqual(len(caldwell_ids & descriptions.keys()), CALDWELL_OBJECT_COUNT)
@@ -122,13 +144,46 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertTrue(description["observing_notes"].strip(), object_id)
             self.assertTrue(description["best_seen"].strip(), object_id)
             self.assertTrue(description["difficulty_small_scope"].strip(), object_id)
-            image = images[object_id]
-            self.assertTrue((data_dir.parent / image["image_path"]).exists(), object_id)
-            self.assertEqual(image["verified"], "1")
 
-        self.assertEqual(images["caldwell-C1"]["image_path"], "resources/images/m13.svg")
-        self.assertEqual(images["caldwell-C23"]["image_path"], "resources/images/m31.svg")
-        self.assertEqual(images["caldwell-C33"]["image_path"], "resources/images/m57.svg")
+        attributions = Counter(images[object_id]["attribution"] for object_id in object_ids)
+        self.assertEqual(attributions["2MASS (UMass/IPAC-Caltech); HiPS a colori e ritaglio: CDS"], 200)
+        self.assertEqual(attributions["Pan-STARRS1; HiPS a colori e ritaglio: CDS"], 15)
+        self.assertEqual(
+            attributions["SkyMapper Southern Survey DR4; HiPS a colori e ritaglio: CDS"],
+            4,
+        )
+
+    def test_catalogue_image_seed_upgrades_legacy_assets_without_replacing_user_content(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    """
+                    UPDATE ObjectImages
+                    SET image_path = 'resources/images/m31.svg',
+                        license = 'NightScope local generated placeholder'
+                    WHERE object_id = 'messier-M31'
+                    """
+                )
+                connection.execute(
+                    """
+                    UPDATE ObjectImages
+                    SET image_path = 'user/custom-c23.jpg', license = 'User supplied'
+                    WHERE object_id = 'caldwell-C23'
+                    """
+                )
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+            repository = ObjectImageRepository(database_path)
+
+            self.assertEqual(
+                repository.get("messier-M31")["image_path"],
+                "resources/images/catalogue/messier-M31.jpg",
+            )
+            self.assertEqual(repository.get("caldwell-C23")["image_path"], "user/custom-c23.jpg")
 
     def test_curiosity_seed_is_complete_source_backed_and_editorially_distinct(self) -> None:
         data_dir = Path(__file__).resolve().parents[1] / "data"

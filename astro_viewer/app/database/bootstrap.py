@@ -921,7 +921,20 @@ def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None
             object_id, image_path, thumbnail_path, attribution, source_url, license, verified
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(object_id) DO NOTHING
+        ON CONFLICT(object_id) DO UPDATE SET
+            image_path = excluded.image_path,
+            thumbnail_path = excluded.thumbnail_path,
+            attribution = excluded.attribution,
+            source_url = excluded.source_url,
+            license = excluded.license,
+            verified = excluded.verified
+        WHERE (
+            ObjectImages.object_id LIKE 'messier-%'
+            OR ObjectImages.object_id LIKE 'caldwell-%'
+        ) AND ObjectImages.license IN (
+            'NightScope local generated asset',
+            'NightScope local generated placeholder'
+        )
         """,
         _object_image_rows(images_path),
     )

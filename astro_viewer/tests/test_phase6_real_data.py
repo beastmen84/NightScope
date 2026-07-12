@@ -1567,12 +1567,20 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(selected["curiosityVerified"])
             self.assertGreater(len(selected["catalogueIntroText"]), 40)
             self.assertEqual(selected["bestSeen"], "Inverno")
-            self.assertEqual(selected["image"], "resources/images/m31.svg")
+            self.assertEqual(selected["image"], "resources/images/catalogue/caldwell-C23.jpg")
+            self.assertIn("2MASS", selected["imageAttribution"])
+            self.assertIn("hips2fits", selected["imageSourceUrl"])
+            self.assertIn("ODbL-1.0", selected["imageLicense"])
+            self.assertTrue(selected["imageVerified"])
             self.assertEqual(selected["observingStatus"], "Catalogo Caldwell")
 
             controller.selectCatalogueObject("C33")
             self.assertEqual(controller.selectedObject["type"], "Supernova remnant")
-            self.assertEqual(controller.selectedObject["image"], "resources/images/m57.svg")
+            self.assertEqual(
+                controller.selectedObject["image"],
+                "resources/images/catalogue/caldwell-C33.jpg",
+            )
+            self.assertIn("Pan-STARRS1", controller.selectedObject["imageAttribution"])
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

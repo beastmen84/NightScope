@@ -66,11 +66,13 @@ If Earthdata is not configured, the network is unavailable, NASA does not expose
 ## Object Images, Descriptions And Curiosities
 
 `object_images_seed.csv` contains an explicit row for every Messier and Caldwell
-target. Rows without a dedicated asset point to one of the local typed
-cluster/nebula/galaxy placeholders and are labelled as placeholders in their
-attribution and license fields. They must not be treated as real photographs of
-the target. This avoids shipping unverified image assets and leaves each target
-ready for a future licensed replacement.
+target. Each target now has a dedicated, local `512 x 512` JPEG cutout from the
+2MASS, Pan-STARRS1 or SkyMapper scientific surveys, generated through CDS
+`hips2fits`. Exact request URLs, attribution and license declarations are kept
+per row and shown in Object Detail. The full selection and redistribution rules
+are documented in `docs/IMAGE_ASSET_POLICY.md`. The three typed local SVG
+fallbacks remain defensive compatibility assets and are not used by current
+Messier/Caldwell rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
 separate observing notes for the Moon, planets, all 110 Messier entries and all
@@ -92,3 +94,9 @@ linked Wikipedia article as a secondary factual reference. All 226 distinct
 URLs were checked successfully on 2026-07-12. The seed deliberately remains
 separate from observing notes and does not participate in NSOM, Equipment or
 ranking calculations.
+
+The source check is repeatable without modifying data:
+
+```powershell
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
+```
