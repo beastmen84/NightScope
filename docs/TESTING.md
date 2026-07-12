@@ -52,14 +52,15 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.22.0`:
+Measured on the current Windows development environment for `1.23.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `625 passed, 7 subtests passed` | `0:00:44` |
+| `python -m pytest -q -n auto` | `628 passed, 7 subtests passed` | `0:00:47` |
 
-The current count includes the generic catalogue schema, multi-designation
-identity projections and migration coverage in addition to the NSOM invariants
+The current count includes the generic catalogue schema, all 109 Caldwell
+targets, multi-designation identity projections and migration coverage in
+addition to the NSOM invariants
 for single-pass factor construction and defensive Home/Planner/Sky Compass
 counts. The earlier reduction in `1.21.0` was intentional: migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

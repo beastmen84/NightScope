@@ -18,7 +18,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
   oggetto.
-- Catalogo offline generico con oggetti Messier e Sistema Solare, pronto per futuri cataloghi Caldwell/NGC/IC.
+- Catalogo offline generico con 110 oggetti Messier, 109 Caldwell e 9 corpi del
+  Sistema Solare, con ricerca e filtri dedicati.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
 - Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
   freschezza misura e fonte satellite, separata da OpenAQ.
@@ -35,7 +36,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.22.0`.
+Versione corrente sorgente: `1.23.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -61,6 +62,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
   solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
   proiettano la designazione richiesta senza duplicare righe o conteggi.
+- Caldwell: C1-C109 sono target canonici separati dai 110 Messier, come previsto
+  dal catalogo originale; ricerca per codice Caldwell e identificativo NGC/IC,
+  ordinamento naturale e dettaglio usano il contratto catalogo esistente.
 
 L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
 Object, Planner, Sky Compass e i conteggi della Home conservano una sola
@@ -367,8 +371,10 @@ I seed locali vivono in `astro_viewer/data/`:
 
 - `cities15000.txt`: dump GeoNames incluso nel package.
 - `countryInfo.txt`, `admin1CodesASCII.txt`: arricchimento paesi e regioni GeoNames.
-- `catalogue_objects_seed.csv`: identita' fisiche e metadati astronomici.
-- `catalogue_designations_seed.csv`: designazioni e ordinamento per catalogo.
+- `catalogue_objects_seed.csv`: 219 target Messier/Caldwell e relativi metadati
+  astronomici.
+- `catalogue_designations_seed.csv`: 219 designazioni e ordinamento per
+  catalogo.
 - `telescope_catalog_seed.csv`: catalogo telescopi.
 - `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
 - `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.

@@ -464,8 +464,8 @@ When metadata is missing or invalid, `TargetObservationTraits` falls back to:
 - parsed apparent-size text
 - legacy object-type interpretation
 
-Legacy fallbacks keep older catalogue objects functional while allowing Messier
-objects to move toward a data-driven observing model.
+Legacy fallbacks keep older catalogue objects functional while allowing seeded
+catalogue targets to use a data-driven observing model.
 
 ## UI Presentation
 

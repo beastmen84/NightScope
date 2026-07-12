@@ -219,10 +219,11 @@ than a silent `18:00-07:00` fallback.
 
 ### Deep-Sky Objects
 
-Deep-sky objects come from the generic physical-object catalogue. The engine
-evaluates each `object_id` once even when it has multiple catalogue
-designations, performs a cheap maximum-altitude prefilter using declination and
-observer latitude, then computes detailed visibility for the best candidates.
+Deep-sky objects come from the generic physical-object catalogue: currently 110
+Messier plus 109 Caldwell targets. The engine evaluates each `object_id` once
+even when it has multiple catalogue designations, performs a cheap
+maximum-altitude prefilter using declination and observer latitude, then
+computes detailed visibility for the best candidates.
 
 Deep-sky visibility uses:
 

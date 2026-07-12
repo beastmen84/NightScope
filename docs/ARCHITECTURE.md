@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.22.0`:
+Current runtime status for `1.23.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -81,6 +81,9 @@ Current runtime status for `1.22.0`:
 - Catalogue identity is physical-object based: `CatalogueObject.object_id` is
   stable and `CatalogueDesignation` owns one or more catalogue codes. A
   secondary designation never creates another runtime target.
+- The packaged deep-sky catalogue contains 110 Messier and 109 Caldwell
+  targets. Caldwell intentionally has no Messier overlap; the same identity
+  contract remains available for future catalogues that do overlap.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
@@ -375,6 +378,8 @@ Catalogue browsing flow:
    without changing `object_id`.
 3. `ObjectCataloguePage.qml` applies controller-backed search and filters for
    catalogue, object type, constellation and observation type.
+   Exact search matches are ordered before prefix and substring matches, so a
+   growing catalogue does not hide a direct body/name match among aliases.
 4. `selectCatalogueObject` resolves the catalogue object and creates a
    detail-compatible object without invoking weather, equipment suggestions,
    best-object scoring, planner ranking or `recommended_deep_sky()`.

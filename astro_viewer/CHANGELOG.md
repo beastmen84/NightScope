@@ -1,5 +1,32 @@
 # Changelog
 
+## NightScope 1.23.0 - 2026-07-12
+
+- Importati tutti i 109 target Caldwell dalla lista J2000 dell'Astronomical
+  League: coordinate, magnitudine quando disponibile, dimensione, tipo,
+  costellazione e identificativo NGC/IC.
+- Verificata la composizione ufficiale Caldwell di 46 ammassi, 35 galassie e
+  28 nebulose. Il catalogo esclude intenzionalmente i Messier: C1-C109 usano
+  quindi ID canonici distinti `caldwell-C1`-`caldwell-C109`.
+- Il catalogo visibile contiene ora 228 righe: 109 Caldwell, 110 Messier e 9
+  corpi del Sistema Solare. Ricerca, filtri, dettaglio e visibilita' mensile
+  riusano il contratto generico senza duplicare target o conteggi.
+- La ricerca ordina corrispondenze esatte prima di prefissi e sottostringhe;
+  `C23` e `NGC 891` risolvono lo stesso target, mentre una ricerca come `Giove`
+  mostra prima il pianeta e poi eventuali nomi composti.
+- Portato lo schema SQLite alla versione `8`: aggiunti indici univoci
+  case-insensitive per ID e designazioni e attivata l'integrita' referenziale
+  durante il bootstrap.
+- Il bootstrap valida prima dell'import ID, designazioni, riferimenti,
+  ordinamento, primaria unica, dimensione angolare e tipo osservativo dei seed.
+- Aggiunte etichette italiane per galassie irregolari, peculiari e di Seyfert e
+  per nebulose oscure. I resti di supernova usano il fallback visivo nebulosa.
+- Benchmark locale con 219 target profondi: raccomandazioni in circa `1,04 s` e
+  visibilita' mensile completa in circa `1,73 s`.
+- Suite completa parallela: `628 passed`, `558 warnings`, `7 subtests passed`
+  in `46,92 s`; le warning restano quelle Skyfield/NumPy gia' note.
+- Dist `1.23.0` non rigenerata.
+
 ## NightScope 1.22.0 - 2026-07-12
 
 - Separata l'identita' fisica degli oggetti dalle designazioni catalografiche:
