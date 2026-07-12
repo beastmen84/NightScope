@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.23.2 - 2026-07-12
+
+- Corretto l'ordine del classificatore NSOM: `Planetary nebula` viene ora
+  assegnato a `PLANETARY_NEBULA` prima del controllo generico su `planet`.
+  La correzione riguarda 17 target complessivi, 13 Caldwell e 4 Messier.
+- Mappati esplicitamente i 3 `Supernova remnant`, 2 Caldwell e 1 Messier, sulla
+  classe NSOM esistente `DIFFUSE_NEBULA`; non sono state aggiunte categorie o
+  modificate formule e pesi NSOM.
+- Allineati per i resti di supernova il riconoscimento deep-sky, il profilo
+  atmosferico, la penalita' da inquinamento luminoso, il bonus intrinseco e la
+  presentazione delle difficolta'. Equipment continua a usare i metadati
+  osservativi espliciti gia' presenti nel catalogo.
+- Centralizzata la normalizzazione inglese/italiana dei resti di supernova per
+  evitare divergenze tra classificatore, condizioni, score e presenter.
+- Aggiunto un contratto parametrico su tutti i tipi presenti nei 219 record
+  Messier/Caldwell e sulle varianti italiane supportate.
+- Verificati `pip check`, Ruff, compileall, smoke Python/QML e `qmllint`.
+  Suite completa parallela: `664 passed`, `558 warnings`, `7 subtests passed`
+  in `54,24 s`; le warning restano quelle Skyfield/NumPy gia' note.
+- Dist `1.23.2` non rigenerata.
+
 ## NightScope 1.23.1 - 2026-07-12
 
 - Aggiunte a `object_descriptions_seed.csv` le 109 righe Caldwell con

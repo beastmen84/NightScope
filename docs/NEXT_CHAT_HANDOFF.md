@@ -4,18 +4,19 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.23.1`
-- Dist `1.23.1` non rigenerata.
+- Versione sorgente: `1.23.2`
+- Dist `1.23.2` non rigenerata.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `f2b8f90 Align Caldwell detail content test`
+- Commit sorgente validato: `ce77d6d Fix catalogue NSOM target taxonomy`
 
-Il commit che aggiunge questo handoff contiene solo release metadata e
-documentazione. Per lo stato del codice usare `f2b8f90`; non sostituire questo
+Il commit release che aggiorna questo handoff contiene solo metadata e
+documentazione. Per lo stato del codice usare `ce77d6d`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `ce77d6d Fix catalogue NSOM target taxonomy`
 - `f2b8f90 Align Caldwell detail content test`
 - `2a00e63 Complete catalogue content seeds`
 - `9a39501 Add Caldwell catalogue`
@@ -51,7 +52,7 @@ Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.23.1
+## Catalogo Canonico 1.23.2
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -73,6 +74,9 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   sovrapposizioni per definizione del Caldwell originale.
 - La UI espone 228 righe complessive: 219 target cielo profondo e 9 corpi del
   Sistema Solare. Il filtro Caldwell contiene C1-C109 in ordine naturale.
+- Tutti i tipi raw dei 219 target confluiscono nelle classi NSOM esistenti. Le
+  17 nebulose planetarie usano `PLANETARY_NEBULA`; i 3 resti di supernova usano
+  `DIFFUSE_NEBULA`. Caldwell non introduce categorie Equipment o nuovi pesi.
 - `object_descriptions_seed.csv` copre tutti i 219 target profondi; i Caldwell
   hanno nota osservativa, stagione e difficolta' strumentali.
 - `object_images_seed.csv` copre esplicitamente gli stessi 219 ID. Le righe
@@ -204,7 +208,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.23.1
+## Validazione 1.23.2
 
 Eseguita nella venv corrente:
 
@@ -222,12 +226,12 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `630 passed`, `557 warnings`, `7 subtests passed` in `52,93 s`.
+- Suite: `664 passed`, `558 warnings`, `7 subtests passed` in `54,24 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
 
-Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 
