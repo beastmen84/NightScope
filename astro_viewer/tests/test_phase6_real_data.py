@@ -309,13 +309,15 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             controller._sky_quality = SkyQuality(3, 6.2, 21.4, "Fonte test", "Cielo rurale", "high")
             controller._seeing_service = Mock()
-            controller._seeing_service.estimate.return_value = SeeingTransparency(
+            seeing = SeeingTransparency(
                 "Excellent",
                 "Excellent",
                 95,
                 95,
                 "Test seeing stabile.",
             )
+            controller._seeing_service.estimate.return_value = seeing
+            controller._seeing_transparency = seeing
             controller._refresh_active_profile_dependencies()
 
             blocked_home = next(
@@ -364,13 +366,15 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.assignEquipmentToActiveProfile("telescope", telescope["catalog_id"])
             controller.assignEquipmentToActiveProfile("eyepiece", eyepiece["catalog_id"])
             controller._seeing_service = Mock()
-            controller._seeing_service.estimate.return_value = SeeingTransparency(
+            seeing = SeeingTransparency(
                 "Excellent",
                 "Excellent",
                 95,
                 95,
                 "Test seeing stabile.",
             )
+            controller._seeing_service.estimate.return_value = seeing
+            controller._seeing_transparency = seeing
             controller._weather_hours = [
                 WeatherHour("2026-06-21T22:00", "22:00", 8, 0, 4, 45, 14.0, 20_000)
             ]
