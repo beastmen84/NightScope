@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 
 from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModel
+from astro_viewer.app.services.nsom_target import unique_targets_by_id
 
 
 HOME_NIGHT_PLAN_OVERVIEW_SCHEMA_VERSION = "home_night_plan_overview_v1"
@@ -55,7 +56,9 @@ def _profile_payload(
     active_profile: Mapping[str, object],
     assigned_equipment: Sequence[Mapping[str, object]],
 ) -> dict[str, object]:
-    counts = Counter(_text(item, "kind") for item in assigned_equipment)
+    counts = Counter(
+        _text(item, "kind") for item in _unique_assigned_equipment(assigned_equipment)
+    )
     telescope_count = counts["telescope"]
     eyepiece_count = counts["eyepiece"]
     barlow_count = counts["barlow"]
@@ -141,7 +144,7 @@ def _plan_items(
     telescope_count: int,
 ) -> list[dict[str, object]]:
     payload = []
-    for sequence, item in enumerate(night_plan[:4], start=1):
+    for sequence, item in enumerate(unique_targets_by_id(night_plan)[:4], start=1):
         target = target_payloads_by_id.get(item.object_id, {})
         setup_model = setup_models_by_object_id.get(item.object_id)
         payload.append(
@@ -173,7 +176,7 @@ def _alternatives_payload(
     loading: bool,
     sky_quality_warning: str,
 ) -> dict[str, object]:
-    items = [_alternative_item(item) for item in alternatives]
+    items = [_alternative_item(item) for item in unique_targets_by_id(alternatives)]
     planet_count = sum(item["category"] == "planet" for item in items)
     deep_sky_count = len(items) - planet_count
     titles = {
@@ -223,6 +226,23 @@ def _alternative_item(item: Mapping[str, object]) -> dict[str, object]:
         "direction": _text(item, "direction") or "n/d",
         "difficulty": _text(item, "difficulty") or "n/d",
     }
+
+
+def _unique_assigned_equipment(
+    assigned_equipment: Sequence[Mapping[str, object]],
+) -> tuple[Mapping[str, object], ...]:
+    unique: list[Mapping[str, object]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in assigned_equipment:
+        kind = _text(item, "kind").strip().casefold()
+        equipment_id = _text(item, "id").strip().casefold()
+        if kind and equipment_id:
+            key = (kind, equipment_id)
+            if key in seen:
+                continue
+            seen.add(key)
+        unique.append(item)
+    return tuple(unique)
 
 
 def _compact_setup(

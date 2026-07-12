@@ -21,7 +21,7 @@ def test_home_visible_alternatives_use_the_full_pool_minus_the_four_step_plan() 
     planned = _target("m-plan", "Planned", "Globular cluster", "21:00", 88)
     late = _target("m-late", "Late", "Galaxy", "02:30", 70)
     early = _target("m-early", "Early", "Open cluster", "22:00", 80)
-    duplicate = _target("mars", "Marte duplicate", "Pianeta", "04:00", 10)
+    duplicate = _target(" MARS ", "Marte duplicate", "Pianeta", "04:00", 10)
     controller._visible_planets = [planet]
     controller._conditioned_deep_sky_candidates = lambda: [planned, late, early, duplicate]
     controller._night_plan = [_plan_item(planned)]

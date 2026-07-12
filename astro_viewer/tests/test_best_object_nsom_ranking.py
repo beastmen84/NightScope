@@ -50,6 +50,20 @@ def test_best_object_nsom_service_ranks_by_observation_opportunity() -> None:
     assert ranked[0].opportunity.value == pytest.approx(ranked[0].score)
 
 
+def test_best_object_scores_each_target_id_once() -> None:
+    first = _target("galaxy", "Galaxy", 80)
+    duplicate = replace(first, id=" GALAXY ", name="Duplicate", score=100)
+
+    ranked = BestObjectNsomSelectionService().ranked_candidates(
+        [first, duplicate],
+        weather=_weather(90),
+        telescope=_telescope(),
+        condition_inputs=_inputs(3, moon=10),
+    )
+
+    assert [candidate.target for candidate in ranked] == [first]
+
+
 def test_best_object_nsom_score_formula_uses_practical_value_and_session_only() -> None:
     service = BestObjectNsomSelectionService()
 

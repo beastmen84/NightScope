@@ -21,6 +21,7 @@ from astro_viewer.app.services.nsom_runtime_builders import (
     build_recommendation_confidence,
     build_session_viability,
 )
+from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
@@ -93,7 +94,7 @@ class BestObjectNsomSelectionService:
         moon_geometry_by_object_id: Mapping[str, MoonGeometryConditionInput] | None = None,
         telescope_by_object_id: Mapping[str, Telescope] | None = None,
     ) -> tuple[BestObjectNsomCandidate, ...]:
-        items = tuple(candidates)
+        items = unique_targets_by_id(candidates)
         blocking = blocking_status or NightPlannerService.weather_blocking_status(weather)
         projected = tuple(
             self._candidate(

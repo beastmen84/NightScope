@@ -13,6 +13,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionInputs,
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
+from astro_viewer.app.services.nsom_target import unique_targets_by_id
 
 
 class NightPlannerService:
@@ -44,13 +45,14 @@ class NightPlannerService:
         if blocking_status.blocks_plan:
             return []
 
+        unique_objects = unique_targets_by_id(objects)
         visible = [
             item
-            for item in objects
+            for item in unique_objects
             if item.visible and item.score > 0 and self._has_useful_window(item, night_window)
         ]
         if not visible:
-            visible = [item for item in objects if item.visible and item.score > 0]
+            visible = [item for item in unique_objects if item.visible and item.score > 0]
         scored_visible = self._scored_visible(
             visible,
             weather=weather,
@@ -64,11 +66,13 @@ class NightPlannerService:
         ranked = sorted(scored_visible, key=lambda item: item[1], reverse=True)
         start = self._start_time([item for item, _score in ranked], night_window)
         selected = []
-        used_names = set()
+        used_names: set[str] = set()
         for item, score in ranked:
-            if item.name in used_names:
+            normalized_name = item.name.strip().casefold()
+            if normalized_name and normalized_name in used_names:
                 continue
-            used_names.add(item.name)
+            if normalized_name:
+                used_names.add(normalized_name)
             selected.append((item, score))
             if len(selected) >= 4:
                 break

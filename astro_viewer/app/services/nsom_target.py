@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
-from typing import Any
+from collections.abc import Iterable, Mapping
+from typing import Any, TypeVar
 
 from astro_viewer.app.models.nsom import (
     IntrinsicTargetQuality,
@@ -33,6 +33,23 @@ _SOLAR_SYSTEM_IDS = frozenset(
         "nettuno",
     }
 )
+
+_TargetT = TypeVar("_TargetT")
+
+
+def unique_targets_by_id(targets: Iterable[_TargetT]) -> tuple[_TargetT, ...]:
+    """Keep the first occurrence of each non-empty canonical target id."""
+
+    unique: list[_TargetT] = []
+    seen_ids: set[str] = set()
+    for target in targets:
+        target_id = _text_field(target, "id", "object_id").strip().casefold()
+        if target_id:
+            if target_id in seen_ids:
+                continue
+            seen_ids.add(target_id)
+        unique.append(target)
+    return tuple(unique)
 
 
 def target_class_from_runtime_target(target: Any) -> NsomTargetClass | None:

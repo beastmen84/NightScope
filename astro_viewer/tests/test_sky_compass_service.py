@@ -56,6 +56,21 @@ def test_sky_compass_skips_targets_without_current_direction() -> None:
     assert result["primaryTargets"][0]["name"] == "M92"
 
 
+def test_sky_compass_counts_each_target_id_once() -> None:
+    first = _object("messier-M13", "M13", "Ammasso globulare", "Nord-Est", 72)
+    duplicate = replace(first, id=" MESSIER-M13 ", name="Duplicate", score=99)
+
+    result = SkyCompassService().compass(
+        [first, duplicate],
+        [],
+        None,
+        has_location=True,
+    )
+
+    assert result["targetCount"] == 1
+    assert [item["id"] for item in result["targets"]] == ["messier-M13"]
+
+
 def test_sky_compass_no_location_fallback() -> None:
     service = SkyCompassService()
 

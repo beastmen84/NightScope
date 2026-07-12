@@ -71,6 +71,7 @@ from astro_viewer.app.services.home_observing_overview import (
 )
 from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
+from astro_viewer.app.services.nsom_target import unique_targets_by_id
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     MoonGeometryConditionInput,
@@ -2364,7 +2365,9 @@ class AppController(QObject):
         )
         self._refresh_conditioned_observing_candidates()
         planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-        planning_objects = planning_objects or self._visible_planets + self._deep_sky
+        planning_objects = planning_objects or list(
+            unique_targets_by_id(self._visible_planets + self._deep_sky)
+        )
         planner_moon_geometry = self._planner_moon_geometry_inputs(planning_objects)
         planner_telescopes = self._planner_telescopes_by_object_id(planning_objects)
         condition_inputs = self._build_observation_condition_inputs()
@@ -3113,7 +3116,9 @@ class AppController(QObject):
         else:
             self._refresh_conditioned_observing_candidates()
             planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-            planning_objects = planning_objects or self._visible_planets + self._deep_sky
+            planning_objects = planning_objects or list(
+                unique_targets_by_id(self._visible_planets + self._deep_sky)
+            )
             self._best_object = (
                 self._select_best_object(planning_objects) if self._weather_summary else None
             )
@@ -3446,24 +3451,19 @@ class AppController(QObject):
         return self._conditions_service.deep_sky_pollution_base_penalty(self._sky_quality)
 
     def _home_visible_objects(self, objects: list[CelestialObject]) -> list[CelestialObject]:
-        return [
-            item
-            for item in objects
-            if self._first_observing_datetime(item.best_time)
-            or self._first_observing_datetime(item.observing_window)
-        ]
+        return list(
+            unique_targets_by_id(
+                item
+                for item in objects
+                if self._first_observing_datetime(item.best_time)
+                or self._first_observing_datetime(item.observing_window)
+            )
+        )
 
     def _tonight_target_pool(self) -> list[CelestialObject]:
         candidates = self._home_visible_objects(self._visible_planets)
         candidates.extend(self._conditioned_deep_sky_candidates())
-        unique: list[CelestialObject] = []
-        seen_ids: set[str] = set()
-        for item in candidates:
-            if item.id in seen_ids:
-                continue
-            seen_ids.add(item.id)
-            unique.append(item)
-        return unique
+        return list(unique_targets_by_id(candidates))
 
     def _home_visible_alternative_payloads(
         self,
@@ -3976,14 +3976,18 @@ class AppController(QObject):
         self._conditioned_deep_sky = conditioned_deep_sky
         self._conditioned_deep_sky_read_model = list(conditioned_deep_sky_read_model)
         visible_planets = self._home_visible_objects(self._visible_planets)
-        self._conditioned_home_objects = visible_planets + conditioned_deep_sky
+        self._conditioned_home_objects = list(
+            unique_targets_by_id(visible_planets + conditioned_deep_sky)
+        )
         visible_planet_read_model = self._conditions_read_model_builder_instance().from_display_targets(
             visible_planets,
             source="home_observing_candidates_planets",
             raw_targets_by_id=self._conditioned_raw_targets_by_id(),
         )
-        self._conditioned_home_read_model = list(visible_planet_read_model) + list(
-            conditioned_deep_sky_read_model
+        self._conditioned_home_read_model = list(
+            unique_targets_by_id(
+                (*visible_planet_read_model, *conditioned_deep_sky_read_model)
+            )
         )
 
     def _recommended_deep_sky_candidates(self, objects: list[CelestialObject]) -> list[CelestialObject]:

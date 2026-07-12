@@ -9,6 +9,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
 )
+from astro_viewer.app.services.nsom_target import unique_targets_by_id
 
 
 class HomeRecommendedDeepSkyNsomRankingService:
@@ -38,7 +39,7 @@ class HomeRecommendedDeepSkyNsomRankingService:
                 ).value,
                 index,
             )
-            for index, item in enumerate(candidates)
+            for index, item in enumerate(unique_targets_by_id(candidates))
         ]
         return [
             item

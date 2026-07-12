@@ -149,7 +149,12 @@ class SkyCompassService:
         observable_objects = observable_objects_by_id or {}
         use_nsom = condition_inputs is not None
         for item in objects:
-            if item.id in seen_ids or not item.visible or not self.is_observable_now(item):
+            canonical_id = item.id.strip().casefold()
+            if (
+                (canonical_id and canonical_id in seen_ids)
+                or not item.visible
+                or not self.is_observable_now(item)
+            ):
                 continue
             direction = self.normalize_direction(item.direction)
             if not direction:
@@ -182,7 +187,8 @@ class SkyCompassService:
                     is_best=item.id == best_id,
                 )
             )
-            seen_ids.add(item.id)
+            if canonical_id:
+                seen_ids.add(canonical_id)
         return targets
 
     def _group_targets(self, targets: list[SkyCompassTarget]) -> list[dict]:

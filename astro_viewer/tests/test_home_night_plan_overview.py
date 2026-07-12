@@ -110,13 +110,61 @@ def test_alternatives_contract_keeps_full_rows_without_legacy_scores() -> None:
     assert all("recommendedSetup" not in item for item in alternatives["items"])
 
 
+def test_overview_deduplicates_plan_alternatives_and_equipment_counts() -> None:
+    plan = _plan_item()
+    duplicate_alternative = _alternative(
+        "messier-31",
+        "M31 duplicate",
+        "Spiral Galaxy",
+        "deep_sky",
+    )
+    duplicate_alternative["id"] = " MESSIER-31 "
+
+    payload = _build(
+        session=_session("recommended"),
+        night_plan=[plan, plan],
+        assigned_equipment=[
+            {"kind": "telescope", "id": "scope-a"},
+            {"kind": "telescope", "id": " SCOPE-A "},
+            {"kind": "eyepiece", "id": "scope-a"},
+            {"kind": "eyepiece", "id": "ep-1"},
+            {"kind": "eyepiece", "id": "EP-1"},
+        ],
+        alternatives=[
+            _alternative("messier-31", "M31", "Spiral Galaxy", "deep_sky"),
+            duplicate_alternative,
+        ],
+    )
+
+    assert len(payload["plan"]["items"]) == 1
+    assert payload["alternatives"]["totalCount"] == 1
+    assert payload["profile"]["telescopeCount"] == 1
+    assert payload["profile"]["eyepieceCount"] == 2
+
+
 def _build(
     *,
     session: dict[str, object],
     assigned_equipment: list[dict[str, object]],
     alternatives: list[dict[str, object]] | None = None,
+    night_plan: list[NightPlanItem] | None = None,
 ) -> dict[str, object]:
-    plan = NightPlanItem(
+    plan = _plan_item()
+    return HomeNightPlanOverviewService().build(
+        session=session,
+        night_plan=[plan] if night_plan is None else night_plan,
+        target_payloads_by_id={"messier-42": {"type": "Diffuse Nebula"}},
+        setup_models_by_object_id={"messier-42": _setup_model()},
+        alternatives=alternatives or [],
+        active_profile={"profile_name": "Serate urbane"},
+        assigned_equipment=assigned_equipment,
+        loading=False,
+        sky_quality_warning="",
+    )
+
+
+def _plan_item() -> NightPlanItem:
+    return NightPlanItem(
         time_label="23:30",
         object_id="messier-42",
         name="M42",
@@ -125,17 +173,6 @@ def _build(
         setup="Mak 127 + 16 mm",
         direction="Sud",
         image="images/m42.png",
-    )
-    return HomeNightPlanOverviewService().build(
-        session=session,
-        night_plan=[plan],
-        target_payloads_by_id={"messier-42": {"type": "Diffuse Nebula"}},
-        setup_models_by_object_id={"messier-42": _setup_model()},
-        alternatives=alternatives or [],
-        active_profile={"profile_name": "Serate urbane"},
-        assigned_equipment=assigned_equipment,
-        loading=False,
-        sky_quality_warning="",
     )
 
 

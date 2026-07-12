@@ -46,6 +46,20 @@ def test_planner_selects_four_highest_opportunities_then_orders_by_time() -> Non
     }
 
 
+def test_planner_scores_each_target_id_once() -> None:
+    scoring = _FixedOpportunityService({"same": 80.0})
+
+    plan = NightPlannerService(nsom_scoring_service=scoring).plan(
+        [_target("same"), _target("same")],
+        _weather(85),
+        _telescope("fallback"),
+        condition_inputs=_inputs(),
+    )
+
+    assert [item.object_id for item in plan] == ["same"]
+    assert scoring.calls == ["same"]
+
+
 def test_planner_forwards_target_telescope_and_moon_geometry() -> None:
     targets = [_target("galaxy"), _target("planet", object_type="Pianeta")]
     geometry = MoonGeometryConditionInput(
@@ -204,8 +218,10 @@ def test_planner_does_not_mutate_target_or_condition_inputs() -> None:
 class _FixedOpportunityService:
     def __init__(self, scores: dict[str, float]) -> None:
         self._scores = scores
+        self.calls: list[str] = []
 
     def opportunity(self, item: CelestialObject, **_kwargs):
+        self.calls.append(item.id)
         return self._scores[item.id]
 
     @staticmethod

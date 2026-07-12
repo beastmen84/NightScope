@@ -92,6 +92,18 @@ def test_nsom_ranking_does_not_mutate_original_celestial_objects() -> None:
     assert [item.score for item in controller._deep_sky] == [88, 86, 78, 82]
 
 
+def test_home_nsom_ranking_scores_each_target_id_once() -> None:
+    first = _target("messier-m31", "Spiral galaxy", 70)
+    duplicate = replace(first, id=" MESSIER-M31 ", name="Duplicate", score=99)
+
+    ranked = HomeRecommendedDeepSkyNsomRankingService().rank_by_observable_target_value(
+        [first, duplicate],
+        condition_inputs=ObservationConditionInputs(),
+    )
+
+    assert ranked == [first]
+
+
 def test_weather_does_not_change_home_observable_order() -> None:
     controller = _controller(sky_quality=_sky_quality(4), moon=_moon(20))
     controller._weather_summary = _weather(85)
