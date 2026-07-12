@@ -20,10 +20,83 @@ Item {
     readonly property var nightPlanOverview: nightOverview.plan || ({})
     readonly property var nightAlternativesOverview: nightOverview.alternatives || ({})
     readonly property var calendarOverview: controller ? (controller.calendarOverview || ({})) : ({})
+    readonly property var skyCompassOverview: controller ? (controller.skyCompass || ({})) : ({})
+    readonly property bool skyCompassFilterAvailable: skyCompassOverview.available === true
+                                                      && (skyCompassOverview.targets || []).length > 0
     property string targetFilter: "all"
+    property bool skyCompassFilterEnabled: false
+    property var skyCompassFilterTargetIds: ({})
+    property string skyCompassFilterTargetSignature: ""
     signal openObject(string objectId)
     signal openEvent(string eventId)
     signal openCalendar()
+
+    function normalizedTargetId(value) {
+        return String(value || "").trim().toLowerCase()
+    }
+
+    function skyCompassTargetState(data) {
+        var targets = data && data.targets ? data.targets : []
+        var ids = {}
+        var signatureIds = []
+        for (var i = 0; i < targets.length; i++) {
+            var objectId = root.normalizedTargetId(targets[i].id)
+            if (objectId.length === 0 || ids[objectId] === true)
+                continue
+            ids[objectId] = true
+            signatureIds.push(objectId)
+        }
+        signatureIds.sort()
+        return {"ids": ids, "signature": signatureIds.join("|")}
+    }
+
+    function syncSkyCompassFilter(data) {
+        var state = root.skyCompassTargetState(data)
+        var available = data && data.available === true && state.signature.length > 0
+        if (!available) {
+            var wasEnabled = root.skyCompassFilterEnabled
+            root.skyCompassFilterEnabled = false
+            root.skyCompassFilterTargetIds = ({})
+            root.skyCompassFilterTargetSignature = ""
+            if (wasEnabled)
+                Qt.callLater(root.resetVisibleTargetScroll)
+            return
+        }
+        if (state.signature === root.skyCompassFilterTargetSignature)
+            return
+        root.skyCompassFilterTargetIds = state.ids
+        root.skyCompassFilterTargetSignature = state.signature
+        if (root.skyCompassFilterEnabled)
+            Qt.callLater(root.resetVisibleTargetScroll)
+    }
+
+    function setSkyCompassFilter(enabled) {
+        root.syncSkyCompassFilter(root.skyCompassOverview)
+        if (enabled && !root.skyCompassFilterAvailable)
+            return
+        root.skyCompassFilterEnabled = Boolean(enabled)
+        if (root.skyCompassFilterEnabled)
+            root.targetFilter = "all"
+        Qt.callLater(root.resetVisibleTargetScroll)
+    }
+
+    function resetVisibleTargetScroll() {
+        if (visibleTargetList && visibleTargetList.count > 0)
+            visibleTargetList.positionViewAtBeginning()
+    }
+
+    function skyCompassScopedItems(items) {
+        if (!root.skyCompassFilterEnabled)
+            return items
+        var ids = root.skyCompassFilterTargetIds
+        return items.filter(function(item) {
+            return ids[root.normalizedTargetId(item.objectId)] === true
+        })
+    }
+
+    function filteredNightPlanItems() {
+        return root.skyCompassScopedItems(root.nightPlanOverview.items || [])
+    }
 
     function eventAccent(type) {
         if (type === "Luna")
@@ -156,7 +229,7 @@ Item {
     }
 
     function alternativeItems() {
-        return root.nightAlternativesOverview.items || []
+        return root.skyCompassScopedItems(root.nightAlternativesOverview.items || [])
     }
 
     function filteredNightAlternatives() {
@@ -203,6 +276,16 @@ Item {
 
     AppTheme {
         id: theme
+    }
+
+    Component.onCompleted: root.syncSkyCompassFilter(root.skyCompassOverview)
+
+    Connections {
+        target: root.controller
+
+        function onSkyCompassChanged() {
+            root.syncSkyCompassFilter(root.controller ? (root.controller.skyCompass || ({})) : ({}))
+        }
     }
 
     ScrollView {
@@ -778,7 +861,7 @@ Item {
             GlassCard {
                 id: skyCompassCard
 
-                property var compassData: controller.skyCompass || {}
+                property var compassData: root.skyCompassOverview
                 property bool wide: root.width > 1180
                 property bool medium: root.width > 760
                 property bool sessionRecommended: root.sessionOverview.state === "recommended"
@@ -1233,14 +1316,37 @@ Item {
                 }
             }
 
-            Text {
+            RowLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                text: "Piano della notte"
-                color: theme.textPrimary
-                font.pixelSize: 18
-                font.weight: Font.DemiBold
+                spacing: 12
+
+                Text {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    text: "Piano della notte"
+                    color: theme.textPrimary
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+
+                DarkButton {
+                    id: skyCompassFilterButton
+                    Layout.preferredWidth: 164
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    text: "Solo suggeriti ora"
+                    enabled: root.skyCompassFilterAvailable
+                    checkable: true
+                    checked: root.skyCompassFilterEnabled
+                    accentColor: theme.cyan
+                    ToolTip.visible: hovered
+                    ToolTip.text: root.skyCompassFilterAvailable
+                                  ? "Mostra nelle due schede solo gli oggetti nella zona indicata da Sky Compass"
+                                  : "Nessun target osservabile in questo momento"
+                    onClicked: root.setSkyCompassFilter(checked)
+                }
             }
 
             GridLayout {
@@ -1257,7 +1363,9 @@ Item {
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
                     title: root.nightPlanOverview.title || "Piano osservativo"
-                    subtitle: root.nightPlanOverview.subtitle || ""
+                    subtitle: root.skyCompassFilterEnabled && root.nightPlanOverview.showsSequence
+                              ? "Tappe del piano nella zona indicata da Sky Compass"
+                              : (root.nightPlanOverview.subtitle || "")
                     subtitleWrap: true
                     headerBadgeText: root.nightPlanOverview.badge || ""
                     headerBadgeColor: root.planAccent(root.nightPlanOverview.state || "unavailable")
@@ -1328,12 +1436,13 @@ Item {
                     GridLayout {
                         Layout.fillWidth: true
                         visible: root.nightPlanOverview.showsSequence
+                                 && root.filteredNightPlanItems().length > 0
                         columns: root.width > 1180 ? 2 : 1
                         columnSpacing: 10
                         rowSpacing: 8
 
                         Repeater {
-                            model: root.nightPlanOverview.items || []
+                            model: root.filteredNightPlanItems()
 
                             delegate: HomePlanStepRow {
                                 itemData: modelData
@@ -1345,6 +1454,17 @@ Item {
                             }
                         }
                     }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.skyCompassFilterEnabled
+                                 && root.nightPlanOverview.showsSequence
+                                 && root.filteredNightPlanItems().length === 0
+                        text: "Nessuna tappa del piano nella zona suggerita in questo momento."
+                        color: theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                    }
                 }
 
                 GlassCard {
@@ -1352,7 +1472,9 @@ Item {
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
                     title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"
-                    subtitle: root.nightAlternativesOverview.subtitle || ""
+                    subtitle: root.skyCompassFilterEnabled
+                              ? "Oggetti nella zona indicata da Sky Compass; filtra ulteriormente per categoria"
+                              : (root.nightAlternativesOverview.subtitle || "")
                     subtitleWrap: true
                     headerBadgeText: root.alternativeCount("all") > 0 ? root.alternativeCount("all") + " oggetti" : ""
                     headerBadgeColor: theme.cyan
@@ -1506,7 +1628,9 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.filteredNightAlternatives().length === 0
-                        text: root.nightAlternativesOverview.emptyText || "Nessun altro oggetto utile fuori dal piano."
+                        text: root.skyCompassFilterEnabled
+                              ? "Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento."
+                              : (root.nightAlternativesOverview.emptyText || "Nessun altro oggetto utile fuori dal piano.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap

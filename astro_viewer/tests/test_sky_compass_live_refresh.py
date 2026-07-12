@@ -151,6 +151,44 @@ class SkyCompassLiveRefreshTest(unittest.TestCase):
         self.assertEqual(controller._sky_compass["direction"], "Est")
         self.assertEqual(controller._sky_compass["primaryTargets"][0]["name"], "Marte")
 
+    def test_live_refresh_replaces_the_filter_target_membership(self) -> None:
+        mars = replace(
+            _object("mars", "Marte", "Pianeta", "Sud", 90),
+            observable_now=True,
+        )
+        m13 = replace(
+            _object("messier-M13", "M13", "Ammasso globulare", "Nord", 60),
+            observable_now=True,
+        )
+        controller, _engine, _timer = _controller([mars, m13])
+        position_engine = Mock()
+        position_engine.refresh_current_positions.return_value = [
+            replace(mars, direction="Ovest", observable_now=False),
+            replace(
+                m13,
+                direction="Est",
+                observable_now=True,
+                current_altitude="30.0 gradi",
+                current_altitude_degrees=30.0,
+            ),
+        ]
+        controller._astronomy_engine = position_engine
+        payloads = []
+        controller.skyCompassChanged.connect(
+            lambda: payloads.append(
+                [item["id"] for item in controller._sky_compass["targets"]]
+            )
+        )
+
+        controller._refresh_sky_compass_live()
+
+        self.assertEqual(payloads, [["messier-M13"]])
+        self.assertEqual(controller._sky_compass["direction"], "Est")
+        self.assertEqual(
+            [item["id"] for item in controller._sky_compass["targets"]],
+            ["messier-M13"],
+        )
+
     def test_live_refresh_schedules_work_without_running_engine_inline(self) -> None:
         target = _object("mars", "Marte", "Pianeta", "Sud", 80)
         controller, engine, _timer = _controller([target])

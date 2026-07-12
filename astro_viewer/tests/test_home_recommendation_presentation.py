@@ -15,7 +15,8 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
 
     assert "controller.homeNightPlanOverview" in source
     assert "controller.calendarOverview" in source
-    assert "model: root.nightPlanOverview.items || []" in source
+    assert "model: root.filteredNightPlanItems()" in source
+    assert "return root.skyCompassScopedItems(root.nightPlanOverview.items || [])" in source
     assert "model: root.filteredNightAlternatives()" in source
     assert "HomePlanStepRow" in source
     assert "HomeVisibleTargetRow" in source

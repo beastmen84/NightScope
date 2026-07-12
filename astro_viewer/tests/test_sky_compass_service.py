@@ -114,6 +114,12 @@ def test_sky_compass_presents_max_three_primary_targets_and_other_count() -> Non
         "Nettuno",
         "M11 Wild Duck Cluster",
     ]
+    assert [item["id"] for item in result["targets"]] == [
+        "saturn",
+        "neptune",
+        "messier-M11",
+        "messier-M15",
+    ]
     assert result["otherTargetCount"] == 1
     assert result["otherTargetCountLabel"] == "+1 altro target"
     assert len(result["decisionReasons"]) <= 3
@@ -207,6 +213,30 @@ def test_sky_compass_qml_localizes_catalogue_target_types() -> None:
     assert 'return "Galassia spirale"' in source
     assert 'return "Nebulosa planetaria"' in source
     assert 'return "Resto di supernova"' in source
+
+
+def test_home_sky_compass_filter_reacts_to_payload_and_scopes_both_cards() -> None:
+    source = HOME_PAGE.read_text(encoding="utf-8")
+
+    assert "property bool skyCompassFilterEnabled: false" in source
+    assert "readonly property bool skyCompassFilterAvailable:" in source
+    assert "function skyCompassTargetState(data)" in source
+    assert "function syncSkyCompassFilter(data)" in source
+    assert "function skyCompassScopedItems(items)" in source
+    assert "state.signature === root.skyCompassFilterTargetSignature" in source
+    assert "root.skyCompassFilterEnabled = false" in source
+    assert "root.targetFilter = \"all\"" in source
+    assert "function onSkyCompassChanged()" in source
+    assert "root.syncSkyCompassFilter(root.controller" in source
+    assert 'text: "Solo suggeriti ora"' in source
+    assert "enabled: root.skyCompassFilterAvailable" in source
+    assert "checkable: true" in source
+    assert "checked: root.skyCompassFilterEnabled" in source
+    assert "model: root.filteredNightPlanItems()" in source
+    assert "return root.skyCompassScopedItems(root.nightPlanOverview.items || [])" in source
+    assert "return root.skyCompassScopedItems(root.nightAlternativesOverview.items || [])" in source
+    assert "Nessuna tappa del piano nella zona suggerita in questo momento." in source
+    assert "Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento." in source
 
 
 def _object(object_id: str, name: str, object_type: str, direction: str, score: int) -> CelestialObject:

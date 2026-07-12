@@ -176,7 +176,11 @@ class Phase3ServiceTests(unittest.TestCase):
     def test_home_plan_uses_overview_contract_display_order(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
 
-        self.assertIn("model: root.nightPlanOverview.items || []", qml)
+        self.assertIn("model: root.filteredNightPlanItems()", qml)
+        self.assertIn(
+            "return root.skyCompassScopedItems(root.nightPlanOverview.items || [])",
+            qml,
+        )
         self.assertIn("delegate: HomePlanStepRow", qml)
         self.assertNotIn("model: controller.nightPlan.slice(0, 4)", qml)
         self.assertNotIn('scoreText: "#" + (index + 1)', qml)
