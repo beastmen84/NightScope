@@ -237,7 +237,8 @@ CREATE TABLE IF NOT EXISTS ObjectDescription (
     difficulty_binocular TEXT,
     difficulty_small_scope TEXT,
     difficulty_medium_scope TEXT,
-    difficulty_large_scope TEXT
+    difficulty_large_scope TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS ObjectCuriosity (
@@ -245,7 +246,8 @@ CREATE TABLE IF NOT EXISTS ObjectCuriosity (
     curiosity_text TEXT NOT NULL,
     source_label TEXT NOT NULL,
     source_url TEXT NOT NULL,
-    verified INTEGER NOT NULL DEFAULT 0
+    verified INTEGER NOT NULL DEFAULT 0,
+    is_builtin INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS EquipmentProfile (

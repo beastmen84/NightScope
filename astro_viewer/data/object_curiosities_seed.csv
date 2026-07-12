@@ -1,4 +1,5 @@
 object_id,curiosity_text,source_label,source_url,verified
+"sun","Il Sole non ruota come un corpo rigido: essendo plasma, completa una rotazione in circa 25 giorni terrestri all'equatore e in circa 36 giorni ai poli. Per questo la durata del suo giorno dipende dalla latitudine osservata.","NASA Science","https://science.nasa.gov/sun/facts/",1
 "moon","La Luna mostra sempre quasi la stessa faccia perché rotazione e rivoluzione hanno la stessa durata. La faccia nascosta rimase sconosciuta fino al 1959, quando la sonda sovietica Luna 3 ne trasmise le prime immagini.","NASA Solar System","https://science.nasa.gov/moon/facts/",1
 "mercury","Su Mercurio un giorno solare dura 176 giorni terrestri, il doppio del suo anno. È l'effetto della risonanza 3:2: il pianeta compie tre rotazioni ogni due orbite attorno al Sole.","NASA Solar System","https://science.nasa.gov/mercury/facts/",1
 "venus","Venere ruota in senso opposto rispetto alla maggior parte dei pianeti e impiega più tempo a girare su se stesso che a completare un'orbita. Sul pianeta, quindi, il giorno siderale è più lungo dell'anno.","NASA Solar System","https://science.nasa.gov/venus/venus-facts/",1

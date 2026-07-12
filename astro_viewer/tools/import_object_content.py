@@ -60,9 +60,9 @@ def _import_descriptions(database_path, rows: list[dict]) -> None:
             INSERT INTO ObjectDescription (
                 object_id, short_description, observing_notes, best_seen,
                 difficulty_naked_eye, difficulty_binocular, difficulty_small_scope,
-                difficulty_medium_scope, difficulty_large_scope
+                difficulty_medium_scope, difficulty_large_scope, is_builtin
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
             ON CONFLICT(object_id) DO UPDATE SET
                 short_description = excluded.short_description,
                 observing_notes = excluded.observing_notes,
@@ -71,7 +71,8 @@ def _import_descriptions(database_path, rows: list[dict]) -> None:
                 difficulty_binocular = excluded.difficulty_binocular,
                 difficulty_small_scope = excluded.difficulty_small_scope,
                 difficulty_medium_scope = excluded.difficulty_medium_scope,
-                difficulty_large_scope = excluded.difficulty_large_scope
+                difficulty_large_scope = excluded.difficulty_large_scope,
+                is_builtin = 0
             """,
             [
                 (

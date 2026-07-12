@@ -253,7 +253,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
         ) as file:
             rows = list(csv.DictReader(file))
 
-        self.assertEqual(len(rows), 227)
+        self.assertEqual(len(rows), 228)
         self.assertEqual({row["object_id"] for row in rows}, description_ids)
         texts = [row["curiosity_text"].strip() for row in rows]
         self.assertEqual(len(set(texts)), len(texts))
@@ -274,6 +274,37 @@ class DatabaseBootstrapTests(unittest.TestCase):
         )
         self.assertLess(max_similarity, 0.5)
 
+    def test_description_seed_is_complete_safe_and_object_specific(self) -> None:
+        data_path = Path(__file__).resolve().parents[1] / "data" / "object_descriptions_seed.csv"
+        with data_path.open("r", encoding="utf-8", newline="") as file:
+            rows = list(csv.DictReader(file))
+
+        self.assertEqual(len(rows), 228)
+        self.assertEqual(len({row["object_id"] for row in rows}), len(rows))
+        descriptions = [row["short_description"].strip() for row in rows]
+        observing_notes = [row["observing_notes"].strip() for row in rows]
+        self.assertEqual(len(set(descriptions)), len(descriptions))
+        self.assertEqual(len(set(observing_notes)), len(observing_notes))
+
+        for values in (descriptions, observing_notes):
+            token_sets = [
+                {
+                    token.strip(".,:;!?()")
+                    for token in value.lower().split()
+                    if token.strip(".,:;!?()")
+                }
+                for value in values
+            ]
+            max_similarity = max(
+                len(left & right) / len(left | right)
+                for left, right in combinations(token_sets, 2)
+            )
+            self.assertLess(max_similarity, 0.85)
+
+        sun = next(row for row in rows if row["object_id"] == "sun")
+        self.assertIn("davanti all'intera apertura", sun["observing_notes"])
+        self.assertIn("non usare filtri solari da oculare", sun["observing_notes"])
+
     def test_object_content_repository_returns_seeded_curiosity_sources(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
@@ -282,9 +313,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             curiosities = ObjectImageRepository(database_path).curiosities()
 
-            self.assertEqual(len(curiosities), 227)
+            self.assertEqual(len(curiosities), 228)
             self.assertIn("stella di neutroni", curiosities["messier-M1"]["curiosity_text"])
             self.assertEqual(curiosities["caldwell-C23"]["source_label"], "NASA Hubble")
+            self.assertEqual(curiosities["sun"]["source_label"], "NASA Science")
             self.assertTrue(curiosities["moon"]["verified"])
 
     def test_catalogue_seed_contains_all_messier_and_caldwell_objects(self) -> None:
@@ -586,7 +618,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(preserved_note, "modifica utente")
             self.assertEqual(preserved_count, telescope_count)
 
-    def test_catalogue_content_seed_restores_missing_rows_without_overwriting(self) -> None:
+    def test_catalogue_content_seed_refreshes_builtin_and_preserves_custom_rows(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -594,8 +626,36 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             with closing(sqlite3.connect(database_path)) as connection:
                 connection.execute(
-                    "UPDATE ObjectDescription SET short_description = ? WHERE object_id = ?",
+                    """
+                    UPDATE ObjectDescription
+                    SET short_description = ?, is_builtin = 0
+                    WHERE object_id = ?
+                    """,
                     ("contenuto locale", "messier-M1"),
+                )
+                connection.execute(
+                    """
+                    UPDATE ObjectDescription
+                    SET short_description = ?
+                    WHERE object_id = ?
+                    """,
+                    ("contenuto seed obsoleto", "messier-M2"),
+                )
+                connection.execute(
+                    """
+                    UPDATE ObjectCuriosity
+                    SET curiosity_text = ?
+                    WHERE object_id = ?
+                    """,
+                    ("curiosità seed obsoleta", "messier-M2"),
+                )
+                connection.execute(
+                    """
+                    UPDATE ObjectCuriosity
+                    SET curiosity_text = ?, is_builtin = 0
+                    WHERE object_id = ?
+                    """,
+                    ("curiosità locale", "messier-M1"),
                 )
                 connection.execute(
                     "DELETE FROM ObjectDescription WHERE object_id = ?",
@@ -611,9 +671,27 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             with closing(sqlite3.connect(database_path)) as connection:
                 preserved = connection.execute(
-                    "SELECT short_description FROM ObjectDescription WHERE object_id = ?",
+                    """
+                    SELECT short_description, is_builtin
+                    FROM ObjectDescription WHERE object_id = ?
+                    """,
                     ("messier-M1",),
+                ).fetchone()
+                refreshed_description = connection.execute(
+                    "SELECT short_description FROM ObjectDescription WHERE object_id = ?",
+                    ("messier-M2",),
                 ).fetchone()[0]
+                refreshed_curiosity = connection.execute(
+                    "SELECT curiosity_text FROM ObjectCuriosity WHERE object_id = ?",
+                    ("messier-M2",),
+                ).fetchone()[0]
+                preserved_curiosity = connection.execute(
+                    """
+                    SELECT curiosity_text, is_builtin
+                    FROM ObjectCuriosity WHERE object_id = ?
+                    """,
+                    ("messier-M1",),
+                ).fetchone()
                 restored_description = connection.execute(
                     "SELECT short_description FROM ObjectDescription WHERE object_id = ?",
                     ("caldwell-C109",),
@@ -622,35 +700,91 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "SELECT image_path FROM ObjectImages WHERE object_id = ?",
                     ("caldwell-C109",),
                 ).fetchone()
-            self.assertEqual(preserved, "contenuto locale")
+            self.assertEqual(preserved, ("contenuto locale", 0))
+            self.assertNotEqual(refreshed_description, "contenuto seed obsoleto")
+            self.assertNotEqual(refreshed_curiosity, "curiosità seed obsoleta")
+            self.assertEqual(preserved_curiosity, ("curiosità locale", 0))
             self.assertIsNotNone(restored_description)
             self.assertIsNotNone(restored_image)
 
-    def test_bootstrap_corrects_legacy_moon_best_seen_copy(self) -> None:
+    def test_schema_11_content_rows_are_adopted_as_builtin_and_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
             initialize_database(database_path, schema_path)
 
             with closing(sqlite3.connect(database_path)) as connection:
-                initial_copy = connection.execute(
-                    "SELECT best_seen FROM ObjectDescription WHERE object_id = 'moon'"
-                ).fetchone()[0]
-                connection.execute(
-                    "UPDATE ObjectDescription SET best_seen = ? WHERE object_id = 'moon'",
-                    ("Tutte le fasi tranne Luna piena piena",),
-                )
-                connection.commit()
+                connection.executescript(
+                    """
+                    ALTER TABLE ObjectDescription RENAME TO ObjectDescriptionCurrent;
+                    CREATE TABLE ObjectDescription (
+                        object_id TEXT PRIMARY KEY,
+                        short_description TEXT NOT NULL,
+                        observing_notes TEXT NOT NULL,
+                        best_seen TEXT,
+                        difficulty_naked_eye TEXT,
+                        difficulty_binocular TEXT,
+                        difficulty_small_scope TEXT,
+                        difficulty_medium_scope TEXT,
+                        difficulty_large_scope TEXT
+                    );
+                    INSERT INTO ObjectDescription
+                    SELECT object_id, short_description, observing_notes, best_seen,
+                           difficulty_naked_eye, difficulty_binocular,
+                           difficulty_small_scope, difficulty_medium_scope,
+                           difficulty_large_scope
+                    FROM ObjectDescriptionCurrent;
+                    DROP TABLE ObjectDescriptionCurrent;
 
-            self.assertEqual(initial_copy, "Tutte le fasi tranne Luna piena")
+                    ALTER TABLE ObjectCuriosity RENAME TO ObjectCuriosityCurrent;
+                    CREATE TABLE ObjectCuriosity (
+                        object_id TEXT PRIMARY KEY,
+                        curiosity_text TEXT NOT NULL,
+                        source_label TEXT NOT NULL,
+                        source_url TEXT NOT NULL,
+                        verified INTEGER NOT NULL DEFAULT 0
+                    );
+                    INSERT INTO ObjectCuriosity
+                    SELECT object_id, curiosity_text, source_label, source_url, verified
+                    FROM ObjectCuriosityCurrent;
+                    DROP TABLE ObjectCuriosityCurrent;
+                    """
+                )
+                connection.execute(
+                    "UPDATE ObjectDescription SET short_description = ? WHERE object_id = ?",
+                    ("contenuto versione 11", "messier-M1"),
+                )
+                connection.execute(
+                    "UPDATE ObjectCuriosity SET curiosity_text = ? WHERE object_id = ?",
+                    ("curiosità versione 11", "messier-M1"),
+                )
+                connection.execute("PRAGMA user_version = 11")
+                connection.commit()
 
             initialize_database(database_path, schema_path)
 
             with closing(sqlite3.connect(database_path)) as connection:
-                migrated_copy = connection.execute(
-                    "SELECT best_seen FROM ObjectDescription WHERE object_id = 'moon'"
-                ).fetchone()[0]
-            self.assertEqual(migrated_copy, "Tutte le fasi tranne Luna piena")
+                description = connection.execute(
+                    """
+                    SELECT short_description, is_builtin
+                    FROM ObjectDescription WHERE object_id = ?
+                    """,
+                    ("messier-M1",),
+                ).fetchone()
+                curiosity = connection.execute(
+                    """
+                    SELECT curiosity_text, is_builtin
+                    FROM ObjectCuriosity WHERE object_id = ?
+                    """,
+                    ("messier-M1",),
+                ).fetchone()
+                schema_version = connection.execute("PRAGMA user_version").fetchone()[0]
+
+            self.assertNotEqual(description[0], "contenuto versione 11")
+            self.assertEqual(description[1], 1)
+            self.assertNotEqual(curiosity[0], "curiosità versione 11")
+            self.assertEqual(curiosity[1], 1)
+            self.assertEqual(schema_version, SCHEMA_VERSION)
 
     def test_binocular_catalog_persists_across_bootstrap(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

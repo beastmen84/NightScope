@@ -14,7 +14,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -333,13 +333,15 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "verified": "INTEGER NOT NULL DEFAULT 0",
         },
     )
-    connection.execute(
-        """
-        UPDATE ObjectDescription
-        SET best_seen = 'Tutte le fasi tranne Luna piena'
-        WHERE object_id = 'moon'
-          AND best_seen = 'Tutte le fasi tranne Luna piena piena'
-        """
+    _add_columns(
+        connection,
+        "ObjectDescription",
+        {"is_builtin": "INTEGER NOT NULL DEFAULT 1"},
+    )
+    _add_columns(
+        connection,
+        "ObjectCuriosity",
+        {"is_builtin": "INTEGER NOT NULL DEFAULT 1"},
     )
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_search_name ON City(search_name)")
     connection.execute("CREATE INDEX IF NOT EXISTS idx_city_country_code ON City(country_code)")
@@ -1266,10 +1268,19 @@ def _seed_object_descriptions(connection: sqlite3.Connection, descriptions_path:
         INSERT INTO ObjectDescription (
             object_id, short_description, observing_notes, best_seen,
             difficulty_naked_eye, difficulty_binocular, difficulty_small_scope,
-            difficulty_medium_scope, difficulty_large_scope
+            difficulty_medium_scope, difficulty_large_scope, is_builtin
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(object_id) DO NOTHING
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(object_id) DO UPDATE SET
+            short_description = excluded.short_description,
+            observing_notes = excluded.observing_notes,
+            best_seen = excluded.best_seen,
+            difficulty_naked_eye = excluded.difficulty_naked_eye,
+            difficulty_binocular = excluded.difficulty_binocular,
+            difficulty_small_scope = excluded.difficulty_small_scope,
+            difficulty_medium_scope = excluded.difficulty_medium_scope,
+            difficulty_large_scope = excluded.difficulty_large_scope
+        WHERE ObjectDescription.is_builtin = 1
         """,
         rows,
     )
@@ -1292,10 +1303,15 @@ def _seed_object_curiosities(connection: sqlite3.Connection, curiosities_path: P
     connection.executemany(
         """
         INSERT INTO ObjectCuriosity (
-            object_id, curiosity_text, source_label, source_url, verified
+            object_id, curiosity_text, source_label, source_url, verified, is_builtin
         )
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(object_id) DO NOTHING
+        VALUES (?, ?, ?, ?, ?, 1)
+        ON CONFLICT(object_id) DO UPDATE SET
+            curiosity_text = excluded.curiosity_text,
+            source_label = excluded.source_label,
+            source_url = excluded.source_url,
+            verified = excluded.verified
+        WHERE ObjectCuriosity.is_builtin = 1
         """,
         rows,
     )
