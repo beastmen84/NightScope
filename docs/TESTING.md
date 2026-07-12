@@ -52,11 +52,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.24.2`:
+Measured on the current Windows development environment for `1.25.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `670 passed, 7 subtests passed` | `0:00:52` |
+| `python -m pytest -q -n auto` | `677 passed, 7 subtests passed` | `0:00:50.21` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -65,8 +65,11 @@ projections and the target-taxonomy contract for every raw type in all 219
 Messier/Caldwell records. It also covers the NSOM invariants for single-pass
 factor construction and defensive Home/Planner/Sky Compass counts. The count
 also includes the lower-Home Sky Compass filter contract and live target
-membership replacement without a general Home refresh. The earlier reduction
-in `1.21.0` was intentional: migration-only
+membership replacement without a general Home refresh. The `1.25.0` baseline
+adds schema-v10 migration, filter/reducer catalogue CRUD and provenance,
+profile assignment without NSOM refresh, built-in deletion protection and
+packaged-seed coverage. The earlier reduction in `1.21.0` was intentional:
+migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were
 removed with the retired production paths they exercised.
 

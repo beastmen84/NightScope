@@ -16,9 +16,42 @@ GeoNames publishes dump formats at `https://download.geonames.org/export/dump/re
 
 ## Equipment Catalogs
 
-`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`, and `barlow_catalog_seed.csv` are the canonical seed source for equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment seed rows are not hardcoded in Python. Rows marked `Specs encoded in model name` should be checked against the specific regional product revision before purchase recommendations.
+`telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`,
+`barlow_catalog_seed.csv`, `binocular_catalog_seed.csv`,
+`filter_catalog_seed.csv` and `reducer_catalog_seed.csv` are the canonical seed
+source for equipment catalogs. Runtime bootstrap reads these CSVs directly;
+equipment seed rows are not hardcoded in Python. Rows marked
+`Specs encoded in model name` should be checked against the specific regional
+product revision before purchase recommendations.
 
 The equipment seeds were audited against manufacturer catalog pages on 2026-06-22. Historical placeholder rows marked `Catalog seed entry` and unresolved `To verify` rows were removed from the packaged seed files.
+
+The visual-filter and focal-reducer additions were checked on 2026-07-12
+against current manufacturer catalog pages and manuals. Primary references:
+
+- Astronomik visual filters: `https://www.astronomik.com/en/Visual-Filters/`
+- Baader visual filters and Alan Gee telecompressors:
+  `https://www.baader-planetarium.com/en/downloads/dl/file/id/1908/baader-planetarium-price-list-04-2026.pdf`
+- Lumicon narrow-band filters: `https://www.lumiconinc.com/uses`
+- Explore Scientific filters and 0.7x reducer:
+  `https://explorescientific.com/`
+- Celestron filters and focal reducers:
+  `https://www.celestron.com/collections/astronomy-filters` and
+  `https://www.celestron.com/blogs/knowledgebase/understanding-focal-reducers`
+- Optolong visual-filter families:
+  `https://www.optolong.com/cms/column/index/id/30.html`
+- Starizona SCT reducers: `https://starizona.com/collections/starizona-optics`
+- William Optics reducer/flattener compatibility:
+  `https://support.williamoptics.com/guides/flattener-back-focus-adjustment`
+- Sky-Watcher matched ED reducers:
+  `https://www.skywatcher.com/series/imaging-accessories/`
+
+The packaged filter set is limited to visual night-observation accessories;
+eyepiece solar filters are intentionally excluded. Reducer compatibility is
+model-specific and stored separately from the reduction factor. The
+`visual_compatible` and `imaging_compatible` flags describe intended use, but
+the current runtime does not infer suitability, alter recommendations or apply
+any score from these rows.
 
 No API keys or vendor-specific private data are included.
 

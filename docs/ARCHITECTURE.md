@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.24.2`:
+Current runtime status for `1.25.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -69,6 +69,10 @@ Current runtime status for `1.24.2`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
+- Filters and focal reducers are persistent profile inventory. Their structured
+  compatibility fields are available to the controller, but assignment emits
+  only `equipmentChanged`: neither accessory enters `EquipmentService`,
+  ObserverCapability, setup selection, scoring, Planner or NSOM yet.
 - Planner now consumes the telescope selected by `EquipmentService` for each
   target in a multi-instrument profile and emits up to four selected
   opportunities before chronological presentation.
@@ -250,7 +254,10 @@ Important pages:
   not present recommendation ranking.
 - `ObjectDetailPage.qml`: selected object detail and setup alternatives.
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
-  `EquipmentOpticsPage.qml`: profile and equipment management.
+  `EquipmentOpticsPage.qml`, `EquipmentBinocularsPage.qml` and
+  `EquipmentFiltersReducersPage.qml`: profile and equipment management. Seeded
+  rows expose no delete action; repository protection enforces the same policy
+  outside QML.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
@@ -267,6 +274,7 @@ Important pages:
 - Moon summary,
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
+- passive filter/reducer catalog and assignment snapshots,
 - sky quality, seeing/transparency and NSOM category scores,
 - night plan and Sky Compass,
 - generic catalogue object dictionaries and catalogue filter state,
@@ -349,8 +357,10 @@ Repositories own SQLite persistence:
 
 - `CityRepository`: city search and reverse lookup.
 - `CatalogueRepository`: physical catalogue targets and their designations.
-- `EquipmentCatalogRepository`: telescope, eyepiece, Barlow and equipment
-  profile CRUD and profile assignments.
+- `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
+  and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
+  `is_builtin`; seeded rows cannot be deleted, while user rows can be removed
+  after their profile links are handled.
 - `WeatherCacheRepository`: weather response cache.
 - `SkyQualityRepository`: light-pollution estimate cache.
 - `ObjectImageRepository`: image and description lookup.
@@ -560,7 +570,9 @@ still current. Shared Skyfield access is serialized, so a live tick cannot
 overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
-assignment and active-profile switching without restart.
+assignment and active-profile switching without restart. They also verify
+filter/reducer CRUD, schema migration, provenance, forced unlinking and passive
+assignment without NSOM or capability refresh.
 
 ## Cache Ownership
 

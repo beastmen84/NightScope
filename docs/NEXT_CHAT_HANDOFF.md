@@ -4,19 +4,27 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.24.2`
-- Dist `1.24.2` non rigenerata.
+- Versione sorgente: `1.25.0`
+- Dist `1.25.0` non rigenerata; la distribuzione dichiarata nel README resta
+  `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `276c686 Add Sky Compass Home filter`
+- Commit sorgente validato: `6e2732d Package accessory catalog seeds`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `276c686`; non sostituire questo
+documentazione. Per lo stato del codice usare `6e2732d`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `bbeec59 Add filter and reducer equipment UI`
 - `276c686 Add Sky Compass Home filter`
+
+## Commit Equipment Recenti
+
+- `6e2732d Package accessory catalog seeds`
+- `bbeec59 Add filter and reducer equipment UI`
+- `294a2de Add filter and reducer catalog persistence`
 
 ## Commit Catalogo Recenti
 
@@ -52,21 +60,23 @@ corrente. Home, Meteo, dettaglio osservativo, Calendario e dettaglio Catalogo
 sono stati verificati e rifiniti. La UI mantiene payload compatibili e non
 espone modelli/scalari NSOM grezzi.
 
-I punti 1, 2 e 3 della roadmap catalogo sono conclusi: identita' canonica,
-supporto multi-catalogo/import Caldwell e contenuti visibili con curiosita' e
-asset scientifici dedicati, inclusi i nove corpi del Sistema Solare. Testo
-descrittivo e note osservative restano separati dai nuovi contenuti editoriali.
+I punti 1, 2, 3 e 4 della roadmap catalogo sono conclusi: identita' canonica,
+supporto multi-catalogo/import Caldwell, contenuti visibili con curiosita' e
+asset scientifici dedicati, inclusi i nove corpi del Sistema Solare, e cataloghi
+Filtri/Riduttori collegati ai profili. Testo descrittivo e note osservative
+restano separati dai nuovi contenuti editoriali.
 
-Restano futuri i cataloghi Filtri e Riduttori con la relativa integrazione
-Equipment/dettaglio. Non implementarli automaticamente: per i filtri era stato
-ipotizzato un ruolo solo consultivo, mentre l'effetto dei riduttori sullo score
-deve essere progettato prima del codice.
+Resta futuro il punto 5: suggerire al massimo un filtro adatto nel dettaglio e
+progettare l'effetto reale dei riduttori su setup e ObserverCapability. Gli
+accessori introdotti in `1.25.0` sono intenzionalmente passivi e non modificano
+score, ranking, configurazioni consigliate o NSOM. Non anticipare questa policy
+senza una progettazione esplicita di compatibilita' e priorita'.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.24.2
+## Catalogo Canonico 1.25.0
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -80,7 +90,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `9`; il bootstrap migra e rimuove `MessierObject` senza
+- Lo schema SQLite e' `10`; il bootstrap migra e rimuove `MessierObject` senza
   perdere descrizioni locali e valida identita', riferimenti e primarie dei
   seed prima dell'import.
 - I seed correnti sono `catalogue_objects_seed.csv` e
@@ -116,6 +126,23 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   validano offline tutti gli asset;
   `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
   e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
+
+## Equipment 1.25.0
+
+- La pagina `Filtri e riduttori` usa due cataloghi affiancati con ricerca e
+  layout responsive coerente con `Oculari e Barlow`.
+- Il seed contiene 77 filtri visuali di 6 produttori e 24
+  riduttori/correttori di 7 produttori; provenienza e riferimenti sono in
+  `astro_viewer/data/DATA_SOURCES.md`.
+- I filtri conservano classe, formato, banda/lunghezza d'onda, trasmissione e
+  apertura minima. I riduttori conservano fattore, sistema e modelli
+  compatibili, connessione, backfocus, uso visuale/fotografico e correzione del
+  campo.
+- Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo, ma
+  l'assegnazione emette solo `equipmentChanged` e non ricalcola NSOM o capacita'.
+- Tutti i cataloghi Equipment espongono `is_builtin`. Le voci seed non mostrano
+  `Elimina` e sono protette anche nel repository; le voci create dall'utente
+  possono essere eliminate dopo aver rimosso i collegamenti ai profili.
 
 ## NSOM Canonico
 
@@ -242,7 +269,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.24.2
+## Validazione 1.25.0
 
 Eseguita nella venv corrente:
 
@@ -262,14 +289,14 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `670 passed`, `557 warnings`, `7 subtests passed` in `51,86 s`.
+- Suite: `677 passed`, `557 warnings`, `7 subtests passed` in `50,21 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
 - Asset: 228 JPEG RGB `512 x 512` (219 cielo profondo e 9 Sistema Solare), seed
   e file coerenti.
 
-Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 

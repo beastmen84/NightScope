@@ -33,14 +33,16 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
-- Profili di equipaggiamento con cataloghi separati per telescopi, oculari e Barlow.
+- Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
+  Barlow, binocoli, filtri e riduttori. Le voci integrate sono protette dalla
+  cancellazione; quelle personalizzate restano gestibili dall'utente.
 - Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
 - Database SQLite embedded inizializzato da seed CSV locali.
 - Build Windows tramite PyInstaller.
 
 ## Stato
 
-Versione corrente sorgente: `1.24.2`.
+Versione corrente sorgente: `1.25.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -65,7 +67,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
   quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
-  replacement path NSOM separato.
+  replacement path NSOM separato. Filtri e riduttori sono gia' assegnabili al
+  profilo ma restano inventario passivo: non modificano ancora setup, capacita',
+  score o ranking.
 - Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
   solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
   proiettano la designazione richiesta senza duplicare righe o conteggi.
@@ -325,7 +329,8 @@ La build usa `packaging/NightScope.spec` e include:
 - `resources/` con icone e immagini locali;
 - `data/schema.sql`;
 - seed CSV separati per oggetti e designazioni catalografiche, immagini,
-  descrizioni, curiosita', telescopi, oculari, Barlow e inquinamento luminoso;
+  descrizioni, curiosita', telescopi, oculari, Barlow, binocoli, filtri,
+  riduttori e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
 - ephemeris `data/skyfield/de421.bsp`;
 - `manuale.html`;
@@ -393,6 +398,10 @@ I seed locali vivono in `astro_viewer/data/`:
 - `telescope_catalog_seed.csv`: catalogo telescopi.
 - `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
 - `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.
+- `binocular_catalog_seed.csv`: catalogo binocoli.
+- `filter_catalog_seed.csv`: 77 filtri visuali con classe e metadati spettrali.
+- `reducer_catalog_seed.csv`: 24 riduttori/correttori con compatibilita' ottica
+  e parametri di montaggio.
 - `light_pollution_seed.csv`: fallback locale per qualità cielo.
 - `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
 - `object_descriptions_seed.csv`: descrizioni e note osservative.

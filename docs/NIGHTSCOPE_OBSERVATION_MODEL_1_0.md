@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.24.2`:
+Current runtime status for `1.25.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -42,6 +42,10 @@ Current runtime status for `1.24.2`:
 - `1.24.2` lets the lower Home filter its existing presentation rows by the
   complete target-ID set selected by Sky Compass. The filter follows live
   geometry updates but does not add an NSOM factor or alter scoring and ranking.
+- `1.25.0` adds persistent filter and focal-reducer catalogues plus profile
+  assignments. They are intentionally passive inventory: no filter class,
+  reduction factor or compatibility field enters ObserverCapability, setup
+  recommendation, score or ranking until the dedicated policy is implemented.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
@@ -562,7 +566,7 @@ Inputs:
 
 - target traits;
 - active telescopes/binoculars/eyepieces/Barlows;
-- filters;
+- filters and focal reducers;
 - smart telescope or EAA capabilities;
 - seeing as a magnification constraint;
 - sky brightness and target surface brightness as setup-suitability context;
@@ -596,13 +600,16 @@ obtain very different results from the same `ObservableTargetValue`.
 a scalar summary for Planner, but that scalar is a projection of the capability
 profile, not the capability itself.
 
-Implementation status for `1.15.2`: ObserverCapability is implemented as a
+Implementation status for `1.25.0`: ObserverCapability is implemented as a
 multidimensional internal profile with target-specific `Q_target` projection.
 Planner, Best Object and Detail/Object use that projection where practical value
 is required. Equipment recommendations remain setup-local: `EquipmentService`
-still owns concrete eyepiece, Barlow, binocular and fallback setup choices, while
-`observer_capability_adapter.py` exposes the Observer layer boundary for NSOM
-consumers.
+still owns concrete eyepiece, Barlow, binocular and fallback setup choices,
+while `observer_capability_adapter.py` exposes the Observer layer boundary for
+NSOM consumers. Assigned filters and reducers are persisted and displayed but
+are not yet inputs to either path; the next policy must validate target class,
+aperture, barrel/connection and exact telescope compatibility before selecting
+one accessory or changing effective focal length.
 
 Closed migration report tooling and historical comparison services were removed
 in `1.15.2`; future observer-capability work should start from the runtime model,

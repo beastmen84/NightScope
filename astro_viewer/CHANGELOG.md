@@ -1,5 +1,33 @@
 # Changelog
 
+## NightScope 1.25.0 - 2026-07-12
+
+- Aggiunta la pagina `Filtri e riduttori`, coerente con il layout a due colonne
+  di oculari e Barlow, con ricerca condivisa e CRUD per gli elementi creati
+  dall'utente.
+- Il catalogo integrato comprende 77 filtri visuali di 6 produttori e 24
+  riduttori/correttori di 7 produttori, selezionati da cataloghi e manuali
+  ufficiali. I filtri espongono classe, formato, dati spettrali, trasmissione e
+  apertura minima; i riduttori fattore, sistema/modelli compatibili,
+  connessione, backfocus, impiego visuale/fotografico e correzione del campo.
+- Filtri e riduttori possono essere assegnati o rimossi dal profilo attivo e
+  sono visibili nei relativi gruppi. In questa release restano inventario
+  passivo: non modificano capacità, setup consigliato, score, ranking o NSOM.
+- Aggiunta la provenienza `is_builtin` a telescopi, oculari, Barlow, binocoli,
+  filtri e riduttori. Il pulsante `Elimina` non appare per gli elementi
+  integrati e il repository ne impedisce comunque la cancellazione; gli
+  elementi personalizzati restano eliminabili con rimozione esplicita dai
+  profili che li usano.
+- Lo schema SQLite passa a `10` con migrazione idempotente, due cataloghi e due
+  tabelle di assegnazione. Il bootstrap marca i seed esistenti senza
+  sovrascrivere modifiche locali e conserva come personalizzate le altre righe.
+- Aggiornata la spec PyInstaller per includere entrambi i nuovi seed; la `dist`
+  non e' stata rigenerata.
+- Verificati CRUD e migrazione repository, assegnazione profilo senza refresh
+  NSOM, layout offscreen, `pip check`, Ruff, compileall, smoke Python/QML e
+  `qmllint`. Suite completa parallela: `677 passed`, `557 warnings`,
+  `7 subtests passed` in `50,21 s`.
+
 ## NightScope 1.24.2 - 2026-07-12
 
 - Aggiunto a destra di `Piano della notte` il pulsante checkable
