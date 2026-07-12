@@ -707,7 +707,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIsNotNone(restored_description)
             self.assertIsNotNone(restored_image)
 
-    def test_schema_11_content_rows_are_adopted_as_builtin_and_refreshed(self) -> None:
+    def test_schema_10_content_rows_are_adopted_as_builtin_and_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -752,13 +752,13 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 )
                 connection.execute(
                     "UPDATE ObjectDescription SET short_description = ? WHERE object_id = ?",
-                    ("contenuto versione 11", "messier-M1"),
+                    ("contenuto versione 10", "messier-M1"),
                 )
                 connection.execute(
                     "UPDATE ObjectCuriosity SET curiosity_text = ? WHERE object_id = ?",
-                    ("curiosità versione 11", "messier-M1"),
+                    ("curiosità versione 10", "messier-M1"),
                 )
-                connection.execute("PRAGMA user_version = 11")
+                connection.execute("PRAGMA user_version = 10")
                 connection.commit()
 
             initialize_database(database_path, schema_path)
@@ -780,9 +780,9 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 ).fetchone()
                 schema_version = connection.execute("PRAGMA user_version").fetchone()[0]
 
-            self.assertNotEqual(description[0], "contenuto versione 11")
+            self.assertNotEqual(description[0], "contenuto versione 10")
             self.assertEqual(description[1], 1)
-            self.assertNotEqual(curiosity[0], "curiosità versione 11")
+            self.assertNotEqual(curiosity[0], "curiosità versione 10")
             self.assertEqual(curiosity[1], 1)
             self.assertEqual(schema_version, SCHEMA_VERSION)
 
