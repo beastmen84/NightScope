@@ -58,7 +58,8 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - `CatalogueRepository` restituisce ogni oggetto una volta con `designations`,
   `catalogues`, `primary_catalogue` e `primary_designation`.
 - Ricerca e lookup riconoscono ID fisico, codice breve e forma qualificata, per
-  esempio `messier-M31`, `M31`, `C23` e `Caldwell-C23`.
+  esempio `messier-M31`, `M31` e `Messier-M31`; lo stesso vale per eventuali
+  designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
 - Lo schema SQLite e' `7`; il bootstrap migra e rimuove `MessierObject` senza

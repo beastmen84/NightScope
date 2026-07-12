@@ -29,11 +29,11 @@ targets. `catalogue_designations_seed.csv` associates each physical `object_id`
 with one or more catalogue designations and marks exactly one primary
 designation. The initial dataset contains the 110 Messier objects.
 
-The split is intentional: a future Caldwell designation such as `C23` can point
-to the existing physical target `messier-M31` without creating a second
-Andromeda Galaxy, a second astronomy calculation or an inflated catalogue
-count. Existing `messier-Mxx` IDs remain stable for backward compatibility with
-images, descriptions and persisted references.
+The split is intentional: a future secondary designation can point to an
+existing physical target without creating a second object, a second astronomy
+calculation or an inflated catalogue count. Existing `messier-Mxx` IDs remain
+stable for backward compatibility with images, descriptions and persisted
+references.
 
 ## Light Pollution
 

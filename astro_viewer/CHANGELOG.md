@@ -16,8 +16,8 @@
   di catalogo riconoscono anche designazioni secondarie; il filtro cambia codice
   e ordinamento mostrati senza cambiare l'ID runtime.
 - Aggiunti vincoli e test per una sola designazione primaria, alias
-  case-insensitive e sovrapposizione simulata `C23 -> messier-M31`: il totale
-  resta 110 anziche' diventare 111.
+  case-insensitive e una designazione secondaria simulata sullo stesso target:
+  il totale resta 110 anziche' diventare 111.
 - Caldwell non e' ancora importato; questa release prepara il contratto dati
   necessario per aggiungerlo senza duplicare gli oggetti condivisi con Messier.
 - Verificati dipendenze, Ruff, compileall, smoke Python, QML smoke e `qmllint`;

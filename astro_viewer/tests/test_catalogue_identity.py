@@ -27,14 +27,14 @@ def test_catalogue_filter_projects_designation_without_duplicating_object() -> N
     assert all_items[0]["object_id"] == "messier-M31"
     assert all_items[0]["catalogue"] == "Messier"
     assert all_items[0]["catalogue_id"] == "M31"
-    assert controller._catalogue_option_values("catalogue") == ["Caldwell", "Messier"]
+    assert controller._catalogue_option_values("catalogue") == ["Messier", "Secondary"]
 
-    controller._catalogue_filters["catalogue"] = "Caldwell"
-    caldwell_items = controller._filtered_catalogue_objects()
-    assert len(caldwell_items) == 1
-    assert caldwell_items[0]["object_id"] == "messier-M31"
-    assert caldwell_items[0]["catalogue"] == "Caldwell"
-    assert caldwell_items[0]["catalogue_id"] == "C23"
+    controller._catalogue_filters["catalogue"] = "Secondary"
+    secondary_items = controller._filtered_catalogue_objects()
+    assert len(secondary_items) == 1
+    assert secondary_items[0]["object_id"] == "messier-M31"
+    assert secondary_items[0]["catalogue"] == "Secondary"
+    assert secondary_items[0]["catalogue_id"] == "S31"
 
 
 def test_catalogue_identifier_index_resolves_all_designations_to_same_object() -> None:
@@ -47,7 +47,7 @@ def test_catalogue_identifier_index_resolves_all_designations_to_same_object() -
 
     resolved = {
         controller._catalogue_item_for_object_id(identifier)["object_id"]
-        for identifier in ("messier-M31", "M31", "Messier-M31", "C23", "Caldwell-C23")
+        for identifier in ("messier-M31", "M31", "Messier-M31", "S31", "Secondary-S31")
     }
     assert resolved == {"messier-M31"}
 
@@ -59,7 +59,7 @@ def test_catalogue_search_matches_secondary_designation_once() -> None:
     controller._catalogue_identifier_index = controller._build_catalogue_identifier_index(
         controller._catalogue_objects
     )
-    controller._catalogue_search_query = "c23"
+    controller._catalogue_search_query = "s31"
     controller._catalogue_filters = _filters()
     controller._catalogue_visible_this_month_only = False
     controller._catalogue_year = 2026
@@ -98,7 +98,7 @@ def _multi_catalogue_record() -> dict:
         "primary_catalogue": "Messier",
         "primary_designation": "M31",
         "primary_sort_index": 31,
-        "catalogues": ["Messier", "Caldwell"],
+        "catalogues": ["Messier", "Secondary"],
         "designations": [
             {
                 "catalogue": "Messier",
@@ -107,9 +107,9 @@ def _multi_catalogue_record() -> dict:
                 "is_primary": True,
             },
             {
-                "catalogue": "Caldwell",
-                "designation": "C23",
-                "sort_index": 23,
+                "catalogue": "Secondary",
+                "designation": "S31",
+                "sort_index": 31,
                 "is_primary": False,
             },
         ],

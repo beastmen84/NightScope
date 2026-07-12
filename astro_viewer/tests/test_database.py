@@ -83,25 +83,25 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     )
                     VALUES (?, ?, ?, ?, ?)
                     """,
-                    ("Caldwell", "C23", "messier-M31", 23, 0),
+                    ("Secondary", "S31", "messier-M31", 31, 0),
                 )
                 connection.commit()
 
             repository = CatalogueRepository(database_path)
             self.assertEqual(len(repository.list_objects()), 110)
-            self.assertEqual(len(repository.list_objects("Caldwell")), 1)
+            self.assertEqual(len(repository.list_objects("Secondary")), 1)
             self.assertEqual(
-                [item["object_id"] for item in repository.search("C23")],
+                [item["object_id"] for item in repository.search("S31")],
                 ["messier-M31"],
             )
-            by_designation = repository.get_by_designation("caldwell", "c23")
+            by_designation = repository.get_by_designation("secondary", "s31")
             self.assertIsNotNone(by_designation)
             assert by_designation is not None
             self.assertEqual(by_designation["object_id"], "messier-M31")
-            self.assertEqual(by_designation["catalogues"], ["Messier", "Caldwell"])
+            self.assertEqual(by_designation["catalogues"], ["Messier", "Secondary"])
             self.assertEqual(
                 [item["designation"] for item in by_designation["designations"]],
-                ["M31", "C23"],
+                ["M31", "S31"],
             )
 
             with closing(sqlite3.connect(database_path)) as connection:
@@ -113,7 +113,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                         )
                         VALUES (?, ?, ?, ?, ?)
                         """,
-                        ("Secondary", "S31", "messier-M31", 31, 1),
+                        ("Conflicting", "X31", "messier-M31", 31, 1),
                     )
 
     def test_equipment_catalog_seed(self) -> None:
