@@ -1,5 +1,21 @@
 # Changelog
 
+## NightScope 1.23.3 - 2026-07-12
+
+- Revisionate esternamente le due colonne editoriali del catalogo:
+  `short_description` cambia per 222 dei 227 target e `observing_notes` per 205.
+- Verificati con confronto CSV strutturato numero e ordine delle 227 righe, ID,
+  stagioni e cinque livelli di difficolta': nessun dato fuori dalle due colonne
+  editoriali e' cambiato e non sono presenti ID duplicati o testi vuoti.
+- Rimosso il BOM UTF-8 introdotto dall'editor esterno, che trasformava la prima
+  intestazione in `\ufeffobject_id` e impediva il bootstrap del database.
+- Reso il test del dettaglio C23 indipendente da una singola formulazione
+  redazionale, mantenendo il controllo sulla presenza di una nota sostanziale.
+- Verificati `pip check`, Ruff, compileall, smoke Python/QML e `qmllint`.
+  Suite completa parallela: `664 passed`, `558 warnings`, `7 subtests passed`
+  in `53,45 s`; le warning restano quelle Skyfield/NumPy gia' note.
+- Dist `1.23.3` non rigenerata.
+
 ## NightScope 1.23.2 - 2026-07-12
 
 - Corretto l'ordine del classificatore NSOM: `Planetary nebula` viene ora

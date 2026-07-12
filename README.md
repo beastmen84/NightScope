@@ -36,7 +36,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.23.2`.
+Versione corrente sorgente: `1.23.3`.
 
 Distribuzione Windows corrente: `1.20.0`.
 

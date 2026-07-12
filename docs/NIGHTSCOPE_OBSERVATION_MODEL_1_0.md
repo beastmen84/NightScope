@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.23.2`:
+Current runtime status for `1.23.3`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -31,6 +31,8 @@ Current runtime status for `1.23.2`:
 - `1.23.2` maps every Messier/Caldwell raw type to the existing NSOM taxonomy:
   planetary nebulae retain `PLANETARY_NEBULA` semantics and supernova remnants
   use `DIFFUSE_NEBULA`. No class, factor, formula or weight was added.
+- `1.23.3` revises only descriptive and observing-note copy. Target identity,
+  season, difficulty, NSOM inputs, formulas and ranking are unchanged.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.

@@ -52,11 +52,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.23.2`:
+Measured on the current Windows development environment for `1.23.3`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `664 passed, 7 subtests passed` | `0:00:54` |
+| `python -m pytest -q -n auto` | `664 passed, 7 subtests passed` | `0:00:53` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/image seed coverage, multi-designation identity

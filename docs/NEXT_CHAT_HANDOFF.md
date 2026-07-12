@@ -4,18 +4,19 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.23.2`
-- Dist `1.23.2` non rigenerata.
+- Versione sorgente: `1.23.3`
+- Dist `1.23.3` non rigenerata.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `ce77d6d Fix catalogue NSOM target taxonomy`
+- Commit sorgente validato: `0cb9222 Refresh catalogue observing descriptions`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `ce77d6d`; non sostituire questo
+documentazione. Per lo stato del codice usare `0cb9222`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `0cb9222 Refresh catalogue observing descriptions`
 - `ce77d6d Fix catalogue NSOM target taxonomy`
 - `f2b8f90 Align Caldwell detail content test`
 - `2a00e63 Complete catalogue content seeds`
@@ -45,14 +46,15 @@ sono stati verificati e rifiniti. La UI mantiene payload compatibili e non
 espone modelli/scalari NSOM grezzi.
 
 I punti 1 e 2 della roadmap finale sono conclusi: identita' canonica,
-supporto multi-catalogo e import Caldwell. Il prossimo punto previsto e'
-l'arricchimento contenuti/curiosita' e immagini; non iniziarlo automaticamente.
+supporto multi-catalogo e import Caldwell. Anche il testo descrittivo e le note
+osservative sono stati revisionati; restano futuri curiosita' e nuovi asset
+immagine. Non iniziarli automaticamente.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.23.2
+## Catalogo Canonico 1.23.3
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -79,6 +81,9 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   `DIFFUSE_NEBULA`. Caldwell non introduce categorie Equipment o nuovi pesi.
 - `object_descriptions_seed.csv` copre tutti i 219 target profondi; i Caldwell
   hanno nota osservativa, stagione e difficolta' strumentali.
+- Le due colonne editoriali coprono 227 target complessivi e sono state
+  revisionate in `1.23.3`; ID, ordine, `best_seen` e difficolta' sono invariati.
+  Il CSV deve restare UTF-8 senza BOM per il loader `csv.DictReader` corrente.
 - `object_images_seed.csv` copre esplicitamente gli stessi 219 ID. Le righe
   senza asset dedicato dichiarano un placeholder locale tipizzato; il passaggio
   futuro sulle immagini dovra' sostituirle con fonte e licenza verificabili.
@@ -208,7 +213,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.23.2
+## Validazione 1.23.3
 
 Eseguita nella venv corrente:
 
@@ -226,7 +231,7 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `664 passed`, `558 warnings`, `7 subtests passed` in `54,24 s`.
+- Suite: `664 passed`, `558 warnings`, `7 subtests passed` in `53,45 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.

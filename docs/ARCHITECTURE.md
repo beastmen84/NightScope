@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.23.2`:
+Current runtime status for `1.23.3`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -92,6 +92,10 @@ Current runtime status for `1.23.2`:
 - `ObjectDescription` and `ObjectImages` cover every one of those 219 target
   IDs. Missing dedicated imagery is represented by an explicitly attributed
   local placeholder, not by an unlabelled or remote asset.
+- The 227 seeded Solar System and deep-sky descriptions keep identity, season
+  and difficulty metadata separate from the editable `short_description` and
+  `observing_notes` copy. The seed remains UTF-8 without BOM because bootstrap
+  reads canonical CSV headers with the standard `utf-8` codec.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
