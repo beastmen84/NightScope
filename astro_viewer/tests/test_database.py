@@ -745,6 +745,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "magnification",
                     "objective_diameter_mm",
                     "image_stabilized",
+                    "is_builtin",
                 ],
             )
             self.assertEqual(version, SCHEMA_VERSION)
@@ -796,7 +797,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 ]
                 row = connection.execute(
                     """
-                    SELECT brand, model, magnification, objective_diameter_mm, image_stabilized
+                    SELECT brand, model, magnification, objective_diameter_mm,
+                           image_stabilized, is_builtin
                     FROM BinocularCatalog
                     WHERE id = ?
                     """,
@@ -811,9 +813,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "magnification",
                     "objective_diameter_mm",
                     "image_stabilized",
+                    "is_builtin",
                 ],
             )
-            self.assertEqual(row, ("NightScope", "Legacy 10x50", 10, 50, 1))
+            self.assertEqual(row, ("NightScope", "Legacy 10x50", 10, 50, 1, 0))
 
     def test_profile_binocular_table_is_added_to_existing_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

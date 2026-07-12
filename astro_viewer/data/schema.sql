@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS TelescopeModel (
     focal_ratio REAL,
     mount_type TEXT NOT NULL,
     notes TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (brand_id) REFERENCES TelescopeBrand(id),
     UNIQUE (brand_id, name)
 );
@@ -137,6 +138,7 @@ CREATE TABLE IF NOT EXISTS EyepieceCatalog (
     barrel_size TEXT,
     zoom_click_positions_mm TEXT,
     notes TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, focal_length_mm)
 );
 
@@ -147,6 +149,7 @@ CREATE TABLE IF NOT EXISTS BarlowCatalog (
     multiplier REAL NOT NULL,
     barrel_size TEXT,
     notes TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, multiplier)
 );
 
@@ -157,7 +160,40 @@ CREATE TABLE IF NOT EXISTS BinocularCatalog (
     magnification INTEGER NOT NULL,
     objective_diameter_mm INTEGER NOT NULL,
     image_stabilized INTEGER NOT NULL DEFAULT 0,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, magnification, objective_diameter_mm)
+);
+
+CREATE TABLE IF NOT EXISTS FilterCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    filter_class TEXT NOT NULL,
+    barrel_size TEXT NOT NULL,
+    central_wavelength_nm REAL,
+    bandwidth_nm REAL,
+    transmission_pct REAL,
+    minimum_aperture_mm INTEGER,
+    notes TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (brand, model, barrel_size)
+);
+
+CREATE TABLE IF NOT EXISTS ReducerCatalog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    reduction_factor REAL NOT NULL,
+    optical_system TEXT NOT NULL,
+    compatible_models TEXT,
+    connection TEXT,
+    backfocus_mm REAL,
+    visual_compatible INTEGER NOT NULL DEFAULT 0,
+    imaging_compatible INTEGER NOT NULL DEFAULT 1,
+    corrected_field INTEGER NOT NULL DEFAULT 0,
+    notes TEXT,
+    is_builtin INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (brand, model, reduction_factor)
 );
 
 CREATE TABLE IF NOT EXISTS SkyQualityEstimate (
@@ -235,5 +271,19 @@ CREATE TABLE IF NOT EXISTS EquipmentProfileBinocular (
     profile_id INTEGER NOT NULL,
     binocular_id TEXT NOT NULL,
     PRIMARY KEY (profile_id, binocular_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileFilter (
+    profile_id INTEGER NOT NULL,
+    filter_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, filter_id),
+    FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EquipmentProfileReducer (
+    profile_id INTEGER NOT NULL,
+    reducer_id TEXT NOT NULL,
+    PRIMARY KEY (profile_id, reducer_id),
     FOREIGN KEY (profile_id) REFERENCES EquipmentProfile(id) ON DELETE CASCADE
 );

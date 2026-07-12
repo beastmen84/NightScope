@@ -78,6 +78,53 @@ class Binocular:
 
 
 @dataclass(frozen=True)
+class OpticalFilter:
+    id: str
+    name: str
+    filter_class: str
+    barrel_size: str
+    central_wavelength_nm: float | None = None
+    bandwidth_nm: float | None = None
+    transmission_pct: float | None = None
+    minimum_aperture_mm: int | None = None
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["filterClass"] = self.filter_class
+        data["barrelSize"] = self.barrel_size
+        data["centralWavelengthNm"] = self.central_wavelength_nm
+        data["bandwidthNm"] = self.bandwidth_nm
+        data["transmissionPct"] = self.transmission_pct
+        data["minimumApertureMm"] = self.minimum_aperture_mm
+        return data
+
+
+@dataclass(frozen=True)
+class FocalReducer:
+    id: str
+    name: str
+    reduction_factor: float
+    optical_system: str
+    compatible_models: str = ""
+    connection: str = ""
+    backfocus_mm: float | None = None
+    visual_compatible: bool = False
+    imaging_compatible: bool = True
+    corrected_field: bool = False
+
+    def to_qml(self) -> dict:
+        data = asdict(self)
+        data["reductionFactor"] = self.reduction_factor
+        data["opticalSystem"] = self.optical_system
+        data["compatibleModels"] = self.compatible_models
+        data["backfocusMm"] = self.backfocus_mm
+        data["visualCompatible"] = self.visual_compatible
+        data["imagingCompatible"] = self.imaging_compatible
+        data["correctedField"] = self.corrected_field
+        return data
+
+
+@dataclass(frozen=True)
 class BeginnerPreset:
     id: str
     name: str

@@ -1,0 +1,78 @@
+brand,model,filter_class,barrel_size,central_wavelength_nm,bandwidth_nm,transmission_pct,minimum_aperture_mm,notes
+Astronomik,UHC,UHC,1.25,,25,95,100,Visuale per nebulose a emissione e planetarie.
+Astronomik,UHC,UHC,2,,25,95,100,Visuale per nebulose a emissione e planetarie.
+Astronomik,UHC-E,UHC,1.25,,45,,80,Passabanda moderata adatta anche ad aperture contenute.
+Astronomik,UHC-E,UHC,2,,45,,80,Passabanda moderata adatta anche ad aperture contenute.
+Astronomik,OIII visual,OIII,1.25,500.7,12,95,100,Contrasto selettivo sulle righe OIII.
+Astronomik,OIII visual,OIII,2,500.7,12,95,100,Contrasto selettivo sulle righe OIII.
+Astronomik,H-beta visual,H_BETA,1.25,486.1,12,95,150,Per nebulose dominate dalla riga H-beta.
+Astronomik,H-beta visual,H_BETA,2,486.1,12,95,150,Per nebulose dominate dalla riga H-beta.
+Astronomik,CLS,CLS,1.25,,,,,Riduzione moderata dell'inquinamento luminoso.
+Astronomik,CLS,CLS,2,,,,,Riduzione moderata dell'inquinamento luminoso.
+Baader,UHC-L Ultra L-Booster,UHC,1.25,,,,100,Filtro UHC visuale a banda larga.
+Baader,UHC-L Ultra L-Booster,UHC,2,,,,100,Filtro UHC visuale a banda larga.
+Baader,OIII visual 10 nm,OIII,1.25,500.7,10,,150,Filtro visuale OIII da 10 nm.
+Baader,OIII visual 10 nm,OIII,2,500.7,10,,150,Filtro visuale OIII da 10 nm.
+Baader,OIII Super-G 9 nm,OIII,1.25,500.7,9,,200,Filtro OIII stretto per aperture medio-grandi.
+Baader,OIII Super-G 9 nm,OIII,2,500.7,9,,200,Filtro OIII stretto per aperture medio-grandi.
+Baader,Neodymium Moon & Skyglow,MOON_SKYGLOW,1.25,,,,,Contrasto lunare e planetario con vetro al neodimio.
+Baader,Neodymium Moon & Skyglow,MOON_SKYGLOW,2,,,,,Contrasto lunare e planetario con vetro al neodimio.
+Baader,Contrast Booster,CONTRAST,1.25,,,,,Incremento del contrasto planetario.
+Baader,Contrast Booster,CONTRAST,2,,,,,Incremento del contrasto planetario.
+Baader,Fringe Killer,CHROMATIC,1.25,,,,,Riduzione del cromatismo nei rifrattori acromatici.
+Baader,Fringe Killer,CHROMATIC,2,,,,,Riduzione del cromatismo nei rifrattori acromatici.
+Baader,Semi APO,CHROMATIC,1.25,,,,,Correzione cromatica moderata per rifrattori.
+Baader,Semi APO,CHROMATIC,2,,,,,Correzione cromatica moderata per rifrattori.
+Baader,Neutral Density ND 0.6,ND,1.25,,,25,,Trasmissione neutra nominale del 25 percento.
+Baader,Neutral Density ND 0.6,ND,2,,,25,,Trasmissione neutra nominale del 25 percento.
+Baader,Neutral Density ND 0.9,ND,1.25,,,12.5,,Trasmissione neutra nominale del 12.5 percento.
+Baader,Neutral Density ND 0.9,ND,2,,,12.5,,Trasmissione neutra nominale del 12.5 percento.
+Baader,Double Polarizing,POLARIZING,1.25,,,,,Attenuazione variabile per Luna e pianeti luminosi.
+Baader,Double Polarizing,POLARIZING,2,,,,,Attenuazione variabile per Luna e pianeti luminosi.
+Baader,Yellow 495 nm,COLOR,1.25,495,,,,Filtro colorato per Luna e pianeti.
+Baader,Yellow 495 nm,COLOR,2,495,,,,Filtro colorato per Luna e pianeti.
+Baader,Dark Blue 435 nm,COLOR,1.25,435,,,,Filtro colorato planetario blu scuro.
+Baader,Dark Blue 435 nm,COLOR,2,435,,,,Filtro colorato planetario blu scuro.
+Baader,Light Blue 470 nm,COLOR,1.25,470,,,,Filtro colorato planetario azzurro.
+Baader,Light Blue 470 nm,COLOR,2,470,,,,Filtro colorato planetario azzurro.
+Baader,Green 500 nm,COLOR,1.25,500,,,,Filtro colorato planetario verde.
+Baader,Green 500 nm,COLOR,2,500,,,,Filtro colorato planetario verde.
+Baader,Orange 570 nm,COLOR,1.25,570,,,,Filtro colorato planetario arancio.
+Baader,Orange 570 nm,COLOR,2,570,,,,Filtro colorato planetario arancio.
+Baader,Red 610 nm,COLOR,1.25,610,,,,Filtro colorato planetario rosso.
+Baader,Red 610 nm,COLOR,2,610,,,,Filtro colorato planetario rosso.
+Baader,C2 Swan-Band 15 nm,COMET,1.25,511,15,,,Isola le bande del carbonio nelle comete gassose.
+Baader,C2 Swan-Band 15 nm,COMET,2,511,15,,,Isola le bande del carbonio nelle comete gassose.
+Lumicon,Gen 3 UHC,UHC,1.25,,24,,100,Filtro UHC visuale per nebulose.
+Lumicon,Gen 3 UHC,UHC,2,,24,,100,Filtro UHC visuale per nebulose.
+Lumicon,Gen 3 Oxygen III,OIII,1.25,500.7,,,150,Filtro OIII visuale per nebulose.
+Lumicon,Gen 3 Oxygen III,OIII,2,500.7,,,150,Filtro OIII visuale per nebulose.
+Lumicon,Gen 3 H-Beta,H_BETA,1.25,486.1,,,150,Filtro H-beta visuale selettivo.
+Lumicon,Gen 3 H-Beta,H_BETA,2,486.1,,,150,Filtro H-beta visuale selettivo.
+Lumicon,Comet,COMET,1.25,511,,,,Contrasto delle bande molecolari nelle comete.
+Lumicon,Comet,COMET,2,511,,,,Contrasto delle bande molecolari nelle comete.
+Explore Scientific,UHC Nebula,UHC,1.25,,,,100,Filtro UHC visuale per nebulose.
+Explore Scientific,UHC Nebula,UHC,2,,,,100,Filtro UHC visuale per nebulose.
+Explore Scientific,Oxygen III Nebula,OIII,1.25,500.7,,,150,Filtro visuale sulle righe OIII.
+Explore Scientific,Oxygen III Nebula,OIII,2,500.7,,,150,Filtro visuale sulle righe OIII.
+Explore Scientific,H-Beta Nebula,H_BETA,1.25,489,18,94.5,150,Passabanda dichiarata da 478 a 496 nm.
+Explore Scientific,H-Beta Nebula,H_BETA,2,489,18,94.5,150,Passabanda dichiarata da 478 a 496 nm.
+Explore Scientific,CLS Nebula,CLS,1.25,,,,,Riduzione dell'inquinamento luminoso per uso visuale.
+Explore Scientific,CLS Nebula,CLS,2,,,,,Riduzione dell'inquinamento luminoso per uso visuale.
+Explore Scientific,Neutral Density Moon,ND,1.25,,,,,Attenuazione neutra per osservazione lunare.
+Explore Scientific,Neutral Density Moon,ND,2,,,,,Attenuazione neutra per osservazione lunare.
+Celestron,UHC/LPR,UHC,2,,60,97,100,Filtro UHC/LPR visuale a passabanda moderata.
+Celestron,Oxygen III Narrowband,OIII,1.25,500.7,,,150,Isola le righe OIII a 496 e 501 nm.
+Celestron,Oxygen III Narrowband,OIII,2,500.7,,,150,Isola le righe OIII a 496 e 501 nm.
+Celestron,Moon,ND,1.25,,,,,Riduce il riverbero durante l'osservazione lunare.
+Celestron,Neutral Density Moon ND96-0.9,ND,1.25,,,13,,Trasmissione neutra nominale del 13 percento.
+Optolong,UHC,UHC,1.25,,,,100,Filtro UHC per uso visuale.
+Optolong,UHC,UHC,2,,,,100,Filtro UHC per uso visuale.
+Optolong,CLS,CLS,1.25,,,,,Riduzione dell'inquinamento luminoso.
+Optolong,CLS,CLS,2,,,,,Riduzione dell'inquinamento luminoso.
+Optolong,OIII,OIII,1.25,500.7,,,150,Filtro visuale sulle righe OIII.
+Optolong,OIII,OIII,2,500.7,,,150,Filtro visuale sulle righe OIII.
+Optolong,H-Beta,H_BETA,1.25,486.1,,,150,Filtro visuale sulla riga H-beta.
+Optolong,H-Beta,H_BETA,2,486.1,,,150,Filtro visuale sulla riga H-beta.
+Optolong,Moon & Skyglow,MOON_SKYGLOW,1.25,,,,,Contrasto lunare e del fondo cielo.
+Optolong,Moon & Skyglow,MOON_SKYGLOW,2,,,,,Contrasto lunare e del fondo cielo.

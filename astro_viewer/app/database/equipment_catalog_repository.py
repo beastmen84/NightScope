@@ -5,6 +5,30 @@ from contextlib import closing
 from pathlib import Path
 
 
+FILTER_CLASS_LABELS = {
+    "UHC": "UHC",
+    "OIII": "OIII",
+    "H_BETA": "H-beta",
+    "CLS": "Riduzione inquinamento luminoso",
+    "MOON_SKYGLOW": "Luna e contrasto",
+    "ND": "Densità neutra",
+    "POLARIZING": "Polarizzatore",
+    "COLOR": "Colorato planetario",
+    "CONTRAST": "Contrasto planetario",
+    "CHROMATIC": "Correzione cromatica",
+    "COMET": "Comete",
+}
+
+OPTICAL_SYSTEM_LABELS = {
+    "SCT_CLASSIC": "SCT classico",
+    "EDGEHD": "EdgeHD",
+    "REFRACTOR": "Rifrattore",
+    "RC": "Ritchey-Chrétien",
+    "UNIVERSAL": "Universale",
+    "OTHER": "Altro",
+}
+
+
 class EquipmentCatalogRepository:
     """SQLite access for global equipment catalogs and profile assignments."""
 
@@ -25,7 +49,7 @@ class EquipmentCatalogRepository:
         query = """
             SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                    tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes
+                   tm.mount_type, tm.notes, tm.is_builtin
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
         """
@@ -47,7 +71,7 @@ class EquipmentCatalogRepository:
                     """
                     SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                            tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                           tm.mount_type, tm.notes
+                           tm.mount_type, tm.notes, tm.is_builtin
                     FROM TelescopeModel tm
                     JOIN TelescopeBrand tb ON tb.id = tm.brand_id
                     WHERE tm.id = ?
@@ -65,7 +89,7 @@ class EquipmentCatalogRepository:
                 """
                 SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                        tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                       tm.mount_type, tm.notes
+                       tm.mount_type, tm.notes, tm.is_builtin
                 FROM TelescopeModel tm
                 JOIN TelescopeBrand tb ON tb.id = tm.brand_id
                 WHERE tb.name = ? AND tm.name = ?
@@ -170,7 +194,9 @@ class EquipmentCatalogRepository:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
                 return False, "Modello telescopio non trovato."
-            legacy_id = old["catalog_id"]
+            if old["is_builtin"]:
+                return False, "Gli elementi integrati non possono essere eliminati."
+            legacy_id = old.get("legacy_catalog_id")
             used = self._profile_usage_count(connection, "telescope", catalog_id, legacy_id)
             if used and not remove_from_profiles:
                 return False, "Questo elemento è utilizzato da uno o più profili."
@@ -187,7 +213,7 @@ class EquipmentCatalogRepository:
                 SELECT id, brand, model, eyepiece_type, focal_length_mm,
                        min_focal_length_mm, max_focal_length_mm,
                        apparent_field_deg, afov_min, afov_max, barrel_size,
-                       zoom_click_positions_mm, notes
+                       zoom_click_positions_mm, notes, is_builtin
                 FROM EyepieceCatalog
                 ORDER BY brand, model, focal_length_mm
                 """
@@ -311,6 +337,8 @@ class EquipmentCatalogRepository:
     def delete_eyepiece(self, eyepiece_id: int, remove_from_profiles: bool = False) -> tuple[bool, str]:
         catalog_id = f"catalog-eyepiece-{eyepiece_id}"
         with closing(self._connect()) as connection:
+            if self._is_builtin(connection, "EyepieceCatalog", eyepiece_id):
+                return False, "Gli elementi integrati non possono essere eliminati."
             used = self._profile_usage_count(connection, "eyepiece", catalog_id)
             if used and not remove_from_profiles:
                 return False, "Questo elemento è utilizzato da uno o più profili."
@@ -324,7 +352,7 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, multiplier, barrel_size, notes
+                SELECT id, brand, model, multiplier, barrel_size, notes, is_builtin
                 FROM BarlowCatalog
                 ORDER BY brand, model, multiplier
                 """
@@ -382,6 +410,8 @@ class EquipmentCatalogRepository:
     def delete_barlow(self, barlow_id: int, remove_from_profiles: bool = False) -> tuple[bool, str]:
         catalog_id = f"catalog-barlow-{barlow_id}"
         with closing(self._connect()) as connection:
+            if self._is_builtin(connection, "BarlowCatalog", barlow_id):
+                return False, "Gli elementi integrati non possono essere eliminati."
             used = self._profile_usage_count(connection, "barlow", catalog_id)
             if used and not remove_from_profiles:
                 return False, "Questo elemento è utilizzato da uno o più profili."
@@ -395,7 +425,8 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, magnification, objective_diameter_mm, image_stabilized
+                SELECT id, brand, model, magnification, objective_diameter_mm,
+                       image_stabilized, is_builtin
                 FROM BinocularCatalog
                 ORDER BY brand, model, magnification, objective_diameter_mm
                 """
@@ -494,22 +525,322 @@ class EquipmentCatalogRepository:
             connection.commit()
         return True, "Binocolo aggiornato."
 
-    def delete_binocular(self, binocular_id: int) -> tuple[bool, str]:
+    def delete_binocular(
+        self,
+        binocular_id: int,
+        remove_from_profiles: bool = False,
+    ) -> tuple[bool, str]:
         catalog_id = f"catalog-binocular-{binocular_id}"
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id FROM BinocularCatalog WHERE id = ?",
+                "SELECT id, is_builtin FROM BinocularCatalog WHERE id = ?",
                 (binocular_id,),
             ).fetchone()
             if not existing:
                 return False, "Binocolo non trovato."
-            connection.execute(
-                "DELETE FROM EquipmentProfileBinocular WHERE binocular_id = ?",
-                (catalog_id,),
-            )
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere eliminati."
+            used = self._profile_usage_count(connection, "binocular", catalog_id)
+            if used and not remove_from_profiles:
+                return False, "Questo elemento è utilizzato da uno o più profili."
+            if remove_from_profiles:
+                self._remove_from_profiles(connection, "binocular", catalog_id)
             connection.execute("DELETE FROM BinocularCatalog WHERE id = ?", (binocular_id,))
             connection.commit()
         return True, "Binocolo eliminato."
+
+    def filters(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, brand, model, filter_class, barrel_size,
+                       central_wavelength_nm, bandwidth_nm, transmission_pct,
+                       minimum_aperture_mm, notes, is_builtin
+                FROM FilterCatalog
+                ORDER BY brand, model, barrel_size
+                """
+            ).fetchall()
+        return [self._filter_model(row) for row in rows]
+
+    def add_filter(
+        self,
+        brand: str,
+        model: str,
+        filter_class: str,
+        barrel_size: str,
+        central_wavelength_nm: float | None = None,
+        bandwidth_nm: float | None = None,
+        transmission_pct: float | None = None,
+        minimum_aperture_mm: int | None = None,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_filter_values(
+            brand,
+            model,
+            filter_class,
+            barrel_size,
+            central_wavelength_nm,
+            bandwidth_nm,
+            transmission_pct,
+            minimum_aperture_mm,
+            notes,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            duplicate = connection.execute(
+                """
+                SELECT id FROM FilterCatalog
+                WHERE brand = ? AND model = ? AND barrel_size = ?
+                """,
+                values[:2] + (values[3],),
+            ).fetchone()
+            if duplicate:
+                return False, "Questo filtro è già presente nel catalogo."
+            connection.execute(
+                """
+                INSERT INTO FilterCatalog (
+                    brand, model, filter_class, barrel_size,
+                    central_wavelength_nm, bandwidth_nm, transmission_pct,
+                    minimum_aperture_mm, notes
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                values,
+            )
+            connection.commit()
+        return True, "Filtro aggiunto."
+
+    def update_filter(
+        self,
+        filter_id: int,
+        brand: str,
+        model: str,
+        filter_class: str,
+        barrel_size: str,
+        central_wavelength_nm: float | None = None,
+        bandwidth_nm: float | None = None,
+        transmission_pct: float | None = None,
+        minimum_aperture_mm: int | None = None,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_filter_values(
+            brand,
+            model,
+            filter_class,
+            barrel_size,
+            central_wavelength_nm,
+            bandwidth_nm,
+            transmission_pct,
+            minimum_aperture_mm,
+            notes,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM FilterCatalog WHERE id = ?",
+                (filter_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Filtro non trovato."
+            duplicate = connection.execute(
+                """
+                SELECT id FROM FilterCatalog
+                WHERE brand = ? AND model = ? AND barrel_size = ? AND id <> ?
+                """,
+                values[:2] + (values[3], filter_id),
+            ).fetchone()
+            if duplicate:
+                return False, "Questo filtro è già presente nel catalogo."
+            connection.execute(
+                """
+                UPDATE FilterCatalog
+                SET brand = ?, model = ?, filter_class = ?, barrel_size = ?,
+                    central_wavelength_nm = ?, bandwidth_nm = ?,
+                    transmission_pct = ?, minimum_aperture_mm = ?, notes = ?
+                WHERE id = ?
+                """,
+                values + (filter_id,),
+            )
+            connection.commit()
+        return True, "Filtro aggiornato."
+
+    def delete_filter(
+        self,
+        filter_id: int,
+        remove_from_profiles: bool = False,
+    ) -> tuple[bool, str]:
+        catalog_id = f"catalog-filter-{filter_id}"
+        with closing(self._connect()) as connection:
+            if self._is_builtin(connection, "FilterCatalog", filter_id):
+                return False, "Gli elementi integrati non possono essere eliminati."
+            existing = connection.execute(
+                "SELECT id FROM FilterCatalog WHERE id = ?",
+                (filter_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Filtro non trovato."
+            used = self._profile_usage_count(connection, "filter", catalog_id)
+            if used and not remove_from_profiles:
+                return False, "Questo elemento è utilizzato da uno o più profili."
+            if remove_from_profiles:
+                self._remove_from_profiles(connection, "filter", catalog_id)
+            connection.execute("DELETE FROM FilterCatalog WHERE id = ?", (filter_id,))
+            connection.commit()
+        return True, "Filtro eliminato."
+
+    def reducers(self) -> list[dict]:
+        with closing(self._connect()) as connection:
+            rows = connection.execute(
+                """
+                SELECT id, brand, model, reduction_factor, optical_system,
+                       compatible_models, connection, backfocus_mm,
+                       visual_compatible, imaging_compatible, corrected_field,
+                       notes, is_builtin
+                FROM ReducerCatalog
+                ORDER BY brand, model, reduction_factor
+                """
+            ).fetchall()
+        return [self._reducer_model(row) for row in rows]
+
+    def add_reducer(
+        self,
+        brand: str,
+        model: str,
+        reduction_factor: float,
+        optical_system: str,
+        compatible_models: str = "",
+        connection_name: str = "",
+        backfocus_mm: float | None = None,
+        visual_compatible: bool = False,
+        imaging_compatible: bool = True,
+        corrected_field: bool = False,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_reducer_values(
+            brand,
+            model,
+            reduction_factor,
+            optical_system,
+            compatible_models,
+            connection_name,
+            backfocus_mm,
+            visual_compatible,
+            imaging_compatible,
+            corrected_field,
+            notes,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            duplicate = connection.execute(
+                """
+                SELECT id FROM ReducerCatalog
+                WHERE brand = ? AND model = ? AND reduction_factor = ?
+                """,
+                values[:3],
+            ).fetchone()
+            if duplicate:
+                return False, "Questo riduttore è già presente nel catalogo."
+            connection.execute(
+                """
+                INSERT INTO ReducerCatalog (
+                    brand, model, reduction_factor, optical_system,
+                    compatible_models, connection, backfocus_mm,
+                    visual_compatible, imaging_compatible, corrected_field,
+                    notes
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                values,
+            )
+            connection.commit()
+        return True, "Riduttore aggiunto."
+
+    def update_reducer(
+        self,
+        reducer_id: int,
+        brand: str,
+        model: str,
+        reduction_factor: float,
+        optical_system: str,
+        compatible_models: str = "",
+        connection_name: str = "",
+        backfocus_mm: float | None = None,
+        visual_compatible: bool = False,
+        imaging_compatible: bool = True,
+        corrected_field: bool = False,
+        notes: str = "",
+    ) -> tuple[bool, str]:
+        values, error = self._validated_reducer_values(
+            brand,
+            model,
+            reduction_factor,
+            optical_system,
+            compatible_models,
+            connection_name,
+            backfocus_mm,
+            visual_compatible,
+            imaging_compatible,
+            corrected_field,
+            notes,
+        )
+        if error:
+            return False, error
+        with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id FROM ReducerCatalog WHERE id = ?",
+                (reducer_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Riduttore non trovato."
+            duplicate = connection.execute(
+                """
+                SELECT id FROM ReducerCatalog
+                WHERE brand = ? AND model = ? AND reduction_factor = ? AND id <> ?
+                """,
+                values[:3] + (reducer_id,),
+            ).fetchone()
+            if duplicate:
+                return False, "Questo riduttore è già presente nel catalogo."
+            connection.execute(
+                """
+                UPDATE ReducerCatalog
+                SET brand = ?, model = ?, reduction_factor = ?,
+                    optical_system = ?, compatible_models = ?, connection = ?,
+                    backfocus_mm = ?, visual_compatible = ?,
+                    imaging_compatible = ?, corrected_field = ?, notes = ?
+                WHERE id = ?
+                """,
+                values + (reducer_id,),
+            )
+            connection.commit()
+        return True, "Riduttore aggiornato."
+
+    def delete_reducer(
+        self,
+        reducer_id: int,
+        remove_from_profiles: bool = False,
+    ) -> tuple[bool, str]:
+        catalog_id = f"catalog-reducer-{reducer_id}"
+        with closing(self._connect()) as connection:
+            if self._is_builtin(connection, "ReducerCatalog", reducer_id):
+                return False, "Gli elementi integrati non possono essere eliminati."
+            existing = connection.execute(
+                "SELECT id FROM ReducerCatalog WHERE id = ?",
+                (reducer_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Riduttore non trovato."
+            used = self._profile_usage_count(connection, "reducer", catalog_id)
+            if used and not remove_from_profiles:
+                return False, "Questo elemento è utilizzato da uno o più profili."
+            if remove_from_profiles:
+                self._remove_from_profiles(connection, "reducer", catalog_id)
+            connection.execute("DELETE FROM ReducerCatalog WHERE id = ?", (reducer_id,))
+            connection.commit()
+        return True, "Riduttore eliminato."
 
     def profiles(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -608,6 +939,12 @@ class EquipmentCatalogRepository:
     def profile_binocular_ids(self, profile_id: int) -> list[str]:
         return self._profile_item_ids("EquipmentProfileBinocular", "binocular_id", profile_id)
 
+    def profile_filter_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileFilter", "filter_id", profile_id)
+
+    def profile_reducer_ids(self, profile_id: int) -> list[str]:
+        return self._profile_item_ids("EquipmentProfileReducer", "reducer_id", profile_id)
+
     def assign_profile_telescope(self, profile_id: int, telescope_id: str) -> None:
         self._assign_profile_item("EquipmentProfileTelescope", "telescope_id", profile_id, telescope_id)
 
@@ -631,6 +968,18 @@ class EquipmentCatalogRepository:
 
     def remove_profile_binocular(self, profile_id: int, binocular_id: str) -> None:
         self._remove_profile_item("EquipmentProfileBinocular", "binocular_id", profile_id, binocular_id)
+
+    def assign_profile_filter(self, profile_id: int, filter_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileFilter", "filter_id", profile_id, filter_id)
+
+    def remove_profile_filter(self, profile_id: int, filter_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileFilter", "filter_id", profile_id, filter_id)
+
+    def assign_profile_reducer(self, profile_id: int, reducer_id: str) -> None:
+        self._assign_profile_item("EquipmentProfileReducer", "reducer_id", profile_id, reducer_id)
+
+    def remove_profile_reducer(self, profile_id: int, reducer_id: str) -> None:
+        self._remove_profile_item("EquipmentProfileReducer", "reducer_id", profile_id, reducer_id)
 
     def profile_usage_count(self, kind: str, item_id: str) -> int:
         with closing(self._connect()) as connection:
@@ -667,6 +1016,7 @@ class EquipmentCatalogRepository:
             "focal_ratio": row["focal_ratio"],
             "mount_type": row["mount_type"],
             "notes": row["notes"] or "",
+            "is_builtin": bool(row["is_builtin"]),
             "catalog_id": f"catalog-telescope-{row['id']}",
             "legacy_catalog_id": f"catalog:{row['brand']}:{row['name']}",
         }
@@ -695,6 +1045,7 @@ class EquipmentCatalogRepository:
             "zoom_click_positions_mm": row["zoom_click_positions_mm"] or "",
             "notes": row["notes"] or "",
             "focalRangeLabel": focal_range,
+            "is_builtin": bool(row["is_builtin"]),
         }
 
     @staticmethod
@@ -708,6 +1059,7 @@ class EquipmentCatalogRepository:
             "multiplier": row["multiplier"],
             "barrel_size": row["barrel_size"] or "",
             "notes": row["notes"] or "",
+            "is_builtin": bool(row["is_builtin"]),
         }
 
     @staticmethod
@@ -722,7 +1074,134 @@ class EquipmentCatalogRepository:
             "objective_diameter_mm": row["objective_diameter_mm"],
             "image_stabilized": bool(row["image_stabilized"]),
             "spec_label": f"{row['magnification']}×{row['objective_diameter_mm']}",
+            "is_builtin": bool(row["is_builtin"]),
         }
+
+    @staticmethod
+    def _filter_model(row: sqlite3.Row) -> dict:
+        filter_class = str(row["filter_class"] or "").strip().upper()
+        return {
+            "id": row["id"],
+            "catalog_id": f"catalog-filter-{row['id']}",
+            "brand": row["brand"],
+            "model": row["model"],
+            "display_name": f"{row['brand']} {row['model']}",
+            "filter_class": filter_class,
+            "filter_class_label": FILTER_CLASS_LABELS.get(filter_class, filter_class),
+            "barrel_size": row["barrel_size"] or "",
+            "central_wavelength_nm": row["central_wavelength_nm"],
+            "bandwidth_nm": row["bandwidth_nm"],
+            "transmission_pct": row["transmission_pct"],
+            "minimum_aperture_mm": row["minimum_aperture_mm"],
+            "notes": row["notes"] or "",
+            "is_builtin": bool(row["is_builtin"]),
+        }
+
+    @staticmethod
+    def _reducer_model(row: sqlite3.Row) -> dict:
+        optical_system = str(row["optical_system"] or "").strip().upper()
+        return {
+            "id": row["id"],
+            "catalog_id": f"catalog-reducer-{row['id']}",
+            "brand": row["brand"],
+            "model": row["model"],
+            "display_name": f"{row['brand']} {row['model']}",
+            "reduction_factor": row["reduction_factor"],
+            "optical_system": optical_system,
+            "optical_system_label": OPTICAL_SYSTEM_LABELS.get(
+                optical_system,
+                optical_system,
+            ),
+            "compatible_models": row["compatible_models"] or "",
+            "connection": row["connection"] or "",
+            "backfocus_mm": row["backfocus_mm"],
+            "visual_compatible": bool(row["visual_compatible"]),
+            "imaging_compatible": bool(row["imaging_compatible"]),
+            "corrected_field": bool(row["corrected_field"]),
+            "notes": row["notes"] or "",
+            "is_builtin": bool(row["is_builtin"]),
+        }
+
+    @staticmethod
+    def _validated_filter_values(
+        brand: str,
+        model: str,
+        filter_class: str,
+        barrel_size: str,
+        central_wavelength_nm: float | None,
+        bandwidth_nm: float | None,
+        transmission_pct: float | None,
+        minimum_aperture_mm: int | None,
+        notes: str,
+    ) -> tuple[tuple, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        clean_class = filter_class.strip().upper()
+        clean_barrel = barrel_size.strip()
+        if not clean_brand or not clean_model or not clean_barrel:
+            return (), "Marca, modello e formato sono obbligatori."
+        if clean_class not in FILTER_CLASS_LABELS:
+            return (), "Tipo di filtro non valido."
+        if central_wavelength_nm is not None and central_wavelength_nm <= 0:
+            return (), "La lunghezza d'onda deve essere maggiore di zero."
+        if bandwidth_nm is not None and bandwidth_nm <= 0:
+            return (), "La larghezza di banda deve essere maggiore di zero."
+        if transmission_pct is not None and not 0 < transmission_pct <= 100:
+            return (), "La trasmissione deve essere compresa tra 0 e 100%."
+        if minimum_aperture_mm is not None and minimum_aperture_mm <= 0:
+            return (), "L'apertura minima deve essere maggiore di zero."
+        return (
+            clean_brand,
+            clean_model,
+            clean_class,
+            clean_barrel,
+            central_wavelength_nm,
+            bandwidth_nm,
+            transmission_pct,
+            minimum_aperture_mm,
+            notes.strip(),
+        ), ""
+
+    @staticmethod
+    def _validated_reducer_values(
+        brand: str,
+        model: str,
+        reduction_factor: float,
+        optical_system: str,
+        compatible_models: str,
+        connection_name: str,
+        backfocus_mm: float | None,
+        visual_compatible: bool,
+        imaging_compatible: bool,
+        corrected_field: bool,
+        notes: str,
+    ) -> tuple[tuple, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        clean_system = optical_system.strip().upper()
+        if not clean_brand or not clean_model:
+            return (), "Marca e modello sono obbligatori."
+        if not 0 < reduction_factor < 1:
+            return (), "Il fattore di riduzione deve essere compreso tra 0 e 1."
+        if clean_system not in OPTICAL_SYSTEM_LABELS:
+            return (), "Sistema ottico non valido."
+        if backfocus_mm is not None and backfocus_mm <= 0:
+            return (), "Il backfocus deve essere maggiore di zero."
+        if not visual_compatible and not imaging_compatible:
+            return (), "Indica almeno un impiego compatibile."
+        return (
+            clean_brand,
+            clean_model,
+            reduction_factor,
+            clean_system,
+            compatible_models.strip(),
+            connection_name.strip(),
+            backfocus_mm,
+            1 if visual_compatible else 0,
+            1 if imaging_compatible else 0,
+            1 if corrected_field else 0,
+            notes.strip(),
+        ), ""
 
     @staticmethod
     def _ensure_brand(connection: sqlite3.Connection, brand: str) -> int:
@@ -735,7 +1214,7 @@ class EquipmentCatalogRepository:
             """
             SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                    tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes
+                   tm.mount_type, tm.notes, tm.is_builtin
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
             WHERE tm.id = ?
@@ -744,6 +1223,18 @@ class EquipmentCatalogRepository:
             (model_id,),
         ).fetchone()
         return self._telescope_model(row) if row else None
+
+    @staticmethod
+    def _is_builtin(
+        connection: sqlite3.Connection,
+        table_name: str,
+        item_id: int,
+    ) -> bool:
+        row = connection.execute(
+            f"SELECT is_builtin FROM {table_name} WHERE id = ?",
+            (item_id,),
+        ).fetchone()
+        return bool(row and row["is_builtin"])
 
     def _profile_usage_count(self, connection: sqlite3.Connection, kind: str, item_id: str, legacy_id: str | None = None) -> int:
         ids = [item_id]
@@ -775,6 +1266,16 @@ class EquipmentCatalogRepository:
                 f"SELECT COUNT(*) FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})",
                 ids,
             ).fetchone()[0])
+        if kind == "filter":
+            return int(connection.execute(
+                f"SELECT COUNT(*) FROM EquipmentProfileFilter WHERE filter_id IN ({placeholders})",
+                ids,
+            ).fetchone()[0])
+        if kind == "reducer":
+            return int(connection.execute(
+                f"SELECT COUNT(*) FROM EquipmentProfileReducer WHERE reducer_id IN ({placeholders})",
+                ids,
+            ).fetchone()[0])
         return 0
 
     @staticmethod
@@ -795,3 +1296,7 @@ class EquipmentCatalogRepository:
             connection.execute(f"DELETE FROM EquipmentProfileBarlow WHERE barlow_id IN ({placeholders})", ids)
         elif kind == "binocular":
             connection.execute(f"DELETE FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})", ids)
+        elif kind == "filter":
+            connection.execute(f"DELETE FROM EquipmentProfileFilter WHERE filter_id IN ({placeholders})", ids)
+        elif kind == "reducer":
+            connection.execute(f"DELETE FROM EquipmentProfileReducer WHERE reducer_id IN ({placeholders})", ids)

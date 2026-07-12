@@ -14,7 +14,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -29,6 +29,8 @@ REQUIRED_TABLES = {
     "EyepieceCatalog",
     "BarlowCatalog",
     "BinocularCatalog",
+    "FilterCatalog",
+    "ReducerCatalog",
     "SkyQualityEstimate",
     "ObjectImages",
     "ObjectDescription",
@@ -38,6 +40,8 @@ REQUIRED_TABLES = {
     "EquipmentProfileEyepiece",
     "EquipmentProfileBarlow",
     "EquipmentProfileBinocular",
+    "EquipmentProfileFilter",
+    "EquipmentProfileReducer",
 }
 SEEDED_TABLES = {
     "CatalogueObject": "catalogue_objects_seed.csv",
@@ -47,6 +51,8 @@ SEEDED_TABLES = {
     "EyepieceCatalog": "eyepiece_catalog_seed.csv",
     "BarlowCatalog": "barlow_catalog_seed.csv",
     "BinocularCatalog": "binocular_catalog_seed.csv",
+    "FilterCatalog": "filter_catalog_seed.csv",
+    "ReducerCatalog": "reducer_catalog_seed.csv",
     "ObjectImages": "object_images_seed.csv",
     "ObjectDescription": "object_descriptions_seed.csv",
     "ObjectCuriosity": "object_curiosities_seed.csv",
@@ -239,6 +245,11 @@ def _build_database(
             data_dir / "barlow_catalog_seed.csv",
         )
         _seed_binocular_catalog(connection, data_dir / "binocular_catalog_seed.csv")
+        _seed_filters_reducers_catalog(
+            connection,
+            data_dir / "filter_catalog_seed.csv",
+            data_dir / "reducer_catalog_seed.csv",
+        )
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_object_curiosities(connection, data_dir / "object_curiosities_seed.csv")
@@ -266,7 +277,15 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "search_name": "TEXT",
         },
     )
-    _add_columns(connection, "TelescopeModel", {"focal_ratio": "REAL", "notes": "TEXT"})
+    _add_columns(
+        connection,
+        "TelescopeModel",
+        {
+            "focal_ratio": "REAL",
+            "notes": "TEXT",
+            "is_builtin": "INTEGER NOT NULL DEFAULT 0",
+        },
+    )
     _add_columns(
         connection,
         "EyepieceCatalog",
@@ -279,9 +298,23 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "barrel_size": "TEXT",
             "zoom_click_positions_mm": "TEXT",
             "notes": "TEXT",
+            "is_builtin": "INTEGER NOT NULL DEFAULT 0",
         },
     )
-    _add_columns(connection, "BarlowCatalog", {"barrel_size": "TEXT", "notes": "TEXT"})
+    _add_columns(
+        connection,
+        "BarlowCatalog",
+        {
+            "barrel_size": "TEXT",
+            "notes": "TEXT",
+            "is_builtin": "INTEGER NOT NULL DEFAULT 0",
+        },
+    )
+    _add_columns(
+        connection,
+        "BinocularCatalog",
+        {"is_builtin": "INTEGER NOT NULL DEFAULT 0"},
+    )
     _migrate_catalogue_tables(connection)
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
@@ -407,6 +440,7 @@ def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
             magnification INTEGER NOT NULL,
             objective_diameter_mm INTEGER NOT NULL,
             image_stabilized INTEGER NOT NULL DEFAULT 0,
+            is_builtin INTEGER NOT NULL DEFAULT 0,
             UNIQUE (brand, model, magnification, objective_diameter_mm)
         )
         """
@@ -422,6 +456,7 @@ def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
         "magnification",
         "objective_diameter_mm",
         "image_stabilized",
+        "is_builtin",
     }
     if existing_columns == expected_columns:
         return
@@ -435,6 +470,7 @@ def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
             magnification INTEGER NOT NULL,
             objective_diameter_mm INTEGER NOT NULL,
             image_stabilized INTEGER NOT NULL DEFAULT 0,
+            is_builtin INTEGER NOT NULL DEFAULT 0,
             UNIQUE (brand, model, magnification, objective_diameter_mm)
         )
         """
@@ -442,9 +478,11 @@ def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
     connection.execute(
         """
         INSERT OR IGNORE INTO BinocularCatalog_new (
-            id, brand, model, magnification, objective_diameter_mm, image_stabilized
+            id, brand, model, magnification, objective_diameter_mm,
+            image_stabilized, is_builtin
         )
-        SELECT id, brand, model, magnification, objective_diameter_mm, image_stabilized
+        SELECT id, brand, model, magnification, objective_diameter_mm,
+               image_stabilized, is_builtin
         FROM BinocularCatalog
         """
     )
@@ -560,6 +598,15 @@ def _optional_float(value: str) -> float | None:
         return float(clean_value)
     except ValueError:
         return None
+
+
+def _optional_int(value: str) -> int | None:
+    parsed = _optional_float(value)
+    return int(parsed) if parsed is not None else None
+
+
+def _csv_bool(value: object) -> int:
+    return 1 if str(value or "").strip().casefold() in {"1", "true", "yes", "si", "sì"} else 0
 
 
 def _import_geonames_cities_if_available(
@@ -838,10 +885,10 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
         """
         INSERT INTO TelescopeModel (
             brand_id, name, optical_type, aperture_mm, focal_length_mm,
-            focal_ratio, mount_type, notes
+            focal_ratio, mount_type, notes, is_builtin
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(brand_id, name) DO NOTHING
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand_id, name) DO UPDATE SET is_builtin = 1
         """,
         [
             (brand_ids[brand], name, optical_type, aperture, focal, ratio, mount, notes)
@@ -875,10 +922,10 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
         INSERT INTO EyepieceCatalog (
             brand, model, eyepiece_type, focal_length_mm, min_focal_length_mm,
             max_focal_length_mm, apparent_field_deg, afov_min, afov_max, barrel_size,
-            zoom_click_positions_mm, notes
+            zoom_click_positions_mm, notes, is_builtin
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(brand, model, focal_length_mm) DO NOTHING
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model, focal_length_mm) DO UPDATE SET is_builtin = 1
         """,
         _eyepiece_catalog_rows(eyepiece_path),
     )
@@ -886,9 +933,11 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
 
     connection.executemany(
         """
-        INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(brand, model, multiplier) DO NOTHING
+        INSERT INTO BarlowCatalog (
+            brand, model, multiplier, barrel_size, notes, is_builtin
+        )
+        VALUES (?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model, multiplier) DO UPDATE SET is_builtin = 1
         """,
         _barlow_catalog_rows(barlow_path),
     )
@@ -949,10 +998,12 @@ def _seed_binocular_catalog(connection: sqlite3.Connection, binocular_path: Path
     connection.executemany(
         """
         INSERT INTO BinocularCatalog (
-            brand, model, magnification, objective_diameter_mm, image_stabilized
+            brand, model, magnification, objective_diameter_mm,
+            image_stabilized, is_builtin
         )
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT(brand, model, magnification, objective_diameter_mm) DO NOTHING
+        VALUES (?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model, magnification, objective_diameter_mm)
+        DO UPDATE SET is_builtin = 1
         """,
         _binocular_catalog_rows(binocular_path),
     )
@@ -968,7 +1019,80 @@ def _binocular_catalog_rows(binocular_path: Path | None) -> list[tuple]:
                 row["model"],
                 int(float(row["magnification"])),
                 int(float(row["objective_diameter_mm"])),
-                1 if str(row.get("image_stabilized", "")).strip().lower() in {"1", "true", "yes"} else 0,
+                _csv_bool(row.get("image_stabilized", "")),
+            )
+            for row in csv.DictReader(file)
+        ]
+
+
+def _seed_filters_reducers_catalog(
+    connection: sqlite3.Connection,
+    filter_path: Path | None = None,
+    reducer_path: Path | None = None,
+) -> None:
+    connection.executemany(
+        """
+        INSERT INTO FilterCatalog (
+            brand, model, filter_class, barrel_size, central_wavelength_nm,
+            bandwidth_nm, transmission_pct, minimum_aperture_mm, notes,
+            is_builtin
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model, barrel_size) DO UPDATE SET is_builtin = 1
+        """,
+        _filter_catalog_rows(filter_path),
+    )
+    connection.executemany(
+        """
+        INSERT INTO ReducerCatalog (
+            brand, model, reduction_factor, optical_system, compatible_models,
+            connection, backfocus_mm, visual_compatible, imaging_compatible,
+            corrected_field, notes, is_builtin
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model, reduction_factor) DO UPDATE SET is_builtin = 1
+        """,
+        _reducer_catalog_rows(reducer_path),
+    )
+
+
+def _filter_catalog_rows(filter_path: Path | None) -> list[tuple]:
+    if not filter_path or not filter_path.exists():
+        raise FileNotFoundError("Missing filter catalog seed CSV.")
+    with filter_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                row["filter_class"],
+                row["barrel_size"],
+                _optional_float(row.get("central_wavelength_nm", "")),
+                _optional_float(row.get("bandwidth_nm", "")),
+                _optional_float(row.get("transmission_pct", "")),
+                _optional_int(row.get("minimum_aperture_mm", "")),
+                row.get("notes", ""),
+            )
+            for row in csv.DictReader(file)
+        ]
+
+
+def _reducer_catalog_rows(reducer_path: Path | None) -> list[tuple]:
+    if not reducer_path or not reducer_path.exists():
+        raise FileNotFoundError("Missing reducer catalog seed CSV.")
+    with reducer_path.open("r", encoding="utf-8", newline="") as file:
+        return [
+            (
+                row["brand"],
+                row["model"],
+                float(row["reduction_factor"]),
+                row["optical_system"],
+                row.get("compatible_models", ""),
+                row.get("connection", ""),
+                _optional_float(row.get("backfocus_mm", "")),
+                _csv_bool(row.get("visual_compatible", "")),
+                _csv_bool(row.get("imaging_compatible", "")),
+                _csv_bool(row.get("corrected_field", "")),
+                row.get("notes", ""),
             )
             for row in csv.DictReader(file)
         ]
