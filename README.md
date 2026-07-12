@@ -36,7 +36,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.23.0`.
+Versione corrente sorgente: `1.23.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -65,6 +65,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - Caldwell: C1-C109 sono target canonici separati dai 110 Messier, come previsto
   dal catalogo originale; ricerca per codice Caldwell e identificativo NGC/IC,
   ordinamento naturale e dettaglio usano il contratto catalogo esistente.
+- Contenuti catalogo: tutti i 219 target Messier/Caldwell hanno descrizione
+  osservativa e mapping immagine espliciti; gli asset non ancora dedicati usano
+  placeholder locali tipizzati in attesa del passaggio immagini/licenze.
 
 L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
 Object, Planner, Sky Compass e i conteggi della Home conservano una sola

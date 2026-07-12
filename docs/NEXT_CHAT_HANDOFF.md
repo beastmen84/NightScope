@@ -4,18 +4,20 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.23.0`
-- Dist `1.23.0` non rigenerata.
+- Versione sorgente: `1.23.1`
+- Dist `1.23.1` non rigenerata.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `9a39501 Add Caldwell catalogue`
+- Commit sorgente validato: `f2b8f90 Align Caldwell detail content test`
 
 Il commit che aggiunge questo handoff contiene solo release metadata e
-documentazione. Per lo stato del codice usare `9a39501`; non sostituire questo
+documentazione. Per lo stato del codice usare `f2b8f90`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `f2b8f90 Align Caldwell detail content test`
+- `2a00e63 Complete catalogue content seeds`
 - `9a39501 Add Caldwell catalogue`
 - `2ae2289 Correct catalogue overlap example`
 - `2256899 Migrate recommendation matrix seed reader`
@@ -49,7 +51,7 @@ Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.23.0
+## Catalogo Canonico 1.23.1
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -71,6 +73,11 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   sovrapposizioni per definizione del Caldwell originale.
 - La UI espone 228 righe complessive: 219 target cielo profondo e 9 corpi del
   Sistema Solare. Il filtro Caldwell contiene C1-C109 in ordine naturale.
+- `object_descriptions_seed.csv` copre tutti i 219 target profondi; i Caldwell
+  hanno nota osservativa, stagione e difficolta' strumentali.
+- `object_images_seed.csv` copre esplicitamente gli stessi 219 ID. Le righe
+  senza asset dedicato dichiarano un placeholder locale tipizzato; il passaggio
+  futuro sulle immagini dovra' sostituirle con fonte e licenza verificabili.
 
 ## NSOM Canonico
 
@@ -197,7 +204,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.23.0
+## Validazione 1.23.1
 
 Eseguita nella venv corrente:
 
@@ -215,12 +222,12 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `628 passed`, `558 warnings`, `7 subtests passed` in `46,92 s`.
+- Suite: `630 passed`, `557 warnings`, `7 subtests passed` in `52,93 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
 
-Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 

@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.23.0`:
+Current runtime status for `1.23.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -84,6 +84,9 @@ Current runtime status for `1.23.0`:
 - The packaged deep-sky catalogue contains 110 Messier and 109 Caldwell
   targets. Caldwell intentionally has no Messier overlap; the same identity
   contract remains available for future catalogues that do overlap.
+- `ObjectDescription` and `ObjectImages` cover every one of those 219 target
+  IDs. Missing dedicated imagery is represented by an explicitly attributed
+  local placeholder, not by an unlabelled or remote asset.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.

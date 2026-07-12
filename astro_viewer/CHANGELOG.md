@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.23.1 - 2026-07-12
+
+- Aggiunte a `object_descriptions_seed.csv` le 109 righe Caldwell con
+  descrizione italiana, nota osservativa, stagione consigliata e difficolta'
+  per occhio nudo, binocolo e tre classi di telescopio.
+- Portato `object_images_seed.csv` a copertura esplicita di tutti i 219 target
+  cielo profondo: aggiunti 109 Caldwell e i 79 Messier che prima usavano solo
+  il fallback runtime.
+- I mapping nuovi usano i placeholder locali tipizzati ammasso/nebulosa/galassia;
+  non vengono presentati come immagini astronomiche reali e potranno essere
+  sostituiti singolarmente nel successivo passaggio asset e licenze.
+- Il dettaglio Caldwell espone ora `catalogueIntroText`, `bestSeen` e il testo
+  osservativo completo tramite lo stesso contratto gia' usato dai Messier.
+- Corretta la capitalizzazione italiana di `Galassia di Seyfert` per C24 e
+  trattata C63 come nebulosa planetaria ampia a bassa luminosita' superficiale.
+- Aggiunti test di copertura ID/file, esistenza asset e ripristino idempotente
+  dei contenuti mancanti senza sovrascrivere modifiche locali.
+- Suite completa parallela: `630 passed`, `557 warnings`, `7 subtests passed`
+  in `52,93 s`; le warning restano quelle Skyfield/NumPy gia' note.
+- Dist `1.23.1` non rigenerata.
+
 ## NightScope 1.23.0 - 2026-07-12
 
 - Importati tutti i 109 target Caldwell dalla lista J2000 dell'Astronomical

@@ -65,6 +65,20 @@ If Earthdata is not configured, the network is unavailable, NASA does not expose
 
 ## Object Images And Descriptions
 
-`object_images_seed.csv` uses local NightScope-generated SVG assets or local placeholders unless a source URL and license are explicitly provided. This avoids shipping unverified image assets.
+`object_images_seed.csv` contains an explicit row for every Messier and Caldwell
+target. Rows without a dedicated asset point to one of the local typed
+cluster/nebula/galaxy placeholders and are labelled as placeholders in their
+attribution and license fields. They must not be treated as real photographs of
+the target. This avoids shipping unverified image assets and leaves each target
+ready for a future licensed replacement.
 
-`object_descriptions_seed.csv` contains NightScope-style narrative descriptions and separate observing notes for the Moon, planets, and all 110 Messier entries. Caldwell currently uses the concise Italian descriptions in `catalogue_objects_seed.csv`; richer narrative content belongs to the later curiosities/content pass. Rows are kept deliberately similar in length to avoid detail-page layout imbalance. Messier descriptions are derived from the local Messier catalog attributes and checked against NASA's Hubble Messier Catalog overview (`https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/`); Solar System descriptions are checked against NASA planetary overview pages such as Uranus (`https://science.nasa.gov/uranus/`).
+`object_descriptions_seed.csv` contains NightScope-style descriptions and
+separate observing notes for the Moon, planets, all 110 Messier entries and all
+109 Caldwell entries. Caldwell observing copy is derived conservatively from
+the verified catalogue type, coordinates, magnitude and apparent size; it does
+not yet include the separate mythology/history/curiosities content planned for
+a later pass. Messier descriptions are derived from the local Messier catalog
+attributes and checked against NASA's Hubble Messier Catalog overview
+(`https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/`);
+Solar System descriptions are checked against NASA planetary overview pages
+such as Uranus (`https://science.nasa.gov/uranus/`).
