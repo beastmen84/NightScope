@@ -34,15 +34,15 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
-  Barlow, binocoli, filtri e riduttori. Le voci integrate sono protette dalla
-  cancellazione; quelle personalizzate restano gestibili dall'utente.
+  Barlow, binocoli, filtri e riduttori. Le voci integrate sono in sola lettura;
+  quelle personalizzate restano modificabili ed eliminabili dall'utente.
 - Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
 - Database SQLite embedded inizializzato da seed CSV locali.
 - Build Windows tramite PyInstaller.
 
 ## Stato
 
-Versione corrente sorgente: `1.25.0`.
+Versione corrente sorgente: `1.25.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -69,17 +69,18 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
   replacement path NSOM separato. Filtri e riduttori sono gia' assegnabili al
   profilo ma restano inventario passivo: non modificano ancora setup, capacita',
-  score o ranking.
+  score o ranking. I riduttori dedicati dispongono di associazioni normalizzate
+  ai modelli di telescopio per la futura policy, senza effetti runtime attuali.
 - Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
   solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
   proiettano la designazione richiesta senza duplicare righe o conteggi.
 - Caldwell: C1-C109 sono target canonici separati dai 110 Messier, come previsto
   dal catalogo originale; ricerca per codice Caldwell e identificativo NGC/IC,
   ordinamento naturale e dettaglio usano il contratto catalogo esistente.
-- Contenuti catalogo: tutti i 219 target Messier/Caldwell hanno descrizione
+- Contenuti catalogo: tutti i 228 target selezionabili hanno descrizione
   osservativa, curiosita' con fonte e immagine scientifica dedicata. I 219 JPEG
-  locali provengono da cutout 2MASS, Pan-STARRS1 o SkyMapper tramite CDS; fonte,
-  attribuzione e licenza sono visibili nel dettaglio.
+  deep-sky provengono da cutout 2MASS, Pan-STARRS1 o SkyMapper tramite CDS;
+  fonte, attribuzione e licenza sono visibili nel dettaglio.
 - Immagini Sistema Solare: i nove corpi esposti usano JPEG scientifici
   rappresentativi da NASA/JPL Photojournal, con credito e pagina sorgente. Sono
   immagini statiche processate e non rappresentano fase o aspetto corrente.
@@ -376,7 +377,7 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento.
+All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `12`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
 
 I sidecar runtime `user_preferences.json`, `location_cache.json` e
 `nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori
@@ -402,10 +403,13 @@ I seed locali vivono in `astro_viewer/data/`:
 - `filter_catalog_seed.csv`: 77 filtri visuali con classe e metadati spettrali.
 - `reducer_catalog_seed.csv`: 24 riduttori/correttori con compatibilita' ottica
   e parametri di montaggio.
+- `reducer_telescope_compatibility_seed.csv`: associazioni esatte tra riduttori
+  dedicati e modelli di telescopio inclusi.
 - `light_pollution_seed.csv`: fallback locale per qualità cielo.
 - `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
-- `object_descriptions_seed.csv`: descrizioni e note osservative.
-- `object_curiosities_seed.csv`: fatti storici/scientifici con fonte verificata.
+- `object_descriptions_seed.csv`: 228 descrizioni e note osservative specifiche.
+- `object_curiosities_seed.csv`: 228 fatti storici/scientifici con fonte
+  verificata.
 
 Le fonti e i limiti sono documentati in `astro_viewer/data/DATA_SOURCES.md`.
 

@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.25.0`:
+Current runtime status for `1.25.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -46,6 +46,10 @@ Current runtime status for `1.25.0`:
   assignments. They are intentionally passive inventory: no filter class,
   reduction factor or compatibility field enters ObserverCapability, setup
   recommendation, score or ranking until the dedicated policy is implemented.
+- `1.25.1` normalizes exact reducer-to-telescope compatibility and hardens
+  catalogue/profile persistence. It also refreshes presentation descriptions
+  and curiosities. These are data-integrity and presentation changes only: no
+  NSOM factor, formula, count, score or ranking is changed.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
@@ -600,15 +604,16 @@ obtain very different results from the same `ObservableTargetValue`.
 a scalar summary for Planner, but that scalar is a projection of the capability
 profile, not the capability itself.
 
-Implementation status for `1.25.0`: ObserverCapability is implemented as a
+Implementation status for `1.25.1`: ObserverCapability is implemented as a
 multidimensional internal profile with target-specific `Q_target` projection.
 Planner, Best Object and Detail/Object use that projection where practical value
 is required. Equipment recommendations remain setup-local: `EquipmentService`
 still owns concrete eyepiece, Barlow, binocular and fallback setup choices,
 while `observer_capability_adapter.py` exposes the Observer layer boundary for
 NSOM consumers. Assigned filters and reducers are persisted and displayed but
-are not yet inputs to either path; the next policy must validate target class,
-aperture, barrel/connection and exact telescope compatibility before selecting
+are not yet inputs to either path. Exact built-in reducer compatibility is now
+available as normalized telescope IDs; the next policy must still validate
+target class, aperture, barrel/connection and profile context before selecting
 one accessory or changing effective focal length.
 
 Closed migration report tooling and historical comparison services were removed

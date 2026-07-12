@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.25.0`:
+Current runtime status for `1.25.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -70,8 +70,10 @@ Current runtime status for `1.25.0`:
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
 - Filters and focal reducers are persistent profile inventory. Their structured
-  compatibility fields are available to the controller, but assignment emits
-  only `equipmentChanged`: neither accessory enters `EquipmentService`,
+  compatibility fields are available to the controller. Dedicated built-in
+  reducers also expose normalized telescope IDs through
+  `ReducerTelescopeCompatibility`, but assignment emits only
+  `equipmentChanged`: neither accessory enters `EquipmentService`,
   ObserverCapability, setup selection, scoring, Planner or NSOM yet.
 - Planner now consumes the telescope selected by `EquipmentService` for each
   target in a multi-instrument profile and emits up to four selected
@@ -96,19 +98,20 @@ Current runtime status for `1.25.0`:
   map explicitly to `DIFFUSE_NEBULA` across environment and legacy condition
   boundaries. Equipment continues to consume each target's explicit observing
   metadata, so Caldwell introduces no separate equipment category.
-- `ObjectDescription` covers all 219 deep-sky target IDs. `ObjectImages` covers
-  all 228 selectable deep-sky and Solar System targets: every target has a
+- `ObjectDescription`, `ObjectCuriosity` and `ObjectImages` cover all 228
+  selectable deep-sky and Solar System targets: every target has a
   dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
   normalized NASA/JPL PIA observations for Solar System bodies. Source URL,
   attribution and usage metadata travel with the presentation payload but do
   not enter ranking.
-- `ObjectCuriosity` adds source-backed editorial facts for all 227 described
-  targets. It is a separate presentation table and has no NSOM, Equipment or
-  observability role.
-- The 227 seeded Solar System and deep-sky descriptions keep identity, season
-  and difficulty metadata separate from the editable `short_description` and
-  `observing_notes` copy. The seed remains UTF-8 without BOM because bootstrap
-  reads canonical CSV headers with the standard `utf-8` codec.
+- `ObjectCuriosity` remains a separate presentation table and has no NSOM,
+  Equipment or observability role. Seeded descriptions and curiosities are
+  managed through `is_builtin`; bootstrap refreshes them, while content
+  imported by the user is marked custom and preserved.
+- The 228 seeded Solar System and deep-sky descriptions keep identity, season
+  and difficulty metadata separate from `short_description` and
+  `observing_notes`. The seed remains UTF-8 without BOM because bootstrap reads
+  canonical CSV headers with the standard `utf-8` codec.
 - If Sky Compass ranking raises unexpectedly, the controller logs the failure
   and uses a geometry-only payload. Missing sky-quality input is neutral inside
   the canonical environment and does not switch ranking implementation.
@@ -256,8 +259,8 @@ Important pages:
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`, `EquipmentBinocularsPage.qml` and
   `EquipmentFiltersReducersPage.qml`: profile and equipment management. Seeded
-  rows expose no delete action; repository protection enforces the same policy
-  outside QML.
+  rows expose neither edit nor delete actions; repository protection enforces
+  the same read-only policy outside QML.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
@@ -359,8 +362,10 @@ Repositories own SQLite persistence:
 - `CatalogueRepository`: physical catalogue targets and their designations.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
-  `is_builtin`; seeded rows cannot be deleted, while user rows can be removed
-  after their profile links are handled.
+  `is_builtin`; seeded rows cannot be updated or deleted, while user rows can
+  be managed after their profile links are handled. Connections enable SQLite
+  foreign keys, usage counts operate on distinct valid profiles and reducer
+  rows expose normalized exact telescope compatibility where available.
 - `WeatherCacheRepository`: weather response cache.
 - `SkyQualityRepository`: light-pollution estimate cache.
 - `ObjectImageRepository`: image and description lookup.
@@ -571,8 +576,9 @@ overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart. They also verify
-filter/reducer CRUD, schema migration, provenance, forced unlinking and passive
-assignment without NSOM or capability refresh.
+filter/reducer CRUD, schema-v12 migration, managed-content provenance, exact
+reducer compatibility, orphan cleanup, forced unlinking and passive assignment
+without NSOM or capability refresh.
 
 ## Cache Ownership
 

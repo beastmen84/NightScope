@@ -18,9 +18,10 @@ GeoNames publishes dump formats at `https://download.geonames.org/export/dump/re
 
 `telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`,
 `barlow_catalog_seed.csv`, `binocular_catalog_seed.csv`,
-`filter_catalog_seed.csv` and `reducer_catalog_seed.csv` are the canonical seed
-source for equipment catalogs. Runtime bootstrap reads these CSVs directly;
-equipment seed rows are not hardcoded in Python. Rows marked
+`filter_catalog_seed.csv`, `reducer_catalog_seed.csv` and
+`reducer_telescope_compatibility_seed.csv` are the canonical seed source for
+equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment
+seed rows are not hardcoded in Python. Rows marked
 `Specs encoded in model name` should be checked against the specific regional
 product revision before purchase recommendations.
 
@@ -48,7 +49,9 @@ against current manufacturer catalog pages and manuals. Primary references:
 
 The packaged filter set is limited to visual night-observation accessories;
 eyepiece solar filters are intentionally excluded. Reducer compatibility is
-model-specific and stored separately from the reduction factor. The
+model-specific and stored separately from the reduction factor. Sixteen exact
+links for dedicated reducers use normalized `TelescopeModel` IDs; universal or
+system-level reducers intentionally have no fabricated model association. The
 `visual_compatible` and `imaging_compatible` flags describe intended use, but
 the current runtime does not infer suitability, alter recommendations or apply
 any score from these rows.
@@ -110,25 +113,35 @@ in Object Detail. The full selection and redistribution rules are documented in
 defensive compatibility assets and are not used by current target rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
-separate observing notes for the Moon, planets, all 110 Messier entries and all
-109 Caldwell entries. Caldwell observing copy is derived conservatively from
-the verified catalogue type, coordinates, magnitude and apparent size; it does
-not mix in the separate editorial content. Messier descriptions are derived from the local Messier catalog
+separate observing notes for all 228 selectable targets: Sun, Moon, the seven
+displayed planets, all 110 Messier entries and all 109 Caldwell entries. The
+Sun entry requires a certified full-aperture front-mounted solar filter and
+explicitly excludes eyepiece solar filters. Caldwell observing copy is derived
+conservatively from the verified catalogue type, coordinates, magnitude and
+apparent size; it does not mix in the separate editorial content. Messier
+descriptions are derived from the local Messier catalog
 attributes and checked against NASA's Hubble Messier Catalog overview
 (`https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/`);
 Solar System descriptions are checked against NASA planetary overview pages
-such as Uranus (`https://science.nasa.gov/uranus/`).
+such as Uranus (`https://science.nasa.gov/uranus/`) and the NASA Sun facts page
+(`https://science.nasa.gov/sun/facts/`).
 
 `object_curiosities_seed.csv` is a separate, source-backed presentation layer
-for the same 227 selectable targets (Moon, eight planets, 110 Messier and 109
-Caldwell objects). Every row contains an object-specific historical or
-scientific fact, a visible source label and an HTTPS source URL. The primary
+for the same 228 selectable targets. Every row contains an object-specific
+historical or scientific fact, a visible source label and an HTTPS source URL.
+The primary
 references are NASA's Hubble Messier and Caldwell catalogues and NASA Solar
 System fact pages; objects without a dedicated NASA catalogue page use a
-linked Wikipedia article as a secondary factual reference. All 226 distinct
+linked Wikipedia article as a secondary factual reference. All 227 distinct
 URLs were checked successfully on 2026-07-12. The seed deliberately remains
 separate from observing notes and does not participate in NSOM, Equipment or
 ranking calculations.
+
+`ObjectDescription` and `ObjectCuriosity` rows supplied by these seeds are
+managed content (`is_builtin = 1`) and receive editorial corrections during
+bootstrap. Description imports performed with `import_object_content.py` are
+marked as user content (`is_builtin = 0`) and are preserved by later seed
+refreshes.
 
 The source check is repeatable without modifying data:
 

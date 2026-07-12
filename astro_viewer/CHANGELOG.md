@@ -1,5 +1,39 @@
 # Changelog
 
+## NightScope 1.25.1 - 2026-07-12
+
+- Resi completamente read-only tutti gli elementi Equipment inclusi: la UI
+  nasconde sia `Modifica` sia `Elimina` e il repository blocca gli aggiornamenti
+  anche fuori dalla QML. Questo impedisce che una modifica delle chiavi del seed
+  produca duplicati non eliminabili al bootstrap successivo.
+- Abilitate le foreign key su ogni connessione Equipment, rimossi in migrazione
+  i collegamenti a profili inesistenti e corretti i conteggi d'uso con profili
+  distinti, inclusa la transizione dal vecchio `telescope_id` alla relazione
+  molti-a-molti.
+- Aggiunta `ReducerTelescopeCompatibility` con un seed di 16 associazioni esatte
+  tra riduttori dedicati e modelli di telescopio. Il testo descrittivo resta
+  disponibile, ma il futuro punto 5 può usare ID normalizzati senza interpretare
+  stringhe libere. Filtri e riduttori restano inventario passivo e non entrano
+  ancora in setup, score, ranking o NSOM.
+- Le descrizioni e curiosita' incluse sono ora contenuti gestiti: il bootstrap
+  aggiorna le righe `is_builtin`, mentre l'importatore marca come personalizzate
+  le righe utente e le preserva nei successivi avvii. Rimossa la vecchia
+  correzione speciale della copia lunare, ormai coperta dalla regola generale.
+- Portato lo schema SQLite alla versione `12`, con migrazione verificata dallo
+  schema `10` di `1.25.0`; la spec PyInstaller include anche il nuovo seed di
+  compatibilita'.
+- Portata a 228 la copertura di descrizioni e curiosita', aggiungendo il Sole con
+  istruzioni di sicurezza esplicite e curiosita' NASA. Sostituite 180 note
+  osservative duplicate con indicazioni specifiche basate su nome, dimensione e
+  magnitudine; arricchite le descrizioni Caldwell troppo simili senza cambiare
+  identita', classificazione, difficolta', score o ranking.
+- Tradotti in italiano i messaggi residui per profilo duplicato e diagnostica
+  della posizione Windows.
+- Verificati `pip check`, Ruff, compileall, smoke Python/QML, `qmllint`, 228
+  asset e 227 URL delle curiosita'. Suite completa parallela: `683 passed`,
+  `558 warnings`, `7 subtests passed` in `60,32 s`.
+- Dist `1.25.1` non rigenerata.
+
 ## NightScope 1.25.0 - 2026-07-12
 
 - Aggiunta la pagina `Filtri e riduttori`, coerente con il layout a due colonne

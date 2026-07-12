@@ -4,30 +4,34 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.25.0`
-- Dist `1.25.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.25.1`
+- Dist `1.25.1` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `6e2732d Package accessory catalog seeds`
+- Commit sorgente validato: `e1b3c5d Align content migration test with schema 10`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `6e2732d`; non sostituire questo
+documentazione. Per lo stato del codice usare `e1b3c5d`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `cbc14c4 Localize remaining profile messages`
 - `bbeec59 Add filter and reducer equipment UI`
 - `276c686 Add Sky Compass Home filter`
 
 ## Commit Equipment Recenti
 
+- `1b524a9 Harden equipment catalog integrity`
 - `6e2732d Package accessory catalog seeds`
 - `bbeec59 Add filter and reducer equipment UI`
 - `294a2de Add filter and reducer catalog persistence`
 
 ## Commit Catalogo Recenti
 
+- `e1b3c5d Align content migration test with schema 10`
+- `f9331b8 Refresh managed catalogue content safely`
 - `60a9510 Replace Solar System placeholder images`
 - `7de6a6f Replace catalogue placeholder images`
 - `f30bc17 Add source-backed object curiosities`
@@ -64,7 +68,9 @@ I punti 1, 2, 3 e 4 della roadmap catalogo sono conclusi: identita' canonica,
 supporto multi-catalogo/import Caldwell, contenuti visibili con curiosita' e
 asset scientifici dedicati, inclusi i nove corpi del Sistema Solare, e cataloghi
 Filtri/Riduttori collegati ai profili. Testo descrittivo e note osservative
-restano separati dai nuovi contenuti editoriali.
+restano separati dai nuovi contenuti editoriali. L'audit `1.25.1` ha inoltre
+chiuso integrita' profili/Equipment, aggiornamento dei seed editoriali e
+localizzazione dei messaggi residui senza modificare NSOM.
 
 Resta futuro il punto 5: suggerire al massimo un filtro adatto nel dettaglio e
 progettare l'effetto reale dei riduttori su setup e ObserverCapability. Gli
@@ -76,7 +82,7 @@ Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.25.0
+## Catalogo Canonico 1.25.1
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -90,9 +96,9 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `10`; il bootstrap migra e rimuove `MessierObject` senza
-  perdere descrizioni locali e valida identita', riferimenti e primarie dei
-  seed prima dell'import.
+- Lo schema SQLite e' `12`; il bootstrap migra e rimuove `MessierObject`, valida
+  identita', riferimenti e primarie dei seed e distingue contenuti editoriali
+  gestiti da import personalizzati.
 - I seed correnti sono `catalogue_objects_seed.csv` e
   `catalogue_designations_seed.csv`: 110 Messier e 109 Caldwell, senza
   sovrapposizioni per definizione del Caldwell originale.
@@ -105,14 +111,16 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - Tutti i tipi raw dei 219 target confluiscono nelle classi NSOM esistenti. Le
   17 nebulose planetarie usano `PLANETARY_NEBULA`; i 3 resti di supernova usano
   `DIFFUSE_NEBULA`. Caldwell non introduce categorie Equipment o nuovi pesi.
-- `object_descriptions_seed.csv` copre tutti i 219 target profondi; i Caldwell
-  hanno nota osservativa, stagione e difficolta' strumentali.
-- Le due colonne editoriali coprono 227 target complessivi e sono state
-  revisionate in `1.23.3`; ID, ordine, `best_seen` e difficolta' sono invariati.
+- `object_descriptions_seed.csv` copre tutti i 228 target selezionabili. Le 180
+  note prima duplicate sono ora specifiche per oggetto; i Caldwell includono
+  contesto misurabile e il Sole espone una procedura di sicurezza esplicita.
+- Le righe seed di `ObjectDescription` e `ObjectCuriosity` usano
+  `is_builtin = 1` e vengono aggiornate dal bootstrap. L'importatore descrizioni
+  assegna `is_builtin = 0`, quindi le righe personalizzate vengono preservate.
   Il CSV deve restare UTF-8 senza BOM per il loader `csv.DictReader` corrente.
-- `ObjectCuriosity` e `object_curiosities_seed.csv` coprono gli stessi 227
-  target descritti con testi italiani specifici, fonte e URL: 227 testi unici,
-  226 URL verificate e nessun ingresso in NSOM, Equipment o ranking.
+- `ObjectCuriosity` e `object_curiosities_seed.csv` coprono gli stessi 228
+  target con testi italiani specifici, fonte e URL: 228 testi unici, 227 URL
+  verificate e nessun ingresso in NSOM, Equipment o ranking.
 - `object_images_seed.csv` usa un JPEG RGB locale `512 x 512` dedicato per
   ognuno dei 219 target profondi: 200 2MASS, 15 Pan-STARRS1 e 4 SkyMapper DR4,
   tutti da CDS `hips2fits` con URL esatta, attribuzione e licenza ODbL nel seed.
@@ -127,7 +135,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
   e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
 
-## Equipment 1.25.0
+## Equipment 1.25.1
 
 - La pagina `Filtri e riduttori` usa due cataloghi affiancati con ricerca e
   layout responsive coerente con `Oculari e Barlow`.
@@ -138,11 +146,19 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   apertura minima. I riduttori conservano fattore, sistema e modelli
   compatibili, connessione, backfocus, uso visuale/fotografico e correzione del
   campo.
+- `ReducerTelescopeCompatibility` conserva 16 associazioni esatte tra riduttori
+  dedicati e `TelescopeModel`; i riduttori universali non ricevono associazioni
+  artificiali. Il campo descrittivo dei modelli resta disponibile alla UI.
 - Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo, ma
   l'assegnazione emette solo `equipmentChanged` e non ricalcola NSOM o capacita'.
 - Tutti i cataloghi Equipment espongono `is_builtin`. Le voci seed non mostrano
-  `Elimina` e sono protette anche nel repository; le voci create dall'utente
-  possono essere eliminate dopo aver rimosso i collegamenti ai profili.
+  `Modifica` o `Elimina` e il repository blocca entrambe le operazioni; le voci
+  create dall'utente restano modificabili ed eliminabili dopo aver rimosso i
+  collegamenti ai profili.
+- Le connessioni Equipment abilitano le foreign key. La migrazione elimina
+  assegnazioni orfane nelle sei tabelle profilo e i conteggi d'uso considerano
+  profili validi distinti, senza duplicare il telescopio tra campo legacy e
+  relazione molti-a-molti.
 
 ## NSOM Canonico
 
@@ -269,7 +285,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.25.0
+## Validazione 1.25.1
 
 Eseguita nella venv corrente:
 
@@ -282,6 +298,7 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
 ```
 
 Risultati:
@@ -289,14 +306,15 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `677 passed`, `557 warnings`, `7 subtests passed` in `50,21 s`.
+- Suite: `683 passed`, `558 warnings`, `7 subtests passed` in `60,32 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
 - Asset: 228 JPEG RGB `512 x 512` (219 cielo profondo e 9 Sistema Solare), seed
   e file coerenti.
+- Fonti curiosita': 227 URL distinte verificate.
 
-Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 
