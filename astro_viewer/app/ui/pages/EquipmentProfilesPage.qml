@@ -19,6 +19,8 @@ Item {
             || (filter === "Oculari" && item.kind === "eyepiece")
             || (filter === "Barlow" && item.kind === "barlow")
             || (filter === "Binocoli" && item.kind === "binocular")
+            || (filter === "Filtri" && item.kind === "filter")
+            || (filter === "Riduttori" && item.kind === "reducer")
         var text = (item.name + " " + item.badge + " " + item.details + " " + (item.type || "")).toLowerCase()
         return typeOk && text.indexOf((searchText || "").toLowerCase()) >= 0
     }
@@ -42,6 +44,10 @@ Item {
             return item.badge === "Zoom" ? theme.violet : theme.teal
         if (item.kind === "binocular")
             return theme.cyan
+        if (item.kind === "filter")
+            return theme.green
+        if (item.kind === "reducer")
+            return theme.coral
         return theme.amber
     }
 
@@ -223,6 +229,22 @@ Item {
                         emptyText: "Nessun binocolo assegnato."
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "binocular" })
                         accent: theme.cyan
+                    }
+
+                    EquipmentGroup {
+                        Layout.preferredWidth: 1
+                        title: "Filtri"
+                        emptyText: "Nessun filtro assegnato."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "filter" })
+                        accent: theme.green
+                    }
+
+                    EquipmentGroup {
+                        Layout.preferredWidth: 1
+                        title: "Riduttori"
+                        emptyText: "Nessun riduttore assegnato."
+                        items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "reducer" })
+                        accent: theme.coral
                     }
                 }
 
@@ -589,13 +611,13 @@ Item {
             spacing: 8
 
             Repeater {
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]
 
                 delegate: DarkButton {
                     text: modelData
                     checkable: false
                     checked: root.addFilter === modelData
-                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : modelData === "Binocoli" ? theme.cyan : theme.violet
+                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : modelData === "Binocoli" ? theme.cyan : modelData === "Filtri" ? theme.green : modelData === "Riduttori" ? theme.coral : theme.violet
                     onClicked: {
                         if (root.addFilter !== modelData)
                             root.addFilter = modelData
@@ -652,7 +674,7 @@ Item {
             spacing: 10
             DarkComboBox {
                 Layout.preferredWidth: 160
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]
+                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]
                 onCurrentTextChanged: root.removeFilter = currentText
             }
             DarkTextField {

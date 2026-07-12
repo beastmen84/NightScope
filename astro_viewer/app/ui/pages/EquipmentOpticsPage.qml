@@ -362,6 +362,7 @@ Item {
                 }
 
                 DarkButton {
+                    visible: !itemData.is_builtin
                     text: "Elimina"
                     danger: true
                     onClicked: opticRow.deleteRequested()

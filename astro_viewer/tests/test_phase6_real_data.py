@@ -714,10 +714,110 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(any(item["catalog_id"] == binocular["catalog_id"] for item in controller.binocularCatalog))
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
 
+    def test_filters_and_reducers_are_profile_accessories_without_scoring_refresh(self) -> None:
+        with _controller() as controller:
+            optical_filter = next(
+                item for item in controller.filterCatalog if item["filter_class"] == "OIII"
+            )
+            reducer = next(
+                item for item in controller.reducerCatalog if item["visual_compatible"]
+            )
+            before_capabilities = dict(controller.telescopeCapabilities)
+
+            with patch.object(controller, "_refresh_active_profile_dependencies") as refresh:
+                controller.assignEquipmentToActiveProfile("filter", optical_filter["catalog_id"])
+                controller.assignEquipmentToActiveProfile("reducer", reducer["catalog_id"])
+
+            refresh.assert_not_called()
+            assigned = controller.profileAssignedEquipment
+            assigned_filter = next(item for item in assigned if item["kind"] == "filter")
+            assigned_reducer = next(item for item in assigned if item["kind"] == "reducer")
+            self.assertEqual(assigned_filter["id"], optical_filter["catalog_id"])
+            self.assertEqual(assigned_reducer["id"], reducer["catalog_id"])
+            self.assertEqual(controller.profileFilters[0]["id"], optical_filter["catalog_id"])
+            self.assertEqual(controller.profileReducers[0]["id"], reducer["catalog_id"])
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertEqual(
+                controller._equipment_catalog_repository.profile_usage_count(
+                    "filter",
+                    optical_filter["catalog_id"],
+                ),
+                1,
+            )
+            self.assertEqual(
+                controller._equipment_catalog_repository.profile_usage_count(
+                    "reducer",
+                    reducer["catalog_id"],
+                ),
+                1,
+            )
+
+            controller.removeEquipmentFromActiveProfile("filter", optical_filter["catalog_id"])
+            controller.removeEquipmentFromActiveProfile("reducer", reducer["catalog_id"])
+
+            self.assertFalse(
+                any(item["kind"] in {"filter", "reducer"} for item in controller.profileAssignedEquipment)
+            )
+            self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+
+    def test_filter_and_reducer_controller_crud_keeps_custom_provenance(self) -> None:
+        with _controller() as controller:
+            initial_filter_count = len(controller.filterCatalog)
+            initial_reducer_count = len(controller.reducerCatalog)
+
+            with patch.object(controller, "_refresh_active_profile_dependencies") as refresh:
+                controller.addFilterModel(
+                    "NightScope",
+                    "Filtro controller",
+                    "UHC",
+                    "1.25",
+                    "",
+                    "25",
+                    "95",
+                    "100",
+                    "Test",
+                )
+                controller.addReducerModel(
+                    "NightScope",
+                    "Riduttore controller",
+                    "0.8",
+                    "REFRACTOR",
+                    "Rifrattore prova",
+                    "M48",
+                    "55",
+                    True,
+                    True,
+                    True,
+                    "Test",
+                )
+
+            refresh.assert_not_called()
+            self.assertEqual(len(controller.filterCatalog), initial_filter_count + 1)
+            self.assertEqual(len(controller.reducerCatalog), initial_reducer_count + 1)
+            optical_filter = next(
+                item for item in controller.filterCatalog if item["brand"] == "NightScope"
+            )
+            reducer = next(
+                item for item in controller.reducerCatalog if item["brand"] == "NightScope"
+            )
+            self.assertFalse(optical_filter["is_builtin"])
+            self.assertFalse(reducer["is_builtin"])
+
+            controller.deleteFilterModel(optical_filter["id"], False)
+            controller.deleteReducerModel(reducer["id"], False)
+
+            self.assertEqual(len(controller.filterCatalog), initial_filter_count)
+            self.assertEqual(len(controller.reducerCatalog), initial_reducer_count)
+
     def test_sidebar_navigation_groups_configuration_and_catalogs(self) -> None:
         ui_dir = Path(__file__).resolve().parents[1] / "app" / "ui"
         main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
         binoculars_qml = (ui_dir / "pages" / "EquipmentBinocularsPage.qml").read_text(encoding="utf-8")
+        telescopes_qml = (ui_dir / "pages" / "EquipmentTelescopesPage.qml").read_text(encoding="utf-8")
+        optics_qml = (ui_dir / "pages" / "EquipmentOpticsPage.qml").read_text(encoding="utf-8")
+        filters_reducers_qml = (
+            ui_dir / "pages" / "EquipmentFiltersReducersPage.qml"
+        ).read_text(encoding="utf-8")
         profiles_qml = (ui_dir / "pages" / "EquipmentProfilesPage.qml").read_text(encoding="utf-8")
         home_qml = (ui_dir / "pages" / "HomePage.qml").read_text(encoding="utf-8")
         object_catalogue_qml = (ui_dir / "pages" / "ObjectCataloguePage.qml").read_text(encoding="utf-8")
@@ -738,6 +838,7 @@ class Phase6RealDataTests(unittest.TestCase):
             'text: "Oggetti celesti"',
             'text: "Telescopi"',
             'text: "Oculari e Barlow"',
+            'text: "Filtri e riduttori"',
             'text: "Binocoli"',
         ]
         positions = [main_qml.index(label) for label in expected_labels]
@@ -748,12 +849,14 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("objectCatalogue", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
         self.assertIn("equipmentOptics", main_qml)
+        self.assertIn("equipmentFiltersReducers", main_qml)
         self.assertIn("equipmentBinoculars", main_qml)
         self.assertIn("DataProvidersPage", main_qml)
         self.assertIn("EquipmentProfilesPage", main_qml)
         self.assertIn("ObjectCataloguePage", main_qml)
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
+        self.assertIn("EquipmentFiltersReducersPage", main_qml)
         self.assertIn("EquipmentBinocularsPage", main_qml)
         self.assertIn("appController.homeObservingOverview", main_qml)
         self.assertIn("sidebarSession", main_qml)
@@ -819,9 +922,27 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
         self.assertIn('text: "Stabilizzato"', binoculars_qml)
+        self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
+        for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
+            self.assertRegex(
+                equipment_qml,
+                r"visible:\s*![A-Za-z0-9_.]*itemData\.is_builtin",
+            )
+        self.assertIn('text: "Catalogo filtri e riduttori"', filters_reducers_qml)
+        self.assertIn("controller.filterCatalog", filters_reducers_qml)
+        self.assertIn("controller.reducerCatalog", filters_reducers_qml)
+        self.assertIn("controller.addFilterModel", filters_reducers_qml)
+        self.assertIn("controller.addReducerModel", filters_reducers_qml)
+        self.assertIn("controller.deleteFilterModel", filters_reducers_qml)
+        self.assertIn("controller.deleteReducerModel", filters_reducers_qml)
         self.assertIn('title: "Binocoli"', profiles_qml)
         self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
-        self.assertIn('model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli"]', profiles_qml)
+        self.assertIn('title: "Filtri"', profiles_qml)
+        self.assertIn('title: "Riduttori"', profiles_qml)
+        self.assertIn(
+            'model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]',
+            profiles_qml,
+        )
         self.assertIn("homeNightPlanOverview", home_qml)
         self.assertNotIn('equipmentType === "Binocular"', home_qml)
         self.assertIn('setup_model.equipment_type == "Binocular"', home_overview_service)

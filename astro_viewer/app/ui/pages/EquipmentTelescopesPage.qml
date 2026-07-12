@@ -199,6 +199,7 @@ Item {
                 }
 
                 DarkButton {
+                    visible: !itemData.is_builtin
                     text: "Elimina"
                     implicitHeight: 32
                     leftPadding: 10

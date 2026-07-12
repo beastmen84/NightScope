@@ -231,6 +231,14 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
+                        text: "Filtri e riduttori"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
+                        selected: window.currentPage === "equipmentFiltersReducers"
+                        onClicked: window.currentPage = "equipmentFiltersReducers"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
                         text: "Binocoli"
                         iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
                         selected: window.currentPage === "equipmentBinoculars"
@@ -314,6 +322,7 @@ ApplicationWindow {
                 if (window.currentPage === "objectCatalogue") return objectCataloguePage
                 if (window.currentPage === "equipmentTelescopes") return equipmentTelescopesPage
                 if (window.currentPage === "equipmentOptics") return equipmentOpticsPage
+                if (window.currentPage === "equipmentFiltersReducers") return equipmentFiltersReducersPage
                 if (window.currentPage === "equipmentBinoculars") return equipmentBinocularsPage
                 return homePage
             }
@@ -418,6 +427,13 @@ ApplicationWindow {
     Component {
         id: equipmentOpticsPage
         EquipmentOpticsPage {
+            controller: appController
+        }
+    }
+
+    Component {
+        id: equipmentFiltersReducersPage
+        EquipmentFiltersReducersPage {
             controller: appController
         }
     }

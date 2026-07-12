@@ -25,7 +25,14 @@ from astro_viewer.app.database.object_image_repository import ObjectImageReposit
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
-from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
+from astro_viewer.app.models.equipment import (
+    Barlow,
+    Binocular,
+    Eyepiece,
+    FocalReducer,
+    OpticalFilter,
+    Telescope,
+)
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
@@ -329,6 +336,8 @@ class AppController(QObject):
         self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
         self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
+        self._catalog_filters = self._equipment_catalog_repository.filters()
+        self._catalog_reducers = self._equipment_catalog_repository.reducers()
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
@@ -360,6 +369,12 @@ class AppController(QObject):
         self._eyepieces: list[Eyepiece] = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows: list[Barlow] = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
         self._binoculars: list[Binocular] = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
+        self._filters: list[OpticalFilter] = [
+            self._filter_from_catalog_row(row) for row in self._catalog_filters
+        ]
+        self._reducers: list[FocalReducer] = [
+            self._reducer_from_catalog_row(row) for row in self._catalog_reducers
+        ]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
         self._barlow = 1.0
@@ -893,6 +908,14 @@ class AppController(QObject):
         return self._catalog_binoculars
 
     @Property("QVariant", notify=equipmentChanged)
+    def filterCatalog(self) -> list[dict]:
+        return self._catalog_filters
+
+    @Property("QVariant", notify=equipmentChanged)
+    def reducerCatalog(self) -> list[dict]:
+        return self._catalog_reducers
+
+    @Property("QVariant", notify=equipmentChanged)
     def equipmentProfiles(self) -> list[dict]:
         return self._equipment_profiles
 
@@ -950,6 +973,14 @@ class AppController(QObject):
     def availableProfileBinoculars(self) -> list[dict]:
         assigned = {binocular.id for binocular in self._active_profile_binoculars()}
         return [binocular.to_qml() for binocular in self._binoculars if binocular.id not in assigned]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def profileFilters(self) -> list[dict]:
+        return [optical_filter.to_qml() for optical_filter in self._active_profile_filters()]
+
+    @Property("QVariant", notify=equipmentChanged)
+    def profileReducers(self) -> list[dict]:
+        return [reducer.to_qml() for reducer in self._active_profile_reducers()]
 
     @Property(bool, notify=equipmentChanged)
     def canUseEyepieces(self) -> bool:
@@ -1488,6 +1519,64 @@ class AppController(QObject):
         self._equipment_message = self._equipment_status_message()
         self.equipmentChanged.emit()
 
+    @Slot(str)
+    def assignFilterToActiveProfile(self, filter_id: str) -> None:
+        if not self._find_filter(filter_id):
+            return
+        state = self._active_profile_state()
+        if filter_id not in state["filter_ids"]:
+            state["filter_ids"].append(filter_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_filter(
+                int(profile["id"]),
+                filter_id,
+            )
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
+    @Slot(str)
+    def removeFilterFromActiveProfile(self, filter_id: str) -> None:
+        state = self._active_profile_state()
+        state["filter_ids"] = [item for item in state["filter_ids"] if item != filter_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_filter(
+                int(profile["id"]),
+                filter_id,
+            )
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
+    @Slot(str)
+    def assignReducerToActiveProfile(self, reducer_id: str) -> None:
+        if not self._find_reducer(reducer_id):
+            return
+        state = self._active_profile_state()
+        if reducer_id not in state["reducer_ids"]:
+            state["reducer_ids"].append(reducer_id)
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.assign_profile_reducer(
+                int(profile["id"]),
+                reducer_id,
+            )
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
+    @Slot(str)
+    def removeReducerFromActiveProfile(self, reducer_id: str) -> None:
+        state = self._active_profile_state()
+        state["reducer_ids"] = [item for item in state["reducer_ids"] if item != reducer_id]
+        profile = self._active_profile()
+        if profile:
+            self._equipment_catalog_repository.remove_profile_reducer(
+                int(profile["id"]),
+                reducer_id,
+            )
+        self._equipment_message = self._equipment_status_message()
+        self.equipmentChanged.emit()
+
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
         if not self.canUseEyepieces:
@@ -1507,6 +1596,10 @@ class AppController(QObject):
             self.assignBarlowToActiveProfile(item_id)
         elif kind == "binocular":
             self.assignBinocularToActiveProfile(item_id)
+        elif kind == "filter":
+            self.assignFilterToActiveProfile(item_id)
+        elif kind == "reducer":
+            self.assignReducerToActiveProfile(item_id)
 
     @Slot(str, str)
     def removeEquipmentFromActiveProfile(self, kind: str, item_id: str) -> None:
@@ -1518,6 +1611,10 @@ class AppController(QObject):
             self.removeBarlowFromActiveProfile(item_id)
         elif kind == "binocular":
             self.removeBinocularFromActiveProfile(item_id)
+        elif kind == "filter":
+            self.removeFilterFromActiveProfile(item_id)
+        elif kind == "reducer":
+            self.removeReducerFromActiveProfile(item_id)
 
     @Slot(str, str, result=int)
     def equipmentUsage(self, kind: str, item_id: str) -> int:
@@ -1699,9 +1796,171 @@ class AppController(QObject):
         self._after_binocular_catalog_change(message, ok)
 
     @Slot(int)
-    def deleteBinocularModel(self, binocular_id: int) -> None:
-        ok, message = self._equipment_catalog_repository.delete_binocular(binocular_id)
+    @Slot(int, bool)
+    def deleteBinocularModel(self, binocular_id: int, force: bool = False) -> None:
+        ok, message = self._equipment_catalog_repository.delete_binocular(
+            binocular_id,
+            remove_from_profiles=force,
+        )
         self._after_binocular_catalog_change(message, ok)
+
+    @Slot(str, str, str, str, str, str, str, str, str)
+    def addFilterModel(
+        self,
+        brand: str,
+        model: str,
+        filter_class: str,
+        barrel_size: str,
+        central_wavelength: str,
+        bandwidth: str,
+        transmission: str,
+        minimum_aperture: str,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_filter_inputs(
+            central_wavelength,
+            bandwidth,
+            transmission,
+            minimum_aperture,
+        )
+        if parsed is None:
+            return
+        central, width, transmission_pct, aperture = parsed
+        ok, message = self._equipment_catalog_repository.add_filter(
+            brand,
+            model,
+            filter_class,
+            barrel_size,
+            central_wavelength_nm=central,
+            bandwidth_nm=width,
+            transmission_pct=transmission_pct,
+            minimum_aperture_mm=aperture,
+            notes=notes,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
+
+    @Slot(int, str, str, str, str, str, str, str, str, str)
+    def updateFilterModel(
+        self,
+        filter_id: int,
+        brand: str,
+        model: str,
+        filter_class: str,
+        barrel_size: str,
+        central_wavelength: str,
+        bandwidth: str,
+        transmission: str,
+        minimum_aperture: str,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_filter_inputs(
+            central_wavelength,
+            bandwidth,
+            transmission,
+            minimum_aperture,
+        )
+        if parsed is None:
+            return
+        central, width, transmission_pct, aperture = parsed
+        ok, message = self._equipment_catalog_repository.update_filter(
+            filter_id,
+            brand,
+            model,
+            filter_class,
+            barrel_size,
+            central_wavelength_nm=central,
+            bandwidth_nm=width,
+            transmission_pct=transmission_pct,
+            minimum_aperture_mm=aperture,
+            notes=notes,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
+
+    @Slot(int, bool)
+    def deleteFilterModel(self, filter_id: int, force: bool) -> None:
+        ok, message = self._equipment_catalog_repository.delete_filter(
+            filter_id,
+            remove_from_profiles=force,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
+
+    @Slot(str, str, str, str, str, str, str, bool, bool, bool, str)
+    def addReducerModel(
+        self,
+        brand: str,
+        model: str,
+        reduction_factor: str,
+        optical_system: str,
+        compatible_models: str,
+        connection_name: str,
+        backfocus: str,
+        visual_compatible: bool,
+        imaging_compatible: bool,
+        corrected_field: bool,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_reducer_inputs(reduction_factor, backfocus)
+        if parsed is None:
+            return
+        factor, backfocus_mm = parsed
+        ok, message = self._equipment_catalog_repository.add_reducer(
+            brand,
+            model,
+            factor,
+            optical_system,
+            compatible_models=compatible_models,
+            connection_name=connection_name,
+            backfocus_mm=backfocus_mm,
+            visual_compatible=visual_compatible,
+            imaging_compatible=imaging_compatible,
+            corrected_field=corrected_field,
+            notes=notes,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
+
+    @Slot(int, str, str, str, str, str, str, str, bool, bool, bool, str)
+    def updateReducerModel(
+        self,
+        reducer_id: int,
+        brand: str,
+        model: str,
+        reduction_factor: str,
+        optical_system: str,
+        compatible_models: str,
+        connection_name: str,
+        backfocus: str,
+        visual_compatible: bool,
+        imaging_compatible: bool,
+        corrected_field: bool,
+        notes: str,
+    ) -> None:
+        parsed = self._parse_reducer_inputs(reduction_factor, backfocus)
+        if parsed is None:
+            return
+        factor, backfocus_mm = parsed
+        ok, message = self._equipment_catalog_repository.update_reducer(
+            reducer_id,
+            brand,
+            model,
+            factor,
+            optical_system,
+            compatible_models=compatible_models,
+            connection_name=connection_name,
+            backfocus_mm=backfocus_mm,
+            visual_compatible=visual_compatible,
+            imaging_compatible=imaging_compatible,
+            corrected_field=corrected_field,
+            notes=notes,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
+
+    @Slot(int, bool)
+    def deleteReducerModel(self, reducer_id: int, force: bool) -> None:
+        ok, message = self._equipment_catalog_repository.delete_reducer(
+            reducer_id,
+            remove_from_profiles=force,
+        )
+        self._after_passive_accessory_catalog_change(message, ok)
 
     @Slot(str, str, str)
     def addEyepiece(self, name: str, focal: str, apparent_field: str) -> None:
@@ -5197,10 +5456,14 @@ class AppController(QObject):
         self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
         self._catalog_barlows = self._equipment_catalog_repository.barlows()
         self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
+        self._catalog_filters = self._equipment_catalog_repository.filters()
+        self._catalog_reducers = self._equipment_catalog_repository.reducers()
         self._telescopes = self._initial_telescopes()
         self._eyepieces = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
         self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
+        self._filters = [self._filter_from_catalog_row(row) for row in self._catalog_filters]
+        self._reducers = [self._reducer_from_catalog_row(row) for row in self._catalog_reducers]
         self._profile_equipment = self._initial_profile_equipment()
         self._selected_telescope_index = self._initial_telescope_index()
 
@@ -5223,6 +5486,54 @@ class AppController(QObject):
         if ok:
             self._refresh_binocular_catalog()
         self.equipmentChanged.emit()
+
+    def _after_passive_accessory_catalog_change(self, message: str, ok: bool) -> None:
+        self._equipment_message = message
+        if ok:
+            self._refresh_equipment_catalogs()
+        self.equipmentChanged.emit()
+
+    def _parse_filter_inputs(
+        self,
+        central_wavelength: str,
+        bandwidth: str,
+        transmission: str,
+        minimum_aperture: str,
+    ) -> tuple[float | None, float | None, float | None, int | None] | None:
+        try:
+            central = self._optional_float_input(central_wavelength)
+            width = self._optional_float_input(bandwidth)
+            transmission_pct = self._optional_float_input(transmission)
+            aperture_value = self._optional_float_input(minimum_aperture)
+            if aperture_value is not None and not aperture_value.is_integer():
+                raise ValueError
+            aperture = int(aperture_value) if aperture_value is not None else None
+        except ValueError:
+            self._equipment_message = "Dati filtro non validi."
+            self.equipmentChanged.emit()
+            return None
+        return central, width, transmission_pct, aperture
+
+    def _parse_reducer_inputs(
+        self,
+        reduction_factor: str,
+        backfocus: str,
+    ) -> tuple[float, float | None] | None:
+        try:
+            factor = float(reduction_factor.replace(",", "."))
+            backfocus_mm = self._optional_float_input(backfocus)
+        except ValueError:
+            self._equipment_message = "Dati riduttore non validi."
+            self.equipmentChanged.emit()
+            return None
+        return factor, backfocus_mm
+
+    @staticmethod
+    def _optional_float_input(value: str) -> float | None:
+        clean_value = value.strip()
+        if not clean_value:
+            return None
+        return float(clean_value.replace(",", "."))
 
     def _parse_binocular_inputs(
         self,
@@ -5342,6 +5653,54 @@ class AppController(QObject):
             image_stabilized=bool(row["image_stabilized"]),
         )
 
+    @staticmethod
+    def _filter_from_catalog_row(row: dict) -> OpticalFilter:
+        return OpticalFilter(
+            id=row["catalog_id"],
+            name=f"{row['brand']} {row['model']}",
+            filter_class=str(row["filter_class"]),
+            barrel_size=str(row.get("barrel_size") or ""),
+            central_wavelength_nm=(
+                float(row["central_wavelength_nm"])
+                if row.get("central_wavelength_nm") is not None
+                else None
+            ),
+            bandwidth_nm=(
+                float(row["bandwidth_nm"])
+                if row.get("bandwidth_nm") is not None
+                else None
+            ),
+            transmission_pct=(
+                float(row["transmission_pct"])
+                if row.get("transmission_pct") is not None
+                else None
+            ),
+            minimum_aperture_mm=(
+                int(row["minimum_aperture_mm"])
+                if row.get("minimum_aperture_mm") is not None
+                else None
+            ),
+        )
+
+    @staticmethod
+    def _reducer_from_catalog_row(row: dict) -> FocalReducer:
+        return FocalReducer(
+            id=row["catalog_id"],
+            name=f"{row['brand']} {row['model']}",
+            reduction_factor=float(row["reduction_factor"]),
+            optical_system=str(row["optical_system"]),
+            compatible_models=str(row.get("compatible_models") or ""),
+            connection=str(row.get("connection") or ""),
+            backfocus_mm=(
+                float(row["backfocus_mm"])
+                if row.get("backfocus_mm") is not None
+                else None
+            ),
+            visual_compatible=bool(row.get("visual_compatible")),
+            imaging_compatible=bool(row.get("imaging_compatible")),
+            corrected_field=bool(row.get("corrected_field")),
+        )
+
     def _initial_profile_equipment(self) -> dict[str, dict[str, list[str]]]:
         equipment: dict[str, dict[str, list[str]]] = {}
         for profile in self._equipment_profiles:
@@ -5362,6 +5721,8 @@ class AppController(QObject):
                 "eyepiece_ids": self._equipment_catalog_repository.profile_eyepiece_ids(profile_id),
                 "barlow_ids": self._equipment_catalog_repository.profile_barlow_ids(profile_id),
                 "binocular_ids": self._equipment_catalog_repository.profile_binocular_ids(profile_id),
+                "filter_ids": self._equipment_catalog_repository.profile_filter_ids(profile_id),
+                "reducer_ids": self._equipment_catalog_repository.profile_reducer_ids(profile_id),
             }
         return equipment
 
@@ -5390,11 +5751,25 @@ class AppController(QObject):
 
     @staticmethod
     def _empty_profile_equipment_state() -> dict[str, list[str]]:
-        return {"telescope_ids": [], "eyepiece_ids": [], "barlow_ids": [], "binocular_ids": []}
+        return {
+            "telescope_ids": [],
+            "eyepiece_ids": [],
+            "barlow_ids": [],
+            "binocular_ids": [],
+            "filter_ids": [],
+            "reducer_ids": [],
+        }
 
     @staticmethod
     def _ensure_profile_equipment_state(state: dict[str, list[str]]) -> None:
-        for key in ("telescope_ids", "eyepiece_ids", "barlow_ids", "binocular_ids"):
+        for key in (
+            "telescope_ids",
+            "eyepiece_ids",
+            "barlow_ids",
+            "binocular_ids",
+            "filter_ids",
+            "reducer_ids",
+        ):
             state.setdefault(key, [])
 
     def _profile_key_by_name(self, profile_name: str) -> str:
@@ -5423,6 +5798,22 @@ class AppController(QObject):
         state = self._active_profile_state()
         return [binocular for binocular_id in state["binocular_ids"] if (binocular := self._find_binocular(binocular_id))]
 
+    def _active_profile_filters(self) -> list[OpticalFilter]:
+        state = self._active_profile_state()
+        return [
+            optical_filter
+            for filter_id in state["filter_ids"]
+            if (optical_filter := self._find_filter(filter_id))
+        ]
+
+    def _active_profile_reducers(self) -> list[FocalReducer]:
+        state = self._active_profile_state()
+        return [
+            reducer
+            for reducer_id in state["reducer_ids"]
+            if (reducer := self._find_reducer(reducer_id))
+        ]
+
     def _find_telescope(self, telescope_id: str) -> Telescope | None:
         return next((telescope for telescope in self._telescopes if telescope.id == telescope_id), None)
 
@@ -5434,6 +5825,12 @@ class AppController(QObject):
 
     def _find_binocular(self, binocular_id: str) -> Binocular | None:
         return next((binocular for binocular in self._binoculars if binocular.id == binocular_id), None)
+
+    def _find_filter(self, filter_id: str) -> OpticalFilter | None:
+        return next((item for item in self._filters if item.id == filter_id), None)
+
+    def _find_reducer(self, reducer_id: str) -> FocalReducer | None:
+        return next((item for item in self._reducers if item.id == reducer_id), None)
 
     def _index_for_telescope(self, telescope_id: str) -> int:
         for index, telescope in enumerate(self._telescopes):
@@ -5497,6 +5894,36 @@ class AppController(QObject):
                     "secondaryBadge": "IS" if binocular.image_stabilized else "",
                 }
             )
+        for optical_filter in self._catalog_filters:
+            items.append(
+                {
+                    "kind": "filter",
+                    "id": optical_filter["catalog_id"],
+                    "name": optical_filter["display_name"],
+                    "badge": "Filtro",
+                    "details": (
+                        f"{optical_filter['filter_class_label']} · "
+                        f"{optical_filter['barrel_size']}\""
+                    ),
+                    "type": optical_filter["filter_class_label"],
+                    "secondaryBadge": optical_filter["barrel_size"],
+                }
+            )
+        for reducer in self._catalog_reducers:
+            items.append(
+                {
+                    "kind": "reducer",
+                    "id": reducer["catalog_id"],
+                    "name": reducer["display_name"],
+                    "badge": "Riduttore",
+                    "details": (
+                        f"{float(reducer['reduction_factor']):g}x · "
+                        f"{reducer['optical_system_label']}"
+                    ),
+                    "type": reducer["optical_system_label"],
+                    "secondaryBadge": self._reducer_use_label(reducer),
+                }
+            )
         return items
 
     def _profile_assigned_equipment(self) -> list[dict]:
@@ -5542,7 +5969,51 @@ class AppController(QObject):
                     "secondaryBadge": "IS" if binocular.image_stabilized else "",
                 }
             )
+        assigned_filter_ids = set(self._active_profile_state()["filter_ids"])
+        for optical_filter in self._catalog_filters:
+            if optical_filter["catalog_id"] not in assigned_filter_ids:
+                continue
+            items.append(
+                {
+                    "kind": "filter",
+                    "id": optical_filter["catalog_id"],
+                    "name": optical_filter["display_name"],
+                    "badge": "Filtro",
+                    "details": (
+                        f"{optical_filter['filter_class_label']} · "
+                        f"{optical_filter['barrel_size']}\""
+                    ),
+                    "secondaryBadge": optical_filter["barrel_size"],
+                }
+            )
+        assigned_reducer_ids = set(self._active_profile_state()["reducer_ids"])
+        for reducer in self._catalog_reducers:
+            if reducer["catalog_id"] not in assigned_reducer_ids:
+                continue
+            items.append(
+                {
+                    "kind": "reducer",
+                    "id": reducer["catalog_id"],
+                    "name": reducer["display_name"],
+                    "badge": "Riduttore",
+                    "details": (
+                        f"{float(reducer['reduction_factor']):g}x · "
+                        f"{reducer['optical_system_label']}"
+                    ),
+                    "secondaryBadge": self._reducer_use_label(reducer),
+                }
+            )
         return items
+
+    @staticmethod
+    def _reducer_use_label(reducer: Mapping[str, object]) -> str:
+        visual = bool(reducer.get("visual_compatible"))
+        imaging = bool(reducer.get("imaging_compatible"))
+        if visual and imaging:
+            return "Visuale + foto"
+        if visual:
+            return "Visuale"
+        return "Fotografico"
 
     def _telescope_exists(self, telescope: Telescope, ignore_id: str = "") -> bool:
         return any(

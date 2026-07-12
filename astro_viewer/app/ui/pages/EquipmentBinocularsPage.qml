@@ -195,6 +195,7 @@ Item {
                 }
 
                 DarkButton {
+                    visible: !itemData.is_builtin
                     text: "Elimina"
                     implicitHeight: 32
                     leftPadding: 10
@@ -242,13 +243,15 @@ Item {
     DarkDialog {
         id: deleteBinocularDialog
         title: "Elimina modello"
-        acceptText: "Elimina"
+        acceptText: controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
         acceptDanger: true
-        onAccepted: controller.deleteBinocularModel(root.deleteModel.id)
+        onAccepted: controller.deleteBinocularModel(root.deleteModel.id, controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
-            text: "Eliminare il modello dal catalogo?"
+            text: controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0
+                ? "Questo elemento è utilizzato da uno o più profili."
+                : "Eliminare il modello dal catalogo?"
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
