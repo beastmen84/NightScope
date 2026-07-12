@@ -377,7 +377,11 @@ Item {
                     elide: Text.ElideRight
                     maximumLineCount: 1
                 }
-                DarkButton { text: "Modifica"; onClicked: filterRow.edit() }
+                DarkButton {
+                    visible: !filterRow.itemData.is_builtin
+                    text: "Modifica"
+                    onClicked: filterRow.edit()
+                }
                 DarkButton {
                     visible: !filterRow.itemData.is_builtin
                     text: "Elimina"
@@ -445,7 +449,11 @@ Item {
                     elide: Text.ElideRight
                     maximumLineCount: 1
                 }
-                DarkButton { text: "Modifica"; onClicked: reducerRow.edit() }
+                DarkButton {
+                    visible: !reducerRow.itemData.is_builtin
+                    text: "Modifica"
+                    onClicked: reducerRow.edit()
+                }
                 DarkButton {
                     visible: !reducerRow.itemData.is_builtin
                     text: "Elimina"

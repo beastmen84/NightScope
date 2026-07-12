@@ -37,6 +37,7 @@ class EquipmentCatalogRepository:
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self._database_path)
+        connection.execute("PRAGMA foreign_keys = ON")
         connection.row_factory = sqlite3.Row
         return connection
 
@@ -154,6 +155,8 @@ class EquipmentCatalogRepository:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
                 return False, "Modello telescopio non trovato."
+            if old["is_builtin"]:
+                return False, "Gli elementi integrati non possono essere modificati."
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
                 "SELECT id FROM TelescopeModel WHERE brand_id = ? AND name = ? AND id <> ?",
@@ -297,6 +300,14 @@ class EquipmentCatalogRepository:
         if not clean_brand or not clean_model:
             return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id, is_builtin FROM EyepieceCatalog WHERE id = ?",
+                (eyepiece_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Oculare non trovato."
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere modificati."
             duplicate = connection.execute(
                 """
                 SELECT id FROM EyepieceCatalog
@@ -387,6 +398,14 @@ class EquipmentCatalogRepository:
         if not clean_brand or not clean_model:
             return False, "Marca e modello sono obbligatori."
         with closing(self._connect()) as connection:
+            existing = connection.execute(
+                "SELECT id, is_builtin FROM BarlowCatalog WHERE id = ?",
+                (barlow_id,),
+            ).fetchone()
+            if not existing:
+                return False, "Barlow non trovata."
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere modificati."
             duplicate = connection.execute(
                 """
                 SELECT id FROM BarlowCatalog
@@ -492,11 +511,13 @@ class EquipmentCatalogRepository:
             return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id FROM BinocularCatalog WHERE id = ?",
+                "SELECT id, is_builtin FROM BinocularCatalog WHERE id = ?",
                 (binocular_id,),
             ).fetchone()
             if not existing:
                 return False, "Binocolo non trovato."
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere modificati."
             duplicate = connection.execute(
                 """
                 SELECT id FROM BinocularCatalog
@@ -639,11 +660,13 @@ class EquipmentCatalogRepository:
             return False, error
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id FROM FilterCatalog WHERE id = ?",
+                "SELECT id, is_builtin FROM FilterCatalog WHERE id = ?",
                 (filter_id,),
             ).fetchone()
             if not existing:
                 return False, "Filtro non trovato."
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere modificati."
             duplicate = connection.execute(
                 """
                 SELECT id FROM FilterCatalog
@@ -702,7 +725,36 @@ class EquipmentCatalogRepository:
                 ORDER BY brand, model, reduction_factor
                 """
             ).fetchall()
-        return [self._reducer_model(row) for row in rows]
+            compatibility_rows = connection.execute(
+                """
+                SELECT compatibility.reducer_id, model.id AS telescope_model_id,
+                       brand.name AS telescope_brand, model.name AS telescope_model
+                FROM ReducerTelescopeCompatibility compatibility
+                JOIN TelescopeModel model ON model.id = compatibility.telescope_model_id
+                JOIN TelescopeBrand brand ON brand.id = model.brand_id
+                ORDER BY brand.name, model.name
+                """
+            ).fetchall()
+        compatibility_by_reducer: dict[int, list[dict]] = {}
+        for row in compatibility_rows:
+            compatibility_by_reducer.setdefault(int(row["reducer_id"]), []).append(
+                {
+                    "catalog_id": f"catalog-telescope-{row['telescope_model_id']}",
+                    "brand": str(row["telescope_brand"]),
+                    "model": str(row["telescope_model"]),
+                    "display_name": f"{row['telescope_brand']} {row['telescope_model']}",
+                }
+            )
+        reducers = []
+        for row in rows:
+            reducer = self._reducer_model(row)
+            compatibility = compatibility_by_reducer.get(int(row["id"]), [])
+            reducer["compatible_telescopes"] = compatibility
+            reducer["compatible_telescope_ids"] = [
+                item["catalog_id"] for item in compatibility
+            ]
+            reducers.append(reducer)
+        return reducers
 
     def add_reducer(
         self,
@@ -790,11 +842,13 @@ class EquipmentCatalogRepository:
             return False, error
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id FROM ReducerCatalog WHERE id = ?",
+                "SELECT id, is_builtin FROM ReducerCatalog WHERE id = ?",
                 (reducer_id,),
             ).fetchone()
             if not existing:
                 return False, "Riduttore non trovato."
+            if bool(existing["is_builtin"]):
+                return False, "Gli elementi integrati non possono essere modificati."
             duplicate = connection.execute(
                 """
                 SELECT id FROM ReducerCatalog
@@ -1242,41 +1296,42 @@ class EquipmentCatalogRepository:
             ids.append(legacy_id)
         placeholders = ", ".join("?" for _ in ids)
         if kind == "telescope":
-            profile_count = connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileTelescope WHERE telescope_id IN ({placeholders})",
+            query = f"""
+                SELECT COUNT(*)
+                FROM (
+                    SELECT assignment.profile_id
+                    FROM EquipmentProfileTelescope assignment
+                    JOIN EquipmentProfile profile ON profile.id = assignment.profile_id
+                    WHERE assignment.telescope_id IN ({placeholders})
+                    UNION
+                    SELECT profile.id
+                    FROM EquipmentProfile profile
+                    WHERE profile.telescope_id IN ({placeholders})
+                )
+            """
+            return int(connection.execute(query, [*ids, *ids]).fetchone()[0])
+        assignment_tables = {
+            "eyepiece": ("EquipmentProfileEyepiece", "eyepiece_id"),
+            "barlow": ("EquipmentProfileBarlow", "barlow_id"),
+            "binocular": ("EquipmentProfileBinocular", "binocular_id"),
+            "filter": ("EquipmentProfileFilter", "filter_id"),
+            "reducer": ("EquipmentProfileReducer", "reducer_id"),
+        }
+        assignment = assignment_tables.get(kind)
+        if assignment is None:
+            return 0
+        table_name, id_column = assignment
+        return int(
+            connection.execute(
+                f"""
+                SELECT COUNT(DISTINCT assignment.profile_id)
+                FROM {table_name} assignment
+                JOIN EquipmentProfile profile ON profile.id = assignment.profile_id
+                WHERE assignment.{id_column} IN ({placeholders})
+                """,
                 ids,
             ).fetchone()[0]
-            legacy_count = connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfile WHERE telescope_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0]
-            return int(profile_count + legacy_count)
-        if kind == "eyepiece":
-            return int(connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileEyepiece WHERE eyepiece_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0])
-        if kind == "barlow":
-            return int(connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileBarlow WHERE barlow_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0])
-        if kind == "binocular":
-            return int(connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileBinocular WHERE binocular_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0])
-        if kind == "filter":
-            return int(connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileFilter WHERE filter_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0])
-        if kind == "reducer":
-            return int(connection.execute(
-                f"SELECT COUNT(*) FROM EquipmentProfileReducer WHERE reducer_id IN ({placeholders})",
-                ids,
-            ).fetchone()[0])
-        return 0
+        )
 
     @staticmethod
     def _remove_from_profiles(connection: sqlite3.Connection, kind: str, item_id: str, legacy_id: str | None = None) -> None:

@@ -14,7 +14,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -31,6 +31,7 @@ REQUIRED_TABLES = {
     "BinocularCatalog",
     "FilterCatalog",
     "ReducerCatalog",
+    "ReducerTelescopeCompatibility",
     "SkyQualityEstimate",
     "ObjectImages",
     "ObjectDescription",
@@ -53,6 +54,7 @@ SEEDED_TABLES = {
     "BinocularCatalog": "binocular_catalog_seed.csv",
     "FilterCatalog": "filter_catalog_seed.csv",
     "ReducerCatalog": "reducer_catalog_seed.csv",
+    "ReducerTelescopeCompatibility": "reducer_telescope_compatibility_seed.csv",
     "ObjectImages": "object_images_seed.csv",
     "ObjectDescription": "object_descriptions_seed.csv",
     "ObjectCuriosity": "object_curiosities_seed.csv",
@@ -249,6 +251,7 @@ def _build_database(
             connection,
             data_dir / "filter_catalog_seed.csv",
             data_dir / "reducer_catalog_seed.csv",
+            data_dir / "reducer_telescope_compatibility_seed.csv",
         )
         _seed_object_images(connection, data_dir / "object_images_seed.csv")
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
@@ -318,6 +321,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     _migrate_catalogue_tables(connection)
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
+    _remove_orphan_profile_assignments(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
         connection,
@@ -428,6 +432,23 @@ def _table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
         "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
         (table_name,),
     ).fetchone() is not None
+
+
+def _remove_orphan_profile_assignments(connection: sqlite3.Connection) -> None:
+    for table_name in (
+        "EquipmentProfileTelescope",
+        "EquipmentProfileEyepiece",
+        "EquipmentProfileBarlow",
+        "EquipmentProfileBinocular",
+        "EquipmentProfileFilter",
+        "EquipmentProfileReducer",
+    ):
+        connection.execute(
+            f"""
+            DELETE FROM {table_name}
+            WHERE profile_id NOT IN (SELECT id FROM EquipmentProfile)
+            """
+        )
 
 
 def _migrate_binocular_catalog(connection: sqlite3.Connection) -> None:
@@ -1029,6 +1050,7 @@ def _seed_filters_reducers_catalog(
     connection: sqlite3.Connection,
     filter_path: Path | None = None,
     reducer_path: Path | None = None,
+    compatibility_path: Path | None = None,
 ) -> None:
     connection.executemany(
         """
@@ -1053,6 +1075,64 @@ def _seed_filters_reducers_catalog(
         ON CONFLICT(brand, model, reduction_factor) DO UPDATE SET is_builtin = 1
         """,
         _reducer_catalog_rows(reducer_path),
+    )
+    _seed_reducer_telescope_compatibility(connection, compatibility_path)
+
+
+def _seed_reducer_telescope_compatibility(
+    connection: sqlite3.Connection,
+    compatibility_path: Path | None,
+) -> None:
+    if not compatibility_path or not compatibility_path.exists():
+        raise FileNotFoundError("Missing reducer telescope compatibility seed CSV.")
+    with compatibility_path.open("r", encoding="utf-8", newline="") as file:
+        source_rows = list(csv.DictReader(file))
+
+    resolved_rows: list[tuple[int, int]] = []
+    for row in source_rows:
+        reducer = connection.execute(
+            """
+            SELECT id
+            FROM ReducerCatalog
+            WHERE brand = ? AND model = ? AND reduction_factor = ?
+            """,
+            (
+                row["reducer_brand"],
+                row["reducer_model"],
+                float(row["reduction_factor"]),
+            ),
+        ).fetchone()
+        telescope = connection.execute(
+            """
+            SELECT model.id
+            FROM TelescopeModel model
+            JOIN TelescopeBrand brand ON brand.id = model.brand_id
+            WHERE brand.name = ? AND model.name = ?
+            """,
+            (row["telescope_brand"], row["telescope_model"]),
+        ).fetchone()
+        if reducer is None or telescope is None:
+            raise ValueError(
+                "Unresolved reducer compatibility: "
+                f"{row['reducer_brand']} {row['reducer_model']} -> "
+                f"{row['telescope_brand']} {row['telescope_model']}"
+            )
+        resolved_rows.append((int(reducer["id"]), int(telescope["id"])))
+
+    if len(resolved_rows) != len(set(resolved_rows)):
+        raise ValueError("Duplicate reducer telescope compatibility seed row.")
+    connection.execute(
+        """
+        DELETE FROM ReducerTelescopeCompatibility
+        WHERE reducer_id IN (SELECT id FROM ReducerCatalog WHERE is_builtin = 1)
+        """
+    )
+    connection.executemany(
+        """
+        INSERT INTO ReducerTelescopeCompatibility (reducer_id, telescope_model_id)
+        VALUES (?, ?)
+        """,
+        resolved_rows,
     )
 
 

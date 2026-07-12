@@ -196,6 +196,17 @@ CREATE TABLE IF NOT EXISTS ReducerCatalog (
     UNIQUE (brand, model, reduction_factor)
 );
 
+CREATE TABLE IF NOT EXISTS ReducerTelescopeCompatibility (
+    reducer_id INTEGER NOT NULL,
+    telescope_model_id INTEGER NOT NULL,
+    PRIMARY KEY (reducer_id, telescope_model_id),
+    FOREIGN KEY (reducer_id) REFERENCES ReducerCatalog(id) ON DELETE CASCADE,
+    FOREIGN KEY (telescope_model_id) REFERENCES TelescopeModel(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_reducer_compatibility_telescope
+ON ReducerTelescopeCompatibility(telescope_model_id);
+
 CREATE TABLE IF NOT EXISTS SkyQualityEstimate (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     location_key TEXT NOT NULL UNIQUE,

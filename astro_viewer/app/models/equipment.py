@@ -111,6 +111,8 @@ class FocalReducer:
     visual_compatible: bool = False
     imaging_compatible: bool = True
     corrected_field: bool = False
+    compatible_telescope_ids: tuple[str, ...] = ()
+    compatible_telescope_names: tuple[str, ...] = ()
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -121,6 +123,8 @@ class FocalReducer:
         data["visualCompatible"] = self.visual_compatible
         data["imagingCompatible"] = self.imaging_compatible
         data["correctedField"] = self.corrected_field
+        data["compatibleTelescopeIds"] = list(self.compatible_telescope_ids)
+        data["compatibleTelescopeNames"] = list(self.compatible_telescope_names)
         return data
 
 

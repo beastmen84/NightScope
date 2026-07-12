@@ -191,6 +191,7 @@ Item {
                 }
 
                 DarkButton {
+                    visible: !itemData.is_builtin
                     text: "Modifica"
                     implicitHeight: 32
                     leftPadding: 10

@@ -5699,6 +5699,12 @@ class AppController(QObject):
             visual_compatible=bool(row.get("visual_compatible")),
             imaging_compatible=bool(row.get("imaging_compatible")),
             corrected_field=bool(row.get("corrected_field")),
+            compatible_telescope_ids=tuple(row.get("compatible_telescope_ids") or ()),
+            compatible_telescope_names=tuple(
+                item.get("display_name", "")
+                for item in row.get("compatible_telescopes", [])
+                if item.get("display_name")
+            ),
         )
 
     def _initial_profile_equipment(self) -> dict[str, dict[str, list[str]]]:

@@ -357,6 +357,7 @@ Item {
                 }
 
                 DarkButton {
+                    visible: !itemData.is_builtin
                     text: "Modifica"
                     onClicked: opticRow.edit()
                 }

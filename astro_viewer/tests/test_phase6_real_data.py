@@ -924,9 +924,14 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('text: "Stabilizzato"', binoculars_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
         for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
-            self.assertRegex(
-                equipment_qml,
-                r"visible:\s*![A-Za-z0-9_.]*itemData\.is_builtin",
+            self.assertGreaterEqual(
+                len(
+                    re.findall(
+                        r"visible:\s*![A-Za-z0-9_.]*itemData\.is_builtin",
+                        equipment_qml,
+                    )
+                ),
+                2,
             )
         self.assertIn('text: "Catalogo filtri e riduttori"', filters_reducers_qml)
         self.assertIn("controller.filterCatalog", filters_reducers_qml)

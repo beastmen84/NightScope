@@ -136,6 +136,74 @@ def test_builtin_equipment_cannot_be_deleted_from_repository() -> None:
         temporary_directory.cleanup()
 
 
+def test_builtin_equipment_cannot_be_modified_in_repository() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        telescope = repository.models()[0]
+        eyepiece = repository.eyepieces()[0]
+        barlow = repository.barlows()[0]
+        binocular = repository.binoculars()[0]
+        optical_filter = repository.filters()[0]
+        reducer = repository.reducers()[0]
+
+        attempts = (
+            repository.update_telescope_model(
+                telescope["id"],
+                telescope["brand"],
+                f"{telescope['name']} modificato",
+                telescope["optical_type"],
+                telescope["aperture_mm"],
+                telescope["focal_length_mm"],
+                telescope["mount_type"],
+            ),
+            repository.update_eyepiece(
+                eyepiece["id"],
+                eyepiece["brand"],
+                f"{eyepiece['model']} modificato",
+                eyepiece["eyepiece_type"],
+                eyepiece["focal_length_mm"],
+                eyepiece["apparent_field_deg"],
+                eyepiece["barrel_size"],
+            ),
+            repository.update_barlow(
+                barlow["id"],
+                barlow["brand"],
+                f"{barlow['model']} modificato",
+                barlow["multiplier"],
+                barlow["barrel_size"],
+            ),
+            repository.update_binocular(
+                binocular["id"],
+                binocular["brand"],
+                f"{binocular['model']} modificato",
+                binocular["magnification"],
+                binocular["objective_diameter_mm"],
+                binocular["image_stabilized"],
+            ),
+            repository.update_filter(
+                optical_filter["id"],
+                optical_filter["brand"],
+                f"{optical_filter['model']} modificato",
+                optical_filter["filter_class"],
+                optical_filter["barrel_size"],
+            ),
+            repository.update_reducer(
+                reducer["id"],
+                reducer["brand"],
+                f"{reducer['model']} modificato",
+                reducer["reduction_factor"],
+                reducer["optical_system"],
+                visual_compatible=reducer["visual_compatible"],
+                imaging_compatible=reducer["imaging_compatible"],
+            ),
+        )
+        for ok, message in attempts:
+            assert not ok
+            assert "integrati" in message
+    finally:
+        temporary_directory.cleanup()
+
+
 def test_filter_and_reducer_profile_assignment_and_safe_deletion() -> None:
     temporary_directory, _, repository = _database()
     try:
@@ -164,6 +232,109 @@ def test_filter_and_reducer_profile_assignment_and_safe_deletion() -> None:
         assert repository.delete_reducer(reducer["id"], remove_from_profiles=True)[0]
         assert repository.profile_filter_ids(profile_id) == []
         assert repository.profile_reducer_ids(profile_id) == []
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_profile_deletion_cascades_assignments_and_counts_distinct_profiles() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        telescope = repository.models()[0]
+        eyepiece = repository.eyepieces()[0]
+        barlow = repository.barlows()[0]
+        binocular = repository.binoculars()[0]
+        optical_filter = repository.filters()[0]
+        reducer = repository.reducers()[0]
+        repository.add_profile("Profilo eliminabile", telescope["catalog_id"], active=False)
+        profile = next(
+            item
+            for item in repository.profiles()
+            if item["profile_name"] == "Profilo eliminabile"
+        )
+        profile_id = int(profile["id"])
+        assignments = (
+            (repository.assign_profile_eyepiece, eyepiece["catalog_id"]),
+            (repository.assign_profile_barlow, barlow["catalog_id"]),
+            (repository.assign_profile_binocular, binocular["catalog_id"]),
+            (repository.assign_profile_filter, optical_filter["catalog_id"]),
+            (repository.assign_profile_reducer, reducer["catalog_id"]),
+        )
+        for assign, item_id in assignments:
+            assign(profile_id, item_id)
+
+        assert repository.profile_usage_count("telescope", telescope["catalog_id"]) == 1
+        for kind, item_id in (
+            ("eyepiece", eyepiece["catalog_id"]),
+            ("barlow", barlow["catalog_id"]),
+            ("binocular", binocular["catalog_id"]),
+            ("filter", optical_filter["catalog_id"]),
+            ("reducer", reducer["catalog_id"]),
+        ):
+            assert repository.profile_usage_count(kind, item_id) == 1
+
+        repository.delete_profile(profile_id)
+
+        assert repository.profile_telescope_ids(profile_id) == []
+        assert repository.profile_eyepiece_ids(profile_id) == []
+        assert repository.profile_barlow_ids(profile_id) == []
+        assert repository.profile_binocular_ids(profile_id) == []
+        assert repository.profile_filter_ids(profile_id) == []
+        assert repository.profile_reducer_ids(profile_id) == []
+        assert repository.profile_usage_count("telescope", telescope["catalog_id"]) == 0
+        for kind, item_id in (
+            ("eyepiece", eyepiece["catalog_id"]),
+            ("barlow", barlow["catalog_id"]),
+            ("binocular", binocular["catalog_id"]),
+            ("filter", optical_filter["catalog_id"]),
+            ("reducer", reducer["catalog_id"]),
+        ):
+            assert repository.profile_usage_count(kind, item_id) == 0
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_reinitialization_removes_legacy_orphan_profile_assignments() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        optical_filter = repository.filters()[0]
+        with closing(sqlite3.connect(database_path)) as connection:
+            connection.execute("PRAGMA foreign_keys = OFF")
+            connection.execute(
+                """
+                INSERT INTO EquipmentProfileFilter (profile_id, filter_id)
+                VALUES (?, ?)
+                """,
+                (999_999, optical_filter["catalog_id"]),
+            )
+            connection.commit()
+
+        initialize_database(database_path, SCHEMA_PATH)
+
+        with closing(sqlite3.connect(database_path)) as connection:
+            orphan_count = connection.execute(
+                "SELECT COUNT(*) FROM EquipmentProfileFilter WHERE profile_id = ?",
+                (999_999,),
+            ).fetchone()[0]
+            violations = connection.execute("PRAGMA foreign_key_check").fetchall()
+        assert orphan_count == 0
+        assert violations == []
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_reducer_compatibility_uses_catalog_telescope_ids() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        edgehd = next(
+            item
+            for item in repository.reducers()
+            if item["model"] == "Reducer Lens 0.7x EdgeHD 8"
+        )
+        assert len(edgehd["compatible_telescopes"]) == 1
+        telescope = edgehd["compatible_telescopes"][0]
+        assert telescope["display_name"] == "Celestron EdgeHD 8 OTA"
+        assert edgehd["compatible_telescope_ids"] == [telescope["catalog_id"]]
+        assert telescope["catalog_id"].startswith("catalog-telescope-")
     finally:
         temporary_directory.cleanup()
 
