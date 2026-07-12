@@ -54,18 +54,78 @@ SEEDED_TABLES = {
 }
 
 OBJECT_IMAGES = [
-    ("sun", "resources/images/sun.svg", "NightScope generated local SVG"),
-    ("moon", "resources/images/moon.svg", "NightScope generated local SVG"),
-    ("mercury", "resources/images/mercury.svg", "NightScope generated local SVG"),
-    ("venus", "resources/images/venus.svg", "NightScope generated local SVG"),
-    ("mars", "resources/images/mars.svg", "NightScope generated local SVG"),
-    ("jupiter", "resources/images/jupiter.svg", "NightScope generated local SVG"),
-    ("saturn", "resources/images/saturn.svg", "NightScope generated local SVG"),
-    ("uranus", "resources/images/uranus.svg", "NightScope generated local SVG"),
-    ("neptune", "resources/images/neptune.svg", "NightScope generated local SVG"),
-    ("messier-default-cluster", "resources/images/m13.svg", "NightScope generated local SVG"),
-    ("messier-default-nebula", "resources/images/m57.svg", "NightScope generated local SVG"),
-    ("messier-default-galaxy", "resources/images/m31.svg", "NightScope generated local SVG"),
+    (
+        "sun",
+        "resources/images/solar_system/sun.jpg",
+        "NASA/GSFC/Solar Dynamics Observatory",
+        "https://science.nasa.gov/photojournal/image-of-sun-from-nasas-solar-dynamics-observatory/",
+    ),
+    (
+        "moon",
+        "resources/images/solar_system/moon.jpg",
+        "NASA/JPL/USGS",
+        "https://science.nasa.gov/photojournal/earths-moon/",
+    ),
+    (
+        "mercury",
+        "resources/images/solar_system/mercury.jpg",
+        "NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington",
+        "https://science.nasa.gov/photojournal/mercury-in-color/",
+    ),
+    (
+        "venus",
+        "resources/images/solar_system/venus.jpg",
+        "NASA/JPL-Caltech",
+        "https://science.nasa.gov/photojournal/venus-from-mariner-10/",
+    ),
+    (
+        "mars",
+        "resources/images/solar_system/mars.jpg",
+        "NASA/JPL/USGS",
+        "https://science.nasa.gov/photojournal/global-color-views-of-mars/",
+    ),
+    (
+        "jupiter",
+        "resources/images/solar_system/jupiter.jpg",
+        "NASA/JPL/Space Science Institute",
+        "https://science.nasa.gov/resource/cassini-jupiter-portrait/",
+    ),
+    (
+        "saturn",
+        "resources/images/solar_system/saturn.jpg",
+        "NASA/JPL/Space Science Institute",
+        "https://science.nasa.gov/image-detail/amf-pia11141/",
+    ),
+    (
+        "uranus",
+        "resources/images/solar_system/uranus.jpg",
+        "NASA/JPL-Caltech",
+        "https://science.nasa.gov/photojournal/uranus-as-seen-by-nasas-voyager-2/",
+    ),
+    (
+        "neptune",
+        "resources/images/solar_system/neptune.jpg",
+        "NASA/JPL",
+        "https://science.nasa.gov/photojournal/neptune-full-disk-view/",
+    ),
+    (
+        "messier-default-cluster",
+        "resources/images/m13.svg",
+        "NightScope generated local SVG",
+        "",
+    ),
+    (
+        "messier-default-nebula",
+        "resources/images/m57.svg",
+        "NightScope generated local SVG",
+        "",
+    ),
+    (
+        "messier-default-galaxy",
+        "resources/images/m31.svg",
+        "NightScope generated local SVG",
+        "",
+    ),
 ]
 
 
@@ -931,6 +991,10 @@ def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None
         WHERE (
             ObjectImages.object_id LIKE 'messier-%'
             OR ObjectImages.object_id LIKE 'caldwell-%'
+            OR ObjectImages.object_id IN (
+                'sun', 'moon', 'mercury', 'venus', 'mars',
+                'jupiter', 'saturn', 'uranus', 'neptune'
+            )
         ) AND ObjectImages.license IN (
             'NightScope local generated asset',
             'NightScope local generated placeholder'
@@ -955,7 +1019,24 @@ def _object_image_rows(images_path: Path | None) -> list[tuple]:
                 )
                 for row in csv.DictReader(file)
             ]
-    return [(object_id, image_path, image_path, attribution, "", "NightScope local generated asset", 1) for object_id, image_path, attribution in OBJECT_IMAGES]
+    rows = []
+    for object_id, image_path, attribution, source_url in OBJECT_IMAGES:
+        if source_url:
+            license_name = "NASA/JPL media; use subject to NASA and JPL image use policies"
+        else:
+            license_name = "NightScope local generated asset"
+        rows.append(
+            (
+                object_id,
+                image_path,
+                image_path,
+                attribution,
+                source_url,
+                license_name,
+                1,
+            )
+        )
+    return rows
 
 
 def _seed_object_descriptions(connection: sqlite3.Connection, descriptions_path: Path | None = None) -> None:

@@ -61,15 +61,57 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     """Skyfield-backed astronomy service for Solar System and catalogue visibility."""
 
     BODY_CONFIGS = [
-        SolarSystemBodyConfig("sun", "Sole", "sun", "Stella", "resources/images/sun.svg"),
-        SolarSystemBodyConfig("moon", "Luna", "moon", "Satellite naturale", "resources/images/moon.svg"),
-        SolarSystemBodyConfig("mercury", "Mercurio", "mercury", "Pianeta", "resources/images/mercury.svg"),
-        SolarSystemBodyConfig("venus", "Venere", "venus", "Pianeta", "resources/images/venus.svg"),
-        SolarSystemBodyConfig("mars", "Marte", "mars", "Pianeta", "resources/images/mars.svg"),
-        SolarSystemBodyConfig("jupiter", "Giove", "jupiter barycenter", "Pianeta", "resources/images/jupiter.svg"),
-        SolarSystemBodyConfig("saturn", "Saturno", "saturn barycenter", "Pianeta", "resources/images/saturn.svg"),
-        SolarSystemBodyConfig("uranus", "Urano", "uranus barycenter", "Pianeta", "resources/images/uranus.svg"),
-        SolarSystemBodyConfig("neptune", "Nettuno", "neptune barycenter", "Pianeta", "resources/images/neptune.svg"),
+        SolarSystemBodyConfig(
+            "sun", "Sole", "sun", "Stella", "resources/images/solar_system/sun.jpg"
+        ),
+        SolarSystemBodyConfig(
+            "moon",
+            "Luna",
+            "moon",
+            "Satellite naturale",
+            "resources/images/solar_system/moon.jpg",
+        ),
+        SolarSystemBodyConfig(
+            "mercury",
+            "Mercurio",
+            "mercury",
+            "Pianeta",
+            "resources/images/solar_system/mercury.jpg",
+        ),
+        SolarSystemBodyConfig(
+            "venus", "Venere", "venus", "Pianeta", "resources/images/solar_system/venus.jpg"
+        ),
+        SolarSystemBodyConfig(
+            "mars", "Marte", "mars", "Pianeta", "resources/images/solar_system/mars.jpg"
+        ),
+        SolarSystemBodyConfig(
+            "jupiter",
+            "Giove",
+            "jupiter barycenter",
+            "Pianeta",
+            "resources/images/solar_system/jupiter.jpg",
+        ),
+        SolarSystemBodyConfig(
+            "saturn",
+            "Saturno",
+            "saturn barycenter",
+            "Pianeta",
+            "resources/images/solar_system/saturn.jpg",
+        ),
+        SolarSystemBodyConfig(
+            "uranus",
+            "Urano",
+            "uranus barycenter",
+            "Pianeta",
+            "resources/images/solar_system/uranus.jpg",
+        ),
+        SolarSystemBodyConfig(
+            "neptune",
+            "Nettuno",
+            "neptune barycenter",
+            "Pianeta",
+            "resources/images/solar_system/neptune.jpg",
+        ),
     ]
 
     PLANET_IDS = {"mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}
@@ -413,7 +455,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         illumination = (1.0 - math.cos(math.radians(phase_angle))) / 2.0
         night_window = self.observing_night_window(location, reference=now)
         moon_details = self._body_details(
-            SolarSystemBodyConfig("moon", "Luna", "moon", "Satellite naturale", "resources/images/moon.svg"),
+            SolarSystemBodyConfig(
+                "moon",
+                "Luna",
+                "moon",
+                "Satellite naturale",
+                "resources/images/solar_system/moon.jpg",
+            ),
             location,
             now=now,
             night_window=night_window,
@@ -424,7 +472,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             rise_time=moon_details.rise_time,
             set_time=moon_details.set_time,
             best_note=self._moon_observing_note(illumination),
-            image="resources/images/moon.svg",
+            image="resources/images/solar_system/moon.jpg",
             phase_angle=round(phase_angle, 1),
         )
 

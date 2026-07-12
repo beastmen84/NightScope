@@ -110,7 +110,7 @@ class Phase3ServiceTests(unittest.TestCase):
             id="saturn",
             name="Saturno",
             object_type="Pianeta",
-            image="resources/images/saturn.svg",
+            image="resources/images/solar_system/saturn.jpg",
             magnitude="0.8",
             distance="9 UA",
             max_altitude="45 gradi",

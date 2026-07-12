@@ -13,7 +13,9 @@ class ObservingScoreTests(unittest.TestCase):
             WeatherHour("2026-06-21T22:00", "22:00", 10, 0, 8, 55, 18.5),
             WeatherHour("2026-06-21T23:00", "23:00", 12, 0, 7, 58, 17.9),
         ]
-        moon = MoonSummary("Nuova", "8%", "05:00", "20:00", "", "resources/images/moon.svg")
+        moon = MoonSummary(
+            "Nuova", "8%", "05:00", "20:00", "", "resources/images/solar_system/moon.jpg"
+        )
 
         summary = ObservingScoreService().weather_score(hours, moon)
 
@@ -25,7 +27,9 @@ class ObservingScoreTests(unittest.TestCase):
             WeatherHour("2026-06-21T22:00", "22:00", 90, 65, 31, 88, 16.0),
             WeatherHour("2026-06-21T23:00", "23:00", 85, 50, 28, 85, 15.6),
         ]
-        moon = MoonSummary("Piena", "98%", "19:00", "05:00", "", "resources/images/moon.svg")
+        moon = MoonSummary(
+            "Piena", "98%", "19:00", "05:00", "", "resources/images/solar_system/moon.jpg"
+        )
 
         summary = ObservingScoreService().weather_score(hours, moon)
 
@@ -35,4 +39,3 @@ class ObservingScoreTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

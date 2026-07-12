@@ -1,13 +1,13 @@
 object_id,image_path,thumbnail_path,attribution,source_url,license,verified
-sun,resources/images/sun.svg,resources/images/sun.svg,NightScope generated local SVG,,NightScope local generated asset,1
-moon,resources/images/moon.svg,resources/images/moon.svg,NightScope generated local SVG,,NightScope local generated asset,1
-mercury,resources/images/mercury.svg,resources/images/mercury.svg,NightScope generated local SVG,,NightScope local generated asset,1
-venus,resources/images/venus.svg,resources/images/venus.svg,NightScope generated local SVG,,NightScope local generated asset,1
-mars,resources/images/mars.svg,resources/images/mars.svg,NightScope generated local SVG,,NightScope local generated asset,1
-jupiter,resources/images/jupiter.svg,resources/images/jupiter.svg,NightScope generated local SVG,,NightScope local generated asset,1
-saturn,resources/images/saturn.svg,resources/images/saturn.svg,NightScope generated local SVG,,NightScope local generated asset,1
-uranus,resources/images/uranus.svg,resources/images/uranus.svg,NightScope generated local SVG,,NightScope local generated asset,1
-neptune,resources/images/neptune.svg,resources/images/neptune.svg,NightScope generated local SVG,,NightScope local generated asset,1
+sun,resources/images/solar_system/sun.jpg,resources/images/solar_system/sun.jpg,NASA/GSFC/Solar Dynamics Observatory,https://science.nasa.gov/photojournal/image-of-sun-from-nasas-solar-dynamics-observatory/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+moon,resources/images/solar_system/moon.jpg,resources/images/solar_system/moon.jpg,NASA/JPL/USGS,https://science.nasa.gov/photojournal/earths-moon/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+mercury,resources/images/solar_system/mercury.jpg,resources/images/solar_system/mercury.jpg,NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington,https://science.nasa.gov/photojournal/mercury-in-color/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+venus,resources/images/solar_system/venus.jpg,resources/images/solar_system/venus.jpg,NASA/JPL-Caltech,https://science.nasa.gov/photojournal/venus-from-mariner-10/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+mars,resources/images/solar_system/mars.jpg,resources/images/solar_system/mars.jpg,NASA/JPL/USGS,https://science.nasa.gov/photojournal/global-color-views-of-mars/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+jupiter,resources/images/solar_system/jupiter.jpg,resources/images/solar_system/jupiter.jpg,NASA/JPL/Space Science Institute,https://science.nasa.gov/resource/cassini-jupiter-portrait/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+saturn,resources/images/solar_system/saturn.jpg,resources/images/solar_system/saturn.jpg,NASA/JPL/Space Science Institute,https://science.nasa.gov/image-detail/amf-pia11141/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+uranus,resources/images/solar_system/uranus.jpg,resources/images/solar_system/uranus.jpg,NASA/JPL-Caltech,https://science.nasa.gov/photojournal/uranus-as-seen-by-nasas-voyager-2/,NASA/JPL media; use subject to NASA and JPL image use policies,1
+neptune,resources/images/solar_system/neptune.jpg,resources/images/solar_system/neptune.jpg,NASA/JPL,https://science.nasa.gov/photojournal/neptune-full-disk-view/,NASA/JPL media; use subject to NASA and JPL image use policies,1
 messier-default-cluster,resources/images/m13.svg,resources/images/m13.svg,NightScope generated local SVG,,NightScope local generated asset,1
 messier-default-nebula,resources/images/m57.svg,resources/images/m57.svg,NightScope generated local SVG,,NightScope local generated asset,1
 messier-default-galaxy,resources/images/m31.svg,resources/images/m31.svg,NightScope generated local SVG,,NightScope local generated asset,1

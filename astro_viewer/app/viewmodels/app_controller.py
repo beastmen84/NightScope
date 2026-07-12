@@ -1866,7 +1866,7 @@ class AppController(QObject):
             rise_time="n/d",
             set_time="n/d",
             best_note="Configura una posizione per calcolare i dati lunari locali.",
-            image="resources/images/moon.svg",
+            image="resources/images/solar_system/moon.jpg",
         )
         self._events = []
         self._weather_hours = []
@@ -4463,7 +4463,7 @@ class AppController(QObject):
             id="moon",
             name="Luna",
             object_type="Luna",
-            image="resources/images/moon.svg",
+            image="resources/images/solar_system/moon.jpg",
             magnitude="-12.0",
             distance="384.000 km",
             max_altitude="45 gradi",
@@ -4562,7 +4562,7 @@ class AppController(QObject):
             id=target_id,
             name=name,
             object_type="Pianeta",
-            image=f"resources/images/{target_id}.svg",
+            image=f"resources/images/solar_system/{target_id}.jpg",
             magnitude=magnitude,
             distance="n/d",
             max_altitude="45 gradi",

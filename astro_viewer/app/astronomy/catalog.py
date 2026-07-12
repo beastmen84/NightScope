@@ -9,7 +9,7 @@ def mock_planets() -> list[CelestialObject]:
             id="jupiter",
             name="Giove",
             object_type="Pianeta",
-            image="resources/images/jupiter.svg",
+            image="resources/images/solar_system/jupiter.jpg",
             magnitude="-2.1",
             distance="760 milioni km",
             max_altitude="42 gradi",
@@ -26,7 +26,7 @@ def mock_planets() -> list[CelestialObject]:
             id="saturn",
             name="Saturno",
             object_type="Pianeta",
-            image="resources/images/saturn.svg",
+            image="resources/images/solar_system/saturn.jpg",
             magnitude="0.7",
             distance="1.35 miliardi km",
             max_altitude="36 gradi",
@@ -43,7 +43,7 @@ def mock_planets() -> list[CelestialObject]:
             id="venus",
             name="Venere",
             object_type="Pianeta",
-            image="resources/images/venus.svg",
+            image="resources/images/solar_system/venus.jpg",
             magnitude="-3.9",
             distance="118 milioni km",
             max_altitude="18 gradi",
@@ -139,7 +139,7 @@ def mock_moon() -> MoonSummary:
         rise_time="12:44",
         set_time="00:38",
         best_note="Terminator ben definito: consigliato filtro lunare oltre 100 mm.",
-        image="resources/images/moon.svg",
+        image="resources/images/solar_system/moon.jpg",
     )
 
 

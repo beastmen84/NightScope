@@ -311,5 +311,5 @@ def _moon(illumination: str) -> MoonSummary:
         rise_time="01:45",
         set_time="14:44",
         best_note="Legacy global note",
-        image="resources/images/moon.svg",
+        image="resources/images/solar_system/moon.jpg",
     )

@@ -153,7 +153,44 @@ class DatabaseBootstrapTests(unittest.TestCase):
             4,
         )
 
-    def test_catalogue_image_seed_upgrades_legacy_assets_without_replacing_user_content(self) -> None:
+    def test_solar_system_image_seed_uses_source_backed_assets(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        with (data_dir / "object_images_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            images = {row["object_id"]: row for row in csv.DictReader(file)}
+
+        object_ids = {
+            "sun",
+            "moon",
+            "mercury",
+            "venus",
+            "mars",
+            "jupiter",
+            "saturn",
+            "uranus",
+            "neptune",
+        }
+        image_paths = {images[object_id]["image_path"] for object_id in object_ids}
+        source_urls = {images[object_id]["source_url"] for object_id in object_ids}
+        self.assertEqual(len(image_paths), len(object_ids))
+        self.assertEqual(len(source_urls), len(object_ids))
+
+        for object_id in object_ids:
+            image = images[object_id]
+            image_path = data_dir.parent / image["image_path"]
+            self.assertTrue(image_path.exists(), object_id)
+            self.assertEqual(image_path.suffix.lower(), ".jpg", object_id)
+            self.assertTrue(image["source_url"].startswith("https://science.nasa.gov/"))
+            self.assertIn("NASA", image["attribution"])
+            self.assertIn("NASA", image["license"])
+            self.assertEqual(image["verified"], "1")
+            with Image.open(image_path) as opened_image:
+                self.assertEqual(opened_image.format, "JPEG", object_id)
+                self.assertEqual(opened_image.mode, "RGB", object_id)
+                self.assertEqual(opened_image.size, (512, 512), object_id)
+
+    def test_image_seed_upgrades_legacy_assets_without_replacing_user_content(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -174,6 +211,21 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     WHERE object_id = 'caldwell-C23'
                     """
                 )
+                connection.execute(
+                    """
+                    UPDATE ObjectImages
+                    SET image_path = 'resources/images/jupiter.svg',
+                        license = 'NightScope local generated asset'
+                    WHERE object_id = 'jupiter'
+                    """
+                )
+                connection.execute(
+                    """
+                    UPDATE ObjectImages
+                    SET image_path = 'user/custom-saturn.jpg', license = 'User supplied'
+                    WHERE object_id = 'saturn'
+                    """
+                )
                 connection.commit()
 
             initialize_database(database_path, schema_path)
@@ -184,6 +236,11 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 "resources/images/catalogue/messier-M31.jpg",
             )
             self.assertEqual(repository.get("caldwell-C23")["image_path"], "user/custom-c23.jpg")
+            self.assertEqual(
+                repository.get("jupiter")["image_path"],
+                "resources/images/solar_system/jupiter.jpg",
+            )
+            self.assertEqual(repository.get("saturn")["image_path"], "user/custom-saturn.jpg")
 
     def test_curiosity_seed_is_complete_source_backed_and_editorially_distinct(self) -> None:
         data_dir = Path(__file__).resolve().parents[1] / "data"
