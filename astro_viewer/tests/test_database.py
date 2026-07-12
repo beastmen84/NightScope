@@ -90,6 +90,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
             repository = CatalogueRepository(database_path)
             self.assertEqual(len(repository.list_objects()), 110)
             self.assertEqual(len(repository.list_objects("Caldwell")), 1)
+            self.assertEqual(
+                [item["object_id"] for item in repository.search("C23")],
+                ["messier-M31"],
+            )
             by_designation = repository.get_by_designation("caldwell", "c23")
             self.assertIsNotNone(by_designation)
             assert by_designation is not None
@@ -99,6 +103,18 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 [item["designation"] for item in by_designation["designations"]],
                 ["M31", "C23"],
             )
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                with self.assertRaises(sqlite3.IntegrityError):
+                    connection.execute(
+                        """
+                        INSERT INTO CatalogueDesignation (
+                            catalogue, designation, object_id, sort_index, is_primary
+                        )
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        ("Secondary", "S31", "messier-M31", 31, 1),
+                    )
 
     def test_equipment_catalog_seed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

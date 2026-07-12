@@ -89,7 +89,8 @@ def test_home_alternatives_use_natural_catalogue_name_order_as_final_tie_break()
 def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten() -> None:
     rows = [
         {
-            "messier_id": f"M{index}",
+            "object_id": f"messier-M{index}",
+            "primary_designation": f"M{index}",
             "dec": "0",
             "magnitude": 6.0,
             "object_type": "Open cluster",
@@ -97,12 +98,12 @@ def test_skyfield_recommended_deep_sky_does_not_cap_the_visible_catalogue_to_ten
         for index in range(1, 61)
     ]
     engine = SkyfieldAstronomyEngine.__new__(SkyfieldAstronomyEngine)
-    engine._messier_repository = _MessierRows(rows)
+    engine._catalogue_repository = _CatalogueRows(rows)
     engine._object_score = lambda *_args: 80
     engine.observing_night_window = lambda *_args, **_kwargs: ObservingNightWindow.unavailable()
-    engine._messier_details = lambda row, _location, dec_degrees=None, **_kwargs: _target(
-        f"messier-{row['messier_id']}",
-        row["messier_id"],
+    engine._catalogue_details = lambda row, _location, dec_degrees=None, **_kwargs: _target(
+        row["object_id"],
+        row["primary_designation"],
         row["object_type"],
         "22:00",
         80,
@@ -149,7 +150,7 @@ def test_home_alternatives_keep_more_than_ten_targets_with_active_pollution_cont
     assert {item["id"] for item in payload} == {item.id for item in conditioned[4:]}
 
 
-class _MessierRows:
+class _CatalogueRows:
     def __init__(self, rows: list[dict]) -> None:
         self._rows = rows
 

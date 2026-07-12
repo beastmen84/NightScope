@@ -69,6 +69,9 @@ CREATE TABLE IF NOT EXISTS CatalogueDesignation (
 
 CREATE INDEX IF NOT EXISTS idx_catalogue_designation_object ON CatalogueDesignation(object_id);
 CREATE INDEX IF NOT EXISTS idx_catalogue_designation_catalogue ON CatalogueDesignation(catalogue, sort_index);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_designation_primary
+ON CatalogueDesignation(object_id)
+WHERE is_primary = 1;
 
 CREATE TABLE IF NOT EXISTS WeatherCache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

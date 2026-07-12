@@ -13,7 +13,7 @@ if __package__ in {None, ""}:
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.database.bootstrap import initialize_database
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 
 
 BODY_NAMES = {"Sole", "Luna", "Giove", "Saturno", "Venere"}
@@ -43,7 +43,7 @@ class ValidationResult:
 def validate_astronomy(base_dir: Path, database_path: Path | None = None) -> list[ValidationResult]:
     database_path = database_path or base_dir.parent / "nightscope.db"
     initialize_database(database_path, base_dir / "data" / "schema.sql")
-    engine = SkyfieldAstronomyEngine(base_dir / "data", MessierRepository(database_path))
+    engine = SkyfieldAstronomyEngine(base_dir / "data", CatalogueRepository(database_path))
 
     try:
         results: list[ValidationResult] = []

@@ -14,7 +14,7 @@ from skyfield.api import Loader, Star, wgs84
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
 from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation, ObservingNightWindow
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
@@ -57,7 +57,7 @@ def _italian_lunar_eclipse_kind(kind_name: str) -> str:
 
 
 class SkyfieldAstronomyEngine(AstronomyEngine):
-    """Skyfield-backed astronomy service for Solar System and Messier visibility."""
+    """Skyfield-backed astronomy service for Solar System and catalogue visibility."""
 
     BODY_CONFIGS = [
         SolarSystemBodyConfig("sun", "Sole", "sun", "Stella", "resources/images/sun.svg"),
@@ -73,9 +73,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     PLANET_IDS = {"mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}
 
-    def __init__(self, data_dir: Path, messier_repository: MessierRepository):
+    def __init__(self, data_dir: Path, catalogue_repository: CatalogueRepository | None):
         self._data_dir = data_dir
-        self._messier_repository = messier_repository
+        self._catalogue_repository = catalogue_repository
         self._loader = Loader(str(data_dir / "skyfield"))
         self._timescale = self._loader.timescale()
         self._ephemeris = self._load_ephemeris()
@@ -83,7 +83,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             tuple[float, float, str],
             tuple[datetime, ObservingNightWindow],
         ] = {}
-        self._messier_star_cache: dict[str, Star | None] = {}
+        self._catalogue_star_cache: dict[str, Star | None] = {}
 
     def _load_ephemeris(self):
         ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
@@ -231,7 +231,8 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         now = self._now(location)
         night_window = self.observing_night_window(location, reference=now)
         candidates = []
-        for row in self._messier_repository.list_objects():
+        rows = self._catalogue_repository.list_objects() if self._catalogue_repository else []
+        for row in rows:
             try:
                 dec_degrees = parse_dec_degrees(row["dec"])
                 theoretical_max_altitude = 90.0 - abs(location.latitude - dec_degrees)
@@ -246,7 +247,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         for _, row, dec_degrees in sorted(candidates, key=lambda item: item[0], reverse=True):
             try:
                 objects.append(
-                    self._messier_details(
+                    self._catalogue_details(
                         row,
                         location,
                         dec_degrees=dec_degrees,
@@ -310,18 +311,18 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return float(altitude.degrees), float(azimuth.degrees)
 
     def _star_for_current_position(self, item: CelestialObject):
-        if not item.id.startswith("messier-"):
+        repository = self._catalogue_repository
+        if repository is None:
             return None
-        cached = self._messier_star_cache.get(item.id)
-        if item.id in self._messier_star_cache:
+        cached = self._catalogue_star_cache.get(item.id)
+        if item.id in self._catalogue_star_cache:
             return cached
-        messier_id = item.id.removeprefix("messier-").upper()
-        row = self._messier_repository.get_by_messier_id(messier_id)
+        row = repository.get_by_object_id(item.id)
         if not row:
-            self._messier_star_cache[item.id] = None
+            self._catalogue_star_cache[item.id] = None
             return None
         star = Star(ra_hours=parse_ra_hours(row["ra"]), dec_degrees=parse_dec_degrees(row["dec"]))
-        self._messier_star_cache[item.id] = star
+        self._catalogue_star_cache[item.id] = star
         return star
 
     def _geometry_target_body(self, target: CelestialObject):
@@ -1079,7 +1080,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
         )
 
-    def _messier_details(
+    def _catalogue_details(
         self,
         row: dict,
         location: ObserverLocation,
@@ -1121,13 +1122,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         intrinsic_score = self._intrinsic_object_score(magnitude, row["object_type"])
         setup = self._deep_sky_setup(row["object_type"], magnitude)
 
+        designation = str(row.get("primary_designation") or row["object_id"])
+        name = str(row.get("name") or "")
+        display_name = f"{designation} {name}" if name and name.casefold() != designation.casefold() else designation
+        catalogues = [str(value) for value in row.get("catalogues", []) if str(value).strip()]
+        if len(catalogues) > 1:
+            catalogue_label = f"Cataloghi {', '.join(catalogues)}"
+        else:
+            catalogue = catalogues[0] if catalogues else str(row.get("primary_catalogue") or "")
+            catalogue_label = f"Catalogo {catalogue}" if catalogue else "Catalogo oggetti celesti"
         return CelestialObject(
-            id=f"messier-{row['messier_id']}",
-            name=f"{row['messier_id']} {row['name']}" if row["name"] != row["messier_id"] else row["messier_id"],
+            id=row["object_id"],
+            name=display_name,
             object_type=row["object_type"],
-            image=self._messier_image(row["messier_id"], row["object_type"]),
+            image=self._catalogue_image(row["object_id"], designation, row["object_type"]),
             magnitude=self._format_magnitude(magnitude),
-            distance="Catalogo Messier",
+            distance=catalogue_label,
             max_altitude=f"{max_altitude:.0f} gradi",
             direction=self._azimuth_direction(azimuth.degrees),
             best_time=self._format_dt(best_dt) if best_dt else "n/d",
@@ -1319,7 +1329,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     @staticmethod
     def _catalogue_visibility_key(item: dict) -> str:
-        for key in ("object_id", "id", "catalogue_id", "messier_id"):
+        for key in ("object_id", "id", "catalogue_id", "designation"):
             value = item.get(key)
             if value is not None and str(value).strip():
                 return str(value)
@@ -1602,12 +1612,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         return "25 mm, bassi ingrandimenti"
 
     @staticmethod
-    def _messier_image(messier_id: str, object_type: str) -> str:
-        if messier_id == "M13":
+    def _catalogue_image(object_id: str, designation: str, object_type: str) -> str:
+        if object_id == "messier-M13" or designation == "M13":
             return "resources/images/m13.svg"
-        if messier_id == "M57":
+        if object_id == "messier-M57" or designation == "M57":
             return "resources/images/m57.svg"
-        if messier_id == "M31":
+        if object_id == "messier-M31" or designation == "M31":
             return "resources/images/m31.svg"
         lower_type = object_type.lower()
         if "galaxy" in lower_type:

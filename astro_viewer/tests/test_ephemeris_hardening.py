@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from astro_viewer.app.astronomy.skyfield_engine import EphemerisUnavailableError, SkyfieldAstronomyEngine
 from astro_viewer.app.database.bootstrap import initialize_database
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 
 
 class EphemerisHardeningTests(unittest.TestCase):
@@ -20,7 +20,7 @@ class EphemerisHardeningTests(unittest.TestCase):
             with patch("astro_viewer.app.astronomy.skyfield_engine.Loader", BrokenLoader):
                 with self.assertLogs("astro_viewer.app.astronomy.skyfield_engine", level="WARNING"):
                     with self.assertRaises(EphemerisUnavailableError):
-                        SkyfieldAstronomyEngine(Path(temp_dir), MessierRepository(database_path))
+                        SkyfieldAstronomyEngine(Path(temp_dir), CatalogueRepository(database_path))
 
 
 class BrokenLoader:

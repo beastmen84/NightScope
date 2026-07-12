@@ -20,7 +20,7 @@ from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.geonames_importer import import_geonames_cities
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observing import AstronomicalEvent, CelestialObject
@@ -1053,16 +1053,16 @@ class Phase6RealDataTests(unittest.TestCase):
     def test_skyfield_catalogue_month_visibility_uses_coordinates_location_and_solar_ephemeris(self) -> None:
         with _temp_database() as database_path:
             base_dir = Path(__file__).resolve().parents[1]
-            repository = MessierRepository(database_path)
+            repository = CatalogueRepository(database_path)
             engine = SkyfieldAstronomyEngine(base_dir / "data", repository)
             try:
                 rows = []
                 for messier_id in ("M13", "M1"):
-                    row = repository.get_by_messier_id(messier_id)
+                    row = repository.get_by_designation("Messier", messier_id)
                     self.assertIsNotNone(row)
                     rows.append(
                         {
-                            "object_id": f"messier-{row['messier_id']}",
+                            "object_id": row["object_id"],
                             "right_ascension": row["ra"],
                             "declination": row["dec"],
                         }

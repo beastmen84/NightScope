@@ -18,9 +18,9 @@ from astro_viewer.app.astronomy.skyfield_engine import (
     EphemerisUnavailableError,
     SkyfieldAstronomyEngine,
 )
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.city_repository import CityRepository
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
-from astro_viewer.app.database.messier_repository import MessierRepository
 from astro_viewer.app.database.object_image_repository import ObjectImageRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
@@ -194,7 +194,7 @@ class AppController(QObject):
         self.skyCompassChanged.connect(self.observingObjectDetailChanged.emit)
         self._base_dir = base_dir
         self._city_repository = CityRepository(database_path)
-        self._messier_repository = MessierRepository(database_path)
+        self._catalogue_repository = CatalogueRepository(database_path)
         self._equipment_catalog_repository = EquipmentCatalogRepository(database_path)
         self._sky_quality_repository = SkyQualityRepository(database_path)
         self._object_image_repository = ObjectImageRepository(database_path)
@@ -247,7 +247,7 @@ class AppController(QObject):
         self._sky_compass_live_refresh_running = False
         self._sky_compass_live_refresh_request_id = 0
         try:
-            self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._messier_repository)
+            self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._catalogue_repository)
         except EphemerisUnavailableError:
             logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
             self._astronomy_engine = MockAstronomyEngine()
@@ -334,6 +334,9 @@ class AppController(QObject):
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
         self._object_descriptions = self._object_image_repository.descriptions()
         self._catalogue_objects = self._load_catalogue_objects()
+        self._catalogue_identifier_index = self._build_catalogue_identifier_index(
+            self._catalogue_objects
+        )
         self._catalogue_search_query = ""
         self._catalogue_filters = {
             "catalogue": CATALOGUE_ALL_FILTER,
@@ -993,6 +996,7 @@ class AppController(QObject):
         item = self._catalogue_item_for_object_id(object_id)
         if not item:
             return
+        item = self._catalogue_item_for_active_filter(item)
         self._selected_object = self._catalogue_item_to_detail_object(item)
         self._selected_object_source = CATALOGUE_SOURCE
         self.selectedObjectChanged.emit()
@@ -3405,7 +3409,8 @@ class AppController(QObject):
     def _apply_object_content(self, item: CelestialObject) -> CelestialObject:
         image = self._object_image_map.get(item.id)
         description = self._object_descriptions.get(item.id)
-        if not image and item.id.startswith("messier-"):
+        catalogue_item = self._catalogue_item_for_object_id(item.id)
+        if not image and catalogue_item and not self._is_solar_system_catalogue_item(catalogue_item):
             if "galaxy" in item.object_type.lower() or "galassia" in item.object_type.lower():
                 image = self._object_image_map.get("messier-default-galaxy")
             elif "nebula" in item.object_type.lower() or "nebul" in item.object_type.lower():
@@ -3531,19 +3536,40 @@ class AppController(QObject):
         return bool(visibility[catalogue_object_id])
 
     def _load_catalogue_objects(self) -> list[dict]:
-        objects = [self._catalogue_item_from_messier(row) for row in self._messier_repository.list_objects()]
+        objects = [
+            self._catalogue_item_from_record(row)
+            for row in self._catalogue_repository.list_objects()
+        ]
         objects.extend(self._solar_system_catalogue_objects())
         return sorted(objects, key=self._catalogue_sort_key)
 
     @staticmethod
-    def _catalogue_item_from_messier(row: dict) -> dict:
-        catalogue_id = row["messier_id"]
-        object_id = f"messier-{catalogue_id}"
+    def _catalogue_item_from_record(row: dict) -> dict:
+        object_id = str(row["object_id"])
+        primary_catalogue = str(row.get("primary_catalogue") or "")
+        primary_designation = str(row.get("primary_designation") or object_id)
+        designations = [dict(item) for item in row.get("designations", [])]
+        catalogues = [str(item) for item in row.get("catalogues", [])]
+        designation_labels = [
+            f"{item['catalogue']} {item['designation']}".strip()
+            for item in designations
+        ]
+        search_terms = " ".join(
+            (
+                object_id,
+                str(row.get("name") or ""),
+                *designation_labels,
+                *(str(item.get("designation") or "") for item in designations),
+            )
+        ).strip()
         return {
-            "catalogue": "Messier",
+            "catalogue": primary_catalogue,
             "object_id": object_id,
             "id": object_id,
-            "catalogue_id": catalogue_id,
+            "catalogue_id": primary_designation,
+            "catalogues": catalogues,
+            "designations": designations,
+            "designation_labels": designation_labels,
             "name": row["name"] or "",
             "type": row["object_type"] or "",
             "constellation": row["constellation"] or "",
@@ -3556,7 +3582,8 @@ class AppController(QObject):
             "max_angular_size_label": AppController._format_catalogue_angle(row["max_angular_size_deg"]),
             "recommended_observation_type": row["recommended_observation_type"] or "",
             "description": row["description"] or "",
-            "search_terms": catalogue_id,
+            "search_terms": search_terms,
+            "catalogue_sort_index": row.get("primary_sort_index"),
         }
 
     def _solar_system_catalogue_objects(self) -> list[dict]:
@@ -3578,6 +3605,16 @@ class AppController(QObject):
             "object_id": config.object_id,
             "id": config.object_id,
             "catalogue_id": display_id,
+            "catalogues": [SOLAR_SYSTEM_CATALOGUE],
+            "designations": [
+                {
+                    "catalogue": SOLAR_SYSTEM_CATALOGUE,
+                    "designation": display_id,
+                    "sort_index": sort_index,
+                    "is_primary": True,
+                }
+            ],
+            "designation_labels": [f"{SOLAR_SYSTEM_CATALOGUE} {display_id}"],
             "name": config.name,
             "type": config.object_type,
             "constellation": "",
@@ -3616,7 +3653,7 @@ class AppController(QObject):
         catalogue_id = str(item.get("catalogue_id", ""))
         match = re.search(r"\d+", catalogue_id)
         explicit_sort_index = item.get("catalogue_sort_index")
-        if explicit_sort_index:
+        if explicit_sort_index is not None:
             numeric_id = int(explicit_sort_index)
         elif match:
             numeric_id = int(match.group(0))
@@ -3636,8 +3673,16 @@ class AppController(QObject):
                 or query in str(item.get("search_terms", "")).casefold()
             ]
 
+        catalogue_filter = self._catalogue_filters.get("catalogue", CATALOGUE_ALL_FILTER)
+        if catalogue_filter != CATALOGUE_ALL_FILTER:
+            objects = [
+                projected
+                for item in objects
+                if (projected := self._catalogue_item_for_catalogue(item, catalogue_filter))
+                is not None
+            ]
+
         for filter_name, field_name in (
-            ("catalogue", "catalogue"),
             ("type", "type"),
             ("constellation", "constellation"),
             ("observation_type", "recommended_observation_type"),
@@ -3651,7 +3696,26 @@ class AppController(QObject):
         visible_objects = [self._catalogue_item_with_visibility(item, visibility, observability) for item in objects]
         if self._catalogue_visible_this_month_only:
             visible_objects = [item for item in visible_objects if item["visible_this_month"]]
-        return visible_objects
+        return sorted(visible_objects, key=self._catalogue_sort_key)
+
+    @staticmethod
+    def _catalogue_item_for_catalogue(item: dict, catalogue: str) -> dict | None:
+        normalized = catalogue.strip().casefold()
+        designation = next(
+            (
+                candidate
+                for candidate in item.get("designations", [])
+                if str(candidate.get("catalogue", "")).strip().casefold() == normalized
+            ),
+            None,
+        )
+        if designation is None:
+            return None
+        projected = dict(item)
+        projected["catalogue"] = str(designation.get("catalogue") or "")
+        projected["catalogue_id"] = str(designation.get("designation") or "")
+        projected["catalogue_sort_index"] = designation.get("sort_index")
+        return projected
 
     def _catalogue_item_with_visibility(
         self,
@@ -3798,7 +3862,14 @@ class AppController(QObject):
         self._catalogue_observability_cache.clear()
 
     def _catalogue_option_values(self, field_name: str) -> list[str]:
-        values = {str(item.get(field_name, "")).strip() for item in self._catalogue_objects}
+        if field_name == "catalogue":
+            values = {
+                str(catalogue).strip()
+                for item in self._catalogue_objects
+                for catalogue in item.get("catalogues", [])
+            }
+        else:
+            values = {str(item.get(field_name, "")).strip() for item in self._catalogue_objects}
         return sorted((value for value in values if value), key=str.casefold)
 
     def _catalogue_current_year(self) -> int:
@@ -3830,24 +3901,39 @@ class AppController(QObject):
         normalized = object_id.strip()
         if not normalized:
             return None
+        index = getattr(self, "_catalogue_identifier_index", None)
+        if index is None:
+            index = self._build_catalogue_identifier_index(
+                list(getattr(self, "_catalogue_objects", []))
+            )
+            self._catalogue_identifier_index = index
+        return index.get(normalized.casefold())
 
-        normalized_lower = normalized.casefold()
-        for item in self._catalogue_objects:
-            if normalized_lower in {
-                item["object_id"].casefold(),
-                item["catalogue_id"].casefold(),
-            }:
-                return item
+    def _catalogue_item_for_active_filter(self, item: dict) -> dict:
+        catalogue = self._catalogue_filters.get("catalogue", CATALOGUE_ALL_FILTER)
+        if catalogue == CATALOGUE_ALL_FILTER:
+            return item
+        return self._catalogue_item_for_catalogue(item, catalogue) or item
 
-        if normalized_lower.startswith("messier-"):
-            catalogue_id = normalized.split("-", 1)[1]
-        elif normalized.upper().startswith("M"):
-            catalogue_id = normalized
-        else:
-            return None
-
-        row = self._messier_repository.get_by_messier_id(catalogue_id)
-        return self._catalogue_item_from_messier(row) if row else None
+    @staticmethod
+    def _build_catalogue_identifier_index(objects: list[dict]) -> dict[str, dict]:
+        index: dict[str, dict] = {}
+        for item in objects:
+            identifiers = {
+                str(item.get("object_id") or "").strip(),
+                str(item.get("id") or "").strip(),
+                str(item.get("catalogue_id") or "").strip(),
+            }
+            for designation in item.get("designations", []):
+                catalogue = str(designation.get("catalogue") or "").strip()
+                value = str(designation.get("designation") or "").strip()
+                identifiers.add(value)
+                if catalogue and value:
+                    identifiers.add(f"{catalogue}-{value}")
+            for identifier in identifiers:
+                if identifier:
+                    index.setdefault(identifier.casefold(), item)
+        return index
 
     def _catalogue_item_to_detail_object(self, item: dict) -> CelestialObject:
         if self._is_solar_system_catalogue_item(item):
@@ -4270,6 +4356,8 @@ class AppController(QObject):
         metadata = {}
         catalogue_item = self._catalogue_item_for_object_id(item.id)
         if catalogue_item:
+            if getattr(self, "_selected_object_source", "") == CATALOGUE_SOURCE:
+                catalogue_item = self._catalogue_item_for_active_filter(catalogue_item)
             constellation = str(catalogue_item.get("constellation") or "")
             if self._is_solar_system_catalogue_item(catalogue_item) and not constellation:
                 constellation = "—"
@@ -4278,25 +4366,15 @@ class AppController(QObject):
                     "catalogue": str(catalogue_item.get("catalogue") or ""),
                     "catalogueId": str(catalogue_item.get("catalogue_id") or ""),
                     "constellation": constellation,
+                    "rightAscension": str(catalogue_item.get("right_ascension") or ""),
+                    "declination": str(catalogue_item.get("declination") or ""),
                     "maxAngularSizeLabel": str(catalogue_item.get("max_angular_size_label") or ""),
+                    "catalogueDesignations": list(catalogue_item.get("designations", [])),
+                    "catalogueDesignationLabels": list(
+                        catalogue_item.get("designation_labels", [])
+                    ),
                 }
             )
-        if not item.id.startswith("messier-"):
-            return metadata
-        catalogue_id = metadata.get("catalogueId") or item.id.split("-", 1)[1]
-        row = self._messier_repository.get_by_messier_id(catalogue_id)
-        if not row:
-            return metadata
-        metadata.update(
-            {
-                "catalogue": "Messier",
-                "catalogueId": row["messier_id"],
-                "constellation": row["constellation"] or "",
-                "rightAscension": row["ra"] or "",
-                "declination": row["dec"] or "",
-                "maxAngularSizeLabel": self._format_catalogue_angle(row["max_angular_size_deg"]),
-            }
-        )
         return metadata
 
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:

@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.astronomy.skyfield_engine import SkyfieldAstronomyEngine
 from astro_viewer.app.database.bootstrap import initialize_database
-from astro_viewer.app.database.messier_repository import MessierRepository
+from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.models.observing import MoonGeometrySummary
 
 
@@ -17,7 +17,7 @@ def test_skyfield_moon_geometry_summary_is_bounded_local_and_json_compatible(tmp
     base_dir = Path(__file__).resolve().parents[1]
     database_path = tmp_path / "nightscope.db"
     initialize_database(database_path, base_dir / "data" / "schema.sql")
-    engine = SkyfieldAstronomyEngine(base_dir / "data", MessierRepository(database_path))
+    engine = SkyfieldAstronomyEngine(base_dir / "data", CatalogueRepository(database_path))
     location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
     fixed_now = datetime(2026, 7, 9, 22, 0, tzinfo=ZoneInfo("Europe/Rome"))
     engine._now = lambda _location: fixed_now
@@ -48,7 +48,7 @@ def test_skyfield_moon_geometry_batch_preserves_planet_and_messier_results(tmp_p
     base_dir = Path(__file__).resolve().parents[1]
     database_path = tmp_path / "nightscope.db"
     initialize_database(database_path, base_dir / "data" / "schema.sql")
-    engine = SkyfieldAstronomyEngine(base_dir / "data", MessierRepository(database_path))
+    engine = SkyfieldAstronomyEngine(base_dir / "data", CatalogueRepository(database_path))
     location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
     fixed_now = datetime(2026, 7, 9, 22, 0, tzinfo=ZoneInfo("Europe/Rome"))
     engine._now = lambda _location: fixed_now
