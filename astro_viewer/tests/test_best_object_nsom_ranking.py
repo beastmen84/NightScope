@@ -15,7 +15,10 @@ from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherSummary
 from astro_viewer.app.services.best_object_nsom_ranking import BestObjectNsomSelectionService
 from astro_viewer.app.services.observation_conditions_read_model import ObservationConditionsReadModelBuilder
-from astro_viewer.app.services.observation_conditions_service import ObservationConditionInputs
+from astro_viewer.app.services.observation_conditions_service import (
+    MoonGeometryConditionInput,
+    ObservationConditionInputs,
+)
 from astro_viewer.app.services.nsom_category_score_service import NsomCategoryScoreService
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.viewmodels.app_controller import AppController
@@ -174,6 +177,26 @@ def test_best_object_nsom_confidence_is_score_neutral() -> None:
     assert low[0].opportunity.confidence.value < high[0].opportunity.confidence.value
 
 
+def test_best_object_confidence_uses_target_specific_moon_geometry() -> None:
+    geometry = MoonGeometryConditionInput(moon_set_before_target_window=True)
+    ranked = BestObjectNsomSelectionService().ranked_candidates(
+        _targets(),
+        weather=_weather(90),
+        telescope=_telescope(),
+        condition_inputs=_inputs(3, moon=70, radiance=1.0),
+        moon_geometry_by_object_id={"galaxy": geometry},
+    )
+    confidence_by_id = {
+        candidate.target.id: candidate.opportunity.confidence for candidate in ranked
+    }
+
+    assert confidence_by_id["galaxy"] is not None
+    assert confidence_by_id["galaxy"].moon_geometry_confidence == 1.0
+    assert confidence_by_id["jupiter"] is not None
+    assert confidence_by_id["jupiter"].moon_geometry_confidence == 0.0
+    assert confidence_by_id["galaxy"].provider_fallback_confidence is None
+
+
 def test_best_object_nsom_does_not_mutate_runtime_objects() -> None:
     targets = _targets()
     before = deepcopy(targets)
@@ -263,6 +286,7 @@ def test_app_controller_recalculate_outputs_uses_nsom_best_object_path() -> None
 
     controller._recalculate_observing_outputs()
 
+    controller._seeing_service.estimate.assert_not_called()
     assert controller._best_object.id == "galaxy"
     assert AppController.bestObjectOfNight.fget(controller)["id"] == "galaxy"
     controller._night_planner_service.plan.assert_called_once()

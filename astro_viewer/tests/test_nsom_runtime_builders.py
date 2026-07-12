@@ -19,6 +19,7 @@ from astro_viewer.app.services.nsom_runtime_builders import (
 )
 from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionInputs,
+    ParticulateConditionInput,
 )
 
 
@@ -91,6 +92,19 @@ def test_confidence_changes_metadata_but_not_opportunity_score() -> None:
     assert low_confidence.value < high_confidence.value
     assert low_opportunity.value == high_opportunity.value
     assert low_opportunity.value == pytest.approx(60.0)
+
+
+def test_confidence_accepts_canonical_particulate_availability() -> None:
+    confidence = build_recommendation_confidence(
+        local_atmosphere=ParticulateConditionInput(
+            available=True,
+            freshness_category="current",
+            pm25=8.0,
+            source="OpenAQ",
+        )
+    )
+
+    assert confidence.openaq_confidence == 1.0
 
 
 def test_opportunity_builder_does_not_mutate_source_values() -> None:

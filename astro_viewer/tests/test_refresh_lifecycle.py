@@ -206,6 +206,8 @@ class RefreshManagerTest(unittest.TestCase):
         controller._refresh_equipment_recommendations_for_current_objects = lambda: None
         controller._apply_deep_sky_pollution_context = lambda objects: objects
         controller._recalculate_observing_outputs = lambda: None
+        controller._seeing_service = Mock()
+        controller._observing_weather_hours = Mock(return_value=[])
         controller._start_astronomy_refresh = Mock(return_value=False)
         controller._deep_sky = []
 
@@ -226,6 +228,7 @@ class RefreshManagerTest(unittest.TestCase):
             "Dati VIIRS NASA aggiornati.",
         )
 
+        controller._seeing_service.estimate.assert_called_once_with([], controller._sky_quality)
         self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
 
     def test_fresh_viirs_cache_skips_background_lookup(self) -> None:

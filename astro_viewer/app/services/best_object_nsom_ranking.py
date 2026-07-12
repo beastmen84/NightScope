@@ -95,21 +95,6 @@ class BestObjectNsomSelectionService:
     ) -> tuple[BestObjectNsomCandidate, ...]:
         items = tuple(candidates)
         blocking = blocking_status or NightPlannerService.weather_blocking_status(weather)
-        sky_quality = condition_inputs.sky_quality
-        recommendation_confidence = confidence or build_recommendation_confidence(
-            weather_summary=weather,
-            viirs_available=(
-                getattr(sky_quality, "viirs_radiance", None) is not None
-                if sky_quality is not None
-                else False
-            ),
-            moon_geometry_available=bool(moon_geometry_by_object_id),
-            provider_fallback_used=(
-                sky_quality is None
-                or getattr(sky_quality, "viirs_radiance", None) is None
-            ),
-            notes=("nsom:best_object_runtime", "confidence:metadata_only"),
-        )
         projected = tuple(
             self._candidate(
                 item,
@@ -117,7 +102,7 @@ class BestObjectNsomSelectionService:
                 weather=weather,
                 telescope=(telescope_by_object_id or {}).get(item.id, telescope),
                 blocking_status=blocking,
-                confidence=recommendation_confidence,
+                confidence=confidence,
                 condition_inputs=condition_inputs,
                 moon_geometry=(moon_geometry_by_object_id or {}).get(item.id),
             )
@@ -133,7 +118,7 @@ class BestObjectNsomSelectionService:
         weather: WeatherSummary,
         telescope: Telescope,
         blocking_status: WeatherBlockingStatus,
-        confidence: RecommendationConfidence,
+        confidence: RecommendationConfidence | None,
         condition_inputs: ObservationConditionInputs,
         moon_geometry: MoonGeometryConditionInput | None,
     ) -> BestObjectNsomCandidate:
@@ -153,13 +138,25 @@ class BestObjectNsomSelectionService:
             capability_summary=q_target,
         )
         session = build_session_viability(weather_summary=weather, blocking_status=blocking_status)
+        recommendation_confidence = confidence or build_recommendation_confidence(
+            weather_summary=weather,
+            aod_result=condition_inputs.aod,
+            local_atmosphere=condition_inputs.particulate,
+            viirs_available=(
+                getattr(condition_inputs.sky_quality, "viirs_radiance", None) is not None
+            ),
+            moon_geometry_available=(
+                None if condition_inputs.moon is None else moon_geometry is not None
+            ),
+            notes=("nsom:best_object_runtime", "confidence:metadata_only"),
+        )
         opportunity = build_observation_opportunity(
             practical,
             observing_window_quality=1.0,
             chronology_fit=1.0,
             session=session,
             practical_constraints=1.0,
-            confidence=confidence,
+            confidence=recommendation_confidence,
             context=("best_object", "nsom_runtime"),
         )
         return BestObjectNsomCandidate(

@@ -27,7 +27,14 @@ class NsomObservationEnvironmentService:
         inputs: ObservationConditionInputs,
     ) -> ObservationEnvironment:
         intrinsic = build_intrinsic_target_quality(target)
-        target_class = intrinsic.target_class
+        return self._environment(target, inputs, intrinsic.target_class)
+
+    def _environment(
+        self,
+        target: CelestialObject,
+        inputs: ObservationConditionInputs,
+        target_class: NsomTargetClass | None,
+    ) -> ObservationEnvironment:
         moon_background = self._moon_background_factor(target_class, inputs)
         sky_background = self._static_sky_background_factor(target_class, inputs)
         atmospheric, atmosphere_source, atmosphere_notes = self._atmospheric_factor(
@@ -74,9 +81,10 @@ class NsomObservationEnvironmentService:
         inputs: ObservationConditionInputs,
     ) -> ObservableTargetValue:
         intrinsic = build_intrinsic_target_quality(target)
+        environment = self._environment(target, inputs, intrinsic.target_class)
         return ObservableTargetValue.from_intrinsic(
             intrinsic_target_quality=intrinsic,
-            effective_observability=self.effective_observability(target, inputs),
+            effective_observability=EffectiveObservability.from_environment(environment),
             target_class=intrinsic.target_class,
         )
 

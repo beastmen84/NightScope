@@ -4,6 +4,8 @@ from dataclasses import replace
 
 import pytest
 
+import astro_viewer.app.services.nsom_observation_environment as environment_module
+
 from astro_viewer.app.models.observing import CelestialObject, MoonSummary
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.services.nsom_observation_environment import (
@@ -45,6 +47,25 @@ def test_canonical_environment_applies_aerosol_once_without_mutating_target() ->
     assert first.effective_observability.atmospheric_transparency < 0.715
     assert target.score == 92
     assert target.intrinsic_score == 80
+
+
+def test_observable_value_builds_intrinsic_target_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_builder = environment_module.build_intrinsic_target_quality
+    calls = 0
+
+    def recording_builder(target: CelestialObject):
+        nonlocal calls
+        calls += 1
+        return original_builder(target)
+
+    monkeypatch.setattr(environment_module, "build_intrinsic_target_quality", recording_builder)
+
+    NsomObservationEnvironmentService().observable_target_value(
+        _target(intrinsic_score=80, score=92),
+        ObservationConditionInputs(sky_quality=_sky_quality(), seeing=_seeing()),
+    )
+
+    assert calls == 1
 
 
 def test_intrinsic_value_is_independent_from_compatibility_score() -> None:

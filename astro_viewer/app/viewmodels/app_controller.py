@@ -2359,10 +2359,6 @@ class AppController(QObject):
         return "Dati meteo non disponibili al momento."
 
     def _recalculate_observing_outputs(self) -> None:
-        self._seeing_transparency = self._seeing_service.estimate(
-            self._observing_weather_hours(),
-            self._sky_quality,
-        )
         self._category_scores = self._nsom_category_score_service.scores(
             self._build_observation_condition_inputs()
         )
@@ -2920,12 +2916,15 @@ class AppController(QObject):
         snapshot: AstronomyRefreshSnapshot,
         message: str,
     ) -> None:
+        self._seeing_transparency = self._seeing_service.estimate(
+            self._observing_weather_hours(),
+            self._sky_quality,
+        )
         if not snapshot.failed:
             try:
                 self._base_deep_sky = list(snapshot.deep_sky)
                 self._refresh_equipment_recommendations_for_current_objects()
                 self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-                self._refresh_conditioned_observing_candidates()
             except Exception:
                 logger.warning("Deep-sky refresh after VIIRS update failed.", exc_info=True)
         self._light_pollution_status = message
@@ -3109,17 +3108,15 @@ class AppController(QObject):
         self._selected_telescope_index = self._initial_telescope_index()
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-        self._refresh_conditioned_observing_candidates()
-        planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
-        planning_objects = planning_objects or self._visible_planets + self._deep_sky
         if self._weather_summary and self._sky_quality:
             self._recalculate_observing_outputs()
-        elif self._weather_summary:
-            self._best_object = self._select_best_object(planning_objects)
-            self._night_plan = []
-            self._refresh_sky_compass()
         else:
-            self._best_object = None
+            self._refresh_conditioned_observing_candidates()
+            planning_objects = self._home_visible_objects(self._visible_planets + self._deep_sky)
+            planning_objects = planning_objects or self._visible_planets + self._deep_sky
+            self._best_object = (
+                self._select_best_object(planning_objects) if self._weather_summary else None
+            )
             self._night_plan = []
             self._refresh_sky_compass()
         if selected_id:

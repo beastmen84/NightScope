@@ -27,7 +27,6 @@ from astro_viewer.app.services.nsom_runtime_builders import (
     build_recommendation_confidence,
     build_session_viability,
 )
-from astro_viewer.app.services.nsom_target import build_intrinsic_target_quality
 from astro_viewer.app.services.observer_capability_adapter import build_observer_capability_for_target
 
 
@@ -58,7 +57,9 @@ class PlannerNsomScoringService:
             practical,
             weather=weather,
             condition_inputs=condition_inputs,
-            moon_geometry_available=True if moon_geometry is not None else None,
+            moon_geometry_available=(
+                None if condition_inputs.moon is None else moon_geometry is not None
+            ),
             blocking_status=blocking_status,
             observing_window_quality=observing_window_quality,
             chronology_fit=chronology_fit,
@@ -73,16 +74,9 @@ class PlannerNsomScoringService:
         condition_inputs: ObservationConditionInputs,
         moon_geometry: MoonGeometryConditionInput | None = None,
     ) -> PracticalTargetValue:
-        effective = self.effective_observability(
+        observable = NsomObservationEnvironmentService().observable_target_value(
             item,
-            condition_inputs=condition_inputs,
-            moon_geometry=moon_geometry,
-        )
-        intrinsic = build_intrinsic_target_quality(item)
-        observable = ObservableTargetValue.from_intrinsic(
-            intrinsic_target_quality=intrinsic,
-            effective_observability=effective,
-            target_class=intrinsic.target_class,
+            replace(condition_inputs, moon_geometry=moon_geometry),
         )
         return self.practical_target_value_from_observable(observable, item, telescope=telescope)
 
@@ -179,9 +173,6 @@ class PlannerNsomScoringService:
                 getattr(condition_inputs.sky_quality, "viirs_radiance", None) is not None
             ),
             moon_geometry_available=moon_geometry_available,
-            provider_fallback_used=(
-                getattr(condition_inputs.sky_quality, "viirs_radiance", None) is None
-            ),
             notes=("nsom:planner_runtime",),
         )
 

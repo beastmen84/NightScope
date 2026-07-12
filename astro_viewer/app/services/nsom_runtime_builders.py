@@ -243,7 +243,9 @@ def _aod_confidence(aod_result: Any | None, *, today: date | None) -> float | No
 
 
 def _openaq_confidence(local_atmosphere: Any | None) -> float | None:
-    if local_atmosphere is None or not bool(_value(local_atmosphere, "has_data", default=False)):
+    if local_atmosphere is None or not bool(
+        _value(local_atmosphere, "has_data", "available", default=False)
+    ):
         return None
     return {
         "current": 1.0,

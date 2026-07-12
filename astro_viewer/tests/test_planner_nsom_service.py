@@ -13,6 +13,7 @@ from astro_viewer.app.services.night_planner_service import NightPlannerService
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
+    ParticulateConditionInput,
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 
@@ -152,6 +153,35 @@ def test_session_is_binary_and_confidence_is_score_neutral() -> None:
     assert low.confidence.value < high.confidence.value
     assert blocked.session.value == 0.0
     assert blocked.value == 0.0
+
+
+def test_planner_confidence_counts_each_runtime_source_once() -> None:
+    inputs = _inputs(moon=70, radiance=None)
+    inputs = ObservationConditionInputs(
+        moon=inputs.moon,
+        sky_quality=inputs.sky_quality,
+        seeing=inputs.seeing,
+        particulate=ParticulateConditionInput(
+            available=True,
+            freshness_category="current",
+            pm25=7.0,
+            source="OpenAQ",
+        ),
+    )
+
+    opportunity = PlannerNsomScoringService().opportunity(
+        _target("galaxy"),
+        weather=_weather(85),
+        telescope=_telescope("scope"),
+        condition_inputs=inputs,
+    )
+
+    confidence = opportunity.confidence
+    assert confidence is not None
+    assert confidence.openaq_confidence == 1.0
+    assert confidence.viirs_confidence == 0.0
+    assert confidence.provider_fallback_confidence is None
+    assert confidence.moon_geometry_confidence == 0.0
 
 
 def test_planner_does_not_mutate_target_or_condition_inputs() -> None:
