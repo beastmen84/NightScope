@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.24.2 - 2026-07-12
+
+- Aggiunto a destra di `Piano della notte` il pulsante checkable
+  `Solo suggeriti ora`, disabilitato quando Sky Compass non ha target
+  osservabili e non selezionato per impostazione predefinita.
+- Quando attivo, il filtro interseca per ID canonico sia le tappe del piano sia
+  `Altri oggetti visibili stasera` con tutti i target della direzione scelta da
+  Sky Compass, inclusi quelli oltre i tre target principali mostrati nella card.
+- Conteggi e filtri `Tutti / Pianeti / Cielo profondo` lavorano sul sottoinsieme
+  corrente; ordine cronologico del piano e ordine delle alternative restano
+  invariati. Aggiunti messaggi dedicati quando una scheda non ha corrispondenze.
+- Il filtro segue il refresh live Sky Compass ogni 60 secondi, aggiorna il
+  modello solo quando cambia l'insieme degli ID e si spegne automaticamente su
+  `no_targets`. Nessun cambio a formule, score, ranking o servizi NSOM.
+- Verificati interazione e auto-reset QML, rendering offscreen, `pip check`,
+  Ruff, compileall, smoke Python/QML, `qmllint` e 228 asset. Suite completa
+  parallela: `670 passed`, `557 warnings`, `7 subtests passed` in `51,86 s`.
+- Dist `1.24.2` non rigenerata.
+
 ## NightScope 1.24.1 - 2026-07-12
 
 - Sostituiti i nove SVG illustrativi di Sole, Luna, Mercurio, Venere, Marte,

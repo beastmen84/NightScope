@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.24.1`:
+Current runtime status for `1.24.2`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -75,6 +75,9 @@ Current runtime status for `1.24.1`:
 - Home and Sky Compass share the complete useful-night target pool. Sky Compass
   filters live `observable_now` geometry and no longer lets plan/Best Object
   bonuses choose the direction.
+- Lower Home can apply the complete `skyCompass.targets` ID set as a local QML
+  presentation filter over plan and alternatives. This does not rebuild the
+  Home overview, change list ordering or add another ranking path.
 - Runtime target identity is the normalized non-empty object ID. Home, Best
   Object, Planner and Sky Compass keep the first occurrence before scoring;
   lower-Home plan/alternative counts use the same invariant.
@@ -545,6 +548,11 @@ live tick never calls `_sky_compass_candidates()`: it uses
 `SkyfieldAstronomyEngine.refresh_current_positions()` to update current
 altitude, azimuth, direction and `observable_now` for the stored snapshot, emits only
 `skyCompassChanged` and clears `COMPASS_LIVE` after the update.
+
+The optional Home filter remains active while the live payload has targets and
+replaces its membership only when the normalized ID set changes. An unavailable
+or `no_targets` payload clears the toggle. This behavior is UI-local and does
+not trigger Planner, Equipment, weather or NSOM recomputation.
 
 The position calculation runs on a daemon worker. A Qt completion signal applies
 the result on the controller thread only when request id and location key are

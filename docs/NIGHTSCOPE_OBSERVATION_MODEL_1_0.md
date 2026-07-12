@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.24.1`:
+Current runtime status for `1.24.2`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -39,6 +39,9 @@ Current runtime status for `1.24.1`:
 - `1.24.1` replaces Solar System presentation placeholders with source-backed
   NASA/JPL PIA images. Paths and image metadata change; NSOM inputs, formulas,
   target identity, scoring, ranking and counts remain unchanged.
+- `1.24.2` lets the lower Home filter its existing presentation rows by the
+  complete target-ID set selected by Sky Compass. The filter follows live
+  geometry updates but does not add an NSOM factor or alter scoring and ranking.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.

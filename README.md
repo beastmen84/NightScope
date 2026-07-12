@@ -7,7 +7,10 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 ## Funzionalità principali
 
 - Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
-- Sky Compass come guida live della Home: ogni minuto valuta gli oggetti realmente osservabili adesso, combina qualità e concentrazione per direzione e mantiene piano/Best Object come contesto, non come bonus dominante.
+- Sky Compass come guida live della Home: ogni minuto valuta gli oggetti
+  realmente osservabili adesso, combina qualità e concentrazione per direzione
+  e mantiene piano/Best Object come contesto, non come bonus dominante. Il
+  toggle `Solo suggeriti ora` applica la zona corrente alle due schede inferiori.
 - Piano osservativo consigliato: fino a quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
 - Home inferiore state-aware: separa sequenza consigliata, finestra da
   monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
@@ -37,7 +40,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.24.1`.
+Versione corrente sorgente: `1.24.2`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -55,6 +58,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   stesso ambiente NSOM usato dagli altri consumer.
 - Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine
   corrente e densita' dei target osservabili ora.
+- Filtro Sky Compass Home: intersezione QML per ID canonico su piano e
+  alternative, aggiornata dal tick live senza ricalcolare ranking; il filtro si
+  disattiva se non resta alcun target osservabile.
 - Detail/Object: read model osservativo score-free, senza payload NSOM ombra.
 - ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
   quando disponibili e validi; non esistono feature flag di rollback.
