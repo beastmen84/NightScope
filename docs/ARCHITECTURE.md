@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.24.0`:
+Current runtime status for `1.24.1`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -89,10 +89,12 @@ Current runtime status for `1.24.0`:
   map explicitly to `DIFFUSE_NEBULA` across environment and legacy condition
   boundaries. Equipment continues to consume each target's explicit observing
   metadata, so Caldwell introduces no separate equipment category.
-- `ObjectDescription` and `ObjectImages` cover every one of those 219 target
-  IDs. Every deep-sky target has a dedicated local `512 x 512` survey JPEG;
-  source URL, attribution and license metadata travel with the presentation
-  payload but do not enter ranking.
+- `ObjectDescription` covers all 219 deep-sky target IDs. `ObjectImages` covers
+  all 228 selectable deep-sky and Solar System targets: every target has a
+  dedicated local `512 x 512` JPEG, with survey cutouts for deep sky and
+  normalized NASA/JPL PIA observations for Solar System bodies. Source URL,
+  attribution and usage metadata travel with the presentation payload but do
+  not enter ranking.
 - `ObjectCuriosity` adds source-backed editorial facts for all 227 described
   targets. It is a separate presentation table and has no NSOM, Equipment or
   observability role.

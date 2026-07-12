@@ -4,18 +4,19 @@ Aggiornato: 2026-07-12
 
 ## Stato Versioni
 
-- Versione sorgente: `1.24.0`
-- Dist `1.24.0` non rigenerata.
+- Versione sorgente: `1.24.1`
+- Dist `1.24.1` non rigenerata.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `7de6a6f Replace catalogue placeholder images`
+- Commit sorgente validato: `60a9510 Replace Solar System placeholder images`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `7de6a6f`; non sostituire questo
+documentazione. Per lo stato del codice usare `60a9510`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `60a9510 Replace Solar System placeholder images`
 - `7de6a6f Replace catalogue placeholder images`
 - `f30bc17 Add source-backed object curiosities`
 - `0cb9222 Refresh catalogue observing descriptions`
@@ -49,8 +50,8 @@ espone modelli/scalari NSOM grezzi.
 
 I punti 1, 2 e 3 della roadmap catalogo sono conclusi: identita' canonica,
 supporto multi-catalogo/import Caldwell e contenuti visibili con curiosita' e
-asset scientifici dedicati. Testo descrittivo e note osservative restano
-separati dai nuovi contenuti editoriali.
+asset scientifici dedicati, inclusi i nove corpi del Sistema Solare. Testo
+descrittivo e note osservative restano separati dai nuovi contenuti editoriali.
 
 Restano futuri i cataloghi Filtri e Riduttori con la relativa integrazione
 Equipment/dettaglio. Non implementarli automaticamente: per i filtri era stato
@@ -61,7 +62,7 @@ Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.24.0
+## Catalogo Canonico 1.24.1
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -97,10 +98,14 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - `object_images_seed.csv` usa un JPEG RGB locale `512 x 512` dedicato per
   ognuno dei 219 target profondi: 200 2MASS, 15 Pan-STARRS1 e 4 SkyMapper DR4,
   tutti da CDS `hips2fits` con URL esatta, attribuzione e licenza ODbL nel seed.
+- I nove target del Sistema Solare usano altrettanti JPEG RGB `512 x 512`
+  derivati da immagini PIA NASA/JPL, con pagina sorgente e credito missione. Le
+  immagini sono statiche e processate, non descrivono fase o aspetto corrente.
 - Il dettaglio Home e Catalogo mostra curiosita', fonte e credito immagine
-  cliccabili. Il bootstrap sostituisce i vecchi SVG deep-sky gestiti da
-  NightScope ma conserva righe immagine personalizzate dall'utente.
-- `sync_catalogue_images.py --check` valida offline tutti gli asset;
+  cliccabili. Il bootstrap sostituisce i vecchi SVG deep-sky e Sistema Solare
+  gestiti da NightScope ma conserva righe immagine personalizzate dall'utente.
+- `sync_catalogue_images.py --check` e `sync_solar_system_images.py --check`
+  validano offline tutti gli asset;
   `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
   e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
 
@@ -229,7 +234,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.24.0
+## Validazione 1.24.1
 
 Eseguita nella venv corrente:
 
@@ -241,7 +246,7 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
 .\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
-.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 12
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 ```
 
 Risultati:
@@ -249,12 +254,12 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `667 passed`, `558 warnings`, `7 subtests passed` in `58,91 s`.
+- Suite: `668 passed`, `558 warnings`, `7 subtests passed` in `54,21 s`.
 - Smoke Python: exit `0`.
 - Smoke QML: exit `0`.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
-- Asset: 219 JPEG RGB `512 x 512`, seed e file coerenti.
-- Fonti curiosita': 226 URL distinte raggiungibili con HTTP `200`.
+- Asset: 228 JPEG RGB `512 x 512` (219 cielo profondo e 9 Sistema Solare), seed
+  e file coerenti.
 
 Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 

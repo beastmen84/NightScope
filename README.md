@@ -20,7 +20,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
   oggetto.
 - Catalogo offline generico con 110 oggetti Messier, 109 Caldwell e 9 corpi del
-  Sistema Solare, con ricerca e filtri dedicati.
+  Sistema Solare, con ricerca, filtri e immagini scientifiche locali con fonte.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
 - Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
   freschezza misura e fonte satellite, separata da OpenAQ.
@@ -37,7 +37,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.24.0`.
+Versione corrente sorgente: `1.24.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -70,6 +70,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   osservativa, curiosita' con fonte e immagine scientifica dedicata. I 219 JPEG
   locali provengono da cutout 2MASS, Pan-STARRS1 o SkyMapper tramite CDS; fonte,
   attribuzione e licenza sono visibili nel dettaglio.
+- Immagini Sistema Solare: i nove corpi esposti usano JPEG scientifici
+  rappresentativi da NASA/JPL Photojournal, con credito e pagina sorgente. Sono
+  immagini statiche processate e non rappresentano fase o aspetto corrente.
 
 L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
 Object, Planner, Sky Compass e i conteggi della Home conservano una sola
@@ -403,6 +406,7 @@ Gli import CLI usano upsert/deduplicazione:
 .\.venv\Scripts\python.exe astro_viewer\tools\import_light_pollution.py astro_viewer\data\light_pollution_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
 .\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
 ```
 

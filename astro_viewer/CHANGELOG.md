@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.24.1 - 2026-07-12
+
+- Sostituiti i nove SVG illustrativi di Sole, Luna, Mercurio, Venere, Marte,
+  Giove, Saturno, Urano e Nettuno con JPEG RGB locali `512 x 512` ricavati da
+  immagini scientifiche ufficiali NASA/JPL Photojournal.
+- Ogni asset conserva PIA, pagina sorgente e credito esatto nel seed. Il
+  dettaglio mostra il credito cliccabile; le immagini sono rappresentazioni
+  statiche e processate, non indicano fase, orientamento o aspetto corrente.
+- Aggiornati anche i percorsi diretti di astronomia, Calendario e fallback Luna;
+  rimossi i nove SVG non piu' referenziati. Il bootstrap migra solo i vecchi
+  asset generati da NightScope e preserva immagini personalizzate dall'utente.
+- Aggiunto `sync_solar_system_images.py`, che scarica gli originali PIA,
+  applica ritagli deterministici, normalizza il formato e verifica file e seed.
+- Verificati `pip check`, Ruff, compileall, smoke Python/QML, `qmllint` e tutti
+  i 228 JPEG. Suite completa parallela: `668 passed`, `558 warnings`,
+  `7 subtests passed` in `54,21 s`; le warning restano quelle Skyfield/NumPy
+  gia' note.
+- Dist `1.24.1` non rigenerata.
+
 ## NightScope 1.24.0 - 2026-07-12
 
 - Aggiunta la tabella `ObjectCuriosity` e il seed dedicato con 227 curiosita'

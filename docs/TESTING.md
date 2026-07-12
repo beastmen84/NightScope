@@ -52,15 +52,15 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.24.0`:
+Measured on the current Windows development environment for `1.24.1`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n auto` | `667 passed, 7 subtests passed` | `0:00:59` |
+| `python -m pytest -q -n auto` | `668 passed, 7 subtests passed` | `0:00:54` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
-asset migration, multi-designation identity
+and NASA/JPL Solar System asset migration, multi-designation identity
 projections and the target-taxonomy contract for every raw type in all 219
 Messier/Caldwell records. It also covers the NSOM invariants for single-pass
 factor construction and defensive Home/Planner/Sky Compass counts. The earlier

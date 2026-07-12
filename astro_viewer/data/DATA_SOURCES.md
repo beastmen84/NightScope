@@ -65,14 +65,16 @@ If Earthdata is not configured, the network is unavailable, NASA does not expose
 
 ## Object Images, Descriptions And Curiosities
 
-`object_images_seed.csv` contains an explicit row for every Messier and Caldwell
-target. Each target now has a dedicated, local `512 x 512` JPEG cutout from the
-2MASS, Pan-STARRS1 or SkyMapper scientific surveys, generated through CDS
-`hips2fits`. Exact request URLs, attribution and license declarations are kept
-per row and shown in Object Detail. The full selection and redistribution rules
-are documented in `docs/IMAGE_ASSET_POLICY.md`. The three typed local SVG
-fallbacks remain defensive compatibility assets and are not used by current
-Messier/Caldwell rows.
+`object_images_seed.csv` contains an explicit row for all 228 selectable targets.
+The 219 Messier/Caldwell targets have dedicated local `512 x 512` JPEG cutouts
+from the 2MASS, Pan-STARRS1 or SkyMapper scientific surveys, generated through
+CDS `hips2fits`. The nine Solar System targets use normalized NASA/JPL
+Photojournal PIA images with the exact mission credit and source page. These are
+static representative observations, not live phase, orientation or appearance
+data. Source URLs, attribution and usage declarations are kept per row and shown
+in Object Detail. The full selection and redistribution rules are documented in
+`docs/IMAGE_ASSET_POLICY.md`. The three typed local SVG fallbacks remain
+defensive compatibility assets and are not used by current target rows.
 
 `object_descriptions_seed.csv` contains NightScope-style descriptions and
 separate observing notes for the Moon, planets, all 110 Messier entries and all
