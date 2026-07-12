@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS CatalogueObject (
 
 CREATE INDEX IF NOT EXISTS idx_catalogue_object_type ON CatalogueObject(tipo);
 CREATE INDEX IF NOT EXISTS idx_catalogue_object_constellation ON CatalogueObject(costellazione);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_object_id_normalized
+ON CatalogueObject(LOWER(object_id));
 
 CREATE TABLE IF NOT EXISTS CatalogueDesignation (
     catalogue TEXT NOT NULL,
@@ -72,6 +74,10 @@ CREATE INDEX IF NOT EXISTS idx_catalogue_designation_catalogue ON CatalogueDesig
 CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_designation_primary
 ON CatalogueDesignation(object_id)
 WHERE is_primary = 1;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_designation_normalized
+ON CatalogueDesignation(LOWER(catalogue), LOWER(designation));
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalogue_object_catalogue_normalized
+ON CatalogueDesignation(object_id, LOWER(catalogue));
 
 CREATE TABLE IF NOT EXISTS WeatherCache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

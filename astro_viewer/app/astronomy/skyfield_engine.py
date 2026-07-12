@@ -1622,7 +1622,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         lower_type = object_type.lower()
         if "galaxy" in lower_type:
             return "resources/images/m31.svg"
-        if "nebula" in lower_type:
+        if "nebula" in lower_type or "remnant" in lower_type:
             return "resources/images/m57.svg"
         return "resources/images/m13.svg"
 

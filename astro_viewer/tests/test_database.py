@@ -9,7 +9,14 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
-from astro_viewer.app.database.bootstrap import SCHEMA_VERSION, database_initialization_required, initialize_database
+from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
+from astro_viewer.app.database.bootstrap import (
+    CATALOGUE_OBSERVATION_TYPES,
+    SCHEMA_VERSION,
+    _validate_catalogue_seed,
+    database_initialization_required,
+    initialize_database,
+)
 from astro_viewer.app.database.equipment_catalog_repository import EquipmentCatalogRepository
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.database.observation_repository import ObservationRepository
@@ -17,7 +24,9 @@ from astro_viewer.app.services.location_preferences import LocationPreferenceSto
 from astro_viewer.tests.geonames_fixture import write_small_geonames_fixture
 
 
-MESSIER_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
+MESSIER_OBJECT_COUNT = 110
+CALDWELL_OBJECT_COUNT = 109
+CATALOGUE_OBJECT_COUNT = MESSIER_OBJECT_COUNT + CALDWELL_OBJECT_COUNT
 
 
 class DatabaseBootstrapTests(unittest.TestCase):
@@ -29,12 +38,16 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIn("recommended_observation_type", reader.fieldnames or [])
             rows = list(reader)
 
-        self.assertEqual(len(rows), 110)
+        self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
         for row in rows:
             self.assertGreater(float(row["max_angular_size_deg"]), 0.0, row["object_id"])
+            self.assertGreaterEqual(parse_ra_hours(row["ascensione_retta"]), 0.0)
+            self.assertLess(parse_ra_hours(row["ascensione_retta"]), 24.0)
+            self.assertGreaterEqual(parse_dec_degrees(row["declinazione"]), -90.0)
+            self.assertLessEqual(parse_dec_degrees(row["declinazione"]), 90.0)
             self.assertIn(
                 row["recommended_observation_type"],
-                MESSIER_OBSERVATION_TYPES,
+                CATALOGUE_OBSERVATION_TYPES,
                 row["object_id"],
             )
         observation_types = {
@@ -49,11 +62,33 @@ class DatabaseBootstrapTests(unittest.TestCase):
             "r", encoding="utf-8", newline=""
         ) as file:
             designations = list(csv.DictReader(file))
-        self.assertEqual(len(designations), 110)
-        self.assertTrue(all(row["catalogue"] == "Messier" for row in designations))
-        self.assertEqual(len({row["object_id"] for row in designations}), 110)
+        self.assertEqual(len(designations), CATALOGUE_OBJECT_COUNT)
+        self.assertEqual(
+            sum(row["catalogue"] == "Messier" for row in designations),
+            MESSIER_OBJECT_COUNT,
+        )
+        self.assertEqual(
+            sum(row["catalogue"] == "Caldwell" for row in designations),
+            CALDWELL_OBJECT_COUNT,
+        )
+        self.assertEqual(len({row["object_id"] for row in designations}), CATALOGUE_OBJECT_COUNT)
 
-    def test_messier_seed_contains_all_objects(self) -> None:
+        caldwell_rows = [row for row in rows if row["object_id"].startswith("caldwell-")]
+        self.assertEqual(len(caldwell_rows), CALDWELL_OBJECT_COUNT)
+        self.assertEqual(
+            sum(row["tipo"] in {"Open cluster", "Globular cluster"} for row in caldwell_rows),
+            46,
+        )
+        self.assertEqual(sum("galaxy" in row["tipo"].lower() for row in caldwell_rows), 35)
+        self.assertEqual(
+            sum(
+                "nebula" in row["tipo"].lower() or row["tipo"] == "Supernova remnant"
+                for row in caldwell_rows
+            ),
+            28,
+        )
+
+    def test_catalogue_seed_contains_all_messier_and_caldwell_objects(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -62,13 +97,21 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             repository = CatalogueRepository(database_path)
             objects = repository.list_objects()
-            self.assertEqual(len(objects), 110)
-            self.assertEqual(objects[0]["primary_designation"], "M1")
-            self.assertEqual(objects[0]["max_angular_size_deg"], 0.117)
-            self.assertEqual(objects[0]["recommended_observation_type"], "General")
-            self.assertEqual(objects[-1]["primary_designation"], "M110")
-            self.assertGreater(objects[-1]["max_angular_size_deg"], 0.0)
-            self.assertIn(objects[-1]["recommended_observation_type"], MESSIER_OBSERVATION_TYPES)
+            messier = repository.list_objects("Messier")
+            caldwell = repository.list_objects("Caldwell")
+            self.assertEqual(len(objects), CATALOGUE_OBJECT_COUNT)
+            self.assertEqual(len(messier), MESSIER_OBJECT_COUNT)
+            self.assertEqual(len(caldwell), CALDWELL_OBJECT_COUNT)
+            self.assertEqual(messier[0]["primary_designation"], "M1")
+            self.assertEqual(messier[0]["max_angular_size_deg"], 0.117)
+            self.assertEqual(messier[-1]["primary_designation"], "M110")
+            self.assertEqual(caldwell[0]["primary_designation"], "C1")
+            self.assertEqual(caldwell[-1]["primary_designation"], "C109")
+            c23 = repository.get_by_designation("caldwell", "c23")
+            self.assertIsNotNone(c23)
+            assert c23 is not None
+            self.assertEqual(c23["object_id"], "caldwell-C23")
+            self.assertEqual(c23["name"], "NGC 891")
 
     def test_catalogue_repository_keeps_one_object_for_multiple_designations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -88,7 +131,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 connection.commit()
 
             repository = CatalogueRepository(database_path)
-            self.assertEqual(len(repository.list_objects()), 110)
+            self.assertEqual(len(repository.list_objects()), CATALOGUE_OBJECT_COUNT)
             self.assertEqual(len(repository.list_objects("Secondary")), 1)
             self.assertEqual(
                 [item["object_id"] for item in repository.search("S31")],
@@ -115,6 +158,74 @@ class DatabaseBootstrapTests(unittest.TestCase):
                         """,
                         ("Conflicting", "X31", "messier-M31", 31, 1),
                     )
+
+    def test_catalogue_normalized_identity_constraints_are_enforced(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                with self.assertRaises(sqlite3.IntegrityError):
+                    connection.execute(
+                        """
+                        INSERT INTO CatalogueObject
+                        SELECT
+                            'MESSIER-m1', nome, tipo, costellazione, magnitudine,
+                            ascensione_retta, declinazione, dimensione_apparente,
+                            max_angular_size_deg, recommended_observation_type, descrizione
+                        FROM CatalogueObject
+                        WHERE object_id = 'messier-M1'
+                        """
+                    )
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                with self.assertRaises(sqlite3.IntegrityError):
+                    connection.execute(
+                        """
+                        INSERT INTO CatalogueDesignation (
+                            catalogue, designation, object_id, sort_index, is_primary
+                        )
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        ("messier", "m1", "messier-M1", 999, 0),
+                    )
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute("PRAGMA foreign_keys = ON")
+                with self.assertRaises(sqlite3.IntegrityError):
+                    connection.execute(
+                        """
+                        INSERT INTO CatalogueDesignation (
+                            catalogue, designation, object_id, sort_index, is_primary
+                        )
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        ("Test", "T1", "missing-object", 1, 1),
+                    )
+
+    def test_catalogue_seed_validation_rejects_invalid_identity_rows(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        with (data_dir / "catalogue_objects_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            object_row = next(csv.DictReader(file))
+        with (data_dir / "catalogue_designations_seed.csv").open(
+            "r", encoding="utf-8", newline=""
+        ) as file:
+            designation_row = next(csv.DictReader(file))
+
+        _validate_catalogue_seed([object_row], [designation_row])
+        with self.assertRaisesRegex(ValueError, "references unknown"):
+            _validate_catalogue_seed(
+                [object_row],
+                [{**designation_row, "object_id": "missing-object"}],
+            )
+        with self.assertRaisesRegex(ValueError, "one primary designation"):
+            _validate_catalogue_seed(
+                [object_row],
+                [{**designation_row, "is_primary": "0"}],
+            )
 
     def test_equipment_catalog_seed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -180,7 +291,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
             initialize_database(database_path, schema_path)
 
             self.assertTrue(database_path.exists())
-            self.assertEqual(len(CatalogueRepository(database_path).list_objects()), 110)
+            self.assertEqual(
+                len(CatalogueRepository(database_path).list_objects()),
+                CATALOGUE_OBJECT_COUNT,
+            )
 
     def test_initialization_preflight_detects_first_launch_and_ready_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -517,7 +631,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "SELECT object_id FROM CatalogueObject WHERE object_id = ?",
                     ("messier-M110",),
                 ).fetchone()
-            self.assertEqual(row_count, 110)
+            self.assertEqual(row_count, CATALOGUE_OBJECT_COUNT)
             self.assertEqual(preserved_description, "nota locale")
             self.assertIsNotNone(restored_object)
 
@@ -593,7 +707,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             self.assertIsNone(legacy_table)
             self.assertEqual(version, SCHEMA_VERSION)
-            self.assertEqual(row_count, 110)
+            self.assertEqual(row_count, CATALOGUE_OBJECT_COUNT)
             self.assertEqual(row["descrizione"], "nota locale")
             self.assertEqual(row["max_angular_size_deg"], 0.117)
             self.assertEqual(row["recommended_observation_type"], "General")
@@ -693,7 +807,10 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             quarantined = list(Path(temp_dir).glob("nightscope.db.corrupt-*.bak"))
             self.assertEqual(len(quarantined), 1)
-            self.assertEqual(len(CatalogueRepository(database_path).list_objects()), 110)
+            self.assertEqual(
+                len(CatalogueRepository(database_path).list_objects()),
+                CATALOGUE_OBJECT_COUNT,
+            )
 
 
 if __name__ == "__main__":

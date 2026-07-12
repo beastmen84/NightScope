@@ -903,15 +903,21 @@ class Phase6RealDataTests(unittest.TestCase):
             r'title: "Configurazione consigliata"',
         )
 
-    def test_catalogue_objects_expose_all_messier_rows_sorted(self) -> None:
+    def test_catalogue_objects_expose_all_deep_sky_rows_sorted(self) -> None:
         with _controller() as controller:
             objects = controller.catalogueObjects
             messier_objects = [item for item in objects if item["catalogue"] == "Messier"]
+            caldwell_objects = [item for item in objects if item["catalogue"] == "Caldwell"]
 
-            self.assertEqual(len(objects), 119)
+            self.assertEqual(len(objects), 228)
             self.assertEqual(len(messier_objects), 110)
+            self.assertEqual(len(caldwell_objects), 109)
             self.assertEqual([item["catalogue_id"] for item in messier_objects[:5]], ["M1", "M2", "M3", "M4", "M5"])
             self.assertEqual(messier_objects[-1]["catalogue_id"], "M110")
+            self.assertEqual([item["catalogue_id"] for item in caldwell_objects[:5]], ["C1", "C2", "C3", "C4", "C5"])
+            self.assertEqual(caldwell_objects[-1]["catalogue_id"], "C109")
+            self.assertEqual(caldwell_objects[22]["object_id"], "caldwell-C23")
+            self.assertEqual(caldwell_objects[22]["name"], "NGC 891")
             self.assertEqual(messier_objects[0]["catalogue"], "Messier")
             self.assertEqual(messier_objects[0]["object_id"], "messier-M1")
             self.assertEqual(messier_objects[0]["name"], "Crab Nebula")
@@ -960,7 +966,10 @@ class Phase6RealDataTests(unittest.TestCase):
                 [item["object_id"] for item in solar_objects],
                 ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"],
             )
-            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier", "Sistema Solare"])
+            self.assertEqual(
+                controller.catalogueFilterOptions["catalogues"],
+                ["Caldwell", "Messier", "Sistema Solare"],
+            )
             self.assertIn(
                 {"value": "Open cluster", "label": "Ammasso aperto"},
                 controller.catalogueFilterOptions["typeChoices"],
@@ -995,7 +1004,10 @@ class Phase6RealDataTests(unittest.TestCase):
 
             controller.searchCatalogue("Giove")
             jupiter_by_italian_name = controller.catalogueObjects
-            self.assertEqual([item["name"] for item in jupiter_by_italian_name], ["Giove"])
+            self.assertEqual(
+                [item["name"] for item in jupiter_by_italian_name],
+                ["Giove", "NGC 3242 - Fantasma di Giove"],
+            )
 
             controller.searchCatalogue("Jupiter")
             jupiter_by_english_name = controller.catalogueObjects
@@ -1005,10 +1017,27 @@ class Phase6RealDataTests(unittest.TestCase):
             mars_by_display_id = controller.catalogueObjects
             self.assertEqual([item["name"] for item in mars_by_display_id], ["Marte"])
 
+            controller.searchCatalogue("C23")
+            by_caldwell_id = controller.catalogueObjects
+            self.assertEqual([item["object_id"] for item in by_caldwell_id], ["caldwell-C23"])
+
+            controller.searchCatalogue("NGC 891")
+            by_ngc_id = controller.catalogueObjects
+            self.assertEqual([item["catalogue_id"] for item in by_ngc_id], ["C23"])
+
     def test_catalogue_filters_by_catalogue_type_constellation_and_observation_type(self) -> None:
         with _controller() as controller:
-            self.assertEqual(controller.catalogueFilterOptions["catalogues"], ["Messier", "Sistema Solare"])
+            self.assertEqual(
+                controller.catalogueFilterOptions["catalogues"],
+                ["Caldwell", "Messier", "Sistema Solare"],
+            )
 
+            controller.setCatalogueFilter("catalogue", "Caldwell")
+            self.assertEqual(len(controller.catalogueObjects), 109)
+            self.assertEqual(controller.catalogueObjects[0]["catalogue_id"], "C1")
+            self.assertEqual(controller.catalogueObjects[-1]["catalogue_id"], "C109")
+
+            controller.clearCatalogueFilters()
             controller.setCatalogueFilter("catalogue", "Messier")
             self.assertEqual(len(controller.catalogueObjects), 110)
 
@@ -1024,7 +1053,10 @@ class Phase6RealDataTests(unittest.TestCase):
 
             controller.clearCatalogueFilters()
             controller.setCatalogueFilter("type", "Supernova remnant")
-            self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M1"])
+            self.assertEqual(
+                [item["catalogue_id"] for item in controller.catalogueObjects],
+                ["C33", "C34", "M1"],
+            )
 
             controller.clearCatalogueFilters()
             controller.setCatalogueFilter("constellation", "Taurus")
@@ -1189,7 +1221,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._invalidate_catalogue_visibility_cache()
 
             objects = controller.catalogueObjects
-            self.assertEqual(len(objects), 119)
+            self.assertEqual(len(objects), 228)
             self.assertEqual(astronomy.catalogue_month_visibility.call_count, 0)
             self.assertEqual(
                 [item["visible_this_month_label"] for item in objects if item["catalogue_id"] in {"M13", "M31"}],
@@ -1363,7 +1395,7 @@ class Phase6RealDataTests(unittest.TestCase):
             controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
             controller._invalidate_catalogue_visibility_cache()
 
-            self.assertEqual(len(controller.catalogueObjects), 119)
+            self.assertEqual(len(controller.catalogueObjects), 228)
             controller.searchCatalogue("M31")
             self.assertEqual([item["catalogue_id"] for item in controller.catalogueObjects], ["M31"])
             controller.setCatalogueFilter("catalogue", "Messier")
@@ -1514,6 +1546,26 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(selected["catalogueVisibilityLabel"], "Sì")
             self.assertIn("M110", selected["name"])
             self.assertEqual(selected["observingStatus"], "Catalogo Messier")
+
+    def test_select_caldwell_object_resolves_identifier_and_localized_metadata(self) -> None:
+        with _controller() as controller:
+            controller.selectCatalogueObject("C23")
+            selected = controller.selectedObject
+
+            self.assertEqual(selected["id"], "caldwell-C23")
+            self.assertEqual(selected["name"], "C23 NGC 891")
+            self.assertEqual(selected["catalogue"], "Caldwell")
+            self.assertEqual(selected["catalogueId"], "C23")
+            self.assertEqual(selected["catalogueTypeLabel"], "Galassia spirale")
+            self.assertEqual(selected["constellation"], "Andromeda")
+            self.assertEqual(selected["rightAscension"], "02h 22.6m")
+            self.assertEqual(selected["declination"], "+42° 21′")
+            self.assertIn("NGC 891", selected["descriptionText"])
+            self.assertEqual(selected["observingStatus"], "Catalogo Caldwell")
+
+            controller.selectCatalogueObject("C33")
+            self.assertEqual(controller.selectedObject["type"], "Supernova remnant")
+            self.assertEqual(controller.selectedObject["image"], "resources/images/m57.svg")
 
     def test_weather_not_called_without_valid_location(self) -> None:
         with _controller() as controller:

@@ -5,6 +5,7 @@ import json
 import logging
 import shutil
 import sqlite3
+from collections import Counter
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +14,8 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
+CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -147,6 +149,7 @@ def _build_database(
     geonames_data_dir: Path | None = None,
 ) -> None:
     with closing(sqlite3.connect(database_path)) as connection:
+        connection.execute("PRAGMA foreign_keys = ON")
         connection.row_factory = sqlite3.Row
         connection.executescript(schema_sql)
         existing_schema_version = _schema_version(connection)
@@ -632,22 +635,27 @@ def _seed_catalogue(
     if not objects_path.exists() or not designations_path.exists():
         raise FileNotFoundError("Missing generic catalogue seed CSV.")
     with objects_path.open("r", encoding="utf-8", newline="") as file:
-        object_rows = [
-            (
-                row["object_id"],
-                row["nome"],
-                row["tipo"],
-                row["costellazione"],
-                _optional_float(row["magnitudine"]),
-                row["ascensione_retta"],
-                row["declinazione"],
-                row["dimensione_apparente"],
-                _optional_float(row["max_angular_size_deg"]),
-                row["recommended_observation_type"],
-                row["descrizione"],
-            )
-            for row in csv.DictReader(file)
-        ]
+        source_object_rows = list(csv.DictReader(file))
+    with designations_path.open("r", encoding="utf-8", newline="") as file:
+        source_designation_rows = list(csv.DictReader(file))
+    _validate_catalogue_seed(source_object_rows, source_designation_rows)
+
+    object_rows = [
+        (
+            row["object_id"],
+            row["nome"],
+            row["tipo"],
+            row["costellazione"],
+            _optional_float(row["magnitudine"]),
+            row["ascensione_retta"],
+            row["declinazione"],
+            row["dimensione_apparente"],
+            _optional_float(row["max_angular_size_deg"]),
+            row["recommended_observation_type"],
+            row["descrizione"],
+        )
+        for row in source_object_rows
+    ]
     connection.executemany(
         """
         INSERT INTO CatalogueObject (
@@ -663,17 +671,16 @@ def _seed_catalogue(
         object_rows,
     )
 
-    with designations_path.open("r", encoding="utf-8", newline="") as file:
-        designation_rows = [
-            (
-                row["catalogue"],
-                row["designation"],
-                row["object_id"],
-                int(row["sort_index"]) if row["sort_index"].strip() else None,
-                1 if row["is_primary"].strip().casefold() in {"1", "true", "yes"} else 0,
-            )
-            for row in csv.DictReader(file)
-        ]
+    designation_rows = [
+        (
+            row["catalogue"],
+            row["designation"],
+            row["object_id"],
+            int(row["sort_index"]) if row["sort_index"].strip() else None,
+            1 if row["is_primary"].strip().casefold() in {"1", "true", "yes"} else 0,
+        )
+        for row in source_designation_rows
+    ]
     connection.executemany(
         """
         INSERT INTO CatalogueDesignation (
@@ -687,6 +694,69 @@ def _seed_catalogue(
         """,
         designation_rows,
     )
+
+
+def _validate_catalogue_seed(
+    object_rows: list[dict[str, str]],
+    designation_rows: list[dict[str, str]],
+) -> None:
+    object_ids: dict[str, str] = {}
+    for row in object_rows:
+        object_id = row["object_id"].strip()
+        normalized_id = object_id.casefold()
+        if not object_id:
+            raise ValueError("Catalogue seed contains an empty object_id.")
+        if normalized_id in object_ids:
+            raise ValueError(f"Duplicate catalogue object_id: {object_id}")
+        object_ids[normalized_id] = object_id
+        if not row["nome"].strip() or not row["tipo"].strip():
+            raise ValueError(f"Catalogue object {object_id} is missing name or type.")
+        if row["recommended_observation_type"] not in CATALOGUE_OBSERVATION_TYPES:
+            raise ValueError(f"Invalid observation type for {object_id}.")
+        max_size = _optional_float(row["max_angular_size_deg"])
+        if max_size is None or max_size <= 0:
+            raise ValueError(f"Invalid angular size for {object_id}.")
+
+    normalized_designations: set[tuple[str, str]] = set()
+    object_catalogues: set[tuple[str, str]] = set()
+    primary_counts: Counter[str] = Counter()
+    designation_counts: Counter[str] = Counter()
+    sort_indices: set[tuple[str, int]] = set()
+    for row in designation_rows:
+        catalogue = row["catalogue"].strip()
+        designation = row["designation"].strip()
+        object_id = row["object_id"].strip()
+        normalized_object_id = object_id.casefold()
+        if normalized_object_id not in object_ids:
+            raise ValueError(f"Designation {catalogue} {designation} references unknown {object_id}.")
+        normalized_key = (catalogue.casefold(), designation.casefold())
+        if not catalogue or not designation or normalized_key in normalized_designations:
+            raise ValueError(f"Duplicate or empty catalogue designation: {catalogue} {designation}")
+        normalized_designations.add(normalized_key)
+        object_catalogue_key = (normalized_object_id, catalogue.casefold())
+        if object_catalogue_key in object_catalogues:
+            raise ValueError(f"Object {object_id} has multiple {catalogue} designations.")
+        object_catalogues.add(object_catalogue_key)
+        designation_counts[normalized_object_id] += 1
+
+        sort_index_text = row["sort_index"].strip()
+        if sort_index_text:
+            sort_index = int(sort_index_text)
+            if sort_index <= 0 or (catalogue.casefold(), sort_index) in sort_indices:
+                raise ValueError(f"Invalid or duplicate sort index for {catalogue} {designation}.")
+            sort_indices.add((catalogue.casefold(), sort_index))
+
+        primary_value = row["is_primary"].strip().casefold()
+        if primary_value not in {"0", "1", "false", "true", "no", "yes"}:
+            raise ValueError(f"Invalid primary flag for {catalogue} {designation}.")
+        if primary_value in {"1", "true", "yes"}:
+            primary_counts[normalized_object_id] += 1
+
+    for normalized_id, object_id in object_ids.items():
+        if designation_counts[normalized_id] == 0:
+            raise ValueError(f"Catalogue object {object_id} has no designation.")
+        if primary_counts[normalized_id] != 1:
+            raise ValueError(f"Catalogue object {object_id} must have one primary designation.")
 
 
 def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path | None = None) -> None:

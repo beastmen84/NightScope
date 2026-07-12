@@ -8,6 +8,10 @@ def test_catalogue_object_types_have_italian_display_labels() -> None:
     assert catalogue_object_type_label("Open cluster") == "Ammasso aperto"
     assert catalogue_object_type_label("Dwarf elliptical galaxy") == "Galassia ellittica nana"
     assert catalogue_object_type_label("H II region nebula with cluster") == "Nebulosa H II con ammasso"
+    assert catalogue_object_type_label("Dark nebula") == "Nebulosa oscura"
+    assert catalogue_object_type_label("Irregular galaxy") == "Galassia irregolare"
+    assert catalogue_object_type_label("Peculiar galaxy") == "Galassia peculiare"
+    assert catalogue_object_type_label("Seyfert galaxy") == "Galassia di Seyfert"
 
 
 def test_catalogue_observation_types_have_italian_display_labels() -> None:

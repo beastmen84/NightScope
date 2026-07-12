@@ -3413,7 +3413,10 @@ class AppController(QObject):
         if not image and catalogue_item and not self._is_solar_system_catalogue_item(catalogue_item):
             if "galaxy" in item.object_type.lower() or "galassia" in item.object_type.lower():
                 image = self._object_image_map.get("messier-default-galaxy")
-            elif "nebula" in item.object_type.lower() or "nebul" in item.object_type.lower():
+            elif any(
+                fragment in item.object_type.lower()
+                for fragment in ("nebula", "nebul", "remnant")
+            ):
                 image = self._object_image_map.get("messier-default-nebula")
             else:
                 image = self._object_image_map.get("messier-default-cluster")
@@ -3696,7 +3699,33 @@ class AppController(QObject):
         visible_objects = [self._catalogue_item_with_visibility(item, visibility, observability) for item in objects]
         if self._catalogue_visible_this_month_only:
             visible_objects = [item for item in visible_objects if item["visible_this_month"]]
+        if query:
+            return sorted(
+                visible_objects,
+                key=lambda item: self._catalogue_search_sort_key(item, query),
+            )
         return sorted(visible_objects, key=self._catalogue_sort_key)
+
+    @classmethod
+    def _catalogue_search_sort_key(cls, item: dict, query: str) -> tuple[int, str, int, str]:
+        candidates = [
+            str(item.get("catalogue_id") or ""),
+            str(item.get("name") or ""),
+            str(item.get("object_id") or ""),
+            *(
+                str(designation.get("designation") or "")
+                for designation in item.get("designations", [])
+            ),
+        ]
+        normalized = [candidate.casefold() for candidate in candidates if candidate]
+        if query in normalized:
+            match_rank = 0
+        elif any(candidate.startswith(query) for candidate in normalized):
+            match_rank = 1
+        else:
+            match_rank = 2
+        catalogue, numeric_id, catalogue_id = cls._catalogue_sort_key(item)
+        return match_rank, catalogue, numeric_id, catalogue_id
 
     @staticmethod
     def _catalogue_item_for_catalogue(item: dict, catalogue: str) -> dict | None:
