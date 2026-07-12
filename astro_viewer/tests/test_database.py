@@ -1014,6 +1014,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertIn("catalogue_objects_seed.csv", spec)
         self.assertIn("catalogue_designations_seed.csv", spec)
         self.assertIn("binocular_catalog_seed.csv", spec)
+        self.assertIn("filter_catalog_seed.csv", spec)
+        self.assertIn("reducer_catalog_seed.csv", spec)
 
     def test_runtime_database_path_is_portable_and_copies_legacy_database(self) -> None:
         from astro_viewer import main as main_module
