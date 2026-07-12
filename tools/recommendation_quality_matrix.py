@@ -16,7 +16,8 @@ from astro_viewer.app.models.observing import CelestialObject  # noqa: E402
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality  # noqa: E402
 from astro_viewer.app.services.equipment_service import EquipmentService  # noqa: E402
 
-MESSIER_PATH = ROOT / "astro_viewer" / "data" / "messier_seed.csv"
+CATALOGUE_OBJECTS_PATH = ROOT / "astro_viewer" / "data" / "catalogue_objects_seed.csv"
+CATALOGUE_DESIGNATIONS_PATH = ROOT / "astro_viewer" / "data" / "catalogue_designations_seed.csv"
 REPORT_PATH = ROOT / "docs" / "recommendation_engine_quality_matrix.md"
 CSV_PATH = ROOT / "docs" / "recommendation_engine_quality_matrix_results.csv"
 
@@ -398,8 +399,21 @@ def _planet(object_id: str, name: str, magnitude: str, altitude: str) -> Target:
 
 
 def _messier_rows() -> dict[str, dict[str, str]]:
-    with MESSIER_PATH.open(encoding="utf-8", newline="") as handle:
-        return {row["messier_id"]: row for row in csv.DictReader(handle)}
+    with CATALOGUE_OBJECTS_PATH.open(encoding="utf-8", newline="") as handle:
+        objects = {row["object_id"]: row for row in csv.DictReader(handle)}
+
+    rows: dict[str, dict[str, str]] = {}
+    with CATALOGUE_DESIGNATIONS_PATH.open(encoding="utf-8", newline="") as handle:
+        for designation in csv.DictReader(handle):
+            if designation["catalogue"] != "Messier":
+                continue
+            physical_object = objects.get(designation["object_id"])
+            if physical_object is None:
+                continue
+            row = dict(physical_object)
+            row["messier_id"] = designation["designation"]
+            rows[designation["designation"]] = row
+    return rows
 
 
 def _messier_object(row: dict[str, str]) -> CelestialObject:
