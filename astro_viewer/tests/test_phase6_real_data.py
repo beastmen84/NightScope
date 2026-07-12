@@ -433,6 +433,22 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertGreaterEqual(events["weather"], 1)
             self.assertGreaterEqual(events["selected"], 1)
 
+    def test_duplicate_profile_messages_are_localized(self) -> None:
+        with _controller() as controller:
+            existing_name = controller.equipmentProfiles[0]["profile_name"]
+
+            controller.addEquipmentProfile(existing_name.upper())
+            self.assertEqual(controller.equipmentMessage, "Questo profilo esiste già.")
+
+            controller.addEquipmentProfile("Profilo secondario")
+            secondary = next(
+                item
+                for item in controller.equipmentProfiles
+                if item["profile_name"] == "Profilo secondario"
+            )
+            controller.renameEquipmentProfile(int(secondary["id"]), existing_name)
+            self.assertEqual(controller.equipmentMessage, "Questo profilo esiste già.")
+
     def test_calendar_opposition_setup_uses_active_profile(self) -> None:
         with _controller() as controller:
             telescope = controller.telescopeCatalogModels[0]

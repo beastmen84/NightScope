@@ -1351,7 +1351,10 @@ class AppController(QObject):
         report = self._location_service.windows_location_diagnostics()
         self._windows_location_diagnostics = report
         logger.info("Windows location diagnostics exposed to UI: %s", report.get("providerStatus", "n/d"))
-        self._location_message = "Windows location diagnostics completed. Review the report below and nightscope.log."
+        self._location_message = (
+            "Diagnostica posizione Windows completata. "
+            "Consulta il report qui sotto e nightscope.log."
+        )
         self.locationChanged.emit()
 
     @Slot(int)
@@ -1368,7 +1371,7 @@ class AppController(QObject):
             self.equipmentChanged.emit()
             return
         if any(profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
-            self._equipment_message = "This profile already exists."
+            self._equipment_message = "Questo profilo esiste già."
             self.equipmentChanged.emit()
             return
         self._equipment_catalog_repository.add_profile(clean_name, self._equipment_service.NAKED_EYE_ID, active=False)
@@ -1385,7 +1388,7 @@ class AppController(QObject):
             self.equipmentChanged.emit()
             return
         if any(int(profile["id"]) != profile_id and profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
-            self._equipment_message = "This profile already exists."
+            self._equipment_message = "Questo profilo esiste già."
             self.equipmentChanged.emit()
             return
         was_active = any(
