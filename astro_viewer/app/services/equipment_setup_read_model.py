@@ -12,6 +12,7 @@ from astro_viewer.app.models.observing import CelestialObject
 class EquipmentSetupOptionReadModel:
     """Internal immutable projection of one setup option payload row."""
 
+    role_code: str
     role: str
     label: str
     detail_label: str
@@ -20,6 +21,7 @@ class EquipmentSetupOptionReadModel:
     magnification: str
     true_field: str
     exit_pupil: str
+    exit_pupil_available: bool
     barlow: str
     score: int | float | None
     telescope_name: str
@@ -28,6 +30,7 @@ class EquipmentSetupOptionReadModel:
     @classmethod
     def from_payload(cls, payload: Mapping[str, object]) -> EquipmentSetupOptionReadModel:
         return cls(
+            role_code=_text(payload, "roleCode"),
             role=_text(payload, "role"),
             label=_text(payload, "label"),
             detail_label=_text(payload, "detailLabel"),
@@ -36,6 +39,7 @@ class EquipmentSetupOptionReadModel:
             magnification=_text(payload, "magnification"),
             true_field=_text(payload, "trueField"),
             exit_pupil=_text(payload, "exitPupil"),
+            exit_pupil_available=bool(payload.get("exitPupilAvailable", False)),
             barlow=_text(payload, "barlow"),
             score=_finite_number(payload.get("score")),
             telescope_name=_text(payload, "telescopeName"),
@@ -44,6 +48,7 @@ class EquipmentSetupOptionReadModel:
 
     def to_payload(self) -> dict[str, object]:
         return {
+            "roleCode": self.role_code,
             "role": self.role,
             "label": self.label,
             "detailLabel": self.detail_label,
@@ -52,6 +57,7 @@ class EquipmentSetupOptionReadModel:
             "magnification": self.magnification,
             "trueField": self.true_field,
             "exitPupil": self.exit_pupil,
+            "exitPupilAvailable": self.exit_pupil_available,
             "barlow": self.barlow,
             "score": self.score,
             "telescopeName": self.telescope_name,
@@ -80,6 +86,8 @@ class EquipmentSetupReadModel:
     telescope_name: str
     equipment_type: str
     setup_type: str
+    recommendation_state: str
+    requires_optical_instrument: bool
     selection_score: int | float | None
     presenter_policy: str = "preserve_equipment_service_payload"
     nsom_policy: str = "observer_capability_reference_only"
@@ -94,17 +102,13 @@ class EquipmentSetupReadModel:
         if self.equipment_type == "Telescope":
             return "telescope"
         for option in self.setup_options:
-            if option.role != "Consigliato":
+            if option.role_code != "recommended":
                 continue
             if option.equipment_type == "Binocular":
                 return "binocular"
             if option.equipment_type == "Telescope":
                 return "telescope"
         return ""
-
-    @property
-    def requires_optical_instrument(self) -> bool:
-        return self.setup_text.startswith("Serve almeno")
 
     def setup_options_payload(self) -> list[dict[str, object]]:
         return [option.to_payload() for option in self.setup_options]
@@ -125,6 +129,8 @@ class EquipmentSetupReadModel:
             "telescopeName": self.telescope_name,
             "equipmentType": self.equipment_type,
             "setupType": self.setup_type,
+            "recommendationState": self.recommendation_state,
+            "requiresOpticalInstrument": self.requires_optical_instrument,
             "selectionScore": self.selection_score,
         }
         return {key: values[key] for key in self.payload_keys if key in values}
@@ -173,6 +179,10 @@ class EquipmentSetupReadModelBuilder:
             telescope_name=_text(suggestion, "telescopeName"),
             equipment_type=_text(suggestion, "equipmentType"),
             setup_type=_text(suggestion, "setupType"),
+            recommendation_state=_text(suggestion, "recommendationState"),
+            requires_optical_instrument=bool(
+                suggestion.get("requiresOpticalInstrument", False)
+            ),
             selection_score=_finite_number(suggestion.get("selectionScore")),
         )
 
@@ -187,7 +197,7 @@ def _text(payload: Mapping[str, object], key: str) -> str:
     value = payload.get(key, "")
     if value is None:
         return ""
-    return str(value)
+    return value if isinstance(value, str) else str(value)
 
 
 def _finite_number(value: object) -> int | float | None:

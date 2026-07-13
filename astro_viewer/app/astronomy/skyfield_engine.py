@@ -22,6 +22,13 @@ from astro_viewer.app.models.observing import (
     MoonSummary,
 )
 from astro_viewer.app.models.target_observation_traits import is_supernova_remnant_type
+from astro_viewer.app.services.localization import (
+    content_text,
+    format_datetime,
+    format_number,
+    tr,
+)
+from astro_viewer.app.services.catalogue_presentation import catalogue_display_name
 
 
 logger = logging.getLogger(__name__)
@@ -51,9 +58,9 @@ class SolarSystemBodyConfig:
 
 def _italian_lunar_eclipse_kind(kind_name: str) -> str:
     return {
-        "total": "totale",
-        "partial": "parziale",
-        "penumbral": "penombrale",
+        "total": tr("totale"),
+        "partial": tr("parziale"),
+        "penumbral": tr("penombrale"),
     }.get(kind_name.strip().lower(), kind_name.strip().lower())
 
 
@@ -62,54 +69,54 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     BODY_CONFIGS = [
         SolarSystemBodyConfig(
-            "sun", "Sole", "sun", "Stella", "resources/images/solar_system/sun.jpg"
+            "sun", tr("Sole"), "sun", tr("Stella"), "resources/images/solar_system/sun.jpg"
         ),
         SolarSystemBodyConfig(
             "moon",
-            "Luna",
+            tr("Luna"),
             "moon",
-            "Satellite naturale",
+            tr("Satellite naturale"),
             "resources/images/solar_system/moon.jpg",
         ),
         SolarSystemBodyConfig(
             "mercury",
-            "Mercurio",
+            tr("Mercurio"),
             "mercury",
-            "Pianeta",
+            tr("Pianeta"),
             "resources/images/solar_system/mercury.jpg",
         ),
         SolarSystemBodyConfig(
-            "venus", "Venere", "venus", "Pianeta", "resources/images/solar_system/venus.jpg"
+            "venus", tr("Venere"), "venus", tr("Pianeta"), "resources/images/solar_system/venus.jpg"
         ),
         SolarSystemBodyConfig(
-            "mars", "Marte", "mars", "Pianeta", "resources/images/solar_system/mars.jpg"
+            "mars", tr("Marte"), "mars", tr("Pianeta"), "resources/images/solar_system/mars.jpg"
         ),
         SolarSystemBodyConfig(
             "jupiter",
-            "Giove",
+            tr("Giove"),
             "jupiter barycenter",
-            "Pianeta",
+            tr("Pianeta"),
             "resources/images/solar_system/jupiter.jpg",
         ),
         SolarSystemBodyConfig(
             "saturn",
-            "Saturno",
+            tr("Saturno"),
             "saturn barycenter",
-            "Pianeta",
+            tr("Pianeta"),
             "resources/images/solar_system/saturn.jpg",
         ),
         SolarSystemBodyConfig(
             "uranus",
-            "Urano",
+            tr("Urano"),
             "uranus barycenter",
-            "Pianeta",
+            tr("Pianeta"),
             "resources/images/solar_system/uranus.jpg",
         ),
         SolarSystemBodyConfig(
             "neptune",
-            "Nettuno",
+            tr("Nettuno"),
             "neptune barycenter",
-            "Pianeta",
+            tr("Pianeta"),
             "resources/images/solar_system/neptune.jpg",
         ),
     ]
@@ -147,7 +154,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             except Exception as retry_exc:
                 logger.error("Skyfield ephemeris recovery failed.", exc_info=True)
                 raise EphemerisUnavailableError(
-                    "Effemeridi astronomiche non disponibili. Controlla la connessione o ripristina de421.bsp."
+                    tr(
+                        "Effemeridi astronomiche non disponibili. Controlla la connessione o ripristina de421.bsp."
+                    )
                 ) from retry_exc
 
     def solar_system_objects(self, location: ObserverLocation) -> list[CelestialObject]:
@@ -332,9 +341,18 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 replace(
                     item,
                     direction=self._azimuth_direction(azimuth_degrees),
-                    azimuth=f"{azimuth_degrees:.0f} gradi",
-                    current_altitude=f"{altitude_degrees:.1f} gradi",
-                    current_azimuth=f"{azimuth_degrees:.1f} gradi",
+                    azimuth=tr(
+                        "{value} gradi",
+                        value=format_number(azimuth_degrees),
+                    ),
+                    current_altitude=tr(
+                        "{value} gradi",
+                        value=format_number(altitude_degrees, decimals=1),
+                    ),
+                    current_azimuth=tr(
+                        "{value} gradi",
+                        value=format_number(azimuth_degrees, decimals=1),
+                    ),
                     observable_now=observable_now,
                     current_altitude_degrees=altitude_degrees,
                     current_azimuth_degrees=azimuth_degrees,
@@ -457,9 +475,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         moon_details = self._body_details(
             SolarSystemBodyConfig(
                 "moon",
-                "Luna",
+                tr("Luna"),
                 "moon",
-                "Satellite naturale",
+                tr("Satellite naturale"),
                 "resources/images/solar_system/moon.jpg",
             ),
             location,
@@ -468,7 +486,10 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         )
         return MoonSummary(
             phase=self._moon_phase_name(phase_angle),
-            illumination=f"{illumination * 100:.0f}%",
+            illumination=tr(
+                "{value}%",
+                value=format_number(illumination * 100),
+            ),
             rise_time=moon_details.rise_time,
             set_time=moon_details.set_time,
             best_note=self._moon_observing_note(illumination),
@@ -618,11 +639,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     date_label=self._format_date(local_dt),
                     best_time=self._format_dt(local_dt),
                     usefulness=usefulness,
-                    setup="Qualsiasi setup",
-                    note="Evento calcolato con Skyfield.",
+                    setup=tr("Qualsiasi setup"),
+                    note=tr("Evento calcolato con Skyfield."),
                     event_at=local_dt.isoformat(),
                     timing_kind="phase",
-                    timing_label="Istante della fase",
+                    timing_label=tr("Istante della fase"),
                     observing_window=observing_window,
                     visibility_state=visibility_state,
                     visibility_label=visibility_label,
@@ -644,26 +665,33 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     visibility_state, visibility_label, visibility_detail, observing_window = (
                         self._calendar_planet_visibility(location, config, local_dt)
                     )
-                    title = f"{config.name} in opposizione"
+                    title = tr("{name} in opposizione", name=config.name)
                     event_type = "Opposizione"
                     usefulness = 92
-                    setup = "Telescopio medio"
-                    timing_label = "Istante dell'opposizione"
-                    note = "Opposizione calcolata dalla longitudine eclittica relativa al Sole."
+                    setup = tr("Telescopio medio")
+                    timing_label = tr("Istante dell'opposizione")
+                    note = tr(
+                        "Opposizione calcolata dalla longitudine eclittica relativa al Sole."
+                    )
                 else:
                     visibility_state = "not_visible"
-                    visibility_label = "Non osservabile"
-                    visibility_detail = (
+                    visibility_label = tr("Non osservabile")
+                    visibility_detail = tr(
                         "Il pianeta appare vicino al Sole e non costituisce "
                         "un target visuale sicuro."
                     )
                     observing_window = ""
-                    title = f"{config.name} in congiunzione con il Sole"
+                    title = tr(
+                        "{name} in congiunzione con il Sole",
+                        name=config.name,
+                    )
                     event_type = "Congiunzione solare"
                     usefulness = 20
-                    setup = "Nessuna configurazione osservativa"
-                    timing_label = "Istante della congiunzione solare"
-                    note = "Congiunzione solare calcolata dalla longitudine eclittica relativa al Sole."
+                    setup = tr("Nessuna configurazione osservativa")
+                    timing_label = tr("Istante della congiunzione solare")
+                    note = tr(
+                        "Congiunzione solare calcolata dalla longitudine eclittica relativa al Sole."
+                    )
                 events.append(
                     AstronomicalEvent(
                         id=f"{config.object_id}-{'opposition' if is_opposition else 'solar-conjunction'}-{event_time.tt}",
@@ -703,18 +731,18 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             events.append(
                 AstronomicalEvent(
                     id=f"lunar-eclipse-{eclipse_time.tt}",
-                    title=f"Eclissi lunare {eclipse_label}",
+                    title=tr("Eclissi lunare {kind}", kind=eclipse_label),
                     event_type="Eclissi",
                     date_label=self._format_date(local_dt),
                     best_time=self._format_dt(local_dt),
                     usefulness=86 if int(eclipse_kind) >= 1 else 62,
-                    setup="Occhio nudo o teleobiettivo",
-                    note="Massimo dell'eclissi calcolato con Skyfield.",
+                    setup=tr("Occhio nudo o teleobiettivo"),
+                    note=tr("Massimo dell'eclissi calcolato con Skyfield."),
                     event_at=local_dt.isoformat(),
                     timing_kind="instant",
-                    timing_label="Massimo dell'eclissi",
+                    timing_label=tr("Massimo dell'eclissi"),
                     observing_window=(
-                        f"Intorno alle {self._format_dt(local_dt)}"
+                        tr("Intorno alle {time}", time=self._format_dt(local_dt))
                         if visibility_state == "visible"
                         else ""
                     ),
@@ -783,18 +811,23 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                             f"planetary-conjunction-{first.object_id}-{second.object_id}-"
                             f"{conjunction_time.tt}"
                         ),
-                        title=f"{first.name} e {second.name} in congiunzione",
+                        title=tr(
+                            "{first} e {second} in congiunzione",
+                            first=first.name,
+                            second=second.name,
+                        ),
                         event_type="Congiunzione planetaria",
                         date_label=self._format_date(local_dt),
                         best_time=self._format_dt(local_dt),
                         usefulness=self._planetary_conjunction_usefulness(separation_deg),
                         setup=self._planetary_conjunction_setup(first, second),
-                        note=(
-                            f"Separazione minima {separation_label} calcolata con Skyfield."
+                        note=tr(
+                            "Separazione minima {separation} calcolata con Skyfield.",
+                            separation=separation_label,
                         ),
                         event_at=local_dt.isoformat(),
                         timing_kind="instant",
-                        timing_label="Massimo avvicinamento",
+                        timing_label=tr("Massimo avvicinamento"),
                         observing_window=observing_window,
                         visibility_state=visibility_state,
                         visibility_label=visibility_label,
@@ -857,9 +890,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if not candidates:
             return (
                 "not_visible",
-                "Non visibili nella notte",
-                "Nelle notti vicine almeno uno dei due pianeti resta sotto la soglia "
-                f"locale di 8 gradi; separazione minima {separation_label}.",
+                tr("Non visibili nella notte"),
+                tr(
+                    "Nelle notti vicine almeno uno dei due pianeti resta sotto la soglia "
+                    "locale di 8 gradi; separazione minima {separation}.",
+                    separation=separation_label,
+                ),
                 "",
             )
 
@@ -870,17 +906,25 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         is_brief = duration_seconds < PLANETARY_CONJUNCTION_BRIEF_WINDOW_MINUTES * 60
         if is_brief:
             midpoint = window_start + (window_end - window_start) / 2
-            observing_window = f"Intorno alle {self._format_dt(midpoint)}"
+            observing_window = tr(
+                "Intorno alle {time}",
+                time=self._format_dt(midpoint),
+            )
         else:
             observing_window = (
                 f"{self._format_dt(window_start)} - {self._format_dt(window_end)}"
             )
         return (
             "check" if is_brief else "visible",
-            "Finestra breve" if is_brief else "Visibili nella notte",
-            f"Entrambi superano 8 gradi nella finestra locale {observing_window}; "
-            f"altezza comune massima {peak_altitude:.0f} gradi e separazione minima "
-            f"{separation_label}.",
+            tr("Finestra breve") if is_brief else tr("Visibili nella notte"),
+            tr(
+                "Entrambi superano 8 gradi nella finestra locale {window}; "
+                "altezza comune massima {altitude} gradi e separazione minima "
+                "{separation}.",
+                window=observing_window,
+                altitude=format_number(peak_altitude),
+                separation=separation_label,
+            ),
             observing_window,
         )
 
@@ -952,15 +996,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> str:
         participants = {first.object_id, second.object_id}
         if "neptune" in participants:
-            return "Telescopio a campo largo; usa il pianeta più luminoso come riferimento"
+            return tr("Telescopio a campo largo; usa il pianeta più luminoso come riferimento")
         if "uranus" in participants:
-            return "Binocolo stabile o telescopio a campo largo"
-        return "Occhio nudo o binocolo a campo largo"
+            return tr("Binocolo stabile o telescopio a campo largo")
+        return tr("Occhio nudo o binocolo a campo largo")
 
     @staticmethod
     def _format_angular_separation(value: float) -> str:
         precision = 2 if value < 1.0 else 1
-        return f"{value:.{precision}f}".replace(".", ",") + " gradi"
+        return tr("{value} gradi", value=format_number(value, decimals=precision))
 
     def _calendar_phase_visibility(
         self,
@@ -969,12 +1013,12 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         phase_index: int,
     ) -> tuple[str, str, str, str]:
         date_label = self._format_date(local_dt)
-        observing_window = f"Notte vicina al {date_label}"
+        observing_window = tr("Notte vicina al {date}", date=date_label)
         if phase_index == 0:
             return (
                 "favorable",
-                "Cielo profondo favorito",
-                "La Luna nuova riduce il fondo cielo nella notte vicina alla fase.",
+                tr("Cielo profondo favorito"),
+                tr("La Luna nuova riduce il fondo cielo nella notte vicina alla fase."),
                 observing_window,
             )
 
@@ -984,11 +1028,14 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             local_dt,
         )
         if state == "visible":
-            return "visible", "Visibile all'istante", detail, observing_window
+            return "visible", tr("Visibile all'istante"), detail, observing_window
         return (
             "nearby_night",
-            "Osservabile nella notte",
-            f"L'istante esatto non coincide con una visibilità locale favorevole. {detail}",
+            tr("Osservabile nella notte"),
+            tr(
+                "L'istante esatto non coincide con una visibilità locale favorevole. {detail}",
+                detail=detail,
+            ),
             observing_window,
         )
 
@@ -1009,14 +1056,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if " - " in observing_window and not observing_window.startswith("Non"):
             return (
                 "visible",
-                "Visibile nella notte",
-                f"Finestra locale {observing_window}; altezza massima {target.max_altitude}.",
+                tr("Visibile nella notte"),
+                tr(
+                    "Finestra locale {window}; altezza massima {altitude}.",
+                    window=observing_window,
+                    altitude=target.max_altitude,
+                ),
                 observing_window,
             )
         return (
             "not_visible",
-            "Non visibile nella notte",
-            f"Non supera la soglia utile locale di 8 gradi nella notte dell'evento; altezza massima {target.max_altitude}.",
+            tr("Non visibile nella notte"),
+            tr(
+                "Non supera la soglia utile locale di 8 gradi nella notte dell'evento; "
+                "altezza massima {altitude}.",
+                altitude=target.max_altitude,
+            ),
             "",
         )
 
@@ -1031,11 +1086,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             local_dt,
         )
         labels = {
-            "visible": "Visibile localmente",
-            "daylight": "Massimo in luce diurna",
-            "below_horizon": "Massimo sotto l'orizzonte",
+            "visible": tr("Visibile localmente"),
+            "daylight": tr("Massimo in luce diurna"),
+            "below_horizon": tr("Massimo sotto l'orizzonte"),
         }
-        return state, labels.get(state, "Da verificare"), detail
+        return state, labels.get(state, tr("Da verificare")), detail
 
     def _calendar_instant_visibility(
         self,
@@ -1052,19 +1107,28 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         if body_degrees >= 0.0 and sun_degrees < 0.0:
             return (
                 "visible",
-                "Visibile",
-                f"Altezza locale {body_degrees:.0f} gradi con Sole sotto l'orizzonte.",
+                tr("Visibile"),
+                tr(
+                    "Altezza locale {altitude} gradi con Sole sotto l'orizzonte.",
+                    altitude=format_number(body_degrees),
+                ),
             )
         if body_degrees >= 0.0:
             return (
                 "daylight",
-                "Luce diurna",
-                f"Altezza locale {body_degrees:.0f} gradi, ma il Sole è sopra l'orizzonte.",
+                tr("Luce diurna"),
+                tr(
+                    "Altezza locale {altitude} gradi, ma il Sole è sopra l'orizzonte.",
+                    altitude=format_number(body_degrees),
+                ),
             )
         return (
             "below_horizon",
-            "Sotto l'orizzonte",
-            f"Altezza locale {body_degrees:.0f} gradi all'istante dell'evento.",
+            tr("Sotto l'orizzonte"),
+            tr(
+                "Altezza locale {altitude} gradi all'istante dell'evento.",
+                altitude=format_number(body_degrees),
+            ),
         )
 
     def _body_details(
@@ -1105,28 +1169,32 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             image=config.image,
             magnitude=self._format_magnitude(magnitude),
             distance=self._format_distance(distance.au, config.object_id),
-            max_altitude=f"{max_altitude:.0f} gradi",
+            max_altitude=self._degrees_label(max_altitude),
             direction=self._azimuth_direction(azimuth.degrees),
             best_time=self._format_dt(best_dt) if best_dt else culmination,
             observing_window=observing_window,
             notes=self._body_note(config.object_id, max_altitude),
             recommended_setup=self._default_setup(config.object_id),
             visibility_class=self._visibility_class(magnitude, config.object_id),
-            azimuth=f"{azimuth.degrees:.0f} gradi",
+            azimuth=self._degrees_label(float(azimuth.degrees)),
             time_above_horizon=self._window_duration(observing_window),
             visible=visible,
             rise_time=rise_time,
             set_time=set_time,
             culmination_time=culmination,
-            current_altitude=f"{altitude.degrees:.1f} gradi",
-            current_azimuth=f"{azimuth.degrees:.1f} gradi",
+            current_altitude=self._degrees_label(float(altitude.degrees), decimals=1),
+            current_azimuth=self._degrees_label(float(azimuth.degrees), decimals=1),
             observable_now=observable_now,
             current_altitude_degrees=float(altitude.degrees),
             current_azimuth_degrees=float(azimuth.degrees),
             score=score,
             intrinsic_score=intrinsic_score,
             score_label=self._score_label(score),
-            score_explanation=f"Altezza massima {max_altitude:.0f} gradi e magnitudine {self._format_magnitude(magnitude)}.",
+            score_explanation=tr(
+                "Altezza massima {altitude} e magnitudine {magnitude}.",
+                altitude=self._degrees_label(max_altitude),
+                magnitude=self._format_magnitude(magnitude),
+            ),
         )
 
     def _catalogue_details(
@@ -1171,44 +1239,66 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         intrinsic_score = self._intrinsic_object_score(magnitude, row["object_type"])
         setup = self._deep_sky_setup(row["object_type"], magnitude)
 
-        designation = str(row.get("primary_designation") or row["object_id"])
-        name = str(row.get("name") or "")
-        display_name = f"{designation} {name}" if name and name.casefold() != designation.casefold() else designation
+        object_id = str(row["object_id"])
+        designation = str(row.get("primary_designation") or object_id)
+        name = content_text(
+            "catalogue_objects",
+            object_id,
+            "name",
+            row.get("name") or "",
+        )
+        display_name = catalogue_display_name(designation, name)
         catalogues = [str(value) for value in row.get("catalogues", []) if str(value).strip()]
         if len(catalogues) > 1:
-            catalogue_label = f"Cataloghi {', '.join(catalogues)}"
+            catalogue_label = tr(
+                "Cataloghi {catalogues}",
+                catalogues=", ".join(catalogues),
+            )
         else:
             catalogue = catalogues[0] if catalogues else str(row.get("primary_catalogue") or "")
-            catalogue_label = f"Catalogo {catalogue}" if catalogue else "Catalogo oggetti celesti"
+            catalogue_label = (
+                tr("Catalogo {catalogue}", catalogue=catalogue)
+                if catalogue
+                else tr("Catalogo oggetti celesti")
+            )
         return CelestialObject(
-            id=row["object_id"],
+            id=object_id,
             name=display_name,
             object_type=row["object_type"],
             image=self._catalogue_image(row["object_id"], designation, row["object_type"]),
             magnitude=self._format_magnitude(magnitude),
             distance=catalogue_label,
-            max_altitude=f"{max_altitude:.0f} gradi",
+            max_altitude=self._degrees_label(max_altitude),
             direction=self._azimuth_direction(azimuth.degrees),
-            best_time=self._format_dt(best_dt) if best_dt else "n/d",
+            best_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
             observing_window=observing_window,
-            notes=row["description"],
+            notes=content_text(
+                "catalogue_objects",
+                object_id,
+                "description",
+                row["description"],
+            ),
             recommended_setup=setup,
             visibility_class=self._deep_sky_visibility_class(magnitude),
-            azimuth=f"{azimuth.degrees:.0f} gradi",
+            azimuth=self._degrees_label(float(azimuth.degrees)),
             time_above_horizon=self._window_duration(observing_window),
             visible=visible,
-            rise_time="calcolato da finestra",
-            set_time="calcolato da finestra",
-            culmination_time=self._format_dt(best_dt) if best_dt else "n/d",
-            current_altitude=f"{altitude.degrees:.1f} gradi",
-            current_azimuth=f"{azimuth.degrees:.1f} gradi",
+            rise_time=tr("calcolato da finestra"),
+            set_time=tr("calcolato da finestra"),
+            culmination_time=self._format_dt(best_dt) if best_dt else tr("n/d"),
+            current_altitude=self._degrees_label(float(altitude.degrees), decimals=1),
+            current_azimuth=self._degrees_label(float(azimuth.degrees), decimals=1),
             observable_now=observable_now,
             current_altitude_degrees=float(altitude.degrees),
             current_azimuth_degrees=float(azimuth.degrees),
             score=score,
             intrinsic_score=intrinsic_score,
             score_label=self._score_label(score),
-            score_explanation=f"Massima altezza {max_altitude:.0f} gradi; magnitudine {self._format_magnitude(magnitude)}.",
+            score_explanation=tr(
+                "Massima altezza {altitude}; magnitudine {magnitude}.",
+                altitude=self._degrees_label(max_altitude),
+                magnitude=self._format_magnitude(magnitude),
+            ),
             apparent_size=row.get("apparent_size") or "",
             max_angular_size_deg=row.get("max_angular_size_deg"),
             recommended_observation_type=row.get("recommended_observation_type") or "",
@@ -1386,13 +1476,13 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     def _sample_summary(self, samples: list[tuple[datetime, float]], threshold: float) -> tuple[float, datetime | None, str]:
         if not samples:
-            return 0.0, None, "n/d"
+            return 0.0, None, tr("n/d")
 
         ordered = sorted(samples, key=lambda item: item[0])
         usable_samples = ordered[:-1] if len(ordered) > 1 else ordered
         best_dt, max_altitude = max(usable_samples, key=lambda item: item[1])
         if max_altitude < threshold:
-            return max_altitude, best_dt, "Non sopra la soglia osservativa"
+            return max_altitude, best_dt, tr("Non sopra la soglia osservativa")
 
         best_index = ordered.index((best_dt, max_altitude))
         first_index = best_index
@@ -1419,7 +1509,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             )
 
         if end_dt <= start_dt:
-            return max_altitude, best_dt, "Non sopra la soglia osservativa"
+            return max_altitude, best_dt, tr("Non sopra la soglia osservativa")
         return max_altitude, best_dt, self._sampled_window_label(start_dt, end_dt)
 
     @staticmethod
@@ -1461,9 +1551,9 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 return self._format_dt(rise_dt), self._format_dt(transit_dt), self._format_dt(setting_dt)
 
         return (
-            self._format_dt(rises[0]) if rises else "n/d",
-            self._format_dt(transits[0]) if transits else "n/d",
-            self._format_dt(settings[0]) if settings else "n/d",
+            self._format_dt(rises[0]) if rises else tr("n/d"),
+            self._format_dt(transits[0]) if transits else tr("n/d"),
+            self._format_dt(settings[0]) if settings else tr("n/d"),
         )
 
     def _event_datetimes(self, function, observer, body, start: datetime, end: datetime, zone: ZoneInfo) -> list[datetime]:
@@ -1491,15 +1581,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         for event_time, is_valid in zip(times, flags):
             if bool(is_valid):
                 return self._format_dt(event_time.utc_datetime().astimezone(zone))
-        return "n/d"
+        return tr("n/d")
 
     def _first_transit(self, observer, body, start: datetime, end: datetime, zone: ZoneInfo) -> str:
         try:
             times = almanac.find_transits(observer, body, self._to_skyfield_time(start), self._to_skyfield_time(end))
         except Exception:
-            return "n/d"
+            return tr("n/d")
         if len(times) == 0:
-            return "n/d"
+            return tr("n/d")
         return self._format_dt(times[0].utc_datetime().astimezone(zone))
 
     def _magnitude(self, astrometric, object_id: str) -> float | None:
@@ -1545,14 +1635,14 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     @staticmethod
     def _score_label(score: int) -> str:
         if score <= 25:
-            return "Pessima"
+            return tr("Pessima")
         if score <= 50:
-            return "Scarsa"
+            return tr("Scarsa")
         if score <= 70:
-            return "Discreta"
+            return tr("Discreta")
         if score <= 85:
-            return "Buona"
-        return "Ottima"
+            return tr("Buona")
+        return tr("Ottima")
 
     @staticmethod
     def _format_dt(value: datetime) -> str:
@@ -1560,37 +1650,53 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     @staticmethod
     def _format_date(value: datetime) -> str:
-        return value.strftime("%d/%m/%Y")
+        return format_datetime(value, include_time=False)
 
     @staticmethod
     def _format_magnitude(value: float | None) -> str:
-        return "n/d" if value is None else f"{value:.1f}"
+        return tr("n/d") if value is None else format_number(value, decimals=1)
 
     @staticmethod
     def _format_distance(au: float, object_id: str) -> str:
         kilometers = au * 149_597_870.7
         if object_id == "moon":
-            return f"{kilometers:,.0f} km".replace(",", ".")
+            return tr("{value} km", value=format_number(kilometers))
         if au < 0.1:
-            return f"{kilometers:,.0f} km".replace(",", ".")
-        return f"{au:.2f} UA"
+            return tr("{value} km", value=format_number(kilometers))
+        return tr("{value} UA", value=format_number(au, decimals=2))
+
+    @staticmethod
+    def _degrees_label(value: float, *, decimals: int = 0) -> str:
+        return tr(
+            "{value} gradi",
+            value=format_number(value, decimals=decimals),
+        )
 
     @staticmethod
     def _azimuth_direction(azimuth_degrees: float) -> str:
-        directions = ["Nord", "Nord-est", "Est", "Sud-est", "Sud", "Sud-ovest", "Ovest", "Nord-ovest"]
+        directions = [
+            tr("Nord"),
+            tr("Nord-Est"),
+            tr("Est"),
+            tr("Sud-Est"),
+            tr("Sud"),
+            tr("Sud-Ovest"),
+            tr("Ovest"),
+            tr("Nord-Ovest"),
+        ]
         index = round((azimuth_degrees % 360) / 45) % 8
         return directions[index]
 
     @staticmethod
     def _window_duration(window: str) -> str:
         if " - " not in window or window.startswith("Non"):
-            return "0 h"
+            return tr("0 h")
         start_text, end_text = [part.strip() for part in window.split(" - ", 1)]
         try:
             start_hour, start_minute = [int(part) for part in start_text.split(":", 1)]
             end_hour, end_minute = [int(part) for part in end_text.split(":", 1)]
         except ValueError:
-            return "finestra utile"
+            return tr("finestra utile")
         start_minutes = start_hour * 60 + start_minute
         end_minutes = end_hour * 60 + end_minute
         if end_minutes < start_minutes:
@@ -1599,69 +1705,73 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         hours = duration_minutes // 60
         minutes = duration_minutes % 60
         if minutes == 0:
-            return f"{hours} h"
-        return f"{hours} h {minutes:02d} min"
+            return tr("{hours} h", hours=format_number(hours))
+        return tr(
+            "{hours} h {minutes} min",
+            hours=format_number(hours),
+            minutes=format_number(minutes),
+        )
 
     @staticmethod
     def _visibility_class(magnitude: float | None, object_id: str) -> str:
         if object_id in {"sun", "moon"}:
-            return "Occhio nudo"
+            return tr("Occhio nudo")
         if magnitude is None:
-            return "Telescopio"
+            return tr("Telescopio")
         if magnitude <= 1.0:
-            return "Occhio nudo"
+            return tr("Occhio nudo")
         if magnitude <= 6.5:
-            return "Binocolo"
-        return "Telescopio"
+            return tr("Binocolo")
+        return tr("Telescopio")
 
     @staticmethod
     def _deep_sky_visibility_class(magnitude: float | None) -> str:
         if magnitude is None:
-            return "Telescopio"
+            return tr("Telescopio")
         if magnitude <= 4.5:
-            return "Occhio nudo"
+            return tr("Occhio nudo")
         if magnitude <= 7.5:
-            return "Binocolo"
+            return tr("Binocolo")
         if magnitude <= 9.5:
-            return "Piccolo telescopio"
-        return "Medio telescopio"
+            return tr("Piccolo telescopio")
+        return tr("Medio telescopio")
 
     @staticmethod
     def _default_setup(object_id: str) -> str:
         if object_id in {"jupiter", "saturn", "mars"}:
-            return "10 mm + Barlow 2x se il seeing lo consente"
+            return tr("10 mm + Barlow 2x se il seeing lo consente")
         if object_id in {"uranus", "neptune"}:
-            return "Telescopio medio, 10 mm"
+            return tr("Telescopio medio, 10 mm")
         if object_id == "venus":
-            return "Piccolo telescopio, filtro neutro opzionale"
+            return tr("Piccolo telescopio, filtro neutro opzionale")
         if object_id == "mercury":
-            return "Orizzonte libero, bassi ingrandimenti"
-        return "Filtro adeguato e osservazione sicura"
+            return tr("Orizzonte libero, bassi ingrandimenti")
+        return tr("Filtro adeguato e osservazione sicura")
 
     @staticmethod
     def _body_note(object_id: str, max_altitude: float) -> str:
         if object_id == "sun":
-            return "Osservare solo con filtro solare certificato."
+            return tr("Osservare solo con filtro solare certificato.")
         if object_id == "moon":
-            return "Filtro lunare consigliato oltre 100 mm di apertura."
+            return tr("Filtro lunare consigliato oltre 100 mm di apertura.")
         if max_altitude < 15:
-            return "Basso sull'orizzonte: serve visuale libera e seeing stabile."
-        return "Calcolo reale Skyfield per la posizione selezionata."
+            return tr("Basso sull'orizzonte: serve visuale libera e seeing stabile.")
+        return tr("Calcolo reale Skyfield per la posizione selezionata.")
 
     @staticmethod
     def _deep_sky_setup(object_type: str, magnitude: float | None) -> str:
         lower_type = object_type.lower()
         if "galaxy" in lower_type:
-            return "Oculare 25 mm, cielo buio"
+            return tr("Oculare 25 mm, cielo buio")
         if "planetary" in lower_type:
-            return "10 mm, filtro UHC opzionale"
+            return tr("10 mm, filtro UHC opzionale")
         if "globular" in lower_type:
-            return "25 mm per ricerca, 10 mm per risoluzione"
+            return tr("25 mm per ricerca, 10 mm per risoluzione")
         if "open" in lower_type:
-            return "25 mm o binocolo 10x50"
+            return tr("25 mm o binocolo 10x50")
         if magnitude is not None and magnitude > 9:
-            return "Telescopio medio, cielo buio"
-        return "25 mm, bassi ingrandimenti"
+            return tr("Telescopio medio, cielo buio")
+        return tr("25 mm, bassi ingrandimenti")
 
     @staticmethod
     def _catalogue_image(object_id: str, designation: str, object_type: str) -> str:
@@ -1681,37 +1791,37 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     @staticmethod
     def _moon_phase_name(angle: float) -> str:
         if angle < 22.5 or angle >= 337.5:
-            return "Nuova"
+            return tr("Nuova")
         if angle < 67.5:
-            return "Crescente"
+            return tr("Crescente")
         if angle < 112.5:
-            return "Primo quarto"
+            return tr("Primo quarto")
         if angle < 157.5:
-            return "Gibbosa crescente"
+            return tr("Gibbosa crescente")
         if angle < 202.5:
-            return "Piena"
+            return tr("Piena")
         if angle < 247.5:
-            return "Gibbosa calante"
+            return tr("Gibbosa calante")
         if angle < 292.5:
-            return "Ultimo quarto"
-        return "Calante"
+            return tr("Ultimo quarto")
+        return tr("Calante")
 
     @staticmethod
     def _moon_phase_event_name(index: int) -> str:
         return {
-            0: "Luna nuova",
-            1: "Primo quarto",
-            2: "Luna piena",
-            3: "Ultimo quarto",
-        }.get(index, "Fase lunare")
+            0: tr("Luna nuova"),
+            1: tr("Primo quarto"),
+            2: tr("Luna piena"),
+            3: tr("Ultimo quarto"),
+        }.get(index, tr("Fase lunare"))
 
     @staticmethod
     def _moon_observing_note(illumination: float) -> str:
         if illumination < 0.25:
-            return "Cielo favorevole per galassie e nebulose deboli."
+            return tr("Cielo favorevole per galassie e nebulose deboli.")
         if illumination < 0.65:
-            return "Buon compromesso per Luna, pianeti e oggetti brillanti."
-        return "Luna luminosa: cielo profondo debole penalizzato."
+            return tr("Buon compromesso per Luna, pianeti e oggetti brillanti.")
+        return tr("Luna luminosa: cielo profondo debole penalizzato.")
 
     @staticmethod
     def _recurring_meteor_showers(
@@ -1719,19 +1829,25 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
         end: datetime,
     ) -> list[AstronomicalEvent]:
         showers = [
-            ("Quadrantidi", 1, 3, "Nord-est prima dell'alba"),
-            ("Liridi", 4, 22, "Dopo mezzanotte"),
-            ("Eta Aquaridi", 5, 6, "Pre-alba"),
-            ("Delta Aquaridi meridionali", 7, 30, "Dopo mezzanotte"),
-            ("Perseidi", 8, 12, "02:00 - 04:30"),
-            ("Draconidi", 10, 8, "Prima parte della notte"),
-            ("Orionidi", 10, 21, "Dopo mezzanotte"),
-            ("Leonidi", 11, 17, "Dopo mezzanotte"),
-            ("Geminidi", 12, 14, "22:00 - 03:00"),
-            ("Ursidi", 12, 22, "Dopo mezzanotte"),
+            ("quadrantids", tr("Quadrantidi"), 1, 3, tr("Nord-Est prima dell'alba")),
+            ("lyrids", tr("Liridi"), 4, 22, tr("Dopo mezzanotte")),
+            ("eta-aquariids", tr("Eta Aquaridi"), 5, 6, tr("Pre-alba")),
+            (
+                "southern-delta-aquariids",
+                tr("Delta Aquaridi meridionali"),
+                7,
+                30,
+                tr("Dopo mezzanotte"),
+            ),
+            ("perseids", tr("Perseidi"), 8, 12, "02:00 - 04:30"),
+            ("draconids", tr("Draconidi"), 10, 8, tr("Prima parte della notte")),
+            ("orionids", tr("Orionidi"), 10, 21, tr("Dopo mezzanotte")),
+            ("leonids", tr("Leonidi"), 11, 17, tr("Dopo mezzanotte")),
+            ("geminids", tr("Geminidi"), 12, 14, "22:00 - 03:00"),
+            ("ursids", tr("Ursidi"), 12, 22, tr("Dopo mezzanotte")),
         ]
         events = []
-        for name, month, day, best_time in showers:
+        for shower_id, name, month, day, best_time in showers:
             event_date = datetime(now.year, month, day, 0, 0, tzinfo=now.tzinfo)
             if event_date.date() < now.date():
                 event_date = datetime(now.year + 1, month, day, 0, 0, tzinfo=now.tzinfo)
@@ -1739,21 +1855,21 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                 continue
             events.append(
                 AstronomicalEvent(
-                    id=f"shower-{name.lower()}-{event_date.year}",
-                    title=f"Massimo {name}",
+                    id=f"shower-{shower_id}-{event_date.year}",
+                    title=tr("Massimo {name}", name=name),
                     event_type="Sciame meteorico",
-                    date_label=event_date.strftime("%d/%m/%Y"),
+                    date_label=format_datetime(event_date, include_time=False),
                     best_time=best_time,
                     usefulness=78,
-                    setup="Occhio nudo",
-                    note="Evento ricorrente; verificare fase lunare e meteo.",
+                    setup=tr("Occhio nudo"),
+                    note=tr("Evento ricorrente; verificare fase lunare e meteo."),
                     event_at=event_date.isoformat(),
                     timing_kind="window",
-                    timing_label="Finestra indicativa",
+                    timing_label=tr("Finestra indicativa"),
                     observing_window=best_time,
                     visibility_state="check",
-                    visibility_label="Da verificare",
-                    visibility_detail=(
+                    visibility_label=tr("Da verificare"),
+                    visibility_detail=tr(
                         "La visibilità reale dipende da radiante, fase lunare, meteo e ostacoli locali."
                     ),
                 )

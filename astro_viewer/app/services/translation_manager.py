@@ -2,19 +2,64 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Mapping
 
-from PySide6.QtCore import QCoreApplication, QObject, Property, QTranslator, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QLocale, QObject, Property, QTranslator, Signal, Slot
+
+from astro_viewer.app.services.localization import (
+    DEFAULT_LANGUAGE_CODE,
+    activate_language_pack,
+)
 
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_LANGUAGE = "it"
-SUPPORTED_LANGUAGES = (
-    {"code": "it", "label": "Italiano"},
-    {"code": "en", "label": "English"},
-)
-SUPPORTED_LANGUAGE_CODES = frozenset(item["code"] for item in SUPPORTED_LANGUAGES)
+
+@dataclass(frozen=True)
+class LanguagePack:
+    code: str
+    label: str
+    locale: str
+    source: bool
+    payload: Mapping[str, Any]
+    qm_path: Path
+
+
+def discover_language_packs(translations_dir: Path) -> dict[str, LanguagePack]:
+    packs: dict[str, LanguagePack] = {}
+    for metadata_path in sorted(translations_dir.glob("*.json")):
+        try:
+            payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"Invalid language pack: {metadata_path}") from error
+        if not isinstance(payload, dict) or payload.get("schema_version") != 1:
+            raise ValueError(f"Unsupported language-pack schema: {metadata_path}")
+        language = payload.get("language")
+        if not isinstance(language, dict):
+            raise ValueError(f"Missing language metadata: {metadata_path}")
+        code = str(language.get("code") or "").strip().lower()
+        label = str(language.get("label") or "").strip()
+        locale = str(language.get("locale") or "").strip()
+        if not code or code != metadata_path.stem or not label or not locale:
+            raise ValueError(f"Invalid language metadata: {metadata_path}")
+        if code in packs:
+            raise ValueError(f"Duplicate language code: {code}")
+        packs[code] = LanguagePack(
+            code=code,
+            label=label,
+            locale=locale,
+            source=bool(language.get("source")),
+            payload=payload,
+            qm_path=translations_dir / f"{code}.qm",
+        )
+    source_packs = [pack for pack in packs.values() if pack.source]
+    if len(source_packs) != 1:
+        raise ValueError("Exactly one source language pack is required.")
+    if source_packs[0].code != DEFAULT_LANGUAGE_CODE:
+        raise ValueError(f"The source language must be {DEFAULT_LANGUAGE_CODE}.")
+    return packs
 
 
 class TranslationManager(QObject):
@@ -26,6 +71,7 @@ class TranslationManager(QObject):
         self._preferences_path = preferences_path
         self._translator = QTranslator(self)
         self._engine = None
+        self._packs = discover_language_packs(translations_dir)
         self._language_code = self._read_language()
 
     @Property(str, notify=languageChanged)
@@ -34,7 +80,11 @@ class TranslationManager(QObject):
 
     @Property("QVariant", constant=True)
     def languageOptions(self) -> list[dict]:
-        return [dict(item) for item in SUPPORTED_LANGUAGES]
+        ordered = sorted(
+            self._packs.values(),
+            key=lambda pack: (not pack.source, pack.label.casefold()),
+        )
+        return [{"code": pack.code, "label": pack.label} for pack in ordered]
 
     def install(self) -> bool:
         return self._apply_language(self._language_code)
@@ -45,7 +95,7 @@ class TranslationManager(QObject):
     @Slot(str, result=bool)
     def setLanguage(self, language_code: str) -> bool:
         normalized = language_code.strip().lower()
-        if normalized not in SUPPORTED_LANGUAGE_CODES:
+        if normalized not in self._packs:
             return False
         if normalized == self._language_code:
             return True
@@ -61,23 +111,27 @@ class TranslationManager(QObject):
         return True
 
     def _apply_language(self, language_code: str) -> bool:
+        pack = self._packs.get(language_code)
+        if pack is None:
+            return False
         app = QCoreApplication.instance()
         if app is None:
-            return language_code == DEFAULT_LANGUAGE
+            activate_language_pack(pack.payload)
+            QLocale.setDefault(QLocale(pack.locale))
+            return language_code == DEFAULT_LANGUAGE_CODE
         app.removeTranslator(self._translator)
-        if language_code == DEFAULT_LANGUAGE:
-            return True
-        translation_path = self._translations_dir / f"{language_code}.qm"
-        if not self._translator.load(str(translation_path)):
-            logger.error("Translation catalog could not be loaded: %s", translation_path)
+        if not self._translator.load(str(pack.qm_path)):
+            logger.error("Translation catalog could not be loaded: %s", pack.qm_path)
             return False
         app.installTranslator(self._translator)
+        activate_language_pack(pack.payload)
+        QLocale.setDefault(QLocale(pack.locale))
         return True
 
     def _read_language(self) -> str:
         payload = self._read_preferences()
-        language_code = str(payload.get("language") or DEFAULT_LANGUAGE).strip().lower()
-        return language_code if language_code in SUPPORTED_LANGUAGE_CODES else DEFAULT_LANGUAGE
+        language_code = str(payload.get("language") or DEFAULT_LANGUAGE_CODE).strip().lower()
+        return language_code if language_code in self._packs else DEFAULT_LANGUAGE_CODE
 
     def _write_language(self, language_code: str) -> None:
         payload = self._read_preferences()

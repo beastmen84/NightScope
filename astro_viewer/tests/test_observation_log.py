@@ -78,10 +78,11 @@ def test_service_normalizes_and_presents_observation_entries() -> None:
     assert "ottimo contrasto" in entry["searchText"]
     assert summary == {
         "total": 1,
-        "uniqueObjects": 1,
-        "averageRating": 5.0,
-        "latestLabel": "13/07/2026 22:15",
-    }
+            "uniqueObjects": 1,
+            "averageRating": 5.0,
+            "averageRatingLabel": "5,0",
+            "latestLabel": "13/07/2026 22:15",
+        }
 
 
 @pytest.mark.parametrize(

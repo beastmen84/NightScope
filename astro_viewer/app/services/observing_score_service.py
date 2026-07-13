@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from astro_viewer.app.models.observing import MoonSummary
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
+from astro_viewer.app.services.localization import join_text, tr
 
 
 class ObservingScoreService:
@@ -11,15 +12,17 @@ class ObservingScoreService:
         observing_hours = list(hours)
         if not observing_hours:
             return WeatherSummary(
-                score="Pessima",
+                score=tr("Pessima"),
                 score_value=0,
-                explanation="Previsioni non disponibili.",
+                explanation=tr("Previsioni non disponibili."),
                 cloud_cover=0,
                 precipitation_probability=0,
                 wind_kmh=0,
                 humidity=0,
                 temperature_c=0.0,
-                alert="Meteo non disponibile: uso dei dati astronomici possibile, ma senza valutazione del cielo.",
+                alert=tr(
+                    "Meteo non disponibile: uso dei dati astronomici possibile, ma senza valutazione del cielo."
+                ),
             )
 
         avg_cloud = round(sum(hour.cloud_cover for hour in observing_hours) / len(observing_hours))
@@ -40,35 +43,52 @@ class ObservingScoreService:
         label = self.score_label(score)
         explanation_parts = []
         if avg_cloud < 25:
-            explanation_parts.append("poche nuvole")
+            explanation_parts.append(tr("Poche nuvole"))
         elif avg_cloud < 55:
-            explanation_parts.append("nuvolosità moderata")
+            explanation_parts.append(tr("Nuvolosità moderata"))
         else:
-            explanation_parts.append("nuvolosità elevata")
+            explanation_parts.append(tr("Nuvolosità elevata"))
         if max_rain >= 35:
-            explanation_parts.append("rischio precipitazioni")
+            explanation_parts.append(tr("rischio precipitazioni"))
         if avg_wind < 15:
-            explanation_parts.append("vento debole")
+            explanation_parts.append(tr("vento debole"))
         elif avg_wind > 28:
-            explanation_parts.append("vento sostenuto")
+            explanation_parts.append(tr("vento sostenuto"))
         if moon_penalty >= 12:
-            explanation_parts.append("Luna luminosa")
+            explanation_parts.append(tr("Luna luminosa"))
 
-        explanation = ", ".join(explanation_parts).capitalize() + "."
-        alert = f"Qualità osservativa stanotte: {score}/100, {label.lower()}. {explanation}"
+        explanation = tr("{factors}.", factors=join_text(explanation_parts, ", "))
+        alert = tr(
+            "Qualità osservativa stanotte: {score}/100, {label}. {explanation}",
+            score=score,
+            label=self._score_label_lower(score),
+            explanation=explanation,
+        )
         return WeatherSummary(label, score, explanation, avg_cloud, max_rain, avg_wind, avg_humidity, avg_temp, alert)
 
     @staticmethod
     def score_label(score: int) -> str:
         if score <= 25:
-            return "Pessima"
+            return tr("Pessima")
         if score <= 50:
-            return "Scarsa"
+            return tr("Scarsa")
         if score <= 70:
-            return "Discreta"
+            return tr("Discreta")
         if score <= 85:
-            return "Buona"
-        return "Ottima"
+            return tr("Buona")
+        return tr("Ottima")
+
+    @staticmethod
+    def _score_label_lower(score: int) -> str:
+        if score <= 25:
+            return tr("pessima")
+        if score <= 50:
+            return tr("scarsa")
+        if score <= 70:
+            return tr("discreta")
+        if score <= 85:
+            return tr("buona")
+        return tr("ottima")
 
     @staticmethod
     def _moon_penalty(moon: MoonSummary | None) -> int:

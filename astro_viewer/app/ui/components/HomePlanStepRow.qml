@@ -124,7 +124,9 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0
-                text: root.value("typeLabel", qsTr("Oggetto")) + "  -  " + root.timeDirectionLabel()
+                text: qsTr("%1  -  %2")
+                    .arg(root.value("typeLabel", qsTr("Oggetto")))
+                    .arg(root.timeDirectionLabel())
                 color: theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap

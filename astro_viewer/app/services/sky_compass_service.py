@@ -6,7 +6,10 @@ from dataclasses import dataclass, replace
 
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.models.sky import NightPlanItem
+from astro_viewer.app.services.catalogue_presentation import catalogue_object_type_label
 from astro_viewer.app.services.home_nsom_observable import build_home_observable_target_value
+from astro_viewer.app.services.direction_presentation import direction_code, direction_label
+from astro_viewer.app.services.localization import tr
 from astro_viewer.app.services.observation_conditions_service import (
     MoonGeometryConditionInput,
     ObservationConditionInputs,
@@ -18,6 +21,7 @@ class SkyCompassTarget:
     id: str
     name: str
     object_type: str
+    object_type_code: str
     direction: str
     display_score: int
     observable_value: float
@@ -48,6 +52,7 @@ class SkyCompassService:
             "reason": reason,
             "message": message,
             "direction": "",
+            "directionCode": "",
             "zoneLabel": "",
             "targetCount": 0,
             "targetCountLabel": "",
@@ -75,7 +80,7 @@ class SkyCompassService:
         if not has_location:
             return self.empty(
                 "no_location",
-                "Configura una località per usare Sky Compass.",
+                tr("Configura una località per usare Sky Compass."),
                 caution_text=caution_text,
             )
 
@@ -92,7 +97,7 @@ class SkyCompassService:
         if not targets:
             return self.empty(
                 "no_targets",
-                "Nessun target osservabile in questo momento.",
+                tr("Nessun target osservabile in questo momento."),
                 caution_text=caution_text,
             )
 
@@ -109,7 +114,8 @@ class SkyCompassService:
         top = ranked_groups[0]
         alternatives = [
             {
-                "direction": group["direction"],
+                "directionCode": direction_code(group["direction"]),
+                "direction": direction_label(group["direction"]),
                 "targetCount": group["targetCount"],
                 "targetCountLabel": self._target_count_label(group["targetCount"]),
             }
@@ -121,8 +127,9 @@ class SkyCompassService:
             "available": True,
             "reason": "ready",
             "message": "",
-            "direction": top["direction"],
-            "zoneLabel": "Migliore zona adesso",
+            "directionCode": direction_code(top["direction"]),
+            "direction": direction_label(top["direction"]),
+            "zoneLabel": tr("Migliore zona adesso"),
             "targetCount": top["targetCount"],
             "targetCountLabel": self._available_count_label(top["targetCount"]),
             "targets": top["targets"],
@@ -176,6 +183,7 @@ class SkyCompassService:
                     id=item.id,
                     name=item.name,
                     object_type=item.object_type,
+                    object_type_code=self.object_type_code(item),
                     direction=direction,
                     display_score=item.score,
                     observable_value=observable_value,
@@ -211,6 +219,8 @@ class SkyCompassService:
                         "id": target.id,
                         "name": target.name,
                         "type": target.object_type,
+                        "typeLabel": catalogue_object_type_label(target.object_type),
+                        "typeCode": target.object_type_code,
                         "score": target.display_score,
                         "inPlan": target.in_plan,
                         "isBest": target.is_best,
@@ -240,6 +250,31 @@ class SkyCompassService:
         return item.observable_now is not False
 
     @staticmethod
+    def object_type_code(item: CelestialObject) -> str:
+        if item.id in {
+            "mercury",
+            "venus",
+            "mars",
+            "jupiter",
+            "saturn",
+            "uranus",
+            "neptune",
+        }:
+            return "planet"
+        value = str(item.object_type or "").casefold()
+        if "galaxy" in value or "galass" in value:
+            return "galaxy"
+        if "nebula" in value or "nebul" in value:
+            return "nebula"
+        if "globular" in value or "globulare" in value:
+            return "globular_cluster"
+        if "cluster" in value or "ammasso" in value:
+            return "open_cluster"
+        if "planet" in value or "pianeta" in value:
+            return "planet"
+        return "target"
+
+    @staticmethod
     def current_altitude_factor(item: CelestialObject) -> float:
         altitude = item.current_altitude_degrees
         if altitude is None:
@@ -247,7 +282,7 @@ class SkyCompassService:
             if not match:
                 return 1.0
             altitude = float(match.group(0).replace(",", "."))
-        threshold = 8.0 if item.object_type == "Pianeta" else 15.0
+        threshold = 8.0 if SkyCompassService.object_type_code(item) == "planet" else 15.0
         normalized = max(0.0, min(1.0, (altitude - threshold) / (60.0 - threshold)))
         return 0.35 + (0.65 * normalized)
 
@@ -280,7 +315,11 @@ class SkyCompassService:
 
     @staticmethod
     def _available_count_label(count: int) -> str:
-        return "1 target osservabile ora" if count == 1 else f"{count} target osservabili ora"
+        return (
+            tr("1 target osservabile ora")
+            if count == 1
+            else tr("{count} target osservabili ora", count=count)
+        )
 
     _target_count_label = _available_count_label
 
@@ -290,36 +329,49 @@ class SkyCompassService:
         if not targets:
             return reasons
         first = targets[0]
-        reasons.append(f"{first['name']} guida la scelta in questo momento")
+        reasons.append(
+            tr(
+                "{name} guida la scelta in questo momento",
+                name=first["name"],
+            )
+        )
 
-        deep_sky_count = sum(1 for item in targets if item["type"] != "Pianeta")
-        planet_targets = [item for item in targets if item["type"] == "Pianeta"]
-        cluster_count = sum(1 for item in targets if self._is_cluster_type(item["type"]))
+        deep_sky_count = sum(1 for item in targets if item["typeCode"] != "planet")
+        planet_targets = [item for item in targets if item["typeCode"] == "planet"]
+        cluster_count = sum(
+            1
+            for item in targets
+            if item["typeCode"] in {"globular_cluster", "open_cluster"}
+        )
         if planet_targets and deep_sky_count > 0:
-            reasons.append("Pianeti e deep sky nella stessa zona")
+            reasons.append(tr("Pianeti e deep sky nella stessa zona"))
         elif cluster_count >= 2:
-            reasons.append("Più ammassi nella stessa zona")
+            reasons.append(tr("Più ammassi nella stessa zona"))
         elif deep_sky_count >= 2:
-            reasons.append("Più target deep sky nella stessa zona")
+            reasons.append(tr("Più target deep sky nella stessa zona"))
         elif planet_targets and not first["isBest"]:
-            reasons.append(f"{planet_targets[0]['name']} è il riferimento planetario della zona")
+            reasons.append(
+                tr(
+                    "{name} è il riferimento planetario della zona",
+                    name=planet_targets[0]["name"],
+                )
+            )
 
         max_count = max(group["targetCount"] for group in ranked_groups)
         if top_group["targetCount"] == max_count and max_count > 1:
-            reasons.append("Maggiore concentrazione di target osservabili ora")
+            reasons.append(tr("Maggiore concentrazione di target osservabili ora"))
         elif top_group["targetCount"] > 1:
-            reasons.append("Più target osservabili ora nella stessa zona")
+            reasons.append(tr("Più target osservabili ora nella stessa zona"))
         if any(item["inPlan"] for item in targets):
-            reasons.append("Include una tappa del piano attualmente osservabile")
+            reasons.append(tr("Include una tappa del piano attualmente osservabile"))
         return reasons[:3]
-
-    @staticmethod
-    def _is_cluster_type(object_type: str) -> bool:
-        value = object_type.lower()
-        return "ammasso" in value or "cluster" in value
 
     @staticmethod
     def _other_target_count_label(count: int) -> str:
         if count <= 0:
             return ""
-        return "+1 altro target" if count == 1 else f"+{count} altri target"
+        return (
+            tr("+1 altro target")
+            if count == 1
+            else tr("+{count} altri target", count=count)
+        )

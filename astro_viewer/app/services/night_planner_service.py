@@ -14,6 +14,7 @@ from astro_viewer.app.services.observation_conditions_service import (
 )
 from astro_viewer.app.services.planner_nsom_service import PlannerNsomScoringService
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
+from astro_viewer.app.services.localization import tr
 
 
 class NightPlannerService:
@@ -138,23 +139,27 @@ class NightPlannerService:
             return WeatherBlockingStatus(
                 blocks_plan=True,
                 show_warning=True,
-                reason="rischio precipitazioni",
-                detail="Rischio precipitazioni elevato.",
+                reason=tr("rischio precipitazioni"),
+                detail=tr("Rischio precipitazioni elevato."),
             )
         if weather.cloud_cover >= 85:
             return WeatherBlockingStatus(
                 blocks_plan=True,
                 show_warning=True,
-                reason="nuvolosità quasi coperta",
-                detail="Copertura nuvolosa severa.",
+                reason=tr("nuvolosità quasi coperta"),
+                detail=tr("Copertura nuvolosa severa."),
             )
         if weather.score_value <= 25:
             show_warning = weather.score_value > 0
             return WeatherBlockingStatus(
                 blocks_plan=True,
                 show_warning=show_warning,
-                reason=(weather.explanation or "qualità osservativa pessima") if show_warning else "",
-                detail="Punteggio osservativo sotto la soglia minima." if show_warning else "",
+                reason=(weather.explanation or tr("qualità osservativa pessima"))
+                if show_warning
+                else "",
+                detail=tr("Punteggio osservativo sotto la soglia minima.")
+                if show_warning
+                else "",
             )
         return WeatherBlockingStatus(blocks_plan=False, show_warning=False)
 
@@ -330,17 +335,17 @@ class NightPlannerService:
         night_window: ObservingNightWindow | None = None,
     ) -> str:
         if night_window is None:
-            label = "sera" if value.hour >= 12 else "notte"
+            label = tr("sera") if value.hour >= 12 else tr("notte")
             if 3 <= value.hour <= 5:
-                label = "prima dell'alba"
+                label = tr("prima dell'alba")
         else:
-            label = "notte"
+            label = tr("notte")
         if night_window is not None and night_window.state == "bounded":
             if night_window.start is not None and value.date() == night_window.start.date():
-                label = "sera"
+                label = tr("sera")
             elif night_window.end is not None and night_window.end - value <= timedelta(hours=3):
-                label = "prima dell'alba"
-        return f"{value.strftime('%H:%M')} {label}"
+                label = tr("prima dell'alba")
+        return tr("{time} {period}", time=value.strftime("%H:%M"), period=label)
 
     @staticmethod
     def _sort_plan_items(

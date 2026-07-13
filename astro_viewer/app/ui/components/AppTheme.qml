@@ -16,17 +16,13 @@ QtObject {
     readonly property color green: "#8bd17c"
     readonly property color red: "#ff6b6b"
 
-    function scoreColor(score) {
-        if (score === "Ottimo") return teal
-        if (score === "Ottima") return teal
-        if (score === "Buono") return cyan
-        if (score === "Buona") return cyan
-        if (score === "Discreto") return amber
-        if (score === "Discreta") return amber
-        if (score === "Limitata") return amber
-        if (score === "Scarso") return coral
-        if (score === "Scarsa") return coral
-        if (score === "Pessima") return red
+    function scoreColor(scoreValue) {
+        var score = Number(scoreValue)
+        if (!isFinite(score)) return red
+        if (score > 85) return teal
+        if (score > 70) return cyan
+        if (score > 50) return amber
+        if (score > 25) return coral
         return red
     }
 }

@@ -116,7 +116,9 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.filteredTelescopeModels().length + " di " + controller.telescopeCatalogModels.length + " modelli"
+                    text: qsTr("%1 di %2 modelli")
+                        .arg(root.filteredTelescopeModels().length)
+                        .arg(controller.telescopeCatalogModels.length)
                     color: theme.textSecondary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
@@ -222,9 +224,9 @@ Item {
             Flow {
                 Layout.fillWidth: true
                 spacing: 8
-                StatusPill { text: itemData.aperture_mm + " mm"; accentColor: theme.cyan }
-                StatusPill { text: itemData.focal_length_mm + " mm"; accentColor: theme.teal }
-                StatusPill { text: qsTr("f/") + itemData.focal_ratio; accentColor: theme.amber }
+                StatusPill { text: itemData.aperture_label; accentColor: theme.cyan }
+                StatusPill { text: itemData.focal_length_label; accentColor: theme.teal }
+                StatusPill { text: itemData.focal_ratio_label; accentColor: theme.amber }
             }
         }
     }

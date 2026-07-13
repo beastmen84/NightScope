@@ -8,28 +8,22 @@ Item {
 
     property var controller
     property int renameProfileId: -1
-    property string addFilter: "Tutti"
-    property string removeFilter: "Tutti"
+    property string addFilter: "all"
+    property string removeFilter: "all"
     property string addSearch: ""
     property string removeSearch: ""
     readonly property var equipmentFilterOptions: [
-        { "label": qsTr("Tutti"), "value": "Tutti" },
-        { "label": qsTr("Telescopi"), "value": "Telescopi" },
-        { "label": qsTr("Oculari"), "value": "Oculari" },
-        { "label": "Barlow", "value": "Barlow" },
-        { "label": qsTr("Binocoli"), "value": "Binocoli" },
-        { "label": qsTr("Filtri"), "value": "Filtri" },
-        { "label": qsTr("Riduttori"), "value": "Riduttori" }
+        { "label": qsTr("Tutti"), "value": "all" },
+        { "label": qsTr("Telescopi"), "value": "telescope" },
+        { "label": qsTr("Oculari"), "value": "eyepiece" },
+        { "label": "Barlow", "value": "barlow" },
+        { "label": qsTr("Binocoli"), "value": "binocular" },
+        { "label": qsTr("Filtri"), "value": "filter" },
+        { "label": qsTr("Riduttori"), "value": "reducer" }
     ]
 
     function matchesFilter(item, filter, searchText) {
-        var typeOk = filter === "Tutti"
-            || (filter === "Telescopi" && item.kind === "telescope")
-            || (filter === "Oculari" && item.kind === "eyepiece")
-            || (filter === "Barlow" && item.kind === "barlow")
-            || (filter === "Binocoli" && item.kind === "binocular")
-            || (filter === "Filtri" && item.kind === "filter")
-            || (filter === "Riduttori" && item.kind === "reducer")
+        var typeOk = filter === "all" || filter === item.kind
         var text = (item.name + " " + item.badge + " " + item.details + " " + (item.type || "")).toLowerCase()
         return typeOk && text.indexOf((searchText || "").toLowerCase()) >= 0
     }
@@ -50,7 +44,7 @@ Item {
         if (item.kind === "telescope")
             return theme.cyan
         if (item.kind === "eyepiece")
-            return item.badge === "Zoom" ? theme.violet : theme.teal
+            return item.type === "Zoom" ? theme.violet : theme.teal
         if (item.kind === "binocular")
             return theme.cyan
         if (item.kind === "filter")
@@ -64,8 +58,10 @@ Item {
         var magnification = Number(binocular.magnification || 0)
         var objective = Number(binocular.objectiveDiameterMm || binocular.objective_diameter_mm || 0)
         if (magnification <= 0 || objective <= 0)
-            return "n/d"
-        return (objective / magnification).toFixed(1) + " mm"
+            return qsTr("n/d")
+        return qsTr("%1 mm").arg(
+            Number(objective / magnification).toLocaleString(Qt.locale(), "f", 1)
+        )
     }
 
     AppTheme { id: theme }
@@ -626,7 +622,7 @@ Item {
                     text: modelData.label
                     checkable: false
                     checked: root.addFilter === modelData.value
-                    accentColor: modelData.value === "Telescopi" ? theme.cyan : modelData.value === "Oculari" ? theme.teal : modelData.value === "Barlow" ? theme.amber : modelData.value === "Binocoli" ? theme.cyan : modelData.value === "Filtri" ? theme.green : modelData.value === "Riduttori" ? theme.coral : theme.violet
+                    accentColor: modelData.value === "telescope" ? theme.cyan : modelData.value === "eyepiece" ? theme.teal : modelData.value === "barlow" ? theme.amber : modelData.value === "binocular" ? theme.cyan : modelData.value === "filter" ? theme.green : modelData.value === "reducer" ? theme.coral : theme.violet
                     onClicked: {
                         if (root.addFilter !== modelData.value)
                             root.addFilter = modelData.value
@@ -637,7 +633,9 @@ Item {
 
         Text {
             Layout.fillWidth: true
-            text: root.filteredAddEquipment().length + qsTr(" risultati")
+            text: root.filteredAddEquipment().length === 1
+                  ? qsTr("1 risultato")
+                  : qsTr("%1 risultati").arg(root.filteredAddEquipment().length)
             color: theme.textMuted
             font.pixelSize: 12
             elide: Text.ElideRight

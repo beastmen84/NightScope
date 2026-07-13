@@ -62,6 +62,18 @@ from astro_viewer.app.services.reducer_recommendation_service import (
     ReducerRecommendationService,
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
+from astro_viewer.app.services.localization import (
+    content_key,
+    content_text,
+    format_compact_number,
+    format_month_year,
+    format_number,
+    join_text,
+    presentation_text,
+    render_payload,
+    render_text,
+    tr,
+)
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
     LocationDetectionResult,
@@ -75,6 +87,7 @@ from astro_viewer.app.services.best_object_nsom_ranking import (
 )
 from astro_viewer.app.services.calendar_overview import CalendarOverviewService
 from astro_viewer.app.services.catalogue_presentation import (
+    catalogue_display_name,
     catalogue_object_type_label,
     catalogue_observation_type_label,
 )
@@ -122,27 +135,13 @@ from astro_viewer.app.services.weather_service import WEATHER_UNAVAILABLE_MESSAG
 
 logger = logging.getLogger(__name__)
 
-CATALOGUE_ALL_FILTER = "Tutti"
+CATALOGUE_ALL_FILTER = "__all__"
 CATALOGUE_SOURCE = "catalogue"
 OBSERVING_SOURCE = "observing"
 SOLAR_SYSTEM_CATALOGUE = "Sistema Solare"
-STARTUP_LOCATION_PENDING_MESSAGE = "Ricerca della posizione in corso..."
-STARTUP_WEATHER_PENDING_MESSAGE = "Meteo in attesa della posizione."
+STARTUP_LOCATION_PENDING_MESSAGE = tr("Ricerca della posizione in corso...")
+STARTUP_WEATHER_PENDING_MESSAGE = tr("Meteo in attesa della posizione.")
 WEATHER_RETRY_DELAY_MS = 5 * 60 * 1000
-CATALOGUE_MONTH_NAMES = [
-    "Gennaio",
-    "Febbraio",
-    "Marzo",
-    "Aprile",
-    "Maggio",
-    "Giugno",
-    "Luglio",
-    "Agosto",
-    "Settembre",
-    "Ottobre",
-    "Novembre",
-    "Dicembre",
-]
 CATALOGUE_VISIBILITY_ALTITUDE_THRESHOLD_DEG = DEEP_SKY_USEFUL_ALTITUDE_DEG
 ASTRONOMY_REFRESH_FULL = "full_refresh"
 ASTRONOMY_REFRESH_NIGHT_ROLLOVER = "night_rollover"
@@ -176,11 +175,11 @@ class AppController(QObject):
     statusChanged = Signal()
     earthdataCredentialsChanged = Signal()
     openaqCredentialsChanged = Signal()
-    _earthdataConnectionTestFinished = Signal(bool, str, bool)
-    _openaqConnectionTestFinished = Signal(bool, str)
-    _viirsSkyQualityFinished = Signal(str, object, str)
-    _startupLocationDetectionFinished = Signal(int, object, bool, str)
-    _weatherRefreshFinished = Signal(int, str, object, str, bool)
+    _earthdataConnectionTestFinished = Signal(bool, object, bool)
+    _openaqConnectionTestFinished = Signal(bool, object)
+    _viirsSkyQualityFinished = Signal(str, object, object)
+    _startupLocationDetectionFinished = Signal(int, object, bool, object)
+    _weatherRefreshFinished = Signal(int, str, object, object, bool)
     _localAtmosphereRefreshFinished = Signal(str, object)
     _nasaAodRefreshFinished = Signal(str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
@@ -272,7 +271,9 @@ class AppController(QObject):
         except EphemerisUnavailableError:
             logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
             self._astronomy_engine = MockAstronomyEngine()
-            self._service_status = "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
+            self._service_status = tr(
+                "Effemeridi astronomiche non disponibili. Uso i dati cielo di fallback."
+            )
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
@@ -312,7 +313,9 @@ class AppController(QObject):
         self._location_detection_result: LocationDetectionResult | None = None
         self._location: ObserverLocation | None = None
         self._observing_night_window = ObservingNightWindow.unavailable()
-        self._location_message = "Configura una posizione per ottenere meteo e cielo locale."
+        self._location_message = tr(
+            "Configura una posizione per ottenere meteo e cielo locale."
+        )
         self._offer_online_location_fallback = False
         self._windows_location_diagnostics = self._empty_windows_diagnostics()
 
@@ -340,7 +343,10 @@ class AppController(QObject):
         self._seeing_transparency = None
         self._category_scores = None
         self._night_plan = []
-        self._sky_compass = SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass.")
+        self._sky_compass = SkyCompassService.empty(
+            "no_location",
+            tr("Configura una località per usare Sky Compass."),
+        )
         self._sky_compass_candidate_snapshot: list[CelestialObject] = []
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
@@ -352,17 +358,33 @@ class AppController(QObject):
 
         self._beginner_presets = self._equipment_service.beginner_presets()
         self._telescope_brands = self._equipment_catalog_repository.brands()
-        self._telescope_catalog_models = self._equipment_catalog_repository.models()
-        self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
-        self._catalog_barlows = self._equipment_catalog_repository.barlows()
-        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
-        self._catalog_filters = self._equipment_catalog_repository.filters()
-        self._catalog_reducers = self._equipment_catalog_repository.reducers()
+        self._telescope_catalog_models = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.models(), "telescopes"
+        )
+        self._catalog_eyepieces = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.eyepieces(), "eyepieces"
+        )
+        self._catalog_barlows = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.barlows(), "barlows"
+        )
+        self._catalog_binoculars = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.binoculars(), "binoculars"
+        )
+        self._catalog_filters = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.filters(), "filters"
+        )
+        self._catalog_reducers = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.reducers(), "reducers"
+        )
         self._equipment_profiles = self._equipment_catalog_repository.profiles()
         self._object_images = self._object_image_repository.all()
         self._object_image_map = {item["object_id"]: item for item in self._object_images}
-        self._object_descriptions = self._object_image_repository.descriptions()
-        self._object_curiosities = self._object_image_repository.curiosities()
+        self._object_descriptions = self._localized_object_content(
+            self._object_image_repository.descriptions()
+        )
+        self._object_curiosities = self._localized_object_content(
+            self._object_image_repository.curiosities()
+        )
         self._catalogue_objects = self._load_catalogue_objects()
         self._catalogue_identifier_index = self._build_catalogue_identifier_index(
             self._catalogue_objects
@@ -411,11 +433,11 @@ class AppController(QObject):
 
     @Property("QVariant", notify=locationChanged)
     def location(self) -> dict:
-        return self._location_to_qml(self._location)
+        return render_payload(self._location_to_qml(self._location))
 
     @Property(str, notify=locationChanged)
     def locationMessage(self) -> str:
-        return self._location_message
+        return render_text(self._location_message)
 
     @Property(bool, notify=locationChanged)
     def canUseApproximateOnlineLocation(self) -> bool:
@@ -423,23 +445,39 @@ class AppController(QObject):
 
     @Property("QVariant", notify=locationChanged)
     def locationDetails(self) -> dict:
-        return self._location_detection_result.to_qml() if self._location_detection_result else {}
+        if not self._location_detection_result:
+            return {}
+        payload = self._location_detection_result.to_qml()
+        payload["rawSource"] = payload.get("source", "")
+        payload["source"] = self._location_source_label(
+            self._location_detection_result.provider
+        )
+        payload["accuracy"] = self._location_accuracy_label(
+            self._location_detection_result
+        )
+        return render_payload(payload)
 
     @Property(str, notify=locationChanged)
     def activeLocationLabel(self) -> str:
         if self._startup_location_detection_running:
-            return "Posizione in aggiornamento"
+            return render_text(tr("Posizione in aggiornamento"))
         if not self._has_valid_location():
-            return "Nessuna posizione configurata"
-        return f"{self._location.city} — {self._location.timezone}"
+            return render_text(tr("Nessuna posizione configurata"))
+        return render_text(
+            tr(
+                "{city} — {timezone}",
+                city=self._location.city,
+                timezone=self._location.timezone,
+            )
+        )
 
     @Property(str, notify=locationChanged)
     def activeLocationSource(self) -> str:
         if self._startup_location_detection_running:
-            return "Rilevamento automatico"
+            return render_text(tr("Rilevamento automatico"))
         if not self._location_detection_result:
-            return "Nessuna posizione"
-        return self._location_source_label(self._location_detection_result.provider)
+            return render_text(tr("Nessuna posizione"))
+        return render_text(self._location_source_label(self._location_detection_result.provider))
 
     @Property(bool, notify=locationChanged)
     def autoDetectLocationOnStartup(self) -> bool:
@@ -471,7 +509,7 @@ class AppController(QObject):
 
     @Property(str, notify=earthdataCredentialsChanged)
     def earthdataCredentialMessage(self) -> str:
-        return self._earthdata_credentials_state.message
+        return render_text(self._earthdata_credentials_state.message)
 
     @Property(bool, notify=earthdataCredentialsChanged)
     def earthdataConnectionTestRunning(self) -> bool:
@@ -499,7 +537,7 @@ class AppController(QObject):
 
     @Property(str, notify=openaqCredentialsChanged)
     def openaqCredentialMessage(self) -> str:
-        return self._openaq_credentials_state.message
+        return render_text(self._openaq_credentials_state.message)
 
     @Property(bool, notify=openaqCredentialsChanged)
     def openaqConnectionTestRunning(self) -> bool:
@@ -511,7 +549,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=locationChanged)
     def windowsLocationDiagnostics(self) -> dict:
-        return self._windows_location_diagnostics
+        return render_payload(self._windows_location_diagnostics)
 
     @Property(bool, notify=locationChanged)
     def hasValidLocation(self) -> bool:
@@ -523,13 +561,13 @@ class AppController(QObject):
 
     @Property(str, notify=statusChanged)
     def serviceStatus(self) -> str:
-        return self._service_status
+        return render_text(self._service_status)
 
     @Property(str, notify=weatherChanged)
     def weatherStatus(self) -> str:
-        if self._weather_status == "Dati meteo non disponibili al momento." and self._weather_hours:
+        if self._weather_status == tr("Dati meteo non disponibili al momento.") and self._weather_hours:
             return ""
-        return self._weather_status
+        return render_text(self._weather_status)
 
     @Property(bool, notify=weatherChanged)
     def weatherRefreshRunning(self) -> bool:
@@ -541,7 +579,19 @@ class AppController(QObject):
 
     @Property("QVariant", notify=locationChanged)
     def cityResults(self) -> list[dict]:
-        return self._city_results
+        return render_payload(
+            [
+                {
+                    **item,
+                    "coordinatesLabel": tr(
+                        "{latitude}, {longitude}",
+                        latitude=format_number(item["latitude"], decimals=2),
+                        longitude=format_number(item["longitude"], decimals=2),
+                    ),
+                }
+                for item in self._city_results
+            ]
+        )
 
     @Property(bool, notify=locationChanged)
     def hasCitySearchQuery(self) -> bool:
@@ -553,23 +603,27 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def visiblePlanets(self) -> list[dict]:
-        return [self._object_to_qml(planet) for planet in self._home_visible_objects(self._visible_planets)]
+        return render_payload(
+            [self._object_to_qml(planet) for planet in self._home_visible_objects(self._visible_planets)]
+        )
 
     @Property("QVariant", notify=dataChanged)
     def solarSystemObjects(self) -> list[dict]:
-        return [item.to_qml() for item in self._solar_system_objects]
+        return render_payload([item.to_qml() for item in self._solar_system_objects])
 
     @Property("QVariant", notify=dataChanged)
     def recommendedDeepSky(self) -> list[dict]:
-        return [self._object_to_qml(deep_sky) for deep_sky in self._conditioned_deep_sky_candidates()]
+        return render_payload(
+            [self._object_to_qml(deep_sky) for deep_sky in self._conditioned_deep_sky_candidates()]
+        )
 
     @Property("QVariant", notify=dataChanged)
     def homeVisibleAlternatives(self) -> list[dict]:
-        return self._home_visible_alternative_payloads()
+        return render_payload(self._home_visible_alternative_payloads())
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueObjects(self) -> list[dict]:
-        return self._filtered_catalogue_objects()
+        return render_payload(self._filtered_catalogue_objects())
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterOptions(self) -> dict:
@@ -586,14 +640,20 @@ class AppController(QObject):
             ),
             key=lambda item: item["label"].casefold(),
         )
-        return {
+        catalogue_choices = [
+            {"value": value, "label": self._catalogue_label(value)}
+            for value in self._catalogue_option_values("catalogue")
+        ]
+        catalogue_choices.sort(key=lambda item: str(item["label"]).casefold())
+        return render_payload({
             "catalogues": self._catalogue_option_values("catalogue"),
+            "catalogueChoices": catalogue_choices,
             "types": object_types,
             "typeChoices": type_choices,
             "constellations": self._catalogue_option_values("constellation"),
             "observationTypes": observation_types,
             "observationTypeChoices": observation_type_choices,
-        }
+        })
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterState(self) -> dict:
@@ -605,7 +665,7 @@ class AppController(QObject):
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueMonthLabels(self) -> list[str]:
-        return [self._catalogue_month_label(index + 1) for index in range(12)]
+        return [render_text(self._catalogue_month_label(index + 1)) for index in range(12)]
 
     @Property(int, notify=catalogueChanged)
     def catalogueSelectedMonth(self) -> int:
@@ -613,7 +673,7 @@ class AppController(QObject):
 
     @Property(str, notify=catalogueChanged)
     def catalogueSelectedMonthLabel(self) -> str:
-        return self._catalogue_month_label(self._catalogue_selected_month)
+        return render_text(self._catalogue_month_label(self._catalogue_selected_month))
 
     @Property(bool, notify=catalogueChanged)
     def catalogueVisibleThisMonthFilter(self) -> bool:
@@ -629,23 +689,23 @@ class AppController(QObject):
 
     @Property("QVariant", notify=dataChanged)
     def moonSummary(self) -> dict:
-        return self._moon.to_qml() if self._moon else {}
+        return render_payload(self._moon.to_qml() if self._moon else {})
 
     @Property("QVariant", notify=dataChanged)
     def events(self) -> list[dict]:
-        return [self._event_to_qml(event) for event in self._events]
+        return render_payload([self._event_to_qml(event) for event in self._events])
 
     @Property("QVariant", notify=dataChanged)
     def calendarOverview(self) -> dict:
         assigned_equipment = self._profile_assigned_equipment()
-        return self._calendar_overview_service.build(
-            events=self.events,
+        return render_payload(self._calendar_overview_service.build(
+            events=[self._event_to_qml(event) for event in self._events],
             now=datetime.now(self._zone()),
             has_configured_equipment=any(
                 str(item.get("id", "")) != "preset:naked-eye"
                 for item in assigned_equipment
             ),
-        )
+        ))
 
     @Property("QVariant", notify=dataChanged)
     def upcomingHighlights(self) -> list[dict]:
@@ -653,11 +713,11 @@ class AppController(QObject):
 
     @Property("QVariant", notify=weatherChanged)
     def weatherHourly(self) -> list[dict]:
-        return [hour.to_qml() for hour in self._weather_hours]
+        return render_payload([hour.to_qml() for hour in self._weather_hours])
 
     @Property("QVariant", notify=weatherChanged)
     def observingWeatherHourly(self) -> list[dict]:
-        return [hour.to_qml() for hour in self._observing_weather_hours()]
+        return render_payload([hour.to_qml() for hour in self._observing_weather_hours()])
 
     @Property("QVariant", notify=weatherChanged)
     def weatherNext24Hours(self) -> list[dict]:
@@ -667,18 +727,21 @@ class AppController(QObject):
             item = hour.to_qml()
             item["isObservingNight"] = hour in night_hours
             payload.append(item)
-        return payload
+        return render_payload(payload)
 
     @Property("QVariant", notify=weatherChanged)
     def weatherSummary(self) -> dict:
-        return self._weather_summary.to_qml() if self._weather_summary else {}
+        return render_payload(self._weather_summary.to_qml() if self._weather_summary else {})
 
     @Property("QVariant", notify=weatherChanged)
     def observingQuality(self) -> dict:
-        return self._weather_summary.to_qml() if self._weather_summary else {}
+        return render_payload(self._weather_summary.to_qml() if self._weather_summary else {})
 
     @Property("QVariant", notify=weatherChanged)
     def homeObservingOverview(self) -> dict:
+        return render_payload(self._home_observing_overview_payload())
+
+    def _home_observing_overview_payload(self) -> dict:
         digest = self._weather_digest()
         return self._home_observing_overview_service.build(
             location_available=self._has_valid_location(),
@@ -692,7 +755,7 @@ class AppController(QObject):
             session=self._observing_session_decision(),
             blocking=self._weather_blocking_status(),
             suggested_window=self._suggested_observing_window(),
-            wind_label=str(digest.get("windLabel") or "n/d"),
+            wind_label=presentation_text(digest.get("windLabel") or tr("n/d")),
             category_source="nsom_canonical_environment",
         )
 
@@ -703,25 +766,29 @@ class AppController(QObject):
             item.id: self._object_to_qml(item)
             for item in target_pool
         }
-        return self._home_night_plan_overview_service.build(
-            session=self.homeObservingOverview.get("session", {}),
+        return render_payload(self._home_night_plan_overview_service.build(
+            session=self._home_observing_overview_payload().get("session", {}),
             night_plan=self._night_plan,
             target_payloads_by_id=target_payloads_by_id,
             setup_models_by_object_id=self._equipment_setup_read_models_by_object_id,
             alternatives=self._home_visible_alternative_payloads(target_pool),
-            active_profile=self._active_profile() or self.activeEquipmentProfile,
+            active_profile=self._active_profile_payload(),
             assigned_equipment=self._profile_assigned_equipment(),
             loading=self._is_loading,
-            sky_quality_warning=self.skyQualityWarning,
-        )
+            sky_quality_warning=(
+                bortle_observing_warning(self._sky_quality.bortle_class)
+                if self._sky_quality
+                else ""
+            ),
+        ))
 
     @Property("QVariant", notify=weatherChanged)
     def skyQuality(self) -> dict:
-        return self._sky_quality.to_qml() if self._sky_quality else {}
+        return render_payload(self._sky_quality.to_qml() if self._sky_quality else {})
 
     @Property("QVariant", notify=weatherChanged)
     def localAtmosphere(self) -> dict:
-        return self._local_atmosphere.to_qml()
+        return render_payload(self._local_atmosphere.to_qml())
 
     @Property("QVariant", notify=weatherChanged)
     def atmosphericTransparency(self) -> dict:
@@ -732,7 +799,7 @@ class AppController(QObject):
         result["running"] = self._nasa_aod_refresh_running
         if self._nasa_aod_refresh_running:
             result["visible"] = True
-        return result
+        return render_payload(result)
 
     @Property(bool, notify=weatherChanged)
     def nasaAodRefreshRunning(self) -> bool:
@@ -744,15 +811,15 @@ class AppController(QObject):
 
     @Property(str, notify=weatherChanged)
     def lightPollutionStatus(self) -> str:
-        return self._light_pollution_status
+        return render_text(self._light_pollution_status)
 
     @Property("QVariant", notify=weatherChanged)
     def seeingTransparency(self) -> dict:
-        return self._seeing_transparency.to_qml() if self._seeing_transparency else {}
+        return render_payload(self._seeing_transparency.to_qml() if self._seeing_transparency else {})
 
     @Property("QVariant", notify=weatherChanged)
     def weatherDigest(self) -> dict:
-        return self._weather_digest()
+        return render_payload(self._weather_digest())
 
     @Property(bool, notify=weatherChanged)
     def isObservingSessionBlocked(self) -> bool:
@@ -760,15 +827,15 @@ class AppController(QObject):
 
     @Property(str, notify=weatherChanged)
     def blockingReason(self) -> str:
-        return self._weather_blocking_status().reason
+        return render_text(self._weather_blocking_status().reason)
 
     @Property(str, notify=weatherChanged)
     def blockingDetail(self) -> str:
-        return self._weather_blocking_status().detail
+        return render_text(self._weather_blocking_status().detail)
 
     @Property(str, notify=weatherChanged)
     def suggestedObservingWindow(self) -> str:
-        return self._suggested_observing_window()
+        return render_text(self._suggested_observing_window())
 
     @Property(str, notify=weatherChanged)
     def observingSessionState(self) -> str:
@@ -776,7 +843,7 @@ class AppController(QObject):
 
     @Property(str, notify=weatherChanged)
     def observingSessionTitle(self) -> str:
-        return self._observing_session_decision().title
+        return render_text(self._observing_session_decision().title)
 
     @Property(str, notify=weatherChanged)
     def observingSessionIcon(self) -> str:
@@ -784,11 +851,11 @@ class AppController(QObject):
 
     @Property(str, notify=weatherChanged)
     def observingSessionDetail(self) -> str:
-        return self._observing_session_decision().detail
+        return render_text(self._observing_session_decision().detail)
 
     @Property(str, notify=weatherChanged)
     def observingSessionDescription(self) -> str:
-        return self._observing_session_decision().description
+        return render_text(self._observing_session_decision().description)
 
     @Property(bool, notify=weatherChanged)
     def showObservingSessionOpportunity(self) -> bool:
@@ -798,27 +865,27 @@ class AppController(QObject):
     def skyQualityWarning(self) -> str:
         if not self._sky_quality:
             return ""
-        return bortle_observing_warning(self._sky_quality.bortle_class)
+        return render_text(bortle_observing_warning(self._sky_quality.bortle_class))
 
     @Property("QVariant", notify=dataChanged)
     def bestObjectOfNight(self) -> dict:
-        return self._object_to_qml(self._best_object) if self._best_object else {}
+        return render_payload(self._object_to_qml(self._best_object) if self._best_object else {})
 
     @Property("QVariant", notify=dataChanged)
     def nightPlan(self) -> list[dict]:
-        return [item.to_qml() for item in self._night_plan]
+        return render_payload([item.to_qml() for item in self._night_plan])
 
     @Property("QVariant", notify=skyCompassChanged)
     def skyCompass(self) -> dict:
-        return self._sky_compass
+        return render_payload(self._sky_compass)
 
     @Property("QVariant", notify=selectedObjectChanged)
     def selectedObject(self) -> dict:
         if not self._selected_object:
             return {}
         if self._selected_object_source == CATALOGUE_SOURCE:
-            return self._object_to_qml(self._selected_object)
-        return self._object_to_qml(self._moon_adjusted_object(self._selected_object))
+            return render_payload(self._object_to_qml(self._selected_object))
+        return render_payload(self._object_to_qml(self._moon_adjusted_object(self._selected_object)))
 
     @Property("QVariant", notify=observingObjectDetailChanged)
     def observingObjectDetail(self) -> dict:
@@ -827,7 +894,7 @@ class AppController(QObject):
             return {}
         adjusted_target = self._moon_adjusted_object(target)
         payload = self._object_to_qml(adjusted_target)
-        status = str(payload.get("observingStatus", ""))
+        geometry_state = str(payload.get("observingStatusState", "unavailable"))
         setup_model = getattr(self, "_equipment_setup_read_models_by_object_id", {}).get(target.id)
         filter_recommendations = None
         setup_telescope_id = ""
@@ -850,11 +917,11 @@ class AppController(QObject):
             self._active_profile_reducers(),
             self._reducers,
         )
-        session = self.homeObservingOverview.get("session", {})
+        session = self._home_observing_overview_payload().get("session", {})
         is_deep_sky = not self._is_planetary_or_lunar_target(target)
-        return self._observing_object_detail_service.build(
+        return render_payload(self._observing_object_detail_service.build(
             object_payload=payload,
-            geometry_state=self._observing_status_state(status),
+            geometry_state=geometry_state,
             session=session,
             setup_model=setup_model,
             filter_recommendations=(
@@ -865,7 +932,7 @@ class AppController(QObject):
             reducer_recommendation=reducer_recommendation.to_payload(),
             altitude_threshold_deg=self._observing_altitude_threshold(target),
             is_deep_sky=is_deep_sky,
-        )
+        ))
 
     def _observing_detail_display_target(self) -> CelestialObject | None:
         if not self._selected_object or self._selected_object_source == CATALOGUE_SOURCE:
@@ -907,7 +974,7 @@ class AppController(QObject):
     @Property("QVariant", notify=dataChanged)
     def tonightHighlights(self) -> list[dict]:
         objects = self._home_visible_objects(self._visible_planets)[:2] + self._conditioned_deep_sky_candidates()[:2]
-        return [
+        return render_payload([
             {
                 "name": item.name,
                 "type": item.object_type,
@@ -915,67 +982,77 @@ class AppController(QObject):
                 "setup": item.recommended_setup,
             }
             for item in objects
-        ]
+        ])
 
     @Property("QVariant", notify=equipmentChanged)
     def beginnerPresets(self) -> list[dict]:
-        return [preset.to_qml() for preset in self._beginner_presets]
+        return render_payload([preset.to_qml() for preset in self._beginner_presets])
 
     @Property("QVariant", notify=equipmentChanged)
     def equipmentSetups(self) -> list[dict]:
-        return [telescope.to_qml() for telescope in self._catalog_telescopes()]
+        return render_payload([telescope.to_qml() for telescope in self._catalog_telescopes()])
 
     @Property("QVariant", notify=equipmentChanged)
     def profileTelescopes(self) -> list[dict]:
-        return [telescope.to_qml() for telescope in self._active_profile_telescopes()]
+        return render_payload([telescope.to_qml() for telescope in self._active_profile_telescopes()])
 
     @Property("QVariant", notify=equipmentChanged)
     def availableProfileTelescopes(self) -> list[dict]:
         assigned = {telescope.id for telescope in self._active_profile_telescopes()}
-        return [telescope.to_qml() for telescope in self._catalog_telescopes() if telescope.id not in assigned]
+        return render_payload(
+            [telescope.to_qml() for telescope in self._catalog_telescopes() if telescope.id not in assigned]
+        )
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeBrands(self) -> list[dict]:
-        return self._telescope_brands
+        return render_payload(self._telescope_brands)
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCatalogModels(self) -> list[dict]:
-        return self._telescope_catalog_models
+        return render_payload(self._telescope_catalog_models)
 
     @Property("QVariant", notify=equipmentChanged)
     def eyepieceCatalog(self) -> list[dict]:
-        return self._catalog_eyepieces
+        return render_payload(self._catalog_eyepieces)
 
     @Property("QVariant", notify=equipmentChanged)
     def barlowCatalog(self) -> list[dict]:
-        return self._catalog_barlows
+        return render_payload(self._catalog_barlows)
 
     @Property("QVariant", notify=equipmentChanged)
     def binocularCatalog(self) -> list[dict]:
-        return self._catalog_binoculars
+        return render_payload(self._catalog_binoculars)
 
     @Property("QVariant", notify=equipmentChanged)
     def filterCatalog(self) -> list[dict]:
-        return self._catalog_filters
+        return render_payload(self._catalog_filters)
 
     @Property("QVariant", constant=True)
     def filterClassOptions(self) -> list[dict[str, str]]:
-        return [
+        return render_payload([
             {"code": code, "label": label}
             for code, label in FILTER_CLASS_OPTIONS
-        ]
+        ])
 
     @Property("QVariant", notify=equipmentChanged)
     def reducerCatalog(self) -> list[dict]:
-        return self._catalog_reducers
+        return render_payload(self._catalog_reducers)
 
     @Property("QVariant", notify=equipmentChanged)
     def equipmentProfiles(self) -> list[dict]:
-        return self._equipment_profiles
+        return render_payload(self._presented_equipment_profiles())
 
     @Property("QVariant", notify=equipmentChanged)
     def activeEquipmentProfile(self) -> dict:
-        return self._active_profile() or {"id": 0, "profile_name": "Occhio nudo", "active": 1, "telescope_id": "preset:naked-eye"}
+        return render_payload(self._active_profile_payload())
+
+    def _active_profile_payload(self) -> dict:
+        return self._active_profile() or {
+            "id": 0,
+            "profile_name": tr("Occhio nudo"),
+            "active": 1,
+            "telescope_id": "preset:naked-eye",
+        }
 
     @Property("QVariant", notify=dataChanged)
     def objectImages(self) -> list[dict]:
@@ -983,20 +1060,22 @@ class AppController(QObject):
 
     @Property("QVariant", notify=equipmentChanged)
     def eyepieces(self) -> list[dict]:
-        return [eyepiece.to_qml() for eyepiece in self._active_profile_eyepieces()]
+        return render_payload([eyepiece.to_qml() for eyepiece in self._active_profile_eyepieces()])
 
     @Property("QVariant", notify=equipmentChanged)
     def ownedEyepieces(self) -> list[dict]:
-        return [eyepiece.to_qml() for eyepiece in self._eyepieces]
+        return render_payload([eyepiece.to_qml() for eyepiece in self._eyepieces])
 
     @Property("QVariant", notify=equipmentChanged)
     def availableProfileEyepieces(self) -> list[dict]:
         assigned = {eyepiece.id for eyepiece in self._active_profile_eyepieces()}
-        return [eyepiece.to_qml() for eyepiece in self._eyepieces if eyepiece.id not in assigned]
+        return render_payload(
+            [eyepiece.to_qml() for eyepiece in self._eyepieces if eyepiece.id not in assigned]
+        )
 
     @Property("QVariant", notify=equipmentChanged)
     def ownedBarlows(self) -> list[dict]:
-        return [barlow.to_qml() for barlow in self._barlows]
+        return render_payload([barlow.to_qml() for barlow in self._barlows])
 
     @Property("QVariant", notify=equipmentChanged)
     def profileEquipmentCatalog(self) -> list[dict]:
@@ -1004,37 +1083,39 @@ class AppController(QObject):
         items = self._equipment_catalog_items()
         for item in items:
             item["assigned"] = item["id"] in assigned_ids
-        return items
+        return render_payload(items)
 
     @Property("QVariant", notify=equipmentChanged)
     def profileAssignedEquipment(self) -> list[dict]:
-        return self._profile_assigned_equipment()
+        return render_payload(self._profile_assigned_equipment())
 
     @Property("QVariant", notify=equipmentChanged)
     def profileBarlows(self) -> list[dict]:
-        return [barlow.to_qml() for barlow in self._active_profile_barlows()]
+        return render_payload([barlow.to_qml() for barlow in self._active_profile_barlows()])
 
     @Property("QVariant", notify=equipmentChanged)
     def availableProfileBarlows(self) -> list[dict]:
         assigned = {barlow.id for barlow in self._active_profile_barlows()}
-        return [barlow.to_qml() for barlow in self._barlows if barlow.id not in assigned]
+        return render_payload([barlow.to_qml() for barlow in self._barlows if barlow.id not in assigned])
 
     @Property("QVariant", notify=equipmentChanged)
     def profileBinoculars(self) -> list[dict]:
-        return [binocular.to_qml() for binocular in self._active_profile_binoculars()]
+        return render_payload([binocular.to_qml() for binocular in self._active_profile_binoculars()])
 
     @Property("QVariant", notify=equipmentChanged)
     def availableProfileBinoculars(self) -> list[dict]:
         assigned = {binocular.id for binocular in self._active_profile_binoculars()}
-        return [binocular.to_qml() for binocular in self._binoculars if binocular.id not in assigned]
+        return render_payload(
+            [binocular.to_qml() for binocular in self._binoculars if binocular.id not in assigned]
+        )
 
     @Property("QVariant", notify=equipmentChanged)
     def profileFilters(self) -> list[dict]:
-        return [optical_filter.to_qml() for optical_filter in self._active_profile_filters()]
+        return render_payload([optical_filter.to_qml() for optical_filter in self._active_profile_filters()])
 
     @Property("QVariant", notify=equipmentChanged)
     def profileReducers(self) -> list[dict]:
-        return [reducer.to_qml() for reducer in self._active_profile_reducers()]
+        return render_payload([reducer.to_qml() for reducer in self._active_profile_reducers()])
 
     @Property(bool, notify=equipmentChanged)
     def canUseEyepieces(self) -> bool:
@@ -1042,23 +1123,27 @@ class AppController(QObject):
 
     @Property(str, notify=equipmentChanged)
     def equipmentMessage(self) -> str:
-        return self._equipment_message
+        return render_text(self._equipment_message)
 
     @Property("QVariant", notify=equipmentChanged)
     def currentSetup(self) -> dict:
-        return self._current_telescope().to_qml()
+        return render_payload(self._current_telescope().to_qml())
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCalculations(self) -> list[dict]:
-        return self._equipment_service.calculations(self._current_telescope(), self._active_profile_eyepieces(), self._barlow)
+        return render_payload(
+            self._equipment_service.calculations(
+                self._current_telescope(), self._active_profile_eyepieces(), self._barlow
+            )
+        )
 
     @Property("QVariant", notify=equipmentChanged)
     def telescopeCapabilities(self) -> dict:
-        return self._equipment_service.profile_capabilities(
+        return render_payload(self._equipment_service.profile_capabilities(
             self._current_telescope(),
             self._active_profile_eyepieces(),
             self._active_profile_barlows(),
-        )
+        ))
 
     @Property(float, notify=equipmentChanged)
     def selectedBarlow(self) -> float:
@@ -1066,11 +1151,11 @@ class AppController(QObject):
 
     @Property("QVariant", notify=observationChanged)
     def observationLog(self) -> list[dict]:
-        return self._observation_log
+        return render_payload(self._observation_log)
 
     @Property("QVariant", notify=observationChanged)
     def observationLogSummary(self) -> dict:
-        return self._observation_log_summary
+        return render_payload(self._observation_log_summary)
 
     @Property("QVariant", notify=observationChanged)
     def observationLogDefaults(self) -> dict:
@@ -1087,7 +1172,31 @@ class AppController(QObject):
 
     @Property(str, notify=observationChanged)
     def observationMessage(self) -> str:
-        return self._observation_message
+        return render_text(self._observation_message)
+
+    @Slot()
+    def retranslatePresentation(self) -> None:
+        """Refreshes localized payloads without recomputing astronomy or NSOM."""
+
+        self._observation_log = self._observation_log_service.build_entries(
+            self._observation_rows
+        )
+        self._observation_log_summary = self._observation_log_service.build_summary(
+            self._observation_rows
+        )
+        self._equipment_message = self._equipment_status_message()
+
+        self.locationChanged.emit()
+        self.statusChanged.emit()
+        self.earthdataCredentialsChanged.emit()
+        self.openaqCredentialsChanged.emit()
+        self.catalogueChanged.emit()
+        self.equipmentChanged.emit()
+        self.observationChanged.emit()
+        self.dataChanged.emit()
+        self.weatherChanged.emit()
+        self.skyCompassChanged.emit()
+        self.selectedObjectChanged.emit()
 
     @Slot(str)
     def selectObject(self, object_id: str) -> None:
@@ -1198,16 +1307,16 @@ class AppController(QObject):
             parsed_latitude = float(latitude.replace(",", "."))
             parsed_longitude = float(longitude.replace(",", "."))
         except ValueError:
-            self._location_message = "Coordinate non valide."
+            self._location_message = tr("Coordinate non valide.")
             self.locationChanged.emit()
             return
 
         if not -90 <= parsed_latitude <= 90 or not -180 <= parsed_longitude <= 180:
-            self._location_message = "Coordinate fuori intervallo."
+            self._location_message = tr("Coordinate fuori intervallo.")
             self.locationChanged.emit()
             return
 
-        clean_label = label.strip() or "Coordinate manuali"
+        clean_label = label.strip() or tr("Coordinate manuali")
         self._cancel_startup_location_detection()
         result = self._location_service.from_manual_coordinates_result(
             parsed_latitude,
@@ -1225,7 +1334,9 @@ class AppController(QObject):
             result = self._location_service.detect_windows_location()
         except LocationUnavailableError as exc:
             logger.warning("Windows location unavailable in AppController: %s", exc.reason)
-            self._location_message = "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
+            self._location_message = tr(
+                "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
+            )
             self._offer_online_location_fallback = True
             self.locationChanged.emit()
             return
@@ -1281,7 +1392,10 @@ class AppController(QObject):
             self._earthdata_credentials_state = self._earthdata_credential_store.save(username, password)
         except (RuntimeError, ValueError) as exc:
             self._earthdata_credentials_state = self._earthdata_credential_store.state()
-            self._earthdata_credentials_state = replace(self._earthdata_credentials_state, message=str(exc))
+            self._earthdata_credentials_state = replace(
+                self._earthdata_credentials_state,
+                message=exc.args[0],
+            )
         self._nasa_aod_refresh_running = False
         self._nasa_aod_result = NasaAodResult.no_credentials()
         self._nasa_aod_provider.clear_cache()
@@ -1312,14 +1426,14 @@ class AppController(QObject):
         if not username or not password:
             self._earthdata_credentials_state = replace(
                 self._earthdata_credential_store.state(),
-                message="Salva le credenziali Earthdata prima del test.",
+                message=tr("Salva le credenziali Earthdata prima del test."),
             )
             self.earthdataCredentialsChanged.emit()
             return
         self._earthdata_connection_test_running = True
         self._earthdata_credentials_state = replace(
             self._earthdata_credentials_state,
-            message="Verifica connessione Earthdata in corso...",
+            message=tr("Verifica connessione Earthdata in corso..."),
         )
         self.earthdataCredentialsChanged.emit()
 
@@ -1329,12 +1443,16 @@ class AppController(QObject):
                 self._earthdataConnectionTestFinished.emit(result.ok, result.message, result.authorization_required)
             except Exception:
                 logger.warning("Unexpected Earthdata connection test failure.", exc_info=True)
-                self._earthdataConnectionTestFinished.emit(False, "Connessione Earthdata non riuscita.", False)
+                self._earthdataConnectionTestFinished.emit(
+                    False,
+                    tr("Connessione Earthdata non riuscita."),
+                    False,
+                )
 
         Thread(target=run_test, daemon=True).start()
 
-    @Slot(bool, str, bool)
-    def _finish_earthdata_connection_test(self, ok: bool, message: str, authorization_required: bool) -> None:
+    @Slot(bool, object, bool)
+    def _finish_earthdata_connection_test(self, ok: bool, message: object, authorization_required: bool) -> None:
         self._earthdata_connection_test_running = False
         if ok:
             self._mark_refresh_dirty(
@@ -1363,7 +1481,10 @@ class AppController(QObject):
             self._openaq_credentials_state = self._openaq_credential_store.save(api_key)
         except (RuntimeError, ValueError) as exc:
             self._openaq_credentials_state = self._openaq_credential_store.state()
-            self._openaq_credentials_state = replace(self._openaq_credentials_state, message=str(exc))
+            self._openaq_credentials_state = replace(
+                self._openaq_credentials_state,
+                message=exc.args[0],
+            )
         self._refresh_local_atmosphere()
         self.openaqCredentialsChanged.emit()
         self.weatherChanged.emit()
@@ -1385,7 +1506,7 @@ class AppController(QObject):
         if not api_key:
             self._openaq_credentials_state = replace(
                 self._openaq_credential_store.state(),
-                message="Salva la API key OpenAQ prima del test.",
+                message=tr("Salva la API key OpenAQ prima del test."),
             )
             self.openaqCredentialsChanged.emit()
             return
@@ -1393,7 +1514,7 @@ class AppController(QObject):
         self._openaq_credentials_state = replace(
             self._openaq_credentials_state,
             connection_verified=False,
-            message="Verifica connessione OpenAQ in corso...",
+            message=tr("Verifica connessione OpenAQ in corso..."),
         )
         self.openaqCredentialsChanged.emit()
 
@@ -1403,12 +1524,15 @@ class AppController(QObject):
                 self._openaqConnectionTestFinished.emit(result.ok, result.message)
             except Exception:
                 logger.warning("Unexpected OpenAQ connection test failure.", exc_info=True)
-                self._openaqConnectionTestFinished.emit(False, "Connessione OpenAQ non riuscita.")
+                self._openaqConnectionTestFinished.emit(
+                    False,
+                    tr("Connessione OpenAQ non riuscita."),
+                )
 
         Thread(target=run_test, daemon=True).start()
 
-    @Slot(bool, str)
-    def _finish_openaq_connection_test(self, ok: bool, message: str) -> None:
+    @Slot(bool, object)
+    def _finish_openaq_connection_test(self, ok: bool, message: object) -> None:
         self._openaq_connection_test_running = False
         self._openaq_credentials_state = self._openaq_credential_store.with_connection_result(ok, message)
         if ok:
@@ -1426,7 +1550,7 @@ class AppController(QObject):
         report = self._location_service.windows_location_diagnostics()
         self._windows_location_diagnostics = report
         logger.info("Windows location diagnostics exposed to UI: %s", report.get("providerStatus", "n/d"))
-        self._location_message = (
+        self._location_message = tr(
             "Diagnostica posizione Windows completata. "
             "Consulta il report qui sotto e nightscope.log."
         )
@@ -1442,28 +1566,28 @@ class AppController(QObject):
     def addEquipmentProfile(self, profile_name: str) -> None:
         clean_name = profile_name.strip()
         if not clean_name:
-            self._equipment_message = "Inserisci un nome profilo."
+            self._equipment_message = tr("Inserisci un nome profilo.")
             self.equipmentChanged.emit()
             return
         if any(profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
-            self._equipment_message = "Questo profilo esiste già."
+            self._equipment_message = tr("Questo profilo esiste già.")
             self.equipmentChanged.emit()
             return
         self._equipment_catalog_repository.add_profile(clean_name, self._equipment_service.NAKED_EYE_ID, active=False)
         self._refresh_profiles_from_repository()
         self._profile_equipment.setdefault(self._profile_key_by_name(clean_name), self._empty_profile_equipment_state())
-        self._equipment_message = f"Profilo creato: {clean_name}."
+        self._equipment_message = tr("Profilo creato: {name}.", name=clean_name)
         self.equipmentChanged.emit()
 
     @Slot(int, str)
     def renameEquipmentProfile(self, profile_id: int, profile_name: str) -> None:
         clean_name = profile_name.strip()
         if not clean_name:
-            self._equipment_message = "Inserisci un nome profilo."
+            self._equipment_message = tr("Inserisci un nome profilo.")
             self.equipmentChanged.emit()
             return
         if any(int(profile["id"]) != profile_id and profile["profile_name"].strip().lower() == clean_name.lower() for profile in self._equipment_profiles):
-            self._equipment_message = "Questo profilo esiste già."
+            self._equipment_message = tr("Questo profilo esiste già.")
             self.equipmentChanged.emit()
             return
         was_active = any(
@@ -1472,7 +1596,7 @@ class AppController(QObject):
         )
         self._equipment_catalog_repository.rename_profile(profile_id, clean_name)
         self._refresh_profiles_from_repository()
-        self._equipment_message = f"Profilo rinominato: {clean_name}."
+        self._equipment_message = tr("Profilo rinominato: {name}.", name=clean_name)
         if was_active:
             self._refresh_active_profile_dependencies(reload_profile_equipment=True)
             self._emit_profile_dependent_changes()
@@ -1482,13 +1606,13 @@ class AppController(QObject):
     @Slot(int)
     def deleteEquipmentProfile(self, profile_id: int) -> None:
         if len(self._equipment_profiles) <= 1:
-            self._equipment_message = "Mantieni almeno un profilo attrezzatura."
+            self._equipment_message = tr("Mantieni almeno un profilo attrezzatura.")
             self.equipmentChanged.emit()
             return
         self._equipment_catalog_repository.delete_profile(profile_id)
         self._profile_equipment.pop(str(profile_id), None)
         self._refresh_profiles_from_repository()
-        self._equipment_message = "Profilo eliminato."
+        self._equipment_message = tr("Profilo eliminato.")
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
 
@@ -1658,7 +1782,9 @@ class AppController(QObject):
     @Slot(float)
     def setBarlow(self, barlow: float) -> None:
         if not self.canUseEyepieces:
-            self._equipment_message = "Crea o seleziona un telescopio prima di usare oculari o Barlow."
+            self._equipment_message = tr(
+                "Crea o seleziona un telescopio prima di usare oculari o Barlow."
+            )
             self.equipmentChanged.emit()
             return
         self._barlow = barlow
@@ -1704,7 +1830,7 @@ class AppController(QObject):
             aperture_mm = int(float(aperture.replace(",", ".")))
             focal_mm = int(float(focal.replace(",", ".")))
         except ValueError:
-            self._equipment_message = "Dati telescopio non validi."
+            self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
             return
         ok, message = self._equipment_catalog_repository.add_telescope_model(brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
@@ -1716,7 +1842,7 @@ class AppController(QObject):
             aperture_mm = int(float(aperture.replace(",", ".")))
             focal_mm = int(float(focal.replace(",", ".")))
         except ValueError:
-            self._equipment_message = "Dati telescopio non validi."
+            self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
             return
         ok, message = self._equipment_catalog_repository.update_telescope_model(model_id, brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
@@ -1805,7 +1931,7 @@ class AppController(QObject):
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
         except ValueError:
-            self._equipment_message = "Moltiplicatore Barlow non valido."
+            self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
             return
         ok, message = self._equipment_catalog_repository.add_barlow(brand, model, parsed_multiplier, barrel_size, notes)
@@ -1816,7 +1942,7 @@ class AppController(QObject):
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
         except ValueError:
-            self._equipment_message = "Moltiplicatore Barlow non valido."
+            self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
             return
         ok, message = self._equipment_catalog_repository.update_barlow(barlow_id, brand, model, parsed_multiplier, barrel_size, notes)
@@ -2080,7 +2206,7 @@ class AppController(QObject):
 
     @Slot(str, str)
     def addCatalogProfile(self, catalog_id: str, profile_name: str) -> None:
-        clean_name = profile_name.strip() or "Nuovo profilo"
+        clean_name = profile_name.strip() or tr("Nuovo profilo")
         self._equipment_catalog_repository.add_profile(clean_name, catalog_id, active=True)
         self._refresh_profiles_from_repository()
         self._equipment_message = self._equipment_status_message()
@@ -2134,10 +2260,10 @@ class AppController(QObject):
                 notes,
             )
         except ObservationLogValidationError as error:
-            self._set_observation_message(str(error))
+            self._set_observation_message(error.args[0])
             return False
         self._observation_repository.add(**values)
-        self._reload_observation_log("Osservazione aggiunta al log.")
+        self._reload_observation_log(tr("Osservazione aggiunta al log."))
         return True
 
     @Slot(int, str, str, str, str, str, str, int, str, result=bool)
@@ -2165,20 +2291,24 @@ class AppController(QObject):
                 notes,
             )
         except ObservationLogValidationError as error:
-            self._set_observation_message(str(error))
+            self._set_observation_message(error.args[0])
             return False
         if not self._observation_repository.update(observation_id, **values):
-            self._set_observation_message("L'osservazione selezionata non esiste più.")
+            self._set_observation_message(
+                tr("L'osservazione selezionata non esiste più.")
+            )
             return False
-        self._reload_observation_log("Osservazione aggiornata.")
+        self._reload_observation_log(tr("Osservazione aggiornata."))
         return True
 
     @Slot(int, result=bool)
     def deleteObservation(self, observation_id: int) -> bool:
         if not self._observation_repository.delete(observation_id):
-            self._set_observation_message("L'osservazione selezionata non esiste più.")
+            self._set_observation_message(
+                tr("L'osservazione selezionata non esiste più.")
+            )
             return False
-        self._reload_observation_log("Osservazione eliminata.")
+        self._reload_observation_log(tr("Osservazione eliminata."))
         return True
 
     @Slot()
@@ -2230,7 +2360,11 @@ class AppController(QObject):
     def _refresh_all(self) -> None:
         self._set_loading(True)
         previous_status = self._service_status
-        self._service_status = previous_status if "ephemeris unavailable" in previous_status.lower() else ""
+        self._service_status = (
+            previous_status
+            if isinstance(self._astronomy_engine, MockAstronomyEngine)
+            else ""
+        )
         try:
             if self._startup_location_detection_running:
                 self._refresh_startup_location_pending_context()
@@ -2244,7 +2378,11 @@ class AppController(QObject):
                 self._refresh_no_location_context()
         except Exception:
             logger.exception("Unexpected refresh failure.")
-            self._append_service_status("NightScope could not update all data. Existing data remains available.")
+            self._append_service_status(
+                tr(
+                    "NightScope non ha potuto aggiornare tutti i dati. I dati esistenti restano disponibili."
+                )
+            )
 
         self._complete_refresh_all()
 
@@ -2270,7 +2408,7 @@ class AppController(QObject):
         self._refresh_no_location_context()
         self._location_message = STARTUP_LOCATION_PENDING_MESSAGE
         self._weather_status = STARTUP_WEATHER_PENDING_MESSAGE
-        self._service_status = "Ricerca della posizione in corso."
+        self._service_status = tr("Ricerca della posizione in corso.")
 
     def _refresh_no_location_context(self) -> None:
         self._cancel_astronomy_refresh()
@@ -2291,41 +2429,69 @@ class AppController(QObject):
         self._deep_sky_raw_condition_input_by_id = {}
         self._moon_geometry_condition_cache = {}
         self._moon = MoonSummary(
-            phase="n/d",
-            illumination="n/d",
-            rise_time="n/d",
-            set_time="n/d",
-            best_note="Configura una posizione per calcolare i dati lunari locali.",
+            phase=tr("n/d"),
+            illumination=tr("n/d"),
+            rise_time=tr("n/d"),
+            set_time=tr("n/d"),
+            best_note=tr("Configura una posizione per calcolare i dati lunari locali."),
             image="resources/images/solar_system/moon.jpg",
         )
         self._events = []
         self._weather_hours = []
-        self._weather_status = "Configura una posizione per visualizzare il meteo."
+        self._weather_status = tr("Configura una posizione per visualizzare il meteo.")
         self._light_pollution_status = ""
         self._viirs_sky_quality_running = False
         self._nasa_aod_refresh_running = False
         self._nasa_aod_result = NasaAodResult.no_location()
         self._refresh_local_atmosphere()
         self._weather_summary = WeatherSummary(
-            "n/d",
+            tr("n/d"),
             0,
-            "Configura una posizione per ottenere meteo e cielo locale.",
+            tr("Configura una posizione per ottenere meteo e cielo locale."),
             0,
             0,
             0,
             0,
             0.0,
-            "Configura una posizione per ottenere meteo e cielo locale.",
+            tr("Configura una posizione per ottenere meteo e cielo locale."),
         )
-        self._sky_quality = SkyQuality(0, 0.0, 0.0, "Nessuna fonte", "n/d", "n/d")
-        self._seeing_transparency = SeeingTransparency("n/d", "n/d", 0, 0, "Configura una posizione.", "n/d", "n/d")
-        self._category_scores = ObservingCategoryScores(0, 0, "n/d", "n/d", "Configura una posizione.")
+        self._sky_quality = SkyQuality(
+            0,
+            0.0,
+            0.0,
+            tr("Nessuna fonte"),
+            tr("n/d"),
+            "unavailable",
+        )
+        self._seeing_transparency = SeeingTransparency(
+            "",
+            "",
+            0,
+            0,
+            tr("Configura una posizione."),
+            "unavailable",
+            "unavailable",
+        )
+        self._category_scores = ObservingCategoryScores(
+            0,
+            0,
+            tr("n/d"),
+            tr("n/d"),
+            tr("Configura una posizione."),
+        )
         self._best_object = None
         self._night_plan = []
         self._sky_compass_candidate_snapshot = []
         self._cancel_sky_compass_live_refresh()
-        self._set_sky_compass(SkyCompassService.empty("no_location", "Configura una località per usare Sky Compass."))
-        self._service_status = "Configura la posizione per ottenere meteo e cielo locale."
+        self._set_sky_compass(
+            SkyCompassService.empty(
+                "no_location",
+                tr("Configura una località per usare Sky Compass."),
+            )
+        )
+        self._service_status = tr(
+            "Configura la posizione per ottenere meteo e cielo locale."
+        )
         self._invalidate_catalogue_visibility_cache()
         self._refresh_lifecycle().clear_all()
         self.catalogueChanged.emit()
@@ -2491,7 +2657,7 @@ class AppController(QObject):
             snapshot = AstronomyRefreshSnapshot(failed=True)
 
         if purpose == ASTRONOMY_REFRESH_VIIRS_DEEP_SKY:
-            self._finish_viirs_deep_sky_refresh(snapshot, str(context or ""))
+            self._finish_viirs_deep_sky_refresh(snapshot, context or "")
             return
 
         self._apply_astronomy_snapshot(snapshot)
@@ -2503,7 +2669,10 @@ class AppController(QObject):
             except Exception:
                 logger.exception("Unexpected refresh failure after astronomy completion.")
                 self._append_service_status(
-                    "NightScope could not update all data. Existing data remains available."
+                    tr(
+                        "NightScope non ha potuto aggiornare tutti i dati. "
+                        "I dati esistenti restano disponibili."
+                    )
                 )
             self._complete_refresh_all()
             return
@@ -2512,7 +2681,7 @@ class AppController(QObject):
             error = values[0] if len(values) >= 1 else ""
             retry_recommended = bool(values[1]) if len(values) >= 2 else False
             complete_full_refresh = bool(values[2]) if len(values) >= 3 else False
-            self._complete_weather_refresh(str(error), bool(retry_recommended))
+            self._complete_weather_refresh(error, bool(retry_recommended))
             if complete_full_refresh:
                 self._complete_refresh_all()
 
@@ -2526,7 +2695,9 @@ class AppController(QObject):
             self._deep_sky = []
             self._events = []
             self._observing_night_window = ObservingNightWindow.unavailable()
-            self._append_service_status("Dati astronomici temporaneamente non disponibili.")
+            self._append_service_status(
+                tr("Dati astronomici temporaneamente non disponibili.")
+            )
             return
 
         self._observing_night_window = snapshot.observing_night_window or ObservingNightWindow.unavailable()
@@ -2567,7 +2738,7 @@ class AppController(QObject):
         if not self._has_valid_location():
             logger.warning("Weather refresh skipped because no valid location is available.")
             self._weather_hours = []
-            self._weather_status = "Configura una posizione per visualizzare il meteo."
+            self._weather_status = tr("Configura una posizione per visualizzare il meteo.")
             self._weather_summary = self._score_service.weather_score([], self._moon)
             self._refresh_local_atmosphere()
             self._schedule_next_weather_refresh()
@@ -2608,7 +2779,7 @@ class AppController(QObject):
             return False
         if not self._has_valid_location():
             self._weather_refresh_request_id += 1
-            self._weather_status = "Dati meteo non disponibili al momento."
+            self._weather_status = tr("Dati meteo non disponibili al momento.")
             self._weather_refresh_running = False
             self._weather_refresh_timer.stop()
             self._weather_retry_pending = False
@@ -2691,13 +2862,13 @@ class AppController(QObject):
             retry_attempt=retry_attempt,
         )
 
-    @Slot(int, str, object, str, bool)
+    @Slot(int, str, object, object, bool)
     def _finish_weather_refresh(
         self,
         request_id: int,
         location_key: str,
         hours: object,
-        error: str,
+        error: object,
         retry_recommended: bool = False,
     ) -> None:
         if request_id != self._weather_refresh_request_id:
@@ -2746,7 +2917,7 @@ class AppController(QObject):
 
     def _complete_weather_refresh(
         self,
-        error: str,
+        error: object,
         retry_recommended: bool,
     ) -> None:
         observing_hours = self._observing_weather_hours()
@@ -2787,12 +2958,14 @@ class AppController(QObject):
         self._weather_refresh_timer.start(delay_ms)
 
     @staticmethod
-    def _weather_status_from_error(error: str, hours: list[WeatherHour]) -> str:
+    def _weather_status_from_error(error: object, hours: list[WeatherHour]) -> str:
         if error != WEATHER_UNAVAILABLE_MESSAGE:
             return error
         if hours:
-            return "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili."
-        return "Dati meteo non disponibili al momento."
+            return tr(
+                "Tentativo di aggiornamento meteo fallito; uso ultimi dati disponibili."
+            )
+        return tr("Dati meteo non disponibili al momento.")
 
     def _recalculate_observing_outputs(self) -> None:
         self._category_scores = self._nsom_category_score_service.scores(
@@ -3185,10 +3358,10 @@ class AppController(QObject):
 
     def _sky_compass_caution_text(self) -> str:
         if not self._weather_hours:
-            return "Condizioni meteo non disponibili: usa la direzione come orientamento, non come invito a osservare."
+            return tr("Condizioni meteo non disponibili: usa la direzione come orientamento, non come invito a osservare.")
         if self._observing_session_decision().state == "recommended":
             return ""
-        return "Condizioni non ideali: usa la direzione come orientamento, non come invito a osservare."
+        return tr("Condizioni non ideali: usa la direzione come orientamento, non come invito a osservare.")
 
     def _refresh_local_atmosphere(self) -> None:
         api_key = self._openaq_credential_store.api_key()
@@ -3219,7 +3392,9 @@ class AppController(QObject):
                 logger.warning("Unexpected OpenAQ local atmosphere refresh failure.", exc_info=True)
                 self._localAtmosphereRefreshFinished.emit(
                     location_key,
-                    LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento."),
+                    LocalAtmosphere.failure(
+                        tr("Dati OpenAQ non disponibili al momento.")
+                    ),
                 )
 
         Thread(target=run_lookup, daemon=True).start()
@@ -3249,7 +3424,9 @@ class AppController(QObject):
         if isinstance(atmosphere, LocalAtmosphere):
             self._local_atmosphere = atmosphere
         else:
-            self._local_atmosphere = LocalAtmosphere.failure("Dati OpenAQ non disponibili al momento.")
+            self._local_atmosphere = LocalAtmosphere.failure(
+                tr("Dati OpenAQ non disponibili al momento.")
+            )
         if self._local_atmosphere != previous_atmosphere:
             self._recalculate_after_condition_provider_refresh()
         self.weatherChanged.emit()
@@ -3282,9 +3459,9 @@ class AppController(QObject):
         location_key = LightPollutionService._location_key(location)
         self._viirs_sky_quality_running = True
         self._light_pollution_status = (
-            "Verifica aggiornamenti VIIRS NASA..."
+            tr("Verifica aggiornamenti VIIRS NASA...")
             if cache_state is ViirsCacheState.STALE
-            else "Recupero dati VIIRS NASA..."
+            else tr("Recupero dati VIIRS NASA...")
         )
         self.weatherChanged.emit()
 
@@ -3292,11 +3469,15 @@ class AppController(QObject):
             try:
                 quality = self._light_pollution_service.remote_sky_quality(location)
                 if quality:
-                    message = "Dati VIIRS NASA aggiornati."
+                    message = tr("Dati VIIRS NASA aggiornati.")
                 elif cache_state is ViirsCacheState.STALE:
-                    message = "Aggiornamento VIIRS non disponibile; uso dati in cache."
+                    message = tr(
+                        "Aggiornamento VIIRS non disponibile; uso dati in cache."
+                    )
                 else:
-                    message = "Dati VIIRS NASA non disponibili; uso fonte locale."
+                    message = tr(
+                        "Dati VIIRS NASA non disponibili; uso fonte locale."
+                    )
                 self._viirsSkyQualityFinished.emit(location_key, quality, message)
             except Exception:
                 logger.warning("Unexpected VIIRS sky-quality refresh failure.", exc_info=True)
@@ -3304,16 +3485,16 @@ class AppController(QObject):
                     location_key,
                     None,
                     (
-                        "Aggiornamento VIIRS non disponibile; uso dati in cache."
+                        tr("Aggiornamento VIIRS non disponibile; uso dati in cache.")
                         if cache_state is ViirsCacheState.STALE
-                        else "Dati VIIRS NASA non disponibili; uso fonte locale."
+                        else tr("Dati VIIRS NASA non disponibili; uso fonte locale.")
                     ),
                 )
 
         Thread(target=run_lookup, daemon=True).start()
 
-    @Slot(str, object, str)
-    def _finish_viirs_sky_quality_refresh(self, location_key: str, quality: object, message: str) -> None:
+    @Slot(str, object, object)
+    def _finish_viirs_sky_quality_refresh(self, location_key: str, quality: object, message: object) -> None:
         self._viirs_sky_quality_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
             self._light_pollution_status = ""
@@ -3352,7 +3533,7 @@ class AppController(QObject):
     def _finish_viirs_deep_sky_refresh(
         self,
         snapshot: AstronomyRefreshSnapshot,
-        message: str,
+        message: object,
     ) -> None:
         self._seeing_transparency = self._seeing_service.estimate(
             self._observing_weather_hours(),
@@ -3432,7 +3613,10 @@ class AppController(QObject):
                 logger.warning("Unexpected NASA AOD refresh failure.", exc_info=True)
                 self._nasaAodRefreshFinished.emit(
                     location_key,
-                    NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento."),
+                    NasaAodResult.failure(
+                        "parse_error",
+                        tr("Dati NASA AOD non disponibili al momento."),
+                    ),
                 )
 
         Thread(target=run_lookup, daemon=True).start()
@@ -3458,7 +3642,10 @@ class AppController(QObject):
         if isinstance(result, NasaAodResult):
             self._nasa_aod_result = result
         else:
-            self._nasa_aod_result = NasaAodResult.failure("parse_error", "Dati NASA AOD non disponibili al momento.")
+            self._nasa_aod_result = NasaAodResult.failure(
+                "parse_error",
+                tr("Dati NASA AOD non disponibili al momento."),
+            )
         self._log_nasa_aod_result(self._nasa_aod_result)
         if self._nasa_aod_result != previous_result:
             self._recalculate_after_condition_provider_refresh()
@@ -3508,12 +3695,12 @@ class AppController(QObject):
         self.dataChanged.emit()
         self.selectedObjectChanged.emit()
 
-    def _append_service_status(self, message: str) -> None:
+    def _append_service_status(self, message: object) -> None:
         if not message:
             return
         if self._service_status:
             if message not in self._service_status:
-                self._service_status = f"{self._service_status} {message}"
+                self._service_status = join_text([self._service_status, message], " ")
         else:
             self._service_status = message
         self.statusChanged.emit()
@@ -3598,7 +3785,7 @@ class AppController(QObject):
         previous_location = self._location
         self._location_detection_result = result
         self._location = result.location
-        self._location_message = result.message
+        self._location_message = self._location_result_message(result)
         self._offer_online_location_fallback = False
         if (
             not isinstance(previous_location, ObserverLocation)
@@ -3612,11 +3799,44 @@ class AppController(QObject):
         self.catalogueChanged.emit()
         self._clear_refresh_domains(RefreshDomain.LOCATION)
 
+    @staticmethod
+    def _location_result_message(result: LocationDetectionResult) -> str:
+        location = result.location
+        if result.provider == "manual_city":
+            return tr(
+                "Posizione impostata su {city}, {country}.",
+                city=location.city,
+                country=location.country,
+            )
+        if result.provider == "manual_coordinates":
+            return tr(
+                "Coordinate impostate: {latitude}, {longitude}.",
+                latitude=format_number(location.latitude, decimals=4),
+                longitude=format_number(location.longitude, decimals=4),
+            )
+        if result.provider == "ip_geolocation":
+            return tr(
+                "Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata.",
+                city=location.city,
+                country=location.country or tr("sconosciuto"),
+            )
+        if result.provider == "windows_coarse":
+            return tr("Posizione Windows approssimata acquisita.")
+        if result.provider == "windows_precise":
+            if location.country:
+                return tr(
+                    "Posizione Windows acquisita: {city}, {country}.",
+                    city=location.city,
+                    country=location.country,
+                )
+            return tr("Posizione Windows acquisita.")
+        return result.message or tr("Posizione caricata.")
+
     def _reset_location_provider_presentations(self) -> None:
         if self._earthdata_credentials_state.connection_verified:
             self._nasa_aod_result = NasaAodResult.failure(
                 "pending",
-                "Aggiornamento dati NASA AOD per la nuova posizione.",
+                tr("Aggiornamento dati NASA AOD per la nuova posizione."),
             )
         else:
             self._nasa_aod_result = NasaAodResult.no_credentials()
@@ -3625,7 +3845,7 @@ class AppController(QObject):
             and self._openaq_credential_store.api_key()
         ):
             self._local_atmosphere = LocalAtmosphere.failure(
-                "Aggiornamento dati OpenAQ per la nuova posizione."
+                tr("Aggiornamento dati OpenAQ per la nuova posizione.")
             )
         else:
             self._local_atmosphere = LocalAtmosphere.not_configured()
@@ -3678,15 +3898,19 @@ class AppController(QObject):
         stored = self._stored_startup_location_result()
         if stored:
             return stored
-        return None, False, "Configura una posizione per ottenere meteo e cielo locale."
+        return (
+            None,
+            False,
+            tr("Configura una posizione per ottenere meteo e cielo locale."),
+        )
 
-    @Slot(int, object, bool, str)
+    @Slot(int, object, bool, object)
     def _finish_startup_location_detection(
         self,
         request_id: int,
         result: object,
         persist: bool,
-        message: str,
+        message: object,
     ) -> None:
         if request_id != self._startup_location_detection_request_id:
             return
@@ -3699,7 +3923,9 @@ class AppController(QObject):
         else:
             self._location_detection_result = None
             self._location = None
-            self._location_message = message or "Configura una posizione per ottenere meteo e cielo locale."
+            self._location_message = message or tr(
+                "Configura una posizione per ottenere meteo e cielo locale."
+            )
 
         self._refresh_all()
         self.locationChanged.emit()
@@ -3724,11 +3950,25 @@ class AppController(QObject):
     def _stored_startup_location_result(self) -> tuple[LocationDetectionResult, bool, str] | None:
         saved = self._location_preferences.saved_location()
         if saved and self._result_has_valid_location(saved):
-            return saved, False, f"Posizione salvata caricata: {saved.location.city}."
+            return (
+                saved,
+                False,
+                tr(
+                    "Posizione salvata caricata: {city}.",
+                    city=saved.location.city,
+                ),
+            )
 
         cached = self._location_preferences.cached_location()
         if cached and self._result_has_valid_location(cached):
-            return cached, False, f"Ultima posizione caricata: {cached.location.city}."
+            return (
+                cached,
+                False,
+                tr(
+                    "Ultima posizione caricata: {city}.",
+                    city=cached.location.city,
+                ),
+            )
 
         return None
 
@@ -3788,14 +4028,29 @@ class AppController(QObject):
     @staticmethod
     def _location_source_label(provider: str) -> str:
         labels = {
-            "windows_precise": "Windows precisa",
-            "windows_coarse": "Windows approssimata",
-            "ip_geolocation": "Online approssimata",
-            "manual_city": "Città manuale",
-            "manual_coordinates": "Coordinate manuali",
-            "cached": "Posizione salvata",
+            "windows_precise": tr("Windows precisa"),
+            "windows_coarse": tr("Windows approssimata"),
+            "ip_geolocation": tr("Online approssimata"),
+            "manual_city": tr("Città manuale"),
+            "manual_coordinates": tr("Coordinate manuali"),
+            "cached": tr("Posizione salvata"),
         }
-        return labels.get(provider, provider or "Nessuna posizione")
+        return labels.get(provider, provider or tr("Nessuna posizione"))
+
+    @staticmethod
+    def _location_accuracy_label(result: LocationDetectionResult) -> str:
+        raw = presentation_text(result.accuracy, strip=True)
+        if re.fullmatch(r"\d+(?:[.,]\d+)?\s*m", raw):
+            return raw
+        labels = {
+            "windows_precise": tr("precisa"),
+            "windows_coarse": tr("approssimata"),
+            "ip_geolocation": tr("livello città"),
+            "manual_city": tr("coordinate della città"),
+            "manual_coordinates": tr("fornita dall'utente"),
+            "cached": tr("salvata"),
+        }
+        return labels.get(result.provider, result.accuracy or tr("n/d"))
 
     def _apply_equipment(self, objects: list[CelestialObject]) -> list[CelestialObject]:
         telescopes = self._active_profile_telescopes()
@@ -3853,9 +4108,11 @@ class AppController(QObject):
                 image = self._object_image_map.get("messier-default-cluster")
         notes = item.notes
         if description:
-            observing_notes = description["observing_notes"].strip()
+            observing_notes = presentation_text(
+                description["observing_notes"], strip=True
+            )
             if observing_notes and observing_notes not in notes:
-                notes = f"{observing_notes} {item.notes}".strip()
+                notes = join_text([observing_notes, item.notes], " ")
         return replace(
             item,
             image=image["image_path"] if image else item.image,
@@ -3937,7 +4194,9 @@ class AppController(QObject):
             data = self._object_to_qml(item)
             is_planet = item.object_type == "Pianeta"
             data["homeCategory"] = "planet" if is_planet else "deep_sky"
-            data["homeCategoryLabel"] = "Pianeta" if is_planet else "Cielo profondo"
+            data["homeCategoryLabel"] = (
+                tr("Pianeta") if is_planet else tr("Cielo profondo")
+            )
             payload.append(data)
         return payload
 
@@ -4091,7 +4350,9 @@ class AppController(QObject):
             "fallback_filter_class": fallback_filter_class,
             "optional_color_filter_class": optional_color_filter_class,
             "imaging_reducer_recommended": False,
-            "description": description.get("short_description", "").strip(),
+            "description": presentation_text(
+                description.get("short_description", ""), strip=True
+            ),
             "image": config.image,
             "solar_system_body_id": config.object_id,
             "search_terms": self._solar_system_search_terms(config.object_id, config.name, display_id),
@@ -4135,6 +4396,15 @@ class AppController(QObject):
                 for item in objects
                 if query in item["catalogue_id"].casefold()
                 or query in item["name"].casefold()
+                or query
+                in render_text(
+                    content_text(
+                        "catalogue_objects",
+                        str(item.get("object_id", "")),
+                        "name",
+                        item.get("name", ""),
+                    )
+                ).casefold()
                 or query in str(item.get("search_terms", "")).casefold()
             ]
 
@@ -4225,6 +4495,21 @@ class AppController(QObject):
         geometric_value = observability_values.get("is_geometrically_observable")
         useful_value = observability_values.get("is_usefully_observable")
         data = dict(item)
+        data["catalogue_label"] = self._catalogue_label(
+            str(item.get("catalogue", ""))
+        )
+        data["name"] = content_text(
+            "catalogue_objects",
+            object_id,
+            "name",
+            item.get("name", ""),
+        )
+        data["description"] = content_text(
+            "catalogue_objects",
+            object_id,
+            "description",
+            item.get("description", ""),
+        )
         data["is_geometrically_observable"] = geometric_value is True
         data["is_geometrically_observable_known"] = geometric_value is not None
         data["is_geometrically_observable_label"] = self._catalogue_boolean_label(geometric_value)
@@ -4335,9 +4620,9 @@ class AppController(QObject):
     @staticmethod
     def _catalogue_boolean_label(value: bool | None) -> str:
         if value is True:
-            return "Sì"
+            return tr("Sì")
         if value is False:
-            return "No"
+            return tr("No")
         return "—"
 
     def _invalidate_catalogue_visibility_cache(self) -> None:
@@ -4372,7 +4657,11 @@ class AppController(QObject):
     def _catalogue_month_label(self, month: int) -> str:
         if month < 1 or month > 12:
             month = self._catalogue_selected_month
-        return f"{CATALOGUE_MONTH_NAMES[month - 1]} {self._catalogue_year}"
+        return format_month_year(month, self._catalogue_year)
+
+    @staticmethod
+    def _catalogue_label(value: str) -> str:
+        return tr("Sistema Solare") if value == SOLAR_SYSTEM_CATALOGUE else value
 
     @staticmethod
     def _normalize_catalogue_filter_name(filter_name: str) -> str:
@@ -4429,8 +4718,17 @@ class AppController(QObject):
     def _catalogue_item_to_detail_object(self, item: dict) -> CelestialObject:
         if self._is_solar_system_catalogue_item(item):
             return self._solar_system_catalogue_detail_object(item)
-        display_name = self._catalogue_display_name(item)
-        catalogue_label = f"Catalogo {item['catalogue']}"
+        name = content_text(
+            "catalogue_objects",
+            str(item["object_id"]),
+            "name",
+            item["name"],
+        )
+        display_name = catalogue_display_name(str(item["catalogue_id"]), name)
+        catalogue_label = tr(
+            "Catalogo {catalogue}",
+            catalogue=self._catalogue_label(str(item["catalogue"])),
+        )
         return self._apply_object_content(
             CelestialObject(
                 id=item["object_id"],
@@ -4438,20 +4736,25 @@ class AppController(QObject):
                 object_type=item["type"],
                 image="resources/images/m13.svg",
                 magnitude=self._format_catalogue_number(item["magnitude"]),
-                distance="n/d",
-                max_altitude="n/d",
-                direction="n/d",
-                best_time="n/d",
-                observing_window="n/d",
-                notes=item["description"],
+                distance=tr("n/d"),
+                max_altitude=tr("n/d"),
+                direction=tr("n/d"),
+                best_time=tr("n/d"),
+                observing_window=tr("n/d"),
+                notes=content_text(
+                    "catalogue_objects",
+                    str(item["object_id"]),
+                    "description",
+                    item["description"],
+                ),
                 recommended_setup="",
                 visibility_class=catalogue_label,
-                azimuth="n/d",
-                time_above_horizon="n/d",
+                azimuth=tr("n/d"),
+                time_above_horizon=tr("n/d"),
                 visible=True,
                 score=0,
-                score_label="n/d",
-                difficulty="n/d",
+                score_label=tr("n/d"),
+                difficulty=tr("n/d"),
                 apparent_size=item["apparent_size"],
                 max_angular_size_deg=item["max_angular_size_deg"],
                 recommended_observation_type=item["recommended_observation_type"],
@@ -4461,6 +4764,7 @@ class AppController(QObject):
                 imaging_reducer_recommended=bool(
                     item.get("imaging_reducer_recommended")
                 ),
+                detail_source=CATALOGUE_SOURCE,
             )
         )
 
@@ -4469,7 +4773,10 @@ class AppController(QObject):
         return str(item.get("catalogue", "")) == SOLAR_SYSTEM_CATALOGUE
 
     def _solar_system_catalogue_detail_object(self, item: dict) -> CelestialObject:
-        catalogue_label = f"Catalogo {item['catalogue']}"
+        catalogue_label = tr(
+            "Catalogo {catalogue}",
+            catalogue=self._catalogue_label(str(item["catalogue"])),
+        )
         existing = self._solar_system_detail_source(str(item["object_id"]))
         if existing:
             return replace(
@@ -4477,14 +4784,15 @@ class AppController(QObject):
                 visibility_class=catalogue_label,
                 recommended_setup="",
                 score=0,
-                score_label="n/d",
-                difficulty="n/d",
+                score_label=tr("n/d"),
+                difficulty=tr("n/d"),
                 setup_options=[],
                 equipment_explanation="",
                 best_filter_class=item.get("best_filter_class", ""),
                 fallback_filter_class=item.get("fallback_filter_class", ""),
                 optional_color_filter_class=item.get("optional_color_filter_class", ""),
                 imaging_reducer_recommended=False,
+                detail_source=CATALOGUE_SOURCE,
             )
         return self._apply_object_content(
             CelestialObject(
@@ -4493,20 +4801,20 @@ class AppController(QObject):
                 object_type=item["type"],
                 image=str(item.get("image") or "resources/images/m13.svg"),
                 magnitude="",
-                distance="n/d",
-                max_altitude="n/d",
-                direction="n/d",
-                best_time="n/d",
-                observing_window="n/d",
+                distance=tr("n/d"),
+                max_altitude=tr("n/d"),
+                direction=tr("n/d"),
+                best_time=tr("n/d"),
+                observing_window=tr("n/d"),
                 notes=item["description"],
                 recommended_setup="",
                 visibility_class=catalogue_label,
-                azimuth="n/d",
-                time_above_horizon="n/d",
+                azimuth=tr("n/d"),
+                time_above_horizon=tr("n/d"),
                 visible=True,
                 score=0,
-                score_label="n/d",
-                difficulty="n/d",
+                score_label=tr("n/d"),
+                difficulty=tr("n/d"),
                 apparent_size="",
                 max_angular_size_deg=None,
                 recommended_observation_type=item["recommended_observation_type"],
@@ -4514,6 +4822,7 @@ class AppController(QObject):
                 fallback_filter_class=item.get("fallback_filter_class", ""),
                 optional_color_filter_class=item.get("optional_color_filter_class", ""),
                 imaging_reducer_recommended=False,
+                detail_source=CATALOGUE_SOURCE,
             )
         )
 
@@ -4524,38 +4833,35 @@ class AppController(QObject):
         return None
 
     @staticmethod
-    def _catalogue_display_name(item: dict) -> str:
-        if AppController._is_solar_system_catalogue_item(item):
-            return str(item["name"]).strip()
-        catalogue_id = str(item["catalogue_id"]).strip()
-        name = str(item["name"]).strip()
-        if not name or name.casefold() == catalogue_id.casefold():
-            return catalogue_id
-        return f"{catalogue_id} {name}"
-
-    @staticmethod
     def _format_catalogue_number(value: object) -> str:
         if value is None:
-            return "n/d"
+            return tr("n/d")
         try:
             number = float(value)
         except (TypeError, ValueError):
             return str(value)
-        return f"{number:g}"
+        normalized = f"{number:g}"
+        decimals = len(normalized.partition(".")[2]) if "e" not in normalized.lower() else 2
+        return format_number(number, decimals=decimals)
 
     @staticmethod
     def _format_catalogue_angle(value: object) -> str:
         if value is None:
-            return "n/d"
+            return tr("n/d")
         try:
             number = float(value)
         except (TypeError, ValueError):
             return str(value)
-        return f"{number:g} deg"
+        normalized = f"{number:g}"
+        decimals = len(normalized.partition(".")[2]) if "e" not in normalized.lower() else 2
+        return tr(
+            "{value} deg",
+            value=format_number(number, decimals=decimals),
+        )
 
     @staticmethod
     def _is_catalogue_detail_object(item: CelestialObject) -> bool:
-        return item.visibility_class.startswith("Catalogo ")
+        return item.detail_source == CATALOGUE_SOURCE
 
     def _refresh_conditioned_observing_candidates(self) -> None:
         conditioned_deep_sky_read_model = self._recommended_deep_sky_read_models(
@@ -4749,7 +5055,10 @@ class AppController(QObject):
         if self._is_catalogue_detail_object(item):
             metadata = self._catalogue_detail_metadata(item)
             data["catalogueObject"] = True
-            data["catalogue"] = metadata.get("catalogue") or item.visibility_class.replace("Catalogo ", "", 1)
+            data["catalogue"] = metadata.get("catalogue", "")
+            data["catalogueLabel"] = metadata.get("catalogueLabel") or self._catalogue_label(
+                str(data["catalogue"])
+            )
             data["catalogueId"] = metadata.get("catalogueId") or (item.id.split("-", 1)[1] if "-" in item.id else item.id)
             data["constellation"] = metadata.get("constellation", "")
             data["rightAscension"] = metadata.get("rightAscension", "")
@@ -4772,25 +5081,29 @@ class AppController(QObject):
             data["catalogueObservationTypeLabel"] = catalogue_observation_type_label(
                 item.recommended_observation_type
             )
-            data["catalogueIntroText"] = description.get("observing_notes", "").strip()
+            data["catalogueIntroText"] = presentation_text(
+                description.get("observing_notes", ""), strip=True
+            )
             data["catalogueVisibleCurrentMonth"] = visible_current_month is True
             data["catalogueVisibleCurrentMonthKnown"] = visible_current_month is not None
             data["catalogueVisibleCurrentMonthLabel"] = self._catalogue_boolean_label(visible_current_month)
             data["catalogueCurrentMonthLabel"] = current_month_label
-            # Compatibility aliases now consistently mean the real current month.
-            data["catalogueVisibleThisMonth"] = data["catalogueVisibleCurrentMonth"]
-            data["catalogueVisibleThisMonthLabel"] = data["catalogueVisibleCurrentMonthLabel"]
-            data["catalogueVisibilityLabel"] = data["catalogueVisibleCurrentMonthLabel"]
-            data["catalogueVisibilityMonth"] = current_month_label
         data["homeTimeLabel"] = self._home_time_label(item)
         data["homeWindowLabel"] = self._home_window_label(item)
-        status, detail = self._observing_status(item)
+        status_state, status, detail = self._observing_status_data(item)
+        data["observingStatusState"] = status_state
         data["observingStatus"] = status
         data["observingStatusDetail"] = detail
         data["observingReasons"] = self._observing_reasons(item)
-        data["descriptionText"] = description.get("short_description", "").strip() or item.notes
-        data["bestSeen"] = description.get("best_seen", "").strip()
-        data["curiosityText"] = curiosity.get("curiosity_text", "").strip()
+        data["descriptionText"] = presentation_text(
+            description.get("short_description", ""), strip=True
+        ) or item.notes
+        data["bestSeen"] = presentation_text(
+            description.get("best_seen", ""), strip=True
+        )
+        data["curiosityText"] = presentation_text(
+            curiosity.get("curiosity_text", ""), strip=True
+        )
         data["curiositySourceLabel"] = curiosity.get("source_label", "").strip()
         data["curiositySourceUrl"] = curiosity.get("source_url", "").strip()
         data["curiosityVerified"] = bool(curiosity.get("verified", False))
@@ -4809,7 +5122,7 @@ class AppController(QObject):
 
     def _catalogue_object_visible_current_month(self, object_id: str) -> tuple[bool | None, str]:
         now = datetime.now(self._zone())
-        month_label = f"{CATALOGUE_MONTH_NAMES[now.month - 1]} {now.year}"
+        month_label = format_month_year(now.month, now.year)
         item = self._catalogue_item_for_object_id(object_id)
         if not item or not self._has_valid_location():
             return None, month_label
@@ -4879,6 +5192,9 @@ class AppController(QObject):
             metadata.update(
                 {
                     "catalogue": str(catalogue_item.get("catalogue") or ""),
+                    "catalogueLabel": self._catalogue_label(
+                        str(catalogue_item.get("catalogue") or "")
+                    ),
                     "catalogueId": str(catalogue_item.get("catalogue_id") or ""),
                     "constellation": constellation,
                     "rightAscension": str(catalogue_item.get("right_ascension") or ""),
@@ -4891,6 +5207,16 @@ class AppController(QObject):
                 }
             )
         return metadata
+
+    def _catalogue_name_for_detail(self, item: CelestialObject) -> str:
+        catalogue_item = self._catalogue_item_for_object_id(item.id)
+        if catalogue_item is None:
+            return tr("locale")
+        if getattr(self, "_selected_object_source", "") == CATALOGUE_SOURCE:
+            catalogue_item = self._catalogue_item_for_active_filter(catalogue_item)
+        return self._catalogue_label(str(catalogue_item.get("catalogue") or "")) or tr(
+            "locale"
+        )
 
     def _event_to_qml(self, event: AstronomicalEvent) -> dict:
         data = event.to_qml()
@@ -4907,13 +5233,13 @@ class AppController(QObject):
     def _calendar_event_setup(self, event: AstronomicalEvent) -> str:
         event_type = event.event_type.strip().lower()
         if event_type == "sciame meteorico":
-            return "Occhio nudo"
+            return tr("Occhio nudo")
         if event_type == "luna":
             return self._calendar_moon_setup(event)
         if event_type == "eclissi":
-            return "Occhio nudo; binocolo o basso ingrandimento"
+            return tr("Occhio nudo; binocolo o basso ingrandimento")
         if event_type == "congiunzione solare":
-            return "Nessuna configurazione osservativa"
+            return tr("Nessuna configurazione osservativa")
         if event_type in {"congiunzione", "congiunzione planetaria"}:
             return self._calendar_clean_setup(event.setup)
         if event_type in {"opposizione", "pianeti"}:
@@ -4925,31 +5251,34 @@ class AppController(QObject):
     def _calendar_moon_setup(self, event: AstronomicalEvent) -> str:
         title = event.title.strip().lower()
         if "nuova" in title:
-            return (
+            return tr(
                 "Notte migliore del mese per il cielo profondo: usa il setup più adatto "
                 "al singolo oggetto del tuo profilo."
             )
         target = self._calendar_event_target(event) or self._calendar_moon_target(event)
-        return self._calendar_profile_setup(target, "Osservazione lunare")
+        return self._calendar_profile_setup(target, tr("Osservazione lunare"))
 
     @staticmethod
     def _calendar_moon_target(event: AstronomicalEvent) -> CelestialObject:
         return CelestialObject(
             id="moon",
-            name="Luna",
-            object_type="Luna",
+            name=tr("Luna"),
+            object_type=tr("Luna"),
             image="resources/images/solar_system/moon.jpg",
             magnitude="-12.0",
-            distance="384.000 km",
-            max_altitude="45 gradi",
-            direction="Sud",
+            distance=tr(
+                "{value} km",
+                value=format_number(384_000),
+            ),
+            max_altitude=tr("45 gradi"),
+            direction=tr("Sud"),
             best_time=event.best_time,
             observing_window=event.best_time,
             notes=event.note,
             recommended_setup="",
-            visibility_class="Luna",
-            azimuth="180 gradi",
-            time_above_horizon="n/d",
+            visibility_class=tr("Luna"),
+            azimuth=tr("180 gradi"),
+            time_above_horizon=tr("n/d"),
             apparent_size="30 arcmin",
             score=event.usefulness,
         )
@@ -5021,13 +5350,13 @@ class AppController(QObject):
                 )
 
         bodies = {
-            "mercury": ("Mercurio", "-0.2"),
-            "venus": ("Venere", "-4.0"),
-            "mars": ("Marte", "-1.2"),
-            "jupiter": ("Giove", "-2.3"),
-            "saturn": ("Saturno", "0.7"),
-            "uranus": ("Urano", "5.7"),
-            "neptune": ("Nettuno", "7.8"),
+            "mercury": (tr("Mercurio"), "-0.2"),
+            "venus": (tr("Venere"), "-4.0"),
+            "mars": (tr("Marte"), "-1.2"),
+            "jupiter": (tr("Giove"), "-2.3"),
+            "saturn": (tr("Saturno"), "0.7"),
+            "uranus": (tr("Urano"), "5.7"),
+            "neptune": (tr("Nettuno"), "7.8"),
         }
         body = bodies.get(target_id)
         if not body:
@@ -5036,19 +5365,19 @@ class AppController(QObject):
         return CelestialObject(
             id=target_id,
             name=name,
-            object_type="Pianeta",
+            object_type=tr("Pianeta"),
             image=f"resources/images/solar_system/{target_id}.jpg",
             magnitude=magnitude,
-            distance="n/d",
-            max_altitude="45 gradi",
-            direction="Sud",
+            distance=tr("n/d"),
+            max_altitude=tr("45 gradi"),
+            direction=tr("Sud"),
             best_time=event.best_time,
             observing_window=event.observing_window or event.best_time,
             notes=event.note,
             recommended_setup="",
-            visibility_class="Pianeta",
-            azimuth="180 gradi",
-            time_above_horizon="n/d",
+            visibility_class=tr("Pianeta"),
+            azimuth=tr("180 gradi"),
+            time_above_horizon=tr("n/d"),
             score=event.usefulness,
         )
 
@@ -5067,31 +5396,46 @@ class AppController(QObject):
             self._sky_quality,
             binoculars,
         )
-        setup_text = suggestion.get("setupText", "").strip()
+        setup_text = presentation_text(suggestion.get("setupText", ""), strip=True)
         if not setup_text:
             return self._calendar_clean_setup(fallback)
-        if setup_text.startswith("Serve almeno"):
+        recommendation_state = str(suggestion.get("recommendationState", ""))
+        if recommendation_state == "requires_optical_instrument":
             return self._calendar_clean_setup(fallback)
-        if setup_text.startswith("Aggiungi oculari"):
-            telescope_name = suggestion.get("telescopeName", "").strip()
-            return f"{telescope_name}: aggiungi oculari" if telescope_name else self._calendar_clean_setup(fallback)
+        if recommendation_state == "missing_eyepieces":
+            telescope_name = presentation_text(
+                suggestion.get("telescopeName", ""), strip=True
+            )
+            return (
+                tr("{telescope}: aggiungi oculari", telescope=telescope_name)
+                if telescope_name
+                else self._calendar_clean_setup(fallback)
+            )
         return setup_text
 
     @staticmethod
     def _calendar_clean_setup(setup: str) -> str:
-        clean = setup.strip()
+        clean = presentation_text(setup, strip=True)
         if clean == "Qualsiasi setup":
-            return "Nota osservativa"
+            return tr("Nota osservativa")
         if clean == "Telescopio medio":
-            return "Telescopio consigliato"
+            return tr("Telescopio consigliato")
         if clean == "Non prioritario":
-            return "Bassa priorità osservativa"
+            return tr("Bassa priorità osservativa")
         return clean
 
     def _observing_status(self, item: CelestialObject) -> tuple[str, str]:
+        _, status, detail = self._observing_status_data(item)
+        return status, detail
+
+    def _observing_status_data(self, item: CelestialObject) -> tuple[str, str, str]:
         if self._is_catalogue_detail_object(item):
-            catalogue = item.visibility_class.replace("Catalogo ", "", 1).strip() or "locale"
-            return f"Catalogo {catalogue}", "Scheda informativa caricata dal catalogo locale."
+            catalogue = self._catalogue_name_for_detail(item)
+            return (
+                "catalogue",
+                tr("Catalogo {catalogue}", catalogue=catalogue),
+                tr("Scheda informativa caricata dal catalogo locale."),
+            )
         current_altitude = self._parse_degrees(item.current_altitude)
         useful_datetime = self._first_observing_datetime(item.best_time) or self._first_observing_datetime(
             item.observing_window
@@ -5110,36 +5454,84 @@ class AppController(QObject):
             )
         if self._is_solar_system_monthly_visibility_blocked(item):
             if current_altitude is not None and current_altitude > 0:
-                return "Sopra l'orizzonte", "Sopra l'orizzonte, ma non utile per l'osservazione questo mese."
+                return (
+                    "above_horizon",
+                    tr("Sopra l'orizzonte"),
+                    tr("Sopra l'orizzonte, ma non utile per l'osservazione questo mese."),
+                )
             if useful_datetime:
-                return "Finestra marginale", "Finestra marginale: il target non raggiunge la visibilità utile mensile."
-            return "Non utile questo mese", "Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile."
+                return (
+                    "limited",
+                    tr("Finestra marginale"),
+                    tr("Finestra marginale: il target non raggiunge la visibilità utile mensile."),
+                )
+            return (
+                "limited",
+                tr("Non utile questo mese"),
+                tr("Non raggiunge una finestra utile questo mese secondo il criterio di visibilità mensile."),
+            )
         if observable_now:
-            altitude = f"{current_altitude:.0f} gradi" if current_altitude is not None else "quota utile"
-            return "Osservabile ora", f"Attualmente a {altitude}. Finestra utile: {window}."
+            altitude = (
+                tr("{value} gradi", value=format_number(current_altitude))
+                if current_altitude is not None
+                else tr("quota utile")
+            )
+            return (
+                "observable_now",
+                tr("Osservabile ora"),
+                tr("Attualmente a {altitude}. Finestra utile: {window}.", altitude=altitude, window=window),
+            )
         if current_altitude is not None and current_altitude > 0 and not is_observing_time:
             return (
-                "Sopra l'orizzonte",
-                f"Attualmente a {current_altitude:.0f} gradi, ma fuori dalla notte osservativa. "
-                f"Finestra utile: {window}.",
+                "above_horizon",
+                tr("Sopra l'orizzonte"),
+                tr(
+                    "Attualmente a {altitude} gradi, ma fuori dalla notte osservativa. Finestra utile: {window}.",
+                    altitude=format_number(current_altitude),
+                    window=window,
+                ),
             )
         if useful_datetime:
-            label = self._format_home_datetime(useful_datetime)
-            if "prima dell'alba" in label:
-                return "Meglio prima dell'alba", f"Attualmente sotto la soglia utile. Finestra prima dell'alba: {window}."
+            if self._home_time_period_code(useful_datetime) == "before_dawn":
+                return (
+                    "later",
+                    tr("Meglio prima dell'alba"),
+                    tr("Attualmente sotto la soglia utile. Finestra prima dell'alba: {window}.", window=window),
+                )
             if useful_datetime > now:
-                return "Meglio più tardi", f"Attualmente sotto la soglia utile. Finestra più tardi: {window}."
+                return (
+                    "later",
+                    tr("Meglio più tardi"),
+                    tr("Attualmente sotto la soglia utile. Finestra più tardi: {window}.", window=window),
+                )
         if current_altitude is not None and current_altitude > 0:
             return (
-                "Troppo basso ora",
-                f"Attualmente a {current_altitude:.0f} gradi, sotto la soglia utile di "
-                f"{altitude_threshold:g} gradi. Finestra utile: {window}.",
+                "limited",
+                tr("Troppo basso ora"),
+                tr(
+                    "Attualmente a {altitude} gradi, sotto la soglia utile di {threshold} gradi. Finestra utile: {window}.",
+                    altitude=format_number(current_altitude),
+                    threshold=format_number(altitude_threshold),
+                    window=window,
+                ),
             )
         if useful_datetime:
-            return "Finestra conclusa", f"La finestra utile di questa notte era {window}."
+            return (
+                "unavailable",
+                tr("Finestra conclusa"),
+                tr("La finestra utile di questa notte era {window}.", window=window),
+            )
         if item.visible:
-            return "Finestra utile", f"Finestra osservativa: {item.observing_window}."
-        return "Non osservabile", "Nessuna finestra notturna utile per questa posizione."
+            return (
+                "later",
+                tr("Finestra utile"),
+                tr("Finestra osservativa: {window}.", window=item.observing_window),
+            )
+        return (
+            "unavailable",
+            tr("Non osservabile"),
+            tr("Nessuna finestra notturna utile per questa posizione."),
+        )
 
     @staticmethod
     def _is_planetary_or_lunar_target(item: CelestialObject) -> bool:
@@ -5159,18 +5551,6 @@ class AppController(QObject):
     def _observing_altitude_threshold(cls, item: CelestialObject) -> float:
         return 8.0 if cls._is_planetary_or_lunar_target(item) else DEEP_SKY_USEFUL_ALTITUDE_DEG
 
-    @staticmethod
-    def _observing_status_state(status: str) -> str:
-        if status == "Osservabile ora":
-            return "observable_now"
-        if status == "Sopra l'orizzonte":
-            return "above_horizon"
-        if status in {"Meglio più tardi", "Meglio prima dell'alba", "Finestra utile"}:
-            return "later"
-        if status in {"Troppo basso ora", "Finestra marginale", "Non utile questo mese"}:
-            return "limited"
-        return "unavailable"
-
     def _is_solar_system_monthly_visibility_blocked(self, item: CelestialObject) -> bool:
         if item.object_type != "Pianeta":
             return False
@@ -5184,46 +5564,88 @@ class AppController(QObject):
         if max_altitude is not None and max_altitude > 0:
             reasons.append(self._altitude_reason(max_altitude))
         if item.time_above_horizon and item.time_above_horizon not in {"n/d", "0 h"}:
-            reasons.append(f"Finestra utile sopra soglia: {item.time_above_horizon}.")
+            reasons.append(
+                tr(
+                    "Finestra utile sopra soglia: {duration}.",
+                    duration=item.time_above_horizon,
+                )
+            )
         if item.id == "moon" and self._moon:
-            reasons.append(f"Fase lunare: {self._moon.phase}, illuminazione {self._moon.illumination}.")
+            reasons.append(
+                tr(
+                    "Fase lunare: {phase}, illuminazione {illumination}.",
+                    phase=self._moon.phase,
+                    illumination=self._moon.illumination,
+                )
+            )
         elif self._seeing_transparency and item.object_type == "Pianeta":
             seeing = self._localized_seeing(self._seeing_transparency.seeing)
-            reasons.append(f"Seeing previsto {seeing.lower()}: adatto a valutare dettagli planetari.")
+            reasons.append(
+                tr(
+                    "Seeing previsto: {seeing}. Adatto a valutare dettagli planetari.",
+                    seeing=seeing,
+                )
+            )
         elif self._sky_quality and item.object_type != "Pianeta":
             reasons.append(self._sky_quality_reason(item))
         return reasons[:4]
 
     @staticmethod
     def _altitude_reason(max_altitude: float) -> str:
+        altitude = format_number(max_altitude)
         if max_altitude >= 65:
-            return f"Culmina molto alto ({max_altitude:.0f} gradi): meno atmosfera e immagine più stabile."
+            return tr(
+                "Culmina molto alto ({altitude} gradi): meno atmosfera e immagine più stabile.",
+                altitude=altitude,
+            )
         if max_altitude >= 35:
-            return f"Raggiunge una buona altezza ({max_altitude:.0f} gradi): osservazione realistica."
+            return tr(
+                "Raggiunge una buona altezza ({altitude} gradi): osservazione realistica.",
+                altitude=altitude,
+            )
         if max_altitude >= 15:
-            return f"Resta basso ({max_altitude:.0f} gradi): serve orizzonte libero e cielo stabile."
-        return f"Altezza massima critica ({max_altitude:.0f} gradi): target difficile da sfruttare."
+            return tr(
+                "Resta basso ({altitude} gradi): serve orizzonte libero e cielo stabile.",
+                altitude=altitude,
+            )
+        return tr(
+            "Altezza massima critica ({altitude} gradi): target difficile da sfruttare.",
+            altitude=altitude,
+        )
 
     @staticmethod
     def _localized_seeing(value: str) -> str:
         labels = {
-            "Excellent": "Eccellente",
-            "Good": "Buono",
-            "Average": "Discreto",
-            "Poor": "Scarso",
+            "Excellent": tr("Eccellente"),
+            "Good": tr("Buono"),
+            "Average": tr("Discreto"),
+            "Poor": tr("Scarso"),
         }
-        return labels.get(value, value or "n/d")
+        return labels.get(value, value or tr("n/d"))
 
     def _sky_quality_reason(self, item: CelestialObject) -> str:
         bortle = self._sky_quality.bortle_class
         difficulty = item.difficulty if item.difficulty and item.difficulty != "n/d" else "da valutare"
         if difficulty == "Facile":
-            return f"Cielo Bortle {bortle}: oggetto ancora gestibile, difficoltà stimata facile."
+            return tr(
+                "Cielo Bortle {bortle}: oggetto ancora gestibile, difficoltà stimata facile.",
+                bortle=bortle,
+            )
         if difficulty == "Media":
-            return f"Cielo Bortle {bortle}: richiede adattamento al buio, difficoltà media."
+            return tr(
+                "Cielo Bortle {bortle}: richiede adattamento al buio, difficoltà media.",
+                bortle=bortle,
+            )
         if difficulty == "Difficile":
-            return f"Cielo Bortle {bortle}: target penalizzato, meglio trasparenza alta e luci schermate."
-        return f"Cielo Bortle {bortle}: difficoltà stimata {difficulty}."
+            return tr(
+                "Cielo Bortle {bortle}: target penalizzato, meglio trasparenza alta e luci schermate.",
+                bortle=bortle,
+            )
+        return tr(
+            "Cielo Bortle {bortle}: difficoltà stimata {difficulty}.",
+            bortle=bortle,
+            difficulty=(tr("da valutare") if difficulty == "da valutare" else difficulty),
+        )
 
     def _setup_reason(self, item: CelestialObject) -> str:
         if not item.recommended_setup:
@@ -5236,35 +5658,35 @@ class AppController(QObject):
         lower_type = item.object_type.lower()
         if option.get("equipmentType") == "Binocular":
             if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
-                return f"{magnification} e pupilla {exit_pupil}: campo ampio e visione naturale dell'ammasso."
+                return tr("{magnification} e pupilla {exit_pupil}: campo ampio e visione naturale dell'ammasso.", magnification=magnification, exit_pupil=exit_pupil)
             if "galaxy" in lower_type or "galassia" in lower_type:
-                return f"{magnification} e pupilla {exit_pupil}: adatto a oggetti molto estesi e a basso contrasto."
+                return tr("{magnification} e pupilla {exit_pupil}: adatto a oggetti molto estesi e a basso contrasto.", magnification=magnification, exit_pupil=exit_pupil)
             if "nebula" in lower_type or "nebul" in lower_type:
-                return f"{magnification} e pupilla {exit_pupil}: utile per individuare l'oggetto senza stringere troppo il campo."
-            return item.equipment_explanation or f"{magnification} e pupilla {exit_pupil}: configurazione binoculare a basso ingrandimento."
+                return tr("{magnification} e pupilla {exit_pupil}: utile per individuare l'oggetto senza stringere troppo il campo.", magnification=magnification, exit_pupil=exit_pupil)
+            return item.equipment_explanation or tr("{magnification} e pupilla {exit_pupil}: configurazione binoculare a basso ingrandimento.", magnification=magnification, exit_pupil=exit_pupil)
         if magnification and exit_pupil:
             if item.id == "moon":
-                return f"{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine."
+                return tr("{magnification} e pupilla {exit_pupil}: dettaglio lunare leggibile senza spingere troppo l'immagine.", magnification=magnification, exit_pupil=exit_pupil)
             if item.object_type == "Pianeta":
-                return f"{magnification} e pupilla {exit_pupil}: compromesso tra dettaglio planetario e seeing previsto."
+                return tr("{magnification} e pupilla {exit_pupil}: compromesso tra dettaglio planetario e seeing previsto.", magnification=magnification, exit_pupil=exit_pupil)
             if "open" in lower_type or "ammasso aperto" in lower_type or "star cloud" in lower_type:
-                return f"Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare."
+                return tr("Campo reale {true_field}: mantiene l'oggetto nel suo contesto stellare.", true_field=true_field)
             if "globular" in lower_type or "ammasso globulare" in lower_type:
-                return f"{magnification} e pupilla {exit_pupil}: aiuta a separare il nucleo senza scurire troppo."
+                return tr("{magnification} e pupilla {exit_pupil}: aiuta a separare il nucleo senza scurire troppo.", magnification=magnification, exit_pupil=exit_pupil)
             if "galaxy" in lower_type or "galassia" in lower_type:
-                return f"Pupilla {exit_pupil} e campo {true_field}: privilegia contrasto e orientamento della galassia."
+                return tr("Pupilla {exit_pupil} e campo {true_field}: privilegia contrasto e orientamento della galassia.", exit_pupil=exit_pupil, true_field=true_field)
             if "nebula" in lower_type or "nebul" in lower_type:
-                return f"Pupilla {exit_pupil} e campo {true_field}: equilibrio utile per oggetti diffusi."
+                return tr("Pupilla {exit_pupil} e campo {true_field}: equilibrio utile per oggetti diffusi.", exit_pupil=exit_pupil, true_field=true_field)
         if item.equipment_explanation:
             return item.equipment_explanation
         if barlow and barlow != "No":
-            return "Barlow inclusa per raggiungere un ingrandimento più utile."
-        return "Configurazione scelta in base al profilo attivo e al tipo di oggetto."
+            return tr("Barlow inclusa per raggiungere un ingrandimento più utile.")
+        return tr("Configurazione scelta in base al profilo attivo e al tipo di oggetto.")
 
     @staticmethod
     def _recommended_setup_option(item: CelestialObject) -> dict:
         for option in item.setup_options:
-            if option.get("role") == "Consigliato":
+            if option.get("roleCode") == "recommended":
                 return option
         return item.setup_options[0] if item.setup_options else {}
 
@@ -5279,7 +5701,7 @@ class AppController(QObject):
         if equipment_type == "Telescope":
             return "telescope"
         for option in suggestion.get("setupOptions", []):
-            if option.get("role") == "Consigliato":
+            if option.get("roleCode") == "recommended":
                 option_type = option.get("equipmentType", "")
                 if option_type == "Binocular":
                     return "binocular"
@@ -5294,7 +5716,11 @@ class AppController(QObject):
     @staticmethod
     def _moon_cycle_day_label(phase_angle: float) -> str:
         cycle_day = AppController._moon_cycle_fraction(phase_angle) * 29.53
-        return f"Giorno {cycle_day:.1f} di 29,5"
+        return tr(
+            "Giorno {day} di {cycle}",
+            day=format_number(cycle_day, decimals=1),
+            cycle=format_number(29.5, decimals=1),
+        )
 
     def _update_observing_night_window(self) -> bool:
         previous = getattr(self, "_observing_night_window", ObservingNightWindow.unavailable())
@@ -5356,10 +5782,12 @@ class AppController(QObject):
         night_hours = self._observing_weather_hours()
         if not night_hours:
             return {
-                "bestWindow": "n/d",
+                "bestWindow": tr("n/d"),
                 "cloudAverage": 0,
-                "windLabel": "n/d",
+                "cloudAverageLabel": tr("n/d"),
+                "windLabel": tr("n/d"),
                 "rainProbability": 0,
+                "rainProbabilityLabel": tr("n/d"),
                 "bestHours": [],
             }
         average_cloud = round(sum(hour.cloud_cover for hour in night_hours) / len(night_hours))
@@ -5373,14 +5801,30 @@ class AppController(QObject):
                 self._location.timezone,
             ),
             "cloudAverage": average_cloud,
+            "cloudAverageLabel": tr(
+                "{value}%", value=format_number(average_cloud)
+            ),
             "windLabel": self._wind_label(average_wind),
             "rainProbability": max_rain,
+            "rainProbabilityLabel": tr(
+                "{value}%", value=format_number(max_rain)
+            ),
             "bestHours": [
                 {
                     "time": hour.time,
                     "cloudCover": hour.cloud_cover,
+                    "cloudCoverLabel": tr(
+                        "{value}%", value=format_number(hour.cloud_cover)
+                    ),
                     "windKmh": hour.wind_kmh,
+                    "windLabel": tr(
+                        "{value} km/h", value=format_number(hour.wind_kmh)
+                    ),
                     "rainProbability": hour.precipitation_probability,
+                    "rainProbabilityLabel": tr(
+                        "{value}%",
+                        value=format_number(hour.precipitation_probability),
+                    ),
                 }
                 for hour in self._selected_weather_hours(night_hours)
             ],
@@ -5399,10 +5843,10 @@ class AppController(QObject):
         if self._best_usable_observing_window():
             return ObservingSessionDecision(
                 state="monitor",
-                title="Sessione da monitorare",
+                title=tr("Sessione da monitorare"),
                 icon="⚠",
-                detail="Le condizioni attuali non sono ancora favorevoli.",
-                description=(
+                detail=tr("Le condizioni attuali non sono ancora favorevoli."),
+                description=tr(
                     "È però prevista una finestra osservativa promettente.\n"
                     "Ti consigliamo di ricontrollare il meteo prima di preparare la sessione."
                 ),
@@ -5411,10 +5855,10 @@ class AppController(QObject):
 
         return ObservingSessionDecision(
             state="discouraged",
-            title="Sessione sconsigliata",
+            title=tr("Sessione sconsigliata"),
             icon="🚫",
-            detail="Le condizioni previste rimangono sfavorevoli per tutta la notte.",
-            description="Non è consigliabile preparare una sessione osservativa.",
+            detail=tr("Le condizioni previste rimangono sfavorevoli per tutta la notte."),
+            description=tr("Non è consigliabile preparare una sessione osservativa."),
             show_opportunity=False,
         )
 
@@ -5505,11 +5949,11 @@ class AppController(QObject):
         timezone: str = "UTC",
     ) -> str:
         if not hours:
-            return "n/d"
+            return tr("n/d")
         contiguous = consecutive_weather_groups(hours)
         selected = max(contiguous, key=len, default=[])
         if not selected:
-            return "n/d"
+            return tr("n/d")
         start = selected[0].time
         last_timestamp = weather_hour_datetime(selected[-1], timezone)
         if last_timestamp is not None:
@@ -5526,10 +5970,10 @@ class AppController(QObject):
     @staticmethod
     def _wind_label(wind_kmh: int) -> str:
         if wind_kmh <= 12:
-            return "debole"
+            return tr("debole")
         if wind_kmh <= 24:
-            return "moderato"
-        return "sostenuto"
+            return tr("moderato")
+        return tr("sostenuto")
 
     def _home_time_label(self, item: CelestialObject) -> str:
         useful_best = self._first_observing_datetime(item.best_time)
@@ -5538,7 +5982,7 @@ class AppController(QObject):
         useful_window = self._first_observing_datetime(item.observing_window)
         if useful_window:
             return self._format_home_datetime(useful_window)
-        return "Non in finestra notturna"
+        return tr("Non in finestra notturna")
 
     def _home_window_label(self, item: CelestialObject) -> str:
         useful_times = [
@@ -5616,14 +6060,22 @@ class AppController(QObject):
         return None
 
     def _format_home_datetime(self, value: datetime) -> str:
+        period_code = self._home_time_period_code(value)
+        labels = {
+            "evening": tr("sera"),
+            "night": tr("notte"),
+            "before_dawn": tr("prima dell'alba"),
+        }
+        return tr("{time} {period}", time=value.strftime("%H:%M"), period=labels[period_code])
+
+    def _home_time_period_code(self, value: datetime) -> str:
         night_window = getattr(self, "_observing_night_window", None)
-        label = "notte"
         if night_window is not None and night_window.state == "bounded":
             if night_window.start is not None and value.date() == night_window.start.date():
-                label = "sera"
-            elif night_window.end is not None and night_window.end - value <= timedelta(hours=3):
-                label = "prima dell'alba"
-        return f"{value.strftime('%H:%M')} {label}"
+                return "evening"
+            if night_window.end is not None and night_window.end - value <= timedelta(hours=3):
+                return "before_dawn"
+        return "night"
 
     @staticmethod
     def _format_clock(hour: int, minute: int) -> str:
@@ -5646,7 +6098,14 @@ class AppController(QObject):
         if telescope_id == "preset:naked-eye":
             return self._equipment_service.naked_eye_telescope()
         if telescope_id == "preset:binoculars":
-            return Telescope("preset:binoculars", "Binocolo 10x50", 50, 500, "Binocolo", "manuale")
+            return Telescope(
+                "preset:binoculars",
+                tr("Binocolo 10x50"),
+                50,
+                500,
+                tr("Binocolo"),
+                "manuale",
+            )
         if telescope_id.startswith("custom-"):
             for telescope in existing_telescopes:
                 if telescope.id == telescope_id:
@@ -5666,14 +6125,88 @@ class AppController(QObject):
             mount=model["mount_type"],
         )
 
+    @staticmethod
+    def _localized_object_content(rows: Mapping[str, dict]) -> dict[str, dict]:
+        localized: dict[str, dict] = {}
+        non_content_fields = {
+            "object_id",
+            "is_builtin",
+            "source_label",
+            "source_url",
+            "verified",
+        }
+        for object_id, source_row in rows.items():
+            row = dict(source_row)
+            if bool(row.get("is_builtin")):
+                for field, value in tuple(row.items()):
+                    if field not in non_content_fields:
+                        row[field] = content_text("objects", object_id, field, value)
+            localized[object_id] = row
+        return localized
+
+    @staticmethod
+    def _localized_equipment_catalog_rows(
+        rows: list[dict],
+        section_name: str,
+    ) -> list[dict]:
+        identity_fields = {
+            "telescopes": ("brand", "name"),
+            "eyepieces": (
+                "brand",
+                "model",
+                "eyepiece_type",
+                "focal_length_mm",
+                "min_focal_length_mm",
+                "max_focal_length_mm",
+            ),
+            "barlows": ("brand", "model", "multiplier"),
+            "binoculars": ("brand", "model"),
+            "filters": ("brand", "model"),
+            "reducers": ("brand", "model", "reduction_factor"),
+        }
+        content_fields = {
+            "telescopes": ("optical_type", "mount_type", "notes"),
+            "eyepieces": ("notes",),
+            "barlows": ("notes",),
+            "binoculars": (),
+            "filters": ("notes",),
+            "reducers": ("connection", "notes"),
+        }
+        fields = identity_fields[section_name]
+        translated_fields = content_fields[section_name]
+        localized = []
+        for source_row in rows:
+            row = dict(source_row)
+            if bool(row.get("is_builtin")):
+                item_key = content_key(*(row.get(field) for field in fields))
+                for field in translated_fields:
+                    row[field] = content_text(
+                        f"equipment_{section_name}",
+                        item_key,
+                        field,
+                        row.get(field, ""),
+                    )
+            localized.append(row)
+        return localized
+
     def _refresh_equipment_catalogs(self) -> None:
         self._telescope_brands = self._equipment_catalog_repository.brands()
-        self._telescope_catalog_models = self._equipment_catalog_repository.models()
-        self._catalog_eyepieces = self._equipment_catalog_repository.eyepieces()
-        self._catalog_barlows = self._equipment_catalog_repository.barlows()
+        self._telescope_catalog_models = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.models(), "telescopes"
+        )
+        self._catalog_eyepieces = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.eyepieces(), "eyepieces"
+        )
+        self._catalog_barlows = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.barlows(), "barlows"
+        )
         self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
-        self._catalog_filters = self._equipment_catalog_repository.filters()
-        self._catalog_reducers = self._equipment_catalog_repository.reducers()
+        self._catalog_filters = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.filters(), "filters"
+        )
+        self._catalog_reducers = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.reducers(), "reducers"
+        )
         self._telescopes = self._initial_telescopes()
         self._eyepieces = [self._eyepiece_from_catalog_row(row) for row in self._catalog_eyepieces]
         self._barlows = [self._barlow_from_catalog_row(row) for row in self._catalog_barlows]
@@ -5684,7 +6217,9 @@ class AppController(QObject):
         self._selected_telescope_index = self._initial_telescope_index()
 
     def _refresh_binocular_catalog(self) -> None:
-        self._catalog_binoculars = self._equipment_catalog_repository.binoculars()
+        self._catalog_binoculars = self._localized_equipment_catalog_rows(
+            self._equipment_catalog_repository.binoculars(), "binoculars"
+        )
         self._binoculars = [self._binocular_from_catalog_row(row) for row in self._catalog_binoculars]
         self._profile_equipment = self._initial_profile_equipment()
 
@@ -5725,7 +6260,7 @@ class AppController(QObject):
                 raise ValueError
             aperture = int(aperture_value) if aperture_value is not None else None
         except ValueError:
-            self._equipment_message = "Dati filtro non validi."
+            self._equipment_message = tr("Dati filtro non validi.")
             self.equipmentChanged.emit()
             return None
         return central, width, transmission_pct, aperture
@@ -5739,7 +6274,7 @@ class AppController(QObject):
             factor = float(reduction_factor.replace(",", "."))
             backfocus_mm = self._optional_float_input(backfocus)
         except ValueError:
-            self._equipment_message = "Dati riduttore non validi."
+            self._equipment_message = tr("Dati riduttore non validi.")
             self.equipmentChanged.emit()
             return None
         return factor, backfocus_mm
@@ -5770,7 +6305,7 @@ class AppController(QObject):
             magnification_value = self._positive_int(magnification)
             objective_value = self._positive_int(objective_diameter)
         except ValueError:
-            self._equipment_message = "Dati binocolo non validi."
+            self._equipment_message = tr("Dati binocolo non validi.")
             self.equipmentChanged.emit()
             return None
         return magnification_value, objective_value
@@ -5804,7 +6339,7 @@ class AppController(QObject):
                 min_value = None
                 max_value = None
         except ValueError:
-            self._equipment_message = "Dati oculare non validi."
+            self._equipment_message = tr("Dati oculare non validi.")
             self.equipmentChanged.emit()
             return None
         afov_min = None
@@ -5819,7 +6354,9 @@ class AppController(QObject):
                     afov_min = None
                     afov_max = None
         if focal_value <= 0 or apparent <= 0:
-            self._equipment_message = "Focale e campo apparente devono essere maggiori di zero."
+            self._equipment_message = tr(
+                "Focale e campo apparente devono essere maggiori di zero."
+            )
             self.equipmentChanged.emit()
             return None
         return focal_value, apparent, min_value, max_value, afov_min, afov_max
@@ -5969,6 +6506,18 @@ class AppController(QObject):
     def _active_profile(self) -> dict | None:
         return next((profile for profile in self._equipment_profiles if int(profile.get("active", 0)) == 1), None)
 
+    def _presented_equipment_profiles(self) -> list[dict]:
+        profiles = []
+        for source_profile in self._equipment_profiles:
+            profile = dict(source_profile)
+            if (
+                profile.get("telescope_id") == self._equipment_service.NAKED_EYE_ID
+                and profile.get("profile_name") == "Occhio nudo"
+            ):
+                profile["profile_name"] = tr("Occhio nudo")
+            profiles.append(profile)
+        return profiles
+
     def _active_profile_state(self) -> dict[str, list[str]]:
         profile = self._active_profile()
         if not profile:
@@ -6085,13 +6634,17 @@ class AppController(QObject):
                     "kind": "telescope",
                     "id": telescope.id,
                     "name": telescope.name,
-                    "badge": "Telescopio",
-                    "details": f"{telescope.aperture_mm} mm / {telescope.focal_length_mm} mm",
+                    "badge": tr("Telescopio"),
+                    "details": tr(
+                        "{aperture} mm / {focal_length} mm",
+                        aperture=format_number(telescope.aperture_mm),
+                        focal_length=format_number(telescope.focal_length_mm),
+                    ),
                     "type": telescope.optical_type,
                 }
             )
         for eyepiece in self._eyepieces:
-            badge = "Zoom" if eyepiece.eyepiece_type == "Zoom" else "Oculare"
+            badge = tr("Zoom") if eyepiece.eyepiece_type == "Zoom" else tr("Oculare")
             items.append(
                 {
                     "kind": "eyepiece",
@@ -6108,9 +6661,12 @@ class AppController(QObject):
                     "kind": "barlow",
                     "id": barlow.id,
                     "name": barlow.name,
-                    "badge": "Barlow",
-                    "details": f"{barlow.multiplier:g}x",
-                    "type": "Barlow",
+                    "badge": tr("Barlow"),
+                    "details": tr(
+                        "{value}x",
+                        value=format_compact_number(barlow.multiplier),
+                    ),
+                    "type": tr("Barlow"),
                 }
             )
         for binocular in self._binoculars:
@@ -6119,9 +6675,9 @@ class AppController(QObject):
                     "kind": "binocular",
                     "id": binocular.id,
                     "name": binocular.name,
-                    "badge": "Binocolo",
+                    "badge": tr("Binocolo"),
                     "details": binocular.to_qml()["specLabel"],
-                    "type": "Binocolo stabilizzato" if binocular.image_stabilized else "Binocolo",
+                    "type": tr("Binocolo stabilizzato") if binocular.image_stabilized else tr("Binocolo"),
                     "secondaryBadge": "IS" if binocular.image_stabilized else "",
                 }
             )
@@ -6131,7 +6687,7 @@ class AppController(QObject):
                     "kind": "filter",
                     "id": optical_filter["catalog_id"],
                     "name": optical_filter["display_name"],
-                    "badge": "Filtro",
+                    "badge": tr("Filtro"),
                     "details": optical_filter["filter_class_label"],
                     "type": optical_filter["filter_class_label"],
                 }
@@ -6142,10 +6698,17 @@ class AppController(QObject):
                     "kind": "reducer",
                     "id": reducer["catalog_id"],
                     "name": reducer["display_name"],
-                    "badge": "Riduttore",
-                    "details": (
-                        f"{float(reducer['reduction_factor']):g}x · "
-                        f"{reducer['optical_system_label']}"
+                    "badge": tr("Riduttore"),
+                    "details": join_text(
+                        [
+                            tr(
+                                "{value}x",
+                                value=format_compact_number(
+                                    float(reducer["reduction_factor"])
+                                ),
+                            ),
+                            reducer["optical_system_label"],
+                        ]
                     ),
                     "type": reducer["optical_system_label"],
                     "secondaryBadge": self._reducer_use_label(reducer),
@@ -6161,8 +6724,12 @@ class AppController(QObject):
                     "kind": "telescope",
                     "id": telescope.id,
                     "name": telescope.name,
-                    "badge": "Telescopio",
-                    "details": f"{telescope.aperture_mm} mm / {telescope.focal_length_mm} mm",
+                    "badge": tr("Telescopio"),
+                    "details": tr(
+                        "{aperture} mm / {focal_length} mm",
+                        aperture=format_number(telescope.aperture_mm),
+                        focal_length=format_number(telescope.focal_length_mm),
+                    ),
                 }
             )
         for eyepiece in self._active_profile_eyepieces():
@@ -6171,7 +6738,7 @@ class AppController(QObject):
                     "kind": "eyepiece",
                     "id": eyepiece.id,
                     "name": eyepiece.name,
-                    "badge": "Zoom" if eyepiece.eyepiece_type == "Zoom" else "Oculare",
+                    "badge": tr("Zoom") if eyepiece.eyepiece_type == "Zoom" else tr("Oculare"),
                     "details": eyepiece.to_qml()["focalRangeLabel"],
                 }
             )
@@ -6181,8 +6748,11 @@ class AppController(QObject):
                     "kind": "barlow",
                     "id": barlow.id,
                     "name": barlow.name,
-                    "badge": "Barlow",
-                    "details": f"{barlow.multiplier:g}x",
+                    "badge": tr("Barlow"),
+                    "details": tr(
+                        "{value}x",
+                        value=format_compact_number(barlow.multiplier),
+                    ),
                 }
             )
         for binocular in self._active_profile_binoculars():
@@ -6191,7 +6761,7 @@ class AppController(QObject):
                     "kind": "binocular",
                     "id": binocular.id,
                     "name": binocular.name,
-                    "badge": "Binocolo",
+                    "badge": tr("Binocolo"),
                     "details": binocular.to_qml()["specLabel"],
                     "secondaryBadge": "IS" if binocular.image_stabilized else "",
                 }
@@ -6205,7 +6775,7 @@ class AppController(QObject):
                     "kind": "filter",
                     "id": optical_filter["catalog_id"],
                     "name": optical_filter["display_name"],
-                    "badge": "Filtro",
+                    "badge": tr("Filtro"),
                     "details": optical_filter["filter_class_label"],
                 }
             )
@@ -6218,10 +6788,17 @@ class AppController(QObject):
                     "kind": "reducer",
                     "id": reducer["catalog_id"],
                     "name": reducer["display_name"],
-                    "badge": "Riduttore",
-                    "details": (
-                        f"{float(reducer['reduction_factor']):g}x · "
-                        f"{reducer['optical_system_label']}"
+                    "badge": tr("Riduttore"),
+                    "details": join_text(
+                        [
+                            tr(
+                                "{value}x",
+                                value=format_compact_number(
+                                    float(reducer["reduction_factor"])
+                                ),
+                            ),
+                            reducer["optical_system_label"],
+                        ]
                     ),
                     "secondaryBadge": self._reducer_use_label(reducer),
                 }
@@ -6233,10 +6810,10 @@ class AppController(QObject):
         visual = bool(reducer.get("visual_compatible"))
         imaging = bool(reducer.get("imaging_compatible"))
         if visual and imaging:
-            return "Visuale + foto"
+            return tr("Visuale + foto")
         if visual:
-            return "Visuale"
-        return "Fotografico"
+            return tr("Visuale")
+        return tr("Fotografico")
 
     def _telescope_exists(self, telescope: Telescope, ignore_id: str = "") -> bool:
         return any(
@@ -6287,14 +6864,30 @@ class AppController(QObject):
     def _equipment_status_message(self) -> str:
         telescope = self._current_telescope()
         if not self._equipment_service.has_optical_telescope(telescope):
-            return "Modalita Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow."
+            return tr("Modalità Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow.")
         eyepieces = self._active_profile_eyepieces()
         barlows = self._active_profile_barlows()
         if not eyepieces:
-            return "Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi."
+            return tr("Telescopio attivo senza oculari: suggerimenti limitati. Aggiungi oculari per calcoli completi.")
         barlow_count = len(barlows)
-        barlow_text = f"{barlow_count} Barlow" if barlow_count else "nessuna Barlow"
-        return f"Profilo attivo: {telescope.name}. Oculari disponibili: {len(eyepieces)}, {barlow_text}."
+        barlow_text = (
+            tr("1 Barlow")
+            if barlow_count == 1
+            else tr("{count} Barlow", count=barlow_count)
+            if barlow_count > 1
+            else tr("nessuna Barlow")
+        )
+        eyepiece_text = (
+            tr("1 oculare")
+            if len(eyepieces) == 1
+            else tr("{count} oculari", count=len(eyepieces))
+        )
+        return tr(
+            "Profilo attivo: {telescope}. Disponibili: {eyepieces}, {barlows}.",
+            telescope=telescope.name,
+            eyepieces=eyepiece_text,
+            barlows=barlow_text,
+        )
 
     @staticmethod
     def _empty_windows_diagnostics() -> dict:
@@ -6333,6 +6926,7 @@ class AppController(QObject):
                 "latitude": 0.0,
                 "longitude": 0.0,
                 "timezone": "",
+                "coordinatesLabel": "",
             }
         return {
             "city": location.city,
@@ -6341,4 +6935,9 @@ class AppController(QObject):
             "latitude": location.latitude,
             "longitude": location.longitude,
             "timezone": location.timezone,
+            "coordinatesLabel": tr(
+                "{latitude} / {longitude}",
+                latitude=format_number(location.latitude, decimals=4),
+                longitude=format_number(location.longitude, decimals=4),
+            ),
         }

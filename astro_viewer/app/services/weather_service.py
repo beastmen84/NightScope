@@ -11,10 +11,11 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.weather_cache_repository import WeatherCacheRepository
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.localization import tr
 
 
 logger = logging.getLogger(__name__)
-WEATHER_UNAVAILABLE_MESSAGE = "Servizio meteo temporaneamente non disponibile."
+WEATHER_UNAVAILABLE_MESSAGE = tr("Servizio meteo temporaneamente non disponibile.")
 
 
 class WeatherService(Protocol):
@@ -97,12 +98,15 @@ class OpenMeteoWeatherService:
             response.raise_for_status()
             payload = response.json()
         except requests.Timeout:
-            return self._fallback(cached, "Richiesta meteo scaduta.", retry_recommended=True)
+            return self._fallback(cached, tr("Richiesta meteo scaduta."), retry_recommended=True)
         except requests.HTTPError as exc:
             status_code = getattr(exc.response, "status_code", None)
             self.last_http_status = status_code if isinstance(status_code, int) else None
             if self.last_http_status == 429:
-                return self._fallback(cached, "Open-Meteo HTTP status=429: limite richieste raggiunto.")
+                return self._fallback(
+                    cached,
+                    tr("Open-Meteo HTTP status=429: limite richieste raggiunto."),
+                )
             retry_recommended = _http_error_is_retryable(self.last_http_status)
             status_label = self.last_http_status if self.last_http_status is not None else "unknown"
             return self._fallback(
@@ -111,18 +115,22 @@ class OpenMeteoWeatherService:
                 retry_recommended=retry_recommended,
             )
         except requests.RequestException:
-            return self._fallback(cached, "API meteo non raggiungibile.", retry_recommended=True)
+            return self._fallback(
+                cached,
+                tr("API meteo non raggiungibile."),
+                retry_recommended=True,
+            )
         except (TypeError, ValueError):
             return self._fallback(
                 cached,
-                "L'API meteo ha restituito JSON non valido.",
+                tr("L'API meteo ha restituito JSON non valido."),
                 retry_recommended=True,
             )
 
         if not isinstance(payload, dict):
             return self._fallback(
                 cached,
-                "L'API meteo ha restituito dati inattesi.",
+                tr("L'API meteo ha restituito dati inattesi."),
                 retry_recommended=True,
             )
 
@@ -130,7 +138,7 @@ class OpenMeteoWeatherService:
         if not hours:
             return self._fallback(
                 cached,
-                "L'API meteo ha restituito una previsione vuota.",
+                tr("L'API meteo ha restituito una previsione vuota."),
                 retry_recommended=True,
             )
 

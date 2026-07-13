@@ -133,7 +133,7 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
 
         self.assertTrue(result.visible)
         self.assertTrue(result.has_data)
-        self.assertEqual(result.pm25, "8.4 µg/m³")
+        self.assertEqual(result.pm25, "8,4 µg/m³")
         self.assertEqual(result.pm10, "33 µg/m³")
         self.assertEqual(result.clarity, "Discreta")
         self.assertEqual(result.source, "Addis Ababa Central")
@@ -245,7 +245,7 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
         self.assertEqual(result.clarity, "—")
         self.assertEqual(result.freshness_category, "historical")
         self.assertEqual(result.freshness, "Ultima misura 37 giorni fa")
-        self.assertIn("Ultima misura: 2026-05-21", result.message)
+        self.assertIn("Ultima misura: 21/05/2026", result.message)
         self.assertIn("Misura storica", result.message)
 
     def test_cache_reuses_recent_location_lookup(self) -> None:

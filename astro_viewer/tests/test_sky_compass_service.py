@@ -184,9 +184,10 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert alternatives_binding in sky_compass_block
     assert sky_compass_block.index(alternatives_binding) < sky_compass_block.index("GridLayout {")
     assert "Nessuna alternativa utile" not in sky_compass_block
-    assert 'function eventAccent(type)' in source
-    assert 'if (type === "Sciame meteorico")' in source
-    assert "accentColor: root.eventAccent(modelData.type)" in events_block
+    assert 'function eventAccent(typeCode)' in source
+    assert "root.eventAccent(modelData.typeCode)" in source
+    assert 'if (typeCode === "meteor_shower")' in source
+    assert "accentColor: root.eventAccent(modelData.typeCode)" in events_block
     assert "columns: root.width > 1040 ? 4 : root.width > 760 ? 2 : 1" in events_block
     assert "Layout.preferredHeight: 74" in events_block
     assert "Layout.alignment: Qt.AlignVCenter" in events_block
@@ -195,7 +196,7 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert "Target principali" in source
     assert "skyCompassCanvas" in source
     assert "skyCompassTypeIconKind" in source
-    assert "skyCompassTypeLabel" in source
+    assert "skyCompassTypeLabel" not in source
     assert "skyCompassGeometricTargetCountLabel" in source
     assert "iconKind === \"planet\"" in source
     assert 'property bool sessionRecommended: root.sessionOverview.state === "recommended"' in sky_compass_block
@@ -203,22 +204,24 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert 'qsTr("Inizia da") : qsTr("Guarda verso")' in sky_compass_block
     assert 'qsTr("Alternative") : qsTr("Altre direzioni")' in sky_compass_block
     assert 'qsTr("Target principali") : qsTr("Target nella direzione")' in sky_compass_block
-    assert 'text: root.skyCompassTypeLabel(modelData.type)' in sky_compass_block
+    assert "text: modelData.typeLabel || modelData.type" in sky_compass_block
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source
     assert "Aggiornato ora" not in source
     assert "Timer {" not in source
 
 
-def test_sky_compass_qml_localizes_catalogue_target_types() -> None:
-    source = HOME_PAGE.read_text(encoding="utf-8")
+def test_sky_compass_payload_exposes_localizable_catalogue_target_type() -> None:
+    result = SkyCompassService().compass(
+        [_object("m31", "M31", "Spiral galaxy", "Est", 80)],
+        [],
+        None,
+        has_location=True,
+    )
 
-    assert 'return qsTr("Nube stellare della Via Lattea")' in source
-    assert 'return qsTr("Ammasso globulare")' in source
-    assert 'return qsTr("Ammasso aperto")' in source
-    assert 'return qsTr("Galassia spirale")' in source
-    assert 'return qsTr("Nebulosa planetaria")' in source
-    assert 'return qsTr("Resto di supernova")' in source
+    assert result["targets"][0]["type"] == "Spiral galaxy"
+    assert result["targets"][0]["typeLabel"] == "Galassia spirale"
+    assert result["targets"][0]["typeCode"] == "galaxy"
 
 
 def test_home_sky_compass_filter_reacts_to_payload_and_scopes_both_cards() -> None:

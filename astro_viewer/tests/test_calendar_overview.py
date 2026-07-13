@@ -291,9 +291,9 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
 
     assert "controller.calendarOverview" in calendar_qml
     assert "root.calendarEvents" in calendar_qml
-    for label in ("30 giorni", "6 mesi", "12 mesi"):
+    for label, value in (("30 giorni", "30d"), ("6 mesi", "6m"), ("12 mesi", "12m")):
         assert f'"label": qsTr("{label}")' in calendar_qml
-        assert f'"value": "{label}"' in calendar_qml
+        assert f'"value": "{value}"' in calendar_qml
     assert "function periodEvents()" in calendar_qml
     assert "controller.events" not in calendar_qml
     assert "usefulness" not in event_row_qml

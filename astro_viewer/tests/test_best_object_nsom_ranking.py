@@ -357,7 +357,7 @@ def _controller() -> AppController:
     controller._is_catalogue_detail_object = lambda _item: False
     controller._home_time_label = lambda item: item.best_time
     controller._home_window_label = lambda item: item.observing_window
-    controller._observing_status = lambda _item: ("", "")
+    controller._observing_status_data = lambda _item: ("", "", "")
     controller._observing_reasons = lambda _item: []
     controller._setup_reason = lambda _item: ""
     return controller

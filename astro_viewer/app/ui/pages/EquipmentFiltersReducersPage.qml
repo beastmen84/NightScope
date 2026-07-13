@@ -222,7 +222,9 @@ Item {
                             }
                             Text {
                                 Layout.fillWidth: true
-                                text: root.filteredFilters().length + " di " + root.controller.filterCatalog.length + " filtri"
+                                text: qsTr("%1 di %2 filtri")
+                                    .arg(root.filteredFilters().length)
+                                    .arg(root.controller.filterCatalog.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -310,7 +312,9 @@ Item {
                             }
                             Text {
                                 Layout.fillWidth: true
-                                text: root.filteredReducers().length + " di " + root.controller.reducerCatalog.length + " riduttori"
+                                text: qsTr("%1 di %2 riduttori")
+                                    .arg(root.filteredReducers().length)
+                                    .arg(root.controller.reducerCatalog.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -422,12 +426,12 @@ Item {
                 StatusPill { text: filterRow.itemData.filter_class_label; accentColor: theme.teal }
                 StatusPill {
                     visible: filterRow.itemData.bandwidth_nm !== null
-                    text: root.optionalText(filterRow.itemData.bandwidth_nm) + " nm"
+                    text: filterRow.itemData.bandwidth_label
                     accentColor: theme.violet
                 }
                 StatusPill {
                     visible: filterRow.itemData.transmission_pct !== null
-                    text: root.optionalText(filterRow.itemData.transmission_pct) + "%"
+                    text: filterRow.itemData.transmission_label
                     accentColor: theme.amber
                 }
             }
@@ -490,12 +494,12 @@ Item {
             Flow {
                 Layout.fillWidth: true
                 spacing: 8
-                StatusPill { text: reducerRow.itemData.reduction_factor + "x"; accentColor: theme.amber }
+                StatusPill { text: reducerRow.itemData.reduction_factor_label; accentColor: theme.amber }
                 StatusPill { text: reducerRow.itemData.optical_system_label; accentColor: theme.cyan }
                 StatusPill { text: root.reducerUseLabel(reducerRow.itemData); accentColor: reducerRow.itemData.visual_compatible ? theme.green : theme.violet }
                 StatusPill {
                     visible: reducerRow.itemData.backfocus_mm !== null
-                    text: root.optionalText(reducerRow.itemData.backfocus_mm) + " mm"
+                    text: reducerRow.itemData.backfocus_label
                     accentColor: theme.teal
                 }
             }
@@ -577,7 +581,7 @@ Item {
                 Text {
                     text: root.reducerTelescopeIds.length === 1
                           ? qsTr("1 selezionato")
-                          : root.reducerTelescopeIds.length + qsTr(" selezionati")
+                          : qsTr("%1 selezionati").arg(root.reducerTelescopeIds.length)
                     color: theme.textMuted
                     font.pixelSize: 12
                 }

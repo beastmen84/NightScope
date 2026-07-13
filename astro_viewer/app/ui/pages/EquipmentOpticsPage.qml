@@ -175,7 +175,9 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: root.filteredEyepieces().length + " di " + controller.eyepieceCatalog.length + " oculari"
+                                text: qsTr("%1 di %2 oculari")
+                                    .arg(root.filteredEyepieces().length)
+                                    .arg(controller.eyepieceCatalog.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -266,7 +268,9 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: root.filteredBarlows().length + " di " + controller.barlowCatalog.length + " Barlow"
+                                text: qsTr("%1 di %2 Barlow")
+                                    .arg(root.filteredBarlows().length)
+                                    .arg(controller.barlowCatalog.length)
                                 color: theme.textSecondary
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -372,7 +376,9 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: (itemData.barrel_size || "barilotto n/d") + "  -  " + (itemData.notes || "")
+                text: qsTr("%1  -  %2")
+                    .arg(itemData.barrel_size || qsTr("barilotto n/d"))
+                    .arg(itemData.notes || "")
                 color: theme.textSecondary
                 font.pixelSize: 12
                 elide: Text.ElideRight
@@ -385,7 +391,7 @@ Item {
 
                 StatusPill {
                     visible: !opticRow.isBarlow
-                    text: opticRow.isBarlow ? "" : (itemData.type || "")
+                    text: opticRow.isBarlow ? "" : (itemData.type_label || itemData.type || "")
                     accentColor: opticRow.accent
                 }
 
@@ -397,13 +403,13 @@ Item {
 
                 StatusPill {
                     visible: !opticRow.isBarlow
-                    text: opticRow.isBarlow ? "" : ((itemData.apparent_field_deg || "") + " gradi")
+                    text: opticRow.isBarlow ? "" : (itemData.apparent_field_label || "")
                     accentColor: theme.amber
                 }
 
                 StatusPill {
                     visible: opticRow.isBarlow
-                    text: opticRow.isBarlow ? itemData.multiplier + "x" : ""
+                    text: opticRow.isBarlow ? itemData.multiplier_label : ""
                     accentColor: theme.amber
                 }
             }

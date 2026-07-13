@@ -36,7 +36,7 @@ class Phase3ServiceTests(unittest.TestCase):
             quality = service.sky_quality(ObserverLocation("Milano", "Italia", 45.46, 9.19, "Europe/Rome"))
 
             self.assertEqual(quality.bortle_class, 8)
-            self.assertEqual(quality.description, "Urban Sky")
+            self.assertEqual(quality.description, "Cielo urbano")
 
     def test_seeing_transparency_estimate(self) -> None:
         hours = [

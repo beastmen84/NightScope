@@ -11,6 +11,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from astro_viewer.app.services.localization import tr
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ class OpenAQCredentialState:
     configured: bool = False
     secure_store_available: bool = False
     connection_verified: bool = False
-    message: str = "API key OpenAQ non configurata."
+    message: str = tr("API key OpenAQ non configurata.")
 
 
 @dataclass(frozen=True)
@@ -62,18 +64,18 @@ class OpenAQCredentialStore:
             return OpenAQCredentialState(
                 configured=False,
                 secure_store_available=False,
-                message="Archivio credenziali di sistema non disponibile.",
+                message=tr("Archivio credenziali di sistema non disponibile."),
             )
         payload = self._read_json(self._preferences_path)
         api_key = self.api_key()
         configured = bool(payload.get(OPENAQ_CONFIGURED_KEY) and api_key)
         connection_verified = configured and payload.get(OPENAQ_VERIFIED_API_KEY_HASH_KEY) == _api_key_hash(api_key or "")
         if connection_verified:
-            message = "Connessione OpenAQ verificata."
+            message = tr("Connessione OpenAQ verificata.")
         elif configured:
-            message = "API key OpenAQ salvata. Esegui il test connessione."
+            message = tr("API key OpenAQ salvata. Esegui il test connessione.")
         else:
-            message = "API key OpenAQ non configurata."
+            message = tr("API key OpenAQ non configurata.")
         return OpenAQCredentialState(
             configured=configured,
             secure_store_available=True,
@@ -101,15 +103,17 @@ class OpenAQCredentialStore:
     def save(self, api_key: str) -> OpenAQCredentialState:
         clean_api_key = api_key.strip()
         if not clean_api_key:
-            raise ValueError("Inserisci una API key OpenAQ.")
+            raise ValueError(tr("Inserisci una API key OpenAQ."))
         if self._backend is None:
-            raise RuntimeError("Archivio credenziali di sistema non disponibile.")
+            raise RuntimeError(tr("Archivio credenziali di sistema non disponibile."))
 
         try:
             self._backend.set_password(self._service_name, OPENAQ_API_KEY_ACCOUNT, clean_api_key)
         except Exception as exc:
             logger.warning("OpenAQ API key could not be saved to secure store.", exc_info=True)
-            raise RuntimeError("Impossibile salvare la API key nel vault di sistema.") from exc
+            raise RuntimeError(
+                tr("Impossibile salvare la API key nel vault di sistema.")
+            ) from exc
 
         payload = self._read_json(self._preferences_path)
         payload[OPENAQ_CONFIGURED_KEY] = True
@@ -118,7 +122,7 @@ class OpenAQCredentialStore:
         return OpenAQCredentialState(
             configured=True,
             secure_store_available=True,
-            message="API key OpenAQ salvata. Esegui il test connessione.",
+            message=tr("API key OpenAQ salvata. Esegui il test connessione."),
         )
 
     def remove(self) -> OpenAQCredentialState:
@@ -134,7 +138,7 @@ class OpenAQCredentialStore:
         return OpenAQCredentialState(
             configured=False,
             secure_store_available=self.secure_store_available,
-            message="API key OpenAQ rimossa.",
+            message=tr("API key OpenAQ rimossa."),
         )
 
     def with_connection_result(self, ok: bool, message: str) -> OpenAQCredentialState:
@@ -190,30 +194,48 @@ class OpenAQConnectionTester:
     def test(self, api_key: str) -> OpenAQConnectionResult:
         clean_api_key = api_key.strip()
         if not clean_api_key:
-            return OpenAQConnectionResult(False, "API key OpenAQ non configurata.")
+            return OpenAQConnectionResult(False, tr("API key OpenAQ non configurata."))
         try:
             response = self._session(clean_api_key).get(self._test_url, timeout=(10, 20))
         except requests.RequestException as exc:
             logger.warning("OpenAQ connection test failed.", exc_info=True)
-            return OpenAQConnectionResult(False, f"Connessione OpenAQ non riuscita: {exc.__class__.__name__}.")
+            return OpenAQConnectionResult(
+                False,
+                tr(
+                    "Connessione OpenAQ non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                ),
+            )
 
         if response.status_code == 200:
             return self._validate_success_payload(response)
         if response.status_code in (401, 403):
-            return OpenAQConnectionResult(False, "API key OpenAQ non valida o non autorizzata.")
+            return OpenAQConnectionResult(
+                False,
+                tr("API key OpenAQ non valida o non autorizzata."),
+            )
         if response.status_code == 429:
-            return OpenAQConnectionResult(False, "OpenAQ ha applicato un limite di traffico. Riprova più tardi.")
-        return OpenAQConnectionResult(False, f"OpenAQ ha risposto con HTTP {response.status_code}.")
+            return OpenAQConnectionResult(
+                False,
+                tr("OpenAQ ha applicato un limite di traffico. Riprova più tardi."),
+            )
+        return OpenAQConnectionResult(
+            False,
+            tr(
+                "OpenAQ ha risposto con HTTP {status_code}.",
+                status_code=response.status_code,
+            ),
+        )
 
     @staticmethod
     def _validate_success_payload(response: requests.Response) -> OpenAQConnectionResult:
         try:
             payload = response.json()
         except ValueError:
-            return OpenAQConnectionResult(False, "Risposta OpenAQ non valida.")
+            return OpenAQConnectionResult(False, tr("Risposta OpenAQ non valida."))
         if isinstance(payload, dict) and "results" in payload:
-            return OpenAQConnectionResult(True, "Connessione OpenAQ verificata.")
-        return OpenAQConnectionResult(False, "Risposta OpenAQ non riconosciuta.")
+            return OpenAQConnectionResult(True, tr("Connessione OpenAQ verificata."))
+        return OpenAQConnectionResult(False, tr("Risposta OpenAQ non riconosciuta."))
 
     @staticmethod
     def _session(api_key: str) -> requests.Session:

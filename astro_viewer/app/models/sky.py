@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+import re
+
+from astro_viewer.app.services.localization import format_number, tr
+
 
 @dataclass(frozen=True)
 class SkyQuality:
@@ -22,7 +26,39 @@ class SkyQuality:
         data["viirsRadiance"] = self.viirs_radiance
         data["viirsObservationCount"] = self.viirs_observation_count
         data["hasViirsRadiance"] = self.viirs_radiance is not None
+        data["source"] = _localized_sky_quality_source(self.source)
         data["confidenceLabel"] = _localized_confidence(self.confidence)
+        data["viirsRadianceLabel"] = (
+            tr(
+                "{value} nW/cm² sr",
+                value=format_number(self.viirs_radiance, decimals=2),
+            )
+            if self.viirs_radiance is not None
+            else ""
+        )
+        data["viirsObservationCountLabel"] = (
+            tr("1 osservazione")
+            if self.viirs_observation_count == 1
+            else tr(
+                "{count} osservazioni",
+                count=self.viirs_observation_count,
+            )
+            if self.viirs_observation_count is not None
+            else ""
+        )
+        data["skyBrightnessLabel"] = tr(
+            "{value} mag/arcsec²",
+            value=format_number(self.sky_brightness, decimals=2),
+        )
+        data["limitingMagnitudeLabel"] = tr(
+            "{value} mag",
+            value=format_number(self.limiting_magnitude, decimals=1),
+        )
+        data["bortleLabel"] = tr(
+            "{value} - {description}",
+            value=self.bortle_class,
+            description=self.description,
+        )
         return data
 
 
@@ -68,30 +104,53 @@ class ObservingCategoryScores:
 
 def _localized_quality_label(value: str) -> str:
     labels = {
-        "Excellent": "Eccellente",
-        "Good": "Buono",
-        "Average": "Discreto",
-        "Poor": "Scarso",
+        "Excellent": tr("Eccellente"),
+        "Good": tr("Buono"),
+        "Average": tr("Discreto"),
+        "Poor": tr("Scarso"),
     }
-    return labels.get(value, value or "n/d")
+    return labels.get(value, value or tr("n/d"))
 
 
 def _localized_confidence(value: str) -> str:
     labels = {
-        "high": "alta",
-        "medium": "media",
-        "low": "bassa",
+        "high": tr("alta"),
+        "medium": tr("media"),
+        "low": tr("bassa"),
+        "unavailable": tr("n/d"),
     }
-    return labels.get(value, value or "n/d")
+    return labels.get(value, value or tr("n/d"))
 
 
 def _localized_source(value: str) -> str:
     labels = {
-        "BasicForecastSeeingProvider": "Stima meteo base",
-        "MeteoblueSeeingProviderPlaceholder": "Stima meteo base",
-        "CustomModelSeeingProvider": "Modello seeing personalizzato",
+        "BasicForecastSeeingProvider": tr("Stima meteo base"),
+        "MeteoblueSeeingProviderPlaceholder": tr("Stima meteo base"),
+        "CustomModelSeeingProvider": tr("Modello seeing personalizzato"),
     }
-    return labels.get(value, value or "n/d")
+    return labels.get(value, value or tr("n/d"))
+
+
+def _localized_sky_quality_source(value: str) -> str:
+    source = (value or "").strip()
+    if source == "Fonte: stima offline NightScope (nessun dataset locale)":
+        return tr("Fonte: stima offline NightScope (nessun dataset locale)")
+    match = re.search(
+        r"Fonte: NASA Black Marble VNP46A3 (\d{4}-\d{2}) "
+        r"\(radiance ([0-9]+(?:\.[0-9]+)?) nW/cm\^2 sr, obs (\d+)\)",
+        source,
+    )
+    if match:
+        return tr(
+            "Fonte: NASA Black Marble VNP46A3 {month} "
+            "(radianza {radiance} nW/cm^2 sr, osservazioni {observations})",
+            month=match.group(1),
+            radiance=format_number(float(match.group(2)), decimals=2),
+            observations=int(match.group(3)),
+        )
+    if source.startswith("Fonte: "):
+        return tr("Fonte: {source}", source=source.removeprefix("Fonte: "))
+    return source or tr("n/d")
 
 
 @dataclass(frozen=True)

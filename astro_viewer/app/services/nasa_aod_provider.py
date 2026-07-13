@@ -18,6 +18,7 @@ import numpy as np
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
+from astro_viewer.app.services.localization import format_datetime, format_number, join_text, tr
 
 
 logger = logging.getLogger(__name__)
@@ -85,11 +86,19 @@ class NasaAodResult:
 
     @classmethod
     def no_credentials(cls) -> NasaAodResult:
-        return cls(False, "no_credentials", "Credenziali Earthdata non configurate o non verificate.")
+        return cls(
+            False,
+            "no_credentials",
+            tr("Credenziali Earthdata non configurate o non verificate."),
+        )
 
     @classmethod
     def no_location(cls) -> NasaAodResult:
-        return cls(False, "no_location", "Configura una posizione per recuperare i dati NASA AOD.")
+        return cls(
+            False,
+            "no_location",
+            tr("Configura una posizione per recuperare i dati NASA AOD."),
+        )
 
     @classmethod
     def failure(cls, status: str, message: str) -> NasaAodResult:
@@ -107,7 +116,7 @@ class NasaAodResult:
         return cls(
             True,
             "ok",
-            "Dati NASA AOD disponibili.",
+            tr("Dati NASA AOD disponibili."),
             product=product,
             aod_550=round(extraction.aod_550, 3),
             uncertainty=round(extraction.uncertainty, 4) if extraction.uncertainty is not None else None,
@@ -134,10 +143,18 @@ class NasaAodResult:
             "provider": self.provider,
             "product": self.product,
             "productLabel": _product_label(self.product),
-            "aod550": f"{self.aod_550:.3f}" if self.aod_550 is not None else "—",
-            "uncertainty": f"{self.uncertainty:.4f}" if self.uncertainty is not None else "—",
+            "aod550": (
+                format_number(self.aod_550, decimals=3)
+                if self.aod_550 is not None
+                else "—"
+            ),
+            "uncertainty": (
+                format_number(self.uncertainty, decimals=4)
+                if self.uncertainty is not None
+                else "—"
+            ),
             "qaRaw": str(self.qa_raw) if self.qa_raw is not None else "—",
-            "acquisitionDate": self.acquisition_date or "—",
+            "acquisitionDate": _localized_acquisition_date(self.acquisition_date),
             "granuleId": self.granule_id,
             "method": self.method,
             "methodLabel": _method_label(self.method),
@@ -237,13 +254,19 @@ class NasaAodProvider:
             self._client.authenticate(username, password)
         except Exception as exc:
             logger.warning("NASA AOD Earthdata authentication failed: %s", exc.__class__.__name__)
-            return NasaAodResult.failure("auth_error", f"Autenticazione Earthdata AOD non riuscita: {exc.__class__.__name__}.")
+            return NasaAodResult.failure(
+                "auth_error",
+                tr(
+                    "Autenticazione Earthdata AOD non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                ),
+            )
 
         now = self._clock().astimezone(UTC)
         end_date = now.date()
         start_date = end_date - timedelta(days=max(1, self._search_days))
         last_status = "no_granules"
-        last_message = "Nessun granulo NASA AOD trovato per questa località."
+        last_message = tr("Nessun granulo NASA AOD trovato per questa località.")
 
         for product in NASA_AOD_PRODUCTS:
             try:
@@ -251,7 +274,11 @@ class NasaAodProvider:
             except Exception as exc:
                 logger.warning("NASA AOD CMR search failed for %s: %s", product.product_id, exc.__class__.__name__)
                 last_status = "download_error"
-                last_message = f"Ricerca NASA AOD non riuscita per {product.product_id}: {exc.__class__.__name__}."
+                last_message = tr(
+                    "Ricerca NASA AOD non riuscita per {product}: {error_type}.",
+                    product=product.product_id,
+                    error_type=exc.__class__.__name__,
+                )
                 continue
 
             sorted_granules = sorted(granules, key=lambda granule: granule.acquisition_date, reverse=True)
@@ -259,7 +286,10 @@ class NasaAodProvider:
                 continue
 
             last_status = "no_valid_pixel"
-            last_message = f"Nessun pixel AOD valido trovato in {product.product_id}."
+            last_message = tr(
+                "Nessun pixel AOD valido trovato in {product}.",
+                product=product.product_id,
+            )
             result = self._first_valid_result(product, sorted_granules, location, now)
             if result.available:
                 self._store_cache(location, result)
@@ -277,7 +307,10 @@ class NasaAodProvider:
         retrieved_at: datetime,
     ) -> NasaAodResult:
         last_status = "no_valid_pixel"
-        last_message = f"Nessun pixel AOD valido trovato in {product.product_id}."
+        last_message = tr(
+            "Nessun pixel AOD valido trovato in {product}.",
+            product=product.product_id,
+        )
         with tempfile.TemporaryDirectory(prefix="nightscope-aod-") as temp_dir:
             target_dir = Path(temp_dir)
             for granule in granules:
@@ -287,7 +320,11 @@ class NasaAodProvider:
                 except Exception as exc:
                     logger.info("NASA AOD granule download failed for %s: %s", granule.granule_id, exc.__class__.__name__)
                     last_status = "download_error"
-                    last_message = f"Download NASA AOD non riuscito per {granule.granule_id}: {exc.__class__.__name__}."
+                    last_message = tr(
+                        "Download NASA AOD non riuscito per {granule}: {error_type}.",
+                        granule=granule.granule_id,
+                        error_type=exc.__class__.__name__,
+                    )
                     continue
 
                 try:
@@ -295,7 +332,11 @@ class NasaAodProvider:
                 except Exception as exc:
                     logger.info("NASA AOD granule processing failed for %s: %s", granule.granule_id, exc.__class__.__name__)
                     last_status = "parse_error"
-                    last_message = f"Parsing NASA AOD non riuscito per {granule.granule_id}: {exc.__class__.__name__}."
+                    last_message = tr(
+                        "Parsing NASA AOD non riuscito per {granule}: {error_type}.",
+                        granule=granule.granule_id,
+                        error_type=exc.__class__.__name__,
+                    )
                     continue
                 finally:
                     if granule_path is not None:
@@ -309,7 +350,10 @@ class NasaAodProvider:
                         retrieved_at=retrieved_at,
                     )
                 last_status = "no_valid_pixel"
-                last_message = f"Nessun pixel AOD valido trovato in {granule.granule_id}."
+                last_message = tr(
+                    "Nessun pixel AOD valido trovato in {granule}.",
+                    granule=granule.granule_id,
+                )
 
         return NasaAodResult.failure(last_status, last_message)
 
@@ -633,7 +677,7 @@ def _result_from_cache_payload(value: Any) -> NasaAodResult | None:
     return NasaAodResult(
         available=bool(value.get("available")),
         status=str(value.get("status") or "ok"),
-        message=str(value.get("message") or "Dati NASA AOD disponibili."),
+        message=tr("Dati NASA AOD disponibili."),
         provider=str(value.get("provider") or NASA_AOD_PROVIDER),
         product=str(value.get("product") or ""),
         aod_550=_optional_float(value.get("aod_550")),
@@ -919,10 +963,10 @@ def _interpret_aod(value: float) -> str:
 
 def _interpretation_label(value: str) -> str:
     return {
-        "low": "Molto buona",
-        "moderate": "Buona",
-        "elevated": "Velata",
-        "high": "Aerosol elevati",
+        "low": tr("Molto buona"),
+        "moderate": tr("Buona"),
+        "elevated": tr("Velata"),
+        "high": tr("Aerosol elevati"),
     }.get(value, "—")
 
 
@@ -936,9 +980,9 @@ def _product_label(product: str) -> str:
 
 def _method_label(method: str) -> str:
     if method == "direct_pixel":
-        return "Pixel diretto"
+        return tr("Pixel diretto")
     if method == "local_neighborhood":
-        return "Area locale 5x5"
+        return tr("Area locale 5x5")
     return method or "—"
 
 
@@ -956,16 +1000,16 @@ def _aod_freshness_category(acquisition_date: str) -> str:
 def _aod_freshness_label(acquisition_date: str) -> str:
     age_days = _aod_age_days(acquisition_date)
     if age_days is None:
-        return "Aggiornamento non disponibile"
+        return tr("Aggiornamento non disponibile")
     if age_days == 0:
-        return "Misura di oggi"
+        return tr("Misura di oggi")
     if age_days == 1:
-        return "Misura di ieri"
+        return tr("Misura di ieri")
     if age_days < 3:
-        return f"Misura di {age_days} giorni fa"
+        return tr("Misura di {days} giorni fa", days=age_days)
     if age_days <= 7:
-        return f"Misura vecchia di {age_days} giorni"
-    return f"Misura storica di {age_days} giorni"
+        return tr("Misura vecchia di {days} giorni", days=age_days)
+    return tr("Misura storica di {days} giorni", days=age_days)
 
 
 def _aod_age_days(acquisition_date: str) -> int | None:
@@ -979,19 +1023,35 @@ def _aod_age_days(acquisition_date: str) -> int | None:
 
 
 def _source_detail(result: NasaAodResult) -> str:
-    parts = [_product_label(result.product), result.acquisition_date]
+    parts = [_product_label(result.product), _localized_acquisition_date(result.acquisition_date)]
     if result.method:
         method = _method_label(result.method)
         if result.method == "local_neighborhood" and result.local_valid_pixel_count is not None:
-            method = f"{method}, {result.local_valid_pixel_count} pixel validi"
+            method = tr(
+                "{method}, {count} pixel validi",
+                method=method,
+                count=result.local_valid_pixel_count,
+            )
         parts.append(method)
     if result.uncertainty is not None:
-        parts.append(f"Incertezza {result.uncertainty:.4f}")
+        parts.append(
+            tr(
+                "Incertezza {value}",
+                value=format_number(result.uncertainty, decimals=4),
+            )
+        )
     if result.qa_raw is not None:
         parts.append(f"QA {result.qa_raw}")
     if result.cache_hit:
-        parts.append("Da cache")
-    return " · ".join(part for part in parts if part)
+        parts.append(tr("Da cache"))
+    return join_text(parts)
+
+
+def _localized_acquisition_date(value: str) -> str:
+    parsed = _parse_date(value)
+    if parsed is None:
+        return "—"
+    return format_datetime(datetime.combine(parsed, datetime.min.time()), include_time=False)
 
 
 def _delete_file(path: Path) -> None:

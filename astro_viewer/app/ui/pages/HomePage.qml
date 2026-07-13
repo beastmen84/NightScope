@@ -98,16 +98,16 @@ Item {
         return root.skyCompassScopedItems(root.nightPlanOverview.items || [])
     }
 
-    function eventAccent(type) {
-        if (type === "Luna")
+    function eventAccent(typeCode) {
+        if (typeCode === "moon")
             return theme.amber
-        if (type === "Sciame meteorico")
+        if (typeCode === "meteor_shower")
             return theme.teal
-        if (type === "Eclissi")
+        if (typeCode === "eclipse")
             return theme.coral
-        if (type === "Congiunzione" || type === "Congiunzione planetaria")
+        if (typeCode === "planetary_conjunction")
             return theme.violet
-        if (type === "Congiunzione solare")
+        if (typeCode === "solar_conjunction")
             return theme.coral
         return theme.cyan
     }
@@ -116,92 +116,38 @@ Item {
         return (root.calendarOverview.homeItems || root.calendarOverview.items || []).slice(0, limit)
     }
 
-    function skyCompassRotation(direction) {
-        if (direction === "Nord-Est")
+    function skyCompassRotation(directionCode) {
+        if (directionCode === "north_east")
             return 45
-        if (direction === "Est")
+        if (directionCode === "east")
             return 90
-        if (direction === "Sud-Est")
+        if (directionCode === "south_east")
             return 135
-        if (direction === "Sud")
+        if (directionCode === "south")
             return 180
-        if (direction === "Sud-Ovest")
+        if (directionCode === "south_west")
             return 225
-        if (direction === "Ovest")
+        if (directionCode === "west")
             return 270
-        if (direction === "Nord-Ovest")
+        if (directionCode === "north_west")
             return 315
         return 0
     }
 
-    function skyCompassTypeIconKind(typeText) {
-        var value = (typeText || "").toLowerCase()
-        if (value.indexOf("pianeta") >= 0)
-            return "planet"
-        if (value.indexOf("galass") >= 0 || value.indexOf("galaxy") >= 0)
-            return "galaxy"
-        if (value.indexOf("nebul") >= 0)
-            return "nebula"
-        if (value.indexOf("globular") >= 0)
-            return "globular_cluster"
-        if (value.indexOf("ammasso") >= 0 || value.indexOf("cluster") >= 0)
-            return "open_cluster"
-        return "target"
-    }
-
-    function skyCompassTypeLabel(typeText) {
-        var raw = typeText || ""
-        var value = raw.toLowerCase()
-        if (value.indexOf("milky way star cloud") >= 0)
-            return qsTr("Nube stellare della Via Lattea")
-        if (value.indexOf("supernova remnant") >= 0)
-            return qsTr("Resto di supernova")
-        if (value.indexOf("optical double") >= 0)
-            return qsTr("Stella doppia ottica")
-        if (value.indexOf("asterism") >= 0)
-            return qsTr("Asterismo")
-        if (value.indexOf("planetary nebula") >= 0)
-            return qsTr("Nebulosa planetaria")
-        if (value.indexOf("h ii region nebula with cluster") >= 0)
-            return qsTr("Regione H II con ammasso")
-        if (value.indexOf("h ii region") >= 0)
-            return qsTr("Regione H II")
-        if (value.indexOf("nebula with cluster") >= 0)
-            return qsTr("Nebulosa con ammasso")
-        if (value.indexOf("diffuse nebula") >= 0)
-            return qsTr("Nebulosa diffusa")
-        if (value.indexOf("barred spiral galaxy") >= 0)
-            return qsTr("Galassia spirale barrata")
-        if (value.indexOf("dwarf elliptical galaxy") >= 0)
-            return qsTr("Galassia ellittica nana")
-        if (value.indexOf("elliptical galaxy") >= 0)
-            return qsTr("Galassia ellittica")
-        if (value.indexOf("lenticular galaxy") >= 0)
-            return qsTr("Galassia lenticolare")
-        if (value.indexOf("spiral galaxy") >= 0)
-            return qsTr("Galassia spirale")
-        if (value.indexOf("starburst galaxy") >= 0)
-            return qsTr("Galassia starburst")
-        if (value.indexOf("galaxy") >= 0)
-            return qsTr("Galassia")
-        if (value.indexOf("globular cluster") >= 0)
-            return qsTr("Ammasso globulare")
-        if (value.indexOf("open cluster") >= 0)
-            return qsTr("Ammasso aperto")
-        if (value.indexOf("cluster") >= 0)
-            return qsTr("Ammasso")
-        if (value === "planet" || value === "pianeta")
-            return qsTr("Pianeta")
-        if (value.indexOf("nebula") >= 0)
-            return qsTr("Nebulosa")
-        return raw
+    function skyCompassTypeIconKind(typeCode) {
+        return typeCode || "target"
     }
 
     function skyCompassGeometricTargetCountLabel(count) {
         var value = Number(count || 0)
         if (value === 1)
             return qsTr("1 target geometricamente visibile")
-        return value + qsTr(" target geometricamente visibili")
+        return qsTr("%1 target geometricamente visibili").arg(value)
+    }
+
+    function alternativeCountLabel(count) {
+        var value = Number(count || 0)
+        return value === 1 ? qsTr("1 oggetto") : qsTr("%1 oggetti").arg(value)
     }
 
     function sessionAccent(state) {
@@ -255,10 +201,10 @@ Item {
 
     function alternativeFilterLabel(filter) {
         if (filter === "planet")
-            return qsTr("Pianeti ") + root.alternativeCount(filter)
+            return qsTr("Pianeti (%1)").arg(root.alternativeCount(filter))
         if (filter === "deep_sky")
-            return qsTr("Cielo profondo ") + root.alternativeCount(filter)
-        return qsTr("Tutti ") + root.alternativeCount("all")
+            return qsTr("Cielo profondo (%1)").arg(root.alternativeCount(filter))
+        return qsTr("Tutti (%1)").arg(root.alternativeCount("all"))
     }
 
     function weatherMetricColor(kind, value) {
@@ -465,7 +411,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: qsTr("Sorge ") + controller.moonSummary.rise_time
+                                        text: qsTr("Sorge %1").arg(controller.moonSummary.rise_time)
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
@@ -474,7 +420,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: qsTr("Tramonta ") + controller.moonSummary.set_time
+                                        text: qsTr("Tramonta %1").arg(controller.moonSummary.set_time)
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
@@ -538,7 +484,7 @@ Item {
                                           ? theme.cyan
                                           : (root.planetaryOverview.state === "unavailable"
                                              ? theme.textMuted
-                                             : theme.scoreColor(root.planetaryOverview.label || ""))
+                                             : theme.scoreColor(root.planetaryOverview.scoreValue))
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -582,7 +528,7 @@ Item {
                                           ? theme.cyan
                                           : (root.deepSkyOverview.state === "unavailable"
                                              ? theme.textMuted
-                                             : theme.scoreColor(root.deepSkyOverview.label || ""))
+                                             : theme.scoreColor(root.deepSkyOverview.scoreValue))
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -627,9 +573,9 @@ Item {
                     accentColor: root.weatherOverview.state === "pending"
                                  ? theme.cyan
                                  : (root.weatherOverview.available
-                                    ? theme.scoreColor(root.weatherOverview.scoreLabel || "")
+                                    ? theme.scoreColor(root.weatherOverview.scoreValue)
                                     : theme.textMuted)
-                    headerBadgeText: root.weatherOverview.badge || "n/d"
+                    headerBadgeText: root.weatherOverview.badge || qsTr("n/d")
                     headerBadgeColor: root.weatherOverview.state === "pending" ? theme.cyan : accentColor
 
                     RowLayout {
@@ -667,7 +613,7 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     text: root.weatherOverview.available
-                                          ? controller.weatherDigest.cloudAverage + "%" : "n/d"
+                                          ? controller.weatherDigest.cloudAverageLabel : qsTr("n/d")
                                     color: cloudMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
@@ -708,7 +654,7 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     text: root.weatherOverview.available
-                                          ? controller.weatherDigest.windLabel : "n/d"
+                                          ? controller.weatherDigest.windLabel : qsTr("n/d")
                                     color: windMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
@@ -749,7 +695,7 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     text: root.weatherOverview.available
-                                          ? controller.weatherDigest.rainProbability + "%" : "n/d"
+                                          ? controller.weatherDigest.rainProbabilityLabel : qsTr("n/d")
                                     color: rainMetric.metricColor
                                     font.pixelSize: 15
                                     font.weight: Font.DemiBold
@@ -786,7 +732,7 @@ Item {
                                     StatusPill {
                                         Layout.alignment: Qt.AlignHCenter
                                         text: modelData.time
-                                        accentColor: theme.scoreColor(root.weatherOverview.scoreLabel || "")
+                                        accentColor: theme.scoreColor(root.weatherOverview.scoreValue)
                                     }
 
                                     RowLayout {
@@ -802,7 +748,7 @@ Item {
 
                                         Text {
                                             Layout.fillWidth: true
-                                            text: modelData.cloudCover + "%"
+                                            text: modelData.cloudCoverLabel
                                             color: theme.textSecondary
                                             font.pixelSize: 11
                                             horizontalAlignment: Text.AlignHCenter
@@ -823,7 +769,7 @@ Item {
 
                                         Text {
                                             Layout.fillWidth: true
-                                            text: modelData.windKmh + " km/h"
+                                            text: modelData.windLabel
                                             color: theme.textSecondary
                                             font.pixelSize: 11
                                             horizontalAlignment: Text.AlignHCenter
@@ -844,7 +790,7 @@ Item {
 
                                         Text {
                                             Layout.fillWidth: true
-                                            text: modelData.rainProbability + "%"
+                                            text: modelData.rainProbabilityLabel
                                             color: theme.textSecondary
                                             font.pixelSize: 11
                                             horizontalAlignment: Text.AlignHCenter
@@ -944,7 +890,7 @@ Item {
                                     anchors.margins: 12
                                     antialiasing: true
 
-                                    property real selectedDegrees: root.skyCompassRotation(skyCompassCard.compassData.direction || "")
+                                    property real selectedDegrees: root.skyCompassRotation(skyCompassCard.compassData.directionCode || "")
 
                                     onSelectedDegreesChanged: requestPaint()
                                     onWidthChanged: requestPaint()
@@ -1213,7 +1159,7 @@ Item {
                                     Layout.alignment: Qt.AlignVCenter
                                     antialiasing: true
 
-                                    property string iconKind: root.skyCompassTypeIconKind(modelData.type)
+                                    property string iconKind: root.skyCompassTypeIconKind(modelData.typeCode)
 
                                     onIconKindChanged: requestPaint()
                                     onWidthChanged: requestPaint()
@@ -1294,7 +1240,7 @@ Item {
                                     Text {
                                         Layout.fillWidth: true
                                         visible: (modelData.type || "").length > 0
-                                        text: root.skyCompassTypeLabel(modelData.type)
+                                        text: modelData.typeLabel || modelData.type
                                         color: theme.textMuted
                                         font.pixelSize: 11
                                         maximumLineCount: 1
@@ -1476,7 +1422,9 @@ Item {
                               ? qsTr("Oggetti nella zona indicata da Sky Compass; filtra ulteriormente per categoria")
                               : (root.nightAlternativesOverview.subtitle || "")
                     subtitleWrap: true
-                    headerBadgeText: root.alternativeCount("all") > 0 ? root.alternativeCount("all") + qsTr(" oggetti") : ""
+                    headerBadgeText: root.alternativeCount("all") > 0
+                                     ? root.alternativeCountLabel(root.alternativeCount("all"))
+                                     : ""
                     headerBadgeColor: theme.cyan
                     accentColor: theme.cyan
 
@@ -1666,7 +1614,7 @@ Item {
                             Layout.preferredHeight: 74
                             radius: 8
                             color: hovered ? "#1b222a" : "#151a20"
-                            border.color: hovered ? root.eventAccent(modelData.type) : "#29313b"
+                            border.color: hovered ? root.eventAccent(modelData.typeCode) : "#29313b"
                             border.width: 1
 
                             MouseArea {
@@ -1685,7 +1633,7 @@ Item {
 
                                 StatusPill {
                                     text: modelData.dateLabel
-                                    accentColor: root.eventAccent(modelData.type)
+                                    accentColor: root.eventAccent(modelData.typeCode)
                                     Layout.alignment: Qt.AlignVCenter
                                 }
 

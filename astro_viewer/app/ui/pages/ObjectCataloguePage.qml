@@ -7,22 +7,22 @@ Item {
     id: root
 
     property var controller
-    property string allFilter: "Tutti"
+    property string allFilter: "__all__"
     signal openObject(string objectId)
 
     function optionModel(key) {
         var options = controller.catalogueFilterOptions || {}
         var source = options[key] || []
-        var result = [root.allFilter]
+        var result = [{ "label": qsTr("Tutti"), "value": root.allFilter }]
         for (var i = 0; i < source.length; i++)
-            result.push(String(source[i]))
+            result.push({ "label": String(source[i]), "value": String(source[i]) })
         return result
     }
 
     function choiceModel(key) {
         var options = controller.catalogueFilterOptions || {}
         var source = options[key] || []
-        var result = [{ "label": root.allFilter, "value": root.allFilter }]
+        var result = [{ "label": qsTr("Tutti"), "value": root.allFilter }]
         for (var i = 0; i < source.length; i++)
             result.push({ "label": String(source[i].label), "value": String(source[i].value) })
         return result
@@ -43,7 +43,9 @@ Item {
             return item.max_angular_size_label
         if (item.max_angular_size_deg === null || item.max_angular_size_deg === undefined)
             return "—"
-        return String(item.max_angular_size_deg) + " deg"
+        return qsTr("%1 deg").arg(
+            Number(item.max_angular_size_deg).toLocaleString(Qt.locale())
+        )
     }
 
     function textOrDash(value) {
@@ -151,8 +153,10 @@ Item {
                         DarkComboBox {
                             id: catalogueFilter
                             Layout.fillWidth: true
-                            model: root.optionModel("catalogues")
-                            onActivated: controller.setCatalogueFilter("catalogue", currentText)
+                            model: root.choiceModel("catalogueChoices")
+                            textRole: "label"
+                            valueRole: "value"
+                            onActivated: controller.setCatalogueFilter("catalogue", currentValue)
                         }
                     }
 
@@ -182,7 +186,9 @@ Item {
                             id: constellationFilter
                             Layout.fillWidth: true
                             model: root.optionModel("constellations")
-                            onActivated: controller.setCatalogueFilter("constellation", currentText)
+                            textRole: "label"
+                            valueRole: "value"
+                            onActivated: controller.setCatalogueFilter("constellation", currentValue)
                         }
                     }
 
@@ -240,7 +246,9 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.catalogueFilteredCount + qsTr(" di ") + controller.catalogueTotalCount + qsTr(" oggetti")
+                        text: qsTr("%1 di %2 oggetti")
+                            .arg(controller.catalogueFilteredCount)
+                            .arg(controller.catalogueTotalCount)
                         color: theme.textSecondary
                         font.pixelSize: 13
                         font.weight: Font.DemiBold

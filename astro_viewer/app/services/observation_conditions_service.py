@@ -11,6 +11,7 @@ from astro_viewer.app.models.target_observation_traits import (
     is_supernova_remnant_type,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.localization import join_text, tr
 
 
 @dataclass(frozen=True)
@@ -119,7 +120,9 @@ class ConditionedTarget:
 class ObservationConditionsService:
     """Applies existing observing-condition adjustments without changing formulas."""
 
-    POLLUTION_CONTEXT_NOTE = "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
+    POLLUTION_CONTEXT_NOTE = tr(
+        "Cielo luminoso: visibilità limitata, serve trasparenza buona e schermare luci dirette."
+    )
     POLLUTION_CONTEXT_FLAG = "light_pollution"
     SOLAR_SYSTEM_IDS = frozenset(
         {
@@ -267,7 +270,7 @@ class ObservationConditionsService:
                 score = max(0, round(score - pollution_penalty))
                 urban_note = self.POLLUTION_CONTEXT_NOTE
                 if urban_note not in notes:
-                    notes = f"{urban_note} {target.notes}"
+                    notes = join_text([urban_note, target.notes], " ")
                 visible = visible and score > 10
                 if pollution_penalty > 0 and self.POLLUTION_CONTEXT_FLAG not in condition_flags:
                     condition_flags = (*condition_flags, self.POLLUTION_CONTEXT_FLAG)

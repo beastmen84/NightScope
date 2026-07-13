@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from astro_viewer.app.services.localization import format_compact_number, tr
+
 
 @dataclass(frozen=True)
 class Telescope:
@@ -42,9 +44,16 @@ class Eyepiece:
         data["maxFocalLengthMm"] = self.max_focal_length_mm or self.focal_length_mm
         data["zoomClickPositionsMm"] = list(self.zoom_click_positions_mm)
         if self.eyepiece_type == "Zoom":
-            data["focalRangeLabel"] = f"{data['minFocalLengthMm']:g}-{data['maxFocalLengthMm']:g} mm"
+            data["focalRangeLabel"] = tr(
+                "{minimum}-{maximum} mm",
+                minimum=format_compact_number(data["minFocalLengthMm"]),
+                maximum=format_compact_number(data["maxFocalLengthMm"]),
+            )
         else:
-            data["focalRangeLabel"] = f"{self.focal_length_mm:g} mm"
+            data["focalRangeLabel"] = tr(
+                "{value} mm",
+                value=format_compact_number(self.focal_length_mm),
+            )
         return data
 
 

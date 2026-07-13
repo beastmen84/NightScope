@@ -8,6 +8,7 @@ from pathlib import Path
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.location_service import LocationDetectionResult
+from astro_viewer.app.services.localization import tr
 
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,8 @@ class LocationPreferenceStore:
 
     def save_location(self, result: LocationDetectionResult, *, saved: bool = True, cached: bool = True) -> None:
         payload = result.to_qml()
+        payload.pop("message", None)
+        payload.pop("source", None)
         payload["savedAt"] = datetime.now().isoformat(timespec="seconds")
         if saved:
             preferences = self._read_json(self._preferences_path)
@@ -91,13 +94,13 @@ class LocationPreferenceStore:
         return LocationDetectionResult(
             location=location,
             provider=str(payload.get("provider") or "cached"),
-            source=str(payload.get("source") or "Posizione salvata"),
+            source="stored_location",
             accuracy=str(payload.get("accuracy") or "cached"),
             approximate=bool(payload.get("approximate", False)),
             region=str(payload.get("region") or ""),
             country_code=str(payload.get("country_code") or location_payload.get("country_code") or ""),
             raw_provider_timezone=str(payload.get("raw_provider_timezone") or ""),
-            message=str(payload.get("message") or "Posizione caricata."),
+            message=tr("Posizione caricata."),
         )
 
     @staticmethod

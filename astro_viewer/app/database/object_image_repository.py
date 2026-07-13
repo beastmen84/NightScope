@@ -47,7 +47,7 @@ class ObjectImageRepository:
                 """
                 SELECT object_id, short_description, observing_notes, best_seen,
                        difficulty_naked_eye, difficulty_binocular, difficulty_small_scope,
-                       difficulty_medium_scope, difficulty_large_scope
+                       difficulty_medium_scope, difficulty_large_scope, is_builtin
                 FROM ObjectDescription
                 ORDER BY object_id
                 """
@@ -58,7 +58,8 @@ class ObjectImageRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT object_id, curiosity_text, source_label, source_url, verified
+                SELECT object_id, curiosity_text, source_label, source_url, verified,
+                       is_builtin
                 FROM ObjectCuriosity
                 ORDER BY object_id
                 """

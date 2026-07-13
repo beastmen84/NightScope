@@ -208,6 +208,7 @@ def _alternative(object_id: str, name: str, object_type: str, category: str) -> 
 
 def _setup_model() -> EquipmentSetupReadModel:
     option = EquipmentSetupOptionReadModel(
+        role_code="recommended",
         role="Consigliato",
         label="16 mm",
         detail_label="16 mm",
@@ -216,6 +217,7 @@ def _setup_model() -> EquipmentSetupReadModel:
         magnification="94x",
         true_field="0.7 gradi",
         exit_pupil="1.4 mm",
+        exit_pupil_available=True,
         barlow="No",
         score=90,
         telescope_name="Mak 127",
@@ -239,5 +241,7 @@ def _setup_model() -> EquipmentSetupReadModel:
         telescope_name="Mak 127",
         equipment_type="Telescope",
         setup_type="telescope",
+        recommendation_state="ready",
+        requires_optical_instrument=True,
         selection_score=90,
     )

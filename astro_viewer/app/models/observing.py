@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 
+from astro_viewer.app.services.localization import tr
+
 
 @dataclass(frozen=True)
 class CelestialObject:
@@ -21,16 +23,16 @@ class CelestialObject:
     azimuth: str
     time_above_horizon: str
     visible: bool = True
-    rise_time: str = "n/d"
-    set_time: str = "n/d"
-    culmination_time: str = "n/d"
-    current_altitude: str = "n/d"
-    current_azimuth: str = "n/d"
+    rise_time: str = field(default_factory=lambda: tr("n/d"))
+    set_time: str = field(default_factory=lambda: tr("n/d"))
+    culmination_time: str = field(default_factory=lambda: tr("n/d"))
+    current_altitude: str = field(default_factory=lambda: tr("n/d"))
+    current_azimuth: str = field(default_factory=lambda: tr("n/d"))
     score: int = 0
-    score_label: str = "n/d"
-    difficulty: str = "n/d"
-    best_eyepiece: str = "n/d"
-    barlow: str = "No"
+    score_label: str = field(default_factory=lambda: tr("n/d"))
+    difficulty: str = field(default_factory=lambda: tr("n/d"))
+    best_eyepiece: str = field(default_factory=lambda: tr("n/d"))
+    barlow: str = field(default_factory=lambda: tr("No"))
     score_explanation: str = ""
     apparent_size: str = ""
     max_angular_size_deg: float | None = None
@@ -47,11 +49,13 @@ class CelestialObject:
     current_azimuth_degrees: float | None = None
     intrinsic_score: int | None = None
     condition_flags: tuple[str, ...] = field(default_factory=tuple, compare=False, repr=False)
+    detail_source: str = field(default="", compare=False, repr=False)
 
     def to_qml(self) -> dict:
         data = asdict(self)
         data.pop("condition_flags", None)
         data.pop("intrinsic_score", None)
+        data.pop("detail_source", None)
         data["type"] = self.object_type
         data["riseTime"] = self.rise_time
         data["setTime"] = self.set_time
@@ -121,10 +125,10 @@ class AstronomicalEvent:
     note: str
     event_at: str = ""
     timing_kind: str = "instant"
-    timing_label: str = "Istante evento"
+    timing_label: str = field(default_factory=lambda: tr("Istante evento"))
     observing_window: str = ""
     visibility_state: str = "unknown"
-    visibility_label: str = "Da verificare"
+    visibility_label: str = field(default_factory=lambda: tr("Da verificare"))
     visibility_detail: str = ""
     target_object_id: str = ""
     target_object_ids: tuple[str, ...] = field(default_factory=tuple)

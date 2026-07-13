@@ -6,6 +6,7 @@ from typing import Protocol
 
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour
+from astro_viewer.app.services.localization import format_number, tr
 
 
 class SeeingTransparencyService:
@@ -42,7 +43,7 @@ class BasicForecastSeeingProvider:
                 "Average",
                 50,
                 50,
-                "Dati meteo insufficienti.",
+                tr("Dati meteo insufficienti."),
                 source=self.name,
                 confidence="low",
             )
@@ -84,10 +85,16 @@ class BasicForecastSeeingProvider:
         transparency_score -= self._pollution_transparency_penalty(sky_quality)
         transparency_score = max(0, min(100, transparency_score))
 
-        explanation = (
-            f"Vento medio {avg_wind:.0f} km/h, raffiche {avg_gust:.0f} km/h, "
-            f"nuvolosità bassa/media/alta {avg_low_cloud:.0f}/{avg_mid_cloud:.0f}/{avg_high_cloud:.0f}%, "
-            f"umidità {avg_humidity:.0f}%."
+        explanation = tr(
+            "Vento medio {wind} km/h, raffiche {gusts} km/h, "
+            "nuvolosità bassa/media/alta {low}/{mid}/{high}%, "
+            "umidità {humidity}%.",
+            wind=format_number(avg_wind),
+            gusts=format_number(avg_gust),
+            low=format_number(avg_low_cloud),
+            mid=format_number(avg_mid_cloud),
+            high=format_number(avg_high_cloud),
+            humidity=format_number(avg_humidity),
         )
         return SeeingTransparency(
             seeing=self._label(seeing_score),
@@ -168,7 +175,10 @@ class MeteoblueSeeingProviderPlaceholder:
             result.transparency,
             result.seeing_score,
             result.transparency_score,
-            f"{result.explanation} Provider Meteoblue non configurato; usata stima base.",
+            tr(
+                "{explanation} Provider Meteoblue non configurato; usata stima base.",
+                explanation=result.explanation,
+            ),
             source=self.name,
             confidence="low",
             atmospheric_transparency_score=result.atmospheric_transparency_score,

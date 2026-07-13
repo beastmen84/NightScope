@@ -43,7 +43,7 @@ def test_missing_profile_reducer_suggests_exact_catalog_match() -> None:
     assert recommendation.label == (
         "Riduttore fotografico suggerito (non disponibile)"
     )
-    assert recommendation.value == "Dedicated 0.7x (0.7x)"
+    assert recommendation.value == "Dedicated 0.7x (0,7x)"
 
 
 def test_non_photographic_and_incompatible_reducers_are_ignored() -> None:
@@ -98,7 +98,7 @@ def test_multiple_compatible_reducers_are_reported_without_fake_ranking() -> Non
     )
 
     assert [item.reducer_id for item in recommendation.items] == ["alpha", "zeta"]
-    assert recommendation.value == "Alpha 0.8x (0.8x) / Zeta 0.6x (0.6x)"
+    assert recommendation.value == "Alpha 0.8x (0,8x) / Zeta 0.6x (0,6x)"
 
 
 def _reducer(

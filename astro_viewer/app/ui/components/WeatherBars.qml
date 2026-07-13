@@ -66,7 +66,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: weatherBarColumn.modelData.cloudCover + "%"
+                        text: weatherBarColumn.modelData.cloudCoverLabel
                         color: weatherBarColumn.nightHour ? root.nightBarColor : "#aeb7c4"
                         horizontalAlignment: Text.AlignHCenter
                         font.pixelSize: 11

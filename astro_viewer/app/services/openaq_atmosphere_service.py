@@ -11,6 +11,13 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.services.localization import (
+    format_compact_number,
+    format_datetime,
+    format_number,
+    join_text,
+    tr,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +29,13 @@ OPENAQ_CACHE_TTL = timedelta(minutes=45)
 
 PM25_THRESHOLDS = (10.0, 25.0, 50.0)
 PM10_THRESHOLDS = (20.0, 50.0, 100.0)
-CLARITY_LABELS = ("Aria limpida", "Discreta", "Velata", "Polverosa", "Molto polverosa")
+CLARITY_LABELS = (
+    tr("Aria limpida"),
+    tr("Discreta"),
+    tr("Velata"),
+    tr("Polverosa"),
+    tr("Molto polverosa"),
+)
 CURRENT_MAX_AGE = timedelta(hours=24)
 RECENT_MAX_AGE = timedelta(hours=72)
 STALE_MAX_AGE = timedelta(days=7)
@@ -60,15 +73,27 @@ class LocalAtmosphere:
 
     @classmethod
     def location_required(cls) -> LocalAtmosphere:
-        return cls(True, False, "Configura una posizione per visualizzare l'atmosfera locale.")
+        return cls(
+            True,
+            False,
+            tr("Configura una posizione per visualizzare l'atmosfera locale."),
+        )
 
     @classmethod
     def no_data(cls) -> LocalAtmosphere:
-        return cls(True, False, "Nessun dato OpenAQ disponibile per questa località.")
+        return cls(
+            True,
+            False,
+            tr("Nessun dato OpenAQ disponibile per questa località."),
+        )
 
     @classmethod
     def historical(cls, source: str, source_detail: str, freshness: str, measured_at: str) -> LocalAtmosphere:
-        message = f"Nessuna misura OpenAQ recente disponibile. Ultima misura: {measured_at}. Misura storica."
+        message = tr(
+            "Nessuna misura OpenAQ recente disponibile. Ultima misura: {measured_at}. "
+            "Misura storica.",
+            measured_at=measured_at,
+        )
         return cls(
             True,
             False,
@@ -81,7 +106,10 @@ class LocalAtmosphere:
         )
 
     @classmethod
-    def failure(cls, message: str = "Dati OpenAQ non disponibili al momento.") -> LocalAtmosphere:
+    def failure(
+        cls,
+        message: str = tr("Dati OpenAQ non disponibili al momento."),
+    ) -> LocalAtmosphere:
         return cls(True, False, message)
 
     def to_qml(self) -> dict:
@@ -175,7 +203,7 @@ class OpenAQLocalAtmosphereService:
 
         locations = self._payload_results(locations_response)
         if locations is None:
-            return LocalAtmosphere.failure("Risposta OpenAQ non riconosciuta.")
+            return LocalAtmosphere.failure(tr("Risposta OpenAQ non riconosciuta."))
         if not locations:
             return LocalAtmosphere.no_data()
 
@@ -195,7 +223,9 @@ class OpenAQLocalAtmosphereService:
                 continue
             latest_results = self._payload_results(latest_response)
             if latest_results is None:
-                latest_failure = LocalAtmosphere.failure("Risposta OpenAQ non riconosciuta.")
+                latest_failure = LocalAtmosphere.failure(
+                    tr("Risposta OpenAQ non riconosciuta.")
+                )
                 continue
             sensor_context = self._sensor_context_by_id(location_item)
             for item in latest_results:
@@ -214,25 +244,39 @@ class OpenAQLocalAtmosphereService:
             response = session.get(url, params=params, timeout=(10, 20))
         except requests.RequestException as exc:
             logger.warning("OpenAQ local atmosphere lookup failed: %s", exc.__class__.__name__)
-            return LocalAtmosphere.failure(f"Connessione OpenAQ non riuscita: {exc.__class__.__name__}.")
+            return LocalAtmosphere.failure(
+                tr(
+                    "Connessione OpenAQ non riuscita: {error_type}.",
+                    error_type=exc.__class__.__name__,
+                )
+            )
 
         if response.status_code == 200:
             return response
         if response.status_code in (401, 403):
-            return LocalAtmosphere.failure("API key OpenAQ non valida o non autorizzata.")
+            return LocalAtmosphere.failure(
+                tr("API key OpenAQ non valida o non autorizzata.")
+            )
         if response.status_code == 429:
-            return LocalAtmosphere.failure("OpenAQ ha applicato un limite di traffico. Riprova più tardi.")
-        return LocalAtmosphere.failure(f"OpenAQ ha risposto con HTTP {response.status_code}.")
+            return LocalAtmosphere.failure(
+                tr("OpenAQ ha applicato un limite di traffico. Riprova più tardi.")
+            )
+        return LocalAtmosphere.failure(
+            tr(
+                "OpenAQ ha risposto con HTTP {status_code}.",
+                status_code=response.status_code,
+            )
+        )
 
     def _from_payload(self, response: requests.Response, location: ObserverLocation) -> LocalAtmosphere:
         try:
             payload = response.json()
         except ValueError:
-            return LocalAtmosphere.failure("Risposta OpenAQ non valida.")
+            return LocalAtmosphere.failure(tr("Risposta OpenAQ non valida."))
 
         results = payload.get("results") if isinstance(payload, dict) else None
         if not isinstance(results, list):
-            return LocalAtmosphere.failure("Risposta OpenAQ non riconosciuta.")
+            return LocalAtmosphere.failure(tr("Risposta OpenAQ non riconosciuta."))
 
         readings = self._readings_from_results(results, location)
         if not readings:
@@ -381,8 +425,11 @@ class OpenAQLocalAtmosphereService:
     def _format_reading(reading: OpenAQReading | None) -> str:
         if reading is None:
             return "—"
-        value = f"{reading.value:.1f}".rstrip("0").rstrip(".")
-        return f"{value} {reading.unit}".strip()
+        return tr(
+            "{value} {unit}",
+            value=format_compact_number(reading.value, max_decimals=1),
+            unit=reading.unit,
+        )
 
     @staticmethod
     def _clarity_label(pm25: OpenAQReading | None, pm10: OpenAQReading | None) -> str:
@@ -440,18 +487,28 @@ class OpenAQLocalAtmosphereService:
         if reading.provider_name and reading.provider_name != reading.source_name:
             parts.append(reading.provider_name)
         if reading.distance_km is not None:
-            parts.append(f"{reading.distance_km:.1f} km")
+            parts.append(
+                tr(
+                    "{value} km",
+                    value=format_number(reading.distance_km, decimals=1),
+                )
+            )
         if freshness_label:
             parts.append(freshness_label)
         if include_timestamp and reading.timestamp is not None:
-            parts.append(reading.timestamp.strftime("%Y-%m-%d %H:%M UTC"))
-        return " · ".join(parts)
+            parts.append(
+                tr(
+                    "{datetime} UTC",
+                    datetime=format_datetime(reading.timestamp),
+                )
+            )
+        return join_text(parts)
 
     @staticmethod
     def _date_label(reading: OpenAQReading) -> str:
         if reading.timestamp is None:
-            return "data non disponibile"
-        return reading.timestamp.strftime("%Y-%m-%d")
+            return tr("data non disponibile")
+        return format_datetime(reading.timestamp, include_time=False)
 
     @staticmethod
     def _usable_reading(reading: OpenAQReading | None, now: datetime) -> OpenAQReading | None:
@@ -475,16 +532,16 @@ class OpenAQLocalAtmosphereService:
     @staticmethod
     def _freshness_label(reading: OpenAQReading, now: datetime) -> str:
         if reading.timestamp is None:
-            return "Aggiornamento non disponibile"
+            return tr("Aggiornamento non disponibile")
         age = OpenAQLocalAtmosphereService._age(reading, now)
         if age < CURRENT_MAX_AGE:
-            return "Aggiornato oggi"
+            return tr("Aggiornato oggi")
         days = max(1, int(age.total_seconds() // 86_400))
         if days == 1:
-            return "Aggiornato ieri"
+            return tr("Aggiornato ieri")
         if age <= STALE_MAX_AGE:
-            return f"Aggiornato {days} giorni fa"
-        return f"Ultima misura {days} giorni fa"
+            return tr("Aggiornato {days} giorni fa", days=days)
+        return tr("Ultima misura {days} giorni fa", days=days)
 
     @staticmethod
     def _age(reading: OpenAQReading, now: datetime) -> timedelta:

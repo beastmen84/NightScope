@@ -26,7 +26,7 @@ Item {
 
     function safeValue(value) {
         if (value === undefined || value === null || value === "")
-            return "n/d"
+            return qsTr("n/d")
         return String(value)
     }
 
@@ -54,43 +54,41 @@ Item {
         return theme.textMuted
     }
 
-    function hasCatalogueDistance() {
-        return root.hasObject && String(objectData.distance || "").indexOf("Catalogo ") === 0
-    }
-
     function originMetricLabel() {
-        return root.hasCatalogueDistance() ? qsTr("Catalogo") : qsTr("Distanza")
+        return root.isCatalogueDetail ? qsTr("Catalogo") : qsTr("Distanza")
     }
 
     function originMetricValue() {
         if (!root.hasObject)
-            return "n/d"
-        var distance = String(objectData.distance || "")
-        if (distance.indexOf("Catalogo ") === 0)
-            return distance.replace("Catalogo ", "")
+            return qsTr("n/d")
+        if (root.isCatalogueDetail)
+            return root.safeValue(objectData.catalogueLabel || objectData.catalogue)
         return root.safeValue(objectData.distance)
     }
 
     function maxAngularSizeText() {
         if (!root.hasObject)
-            return "n/d"
+            return qsTr("n/d")
         if (objectData.maxAngularSizeLabel !== undefined && objectData.maxAngularSizeLabel !== "")
             return objectData.maxAngularSizeLabel
         if (objectData.maxAngularSizeDeg === undefined || objectData.maxAngularSizeDeg === null)
-            return "n/d"
-        return String(objectData.maxAngularSizeDeg) + " deg"
+            return qsTr("n/d")
+        return qsTr("%1 deg").arg(
+            Number(objectData.maxAngularSizeDeg).toLocaleString(Qt.locale())
+        )
     }
 
     function includeCatalogueMetric(value) {
         var text = root.safeValue(value)
-        return text !== "n/d" && text !== "undefined" && text !== "null"
+        return value !== undefined && value !== null && value !== ""
+            && text !== qsTr("n/d") && text !== "undefined" && text !== "null"
     }
 
     function catalogueBadgeText() {
         if (!root.hasObject)
             return ""
-        var catalogue = root.safeValue(objectData.catalogue)
-        return catalogue === "n/d" ? qsTr("Catalogo") : qsTr("Catalogo ") + catalogue
+        var catalogue = root.safeValue(objectData.catalogueLabel || objectData.catalogue)
+        return catalogue === qsTr("n/d") ? qsTr("Catalogo") : qsTr("Catalogo %1").arg(catalogue)
     }
 
     function catalogueSummaryText() {
@@ -102,13 +100,13 @@ Item {
         if (root.includeCatalogueMetric(objectData.catalogueTypeLabel || objectData.type))
             parts.push(root.safeValue(objectData.catalogueTypeLabel || objectData.type))
         if (root.includeCatalogueMetric(objectData.constellation))
-            parts.push("Costellazione " + root.safeValue(objectData.constellation))
+            parts.push(qsTr("Costellazione %1").arg(root.safeValue(objectData.constellation)))
         return parts.join("  -  ")
     }
 
     function catalogueMetadataItems() {
         var source = [
-            { "label": qsTr("Catalogo"), "value": objectData.catalogue, "accent": theme.violet },
+            { "label": qsTr("Catalogo"), "value": objectData.catalogueLabel || objectData.catalogue, "accent": theme.violet },
             { "label": qsTr("ID catalogo"), "value": objectData.catalogueId, "accent": theme.cyan },
             { "label": qsTr("Tipo"), "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
             { "label": qsTr("Costellazione"), "value": objectData.constellation, "accent": theme.amber },
@@ -162,7 +160,7 @@ Item {
     function recommendedSetupOption() {
         var options = objectData.setupOptions || []
         for (var i = 0; i < options.length; i++) {
-            if (options[i].role === "Consigliato")
+            if (options[i].roleCode === "recommended")
                 return options[i]
         }
         return options.length > 0 ? options[0] : null
@@ -181,8 +179,8 @@ Item {
             var parts = []
             if (option.magnification && option.magnification.length > 0)
                 parts.push(option.magnification)
-            if (option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
-                parts.push(qsTr("Pupilla ") + option.exitPupil)
+            if (option.exitPupilAvailable === true)
+                parts.push(qsTr("Pupilla %1").arg(option.exitPupil))
             return parts.join("  -  ")
         }
         return option.magnification + "  -  " + option.trueField + "  -  " + option.exitPupil
@@ -191,15 +189,18 @@ Item {
     function setupDetailText() {
         if (root.isBinocularRecommendation()) {
             var option = root.recommendedSetupOption()
-            var parts = [qsTr("Binocolo: ") + objectData.recommended_setup]
+            var parts = [qsTr("Binocolo: %1").arg(objectData.recommended_setup)]
             if (option && option.magnification && option.magnification.length > 0)
-                parts.push(qsTr("Ingrandimento: ") + option.magnification)
-            if (option && option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
-                parts.push(qsTr("Pupilla d'uscita: ") + option.exitPupil)
-            parts.push(qsTr("Difficoltà: ") + objectData.difficulty)
+                parts.push(qsTr("Ingrandimento: %1").arg(option.magnification))
+            if (option && option.exitPupilAvailable === true)
+                parts.push(qsTr("Pupilla d'uscita: %1").arg(option.exitPupil))
+            parts.push(qsTr("Difficoltà: %1").arg(objectData.difficulty))
             return parts.join("  -  ")
         }
-        return qsTr("Oculare: ") + objectData.bestEyepiece + "  -  " + qsTr("Barlow: ") + objectData.barlow + "  -  " + qsTr("Difficoltà: ") + objectData.difficulty
+        return qsTr("Oculare: %1  -  Barlow: %2  -  Difficoltà: %3")
+            .arg(objectData.bestEyepiece)
+            .arg(objectData.barlow)
+            .arg(objectData.difficulty)
     }
 
     function drawMoonPhase(ctx, width, height, phaseAngle) {
@@ -393,7 +394,7 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            text: root.geometryData.windowLabel || "n/d"
+                            text: root.geometryData.windowLabel || qsTr("n/d")
                             color: theme.textPrimary
                             font.pixelSize: 30
                             font.weight: Font.DemiBold
@@ -459,13 +460,13 @@ Item {
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue(); accentColor: theme.violet }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude; accentColor: theme.teal }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || "n/d"; accentColor: theme.green }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || qsTr("n/d"); accentColor: theme.green }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Azimut"); value: objectData.azimuth; accentColor: theme.coral }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza attuale"); value: root.geometryData.currentAltitude || objectData.currentAltitude; accentColor: theme.cyan }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || "n/d"; accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || "n/d"; accentColor: theme.amber }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || "n/d"; accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || "n/d"; accentColor: theme.amber }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || qsTr("n/d"); accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || qsTr("n/d"); accentColor: theme.amber }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || qsTr("n/d"); accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || qsTr("n/d"); accentColor: theme.amber }
                     }
                 }
             }
@@ -600,7 +601,7 @@ Item {
                 Layout.rightMargin: 28
                 title: qsTr("Descrizione")
                 subtitle: objectData.bestSeen && objectData.bestSeen.length > 0
-                          ? qsTr("Periodo migliore: ") + objectData.bestSeen
+                          ? qsTr("Periodo migliore: %1").arg(objectData.bestSeen)
                           : (root.isCatalogueDetail ? (objectData.catalogueTypeLabel || objectData.type) : objectData.type)
                 accentColor: theme.cyan
 
@@ -633,8 +634,9 @@ Item {
                 Text {
                     visible: (root.objectData.curiositySourceUrl || "").length > 0
                     Layout.fillWidth: true
-                    text: qsTr("Fonte: <a href=\"") + (root.objectData.curiositySourceUrl || "") + "\">"
-                          + (root.objectData.curiositySourceLabel || "Apri la fonte") + "</a>"
+                    text: qsTr("Fonte: <a href=\"%1\">%2</a>")
+                          .arg(root.objectData.curiositySourceUrl || "")
+                          .arg(root.objectData.curiositySourceLabel || qsTr("Apri la fonte"))
                     textFormat: Text.RichText
                     color: theme.textSecondary
                     linkColor: theme.cyan
@@ -651,7 +653,7 @@ Item {
                 Layout.rightMargin: 28
                 title: qsTr("Configurazione consigliata")
                 subtitle: (root.equipmentData.telescopeName || "").length > 0
-                          ? qsTr("Setup scelto per ") + root.equipmentData.telescopeName
+                          ? qsTr("Setup scelto per %1").arg(root.equipmentData.telescopeName)
                           : qsTr("Suggerimento operativo")
                 accentColor: theme.amber
 
@@ -667,7 +669,7 @@ Item {
                 Text {
                     visible: objectData.setupReason && objectData.setupReason.length > 0
                     Layout.fillWidth: true
-                    text: qsTr("Perché questa configurazione: ") + objectData.setupReason
+                    text: qsTr("Perché questa configurazione: %1").arg(objectData.setupReason)
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -757,8 +759,8 @@ Item {
 
                         StatusPill {
                             text: modelData.role
-                            accentColor: modelData.role === "Consigliato" ? theme.amber
-                                         : modelData.role === "Campo largo" ? theme.teal
+                            accentColor: modelData.roleCode === "recommended" ? theme.amber
+                                         : modelData.roleCode === "wide_field" ? theme.teal
                                          : theme.cyan
                         }
 
@@ -795,7 +797,10 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: qsTr("Ciclo lunare")
-                subtitle: (objectData.moonPhase || qsTr("Fase lunare")) + "  -  " + (objectData.moonIllumination || "n/d") + "  -  " + (objectData.moonCycleDay || "")
+                subtitle: qsTr("%1  -  %2  -  %3")
+                    .arg(objectData.moonPhase || qsTr("Fase lunare"))
+                    .arg(objectData.moonIllumination || qsTr("n/d"))
+                    .arg(objectData.moonCycleDay || "")
                 accentColor: theme.cyan
 
                 RowLayout {

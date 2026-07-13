@@ -6,14 +6,19 @@ from contextlib import closing
 from pathlib import Path
 
 from astro_viewer.app.models.filtering import FILTER_CLASS_LABELS
+from astro_viewer.app.services.localization import (
+    format_compact_number,
+    format_number,
+    tr,
+)
 
 OPTICAL_SYSTEM_LABELS = {
-    "SCT_CLASSIC": "SCT classico",
+    "SCT_CLASSIC": tr("SCT classico"),
     "EDGEHD": "EdgeHD",
-    "REFRACTOR": "Rifrattore",
+    "REFRACTOR": tr("Rifrattore"),
     "RC": "Ritchey-Chrétien",
-    "UNIVERSAL": "Universale",
-    "OTHER": "Altro",
+    "UNIVERSAL": tr("Universale"),
+    "OTHER": tr("Altro"),
 }
 
 
@@ -101,7 +106,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
@@ -109,7 +114,7 @@ class EquipmentCatalogRepository:
                 (brand_id, clean_name),
             ).fetchone()
             if duplicate:
-                return False, "Questo modello è già presente nel catalogo."
+                return False, tr("Questo modello è già presente nel catalogo.")
             focal_ratio = round(focal_length_mm / aperture_mm, 1) if aperture_mm > 0 else None
             connection.execute(
                 """
@@ -122,7 +127,7 @@ class EquipmentCatalogRepository:
                 (brand_id, clean_name, optical_type, aperture_mm, focal_length_mm, focal_ratio, mount_type, notes),
             )
             connection.commit()
-        return True, "Modello telescopio aggiunto."
+        return True, tr("Modello telescopio aggiunto.")
 
     def update_telescope_model(
         self,
@@ -138,20 +143,20 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_name = name.strip()
         if not clean_brand or not clean_name:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
-                return False, "Modello telescopio non trovato."
+                return False, tr("Modello telescopio non trovato.")
             if old["is_builtin"]:
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
                 "SELECT id FROM TelescopeModel WHERE brand_id = ? AND name = ? AND id <> ?",
                 (brand_id, clean_name, model_id),
             ).fetchone()
             if duplicate:
-                return False, "Questo modello è già presente nel catalogo."
+                return False, tr("Questo modello è già presente nel catalogo.")
             focal_ratio = round(focal_length_mm / aperture_mm, 1) if aperture_mm > 0 else None
             connection.execute(
                 """
@@ -176,7 +181,7 @@ class EquipmentCatalogRepository:
                     (new_id, legacy_id),
                 )
             connection.commit()
-        return True, "Modello telescopio aggiornato."
+        return True, tr("Modello telescopio aggiornato.")
 
     def delete_telescope_model(self, model_id: int, remove_from_profiles: bool = False) -> tuple[bool, str]:
         catalog_id = f"catalog-telescope-{model_id}"
@@ -184,18 +189,18 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
-                return False, "Modello telescopio non trovato."
+                return False, tr("Modello telescopio non trovato.")
             if old["is_builtin"]:
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             legacy_id = old.get("legacy_catalog_id")
             used = self._profile_usage_count(connection, "telescope", catalog_id, legacy_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "telescope", catalog_id, legacy_id)
             connection.execute("DELETE FROM TelescopeModel WHERE id = ?", (model_id,))
             connection.commit()
-        return True, "Modello telescopio eliminato."
+        return True, tr("Modello telescopio eliminato.")
 
     def eyepieces(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -229,7 +234,7 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -239,7 +244,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, focal_length_mm),
             ).fetchone()
             if duplicate:
-                return False, "Questo oculare è già presente nel catalogo."
+                return False, tr("Questo oculare è già presente nel catalogo.")
             connection.execute(
                 """
                 INSERT INTO EyepieceCatalog (
@@ -265,7 +270,7 @@ class EquipmentCatalogRepository:
                 ),
             )
             connection.commit()
-        return True, "Oculare aggiunto."
+        return True, tr("Oculare aggiunto.")
 
     def update_eyepiece(
         self,
@@ -286,16 +291,16 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id, is_builtin FROM EyepieceCatalog WHERE id = ?",
                 (eyepiece_id,),
             ).fetchone()
             if not existing:
-                return False, "Oculare non trovato."
+                return False, tr("Oculare non trovato.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM EyepieceCatalog
@@ -304,7 +309,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, focal_length_mm, eyepiece_id),
             ).fetchone()
             if duplicate:
-                return False, "Questo oculare è già presente nel catalogo."
+                return False, tr("Questo oculare è già presente nel catalogo.")
             connection.execute(
                 """
                 UPDATE EyepieceCatalog
@@ -331,21 +336,21 @@ class EquipmentCatalogRepository:
                 ),
             )
             connection.commit()
-        return True, "Oculare aggiornato."
+        return True, tr("Oculare aggiornato.")
 
     def delete_eyepiece(self, eyepiece_id: int, remove_from_profiles: bool = False) -> tuple[bool, str]:
         catalog_id = f"catalog-eyepiece-{eyepiece_id}"
         with closing(self._connect()) as connection:
             if self._is_builtin(connection, "EyepieceCatalog", eyepiece_id):
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             used = self._profile_usage_count(connection, "eyepiece", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "eyepiece", catalog_id)
             connection.execute("DELETE FROM EyepieceCatalog WHERE id = ?", (eyepiece_id,))
             connection.commit()
-        return True, "Oculare eliminato."
+        return True, tr("Oculare eliminato.")
 
     def barlows(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -362,14 +367,14 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 "SELECT id FROM BarlowCatalog WHERE brand = ? AND model = ? AND multiplier = ?",
                 (clean_brand, clean_model, multiplier),
             ).fetchone()
             if duplicate:
-                return False, "Questa Barlow è già presente nel catalogo."
+                return False, tr("Questa Barlow è già presente nel catalogo.")
             connection.execute(
                 """
                 INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
@@ -378,22 +383,22 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, multiplier, barrel_size, notes),
             )
             connection.commit()
-        return True, "Barlow aggiunta."
+        return True, tr("Barlow aggiunta.")
 
     def update_barlow(self, barlow_id: int, brand: str, model: str, multiplier: float, barrel_size: str, notes: str = "") -> tuple[bool, str]:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id, is_builtin FROM BarlowCatalog WHERE id = ?",
                 (barlow_id,),
             ).fetchone()
             if not existing:
-                return False, "Barlow non trovata."
+                return False, tr("Barlow non trovata.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM BarlowCatalog
@@ -402,7 +407,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, multiplier, barlow_id),
             ).fetchone()
             if duplicate:
-                return False, "Questa Barlow è già presente nel catalogo."
+                return False, tr("Questa Barlow è già presente nel catalogo.")
             connection.execute(
                 """
                 UPDATE BarlowCatalog
@@ -412,21 +417,21 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, multiplier, barrel_size, notes, barlow_id),
             )
             connection.commit()
-        return True, "Barlow aggiornata."
+        return True, tr("Barlow aggiornata.")
 
     def delete_barlow(self, barlow_id: int, remove_from_profiles: bool = False) -> tuple[bool, str]:
         catalog_id = f"catalog-barlow-{barlow_id}"
         with closing(self._connect()) as connection:
             if self._is_builtin(connection, "BarlowCatalog", barlow_id):
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             used = self._profile_usage_count(connection, "barlow", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "barlow", catalog_id)
             connection.execute("DELETE FROM BarlowCatalog WHERE id = ?", (barlow_id,))
             connection.commit()
-        return True, "Barlow eliminata."
+        return True, tr("Barlow eliminata.")
 
     def binoculars(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -451,9 +456,9 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         if magnification <= 0 or objective_diameter_mm <= 0:
-            return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
+            return False, tr("Ingrandimento e diametro obiettivo devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
@@ -463,7 +468,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, magnification, objective_diameter_mm),
             ).fetchone()
             if duplicate:
-                return False, "Questo binocolo è già presente nel catalogo."
+                return False, tr("Questo binocolo è già presente nel catalogo.")
             connection.execute(
                 """
                 INSERT INTO BinocularCatalog (
@@ -480,7 +485,7 @@ class EquipmentCatalogRepository:
                 ),
             )
             connection.commit()
-        return True, "Binocolo aggiunto."
+        return True, tr("Binocolo aggiunto.")
 
     def update_binocular(
         self,
@@ -494,18 +499,18 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         if not clean_brand or not clean_model:
-            return False, "Marca e modello sono obbligatori."
+            return False, tr("Marca e modello sono obbligatori.")
         if magnification <= 0 or objective_diameter_mm <= 0:
-            return False, "Ingrandimento e diametro obiettivo devono essere maggiori di zero."
+            return False, tr("Ingrandimento e diametro obiettivo devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id, is_builtin FROM BinocularCatalog WHERE id = ?",
                 (binocular_id,),
             ).fetchone()
             if not existing:
-                return False, "Binocolo non trovato."
+                return False, tr("Binocolo non trovato.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM BinocularCatalog
@@ -514,7 +519,7 @@ class EquipmentCatalogRepository:
                 (clean_brand, clean_model, magnification, objective_diameter_mm, binocular_id),
             ).fetchone()
             if duplicate:
-                return False, "Questo binocolo è già presente nel catalogo."
+                return False, tr("Questo binocolo è già presente nel catalogo.")
             connection.execute(
                 """
                 UPDATE BinocularCatalog
@@ -532,7 +537,7 @@ class EquipmentCatalogRepository:
                 ),
             )
             connection.commit()
-        return True, "Binocolo aggiornato."
+        return True, tr("Binocolo aggiornato.")
 
     def delete_binocular(
         self,
@@ -546,17 +551,17 @@ class EquipmentCatalogRepository:
                 (binocular_id,),
             ).fetchone()
             if not existing:
-                return False, "Binocolo non trovato."
+                return False, tr("Binocolo non trovato.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             used = self._profile_usage_count(connection, "binocular", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "binocular", catalog_id)
             connection.execute("DELETE FROM BinocularCatalog WHERE id = ?", (binocular_id,))
             connection.commit()
-        return True, "Binocolo eliminato."
+        return True, tr("Binocolo eliminato.")
 
     def filters(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -603,7 +608,7 @@ class EquipmentCatalogRepository:
                 values[:2],
             ).fetchone()
             if duplicate:
-                return False, "Questo filtro è già presente nel catalogo."
+                return False, tr("Questo filtro è già presente nel catalogo.")
             connection.execute(
                 """
                 INSERT INTO FilterCatalog (
@@ -616,7 +621,7 @@ class EquipmentCatalogRepository:
                 values,
             )
             connection.commit()
-        return True, "Filtro aggiunto."
+        return True, tr("Filtro aggiunto.")
 
     def update_filter(
         self,
@@ -648,9 +653,9 @@ class EquipmentCatalogRepository:
                 (filter_id,),
             ).fetchone()
             if not existing:
-                return False, "Filtro non trovato."
+                return False, tr("Filtro non trovato.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM FilterCatalog
@@ -659,7 +664,7 @@ class EquipmentCatalogRepository:
                 values[:2] + (filter_id,),
             ).fetchone()
             if duplicate:
-                return False, "Questo filtro è già presente nel catalogo."
+                return False, tr("Questo filtro è già presente nel catalogo.")
             connection.execute(
                 """
                 UPDATE FilterCatalog
@@ -671,7 +676,7 @@ class EquipmentCatalogRepository:
                 values + (filter_id,),
             )
             connection.commit()
-        return True, "Filtro aggiornato."
+        return True, tr("Filtro aggiornato.")
 
     def delete_filter(
         self,
@@ -681,21 +686,21 @@ class EquipmentCatalogRepository:
         catalog_id = f"catalog-filter-{filter_id}"
         with closing(self._connect()) as connection:
             if self._is_builtin(connection, "FilterCatalog", filter_id):
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             existing = connection.execute(
                 "SELECT id FROM FilterCatalog WHERE id = ?",
                 (filter_id,),
             ).fetchone()
             if not existing:
-                return False, "Filtro non trovato."
+                return False, tr("Filtro non trovato.")
             used = self._profile_usage_count(connection, "filter", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "filter", catalog_id)
             connection.execute("DELETE FROM FilterCatalog WHERE id = ?", (filter_id,))
             connection.commit()
-        return True, "Filtro eliminato."
+        return True, tr("Filtro eliminato.")
 
     def reducers(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -791,7 +796,7 @@ class EquipmentCatalogRepository:
                 values[:3],
             ).fetchone()
             if duplicate:
-                return False, "Questo riduttore è già presente nel catalogo."
+                return False, tr("Questo riduttore è già presente nel catalogo.")
             cursor = connection.execute(
                 """
                 INSERT INTO ReducerCatalog (
@@ -810,7 +815,7 @@ class EquipmentCatalogRepository:
                 telescope_model_ids,
             )
             connection.commit()
-        return True, "Riduttore aggiunto."
+        return True, tr("Riduttore aggiunto.")
 
     def update_reducer(
         self,
@@ -849,9 +854,9 @@ class EquipmentCatalogRepository:
                 (reducer_id,),
             ).fetchone()
             if not existing:
-                return False, "Riduttore non trovato."
+                return False, tr("Riduttore non trovato.")
             if bool(existing["is_builtin"]):
-                return False, "Gli elementi integrati non possono essere modificati."
+                return False, tr("Gli elementi integrati non possono essere modificati.")
             telescope_model_ids, compatibility_error = (
                 self._validated_reducer_telescope_ids(
                     connection,
@@ -868,7 +873,7 @@ class EquipmentCatalogRepository:
                 values[:3] + (reducer_id,),
             ).fetchone()
             if duplicate:
-                return False, "Questo riduttore è già presente nel catalogo."
+                return False, tr("Questo riduttore è già presente nel catalogo.")
             connection.execute(
                 """
                 UPDATE ReducerCatalog
@@ -886,7 +891,7 @@ class EquipmentCatalogRepository:
                 telescope_model_ids,
             )
             connection.commit()
-        return True, "Riduttore aggiornato."
+        return True, tr("Riduttore aggiornato.")
 
     def delete_reducer(
         self,
@@ -896,21 +901,21 @@ class EquipmentCatalogRepository:
         catalog_id = f"catalog-reducer-{reducer_id}"
         with closing(self._connect()) as connection:
             if self._is_builtin(connection, "ReducerCatalog", reducer_id):
-                return False, "Gli elementi integrati non possono essere eliminati."
+                return False, tr("Gli elementi integrati non possono essere eliminati.")
             existing = connection.execute(
                 "SELECT id FROM ReducerCatalog WHERE id = ?",
                 (reducer_id,),
             ).fetchone()
             if not existing:
-                return False, "Riduttore non trovato."
+                return False, tr("Riduttore non trovato.")
             used = self._profile_usage_count(connection, "reducer", catalog_id)
             if used and not remove_from_profiles:
-                return False, "Questo elemento è utilizzato da uno o più profili."
+                return False, tr("Questo elemento è utilizzato da uno o più profili.")
             if remove_from_profiles:
                 self._remove_from_profiles(connection, "reducer", catalog_id)
             connection.execute("DELETE FROM ReducerCatalog WHERE id = ?", (reducer_id,))
             connection.commit()
-        return True, "Riduttore eliminato."
+        return True, tr("Riduttore eliminato.")
 
     def profiles(self) -> list[dict]:
         with closing(self._connect()) as connection:
@@ -1084,6 +1089,20 @@ class EquipmentCatalogRepository:
             "aperture_mm": row["aperture_mm"],
             "focal_length_mm": row["focal_length_mm"],
             "focal_ratio": row["focal_ratio"],
+            "aperture_label": tr(
+                "{value} mm", value=format_number(row["aperture_mm"])
+            ),
+            "focal_length_label": tr(
+                "{value} mm", value=format_number(row["focal_length_mm"])
+            ),
+            "focal_ratio_label": (
+                tr(
+                    "f/{value}",
+                    value=format_compact_number(row["focal_ratio"]),
+                )
+                if row["focal_ratio"] is not None
+                else ""
+            ),
             "mount_type": row["mount_type"],
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
@@ -1096,7 +1115,18 @@ class EquipmentCatalogRepository:
         eyepiece_type = row["eyepiece_type"] or "Fixed"
         min_focal = row["min_focal_length_mm"]
         max_focal = row["max_focal_length_mm"]
-        focal_range = f"{min_focal:g}-{max_focal:g} mm" if eyepiece_type == "Zoom" and min_focal and max_focal else f"{row['focal_length_mm']:g} mm"
+        focal_range = (
+            tr(
+                "{minimum}-{maximum} mm",
+                minimum=format_compact_number(min_focal),
+                maximum=format_compact_number(max_focal),
+            )
+            if eyepiece_type == "Zoom" and min_focal and max_focal
+            else tr(
+                "{value} mm",
+                value=format_compact_number(row["focal_length_mm"]),
+            )
+        )
         return {
             "id": row["id"],
             "catalog_id": f"catalog-eyepiece-{row['id']}",
@@ -1105,10 +1135,15 @@ class EquipmentCatalogRepository:
             "display_name": f"{row['brand']} {row['model']}",
             "eyepiece_type": eyepiece_type,
             "type": eyepiece_type,
+            "type_label": tr("Zoom") if eyepiece_type == "Zoom" else tr("Fisso"),
             "focal_length_mm": row["focal_length_mm"],
             "min_focal_length_mm": min_focal,
             "max_focal_length_mm": max_focal,
             "apparent_field_deg": row["apparent_field_deg"],
+            "apparent_field_label": tr(
+                "{value} gradi",
+                value=format_compact_number(row["apparent_field_deg"]),
+            ),
             "afov_min": row["afov_min"],
             "afov_max": row["afov_max"],
             "barrel_size": row["barrel_size"] or "",
@@ -1127,6 +1162,9 @@ class EquipmentCatalogRepository:
             "model": row["model"],
             "display_name": f"{row['brand']} {row['model']}",
             "multiplier": row["multiplier"],
+            "multiplier_label": tr(
+                "{value}x", value=format_compact_number(row["multiplier"])
+            ),
             "barrel_size": row["barrel_size"] or "",
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
@@ -1162,6 +1200,22 @@ class EquipmentCatalogRepository:
             "bandwidth_nm": row["bandwidth_nm"],
             "transmission_pct": row["transmission_pct"],
             "minimum_aperture_mm": row["minimum_aperture_mm"],
+            "bandwidth_label": (
+                tr(
+                    "{value} nm",
+                    value=format_compact_number(row["bandwidth_nm"]),
+                )
+                if row["bandwidth_nm"] is not None
+                else ""
+            ),
+            "transmission_label": (
+                tr(
+                    "{value}%",
+                    value=format_compact_number(row["transmission_pct"]),
+                )
+                if row["transmission_pct"] is not None
+                else ""
+            ),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
         }
@@ -1176,6 +1230,10 @@ class EquipmentCatalogRepository:
             "model": row["model"],
             "display_name": f"{row['brand']} {row['model']}",
             "reduction_factor": row["reduction_factor"],
+            "reduction_factor_label": tr(
+                "{value}x",
+                value=format_compact_number(row["reduction_factor"]),
+            ),
             "optical_system": optical_system,
             "optical_system_label": OPTICAL_SYSTEM_LABELS.get(
                 optical_system,
@@ -1184,6 +1242,14 @@ class EquipmentCatalogRepository:
             "compatible_models": row["compatible_models"] or "",
             "connection": row["connection"] or "",
             "backfocus_mm": row["backfocus_mm"],
+            "backfocus_label": (
+                tr(
+                    "{value} mm",
+                    value=format_compact_number(row["backfocus_mm"]),
+                )
+                if row["backfocus_mm"] is not None
+                else ""
+            ),
             "visual_compatible": bool(row["visual_compatible"]),
             "imaging_compatible": bool(row["imaging_compatible"]),
             "corrected_field": bool(row["corrected_field"]),
@@ -1206,17 +1272,17 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         clean_class = filter_class.strip().upper()
         if not clean_brand or not clean_model:
-            return (), "Marca e modello sono obbligatori."
+            return (), tr("Marca e modello sono obbligatori.")
         if clean_class not in FILTER_CLASS_LABELS:
-            return (), "Tipo di filtro non valido."
+            return (), tr("Tipo di filtro non valido.")
         if central_wavelength_nm is not None and central_wavelength_nm <= 0:
-            return (), "La lunghezza d'onda deve essere maggiore di zero."
+            return (), tr("La lunghezza d'onda deve essere maggiore di zero.")
         if bandwidth_nm is not None and bandwidth_nm <= 0:
-            return (), "La larghezza di banda deve essere maggiore di zero."
+            return (), tr("La larghezza di banda deve essere maggiore di zero.")
         if transmission_pct is not None and not 0 < transmission_pct <= 100:
-            return (), "La trasmissione deve essere compresa tra 0 e 100%."
+            return (), tr("La trasmissione deve essere compresa tra 0 e 100%.")
         if minimum_aperture_mm is not None and minimum_aperture_mm <= 0:
-            return (), "L'apertura minima deve essere maggiore di zero."
+            return (), tr("L'apertura minima deve essere maggiore di zero.")
         return (
             clean_brand,
             clean_model,
@@ -1246,15 +1312,15 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         clean_system = optical_system.strip().upper()
         if not clean_brand or not clean_model:
-            return (), "Marca e modello sono obbligatori."
+            return (), tr("Marca e modello sono obbligatori.")
         if not 0 < reduction_factor < 1:
-            return (), "Il fattore di riduzione deve essere compreso tra 0 e 1."
+            return (), tr("Il fattore di riduzione deve essere compreso tra 0 e 1.")
         if clean_system not in OPTICAL_SYSTEM_LABELS:
-            return (), "Sistema ottico non valido."
+            return (), tr("Sistema ottico non valido.")
         if backfocus_mm is not None and backfocus_mm <= 0:
-            return (), "Il backfocus deve essere maggiore di zero."
+            return (), tr("Il backfocus deve essere maggiore di zero.")
         if not visual_compatible and not imaging_compatible:
-            return (), "Indica almeno un impiego compatibile."
+            return (), tr("Indica almeno un impiego compatibile.")
         return (
             clean_brand,
             clean_model,
@@ -1279,10 +1345,10 @@ class EquipmentCatalogRepository:
             catalog_id = str(value or "").strip()
             prefix = "catalog-telescope-"
             if not catalog_id.startswith(prefix):
-                return (), "Selezione dei telescopi compatibili non valida."
+                return (), tr("Selezione dei telescopi compatibili non valida.")
             raw_model_id = catalog_id.removeprefix(prefix)
             if not raw_model_id.isdigit() or int(raw_model_id) <= 0:
-                return (), "Selezione dei telescopi compatibili non valida."
+                return (), tr("Selezione dei telescopi compatibili non valida.")
             model_id = int(raw_model_id)
             if model_id not in model_ids:
                 model_ids.append(model_id)
@@ -1297,7 +1363,7 @@ class EquipmentCatalogRepository:
             ).fetchall()
         }
         if existing_ids != set(model_ids):
-            return (), "Uno o più telescopi compatibili non esistono più."
+            return (), tr("Uno o più telescopi compatibili non esistono più.")
         return tuple(model_ids), ""
 
     @staticmethod

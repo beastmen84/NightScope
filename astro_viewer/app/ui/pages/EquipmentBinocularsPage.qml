@@ -112,7 +112,9 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.filteredBinocularModels().length + " di " + controller.binocularCatalog.length + " modelli"
+                    text: qsTr("%1 di %2 modelli")
+                        .arg(root.filteredBinocularModels().length)
+                        .arg(controller.binocularCatalog.length)
                     color: theme.textSecondary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold

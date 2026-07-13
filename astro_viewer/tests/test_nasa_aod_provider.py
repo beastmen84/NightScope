@@ -127,7 +127,7 @@ class NasaAodProviderTests(unittest.TestCase):
 
         self.assertTrue(qml["visible"])
         self.assertTrue(qml["hasData"])
-        self.assertEqual(qml["aod550"], "0.658")
+        self.assertEqual(qml["aod550"], "0,658")
         self.assertEqual(qml["transparency"], "Velata")
         self.assertEqual(qml["freshness"], "Misura di oggi")
         self.assertEqual(qml["freshnessCategory"], "current")
@@ -538,7 +538,7 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertFalse(controller._nasa_aod_refresh_running)
         self.assertIs(controller._nasa_aod_result, result)
         self.assertEqual(len(emissions), 1)
-        self.assertEqual(controller.atmosphericTransparency["aod550"], "0.180")
+        self.assertEqual(controller.atmosphericTransparency["aod550"], "0,180")
         self.assertIn("NASA AOD refresh ok", "\n".join(logs.output))
         self.assertIn("granule-valid", "\n".join(logs.output))
 

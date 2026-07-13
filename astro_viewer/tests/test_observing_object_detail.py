@@ -183,6 +183,7 @@ def test_lunar_detail_keeps_phase_fields_and_real_horizon_events() -> None:
             "title": "Sessione consigliata",
             "badge": "Consigliata",
             "limitingFactor": "Nessun fattore bloccante",
+            "limitingFactorCode": "none",
         },
         setup_model=None,
         altitude_threshold_deg=8.0,

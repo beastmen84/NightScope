@@ -73,7 +73,7 @@ Rectangle {
 
         Text {
             Layout.preferredWidth: 145
-            text: root.value("windowLabel", "n/d")
+            text: root.value("windowLabel", qsTr("n/d"))
             color: theme.textSecondary
             font.pixelSize: 12
             maximumLineCount: 1
@@ -82,7 +82,7 @@ Rectangle {
 
         Text {
             Layout.preferredWidth: 105
-            text: root.value("direction", "n/d")
+            text: root.value("direction", qsTr("n/d"))
             color: theme.textMuted
             font.pixelSize: 12
             maximumLineCount: 1
@@ -92,7 +92,7 @@ Rectangle {
         Text {
             Layout.preferredWidth: 90
             horizontalAlignment: Text.AlignRight
-            text: root.value("difficulty", "n/d")
+            text: root.value("difficulty", qsTr("n/d"))
             color: theme.textMuted
             font.pixelSize: 12
             maximumLineCount: 1
@@ -137,7 +137,9 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: root.value("typeLabel", qsTr("Oggetto")) + "  -  " + root.value("categoryLabel", "")
+                    text: qsTr("%1  -  %2")
+                        .arg(root.value("typeLabel", qsTr("Oggetto")))
+                        .arg(root.value("categoryLabel", ""))
                     color: theme.textSecondary
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
@@ -148,7 +150,10 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             Layout.leftMargin: 12
-            text: root.value("windowLabel", "n/d") + "  -  " + root.value("direction", "n/d") + "  -  " + root.value("difficulty", "n/d")
+            text: qsTr("%1  -  %2  -  %3")
+                .arg(root.value("windowLabel", qsTr("n/d")))
+                .arg(root.value("direction", qsTr("n/d")))
+                .arg(root.value("difficulty", qsTr("n/d")))
             color: theme.textMuted
             font.pixelSize: 12
             wrapMode: Text.WordWrap

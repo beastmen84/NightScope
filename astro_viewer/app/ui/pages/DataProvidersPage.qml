@@ -70,11 +70,11 @@ Item {
                     title: qsTr("Earthdata NASA")
                     subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS"))
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
-                    headerActionText: qsTr("Create account")
+                    headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified && !controller.earthdataAuthorizationRequired
                     headerActionAccentColor: theme.cyan
-                    headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired ? qsTr("Account already configured") : qsTr("Create a NASA Earthdata account")
+                    headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired ? qsTr("Account già configurato") : qsTr("Crea un account NASA Earthdata")
                     onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)
 
                     Connections {
@@ -183,11 +183,11 @@ Item {
                     title: qsTr("OpenAQ")
                     subtitle: controller.openaqConnectionVerified ? qsTr("Connessione API verificata") : (controller.openaqCredentialsConfigured ? qsTr("API key salvata nel vault di sistema") : qsTr("Accesso opzionale ai dati qualità aria"))
                     accentColor: controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet)
-                    headerActionText: qsTr("Create account")
+                    headerActionText: qsTr("Crea account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.openaqConnectionTestRunning && !controller.openaqConnectionVerified
                     headerActionAccentColor: theme.cyan
-                    headerActionToolTip: controller.openaqConnectionVerified ? qsTr("Account already configured") : qsTr("Create an OpenAQ account")
+                    headerActionToolTip: controller.openaqConnectionVerified ? qsTr("Account già configurato") : qsTr("Crea un account OpenAQ")
                     onHeaderActionClicked: Qt.openUrlExternally(root.openAQRegistrationUrl)
 
                     RowLayout {

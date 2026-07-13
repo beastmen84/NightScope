@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from astro_viewer.app.models.equipment import Barlow, Binocular, Eyepiece, Telescope
 from astro_viewer.app.models.observation_configuration import ObservationConfiguration
+from astro_viewer.app.services.localization import tr
 
 
 @dataclass(frozen=True)
@@ -13,7 +14,7 @@ class RecommendationCandidate:
     label: str
     detail_label: str
     multiplier: float = 1.0
-    barlow_label: str = "No"
+    barlow_label: str = tr("No")
     telescope_name: str = ""
 
     @property

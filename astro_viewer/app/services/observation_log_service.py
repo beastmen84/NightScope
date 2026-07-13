@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Mapping, Sequence
 
+from astro_viewer.app.services.localization import format_datetime, format_number, tr
+
 
 class ObservationLogValidationError(ValueError):
     pass
@@ -31,20 +33,22 @@ class ObservationLogService:
             )
         except ValueError as error:
             raise ObservationLogValidationError(
-                "Inserisci data e ora nei formati AAAA-MM-GG e HH:MM."
+                tr("Inserisci data e ora nei formati AAAA-MM-GG e HH:MM.")
             ) from error
 
         local_now = now.replace(tzinfo=None, second=0, microsecond=0)
         if observed_at > local_now + timedelta(minutes=1):
             raise ObservationLogValidationError(
-                "Il Log Osservazioni accetta soltanto osservazioni già effettuate."
+                tr("Il Log Osservazioni accetta soltanto osservazioni già effettuate.")
             )
 
         clean_object_name = object_name.strip()
         if not clean_object_name:
-            raise ObservationLogValidationError("Indica l'oggetto osservato.")
+            raise ObservationLogValidationError(tr("Indica l'oggetto osservato."))
         if not 1 <= rating <= 5:
-            raise ObservationLogValidationError("La valutazione deve essere compresa tra 1 e 5.")
+            raise ObservationLogValidationError(
+                tr("La valutazione deve essere compresa tra 1 e 5.")
+            )
 
         return {
             "date": observed_at.isoformat(timespec="minutes"),
@@ -67,10 +71,14 @@ class ObservationLogService:
             if str(row.get("object_name") or "").strip()
         }
         latest_label = self._date_label(rows[0].get("date")) if rows else "-"
+        average_rating = round(sum(ratings) / len(ratings), 1) if ratings else 0.0
         return {
             "total": len(rows),
             "uniqueObjects": len(object_names),
-            "averageRating": round(sum(ratings) / len(ratings), 1) if ratings else 0.0,
+            "averageRating": average_rating,
+            "averageRatingLabel": (
+                format_number(average_rating, decimals=1) if ratings else ""
+            ),
             "latestLabel": latest_label,
         }
 
@@ -93,14 +101,14 @@ class ObservationLogService:
             "dateLabel": self._date_label(row.get("date")),
             "objectName": object_name,
             "location": location,
-            "locationLabel": location or "Non specificata",
+            "locationLabel": location or tr("Non specificata"),
             "telescope": telescope,
             "eyepiece": eyepiece,
-            "setupLabel": " / ".join(setup_parts) if setup_parts else "Non specificato",
+            "setupLabel": " / ".join(setup_parts) if setup_parts else tr("Non specificato"),
             "rating": rating,
             "ratingLabel": f"{rating}/5" if rating else "-",
             "notes": notes,
-            "notesLabel": notes or "Nessuna nota",
+            "notesLabel": notes or tr("Nessuna nota"),
             "searchText": " ".join(
                 (object_name, location, telescope, eyepiece, notes)
             ).casefold(),
@@ -111,8 +119,8 @@ class ObservationLogService:
         if not parsed:
             return str(value or "-")
         if parsed.hour == 0 and parsed.minute == 0 and "T" not in str(value):
-            return parsed.strftime("%d/%m/%Y")
-        return parsed.strftime("%d/%m/%Y %H:%M")
+            return format_datetime(parsed, include_time=False)
+        return format_datetime(parsed)
 
     @staticmethod
     def _parse_date(value: object) -> datetime | None:

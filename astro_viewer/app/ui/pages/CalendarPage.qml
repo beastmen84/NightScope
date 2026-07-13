@@ -7,8 +7,8 @@ Item {
     id: root
 
     property var controller
-    property string selectedDateFilter: "30 giorni"
-    property string selectedTypeFilter: "Tutti"
+    property string selectedDateFilter: "30d"
+    property string selectedTypeFilter: "all"
     property string selectedEventId: ""
     property string initialEventId: ""
     readonly property var calendarOverview: controller ? (controller.calendarOverview || ({})) : ({})
@@ -23,16 +23,16 @@ Item {
         id: theme
     }
 
-    function eventAccent(type) {
-        if (type === "Luna")
+    function eventAccent(typeCode) {
+        if (typeCode === "moon")
             return theme.amber
-        if (type === "Sciame meteorico")
+        if (typeCode === "meteor_shower")
             return theme.teal
-        if (type === "Eclissi")
+        if (typeCode === "eclipse")
             return theme.coral
-        if (type === "Congiunzione" || type === "Congiunzione planetaria")
+        if (typeCode === "planetary_conjunction")
             return theme.violet
-        if (type === "Congiunzione solare")
+        if (typeCode === "solar_conjunction")
             return theme.coral
         return theme.cyan
     }
@@ -49,17 +49,17 @@ Item {
         var days = Number(eventData.daysUntil)
         if (days < 0)
             return false
-        if (selectedDateFilter === "30 giorni")
+        if (selectedDateFilter === "30d")
             return days <= 30
-        if (selectedDateFilter === "6 mesi")
+        if (selectedDateFilter === "6m")
             return days <= 183
-        if (selectedDateFilter === "12 mesi")
+        if (selectedDateFilter === "12m")
             return days <= 365
         return true
     }
 
     function matchesTypeFilter(eventData) {
-        return selectedTypeFilter === "Tutti" || eventData.type === selectedTypeFilter
+        return selectedTypeFilter === "all" || eventData.typeCode === selectedTypeFilter
     }
 
     function filteredEvents() {
@@ -85,7 +85,7 @@ Item {
         var total = 0
         var events = periodEvents()
         for (var index = 0; index < events.length; index += 1) {
-            if (type === "Tutti" || events[index].type === type)
+            if (type === "all" || events[index].typeCode === type)
                 total += 1
         }
         return total
@@ -132,7 +132,7 @@ Item {
         visible: root.hasSelectedEvent()
         controller: root.controller
         eventData: root.selectedEventData
-        accentColor: root.hasSelectedEvent() ? root.eventAccent(root.selectedEventData.type) : theme.cyan
+        accentColor: root.hasSelectedEvent() ? root.eventAccent(root.selectedEventData.typeCode) : theme.cyan
         onBackToCalendar: {
             root.selectedEventId = ""
             root.eventSelectionCleared()
@@ -216,7 +216,7 @@ Item {
 
                             StatusPill {
                                 text: modelData.dateLabel
-                                accentColor: root.eventAccent(modelData.type)
+                                accentColor: root.eventAccent(modelData.typeCode)
                             }
 
                             ColumnLayout {
@@ -248,7 +248,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 212
                     title: qsTr("Panoramica")
-                    subtitle: root.filteredEvents().length + qsTr(" eventi nella vista corrente")
+                    subtitle: root.filteredEvents().length === 1
+                              ? qsTr("1 evento nella vista corrente")
+                              : qsTr("%1 eventi nella vista corrente").arg(root.filteredEvents().length)
                     accentColor: theme.cyan
 
                     GridLayout {
@@ -265,37 +267,37 @@ Item {
 
                         MetricTile {
                             label: qsTr("Luna")
-                            value: root.countEvents("Luna").toString()
+                            value: root.countEvents("moon").toString()
                             accentColor: theme.amber
                         }
 
                         MetricTile {
                             label: qsTr("Opposizioni")
-                            value: root.countEvents("Opposizione").toString()
+                            value: root.countEvents("opposition").toString()
                             accentColor: theme.cyan
                         }
 
                         MetricTile {
                             label: qsTr("Cong. planetarie")
-                            value: root.countEvents("Congiunzione planetaria").toString()
+                            value: root.countEvents("planetary_conjunction").toString()
                             accentColor: theme.violet
                         }
 
                         MetricTile {
                             label: qsTr("Cong. solari")
-                            value: root.countEvents("Congiunzione solare").toString()
+                            value: root.countEvents("solar_conjunction").toString()
                             accentColor: theme.coral
                         }
 
                         MetricTile {
                             label: qsTr("Sciami")
-                            value: root.countEvents("Sciame meteorico").toString()
+                            value: root.countEvents("meteor_shower").toString()
                             accentColor: theme.teal
                         }
 
                         MetricTile {
                             label: qsTr("Eclissi")
-                            value: root.countEvents("Eclissi").toString()
+                            value: root.countEvents("eclipse").toString()
                             accentColor: theme.coral
                         }
                     }
@@ -307,7 +309,9 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: qsTr("Vista calendario")
-                subtitle: root.filteredEvents().length + qsTr(" di ") + root.calendarEvents.length + qsTr(" eventi")
+                subtitle: qsTr("%1 di %2 eventi")
+                    .arg(root.filteredEvents().length)
+                    .arg(root.calendarEvents.length)
                 accentColor: theme.violet
 
                 ColumnLayout {
@@ -329,9 +333,9 @@ Item {
 
                         Repeater {
                             model: [
-                                { "label": qsTr("30 giorni"), "value": "30 giorni" },
-                                { "label": qsTr("6 mesi"), "value": "6 mesi" },
-                                { "label": qsTr("12 mesi"), "value": "12 mesi" }
+                                { "label": qsTr("30 giorni"), "value": "30d" },
+                                { "label": qsTr("6 mesi"), "value": "6m" },
+                                { "label": qsTr("12 mesi"), "value": "12m" }
                             ]
 
                             delegate: DarkButton {
@@ -359,13 +363,13 @@ Item {
 
                         Repeater {
                             model: [
-                                { "label": qsTr("Tutti"), "value": "Tutti" },
-                                { "label": qsTr("Luna"), "value": "Luna" },
-                                { "label": qsTr("Opposizioni"), "value": "Opposizione" },
-                                { "label": qsTr("Cong. planetarie"), "value": "Congiunzione planetaria" },
-                                { "label": qsTr("Cong. solari"), "value": "Congiunzione solare" },
-                                { "label": qsTr("Sciami"), "value": "Sciame meteorico" },
-                                { "label": qsTr("Eclissi"), "value": "Eclissi" }
+                                { "label": qsTr("Tutti"), "value": "all" },
+                                { "label": qsTr("Luna"), "value": "moon" },
+                                { "label": qsTr("Opposizioni"), "value": "opposition" },
+                                { "label": qsTr("Cong. planetarie"), "value": "planetary_conjunction" },
+                                { "label": qsTr("Cong. solari"), "value": "solar_conjunction" },
+                                { "label": qsTr("Sciami"), "value": "meteor_shower" },
+                                { "label": qsTr("Eclissi"), "value": "eclipse" }
                             ]
 
                             delegate: DarkButton {
@@ -396,7 +400,9 @@ Item {
                 }
 
                 StatusPill {
-                    text: root.filteredEvents().length + qsTr(" eventi")
+                    text: root.filteredEvents().length === 1
+                          ? qsTr("1 evento")
+                          : qsTr("%1 eventi").arg(root.filteredEvents().length)
                     accentColor: theme.cyan
                 }
             }
@@ -417,7 +423,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredWidth: (eventGrid.width - eventGrid.columnSpacing * (eventGrid.columns - 1)) / eventGrid.columns
                         eventData: modelData
-                        accentColor: root.eventAccent(modelData.type)
+                        accentColor: root.eventAccent(modelData.typeCode)
                         visibilityAccentColor: root.visibilityAccent(modelData.visibilityState)
                         onClicked: root.showEvent(modelData.id)
                     }

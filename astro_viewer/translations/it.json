@@ -1,0 +1,2315 @@
+{
+  "schema_version": 1,
+  "language": {
+    "code": "it",
+    "label": "Italiano",
+    "locale": "it_IT",
+    "source": true
+  },
+  "formats": {
+    "date": "dd/MM/yyyy",
+    "date_time": "dd/MM/yyyy HH:mm"
+  },
+  "content": {
+    "catalogue_objects": {
+      "messier-M1": {
+        "name": "Nebulosa del Granchio",
+        "description": "M1 (NGC 1952) - Resto di supernova nel Toro."
+      },
+      "messier-M2": {
+        "name": "M2",
+        "description": "M2 (NGC 7089) - Ammasso globulare in Acquario."
+      },
+      "messier-M3": {
+        "name": "M3",
+        "description": "M3 (NGC 5272) - Ammasso globulare nei Canes Venatici."
+      },
+      "messier-M4": {
+        "name": "Ammasso Globulare del Ragno",
+        "description": "M4 (NGC 6121) - Ammasso globulare nello Scorpione."
+      },
+      "messier-M5": {
+        "name": "Ammasso della Rosa",
+        "description": "M5 (NGC 5904) - Ammasso globulare nel Serpente."
+      },
+      "messier-M6": {
+        "name": "Ammasso della Farfalla",
+        "description": "M6 (NGC 6405) - Ammasso aperto nello Scorpione."
+      },
+      "messier-M7": {
+        "name": "Ammasso di Tolomeo",
+        "description": "M7 (NGC 6475) - Ammasso aperto nello Scorpione."
+      },
+      "messier-M8": {
+        "name": "Nebulosa Laguna",
+        "description": "M8 (NGC 6523) - Nebulosa con ammasso nel Sagittario."
+      },
+      "messier-M9": {
+        "name": "M9",
+        "description": "M9 (NGC 6333) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M10": {
+        "name": "M10",
+        "description": "M10 (NGC 6254) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M11": {
+        "name": "Ammasso dell'Anatra Selvatica",
+        "description": "M11 (NGC 6705) - Ammasso aperto nello Scutum."
+      },
+      "messier-M12": {
+        "name": "M12",
+        "description": "M12 (NGC 6218) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M13": {
+        "name": "Grande Ammasso d'Ercole",
+        "description": "M13 (NGC 6205) - Ammasso globulare in Ercole."
+      },
+      "messier-M14": {
+        "name": "M14",
+        "description": "M14 (NGC 6402) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M15": {
+        "name": "Grande Ammasso di Pegaso",
+        "description": "M15 (NGC 7078) - Ammasso globulare di Pegaso."
+      },
+      "messier-M16": {
+        "name": "Nebulosa Aquila",
+        "description": "M16 (NGC 6611) - Nebulosa della regione H II con ammasso in Serpens."
+      },
+      "messier-M17": {
+        "name": "Nebulosa Omega, Cigno, Ferro di cavallo, Aragosta o Segno di spunta",
+        "description": "M17 (NGC 6618) - Nebulosa della regione H II con ammasso in Sagittario."
+      },
+      "messier-M18": {
+        "name": "Ammasso del cigno nero",
+        "description": "M18 (NGC 6613) - Ammasso aperto nel Sagittario."
+      },
+      "messier-M19": {
+        "name": "M19",
+        "description": "M19 (NGC 6273) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M20": {
+        "name": "Nebulosa Trifida",
+        "description": "M20 (NGC 6514) - Nebulosa della regione H II con ammasso in Sagittario."
+      },
+      "messier-M21": {
+        "name": "Ammasso Croce di Webb",
+        "description": "M21 (NGC 6531) - Ammasso aperto nel Sagittario."
+      },
+      "messier-M22": {
+        "name": "Grande Ammasso del Sagittario",
+        "description": "M22 (NGC 6656) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M23": {
+        "name": "M23",
+        "description": "M23 (NGC 6494) - Ammasso aperto nel Sagittario."
+      },
+      "messier-M24": {
+        "name": "Piccola Nube Stellare del Sagittario",
+        "description": "M24 (IC 4715) - Nube stellare della Via Lattea in Sagittario."
+      },
+      "messier-M25": {
+        "name": "M25",
+        "description": "M25 (IC 4725) - Ammasso aperto in Sagittario."
+      },
+      "messier-M26": {
+        "name": "M26",
+        "description": "M26 (NGC 6694) - Ammasso aperto nello Scuto."
+      },
+      "messier-M27": {
+        "name": "Nebulosa Manubrio",
+        "description": "M27 (NGC 6853) - Nebulosa planetaria nella Volpetta."
+      },
+      "messier-M28": {
+        "name": "M28",
+        "description": "M28 (NGC 6626) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M29": {
+        "name": "Ammasso Torre di Raffreddamento",
+        "description": "M29 (NGC 6913) - Ammasso aperto nel Cigno."
+      },
+      "messier-M30": {
+        "name": "Ammasso Medusa",
+        "description": "M30 (NGC 7099) - Ammasso globulare nel Capricorno."
+      },
+      "messier-M31": {
+        "name": "Galassia di Andromeda",
+        "description": "M31 (NGC 224) - Galassia a spirale in Andromeda."
+      },
+      "messier-M32": {
+        "name": "Satellite di Andromeda n. 1",
+        "description": "M32 (NGC 221) - Galassia ellittica nana in Andromeda."
+      },
+      "messier-M33": {
+        "name": "Galassia del Triangolo o Girandola",
+        "description": "M33 (NGC 598) - Galassia a spirale nel Triangolo."
+      },
+      "messier-M34": {
+        "name": "Ammasso Spirale",
+        "description": "M34 (NGC 1039) - Ammasso aperto nel Perseo."
+      },
+      "messier-M35": {
+        "name": "Ammasso Fibbia della Scarpa",
+        "description": "M35 (NGC 2168) - Ammasso aperto nei Gemelli."
+      },
+      "messier-M36": {
+        "name": "Ammasso Girandola",
+        "description": "M36 (NGC 1960) - Ammasso aperto nell'Auriga."
+      },
+      "messier-M37": {
+        "name": "Ammasso Sale e Pepe",
+        "description": "M37 (NGC 2099) - Ammasso aperto nell'Auriga."
+      },
+      "messier-M38": {
+        "name": "Ammasso Stella Marina",
+        "description": "M38 (NGC 1912) - Ammasso aperto nell'Auriga."
+      },
+      "messier-M39": {
+        "name": "Ammasso piramidale",
+        "description": "M39 (NGC 7092) - Ammasso aperto nel Cigno."
+      },
+      "messier-M40": {
+        "name": "Winnecke 4",
+        "description": "M40 - Doppio ottico nell'Orsa Maggiore."
+      },
+      "messier-M41": {
+        "name": "Piccolo Ammasso dell'Alveare",
+        "description": "M41 (NGC 2287) - Ammasso aperto nel Canis Major."
+      },
+      "messier-M42": {
+        "name": "Grande Nebulosa di Orione",
+        "description": "M42 (NGC 1976) - Nebulosa della regione H II in Orione."
+      },
+      "messier-M43": {
+        "name": "La Nebulosa di De Mairan",
+        "description": "M43 (NGC 1982) - Nebulosa della regione H II (parte della Nebulosa di Orione) in Orione."
+      },
+      "messier-M44": {
+        "name": "Ammasso dell'Alveare o Presepe",
+        "description": "M44 (NGC 2632) - Ammasso aperto nel Cancro."
+      },
+      "messier-M45": {
+        "name": "Pleiadi, Sette Sorelle o Subaru",
+        "description": "M45 – Ammasso aperto in Toro."
+      },
+      "messier-M46": {
+        "name": "M46",
+        "description": "M46 (NGC 2437) - Ammasso aperto in Puppis."
+      },
+      "messier-M47": {
+        "name": "M47",
+        "description": "M47 (NGC 2422) - Ammasso aperto in Puppis."
+      },
+      "messier-M48": {
+        "name": "M48",
+        "description": "M48 (NGC 2548) - Ammasso aperto nell'Idra."
+      },
+      "messier-M49": {
+        "name": "M49",
+        "description": "M49 (NGC 4472) - Galassia ellittica nella Vergine."
+      },
+      "messier-M50": {
+        "name": "Ammasso a Forma di Cuore",
+        "description": "M50 (NGC 2323) - Ammasso aperto nell'Unicorno."
+      },
+      "messier-M51": {
+        "name": "Galassia Vortice",
+        "description": "M51 (NGC 5194,NGC 5195) - Galassia a spirale nei Canes Venatici."
+      },
+      "messier-M52": {
+        "name": "Ammasso dello Scorpione",
+        "description": "M52 (NGC 7654) - Ammasso aperto in Cassiopea."
+      },
+      "messier-M53": {
+        "name": "M53",
+        "description": "M53 (NGC 5024) - Ammasso globulare nella Chioma di Berenice."
+      },
+      "messier-M54": {
+        "name": "M54",
+        "description": "M54 (NGC 6715) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M55": {
+        "name": "Ammasso Spettro",
+        "description": "M55 (NGC 6809) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M56": {
+        "name": "M56",
+        "description": "M56 (NGC 6779) - Ammasso globulare nella Lira."
+      },
+      "messier-M57": {
+        "name": "Nebulosa Anello",
+        "description": "M57 (NGC 6720) - Nebulosa planetaria nella Lira."
+      },
+      "messier-M58": {
+        "name": "M58",
+        "description": "M58 (NGC 4579) - Galassia spirale barrata nella Vergine."
+      },
+      "messier-M59": {
+        "name": "M59",
+        "description": "M59 (NGC 4621) - Galassia ellittica nella Vergine."
+      },
+      "messier-M60": {
+        "name": "M60",
+        "description": "M60 (NGC 4649) - Galassia ellittica nella Vergine."
+      },
+      "messier-M61": {
+        "name": "Galassia Spirale Rigonfia",
+        "description": "M61 (NGC 4303) - Galassia spirale nella Vergine."
+      },
+      "messier-M62": {
+        "name": "Ammasso Globulare Tremolante",
+        "description": "M62 (NGC 6266) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M63": {
+        "name": "Galassia Girasole",
+        "description": "M63 (NGC 5055) - Galassia a spirale nei Canes Venatici."
+      },
+      "messier-M64": {
+        "name": "Galassia Occhio Nero",
+        "description": "M64 (NGC 4826) - Galassia a spirale nella Chioma di Berenice."
+      },
+      "messier-M65": {
+        "name": "Tripletto del Leone",
+        "description": "M65 (NGC 3623) - Galassia spirale barrata in Leone."
+      },
+      "messier-M66": {
+        "name": "Tripletto del Leone",
+        "description": "M66 (NGC 3627) - Galassia spirale barrata in Leone."
+      },
+      "messier-M67": {
+        "name": "Ammasso Re Cobra o Occhio d'Oro",
+        "description": "M67 (NGC 2682) - Ammasso aperto nel Cancro."
+      },
+      "messier-M68": {
+        "name": "M68",
+        "description": "M68 (NGC 4590) - Ammasso globulare nell'Idra."
+      },
+      "messier-M69": {
+        "name": "M69",
+        "description": "M69 (NGC 6637) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M70": {
+        "name": "M70",
+        "description": "M70 (NGC 6681) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M71": {
+        "name": "Ammasso Pesce Angelo",
+        "description": "M71 (NGC 6838) - Ammasso globulare in Sagitta."
+      },
+      "messier-M72": {
+        "name": "M72",
+        "description": "M72 (NGC 6981) - Ammasso globulare in Acquario."
+      },
+      "messier-M73": {
+        "name": "M73",
+        "description": "M73 (NGC 6994) - Asterismo in Acquario."
+      },
+      "messier-M74": {
+        "name": "Galassia Fantasma",
+        "description": "M74 (NGC 628) - Galassia a spirale in Pesci."
+      },
+      "messier-M75": {
+        "name": "M75",
+        "description": "M75 (NGC 6864) - Ammasso globulare nel Sagittario."
+      },
+      "messier-M76": {
+        "name": "Piccola Nebulosa Manubrio",
+        "description": "M76 (NGC 650,NGC 651) - Nebulosa planetaria in Perseo."
+      },
+      "messier-M77": {
+        "name": "Cetus A o Galassia Calamaro",
+        "description": "M77 (NGC 1068) - Galassia a spirale in Cetus."
+      },
+      "messier-M78": {
+        "name": "M78",
+        "description": "M78 (NGC 2068) - Nebulosa diffusa in Orione."
+      },
+      "messier-M79": {
+        "name": "M79",
+        "description": "M79 (NGC 1904) - Ammasso globulare nella Lepus."
+      },
+      "messier-M80": {
+        "name": "M80",
+        "description": "M80 (NGC 6093) - Ammasso globulare nello Scorpione."
+      },
+      "messier-M81": {
+        "name": "Galassia di Bode",
+        "description": "M81 (NGC 3031) - Galassia a spirale nell'Orsa Maggiore."
+      },
+      "messier-M82": {
+        "name": "Galassia Sigaro",
+        "description": "M82 (NGC 3034) - Galassia Starburst nell'Orsa Maggiore."
+      },
+      "messier-M83": {
+        "name": "Galassia Girandola meridionale",
+        "description": "M83 (NGC 5236) - Galassia a spirale barrata nell'Idra."
+      },
+      "messier-M84": {
+        "name": "M84",
+        "description": "M84 (NGC 4374) - Galassia lenticolare nella Vergine."
+      },
+      "messier-M85": {
+        "name": "M85",
+        "description": "M85 (NGC 4382) - Galassia lenticolare nella Chioma di Berenice."
+      },
+      "messier-M86": {
+        "name": "M86",
+        "description": "M86 (NGC 4406) - Galassia lenticolare nella Vergine."
+      },
+      "messier-M87": {
+        "name": "Virgo A",
+        "description": "M87 (NGC 4486) - Galassia ellittica nella Vergine."
+      },
+      "messier-M88": {
+        "name": "M88",
+        "description": "M88 (NGC 4501) - Galassia a spirale nella Chioma di Berenice."
+      },
+      "messier-M89": {
+        "name": "M89",
+        "description": "M89 (NGC 4552) - Galassia ellittica nella Vergine."
+      },
+      "messier-M90": {
+        "name": "Galassia Carabin",
+        "description": "M90 (NGC 4569) - Galassia spirale nella Vergine."
+      },
+      "messier-M91": {
+        "name": "M91",
+        "description": "M91 (NGC 4548) - Galassia spirale barrata nella Chioma di Berenice."
+      },
+      "messier-M92": {
+        "name": "M92",
+        "description": "M92 (NGC 6341) - Ammasso globulare in Ercole."
+      },
+      "messier-M93": {
+        "name": "M93",
+        "description": "M93 (NGC 2447) - Ammasso aperto in Puppis."
+      },
+      "messier-M94": {
+        "name": "Galassia Occhio di Coccodrillo o Occhio di Gatto",
+        "description": "M94 (NGC 4736) - Galassia a spirale nei Canes Venatici."
+      },
+      "messier-M95": {
+        "name": "M95",
+        "description": "M95 (NGC 3351) - Galassia spirale barrata nel Leone."
+      },
+      "messier-M96": {
+        "name": "M96",
+        "description": "M96 (NGC 3368) - Galassia spirale nel Leone."
+      },
+      "messier-M97": {
+        "name": "Nebulosa Gufo",
+        "description": "M97 (NGC 3587) - Nebulosa planetaria nell'Orsa Maggiore."
+      },
+      "messier-M98": {
+        "name": "M98",
+        "description": "M98 (NGC 4192) - Galassia a spirale nella Chioma di Berenice."
+      },
+      "messier-M99": {
+        "name": "Ruota di Santa Caterina",
+        "description": "M99 (NGC 4254) - Galassia a spirale nella Chioma di Berenice."
+      },
+      "messier-M100": {
+        "name": "Galassia Specchio",
+        "description": "M100 (NGC 4321) - Galassia a spirale nella Chioma di Berenice."
+      },
+      "messier-M101": {
+        "name": "Galassia Girandola",
+        "description": "M101 (NGC 5457) - Galassia a spirale nell'Orsa Maggiore."
+      },
+      "messier-M102": {
+        "name": "Galassia del fuso",
+        "description": "M102 (NGC 5866) - Galassia lenticolare nel Draco."
+      },
+      "messier-M103": {
+        "name": "M103",
+        "description": "M103 (NGC 581) - Ammasso aperto in Cassiopea."
+      },
+      "messier-M104": {
+        "name": "Galassia Sombrero",
+        "description": "M104 (NGC 4594) - Galassia spirale nella Vergine."
+      },
+      "messier-M105": {
+        "name": "M105",
+        "description": "M105 (NGC 3379) - Galassia ellittica nel Leone."
+      },
+      "messier-M106": {
+        "name": "M106",
+        "description": "M106 (NGC 4258) - Galassia a spirale nei Canes Venatici."
+      },
+      "messier-M107": {
+        "name": "Ammasso Crocifisso",
+        "description": "M107 (NGC 6171) - Ammasso globulare nell'Ofiuco."
+      },
+      "messier-M108": {
+        "name": "Galassia della tavola da surf",
+        "description": "M108 (NGC 3556) - Galassia a spirale barrata nell'Orsa Maggiore."
+      },
+      "messier-M109": {
+        "name": "Galassia Aspirapolvere",
+        "description": "M109 (NGC 3992) - Galassia a spirale barrata nell'Orsa Maggiore."
+      },
+      "messier-M110": {
+        "name": "Satellite di Andromeda n. 2",
+        "description": "M110 (NGC 205) - Galassia ellittica nana in Andromeda."
+      },
+      "caldwell-C1": {
+        "name": "NGC188",
+        "description": "C1 (NGC 188) - Ammasso aperto nella costellazione di Cefeo."
+      },
+      "caldwell-C2": {
+        "name": "NGC40",
+        "description": "C2 (NGC 40) - Nebulosa planetaria nella costellazione di Cefeo."
+      },
+      "caldwell-C3": {
+        "name": "NGC4236",
+        "description": "C3 (NGC 4236) - Galassia spirale nella costellazione di Dragone."
+      },
+      "caldwell-C4": {
+        "name": "NGC 7023 - Nebulosa Iris",
+        "description": "C4 (NGC 7023) - Nebulosa nella costellazione di Cefeo."
+      },
+      "caldwell-C5": {
+        "name": "IC342",
+        "description": "C5 (IC 342) - Galassia spirale barrata nella costellazione di Giraffa."
+      },
+      "caldwell-C6": {
+        "name": "NGC 6543 - Nebulosa Occhio di Gatto",
+        "description": "C6 (NGC 6543) - Nebulosa planetaria nella costellazione di Dragone."
+      },
+      "caldwell-C7": {
+        "name": "NGC2403",
+        "description": "C7 (NGC 2403) - Galassia spirale nella costellazione di Giraffa."
+      },
+      "caldwell-C8": {
+        "name": "NGC559",
+        "description": "C8 (NGC 559) - Ammasso aperto nella costellazione di Cassiopea."
+      },
+      "caldwell-C9": {
+        "name": "Sh2-155 - Nebulosa Grotta",
+        "description": "C9 (Sh2-155) - Nebulosa nella costellazione di Cefeo."
+      },
+      "caldwell-C10": {
+        "name": "NGC663",
+        "description": "C10 (NGC 663) - Ammasso aperto nella costellazione di Cassiopea."
+      },
+      "caldwell-C11": {
+        "name": "NGC 7635 - Nebulosa Bolla",
+        "description": "C11 (NGC 7635) - Nebulosa nella costellazione di Cassiopea."
+      },
+      "caldwell-C12": {
+        "name": "NGC 6946 - Galassia Fuochi d'Artificio",
+        "description": "C12 (NGC 6946) - Galassia spirale nella costellazione di Cefeo."
+      },
+      "caldwell-C13": {
+        "name": "NGC 457 - Ammasso Civetta",
+        "description": "C13 (NGC 457) - Ammasso aperto nella costellazione di Cassiopea."
+      },
+      "caldwell-C14": {
+        "name": "NGC 869/884 - Doppio Ammasso di Perseo",
+        "description": "C14 (NGC 869/884) - Doppio ammasso aperto nella costellazione di Perseo."
+      },
+      "caldwell-C15": {
+        "name": "NGC 6826 - Nebulosa Lampeggiante",
+        "description": "C15 (NGC 6826) - Nebulosa planetaria nella costellazione di Cigno."
+      },
+      "caldwell-C16": {
+        "name": "NGC7243",
+        "description": "C16 (NGC 7243) - Ammasso aperto nella costellazione di Lucertola."
+      },
+      "caldwell-C17": {
+        "name": "NGC147",
+        "description": "C17 (NGC 147) - Galassia ellittica nana nella costellazione di Cassiopea."
+      },
+      "caldwell-C18": {
+        "name": "NGC185",
+        "description": "C18 (NGC 185) - Galassia ellittica nana nella costellazione di Cassiopea."
+      },
+      "caldwell-C19": {
+        "name": "IC 5146 - Nebulosa Bozzolo",
+        "description": "C19 (IC 5146) - Nebulosa nella costellazione di Cigno."
+      },
+      "caldwell-C20": {
+        "name": "NGC 7000 - Nebulosa Nord America",
+        "description": "C20 (NGC 7000) - Nebulosa nella costellazione di Cigno."
+      },
+      "caldwell-C21": {
+        "name": "NGC4449",
+        "description": "C21 (NGC 4449) - Galassia irregolare nella costellazione di Cani da Caccia."
+      },
+      "caldwell-C22": {
+        "name": "NGC 7662 - Nebulosa Palla di Neve Blu",
+        "description": "C22 (NGC 7662) - Nebulosa planetaria nella costellazione di Andromeda."
+      },
+      "caldwell-C23": {
+        "name": "NGC 891",
+        "description": "C23 (NGC 891) - Galassia spirale nella costellazione di Andromeda."
+      },
+      "caldwell-C24": {
+        "name": "NGC 1275 - Perseus A",
+        "description": "C24 (NGC 1275) - Galassia di Seyfert nella costellazione di Perseo."
+      },
+      "caldwell-C25": {
+        "name": "NGC 2419 - Vagabondo Intergalattico",
+        "description": "C25 (NGC 2419) - Ammasso globulare nella costellazione di Lince."
+      },
+      "caldwell-C26": {
+        "name": "NGC 4244 - Galassia Ago d'Argento",
+        "description": "C26 (NGC 4244) - Galassia spirale nella costellazione di Cani da Caccia."
+      },
+      "caldwell-C27": {
+        "name": "NGC 6888 - Nebulosa Crescente",
+        "description": "C27 (NGC 6888) - Nebulosa nella costellazione di Cigno."
+      },
+      "caldwell-C28": {
+        "name": "NGC752",
+        "description": "C28 (NGC 752) - Ammasso aperto nella costellazione di Andromeda."
+      },
+      "caldwell-C29": {
+        "name": "NGC5005",
+        "description": "C29 (NGC 5005) - Galassia spirale nella costellazione di Cani da Caccia."
+      },
+      "caldwell-C30": {
+        "name": "NGC7331",
+        "description": "C30 (NGC 7331) - Galassia spirale nella costellazione di Pegaso."
+      },
+      "caldwell-C31": {
+        "name": "IC 405 - Nebulosa Stella Fiammeggiante",
+        "description": "C31 (IC 405) - Nebulosa nella costellazione dell'Auriga."
+      },
+      "caldwell-C32": {
+        "name": "NGC 4631 - Galassia Balena",
+        "description": "C32 (NGC 4631) - Galassia spirale nella costellazione di Cani da Caccia."
+      },
+      "caldwell-C33": {
+        "name": "NGC 6992/6995 - Nebulosa Velo Est",
+        "description": "C33 (NGC 6992/6995) - Resto di supernova nella costellazione di Cigno."
+      },
+      "caldwell-C34": {
+        "name": "NGC 6960 - Nebulosa Velo Ovest",
+        "description": "C34 (NGC 6960) - Resto di supernova nella costellazione di Cigno."
+      },
+      "caldwell-C35": {
+        "name": "NGC4889",
+        "description": "C35 (NGC 4889) - Galassia ellittica nella costellazione di Chioma di Berenice."
+      },
+      "caldwell-C36": {
+        "name": "NGC4559",
+        "description": "C36 (NGC 4559) - Galassia spirale nella costellazione di Chioma di Berenice."
+      },
+      "caldwell-C37": {
+        "name": "NGC6885",
+        "description": "C37 (NGC 6885) - Ammasso aperto nella costellazione di Volpetta."
+      },
+      "caldwell-C38": {
+        "name": "NGC 4565 - Galassia Ago",
+        "description": "C38 (NGC 4565) - Galassia spirale nella costellazione di Chioma di Berenice."
+      },
+      "caldwell-C39": {
+        "name": "NGC2392",
+        "description": "C39 (NGC 2392) - Nebulosa planetaria nella costellazione di Gemelli."
+      },
+      "caldwell-C40": {
+        "name": "NGC3626",
+        "description": "C40 (NGC 3626) - Galassia spirale nella costellazione del Leone."
+      },
+      "caldwell-C41": {
+        "name": "Iadi",
+        "description": "C41 - Ammasso aperto nella costellazione di Toro."
+      },
+      "caldwell-C42": {
+        "name": "NGC7006",
+        "description": "C42 (NGC 7006) - Ammasso globulare nella costellazione del Delfino."
+      },
+      "caldwell-C43": {
+        "name": "NGC7814",
+        "description": "C43 (NGC 7814) - Galassia spirale nella costellazione di Pegaso."
+      },
+      "caldwell-C44": {
+        "name": "NGC7479",
+        "description": "C44 (NGC 7479) - Galassia spirale barrata nella costellazione di Pegaso."
+      },
+      "caldwell-C45": {
+        "name": "NGC5248",
+        "description": "C45 (NGC 5248) - Galassia spirale nella costellazione di Boote."
+      },
+      "caldwell-C46": {
+        "name": "NGC 2261 - Nebulosa Variabile di Hubble",
+        "description": "C46 (NGC 2261) - Nebulosa nella costellazione di Unicorno."
+      },
+      "caldwell-C47": {
+        "name": "NGC6934",
+        "description": "C47 (NGC 6934) - Ammasso globulare nella costellazione del Delfino."
+      },
+      "caldwell-C48": {
+        "name": "NGC2775",
+        "description": "C48 (NGC 2775) - Galassia spirale nella costellazione di Cancro."
+      },
+      "caldwell-C49": {
+        "name": "NGC 2237-2239 - Nebulosa Rosetta",
+        "description": "C49 (NGC 2237-2239) - Nebulosa nella costellazione di Unicorno."
+      },
+      "caldwell-C50": {
+        "name": "NGC2244",
+        "description": "C50 (NGC 2244) - Ammasso aperto nella costellazione di Unicorno."
+      },
+      "caldwell-C51": {
+        "name": "IC1613",
+        "description": "C51 (IC 1613) - Galassia irregolare nella costellazione di Balena."
+      },
+      "caldwell-C52": {
+        "name": "NGC4697",
+        "description": "C52 (NGC 4697) - Galassia ellittica nella costellazione della Vergine."
+      },
+      "caldwell-C53": {
+        "name": "NGC 3115 - Galassia Fuso",
+        "description": "C53 (NGC 3115) - Galassia ellittica nella costellazione di Sestante."
+      },
+      "caldwell-C54": {
+        "name": "NGC2506",
+        "description": "C54 (NGC 2506) - Ammasso aperto nella costellazione di Unicorno."
+      },
+      "caldwell-C55": {
+        "name": "NGC 7009 - Nebulosa Saturno",
+        "description": "C55 (NGC 7009) - Nebulosa planetaria nella costellazione dell'Acquario."
+      },
+      "caldwell-C56": {
+        "name": "NGC246",
+        "description": "C56 (NGC 246) - Nebulosa planetaria nella costellazione di Balena."
+      },
+      "caldwell-C57": {
+        "name": "NGC 6822 - Galassia di Barnard",
+        "description": "C57 (NGC 6822) - Galassia irregolare nella costellazione del Sagittario."
+      },
+      "caldwell-C58": {
+        "name": "NGC2360",
+        "description": "C58 (NGC 2360) - Ammasso aperto nella costellazione di Cane Maggiore."
+      },
+      "caldwell-C59": {
+        "name": "NGC 3242 - Fantasma di Giove",
+        "description": "C59 (NGC 3242) - Nebulosa planetaria nella costellazione di Idra."
+      },
+      "caldwell-C60": {
+        "name": "NGC 4038 - Galassie Antenne",
+        "description": "C60 (NGC 4038) - Galassia spirale nella costellazione del Corvo."
+      },
+      "caldwell-C61": {
+        "name": "NGC 4039 - Galassie Antenne",
+        "description": "C61 (NGC 4039) - Galassia spirale nella costellazione del Corvo."
+      },
+      "caldwell-C62": {
+        "name": "NGC247",
+        "description": "C62 (NGC 247) - Galassia spirale nella costellazione di Balena."
+      },
+      "caldwell-C63": {
+        "name": "NGC 7293 - Nebulosa Elica",
+        "description": "C63 (NGC 7293) - Nebulosa planetaria nella costellazione dell'Acquario."
+      },
+      "caldwell-C64": {
+        "name": "NGC 2362 - Ammasso Tau Canis Majoris",
+        "description": "C64 (NGC 2362) - Ammasso aperto nella costellazione di Cane Maggiore."
+      },
+      "caldwell-C65": {
+        "name": "NGC 253 - Galassia dello Scultore",
+        "description": "C65 (NGC 253) - Galassia spirale nella costellazione di Scultore."
+      },
+      "caldwell-C66": {
+        "name": "NGC5694",
+        "description": "C66 (NGC 5694) - Ammasso globulare nella costellazione di Idra."
+      },
+      "caldwell-C67": {
+        "name": "NGC1097",
+        "description": "C67 (NGC 1097) - Galassia spirale barrata nella costellazione di Fornace."
+      },
+      "caldwell-C68": {
+        "name": "NGC 6729 - Nebulosa R Coronae Australis",
+        "description": "C68 (NGC 6729) - Nebulosa nella costellazione della Corona Australe."
+      },
+      "caldwell-C69": {
+        "name": "NGC 6302 - Nebulosa Insetto",
+        "description": "C69 (NGC 6302) - Nebulosa planetaria nella costellazione dello Scorpione."
+      },
+      "caldwell-C70": {
+        "name": "NGC 300",
+        "description": "C70 (NGC 300) - Galassia spirale nella costellazione di Scultore."
+      },
+      "caldwell-C71": {
+        "name": "NGC2477",
+        "description": "C71 (NGC 2477) - Ammasso aperto nella costellazione di Poppa."
+      },
+      "caldwell-C72": {
+        "name": "NGC55",
+        "description": "C72 (NGC 55) - Galassia spirale barrata nella costellazione di Scultore."
+      },
+      "caldwell-C73": {
+        "name": "NGC1851",
+        "description": "C73 (NGC 1851) - Ammasso globulare nella costellazione di Colomba."
+      },
+      "caldwell-C74": {
+        "name": "NGC 3132",
+        "description": "C74 (NGC 3132) - Nebulosa planetaria nella costellazione di Vele."
+      },
+      "caldwell-C75": {
+        "name": "NGC6124",
+        "description": "C75 (NGC 6124) - Ammasso aperto nella costellazione di Scorpione."
+      },
+      "caldwell-C76": {
+        "name": "NGC6231",
+        "description": "C76 (NGC 6231) - Ammasso aperto nella costellazione di Scorpione."
+      },
+      "caldwell-C77": {
+        "name": "NGC 5128 - Centauro A",
+        "description": "C77 (NGC 5128) - Galassia peculiare nella costellazione di Centauro."
+      },
+      "caldwell-C78": {
+        "name": "NGC6541",
+        "description": "C78 (NGC 6541) - Ammasso globulare nella costellazione della Corona Australe."
+      },
+      "caldwell-C79": {
+        "name": "NGC 3201",
+        "description": "C79 (NGC 3201) - Ammasso globulare nella costellazione di Vele."
+      },
+      "caldwell-C80": {
+        "name": "NGC 5139 - Omega Centauri",
+        "description": "C80 (NGC 5139) - Ammasso globulare nella costellazione di Centauro."
+      },
+      "caldwell-C81": {
+        "name": "NGC6352",
+        "description": "C81 (NGC 6352) - Ammasso globulare nella costellazione di Altare."
+      },
+      "caldwell-C82": {
+        "name": "NGC6193",
+        "description": "C82 (NGC 6193) - Ammasso aperto nella costellazione di Altare."
+      },
+      "caldwell-C83": {
+        "name": "NGC4945",
+        "description": "C83 (NGC 4945) - Galassia spirale barrata nella costellazione di Centauro."
+      },
+      "caldwell-C84": {
+        "name": "NGC5286",
+        "description": "C84 (NGC 5286) - Ammasso globulare nella costellazione di Centauro."
+      },
+      "caldwell-C85": {
+        "name": "IC 2391 - Ammasso Omicron Velorum",
+        "description": "C85 (IC 2391) - Ammasso aperto nella costellazione di Vele."
+      },
+      "caldwell-C86": {
+        "name": "NGC6397",
+        "description": "C86 (NGC 6397) - Ammasso globulare nella costellazione di Altare."
+      },
+      "caldwell-C87": {
+        "name": "NGC1261",
+        "description": "C87 (NGC 1261) - Ammasso globulare nella costellazione dell'Orologio."
+      },
+      "caldwell-C88": {
+        "name": "NGC5823",
+        "description": "C88 (NGC 5823) - Ammasso aperto nella costellazione di Compasso."
+      },
+      "caldwell-C89": {
+        "name": "NGC 6087 - Ammasso S Normae",
+        "description": "C89 (NGC 6087) - Ammasso aperto nella costellazione di Regolo."
+      },
+      "caldwell-C90": {
+        "name": "NGC2867",
+        "description": "C90 (NGC 2867) - Nebulosa planetaria nella costellazione di Carena."
+      },
+      "caldwell-C91": {
+        "name": "NGC3532",
+        "description": "C91 (NGC 3532) - Ammasso aperto nella costellazione di Carena."
+      },
+      "caldwell-C92": {
+        "name": "NGC 3372 - Nebulosa della Carena",
+        "description": "C92 (NGC 3372) - Nebulosa nella costellazione di Carena."
+      },
+      "caldwell-C93": {
+        "name": "NGC6752",
+        "description": "C93 (NGC 6752) - Ammasso globulare nella costellazione di Pavone."
+      },
+      "caldwell-C94": {
+        "name": "NGC 4755 - Scrigno di Gioielli",
+        "description": "C94 (NGC 4755) - Ammasso aperto nella costellazione di Croce del Sud."
+      },
+      "caldwell-C95": {
+        "name": "NGC6025",
+        "description": "C95 (NGC 6025) - Ammasso aperto nella costellazione del Triangolo Australe."
+      },
+      "caldwell-C96": {
+        "name": "NGC2516",
+        "description": "C96 (NGC 2516) - Ammasso aperto nella costellazione di Carena."
+      },
+      "caldwell-C97": {
+        "name": "NGC3766",
+        "description": "C97 (NGC 3766) - Ammasso aperto nella costellazione di Centauro."
+      },
+      "caldwell-C98": {
+        "name": "NGC4609",
+        "description": "C98 (NGC 4609) - Ammasso aperto nella costellazione di Croce del Sud."
+      },
+      "caldwell-C99": {
+        "name": "Nebulosa Sacco di Carbone",
+        "description": "C99 - Nebulosa oscura nella costellazione di Croce del Sud."
+      },
+      "caldwell-C100": {
+        "name": "IC 2944 - Ammasso Lambda Centauri",
+        "description": "C100 (IC 2944) - Ammasso aperto nella costellazione di Centauro."
+      },
+      "caldwell-C101": {
+        "name": "NGC6744",
+        "description": "C101 (NGC 6744) - Galassia spirale barrata nella costellazione di Pavone."
+      },
+      "caldwell-C102": {
+        "name": "IC 2602 - Pleiadi del Sud",
+        "description": "C102 (IC 2602) - Ammasso aperto nella costellazione di Carena."
+      },
+      "caldwell-C103": {
+        "name": "NGC 2070 - Nebulosa Tarantola",
+        "description": "C103 (NGC 2070) - Nebulosa nella costellazione di Dorado."
+      },
+      "caldwell-C104": {
+        "name": "NGC362",
+        "description": "C104 (NGC 362) - Ammasso globulare nella costellazione di Tucano."
+      },
+      "caldwell-C105": {
+        "name": "NGC4833",
+        "description": "C105 (NGC 4833) - Ammasso globulare nella costellazione di Mosca."
+      },
+      "caldwell-C106": {
+        "name": "NGC 104 - 47 Tucanae",
+        "description": "C106 (NGC 104) - Ammasso globulare nella costellazione di Tucano."
+      },
+      "caldwell-C107": {
+        "name": "NGC6101",
+        "description": "C107 (NGC 6101) - Ammasso globulare nella costellazione di Uccello del Paradiso."
+      },
+      "caldwell-C108": {
+        "name": "NGC4372",
+        "description": "C108 (NGC 4372) - Ammasso globulare nella costellazione di Mosca."
+      },
+      "caldwell-C109": {
+        "name": "NGC 3195",
+        "description": "C109 (NGC 3195) - Nebulosa planetaria nella costellazione di Camaleonte."
+      }
+    },
+    "equipment_telescopes": {
+      "askar::103apo": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "askar::120apo": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "askar::151phq": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "askar::fra300 pro": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "askar::fra400": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "askar::fra500": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier ar-102/1000": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier ar-102/600": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier ar-127l/1200": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier ar-80/640": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier ar-90/900": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier mc-100/1400": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier mc-127/1900": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier nt-130/1000": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier nt-150s/750": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "bresser::messier nt-203/1000": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::astromaster 102az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::astromaster 114eq": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::astromaster 130eq": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::astromaster 70az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::astromaster 90az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::edgehd 11 ota": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::edgehd 8 ota": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::edgehd 9.25 ota": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::nexstar 130slt": {
+        "optical_type": "Newton",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::nexstar 4se": {
+        "optical_type": "Maksutov",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::nexstar 5se": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::nexstar 6se": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::nexstar 8se": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni xlt 102": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale CG-4",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni xlt 120": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale CG-4",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni xlt 150": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale CG-4",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::starsense explorer 10 dobsonian": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson PushTo",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::starsense explorer 8 dobsonian": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson PushTo",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::starsense explorer dx 102az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale PushTo",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::starsense explorer dx 130az": {
+        "optical_type": "Newton",
+        "mount_type": "altazimutale PushTo",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::starsense explorer lt 80az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale PushTo",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::ar102": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::ar127": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::david h. levy comet hunter": {
+        "optical_type": "Maksutov-Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::ed102 essential": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::ed127 essential": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::ed80 essential": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::firstlight 114mm newton": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::firstlight 130mm newton": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::firstlight ar102": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::firstlight ar80": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::classical cassegrain 6": {
+        "optical_type": "Cassegrain classico",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::classical cassegrain 8": {
+        "optical_type": "Cassegrain classico",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::dobson 200/1200": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::dobson 250/1250": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::dobson 300/1500": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::newton 150/750": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::newton 200/1000": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::newton 200/800": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "gso::rc 6": {
+        "optical_type": "RC",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::rc 8": {
+        "optical_type": "RC",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::etx125 observer": {
+        "optical_type": "Maksutov",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::etx90 observer": {
+        "optical_type": "Maksutov",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::infinity 70az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::infinity 80az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::infinity 90az": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::lx200 8 acf": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "Vai a forcella",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::lx90 8 acf": {
+        "optical_type": "Schmidt-Cassegrain",
+        "mount_type": "Vai a forcella",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::lightbridge mini 130": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::polaris 130eq": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "omegon::ac 102/660 az-3": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::ac 70/700 az-2": {
+        "optical_type": "rifrattore",
+        "mount_type": "altazimutale",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::ac 90/1000 eq-2": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::advanced 130/650 eq-320": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::advanced 150/750 eq-320": {
+        "optical_type": "Newton",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::prodob n 153/1200": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::prodob n 203/1200": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::prodob n 254/1250": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "omegon::pronewton n 203/1000": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche codificate nel nome del modello."
+      },
+      "orion::apex 127": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::apex 90": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::observer 80st": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::observer 90mm eq": {
+        "optical_type": "rifrattore",
+        "mount_type": "equatoriale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::skyquest xt10": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::skyquest xt12": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::skyquest xt4.5": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::skyquest xt6": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::skyquest xt8": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::starblast 4.5 astro": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::starblast 6 astro": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sharpstar::15028hnt": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sharpstar::61edph iii": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sharpstar::76edph": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sharpstar::94edph": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::classic 150p dobson": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::classic 200p dobson": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::classic 250p dobson": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::classic 300p dobson": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::evostar 100ed ds-pro": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::evostar 120ed ds-pro": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::evostar 72ed ds-pro": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::evostar 80ed ds-pro": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::explorer 130pds": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::explorer 150pds": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::explorer 200pds": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::heritage 100p": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::heritage 130p": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::heritage 150p": {
+        "optical_type": "Newton",
+        "mount_type": "Piano del tavolo Dobson",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skyliner 200p flextube": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson collassabile",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skyliner 250p flextube": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson collassabile",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skyliner 300p flextube": {
+        "optical_type": "Newton",
+        "mount_type": "Dobson collassabile",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skymax 102": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skymax 127": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skymax 150": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::skymax 90": {
+        "optical_type": "Maksutov",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::fc-100dc": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::fc-100dz": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::fc-76dcu": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::fs-60cb": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::toa-130ns": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::tsa-120": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::a105m": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::a80mf": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::ed80sf": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::ed81s": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::r200ss": {
+        "optical_type": "Newton",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::vc200l": {
+        "optical_type": "Catadiottrico",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::gran turismo 102": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::gran turismo 71": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::gran turismo 81": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::redcat 51": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::redcat 61": {
+        "optical_type": "rifrattore Petzval",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::zenithstar 61 ii": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::zenithstar 73 iii": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::zenithstar 81": {
+        "optical_type": "rifrattore",
+        "mount_type": "OTA",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "zwo/seestar::seestar s30": {
+        "optical_type": "Telescopio intelligente",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "zwo/seestar::seestar s50": {
+        "optical_type": "Telescopio intelligente",
+        "mount_type": "Vai a altazimutale",
+        "notes": "Specifiche del catalogo del produttore."
+      }
+    },
+    "equipment_eyepieces": {
+      "baader::classic ortho::fixed::6::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::classic ortho::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::classic ortho::fixed::18::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::classic plossl::fixed::32::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::13::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::17::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::21::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion::fixed::24::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::hyperion zoom 8-24 mm::zoom::24::8::24": {
+        "notes": "Oculare zoom; L'AFOV varia di 48-68 gradi in base alla posizione focale; posizioni di scatto 24/20/16/12/8 mm."
+      },
+      "baader::morpheus::fixed::4.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::morpheus::fixed::6.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::morpheus::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::morpheus::fixed::12.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::morpheus::fixed::14::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "baader::morpheus::fixed::17.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::19::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::23::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::luminos::fixed::31::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::4::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::6::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::9::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::12::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::15::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::32::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::40::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni plossl::fixed::56::::": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::2.3::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::12::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::18::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::x-cel lx::fixed::25::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "celestron::zoom 8-24 mm::zoom::24::8::24": {
+        "notes": "Oculare zoom; L'AFOV varia di 40-60 gradi in base alla posizione focale, viene utilizzata la stima del punto medio."
+      },
+      "explore scientific::52 series::fixed::3::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::4.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::6.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::52 series::fixed::25::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::62 series::fixed::5.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::62 series::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::62 series::fixed::14::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::62 series::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::62 series::fixed::26::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::16::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::24::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::28::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::34::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::68 series::fixed::40::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::4.7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::6.7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::8.8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::11::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::14::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::18::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::24::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "explore scientific::82 series::fixed::30::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::6.4::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::9.7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::12.4::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::26::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "meade::series 4000 super plossl::fixed::32::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::expanse::fixed::6::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::expanse::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::expanse::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::expanse::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::sirius plossl::fixed::7.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::sirius plossl::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::sirius plossl::fixed::12.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::sirius plossl::fixed::17::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "orion::sirius plossl::fixed::25::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::2.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::3.2::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::4::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::6::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::planetary uwa::fixed::8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::6.3::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::7.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::12.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::17::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::25::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "sky-watcher::super plossl::fixed::32::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "svbony::zoom 7-21 mm::zoom::21::7::21": {
+        "notes": "Oculare zoom; L'AFOV varia in base alla posizione focale e alla stima del punto medio utilizzata."
+      },
+      "tele vue::delite::fixed::3::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::4::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::11::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::13::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delite::fixed::18.2::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::3.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::4.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::6::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::12::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::14::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::delos::fixed::17.3::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::3.7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::4.7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::6::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::10::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::13::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::17::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::ethos::fixed::21::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::3.5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::5::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::7::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::9::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::11::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::nagler type 6::fixed::13::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::8::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::11::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::15::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::20::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::25::::": {
+        "notes": "Serie del catalogo del produttore."
+      },
+      "tele vue::plossl::fixed::32::::": {
+        "notes": "Serie del catalogo del produttore."
+      }
+    },
+    "equipment_barlows": {
+      "baader::hyperion zoom barlow::2.25": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "baader::q-barlow::2.25": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "baader::vip modular barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::luminos 2.5x barlow lens::2.5": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::omni 2x barlow lens::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::x-cel lx 2x barlow lens::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "celestron::x-cel lx 3x barlow lens::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::focal extender::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::focal extender::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "explore scientific::focal extender::5": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::2-inch ed barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::ed barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "gso::ed barlow::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::series 4000 barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::series 5000 telextender::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "meade::series 5000 telextender::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "omegon::achromatic barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "omegon::ed barlow::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "omegon::pro apo barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::shorty barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::shorty plus barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "orion::tri-mag barlow::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::deluxe barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::deluxe barlow::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "sky-watcher::ed barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::extender cq::1.7": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "takahashi::extender q::1.6": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::barlow::3": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::powermate::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::powermate::2.5": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::powermate::4": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "tele vue::powermate::5": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "vixen::barlow lens t::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      },
+      "william optics::apo barlow::2": {
+        "notes": "Specifiche del catalogo del produttore."
+      }
+    },
+    "equipment_filters": {
+      "astronomik::uhc": {
+        "notes": "Visuale per nebulose a emissione e planetarie."
+      },
+      "astronomik::uhc-e": {
+        "notes": "Passabanda moderatamente adatta anche ad apertura contenuta."
+      },
+      "astronomik::oiii visual": {
+        "notes": "Contrasto selettivo sulle righe OIII."
+      },
+      "astronomik::h-beta visual": {
+        "notes": "Per nebulose dominano dalla riga H-beta."
+      },
+      "astronomik::cls": {
+        "notes": "Riduzione moderata dell'inquinamento luminoso."
+      },
+      "baader::uhc-l ultra l-booster": {
+        "notes": "Filtro UHC visivo a banda larga."
+      },
+      "baader::oiii visual 10 nm": {
+        "notes": "Filtro visivo OIII da 10 nm."
+      },
+      "baader::oiii super-g 9 nm": {
+        "notes": "Filtro OIII stretto per apertura medio-grandi."
+      },
+      "baader::neodymium moon & skyglow": {
+        "notes": "Contrasto lunare e planetario con vetro al neodimio."
+      },
+      "baader::contrast booster": {
+        "notes": "Incremento del contrasto planetario."
+      },
+      "baader::fringe killer": {
+        "notes": "Riduzione del cromatismo nei rifrattori acromatici."
+      },
+      "baader::semi apo": {
+        "notes": "Correzione cromatica moderata per rifrattori."
+      },
+      "baader::neutral density nd 0.6": {
+        "notes": "Trasmissione neutra nominale del 25 percento."
+      },
+      "baader::neutral density nd 0.9": {
+        "notes": "Trasmissione neutra nominale del 12,5 percento."
+      },
+      "baader::double polarizing": {
+        "notes": "Attenuazione variabile per Luna e pianeti luminosi."
+      },
+      "baader::yellow 495 nm": {
+        "notes": "Filtro colorato per Luna e pianeti."
+      },
+      "baader::dark blue 435 nm": {
+        "notes": "Filtro colorato planetario blu scuro."
+      },
+      "baader::light blue 470 nm": {
+        "notes": "Filtro colorato planetario azzurro."
+      },
+      "baader::green 500 nm": {
+        "notes": "Filtro colorato planetario verde."
+      },
+      "baader::orange 570 nm": {
+        "notes": "Filtro colorato planetario arancio."
+      },
+      "baader::red 610 nm": {
+        "notes": "Filtro colorato planetario rosso."
+      },
+      "baader::c2 swan-band 15 nm": {
+        "notes": "Isola le bande del carbonio nelle comete gassose."
+      },
+      "lumicon::gen 3 uhc": {
+        "notes": "Filtro UHC visivo per nebulose."
+      },
+      "lumicon::gen 3 oxygen iii": {
+        "notes": "Filtro OIII visivo per nebulose."
+      },
+      "lumicon::gen 3 h-beta": {
+        "notes": "Filtro H-beta visivo selettivo."
+      },
+      "lumicon::comet": {
+        "notes": "Contrasto delle bande molecolari nelle comete."
+      },
+      "explore scientific::uhc nebula": {
+        "notes": "Filtro UHC visivo per nebulose."
+      },
+      "explore scientific::oxygen iii nebula": {
+        "notes": "Filtro visivo sulle righe OIII."
+      },
+      "explore scientific::h-beta nebula": {
+        "notes": "Passabanda dichiarata da 478 a 496 nm."
+      },
+      "explore scientific::cls nebula": {
+        "notes": "Riduzione dell'inquinamento luminoso per uso visivo."
+      },
+      "explore scientific::neutral density moon": {
+        "notes": "Attenuazione neutra per l'osservazione lunare."
+      },
+      "celestron::uhc/lpr": {
+        "notes": "Il filtro UHC/LPR visualizza una passabanda moderata."
+      },
+      "celestron::oxygen iii narrowband": {
+        "notes": "Isola le righe OIII a 496 e 501 nm."
+      },
+      "celestron::moon": {
+        "notes": "Riduci il fiume durante l'osservazione lunare."
+      },
+      "celestron::neutral density moon nd96-0.9": {
+        "notes": "Trasmissione neutra nominale del 13 percento."
+      },
+      "celestron::variable polarizing filter": {
+        "notes": "Trasmissione variabile dall'1 al 40 percento per Luna, Venere e oggetti luminosi."
+      },
+      "celestron::#12 deep yellow": {
+        "notes": "Aumenta il contrasto di dettagli lunari e delle bande di Giove e Saturno."
+      },
+      "celestron::#21 orange": {
+        "notes": "Evidenzia dettagli su Marte e le bande e regioni polari di Giove e Saturno."
+      },
+      "celestron::#25 red": {
+        "notes": "Mette in risalto calotte polari e dettagli superficiali di Marte."
+      },
+      "celestron::#80a light blue": {
+        "notes": "Aumenta il contrasto delle bande di Giove e dei dettagli atmosferici di Saturno."
+      },
+      "celestron::#56 light green": {
+        "notes": "Evidenzia la Grande Macchia Rossa e le calotte e nubi di Marte."
+      },
+      "celestron::#58 green": {
+        "notes": "Aumenta il contrasto di dettagli atmosferici su Giove, Marte e Saturno."
+      },
+      "celestron::#47 violet": {
+        "notes": "Filtro molto selettivo per nubi alte di Marte e struttura degli anelli di Saturno."
+      },
+      "optolong::uhc": {
+        "notes": "Filtro UHC per uso visuale."
+      },
+      "optolong::cls": {
+        "notes": "Riduzione dell'inquinamento luminoso."
+      },
+      "optolong::oiii": {
+        "notes": "Filtro visivo sulle righe OIII."
+      },
+      "optolong::h-beta": {
+        "notes": "Filtro visuale sulla riga H-beta."
+      },
+      "optolong::moon & skyglow": {
+        "notes": "Contrasto lunare e del fondo cielo."
+      }
+    },
+    "equipment_reducers": {
+      "celestron::reducer-corrector f/6.3::0.63": {
+        "connection": "Filettatura posteriore SCT",
+        "notes": "Non compatibile con EdgeHD o Maksutov-Cassegrain."
+      },
+      "celestron::reducer lens 0.7x edgehd 8::0.7": {
+        "connection": "Filettatura EdgeHD 8",
+        "notes": "Progettato esclusivamente per EdgeHD 8."
+      },
+      "celestron::reducer lens 0.7x edgehd 9.25::0.7": {
+        "connection": "Filettatura EdgeHD 9.25",
+        "notes": "Progettato esclusivamente per EdgeHD 9.25."
+      },
+      "celestron::reducer lens 0.7x edgehd 11::0.7": {
+        "connection": "Filettatura EdgeHD 11",
+        "notes": "Progettato esclusivamente per EdgeHD 11."
+      },
+      "celestron::reducer lens 0.7x edgehd 14::0.7": {
+        "connection": "Filettatura EdgeHD 14",
+        "notes": "Progettato esclusivamente per EdgeHD 14."
+      },
+      "meade::series 4000 f/6.3 focal reducer field flattener::0.63": {
+        "connection": "Filettatura posteriore SCT",
+        "notes": "Riduttore e spianatore per SCT classici."
+      },
+      "baader::alan gee mark ii telecompressor::0.59": {
+        "connection": "Baffle SCT o sistema T-2",
+        "notes": "Fattore nominale dipendente dalla distanza ottica."
+      },
+      "baader::universal alan gee ii uag::0.59": {
+        "connection": "Sistema T-2",
+        "notes": "Versione preconfigurata per uso visuale."
+      },
+      "starizona::sct corrector iv::0.63": {
+        "connection": "Filettatura posteriore SCT",
+        "notes": "Riduttore e correttore fotografico per SCT classici."
+      },
+      "starizona::sct corrector lf::0.63": {
+        "connection": "Filettatura posteriore SCT",
+        "notes": "Versione fotografica a grande formato."
+      },
+      "starizona::night owl sct reducer-corrector::0.4": {
+        "connection": "Corpo da 2 pollici",
+        "notes": "Riduttore fotografico rapido per piccoli sensori."
+      },
+      "william optics::flat 73r::0.8": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Riduttore e spianatore dedicato."
+      },
+      "william optics::flat 6aiii::0.8": {
+        "connection": "M63 lato telescopio e M48 lato camera",
+        "notes": "Backfocus regolabile in base al telescopio."
+      },
+      "william optics::flat 7a::0.8": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Backfocus regolabile in base al telescopio."
+      },
+      "william optics::flat 8::0.72": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Riduttore e spianatore per rifrattori di grande apertura."
+      },
+      "william optics::ultra flat 91::0.79": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Riduttore dedicato con campo corretto."
+      },
+      "william optics::ultra flat 132::0.79": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Riduttore dedicato con campo corretto."
+      },
+      "william optics::ultra flat 156::0.79": {
+        "connection": "Connessione dedicata WO",
+        "notes": "Riduttore dedicato con campo corretto."
+      },
+      "william optics::dr. flat master::0.8": {
+        "connection": "M92 lato telescopio e M48 lato camera",
+        "notes": "Riduttore apocromatico per Ritchey-Chretien."
+      },
+      "sky-watcher::0.85x reducer-corrector ed72::0.85": {
+        "connection": "Connessione dedicata Sky-Watcher",
+        "notes": "Accessorio fotografico otticamente abbinato."
+      },
+      "sky-watcher::0.85x reducer-corrector ed80::0.85": {
+        "connection": "M48 lato camera",
+        "notes": "Accessorio fotografico otticamente abbinato."
+      },
+      "sky-watcher::0.85x reducer-corrector ed100::0.85": {
+        "connection": "M48 lato camera",
+        "notes": "Accessorio fotografico otticamente abbinato."
+      },
+      "sky-watcher::0.85x reducer-corrector ed120::0.85": {
+        "connection": "M48 lato camera",
+        "notes": "Accessorio fotografico otticamente abbinato."
+      },
+      "explore scientific::3-inch field flattener 0.7x focal reducer::0.7": {
+        "connection": "3 pollici con adattatore M42 o M48",
+        "notes": "Riduttore e spianatore fotografico dedicato."
+      }
+    }
+  }
+}

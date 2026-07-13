@@ -18,7 +18,7 @@ def test_very_large_m31_uses_wider_telescope_setup_from_metadata() -> None:
 
     assert suggestion["setupText"] == "32 mm"
     assert suggestion["barlow"] == "No"
-    assert suggestion["setupOptions"][0]["trueField"] == "3.35 gradi"
+    assert suggestion["setupOptions"][0]["trueField"] == "3,35 gradi"
 
 
 def test_high_magnification_m57_still_prefers_compact_telescope_setup() -> None:

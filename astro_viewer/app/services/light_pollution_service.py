@@ -23,6 +23,7 @@ from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.database.sky_quality_repository import SkyQualityRepository
 from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
+from astro_viewer.app.services.localization import tr
 
 try:
     import h5py
@@ -366,11 +367,11 @@ class NasaViirsBlackMarbleProvider:
     def lookup(self, location: ObserverLocation) -> SkyQuality | None:
         self.last_error = ""
         if h5py is None or np is None:
-            self.last_error = "Librerie HDF5 non disponibili."
+            self.last_error = tr("Librerie HDF5 non disponibili.")
             return None
         credentials = self._verified_credentials()
         if not credentials:
-            self.last_error = "Credenziali Earthdata non verificate."
+            self.last_error = tr("Credenziali Earthdata non verificate.")
             return None
 
         username, password = credentials
@@ -383,7 +384,7 @@ class NasaViirsBlackMarbleProvider:
         if quality:
             return quality
 
-        self.last_error = "Dati NASA VIIRS non disponibili per questa posizione."
+        self.last_error = tr("Dati NASA VIIRS non disponibili per questa posizione.")
         return None
 
     def _lookup_with_session(self, session: requests.Session, location: ObserverLocation) -> SkyQuality | None:
@@ -716,11 +717,11 @@ def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 def _description(bortle: int) -> str:
     if bortle <= 2:
-        return "Excellent Dark Sky"
+        return tr("Cielo buio eccellente")
     if bortle <= 4:
-        return "Rural Sky"
+        return tr("Cielo rurale")
     if bortle <= 6:
-        return "Suburban Sky"
+        return tr("Cielo suburbano")
     if bortle <= 8:
-        return "Urban Sky"
-    return "Inner City Sky"
+        return tr("Cielo urbano")
+    return tr("Cielo urbano centrale")

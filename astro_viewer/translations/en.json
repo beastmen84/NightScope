@@ -1,0 +1,1385 @@
+{
+  "schema_version": 1,
+  "language": {
+    "code": "en",
+    "label": "English",
+    "locale": "en_US",
+    "source": false
+  },
+  "formats": {
+    "date": "MM/dd/yyyy",
+    "date_time": "MM/dd/yyyy HH:mm"
+  },
+  "content": {
+    "objects": {
+      "sun": {
+        "short_description": "The Sun is the star at the center of the Solar System and the only object in this catalog observable exclusively with dedicated protections. In white light, a certified solar filter mounted in front of the entire aperture can show photosphere, spots and faculae, which change with solar activity.",
+        "observing_notes": "Never observe the Sun without a certified, intact solar filter mounted securely over the full aperture; never use eyepiece-mounted solar filters. Remove or cap the finder and inspect the filter before every session.",
+        "best_seen": "Daytime, using a certified full-aperture solar filter",
+        "curiosity_text": "The Sun does not rotate like a rigid body: being plasma, it completes one rotation in about 25 Earth days at the equator and in about 36 days at the poles. For this reason the length of its day depends on the latitude observed."
+      },
+      "moon": {
+        "short_description": "The Moon is the most familiar target in the sky, but it changes face every night. The best moment is not the full phase: along the terminator, where light and shadow meet, craters, mountains and seas gain prominence. Even a small instrument shows real details and allows you to follow how the lighting transforms the landscape from one evening to the next.",
+        "observing_notes": "Look especially near the First and Last Quarters; along the terminator use moderate magnification and, if necessary, a moon filter.",
+        "best_seen": "All phases except Full Moon",
+        "curiosity_text": "The Moon always shows almost the same face because rotation and revolution have the same duration. The hidden face remained unknown until 1959, when the Soviet probe Luna 3 transmitted its first images."
+      },
+      "mercury": {
+        "short_description": "Mercury is a challenge more than a spectacle. It always stays close to the Sun and allows short windows, low on the horizon, just before sunrise or just after sunset. In the telescope it appears small and often flickering, but being able to intercept its phase is a satisfaction for an attentive observer. Timing is more important than the opening of the instrument.",
+        "observing_notes": "You need a clear horizon and maximum caution: never aim close to the Sun.",
+        "best_seen": "Maximum elongations",
+        "curiosity_text": "On Mercury a solar day lasts 176 Earth days, double its year. It is the effect of the 3:2 resonance: the planet makes three rotations every two orbits around the Sun."
+      },
+      "venus": {
+        "short_description": "Venus dominates the twilight with an almost unreal brightness. In the telescope it does not show surfaces, because it is covered by dense clouds, but it reveals elegant phases similar to those of the moon. It is also an excellent object for the city: its strength lies in following how its shape and apparent diameter changes over the months. When high, it holds up well at moderate magnifications.",
+        "observing_notes": "Observe it when it is high in the sky; a neutral-density or colored filter can make the view more comfortable.",
+        "best_seen": "Dusk or dawn according to elongation",
+        "curiosity_text": "Venus rotates in the opposite direction to most planets and takes longer to spin than to complete an orbit. On the planet, therefore, the sidereal day is longer than the year."
+      },
+      "mars": {
+        "short_description": "Mars is a planet of patience. In periods far from the opposition it may seem like just a small orange disk, but when it approaches the Earth it becomes alive: polar caps, dark areas and atmospheric variations can appear at times. Seeing decides almost everything. It's one of those targets that rewards those who come back to watch it several times in the same season.",
+        "observing_notes": "Use medium or high magnifications only with stable seeing; colored filters can improve contrast.",
+        "best_seen": "Around the opposition",
+        "curiosity_text": "Olympus Mons, on Mars, is the largest volcano in the Solar System: its base would occupy a region comparable to Poland, and its summit rises more than twice as high as Everest relative to the mean Martian surface."
+      },
+      "jupiter": {
+        "short_description": "Jupiter is the most dynamic planet for an amateur telescope. The equatorial bands change appearance, the Great Red Spot rotates in and out of the disk, and the Galilean satellites build a different configuration every evening. Even small instruments immediately show something real and changing. It's the ideal target when you want to see a living planet, not just a bright light.",
+        "observing_notes": "Wait for it to clear the horizon well; stable seeing and medium magnifications give more than maximum magnifications.",
+        "best_seen": "When it exceeds 30 degrees in height",
+        "curiosity_text": "Jupiter has the shortest day of the planets, less than ten hours. The very rapid rotation crushes the globe at the poles and drags cloud systems such as the Great Red Spot, a storm observed for centuries."
+      },
+      "saturn": {
+        "short_description": "Saturn is the planet that most often turns an ordinary evening into a memory. The rings are visible even with small telescopes and make the planet unmistakable; with good seeing and sufficient aperture you can see the shadow of the rings, the Cassini Division and some satellites, first and foremost Titan. The visibility of details changes with atmospheric stability and the apparent inclination of the rings.",
+        "observing_notes": "Observe it near culmination and gradually increase: Cassini Division requires stable seeing, good focus and adequate aperture.",
+        "best_seen": "When it exceeds 25 degrees in height",
+        "curiosity_text": "The average density of Saturn is lower than that of water. Its rings, although extending for hundreds of thousands of kilometres, are mainly composed of countless fragments of ice and are surprisingly thin."
+      },
+      "uranus": {
+        "short_description": "Uranus impresses not with details, but with awareness of what you are observing. In the telescope it appears as a small blue-green disk, elegant and almost perfectly regular. It is the first planet discovered in the modern era and one of the strangest worlds in the Solar System, with its rotation axis tilted by almost 98 degrees. Distinguishing it from the stars is already a notable observational satisfaction.",
+        "observing_notes": "Precise aiming is needed; look for color and the tiny disk instead of superficial details.",
+        "best_seen": "Opposition",
+        "curiosity_text": "Uranus rotates almost lying on the orbital plane, with an axial inclination of about 98 degrees. During its 84 Earth year, each pole can remain lit or dark for about 21 years."
+      },
+      "neptune": {
+        "short_description": "Neptune is a subtle and remote target. At the eyepiece it appears as a tiny blue disk that can remain almost stellar with small instruments, but knowing that that light comes from the last major planet of the Solar System gives the observation a particular scale. The real result is to identify him with certainty and distinguish him from the stars of the field.",
+        "observing_notes": "Use an updated chart or accurate aiming, then increase the magnification to verify that a small disk remains instead of a star point.",
+        "best_seen": "Opposition",
+        "curiosity_text": "Neptune was spotted in 1846 after being predicted mathematically from perturbations in the orbit of Uranus. Although it receives little solar energy, the fastest winds in the Solar System blow through its atmosphere."
+      },
+      "messier-M1": {
+        "short_description": "M1, the Crab Nebula, is the remnant of the supernova observed in 1054 in the constellation Taurus. At the eyepiece it is a faint oval blob, lacking the stringy appearance shown by photographs, but directly connecting the observer to the explosive death of a star. Dark skies and patience make a bigger difference than magnification.",
+        "observing_notes": "Use low or medium magnification, averted vision, and a clear sky; a UHC filter can help moderately, while OIII is not always the best choice.",
+        "best_seen": "Autumn and winter",
+        "curiosity_text": "At the heart of the Crab Nebula remains a neutron star the size of a city. It rotates about thirty times a second and feeds the nebula's glow with a wind of relativistic particles."
+      },
+      "messier-M2": {
+        "short_description": "M2 is a globular cluster in Aquarius. It is an ancient and compact globular, far from the plane of the Milky Way; it first appears as a dense stain, then slowly reveals the grainy edge.",
+        "observing_notes": "On M2, of integrated magnitude 6.5, use the 16′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "M2 collects about 150,000 stars in an ancient sphere, formed approximately 13 billion years ago. Its densest stars occupy a volume that, on a galactic scale, is extremely compact."
+      },
+      "messier-M3": {
+        "short_description": "M3 is one of the largest and richest globular clusters in the northern sky and contains an exceptionally large population of variable stars. At low magnification it shows a bright nucleus immersed in a round halo; with medium apertures the edge begins to resolve into a dense graininess. It's a great example of how the resolution gradually increases from the edge towards the center.",
+        "observing_notes": "Central at low magnification, then move up until the peripheral stars begin to separate without making the core too dark.",
+        "best_seen": "Spring",
+        "curiosity_text": "More than 270 variable stars have been cataloged in M3, an exceptional number for a globular cluster. Many are RR Lyrae, standard candles crucial for measuring distances within the Milky Way."
+      },
+      "messier-M4": {
+        "short_description": "M4 is one of the closest globular clusters to the Solar System and is located just west of Antares. It is less concentrated than many other globulars and, with sufficient aperture, displays a characteristic bar of stars crossing the central region. The low height above the horizon from many boreal locations can limit their yield.",
+        "observing_notes": "Look for it near Antares when it culminates; use medium magnifications to recognize the central bar and resolve the periphery.",
+        "best_seen": "Summer",
+        "curiosity_text": "M4 hosts the PSR B1620-26 system, where a pulsar and a white dwarf are orbited by a planet nicknamed Methuselah. Its estimated age, over 12 billion years, makes it one of the oldest planets known."
+      },
+      "messier-M5": {
+        "short_description": "M5 (Rose Cluster) is a globular cluster in Serpent. It is one of the most beautiful globulars for amateur telescopes: bright, large and capable of transforming from a puff to a grainy star field.",
+        "observing_notes": "In M5 (Rose Cluster) look for the transition between nucleus and halo along all 23′ of the diameter, without relying on magnitude 5.6 alone.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "The stars of M5 formed over 12 billion years ago, but the cluster also contains apparently younger blue stars. They are blue stragglers, rejuvenated by fusions or transfers of matter between companions."
+      },
+      "messier-M6": {
+        "short_description": "M6 (Butterfly Cluster) is an open cluster in Scorpio. The nickname Butterfly Cluster is not accidental: the brightest stars draw an open and light figure, very pleasant at low magnification.",
+        "observing_notes": "For M6 (Butterfly Cluster), 25′ across and integrated magnitude 4.2, choose a field that leaves a margin of sky around the cluster before increasing.",
+        "best_seen": "Summer",
+        "curiosity_text": "The silhouette of M6 resembles a butterfly, but its most notable color contrast is BM Scorpii: an orange giant that stands out among the blue and younger stars of the cluster."
+      },
+      "messier-M7": {
+        "short_description": "M7 (Ptolemy's Cluster) is an open cluster in Scorpio. It has been known since ancient times and fills the field with obvious stellar richness; low on the horizon, it becomes magnificent only with clear south and transparent skies.",
+        "observing_notes": "In M7 (Ptolemy's Cluster) the integrated magnitude 3.3 does not describe the faintest stars: it uses the 80′ diameter to set the initial field.",
+        "best_seen": "Summer",
+        "curiosity_text": "M7 was already described by Ptolemy in the 2nd century as a nebulosity near the sting of Scorpio. It is the southernmost Messier object and one of the few with such ancient observational evidence."
+      },
+      "messier-M8": {
+        "short_description": "M8 (Lagoon Nebula) is a nebula with star cluster in Sagittarius. The Lagoon is a true star-forming region: young stars, bright gas and dark structures coexist in the same field.",
+        "observing_notes": "On M8 (Lagoon Nebula), integrated magnitude 4.6, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "Inside the Lagoon, the region called the Hourglass Nebula is sculpted primarily by the young massive star Herschel 36. Radiation and stellar winds are eroding the clouds from which new stars continue to be born."
+      },
+      "messier-M9": {
+        "short_description": "M9 is a globular cluster in Ophiuchus. It is a globular projected towards the center of the Milky Way, therefore often immersed in rich fields and in an area of ​​sky that is not always easy.",
+        "observing_notes": "With M9, integrated magnitude 7.7, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "M9 is located unusually close to the galactic center. The Milky Way's gravity has deformed its shape, making it less spherical than many other globulars observed in the outer regions of the halo."
+      },
+      "messier-M10": {
+        "short_description": "M10 is a globular cluster in Ophiuchus. It makes an ideal pair with M12 in Ophiuchus: it is more compact and performs best when magnification begins to separate the outer edge. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions.",
+        "observing_notes": "To evaluate M10, of integrated magnitude 6.6, compare the 20′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "best_seen": "Summer",
+        "curiosity_text": "M10 contains numerous blue stragglers, stars that appear too hot and bright for the age of the cluster. Collisions and exchanges of matter in binary systems may have rekindled their evolution."
+      },
+      "messier-M11": {
+        "short_description": "M11, the Wild Duck Cluster, is one of the richest and most compact open clusters in the Messier catalogue. At low magnification it can almost look like a grainy cloud; by increasing the power it transforms into a crowd of stars crowded around a brighter component. Its density makes it appear very different from more sparse open clusters.",
+        "observing_notes": "Use a medium field first to capture the compact shape, then zoom in to resolve the star texture.",
+        "best_seen": "Summer",
+        "curiosity_text": "The name Wild Duck Cluster comes from a V-shaped arrangement of the brightest stars, described in the nineteenth century. Behind that shape, M11 is one of the richest and most compact open clusters known."
+      },
+      "messier-M12": {
+        "short_description": "M12 is a globular cluster in Ophiuchus. It is a softer and more open globular than M10; Modern studies suggest that it lost many light stars during its passages through the Galaxy.",
+        "observing_notes": "In M12, which extends 16′ and has an integrated magnitude of 6.7, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer",
+        "curiosity_text": "M12 appears to have lost many low-mass stars. During repeated passages through the disk of the Milky Way, galactic tides would have torn up to about a million light stars from the cluster."
+      },
+      "messier-M13": {
+        "short_description": "M13, the Great Hercules Cluster, is the most famous globular in the northern sky. Even in small instruments it appears as a well-focused luminous sphere; with medium apertures and good seeing the periphery resolves itself into countless stars and thin dark chains can emerge, including the so-called Propeller. It is one of the best targets for understanding how aperture, focus and patience matter.",
+        "observing_notes": "Center at low magnification and move up progressively; searches for edge resolution first and only then for finer structures in the core.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "In 1974 the Arecibo radio telescope sent an encoded message about life on Earth towards M13. By the time the signal reaches the cluster area, in about 25,000 years, M13 will have already moved along its orbit."
+      },
+      "messier-M14": {
+        "short_description": "M14 is a globular cluster in Ophiuchus. It is less immediate than the more famous globulars, but contains an enormous stellar population; It requires darkness and patience to get out of the sky.",
+        "observing_notes": "On M14, of integrated magnitude 7.6, use the 11′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "In 1938 a nova exploded in M14, but no one reported it live. It was only recognized in 1964, by comparing archival photographic plates taken decades earlier."
+      },
+      "messier-M15": {
+        "short_description": "M15 (Great Pegasus Cluster) is a globular cluster in Pegasus. It has one of the most concentrated nuclei among Messier globulars, so dense that it appears almost pinpoint-like before the rim opens up into stars.",
+        "observing_notes": "With M15 (Great Pegasus Cluster), integrated magnitude 6.2, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M15 contains Pease 1, the first planetary nebula identified within a globular cluster. It is a very rare find because this stellar phase lasts only a short time compared to the multi-billion-dollar age of the system."
+      },
+      "messier-M16": {
+        "short_description": "M16 (Eagle Nebula) is an emission nebula with a Serpent star cluster. Aquila is famous for the Pillars of Creation photographed by Hubble, but at the eyepiece the cluster is often more evident than the nebulosity.",
+        "observing_notes": "For M16 (Eagle Nebula), of integrated magnitude 6.4, it alternates direct and averted vision while maintaining the same exit pupil, so the comparison remains reliable.",
+        "best_seen": "Summer",
+        "curiosity_text": "The Pillars of Creation are towers of gas and dust within M16, several light years long. The 1995 Hubble images made them iconic, but the columns are also incubators subjected to the erosion of newborn stars."
+      },
+      "messier-M17": {
+        "short_description": "M17 (Omega, Swan, Horseshoe, Lobster, or Checkmark Nebula) is an emission nebula with a star cluster in Sagittarius. The Omega Nebula, or Swan, is among the most recognizable summer nebulae: a bright bar that takes shape with a filter and dark sky.",
+        "observing_notes": "In M17 (Omega, Swan, Horseshoe, Lobster, or Checkmark Nebula) records the filter and magnification effect separately; integrated magnitude 6.0, reference extension 11′.",
+        "best_seen": "Summer",
+        "curiosity_text": "The bright part of M17 is only a small portion of a much larger molecular cloud. The young cluster hidden inside illuminates and excavates the gas, creating the shape of the Swan visible from Earth."
+      },
+      "messier-M18": {
+        "short_description": "M18 (Black Swan Cluster) is an open cluster in Sagittarius. It is a small and discrete cluster, often observed in transit between M17 and M24; its value lies in the very rich context of Sagittarius.",
+        "observing_notes": "For M18 (Black Swan Cluster), which extends 9.8′ and has an integrated magnitude of 7.5, choose a field that leaves a margin of sky around the cluster before increasing.",
+        "best_seen": "Summer",
+        "curiosity_text": "M18 is a very young cluster, born about 30 million years ago. Its few dozen stars show how quickly an open cluster can disperse under the action of the Galaxy and gravitational encounters."
+      },
+      "messier-M19": {
+        "short_description": "M19 is a globular cluster in Ophiuchus. It is a globular with a slightly elongated shape, more interesting than it seems at first glance when the seeing allows you to increase the magnification.",
+        "observing_notes": "For M19 the magnitude 6.8 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "M19 is the flattest globular in the Messier catalogue. Part of the effect may be due to interstellar dust, but strong tides from the nearby galactic center also contribute to its unusual shape."
+      },
+      "messier-M20": {
+        "short_description": "M20 (Trifid Nebula) is an emission nebula with a star cluster in Sagittarius. The Trifid combines emission nebula, reflection and dark bands: visually it is difficult, but when the sky is good it shows a unique character.",
+        "observing_notes": "On M20 (Trifid Nebula), integrated magnitude 6.3, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "M20 brings together in the same field a red emission nebula, a blue reflection region and lanes of dark dust. The three bands that dissect its center inspired John Herschel to name it Trifida."
+      },
+      "messier-M21": {
+        "short_description": "M21 (Webb's Cross Cluster) is an open cluster in Sagittarius. It is the small stellar companion of the Trifid, less famous but useful for giving breathing space to the field and completing the M20 area.",
+        "observing_notes": "Use the 14′ extent as a scale to recognize M21 (Webb's Cross Cluster); at integrated magnitude 6.5, note how many components emerge by switching to medium magnification.",
+        "best_seen": "Summer",
+        "curiosity_text": "The stars of M21 are only about 4.6 million years old: on an astronomical scale the cluster is almost newborn. It does not yet contain red giants, because none of its stars have had time to reach that stage."
+      },
+      "messier-M22": {
+        "short_description": "M22 is one of the brightest and most spectacular globulars visible from the northern mid-latitudes. It is large, relatively unfocused, and resolves more easily than many similar clusters, especially when high above the horizon. In an average telescope it can fill the field of stars, with a less compact core than M13.",
+        "observing_notes": "Observe it at culmination with medium magnifications; the large and rich suburbs deserve a field that is not too narrow.",
+        "best_seen": "Summer",
+        "curiosity_text": "M22 was recognized by Abraham Ihle in 1665 and is the first globular cluster discovered. Much later it was discovered that it also contains a rare planetary nebula and hints of multiple stellar generations."
+      },
+      "messier-M23": {
+        "short_description": "M23 is an open cluster in Sagittarius. It is a large and rich cluster, immersed in the summer Milky Way; It looks better when you leave space around it instead of pushing it too hard with enlargements.",
+        "observing_notes": "For M23, of integrated magnitude 5.5, compare richness and concentration while keeping the entire 35′ extent visible.",
+        "best_seen": "Summer",
+        "curiosity_text": "M23 includes about 150 stars spread over an area larger than the full Moon. The dust in front of the cluster attenuates and reddens its light, modifying the colors that reach us."
+      },
+      "messier-M24": {
+        "short_description": "M24 (Small Sagittarius Star Cloud) is a stellar cloud in the Milky Way in Sagittarius. It is not a single cluster but a stellar cloud, a bright window towards the internal regions of the Galaxy. It is intended for binoculars and low magnifications.",
+        "observing_notes": "Prefer binoculars or very low magnification: the value is the breadth of the star cloud, not the minute detail.",
+        "best_seen": "Summer",
+        "curiosity_text": "M24 is not a true cluster: it is a relatively clear window into the galactic dust. Through this gap we observe a deep stretch of the arm of Sagittarius, crowded with thousands of overlapping stars."
+      },
+      "messier-M25": {
+        "short_description": "M25 is an open cluster in Sagittarius. It is a bright and relaxing open cluster, with enough scattered stars to immediately draw a structure; a Cepheid variable also stands out in the field.",
+        "observing_notes": "In M25 the integrated magnitude 4.6 does not describe the faintest stars: it uses the 36′ diameter to set the initial field.",
+        "best_seen": "Summer",
+        "curiosity_text": "M25 hosts U Sagittarii, a Cepheid variable whose pulsating rhythm reveals its true brightness. Stars like this have made it possible to build the scale of cosmic distances."
+      },
+      "messier-M26": {
+        "short_description": "M26 is an open cluster in Scudo. It is compact and partially affected by interstellar dust, so it appears more delicate than other clusters in the Shield. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure.",
+        "observing_notes": "With M26, about 14′ wide and of integrated magnitude 8.0, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "best_seen": "Summer",
+        "curiosity_text": "The center of M26 appears strangely poor in stars. It is not necessarily empty: a cloud of interstellar dust between us and the cluster could hide its central region."
+      },
+      "messier-M27": {
+        "short_description": "M27, the Dumbbell Nebula, is one of the largest and brightest planetary nebulae in the sky. The central part resembles a dumbbell or an hourglass, while under dark skies the outer halo makes the shape more oval. It responds well to nebular filters and tolerates different magnifications, making it a very informative target.",
+        "observing_notes": "Start at low magnification for full extension, then try UHC and OIII and move up moderately to study the central area.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "Discovered by Messier in 1764, M27 was the first planetary nebula ever identified. The name has nothing to do with planets: it describes the rounded appearance that these star shells showed in early telescopes."
+      },
+      "messier-M28": {
+        "short_description": "M28 is a globular cluster in Sagittarius. It is a compact globular near the heart of Sagittarius; less scenic than M22, but interesting for its density and the surrounding star field.",
+        "observing_notes": "To evaluate M28, of integrated magnitude 6.8, compare the 11.2′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "best_seen": "Summer",
+        "curiosity_text": "In 1987 M28 became the first globular cluster in which a millisecond pulsar was discovered. The neutron star rotates hundreds of times per second, accelerated in the past by the transfer of matter from a companion."
+      },
+      "messier-M29": {
+        "short_description": "M29 (Cooling Tower Cluster) is an open cluster in Cygnus. It is small and a little hidden by the dust of the Swan; it doesn't impress in terms of number of stars, but it is in a very pleasant summer region to explore.",
+        "observing_notes": "For M29 (Cooling Tower Cluster), of integrated magnitude 7.1, compare richness and concentration while keeping the entire 7′ extent visible.",
+        "best_seen": "Summer",
+        "curiosity_text": "Swan dust obscures M29 so irregularly that its distance and age have long remained uncertain. Without that absorption, several of its stars would appear many times brighter."
+      },
+      "messier-M30": {
+        "short_description": "M30 (Jellyfish Cluster) is a globular cluster in Capricorn. It is a compact, low globular, with a bright core and stellar tails that become visible only when the sky cooperates.",
+        "observing_notes": "In M30 (Jellyfish Cluster), 12′ long and with integrated magnitude 7.2, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Autumn",
+        "curiosity_text": "In M30 there are two distinct sequences of blue stragglers. One appears to be produced by stellar collisions during core collapse, the other by the transfer of matter in binary systems."
+      },
+      "messier-M31": {
+        "short_description": "M31, the Andromeda Galaxy, is the closest large spiral to the Milky Way and the most distant object normally visible to the naked eye. Binoculars and small telescopes show above all the bright core and an elongated halo much larger than the field; under dark skies, dust bands and satellite galaxies M32 and M110 appear. Its true size is best appreciated at low magnifications.",
+        "observing_notes": "Use binoculars or the widest field available; look for M32 and M110 and, in dark skies, follow the dust bands on the northwestern side.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The first known description of M31 dates back to al-Sufi's Book of Fixed Stars, in 964, where it appears as a small cloud. It is the oldest written testimony of a galaxy outside the Milky Way."
+      },
+      "messier-M32": {
+        "short_description": "M32 (Andromeda Satellite #1) is a dwarf elliptical galaxy in Andromeda. It is the small elliptical companion of Andromeda: in the M31 field it appears as a compact nucleus, almost a swollen star, but it is an autonomous galaxy.",
+        "observing_notes": "On M32 (Andromeda Satellite #1), of integrated magnitude 8.1, note orientation and core-to-halo ratio before looking for fainter structures.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M32 may be the surviving nucleus of a once-larger galaxy. Close encounters with Andromeda would have stripped away much of its outer stars, leaving an unusually compact system."
+      },
+      "messier-M33": {
+        "short_description": "M33 (Triangulum/Pinwheel Galaxy) is a spiral galaxy in Triangulum. The Triangulum Galaxy is large and nearby, but its light is distributed over a huge area. With dark skies it becomes one of the most beautiful challenges at low magnification.",
+        "observing_notes": "The profile of M33 (Triangulum/Pinwheel Galaxy), integrated magnitude 5.7, covers approximately 70.8′ × 41.7′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 604, in an arm of M33, is one of the largest star-forming regions of the Local Group. It is about a hundred times larger than the Orion Nebula and contains hundreds of young massive stars."
+      },
+      "messier-M34": {
+        "short_description": "M34 (Spiral Cluster) is an open cluster in Perseus. It's a large, airy open cluster, perfect for going from binoculars to telescope without losing a sense of the star field.",
+        "observing_notes": "On M34 (Spiral Cluster), of integrated magnitude 5.5, initially retains a field wider than 35′; only narrow it if component separation improves.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M34 was probably observed by Giovanni Battista Hoggi before 1654, over a century before its inclusion in Messier's catalogue. It is one of several cases in which early discoveries were independently rediscovered."
+      },
+      "messier-M35": {
+        "short_description": "M35 (Shoe-Buckle Cluster) is an open cluster in Gemini. It is one of the most beautiful winter clusters: large, bright and full of stars. Next door, with larger openings, you can glimpse the more remote NGC 2158.",
+        "observing_notes": "For M35 (Shoe-Buckle Cluster), of integrated magnitude 5.3, compare richness and concentration while keeping the entire 28′ extent visible.",
+        "best_seen": "Winter",
+        "curiosity_text": "In the same field as M35 is NGC 2158, much further away and about ten times older. The comparison immediately shows how distance and evolution change the density and apparent color of two open clusters."
+      },
+      "messier-M36": {
+        "short_description": "M36 (Pinwheel Cluster) is an open cluster in Auriga. It is the most compact of the Auriga trio, bright and easy to recognize. It works well as a first step in a winter cluster scan.",
+        "observing_notes": "For M36 (Pinwheel Cluster), 12′ across and integrated magnitude 6.3, choose a field that leaves a margin of sky around the cluster before increasing.",
+        "best_seen": "Winter",
+        "curiosity_text": "Among the three large open clusters in Auriga, M36 is the youngest. Its brightest stars are only about 25 million years old and have not yet evolved into numerous red giants."
+      },
+      "messier-M37": {
+        "short_description": "M37 (Salt and Pepper Cluster) is an open cluster in Auriga. It is the richest and finest of the Auriga clusters: many tiny stars, a dense center and a deeper sensation than neighboring M36 and M38.",
+        "observing_notes": "In M37 (Salt and Pepper Cluster) the integrated magnitude 6.2 does not describe the fainter stars: it uses the 24′ diameter to set the initial field.",
+        "best_seen": "Winter",
+        "curiosity_text": "M37 is the richest of the three Auriga Messier clusters and contains several red giants. Their presence signals a greater age than the nearby M36, dominated by young blue stars."
+      },
+      "messier-M38": {
+        "short_description": "M38 (Starfish Cluster) is an open cluster in Auriga. It has a large, irregular structure, often described as a starfish. It is less concentrated than M37, but very pleasant in wide fields.",
+        "observing_notes": "With M38 (Starfish Cluster), about 21′ wide and with integrated magnitude 7.4, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "best_seen": "Winter",
+        "curiosity_text": "Not far from M38 appears NGC 1907, smaller and more compact. Measurements of their motions indicate that the two clusters are crossing the same region without having originated as a bonded pair."
+      },
+      "messier-M39": {
+        "short_description": "M39 (Pyramid Cluster) is an open cluster in Cygnus. It is a scattered cluster in Cygnus, almost more binocular-like than telescope-like. Its charm is simplicity: a few bright stars in a very rich summer area.",
+        "observing_notes": "Use the 29′ extension as a scale to recognize M39 (Pyramid Cluster); at integrated magnitude 4.6, note how many components emerge by switching to medium magnification.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "M39 is so close and dispersed that it only gathers around thirty confirmed members in a very large field. Its triangular shape emerges better at low magnification than in a narrow telescope."
+      },
+      "messier-M40": {
+        "short_description": "M40 (Winnecke 4) is a double optic in Ursa Major. It's a historical curiosity from the catalogue: an apparent pair of stars, not a deep object. It is worth observing it precisely to understand Messier's original logic.",
+        "observing_notes": "Use low or medium magnification and treat it as a historical curiosity rather than a deep sky target.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M40 is neither a nebula nor a cluster, but an optical pair of unbound stars. Messier recorded it by looking for a nebula reported by Hevelius which, in that position, probably did not exist."
+      },
+      "messier-M41": {
+        "short_description": "M41 (Little Beehive Cluster) is an open cluster in Canis Major. Below Sirius, M41 is a bright and easy cluster, already pleasing with small instruments. The bright stars make it one of the best quick winter targets.",
+        "observing_notes": "For M41 (Little Beehive Cluster), of integrated magnitude 4.5, compare richness and concentration while keeping the entire 38′ extent visible.",
+        "best_seen": "Winter",
+        "curiosity_text": "M41 could be the celestial spot described by Aristotle around 325 BC. If the identification is correct, it would be one of the star clusters with the oldest documented observations."
+      },
+      "messier-M42": {
+        "short_description": "M42, the Great Orion Nebula, is the most spectacular star-forming region easily visible from the Northern Hemisphere. Even from the city it shows a luminous nucleus around the Trapeze; under dark skies wings, arches and dark areas extend far beyond the central part. It is an object capable of offering details at both low and high magnifications.",
+        "observing_notes": "Start without a filter to observe the Trapezium, then try UHC or OIII at low magnification to follow the faintest wings.",
+        "best_seen": "Winter",
+        "curiosity_text": "The Trapezium, a group of very young massive stars, shines in the center of M42. Their radiation ionizes the surrounding gas and is simultaneously illuminating and eroding the cloud that generated them."
+      },
+      "messier-M43": {
+        "short_description": "M43 (De Mairan's Nebula) is an emission nebula in the Orion region of Orion. It is the small nebular region next to M42, separated by a dark band. It should not be looked at alone: ​​its interest arises from the comparison with the great nebula.",
+        "observing_notes": "Observe it together with M42: the comparison between the two regions makes the structure of the nebula more readable.",
+        "best_seen": "Winter",
+        "curiosity_text": "M43 is physically part of the large Orion cloud, but a band of dust visually separates it from M42. The star NU Orionis illuminates this portion as an autonomous center."
+      },
+      "messier-M44": {
+        "short_description": "M44, the Nativity Scene, is a large, nearby open cluster, visible to the naked eye as a bright patch under a good sky. Binoculars transform it into a broad field of scattered stars, with pairs and small groups spread over an area larger than the full Moon. A long focal length telescope risks showing only part of it.",
+        "observing_notes": "Prefer very wide-field binoculars or telescope; keep the entire cluster in the frame.",
+        "best_seen": "Spring",
+        "curiosity_text": "Galileo pointed his telescope at M44 in 1609 and resolved the naked-eye nebulosity into about forty stars. It was an early demonstration that many spots in the sky were stellar populations."
+      },
+      "messier-M45": {
+        "short_description": "M45, the Pleiades, is a young and nearby open cluster, dominated by very bright blue stars. To the naked eye it shows the well-known small cluster; dozens of components appear through binoculars and the whole takes on a remarkable depth. The reflection nebulosity around the main stars is photographic and, visually, requires excellent sky and great transparency.",
+        "observing_notes": "Observe them with binoculars or very low magnification; Don't use nebular filters and look for faint nebulosity only under a very clear sky.",
+        "best_seen": "Autumn",
+        "curiosity_text": "In Japan the Pleiades are Subaru, a name also adopted by the car manufacturer and represented in its logo. The blue nebulosity is not the cluster's natal remnant: it is dust that the stars are passing through."
+      },
+      "messier-M46": {
+        "short_description": "M46 is an open cluster in the Stern. It is a rich cluster with a perspective surprise: the planetary nebula NGC 2438 appears in the field as a small ghost ring. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around.",
+        "observing_notes": "On M46, of integrated magnitude 6.0, it initially retains a wider field of 22.8′; only narrow it if component separation improves.",
+        "best_seen": "Winter",
+        "curiosity_text": "The planetary nebula NGC 2438 seems immersed in M46, but it is only a perspective alignment: it is much closer to us. It's a particularly compelling example of hidden depth in a two-dimensional field."
+      },
+      "messier-M47": {
+        "short_description": "M47 is an open cluster in the Stern. It's more open and bright than M46, less dense but immediate. Together they form a perfect pair for comparing two very different clusters. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure.",
+        "observing_notes": "For M47, of integrated magnitude 4.4, compare richness and concentration while keeping the entire 30′ extent visible.",
+        "best_seen": "Winter",
+        "curiosity_text": "M47 was considered lost for over a century due to a sign error in the coordinates published by Messier. The cluster was recognized again only when its observation path was reconstructed."
+      },
+      "messier-M48": {
+        "short_description": "M48 is an open cluster in Hydra. It's big, bright and often overlooked. At low magnifications it shows a loose, loose structure, great for winter or spring skies.",
+        "observing_notes": "For M48, 30′ across and integrated magnitude 5.5, choose a field that leaves a margin of sky around the cluster before boosting.",
+        "best_seen": "Spring",
+        "curiosity_text": "M48 also became a lost object: an incorrect declination moved it about five degrees. The modern correction identified the cluster as NGC 2548."
+      },
+      "messier-M49": {
+        "short_description": "M49 is an elliptical galaxy in Virgo. It is a large elliptical of the Virgo cluster: visually it is a soft light without details, but it represents a gigantic stellar city.",
+        "observing_notes": "In M49, of integrated magnitude 8.4, use the dimensions 10.2′ × 8.3′ to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M49 was the first galaxy of the Virgo Cluster discovered by Messier in 1771. It is an elliptical giant with a vast system of globular clusters and a central supermassive black hole."
+      },
+      "messier-M50": {
+        "short_description": "M50 (Heart-Shaped Cluster) is an open cluster in Unicorn. It is a compact open cluster in the Unicorn, often described as having a heart shape. It's not famous, but it offers clean and pleasant viewing.",
+        "observing_notes": "With M50 (Heart-Shaped Cluster), about 16′ wide and with integrated magnitude 5.9, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "best_seen": "Winter",
+        "curiosity_text": "A very obvious red giant contrasts with the blue-white stars of M50. The ensemble was nicknamed the Heart Cluster for a shape that depends above all on the brightest members."
+      },
+      "messier-M51": {
+        "short_description": "M51, the Vortex Galaxy, is a spiral seen almost face-on interacting with its companion NGC 5195. In small instruments, two nuclei immersed in a common halo can be distinguished; under dark skies and with medium apertures the arms can appear as arcing variations in brightness and the bridge towards the companion becomes intuitable. It is one of the best targets for attempting visual spiral structure.",
+        "observing_notes": "Locate the two nuclei first, then use averted vision and medium magnifications to look for arches and a bright bridge.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "In 1845 Lord Rosse recognized M51 as the first spiral structure observed in a nebula. At the time it was not yet clear that those spirals were galaxies outside the Milky Way."
+      },
+      "messier-M52": {
+        "short_description": "M52 (Scorpion Cluster) is an open cluster in Cassiopeia. It is a rich cluster near Cassiopeia, beautiful precisely because it is dense and minute. It requires some attention to separate it from the Milky Way's star field.",
+        "observing_notes": "On M52 (Scorpion Cluster), of integrated magnitude 7.3, it initially preserves a field wider than 13′; only narrow it if component separation improves.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "M52 is in the same line of sight as the Bubble Nebula, but the two objects are not necessarily close in space. The strong extinction of Cassiopeia makes even the precise distance of the cluster uncertain."
+      },
+      "messier-M53": {
+        "short_description": "M53 is a globular cluster in Coma di Berenice. It is a remote and compact globular, close to the star Diadem. It's not as spectacular as the M13, but it has a collected elegance and a very clear core.",
+        "observing_notes": "In M53 look for the transition between nucleus and halo along all 13′ of the diameter, without relying on magnitude 7.6 alone.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M53 is one of the globulars furthest from the center of the Milky Way and has very few heavy elements. Its composition therefore retains a chemical signature from the early ages of the Galaxy."
+      },
+      "messier-M54": {
+        "short_description": "M54 is a globular cluster in Sagittarius. It is a particular globular because it is associated with the Sagittarius dwarf galaxy: by observing it you are looking at an object linked to a small galaxy colliding with ours.",
+        "observing_notes": "In M54, which extends 12′ and has an integrated magnitude of 7.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer",
+        "curiosity_text": "M54 probably does not belong to the original halo of the Milky Way: it resides in the nucleus of the Sagittarius Elliptical Dwarf Galaxy, which our Galaxy is incorporating. It is therefore a globular acquired in a fusion."
+      },
+      "messier-M55": {
+        "short_description": "M55 (Specter Cluster) is a globular cluster in Sagittarius. It is a large and relatively loose globular: less concentrated than many others, but very beautiful when the southern sky is clean and transparent.",
+        "observing_notes": "For M55 (Specter Cluster) magnitude 6.3 is built in: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "M55 has a loosely concentrated core, so its stars resolve more easily than many globulars. It also contains dozens of variables, useful for reconstructing its distance and evolution."
+      },
+      "messier-M56": {
+        "short_description": "M56 is a globular cluster in Lyra. It is between Lira and Cigno, in an area already full of targets. It is a discreet globular, more for a patient evening than an immediate glance.",
+        "observing_notes": "On M56, of integrated magnitude 8.3, use the 8.8′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "The retrograde orbit and composition of M56 suggest that it may have arrived from a small galaxy absorbed by the Milky Way. Its motion preserves the dynamic trace of that ancient fusion."
+      },
+      "messier-M57": {
+        "short_description": "M57, the Ring Nebula, is a compact, high-surface-brightness planetary in Lyra. Even with small telescopes it appears as a tiny ring or perforated disk; as you increase the magnification the darker center becomes sharp and the edge shows uneven brightness. The central star is much more difficult and requires large opening and excellent conditions.",
+        "observing_notes": "Center at low magnification, then move up with stable seeing; an OIII filter accentuates the ring, but the central star is sought without easy expectations.",
+        "best_seen": "Summer",
+        "curiosity_text": "The Ring Nebula is not a simple flat ring. The three-dimensional reconstructions describe a structure similar to a barrel or a donut, observed almost along its axis."
+      },
+      "messier-M58": {
+        "short_description": "M58 is a barred spiral galaxy in Virgo. It is a barred Virgo spiral, visually sober but interesting because it brings galactic structure into an object that is not easy to read through the eyepiece.",
+        "observing_notes": "For M58, of integrated magnitude 9.7, compare the observed diameter to 5.9′ × 4.7′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M58 is one of only four barred spiral galaxies in the Messier catalog. Its active core hosts a supermassive black hole that accretes matter."
+      },
+      "messier-M59": {
+        "short_description": "M59 is an elliptical galaxy in Virgo. It's an elliptical of the Virgo cluster: it offers no obvious detail, but becomes significant when you observe it as part of a network of nearby galaxies in the sky.",
+        "observing_notes": "In M59, magnitude 9.6 and dimensions 5.4′ × 3.7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M59 appears elliptical and regular, but its center contains a black hole of enormous mass compared to the galaxy. Thousands of globular clusters also orbit around it."
+      },
+      "messier-M60": {
+        "short_description": "M60 is an elliptical galaxy in Virgo. It is a large elliptical next to the spiral NGC 4647. In the telescope the pair gives a good idea of ​​how varied the population of Virgo can be.",
+        "observing_notes": "For M60, extended 7.4′ × 6.0′, first check axis and central condensation; magnitude 8.8 alone does not express surface brightness.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "Next to M60 is M60-UCD1, an ultracompact galaxy with extreme stellar density and a disproportionate central black hole. It could be the stripped core of a larger galaxy."
+      },
+      "messier-M61": {
+        "short_description": "M61 (Swelling Spiral Galaxy) is a spiral galaxy in Virgo. It is a spiral seen almost frontally, also famous for its supernovae. With dark skies it can show a strong core and a more irregular halo.",
+        "observing_notes": "In M61 (Swelling Spiral Galaxy), of integrated magnitude 9.7, use the dimensions 6.5′ × 5.8′ to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M61 has been the site of numerous observed supernovae, more than most Messier galaxies. Its active core and star-forming regions indicate a still very dynamic system."
+      },
+      "messier-M62": {
+        "short_description": "M62 (Flickering Globular) is a globular cluster in Ophiuchus. It is an asymmetric and concentrated globular, near the central area of ​​the Galaxy. Its not perfectly regular shape makes it more interesting than expected.",
+        "observing_notes": "On M62 (Flickering Globular), of integrated magnitude 6.5, use the 15′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "The shape of M62 is visibly asymmetrical. The proximity to the galactic center subjects the cluster to intense tidal forces, which compress and deform the distribution of its stars."
+      },
+      "messier-M63": {
+        "short_description": "M63 (Sunflower Galaxy) is a spiral galaxy in Hunting Dogs. The Sunflower Galaxy has fragmented arms and dust veins in deep images. In view it is an oval light, but with a very recognizable identity.",
+        "observing_notes": "The profile of M63 (Sunflower Galaxy), integrated magnitude 8.6, covers approximately 12.6′ × 7.2′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "A thin stream of stars envelops M63 for tens of thousands of light-years. It is the remnant of a torn and absorbed dwarf galaxy, a merger still legible on the outskirts of the Sunflower."
+      },
+      "messier-M64": {
+        "short_description": "M64 (Black Eye Galaxy) is a spiral galaxy in Coma di Berenice. The Black Eye Galaxy is famous for the dark band near the nucleus. In medium instruments and dark skies, that contrast can become a real observational achievement.",
+        "observing_notes": "For M64 (Black Eye Galaxy), of integrated magnitude 8.5, compare the observed diameter to 10.7′ × 5.1′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "In M64 the gas in the outer regions rotates in the opposite direction to the gas and the inner stars. This counter-rotation is probably the legacy of a small gas-rich galaxy incorporated in the past."
+      },
+      "messier-M65": {
+        "short_description": "M65 (Leo Triplet) is a barred spiral galaxy in Leo. It is one of the three galaxies of the Leo Triplet. Thin and uncluttered, it is at its best when viewed alongside M66 and NGC 3628 in the same path.",
+        "observing_notes": "In M65 (Leo Triplet), magnitude 9.3 and dimensions 8.7′ × 2.5′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "M65 forms the Leo Triplet with M66 and NGC 3628. Although appearing less perturbed than its companions, its disk shows deformations compatible with mutual gravitational interactions."
+      },
+      "messier-M66": {
+        "short_description": "M66 (Leo Triplet) is a barred spiral galaxy in Leo. It is the most obvious component of the Leo Triplet, with a strong core and a more disturbed shape. It is a galaxy that tells of past interactions.",
+        "observing_notes": "For M66 (Leo Triplet), extended 9.1′ × 4.2′, first check axis and central condensation; magnitude 8.9 alone does not express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "An arm of M66 is noticeably deformed and the nucleus is displaced with respect to the symmetry of the disk. The nearby passage of NGC 3628 has reshaped the galaxy and triggered new star formation."
+      },
+      "messier-M67": {
+        "short_description": "M67 (King Cobra or Golden Eye Cluster) is an open cluster in Cancer. It is one of the oldest and most studied open clusters, very different from the young blue clusters. To the eye it appears rich, mature and surprisingly balanced.",
+        "observing_notes": "In M67 (King Cobra or Golden Eye Cluster) the integrated magnitude 6.1 does not describe the fainter stars: it uses the 30′ diameter to set the initial field.",
+        "best_seen": "Spring",
+        "curiosity_text": "M67 is about four billion years old and has a composition similar to that of the Sun. For this reason it is a privileged laboratory for comparing the evolution of the Sun with stars born almost in the same period."
+      },
+      "messier-M68": {
+        "short_description": "M68 is a globular cluster in Hydra. It is a globular in Hydra, often low and not immediate. When the southern horizon is good, it shows a compact core in a fairly solitary field.",
+        "observing_notes": "On M68, of integrated magnitude 7.8, use the 11′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M68 follows a very eccentric and retrograde orbit with respect to the galactic rotation. This behavior, together with the low metallicity, suggests an origin in a subsequently captured system."
+      },
+      "messier-M69": {
+        "short_description": "M69 is a globular cluster in Sagittarius. It is a small globular concentrated in Sagittarius, less spectacular than M22 but interesting for its stellar population rich in heavy elements.",
+        "observing_notes": "With M69, integrated magnitude 7.6, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "M69 is among the globulars richest in heavy elements in the Messier catalogue. Its position in the galactic bulge tells of a different formation environment from the metal-poor globulars of the halo."
+      },
+      "messier-M70": {
+        "short_description": "M70 is a globular cluster in Sagittarius. It is a compact and difficult globular, close to the area where comet Hale-Bopp was discovered. It is a transparent sky target, not an urban evening one.",
+        "observing_notes": "To evaluate M70, of integrated magnitude 7.9, compare the 8′ profile at two magnifications and keep the one that does not extinguish the halo.",
+        "best_seen": "Summer",
+        "curiosity_text": "Alan Hale and Thomas Bopp independently discovered comet Hale-Bopp in 1995 while observing the region near M70. The globular thus became the casual reference of one of the most famous comets of the twentieth century."
+      },
+      "messier-M71": {
+        "short_description": "M71 (Angelfish Cluster) is a globular cluster in Arrow. It is an ambiguous and fascinating object, halfway between a loose globular and a very dense cluster. In the Arrow field it appears as a grainy condensation.",
+        "observing_notes": "In M71 (Angelfish Cluster) look for the transition between core and halo along the entire 7.2′ of the diameter, without relying on magnitude 8.2 alone.",
+        "best_seen": "Summer",
+        "curiosity_text": "For a long time M71 was classified sometimes as an open cluster, sometimes as globular, because it is not very concentrated and relatively rich in metals. Modern measurements place it among the youngest and most unusual globulars."
+      },
+      "messier-M72": {
+        "short_description": "M72 is a globular cluster in Aquarius. It is one of the weakest globulars in the Messier catalog. It doesn't immediately impress, but it is rewarding precisely because it requires method and averted vision.",
+        "observing_notes": "In M72, which extends 6.6′ and has an integrated magnitude of 9.3, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "M72 is one of the most distant globulars inserted by Messier. The great distance compresses its appearance into a faint blob, even though it actually contains a large and very ancient stellar population."
+      },
+      "messier-M73": {
+        "short_description": "M73 is a small asterism in Aquarius. It's a small asterism of four stars, more curiosity than spectacle. Its presence in the catalog is a reminder of how practical and observational Messier's work was.",
+        "observing_notes": "It is a context object: it is worth more for the history of the catalog than for visual spectacularity.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The four stars of M73 look like a small cluster, but measured distances and motions show that they do not form a physical system. It is an asterism born from a random alignment along the line of sight."
+      },
+      "messier-M74": {
+        "short_description": "M74 (Phantom Galaxy) is a spiral galaxy in Pisces. The Phantom Galaxy is large, front-facing and has low surface brightness. It looks beautiful in pictures, but in visuals it only rewards really dark skies.",
+        "observing_notes": "On M74 (Phantom Galaxy), of integrated magnitude 9.4, note orientation and core-to-halo ratio before looking for fainter structures.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M74 is a grand design spiral that is almost perfectly frontal, but has a very low surface brightness. This combination makes it photogenic and, at the same time, one of the most difficult Messier objects to see."
+      },
+      "messier-M75": {
+        "short_description": "M75 is a globular cluster in Sagittarius. It is one of the most concentrated globulars in the catalogue, with a compact and difficult to resolve core. It seems small, but hides a remarkable density.",
+        "observing_notes": "With M75, integrated magnitude 8.5, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "M75 has one of the most concentrated nuclei among Messier globulars. The light grows rapidly towards the center, where the density of stars is much higher than in the outer halo."
+      },
+      "messier-M76": {
+        "short_description": "M76 (Little Dumbbell Nebula) is a planetary nebula in Perseus. The Little Dumbbell is a demanding planetary mixer: small, weak and structured. When it emerges, however, it gives greater satisfaction than many easier objects.",
+        "observing_notes": "For M76 (Little Dumbbell Nebula), of integrated magnitude 10.1, it alternates direct and averted vision while maintaining the same exit pupil, so the comparison remains reliable.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M76 has been given more names than almost any other planetary nebula: Little Dumbbell, Cork, and Butterfly. The two bright lobes are the walls of a structure expelled by a dying star."
+      },
+      "messier-M77": {
+        "short_description": "M77 (Cetus A or Squid Galaxy) is a spiral galaxy in Balena. It is an active galaxy, a Seyfert, with an energetic core. To the eye it looks like a compact spot, but physically it is a very powerful system.",
+        "observing_notes": "In M77 (Cetus A or Squid Galaxy), magnitude 8.9 and dimensions 7.1′ × 6.0′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The center of M77 is one of the closest active galactic nuclei. A supermassive black hole, hidden by a torus of dust, fuels emissions so intense that it makes the galaxy the prototype of type 2 Seyferts."
+      },
+      "messier-M78": {
+        "short_description": "M78 is a diffuse nebula in Orion. It is a reflection nebula: it does not shine from ionized gas, but from the light of young stars reflected by the dust. It requires transparency rather than aggressive filters.",
+        "observing_notes": "Transparency is crucial; a nebular filter can help, but the contrast of the sky remains the real limit.",
+        "best_seen": "Winter",
+        "curiosity_text": "M78 is the brightest reflection nebula in the sky. Its dust does not emit its own light: it diffuses the blue glow of young stars and surrounds Herbig-Haro jets produced by stars still forming."
+      },
+      "messier-M79": {
+        "short_description": "M79 is a globular cluster in Lepre. It is an unusual winter globular, far from the classic summer fields of the Milky Way. In Lepre it appears compact and surprising under Orion.",
+        "observing_notes": "For M79 the magnitude 7.7 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Winter",
+        "curiosity_text": "M79 is located on the opposite side of the sky from the galactic center, an unusual location for a globular. Its orbit has fueled the hypothesis that it was acquired during a merger with a dwarf galaxy."
+      },
+      "messier-M80": {
+        "short_description": "M80 is a globular cluster in Scorpio. It is a very dense globular in Scorpio, small but intense. With medium openings the edge begins to sparkle while the core remains compact.",
+        "observing_notes": "On M80, of integrated magnitude 7.3, use the 10′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "M80 is one of the densest globulars in the Milky Way. In 1860 the nova T Scorpii appeared there, which for a few days reached a brightness comparable to that of the entire cluster."
+      },
+      "messier-M81": {
+        "short_description": "M81 is a large, bright and well-focused spiral galaxy in Ursa Major. At the eyepiece it shows a clear nucleus immersed in an oval halo; the arms are thin and difficult, but the contrast with nearby M82 makes the pair one of the most beautiful extragalactic fields in the sky. With a wide shot both can fit into the same frame.",
+        "observing_notes": "Use low magnification to include M82, then increase moderately on M81 to follow the gradient of the nucleus and the halo.",
+        "best_seen": "Spring",
+        "curiosity_text": "The core of M81 contains a black hole of about 70 million solar masses. The interaction with M82 also traced long hydrogen bridges between the two galaxies and fueled new stellar activity."
+      },
+      "messier-M82": {
+        "short_description": "M82, the Cigar Galaxy, is a starburst galaxy seen edge-on and perturbed by interaction with M81. The narrow disk is very bright and, with medium apertures, shows dark nodes and bands that break it into irregular sections. It is richer in visual detail than many galaxies and forms a memorable pair with M81.",
+        "observing_notes": "View it first with M81, then use medium magnification and averted vision to look for dark fractures in the disc.",
+        "best_seen": "Spring",
+        "curiosity_text": "The flyby of M81 turned M82 into a starburst galaxy. At its center, stars are born at a rate many times faster than the Milky Way's, as jets of hot gas escape from the disk."
+      },
+      "messier-M83": {
+        "short_description": "M83 (Southern Pinwheel Galaxy) is a barred spiral galaxy in Hydra. The Southern Pinwheel is a large barred spiral, beautiful but low to many European observers. When it gets high enough, it is one of the most rewarding galaxies in the South.",
+        "observing_notes": "In M83 (Southern Pinwheel Galaxy), magnitude 7.6 and dimensions 12.9′ × 11.5′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M83 is a supernova factory: at least six have been observed in the last century. The numerous pink regions along the arms reveal particularly intense star formation."
+      },
+      "messier-M84": {
+        "short_description": "M84 is a lenticular galaxy in Virgo. It is an elliptical of the Markarian Chain, more important as a galactic navigation stop than as a single detail. The charm lies in the context.",
+        "observing_notes": "For M84, extended 6.5′ × 5.6′, first check axis and central condensation; magnitude 9.1 alone does not express surface brightness.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M84 is located in the Markarian Range and hosts an active core. A relativistic jet emerges from the central black hole region, although it is much less conspicuous than that of nearby M87."
+      },
+      "messier-M85": {
+        "short_description": "M85 is a lenticular galaxy in Coma di Berenice. It is a soft and bright lenticular galaxy, in the Berenice Coma area. It doesn't scream details, but it fits well into a spring galaxy hunt.",
+        "observing_notes": "In M85, of integrated magnitude 9.1, use the dimensions 7.1′ × 5.5′ to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M85's smooth appearance hides a history of mergers: stellar shells, dust and a relatively young central population indicate that the galaxy incorporated a companion in astronomically recent times."
+      },
+      "messier-M86": {
+        "short_description": "M86 is a lenticular galaxy in Virgo. It is one of the large ellipticals of the Markarian Range. Observing it together with M84 and nearby galaxies gives the sensation of crossing an entire cluster.",
+        "observing_notes": "On M86, of integrated magnitude 8.9, note orientation and core-to-halo ratio before looking for fainter structures.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M86 is approaching us at hundreds of kilometers per second, despite belonging to the Virgo Cluster. Passing through the hot gas of the cluster, it leaves behind a tail of matter hundreds of thousands of light years long."
+      },
+      "messier-M87": {
+        "short_description": "M87 (Virgo A) is an elliptical galaxy in Virgo. It is a gigantic elliptical galaxy, famous for the black hole photographed by the Event Horizon Telescope. Visually it is sober, but conceptually enormous.",
+        "observing_notes": "The profile of M87 (Virgo A), integrated magnitude 8.6, covers approximately 7.2′ × 6.8′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "In 2019, M87's black hole became the first whose shadow was imaged with the Event Horizon Telescope. It has a mass of billions of Suns and powers a jet visible for thousands of light years."
+      },
+      "messier-M88": {
+        "short_description": "M88 is a spiral galaxy in Coma di Berenice. It is a tilted spiral of the Virgo cluster, with a clear core. It takes a dark sky to go beyond the simple oval spot.",
+        "observing_notes": "For M88, of integrated magnitude 9.6, compare the observed diameter to 6.9′ × 3.7′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M88 is hurtling towards the center of the Virgo Cluster along a highly elongated orbit. The pressure of the intergalactic gas begins to modify its hydrogen content and therefore the future of star formation."
+      },
+      "messier-M89": {
+        "short_description": "M89 is an elliptical galaxy in Virgo. It is an almost round elliptical, not very spectacular but useful for understanding the variety of galaxies in Virgo. It is an object for systematic observation.",
+        "observing_notes": "In M89, magnitude 9.8 and dimensions 5.1′ × 4.7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M89 looks almost like a perfect sphere, but deep photographs show very faint shells and plumes. They are scars left by small galaxies incorporated into the past."
+      },
+      "messier-M90": {
+        "short_description": "M90 (Carabin Galaxy) is a spiral galaxy in Virgo. It is a large Virgo spiral with a particular motion compared to us. At the eyepiece it is delicate, but its elongated profile makes it recognizable.",
+        "observing_notes": "For M90 (Carabin Galaxy), extended 9.5′ × 4.4′, first check axis and central condensation; magnitude 9.5 alone does not express surface brightness.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M90 is a rare blue-shifted Messier galaxy, because it moves in our direction within the Virgo Cluster. The gas in its disk is torn apart by the pressure of the intergalactic medium."
+      },
+      "messier-M91": {
+        "short_description": "M91 is a barred spiral galaxy in Coma Berenice. It is a weak barred spiral and historically problematic to identify. Finding it well is already part of the satisfaction, especially under suburban skies.",
+        "observing_notes": "In M91, of integrated magnitude 10.2, use the dimensions 5.4′ × 4.3′ to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M91 was long one of Messier's great lost objects. An error in the reference used to calculate the coordinates was reconstructed in the 20th century, identifying it with the barred spiral NGC 4548."
+      },
+      "messier-M92": {
+        "short_description": "M92 is a globular cluster in Hercules. It is a magnificent globular often overshadowed by the fame of M13. More compact and ancient in appearance, it is worth a visit whenever Hercules is up.",
+        "observing_notes": "On M92, of integrated magnitude 6.4, use the 14′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "Due to the Earth's precession, in about 14,000 years the north celestial pole will pass within one degree of M92. The cluster will thus become a spectacular neighbor of the point around which the sky will rotate."
+      },
+      "messier-M93": {
+        "short_description": "M93 (Critter Cluster) is an open cluster in the Stern. It is a bright open cluster in the Stern, with a triangular or wedge shape. It's simple, but very nice at low magnifications.",
+        "observing_notes": "Use the 10′ extent as a scale to recognize M93 (Critter Cluster); at integrated magnitude 6.0, note how many components emerge by switching to medium magnification.",
+        "best_seen": "Winter",
+        "curiosity_text": "The brightest stars of M93 draw a triangular or butterfly shape. The cluster is a few hundred million years old, enough for several massive components to have already become red giants."
+      },
+      "messier-M94": {
+        "short_description": "M94 (Crocodile Eye or Cat's Eye Galaxy) is a spiral galaxy in Hunting Dogs. It has a very bright core surrounded by ring-like structures in deep images. In view it is one of the easiest galaxies in the Hunting Dogs.",
+        "observing_notes": "For M94 (Crocodile Eye or Cat's Eye Galaxy), of integrated magnitude 8.2, compare the observed diameter to 11.2′ × 9.1′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "In addition to the bright inner ring, M94 has a huge outer disk made up of faint spiral arms. This peripheral structure still hosts star formation, despite appearing almost like a separate ring."
+      },
+      "messier-M95": {
+        "short_description": "M95 is a barred spiral galaxy in Leo. It is a barred spiral from the Leo group, discreet and not immediate. It requires dark skies to stand out from its peers in the area.",
+        "observing_notes": "In M95, magnitude 9.7 and dimensions 3.1′ × 2.9′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "In 2012 the supernova SN 2012aw exploded in M95. Previous images identified the progenitor as a red supergiant, directly linking a star to its final explosion."
+      },
+      "messier-M96": {
+        "short_description": "M96 is a spiral galaxy in Leo. It is a bright galaxy in the Leo group, more accessible than M95. Shows obvious core and soft halo with medium instruments.",
+        "observing_notes": "For M96, extended 7.6′ × 5.2′, first check the axis and central condensation; magnitude 9.2 alone does not express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "The core of M96 is not centered with the arms and the disc appears asymmetrical. The gravitational perturbations of the Leo Group, perhaps amplified by the nearby M95, have deformed its structure."
+      },
+      "messier-M97": {
+        "short_description": "M97 (Owl Nebula) is a planetary nebula in Ursa Major. The Owl Nebula is a large and faint planetary: the 'eyes' are a visual challenge, but even without seeing them it remains a very characteristic target.",
+        "observing_notes": "In M97 (Owl Nebula), of integrated magnitude 9.9, use the 3.4′ × 3.3′ dimensions to keep the entire nebulosity in the field before narrowing the frame.",
+        "best_seen": "Spring",
+        "curiosity_text": "The eyes of the Owl Nebula are two less dense cavities in the shell of gas. The effect depends on the orientation: we observe a three-dimensional structure shaped by the wind of the central white dwarf."
+      },
+      "messier-M98": {
+        "short_description": "M98 is a spiral galaxy in Coma di Berenice. It is a spiral seen almost sideways, long and thin. Its light is weak and distributed, so it requires clear skies and averted vision.",
+        "observing_notes": "Dark skies and averted vision help follow the thin disk past the nucleus.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M98 is blueshifted and approaching the Milky Way, unusual behavior for such a distant galaxy. Its near-edge disk is rich in dust and hydrogen, but shows signs of disruption in Virgo's environment."
+      },
+      "messier-M99": {
+        "short_description": "M99 (St. Catherine's Wheel) is a spiral galaxy in Coma Berenice. It is an asymmetrical frontal spiral of Coma di Berenice. The images show spectacular arms; in view the nucleus and the halo are the realistic achievement.",
+        "observing_notes": "The profile of M99 (St. Catherine's Wheel), integrated magnitude 9.9, covers approximately 5.4′ × 4.7′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "One of M99's arms is much more extended than the others. The asymmetry may have been produced by an encounter with a nearby galaxy and by the pressure exerted by the gas from the Virgo Cluster."
+      },
+      "messier-M100": {
+        "short_description": "M100 (Mirror Galaxy) is a spiral galaxy in Coma di Berenice. It is a large spiral of grand design type in Virgo, elegant and famous in images. At the eyepiece it is faint, but represents the depth of the cluster well.",
+        "observing_notes": "For M100 (Mirror Galaxy), of integrated magnitude 9.3, compare the observed diameter to 7.4′ × 6.3′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "The Cepheids observed by Hubble in M100 were a milestone in the project that measured the Hubble constant. This galaxy therefore contributed to calibrating the rate of expansion of the Universe."
+      },
+      "messier-M101": {
+        "short_description": "M101 (Pinwheel Galaxy) is a spiral galaxy in Ursa Major. The Pinwheel Galaxy is huge and close, but with very low surface brightness. It does not forgive clear skies: when it appears, it is one of the finest visions of the Big Dipper.",
+        "observing_notes": "In M101 (Pinwheel Galaxy), magnitude 7.9 and dimensions 28.8′ × 26.9′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M101 is almost twice the size of the Milky Way and contains hundreds of billions of stars, but its disk is highly asymmetric. Encounters with companion galaxies have stretched one side of the arms."
+      },
+      "messier-M102": {
+        "short_description": "M102 (Spindle Galaxy) is a lenticular galaxy in Dragon. The Spindle Galaxy is thin and seen from the side, with a band of dust which in the images makes it look very elegant. Visually it is compact but distinct.",
+        "observing_notes": "For M102 (Spindle Galaxy), extended 4.7′ × 1.9′, first check axis and central condensation; magnitude 9.9 alone does not express surface brightness.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "The identity of M102 is still debated because Méchain described it without reliable coordinates. The most accepted candidate is NGC 5866, a lenticular galaxy seen almost edge-on and crossed by a thin band of dust."
+      },
+      "messier-M103": {
+        "short_description": "M103 is an open cluster in Cassiopeia. It's a small open cluster in Cassiopeia, easy to fit into an autumn Milky Way scan. It is not large, but has a compact and recognizable shape.",
+        "observing_notes": "In M103 the integrated magnitude 7.4 does not describe the fainter stars: it uses the 6′ diameter to set the initial field.",
+        "best_seen": "Autumn",
+        "curiosity_text": "M103 contains only a few dozen confirmed members and is one of the most distant open clusters in the Messier catalog. Two red giants add a stark contrast to the dominant blue stars."
+      },
+      "messier-M104": {
+        "short_description": "M104, the Sombrero Galaxy, is a spiral seen almost edge-on with a large central bulge and a clear band of dust. Even when the band is not directly visible, the bright core and very elongated profile give it a characteristic appearance. The low declination from many boreal locations makes it important to observe it near culmination.",
+        "observing_notes": "Use medium magnification and look for asymmetry produced by the dust band along the edge of the bulge.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "Sombrero has an unusually rich system, around two thousand globular clusters: almost ten times those of the Milky Way. The dust belt hides a stellar disk inside a huge halo."
+      },
+      "messier-M105": {
+        "short_description": "M105 is an elliptical galaxy in Leo. It is the largest elliptical in the Messier catalogue, in the Leone group. Visually it is simple, but it tells of a rich and compact galactic environment.",
+        "observing_notes": "The profile of M105, integrated magnitude 9.3, covers approximately 5.4′ × 4.8′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring",
+        "curiosity_text": "M105 was considered a completely dead galaxy, but deep observations found young stars and clouds of hydrogen. Even a large elliptical can therefore preserve small pockets of star formation."
+      },
+      "messier-M106": {
+        "short_description": "M106 is a spiral galaxy in Hunting Dogs. It is an active spiral in Hunting Dogs, known for energetic emissions and water masers. In view it is bright and rewarding for a galaxy.",
+        "observing_notes": "For M106, of integrated magnitude 8.4, compare the observed diameter to 18.6′ × 7.2′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring and summer",
+        "curiosity_text": "M106 shows two anomalous arms that do not follow the stellar disk. They are produced by shock waves and jets tied to the central black hole, which heat the gas as they pass through the galaxy."
+      },
+      "messier-M107": {
+        "short_description": "M107 (Crucifix Cluster) is a globular cluster in Ophiuchus. It is a relatively loose globular in Ophiuchus, less dense than the more famous classics. It requires dark skies, but has a delicate and personal appearance.",
+        "observing_notes": "In M107 (Crucifix Cluster) look for the transition between nucleus and halo along all 10′ of the diameter, without relying on magnitude 7.9 alone.",
+        "best_seen": "Summer",
+        "curiosity_text": "M107 was the last Messier object discovered by Pierre Méchain and was only officially added to the catalog in 1947. With M105 and M106 he completed the modern version of the 110 objects."
+      },
+      "messier-M108": {
+        "short_description": "M108 (Surfboard Galaxy) is a barred spiral galaxy in Ursa Major. The Surfboard Galaxy is a long, thin edged spiral close to the Owl Nebula in the sky. It's a nice test of averted vision.",
+        "observing_notes": "For M108 (Surfboard Galaxy), extended 8.7′ × 2.2′, first check axis and central condensation; magnitude 10.0 alone does not express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "M108 is seen almost edge-on and does not show a well-defined central bulge. Its irregular disk, rich in dust and star-forming regions, contains numerous compact X-ray sources."
+      },
+      "messier-M109": {
+        "short_description": "M109 (Vacuum Cleaner Galaxy) is a barred spiral galaxy in Ursa Major. It is a barred spiral near Phecda in Ursa Major. It's not flashy, but the pointing is elegant and the bar makes it conceptually interesting.",
+        "observing_notes": "In M109 (Vacuum Cleaner Galaxy), of integrated magnitude 9.8, use the dimensions 7.6′ × 4.7′ to choose the field and compare how far the halo extends beyond the nucleus.",
+        "best_seen": "Spring",
+        "curiosity_text": "M109 is the brightest galaxy in a group that includes dozens of members. The central bar guides gas to the internal regions and helps draw a faint ring around the core."
+      },
+      "messier-M110": {
+        "short_description": "M110 (Andromeda Satellite #2) is a dwarf elliptical galaxy in Andromeda. It is an elliptical companion of Andromeda, wider and more suffused than M32. In dark skies completes the view of M31 as a small system of galaxies, not as an isolated object.",
+        "observing_notes": "On M110 (Andromeda Satellite #2), of integrated magnitude 8.5, note orientation and core-to-halo ratio before looking for fainter structures.",
+        "best_seen": "Autumn",
+        "curiosity_text": "Despite being classified as a dwarf elliptical, M110 contains dust and relatively young stars near the center. They are indications of recent star formation, unusual for such a regular-looking galaxy."
+      },
+      "caldwell-C1": {
+        "short_description": "C1, NGC 188, is one of the oldest known open clusters and is located near the north celestial pole in Cepheus. It is rich but inconspicuous, made up of relatively faint stars distributed in a large, grainy group. Its circumpolar position makes it observable for most of the year from northern latitudes. NGC 188 covers about 14′ in the sky and has an integrated magnitude of 8.1, two data points to be read together with the background contrast.",
+        "observing_notes": "Use a medium shot under dark skies; increases moderately to separate the many weak components from the background.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 188 is about five billion years old, an exceptional age for an open cluster, whose members usually disperse much earlier. The position close to the north celestial pole also makes it observable almost all year round from northern latitudes."
+      },
+      "caldwell-C2": {
+        "short_description": "C2 (NGC 40), Planetary nebula in the constellation Cepheus. Small dimensions and relatively high contrast make it suitable for medium enlargements; atmospheric stability remains decisive for fine details. Its apparent scale is 0.6′; the integrated magnitude 11.6 does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "On C2 (NGC 40), integrated magnitude 11.6, protect dark adaptation and evaluate edge, center and overlapping stars separately.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The central star of NGC 40 is a very hot Wolf-Rayet that ejects material at great speed. The recent wind impacts previously lost slower layers and shapes the nebula's irregular shell."
+      },
+      "caldwell-C3": {
+        "short_description": "C3 (NGC 4236), Spiral galaxy in the constellation of Draco. The first reading concerns the nucleus, orientation and shape of the halo; spiral details, when accessible, come only after long dark adaptation. In the field, C3 extends for 21′ x 7′: the magnitude 9.7 should be interpreted as overall brightness.",
+        "observing_notes": "The profile of C3 (NGC 4236), integrated magnitude 9.7, covers approximately 21′ x 7′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4236 is a large spiral seen almost edge-on, but its light is distributed over such a large area as to make it elusive. The most obvious patches of the disk are regions where stars continue to form."
+      },
+      "caldwell-C4": {
+        "short_description": "C4 (NGC 7023), Nebula in the constellation Cepheus. The structure is diffuse and must be read through gradual variations in brightness; dark sky and wide field count more than strong magnifications. With dimensions 18′ x 18′ and integrated magnitude 6.8, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "For C4 (NGC 7023 - Iris Nebula), of integrated magnitude 6.8, alternates direct and averted vision while maintaining the same exit pupil, so the comparison remains reliable.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The Iris Nebula shines because the dust reflects the light of the star HD 200775. Reddish hues appear around the blue center produced by tiny grains and aromatic molecules illuminated by ultraviolet radiation."
+      },
+      "caldwell-C5": {
+        "short_description": "C5 (IC 342), Barred spiral galaxy in the constellation of Giraffe. At the eyepiece the central area dominates; under a good sky the asymmetric distribution of light can suggest the bar and the start of the arms. The 9.2 magnitude figure concerns the entire object; the 18′ x 17′ extension helps estimate its real contrast.",
+        "observing_notes": "In C5 (IC 342), magnitude 9.2 and dimensions 18′ x 17′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Winter",
+        "curiosity_text": "IC 342 is nicknamed the Hidden Galaxy because it lies behind the dusty plane of the Milky Way. Without this veil it would appear among the brightest spirals in the sky, almost as large as the full Moon."
+      },
+      "caldwell-C6": {
+        "short_description": "C6, NGC 6543, the Cat's Eye Nebula, is a small, very bright planetary in Dragon. In modest instruments it appears as a deep blue-green disk; with larger apertures and stable seeing the central region may show structure and a central star. The vast external halo, however, remains a photographic objective or very difficult visually. For C6, the comparison between 0.3′ / 5.8′ extension and integrated magnitude 8.8 guides the choice of the initial field.",
+        "observing_notes": "Use medium or high magnifications with stable seeing; try OIII for the disk, but also observe without color filter and central star.",
+        "best_seen": "Summer",
+        "curiosity_text": "The Cat's Eye has concentric rings, jets, and knots that a single spherical ejection does not explain. The geometry suggests repeated episodes and perhaps the action of a companion on the dying central star."
+      },
+      "caldwell-C7": {
+        "short_description": "C7 (NGC 2403), Spiral galaxy in the constellation of Giraffe. It is a contrast target: a well-darkened field allows you to go from the most evident nucleus to the barely perceptible halo. At the eyepiece it should be searched on a scale of 18′ x 10′; the total brightness corresponds to the integrated magnitude 8.9.",
+        "observing_notes": "In C7 (NGC 2403), of integrated magnitude 8.9, use the dimensions 18′ x 10′ to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Winter",
+        "curiosity_text": "In 2004 NGC 2403 hosted SN 2004dj, one of the closest type II supernovae observed in the modern era. The explosion occurred within a compact stellar group which allowed us to study its progenitor population."
+      },
+      "caldwell-C8": {
+        "short_description": "C8 (NGC 559), Open cluster in the constellation Cassiopeia. It should not be observed as a simple sum of stars: its identity arises from the overall shape and the contrast with the field of the Milky Way. NGC 559 combines an apparent extent of 4′ with integrated magnitude 9.5, so aperture and sky impact differently.",
+        "observing_notes": "With C8 (NGC 559), about 4′ wide and with integrated magnitude 9.5, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 559 is older than the famous young clusters of Cassiopeia: it has lost its most massive stars and retains an evolved population of about two billion years. It is a rare survivor among the open clusters of the galactic disk."
+      },
+      "caldwell-C9": {
+        "short_description": "C9 (Sh2-155), Nebula in the constellation Cepheus. It is an object of contrast rather than detail: transparency and adaptation to the dark determine much of the rendering. Field preparation for C9 starts at 50′ x 10′ extent and integrated magnitude 7.7.",
+        "observing_notes": "The profile of C9 (Sh2-155 - Cave Nebula), integrated magnitude 7.7, occupies approximately 50′ x 10′: choose a field large enough to include the comparison sky background.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The Cave Nebula is located on the edge of the Cepheus B molecular cloud. Radiation from massive stars compresses adjacent gas, creating bright fronts and new stellar generations along the cavity."
+      },
+      "caldwell-C10": {
+        "short_description": "C10 (NGC 663), Open cluster in the constellation Cassiopeia. It should not be observed as a simple sum of stars: its identity arises from the overall shape and the contrast with the field of the Milky Way. The observable profile of C10 can be smaller than the cataloged 16′ if the sky background reduces the contrast; the total magnitude is 7.1.",
+        "observing_notes": "On C10 (NGC 663), of integrated magnitude 7.1, it initially preserves a field wider than 16′; only narrow it if component separation improves.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 663 contains an unusually large number of Be stars, hot, rapidly rotating stars surrounded by gaseous disks. Their emission lines allow us to study how rotation modifies stellar evolution."
+      },
+      "caldwell-C11": {
+        "short_description": "C11 (NGC 7635), Nebula in the constellation Cassiopeia. The structure is diffuse and must be read through gradual variations in brightness; dark sky and wide field count more than strong magnifications. The measurement of 15′ x 8′ defines the scale of C11, while the integrated magnitude 7.0 summarizes all its light.",
+        "observing_notes": "Protect dark adaptation and let edges and dark areas emerge slowly.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The Bubble is inflated by the wind of the massive star BD+60 2522. The star does not appear at the geometric center because the wind encounters gas of different densities and the star itself moves relative to the cloud."
+      },
+      "caldwell-C12": {
+        "short_description": "C12 (NGC 6946), Spiral galaxy in the constellation Cepheus. The profile and brightness distribution are more reliable than fine details; repeated observations help to recognize its structure. To plan your observation, consider the integrated magnitude 9.7 and the apparent extent 11′ x 9′ together.",
+        "observing_notes": "For C12 (NGC 6946 - Fireworks Galaxy), extended 11′ x 9′, check first axis and central condensation; magnitude 9.7 alone does not express surface brightness.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "NGC 6946 deserves the name Fireworks: at least ten supernovae have been discovered there since 1917. The galaxy is rich in star formation, but the Milky Way dims its light with dust in the foreground."
+      },
+      "caldwell-C13": {
+        "short_description": "C13 (NGC 457), Open cluster in the constellation Cassiopeia. The rendering changes a lot with magnification: a wide field shows the outline of the group, while going up, pairs and small concatenations appear. NGC 457 - Civetta Cluster covers about 13′ in the sky and has integrated magnitude 6.4, two data points to be read together with the background contrast.",
+        "observing_notes": "In C13 (NGC 457 - Civetta Cluster) the integrated magnitude 6.4 does not describe the fainter stars: it uses the 13′ diameter to set the initial field.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The two bright stars that form the eyes of the Owl Cluster also give it the appearance of a character with open arms. The bright Phi Cassiopeiae is projected into the same field, but its physical affiliation remains debated."
+      },
+      "caldwell-C14": {
+        "short_description": "C14, the Perseus Double Cluster, includes NGC 869 and NGC 884, two young and close open clusters in the sky. They are already visible to the naked eye as an elongated spot and with binoculars they explode into two stellar concentrations separated by a rich bridge. The complete field is more spectacular than each cluster taken in isolation. Its apparent scale is 30′ + 30′; the 4.3 integrated magnitude does not by itself describe what will be evident at the eyepiece.",
+        "observing_notes": "Use binoculars or a very wide-field telescope to keep both clusters in the same frame.",
+        "best_seen": "Winter",
+        "curiosity_text": "The Double Cluster was already known to Hipparchus over two thousand years ago. NGC 869 and NGC 884 are two young populations close in space; red supergiants scattered among many blue stars accentuate the chromatic contrast."
+      },
+      "caldwell-C15": {
+        "short_description": "C15 (NGC 6826), Planetary nebula in the constellation Cygnus. The shape is best read by alternating direct and averted viewing, looking for a disc, ring, or non-uniform internal structure. In the field, C15 extends for 0.5′ / 2.3′: the magnitude 9.8 should be interpreted as overall brightness.",
+        "observing_notes": "The profile of C15 (NGC 6826 - Blinking Nebula), integrated magnitude 9.8, occupies approximately 0.5′ / 2.3′: choose a field large enough to include the comparison sky background.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6826 appears to blink when alternating between direct and averted viewing. Looking at the center, the star dominates; by moving the gaze slightly, the peripheral retina brings out the weak shell and suddenly changes the appearance."
+      },
+      "caldwell-C16": {
+        "short_description": "C16 (NGC 7243), Open cluster in the constellation Lizard. The rendering changes a lot with magnification: a wide field shows the outline of the group, while going up, pairs and small concatenations appear. With dimensions 21′ and integrated magnitude 6.4, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C16 (NGC 7243), of integrated magnitude 6.4, initially retains a wider field of 21′; only narrow it if component separation improves.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 7243 is a young and highly dispersed cluster, with stars distributed in small groups rather than around a clear core. This irregular structure shows a system already on its way to dissolution in the galactic disk."
+      },
+      "caldwell-C17": {
+        "short_description": "C17 (NGC 147), Dwarf elliptical galaxy in the constellation Cassiopeia. It shows a regular and concentrated light, without visible arms: the useful detail is the gradient from the core to the external halo. The 9.3 magnitude figure concerns the entire object; the 13′ x 8′ extension helps estimate its real contrast.",
+        "observing_notes": "In C17 (NGC 147), magnitude 9.3 and dimensions 13′ x 8′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 147 is a dwarf satellite of Andromeda with almost no gas and recent star formation. The contrast with nearby NGC 185, which preserves dust and young stars, shows two different evolutions in the same environment."
+      },
+      "caldwell-C18": {
+        "short_description": "C18 (NGC 185), Dwarf elliptical galaxy in the constellation Cassiopeia. It offers no clear structures like a spiral; its character emerges from the shape of the halo and the concentration of the nucleus. For C18, the comparison between 12′ x 9′ extension and integrated magnitude 9.2 guides the choice of the initial field.",
+        "observing_notes": "For C18 (NGC 185), extended 12′ x 9′, first check central axis and condensation; magnitude 9.2 alone does not express surface brightness.",
+        "best_seen": "Autumn",
+        "curiosity_text": "Although it is an elliptical dwarf galaxy, NGC 185 contains clouds of dust, young stars and supernova remnants. It is proof that an apparently quiet morphology does not necessarily imply completely dull evolution."
+      },
+      "caldwell-C19": {
+        "short_description": "C19 (IC 5146), Nebula in the constellation Cygnus. The structure is diffuse and must be read through gradual variations in brightness; dark sky and wide field count more than strong magnifications. At the eyepiece it should be searched on a scale of 12′ x 12′; the total brightness corresponds to the integrated magnitude 10.0.",
+        "observing_notes": "In C19 (IC 5146 - Cocoon Nebula), of integrated magnitude 10.0, use the 12′ x 12′ dimensions to keep the entire nebulosity in the field before narrowing the frame.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The Cocoon Nebula is located at the edge of the long dark nebula Barnard 168. The contrast between the bright cocoon and the black trail tells of two opposite ways in which the same dust can reflect or block light."
+      },
+      "caldwell-C20": {
+        "short_description": "C20, NGC 7000, the North America Nebula, is a large emitting region in Cygnus. Its characteristic shape requires a very wide field and dark sky; the most accessible feature is often the bright edge near the dark nebula that outlines the Gulf of Mexico. It's much easier photographically than visually, but a UHC filter can transform its visibility. NGC 7000 - North America Nebula combines an apparent extent of 120′ x 100′ with integrated magnitude 6.0, so aperture and sky impact differently.",
+        "observing_notes": "Use the lowest magnification, a UHC filter and a very dark sky; mainly explores the Gulf of Mexico region.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The profile of North America is not a physical edge of the gas: it is drawn by the dark cloud LDN 935, which hides the light of the nebula behind it and creates the Gulf of Mexico."
+      },
+      "caldwell-C21": {
+        "short_description": "C21 (NGC 4449), Irregular galaxy in the constellation of Cani da Caccia. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. Field preparation for C21 starts at 5′ x 3′ in extent and integrated magnitude 9.4.",
+        "observing_notes": "The profile of C21 (NGC 4449), integrated magnitude 9.4, covers approximately 5′ x 3′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4449 is forming stars throughout almost its entire body, not just in orderly regions like a spiral. Stellar currents and perturbed gas indicate recent interactions or a merger with a minor companion."
+      },
+      "caldwell-C22": {
+        "short_description": "C22 (NGC 7662), Planetary nebula in the constellation Andromeda. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. The observable profile of C22 may be smaller than the cataloged 0.3′ / 2.2′ if the sky background reduces contrast; the total magnitude is 9.2.",
+        "observing_notes": "For C22 (NGC 7662 - Blue Snowball Nebula), of integrated magnitude 9.2, alternates direct and averted vision while maintaining the same exit pupil, so the comparison remains reliable.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The Blue Snowball color comes from lines of ionized oxygen in the hot gas. The nebula has multiple expanding shells, produced by successive stages of mass loss of the central star."
+      },
+      "caldwell-C23": {
+        "short_description": "C23 (NGC 891), Spiral galaxy in the constellation Andromeda. The first reading concerns the nucleus, orientation and shape of the halo; spiral details, when accessible, come only after long dark adaptation. The measurement of 14′ x 2′ defines the scale of C23, while the integrated magnitude 9.9 summarizes all its light.",
+        "observing_notes": "In C23 (NGC 891), magnitude 9.9 and dimensions 14′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 891 is often used as an edge-on analogue of the Milky Way. Filaments of dust rise far above the disk, dragged by winds and supernovae from regions where new stars are born."
+      },
+      "caldwell-C24": {
+        "short_description": "C24 (NGC 1275), Seyfert Galaxy in the constellation Perseus. It is a contrast target: a well-darkened field allows you to go from the most evident nucleus to the barely perceptible halo. To plan your observation, consider the integrated magnitude 11.6 and the apparent extent 2.6′ x 1′ together.",
+        "observing_notes": "For C24 (NGC 1275 - Perseus A), extended 2.6′ x 1′, first check central axis and condensation; magnitude 11.6 alone does not express surface brightness.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 1275 dominates the center of the Perseus Cluster and is associated with the Perseus A radio source. The central black hole blows huge bubbles in the hot gas, while a second galactic system overlaps along the line of sight."
+      },
+      "caldwell-C25": {
+        "short_description": "C25 (NGC 2419), Globular cluster in the constellation of Lynx. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. NGC 2419 - Intergalactic Wanderer covers approximately 4.1′ in the sky and has an integrated magnitude of 10.4, two data points to be read together with the background contrast.",
+        "observing_notes": "For C25 (NGC 2419 - Intergalactic Wanderer) the magnitude 10.4 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2419 is called the Intergalactic Wanderer because it orbits at an enormous distance, beyond the bright edge of the Milky Way. However, it is massive and complex, so much so that it could be the residual nucleus of a captured dwarf galaxy."
+      },
+      "caldwell-C26": {
+        "short_description": "C26 (NGC 4244), Spiral galaxy in the constellation of Cani da Caccia. The first reading concerns the nucleus, orientation and shape of the halo; spiral details, when accessible, come only after long dark adaptation. Its apparent scale is 16′ x 2.5′; the 10.6 integrated magnitude does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "On C26 (NGC 4244 - Silver Needle Galaxy), of integrated magnitude 10.6, note orientation and relationship between core and halo before looking for fainter structures.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4244 is a very thin spiral seen edge-on, almost without a central bulge. Its simple structure helps study how stars and gas are distributed vertically in galactic disks."
+      },
+      "caldwell-C27": {
+        "short_description": "C27, NGC 6888, the Crescent Nebula, is a bubble of gas in Cygnus shaped by the wind of a Wolf-Rayet star. Visually it appears as incomplete arcs and faint filaments immersed in a rich star field. An OIII filter and a clear sky are almost essential to follow its shape. In the field, C27 extends for 20′ x 10′: magnitude 7.5 should be interpreted as overall brightness.",
+        "observing_notes": "Use low magnification and OIII filter; locate the brightest arc first and then slowly walk the rest of the ring.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The Crescent Nebula is material ejected from the star Wolf-Rayet WR 136 that collides with a slower wind emitted when the star was a red supergiant. The impact produces the filamentous shell visible today."
+      },
+      "caldwell-C28": {
+        "short_description": "C28 (NGC 752), Open cluster in the constellation of Andromeda. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 50′ and integrated magnitude 5.7, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C28 (NGC 752), of integrated magnitude 5.7, it initially preserves a field wider than 50′; only narrow it if component separation improves.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 752 is about 1.4 billion years old and has already lost many original members. The remaining stars are scattered across a wide field: an advanced snapshot of the slow dissolution of an open cluster."
+      },
+      "caldwell-C29": {
+        "short_description": "C29 (NGC 5005), Spiral galaxy in the constellation of Cani da Caccia. At the eyepiece the light is soft and progressive: the dark sky counts more than the magnification to separate the halo from the background. The figure of 9.8 magnitudes concerns the entire object; the 5.4′ x 2′ extension helps estimate its real contrast.",
+        "observing_notes": "In C29 (NGC 5005), magnitude 9.8 and dimensions 5.4′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "The nucleus of NGC 5005 is classified as LINER, a weak form of galactic activity. Belts of dust envelop the central area, where gas and star formation coexist with the influence of the black hole."
+      },
+      "caldwell-C30": {
+        "short_description": "C30 (NGC 7331), Spiral galaxy in the constellation of Pegasus. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. For C30, the comparison between 11′ x 4′ extension and integrated magnitude 9.5 guides the choice of the initial field.",
+        "observing_notes": "For C30 (NGC 7331), extended 11′ x 4′, check first axis and central condensation; magnitude 9.5 alone does not express surface brightness.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 7331 has often been called the Milky Way's twin, but it has no obvious central bar. The more distant galaxies of the Deer Lick Group appear behind her, a perspective that creates a false compact group."
+      },
+      "caldwell-C31": {
+        "short_description": "C31 (IC 405), Nebula in the constellation Auriga. It is an object of contrast rather than detail: transparency and adaptation to the dark determine much of the rendering. At the eyepiece it must be searched on a scale of 30′ x 19′; the total brightness corresponds to integrated magnitude 6.0.",
+        "observing_notes": "In C31 (IC 405 - Flaming Star Nebula), of integrated magnitude 6.0, use the 30′ x 19′ dimensions to keep the entire nebulosity in the field before narrowing the frame.",
+        "best_seen": "Winter",
+        "curiosity_text": "AE Aurigae, the star that ignites the Flaming Star Nebula, is a fugitive expelled from the Orion region millions of years ago. It is by chance passing through a cloud that did not generate it."
+      },
+      "caldwell-C32": {
+        "short_description": "C32 (NGC 4631), Spiral galaxy in the constellation of Cani da Caccia. The first reading concerns the nucleus, orientation and shape of the halo; spiral details, when accessible, come only after long dark adaptation. NGC 4631 - Whale Galaxy combines an apparent extent of 15′ x 3′ with integrated magnitude 9.3, so aperture and sky impact differently.",
+        "observing_notes": "On C32 (NGC 4631 - Whale Galaxy), of integrated magnitude 9.3, note orientation and relationship between nucleus and halo before looking for fainter structures.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4631 is surrounded by a halo of hot gas visible in X-rays. Supernovae and winds from the star-forming regions push matter out of the disk, creating a sort of galactic fountain."
+      },
+      "caldwell-C33": {
+        "short_description": "C33, NGC 6992, is the eastern part of the Veil Nebula, a vast supernova remnant in Cygnus. With an OIII filter it can appear as a stringy ribbon, full of curves, bifurcations and variations in thickness. The required field is large and the quality of the sky determines how much structure remains visible. The preparation of the field starts from its extension of 60′ x 8′ and from the contrast of the filaments compared to the sky background.",
+        "observing_notes": "Use an OIII filter, low magnification, and a wide field; slowly follow the filaments along their entire extension.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The East Veil is a part of the Cygnus Loop, the shock wave of a star that exploded thousands of years ago. The thin filaments mark the point where the supernova front meets denser interstellar clouds."
+      },
+      "caldwell-C34": {
+        "short_description": "C34, NGC 6960, is the western part of the Veil Nebula and passes through the star 52 Cygni. The star facilitates pointing but can disturb dark adaptation; with OIII filter the nebula emerges as a thin and irregular arc that extends beyond the field. It is one of the most visually spectacular supernova remnants. The observable profile may be smaller than the cataloged 70′ x 6′ when the sky background reduces the contrast of the filaments.",
+        "observing_notes": "Center 52 Cygni, insert an OIII filter and use the lowest magnification to follow the filaments on both sides of the star.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The Western Veil visually passes through the star 52 Cygni, but the star is only in the foreground and does not belong to the supernova remnant. The contrast makes this trait also known as the Witch's Broom."
+      },
+      "caldwell-C35": {
+        "short_description": "C35 (NGC 4889), Elliptical galaxy in the constellation Coma Berenice. It offers no clear structures like a spiral; its character emerges from the shape of the halo and the concentration of the nucleus. The measurement of 3′ x 2′ defines the scale of C35, while the integrated magnitude 11.4 summarizes all its light.",
+        "observing_notes": "In C35 (NGC 4889), magnitude 11.4 and dimensions 3′ x 2′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4889 hosts one of the most massive black holes measured in the nearby Universe, with a mass of many billion Suns. The giant galaxy occupies the heart of the Coma Cluster."
+      },
+      "caldwell-C36": {
+        "short_description": "C36 (NGC 4559), Spiral galaxy in the constellation Coma Berenice. At the eyepiece the light is soft and progressive: the dark sky counts more than the magnification to separate the halo from the background. To plan your observation, consider the integrated magnitude 9.8 and the apparent extent 10′ x 4′ together.",
+        "observing_notes": "For C36 (NGC 4559), extended 10′ x 4′, check first axis and central condensation; magnitude 9.8 alone does not express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "In the disk of NGC 4559 there is an ultraluminous X-ray source, too intense for a normal binary star. It may contain a massive black hole powered by a companion in a young stellar region."
+      },
+      "caldwell-C37": {
+        "short_description": "C37 (NGC 6885), Open cluster in the constellation Volpetta. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. NGC 6885 covers about 7′ in the sky and has an integrated magnitude of 5.7, two data points to be read together with the background contrast.",
+        "observing_notes": "In C37 (NGC 6885) the integrated magnitude 5.7 does not describe the faintest stars: it uses the 7′ diameter to set the initial field.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "NGC 6885 and nearby NGC 6882 have generated a long confusion of boundaries and names. The region contains overlapping star groups and shows how difficult a dispersed open cluster is to define in the plane of the Milky Way."
+      },
+      "caldwell-C38": {
+        "short_description": "C38 (NGC 4565), Spiral galaxy in the constellation Coma Berenice. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. Its apparent scale is 16′ x 3′; the integrated magnitude 9.6 does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "On C38 (NGC 4565 - Needle Galaxy), of integrated magnitude 9.6, note orientation and relationship between nucleus and halo before looking for fainter structures.",
+        "best_seen": "Spring",
+        "curiosity_text": "The Needle Galaxy is one of the clearest examples of a spiral seen perfectly edge-on. A thin lane of dust divides the disk, while a bright central bulge reveals its three-dimensional structure."
+      },
+      "caldwell-C39": {
+        "short_description": "C39 (NGC 2392), Planetary nebula in the constellation Gemini. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. In the field, C39 extends for 0.2′ / 0.7′: magnitude 9.9 should be interpreted as overall brightness.",
+        "observing_notes": "The profile of C39 (NGC 2392), integrated magnitude 9.9, occupies approximately 0.2′ / 0.7′: choose a field wide enough to include the comparison sky background.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2392 displays two envelopes: a shiny inner shell and fur-like outer filaments. Very rapid winds from the central star hit previously ejected material and generate this double architecture."
+      },
+      "caldwell-C40": {
+        "short_description": "C40 (NGC 3626), Spiral galaxy in the constellation Leo. It is a contrast target: a well-darkened field allows you to go from the most evident nucleus to the barely perceptible halo. With dimensions 3′ x 2′ and integrated magnitude 10.9, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "For C40 (NGC 3626), of integrated magnitude 10.9, compare the observed diameter to 3′ x 2′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring",
+        "curiosity_text": "In NGC 3626 the gas rotates in the opposite direction to most stars. The most likely explanation is the acquisition of material from a companion, an encounter preserved in the dynamics of the disk."
+      },
+      "caldwell-C41": {
+        "short_description": "C41, the Hyades, is the closest open cluster to the Solar System and forms the characteristic V-shaped snout of Taurus. Aldebaran appears superimposed on the group but is not physically part of it. The cluster is too large for most telescopes and is best appreciated with the naked eye or wide-field binoculars. The 1.0 magnitude figure applies to the entire object; the 330′ extension helps to estimate the real contrast.",
+        "observing_notes": "Observe it with the naked eye or with binoculars; avoid strong magnifications and treat Aldebaran as a prominent star.",
+        "best_seen": "Winter",
+        "curiosity_text": "The Hyades are the closest open cluster to Earth, about 150 light-years away. Aldebaran appears to be the brightest member, but is located much closer and is only aligned in the foreground."
+      },
+      "caldwell-C42": {
+        "short_description": "C42 (NGC 7006), Globular cluster in the constellation of Delphinus. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions. For C42, the comparison between 2.8′ extension and integrated magnitude 10.6 guides the choice of the initial field.",
+        "observing_notes": "In C42 (NGC 7006), extended 2.8′ and integrated magnitude 10.6, note at which magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "NGC 7006 orbits in the remote regions of the galactic halo, over 100,000 light-years away from us. Its distance made it a historic topic in the debate over the actual size of the Milky Way."
+      },
+      "caldwell-C43": {
+        "short_description": "C43 (NGC 7814), Spiral galaxy in the constellation of Pegasus. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. At the eyepiece it should be searched on a scale of 6′ x 2′; the total brightness corresponds to integrated magnitude 10.5.",
+        "observing_notes": "In C43 (NGC 7814), of integrated magnitude 10.5, use the 6′ x 2′ dimensions to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 7814 resembles a miniature Sombrero, but its disk is seen even closer to the edge. An extremely thin band of dust passes through a large, nearly spherical stellar bulge."
+      },
+      "caldwell-C44": {
+        "short_description": "C44 (NGC 7479), Barred spiral galaxy in the constellation of Pegasus. At the eyepiece the central area dominates; under a good sky the asymmetric distribution of light can suggest the bar and the start of the arms. NGC 7479 combines an apparent extent of 4′ x 3′ with integrated magnitude 11.0, so aperture and sky impact differently.",
+        "observing_notes": "On C44 (NGC 7479), of integrated magnitude 11.0, note orientation and core-to-halo ratio before looking for fainter structures.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 7479 has an inverted S shape and a radio jet that extends in the opposite direction to the apparent rotation of the arms. Both could result from a merger with a smaller galaxy."
+      },
+      "caldwell-C45": {
+        "short_description": "C45 (NGC 5248), Spiral galaxy in the constellation Bootes. At the eyepiece the light is soft and progressive: the dark sky counts more than the magnification to separate the halo from the background. Field preparation for C45 starts at 6′ x 4′ in extent and integrated magnitude 10.2.",
+        "observing_notes": "The profile of C45 (NGC 5248), integrated magnitude 10.2, covers approximately 6′ x 4′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 5248 contains two star-forming rings around the core. The rod and arms funnel gas toward the center, where new stars are born in concentric structures on different scales."
+      },
+      "caldwell-C46": {
+        "short_description": "C46 (NGC 2261), Nebula in the constellation Unicorn. The structure is diffuse and must be read through gradual variations in brightness; dark sky and wide field count more than strong magnifications. The observable profile of C46 may be smaller than the cataloged 2′ x 1′ if the sky background reduces contrast; the total magnitude is 10.0.",
+        "observing_notes": "For C46 (NGC 2261 - Hubble Variable Nebula), of integrated magnitude 10.0, it alternates direct and averted vision while maintaining the same exit pupil, so the comparison remains reliable.",
+        "best_seen": "Winter",
+        "curiosity_text": "Hubble's Variable Nebula can change appearance in just a few weeks, too quickly for gas to actually move on that scale. They are mobile shadows, projected by dust near the young star R Monocerotis."
+      },
+      "caldwell-C47": {
+        "short_description": "C47 (NGC 6934), Globular cluster in the constellation of Delphinus. At first it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the dotted edge. The measurement of 5.9′ defines the scale of C47, while the integrated magnitude 8.9 summarizes all its light.",
+        "observing_notes": "In C47 (NGC 6934) look for the transition between nucleus and halo along the entire 5.9′ of the diameter, without relying on magnitude 8.9 alone.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "NGC 6934 contains blue stragglers that are hotter than normal older stars in the cluster. Their distribution allows us to reconstruct how much collisions and binary systems have mixed up the nucleus."
+      },
+      "caldwell-C48": {
+        "short_description": "C48 (NGC 2775), Spiral galaxy in the constellation of Cancer. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. To plan your observation, consider the integrated magnitude 10.3 and the apparent extent 4.5′ x 3′ together.",
+        "observing_notes": "For C48 (NGC 2775), extended 4.5′ x 3′, check first axis and central condensation; magnitude 10.3 does not alone express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 2775 has flocculent arms: feathery, discontinuous segments instead of two regular spirals. The large yellowish bulge is dominated by old stars, while star formation is concentrated in the outer fragments."
+      },
+      "caldwell-C49": {
+        "short_description": "C49, NGC 2237, is the large emission nebula associated with the Rosette in the Unicorn. It surrounds a central open cluster and visually appears as a very large and faint ring, broken into brighter segments. A wide field, dark sky and UHC or OIII filter are essential. The Rosette covers approximately 80′ x 60′; Since an integrated magnitude is not reported, background extension and contrast guide the choice of field.",
+        "observing_notes": "Center the cluster NGC 2244, use low magnification and a UHC or OIII filter, then look for ring segments around the field.",
+        "best_seen": "Winter",
+        "curiosity_text": "The central cavity of the Rosetta has been carved out by the radiation and winds of the young stars of NGC 2244. The compressed edge of the cloud contains globules and pillars where star formation can continue."
+      },
+      "caldwell-C50": {
+        "short_description": "C50 (NGC 2244) is an open cluster in Monoceros. Read it as a whole first, looking for its central concentration and the geometric patterns formed by its brightest members. Its apparent diameter is 24′; the integrated magnitude of 4.8 alone does not describe how prominent it will appear at the eyepiece.",
+        "observing_notes": "With C50 (NGC 2244), about 24′ wide and with an integrated magnitude of 4.8, inspect the cluster's full outline first, then examine its tighter stellar pairs.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2244 is the young cluster born inside the Rosetta. Its O-type stars are a few million years old, ionize the nebula and are dispersing the material from which they formed."
+      },
+      "caldwell-C51": {
+        "short_description": "C51 (IC 1613), Irregular galaxy in the constellation of Whale. The first reading concerns the nucleus, orientation and shape of the halo; spiral details, when accessible, come only after long dark adaptation. In the field, C51 extends 12′ x 11′: magnitude 9.0 should be interpreted as overall brightness.",
+        "observing_notes": "The profile of C51 (IC 1613), integrated magnitude 9.0, covers approximately 12′ x 11′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Autumn",
+        "curiosity_text": "IC 1613 is a Local Group dwarf galaxy with very little internal dust. Its Cepheids are therefore observed without major extinction corrections, making it valuable for calibrating cosmic distances."
+      },
+      "caldwell-C52": {
+        "short_description": "C52 (NGC 4697), Elliptical galaxy in the constellation Virgo. It offers no clear structures like a spiral; its character emerges from the shape of the halo and the concentration of the nucleus. With dimensions 6′ x 3′ and integrated magnitude 9.3, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "For C52 (NGC 4697), of integrated magnitude 9.3, compare the observed diameter to 6′ x 3′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4697 appears to be a quiet elliptical, but X-ray observations reveal numerous compact binaries scattered throughout its aging population. These sources track neutron stars and black holes that accrete matter."
+      },
+      "caldwell-C53": {
+        "short_description": "C53 (NGC 3115), Elliptical galaxy in the constellation Sextans. It shows a regular and concentrated light, without visible arms: the useful detail is the gradient from the core to the external halo. The figure of 9.1 magnitudes concerns the entire object; the 8′ x 3′ extension helps estimate its actual contrast.",
+        "observing_notes": "In C53 (NGC 3115 - Fuso Galaxy), magnitude 9.1 and dimensions 8′ x 3′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 3115 was one of the first recognized examples of a lenticular galaxy, intermediate between spiral and elliptical. Its central black hole is huge but almost inactive, because there is little gas left nearby to swallow."
+      },
+      "caldwell-C54": {
+        "short_description": "C54 (NGC 2506) is an open cluster in Monoceros. Read it as a whole first, looking for its central concentration and the geometric patterns formed by its brightest members. Its 7′ diameter and integrated magnitude of 7.6 help determine the initial field of view.",
+        "observing_notes": "For C54 (NGC 2506), which is 7′ across and has an integrated magnitude of 7.6, choose a field that leaves a margin of sky around the cluster before increasing magnification.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 2506 is an ancient, metal-poor open cluster located far from the galactic plane. Its composition makes it useful for comparing the chemical evolution of the inner and outer regions of the Milky Way."
+      },
+      "caldwell-C55": {
+        "short_description": "C55 (NGC 7009), Planetary nebula in the constellation of Aquarius. It is compact and has high surface brightness: comparison with nearby stars and the response to an OIII filter help identify it. At the eyepiece it must be searched on a scale of 2.5′ / 1′; the total brightness corresponds to the integrated magnitude 8.3.",
+        "observing_notes": "In C55 (NGC 7009 - Saturn Nebula), of integrated magnitude 8.3, use the 2.5′ / 1′ size to keep the entire nebulosity in the field before narrowing the shot.",
+        "best_seen": "Summer and autumn",
+        "curiosity_text": "The two lateral extensions of the Saturn Nebula are called ansae, handles. They are high-velocity jets and knots that, when viewed at low magnification, reminded Lord Rosse of the planet's rings."
+      },
+      "caldwell-C56": {
+        "short_description": "C56 (NGC 246), Planetary nebula in the constellation of Whale. It is compact and has high surface brightness: comparison with nearby stars and the response to an OIII filter help identify it. NGC 246 combines an apparent extent of 3.8′ with integrated magnitude 8.0, so aperture and sky impact differently.",
+        "observing_notes": "On C56 (NGC 246), integrated magnitude 8.0, protect dark adaptation and evaluate edge, center, and overlapping stars separately.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The central star of the Skull Nebula belongs to a triple hierarchical system. Invisible companions in the small instruments may have influenced the cavities and non-spherical geometry of the expelled gas."
+      },
+      "caldwell-C57": {
+        "short_description": "C57 (NGC 6822), Irregular galaxy in the constellation of Sagittarius. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. Field preparation for C57 starts at 10′ x 9′ in extent and integrated magnitude 9.3.",
+        "observing_notes": "The profile of C57 (NGC 6822 - Barnard Galaxy), integrated magnitude 9.3, covers approximately 10′ x 9′: protect dark adaptation and check the edges with averted vision.",
+        "best_seen": "Summer",
+        "curiosity_text": "Barnard's Galaxy was one of the first dwarfs outside the Milky Way studied in detail. The Cepheid variables observed within it helped Edwin Hubble extend the distance scale beyond our Galaxy."
+      },
+      "caldwell-C58": {
+        "short_description": "C58 (NGC 2360), Open cluster in the constellation Canis Major. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The observable profile of C58 can be smaller than the cataloged 13′ if the sky background reduces the contrast; the total magnitude is 7.2.",
+        "observing_notes": "On C58 (NGC 2360), of integrated magnitude 7.2, it initially preserves a field wider than 13′; only narrow it if component separation improves.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2360 was discovered in 1783 by Caroline Herschel, years before its inclusion in her brother William's catalog. For this reason it is also known as the Caroline Cluster."
+      },
+      "caldwell-C59": {
+        "short_description": "C59 (NGC 3242), Planetary nebula in the constellation Hydra. The shape is best read by alternating direct and averted viewing, looking for a disc, ring, or non-uniform internal structure. The measurement of 0.3′ / 21′ defines the scale of C59, while the integrated magnitude 8.6 summarizes all its light.",
+        "observing_notes": "In C59 (NGC 3242 - Ghost of Jupiter) record the filter and magnification effects separately; integrated magnitude 8.6, reference extension 0.3′ / 21′.",
+        "best_seen": "Spring",
+        "curiosity_text": "The Ghost of Jupiter has apparent dimensions close to those of the planet, but it is a very distant shell of gas. Concentric layers and small jets tell of distinct episodes in the mass loss of the central star."
+      },
+      "caldwell-C60": {
+        "short_description": "C60 (NGC 4038), Spiral galaxy in the constellation Corvus. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. To plan your observation, consider the integrated magnitude 11.3 and the apparent extent 2.6′ x 1.8′ together.",
+        "observing_notes": "For C60 (NGC 4038 - Antenna Galaxies), extended 2.6′ x 1.8′, check first axis and central condensation; magnitude 11.3 alone does not express surface brightness.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4038 is one of the two Antennae galaxies. The long tails that give the pair their name are stars and gas stripped away by gravitational tides during a collision that began hundreds of millions of years ago."
+      },
+      "caldwell-C61": {
+        "short_description": "C61 (NGC 4039), Spiral galaxy in the constellation Corvus. It is a contrast target: a well-darkened field allows you to go from the most evident nucleus to the barely perceptible halo. NGC 4039 - Antennae Galaxies covers approximately 3.2′ x 2.2′ in the sky and has an integrated magnitude of 13.0, two data points to be read together with the background contrast.",
+        "observing_notes": "In C61 (NGC 4039 - Antennae Galaxies), of integrated magnitude 13.0, use the dimensions 3.2′ x 2.2′ to choose the field and compare how far the halo extends beyond the nucleus.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4039 crosses NGC 4038 in the Antennae pair. In the overlap zone, gas compression has ignited thousands of young star clusters, some destined to evolve as future globulars."
+      },
+      "caldwell-C62": {
+        "short_description": "C62 (NGC 247), Spiral galaxy in the constellation of Whale. It is a contrast target: a well-darkened field allows you to go from the most evident nucleus to the barely perceptible halo. Its apparent scale is 20′ x 7′; the 8.9 integrated magnitude does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "On C62 (NGC 247), of integrated magnitude 8.9, note the orientation and ratio of nucleus to halo before looking for fainter structures.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 247 contains a large apparent void in the disk, with many fewer old stars than the surrounding areas. It could be the imprint of an ancient interaction or processes that locally disrupted star formation."
+      },
+      "caldwell-C63": {
+        "short_description": "C63, NGC 7293, the Helix Nebula, is one of the closest planetary nebulae and largest in apparent diameter. Despite its size, its surface brightness is low: it appears as a vast pale ring with a darker center, very sensitive to the quality of the sky. An OIII filter can make it surprisingly noticeable. In the field, C63 extends for 13′: magnitude 6.5 should be interpreted as overall brightness.",
+        "observing_notes": "Use low magnification, OIII filter and dark sky; look for the large ring with averted vision without expecting sharp edges.",
+        "best_seen": "Autumn",
+        "curiosity_text": "The Helix Nebula contains thousands of cometary nodes, each as large as the Solar System. Dense heads resist central radiation, while long tails point radially outward."
+      },
+      "caldwell-C64": {
+        "short_description": "C64 (NGC 2362), Open cluster in the constellation of Canis Major. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. At 8′ in size and 4.1 integrated magnitude, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C64 (NGC 2362 - Tau Canis Majoris Cluster), of integrated magnitude 4.1, initially preserves a field wider than 8′; only narrow it if component separation improves.",
+        "best_seen": "Winter",
+        "curiosity_text": "Tau Canis Majoris dominates NGC 2362, but it is not a single star: it is a multiple system of massive stars. The cluster is only a few million years old and retains a compact shape around this central lighthouse."
+      },
+      "caldwell-C65": {
+        "short_description": "C65 (NGC 253), Spiral galaxy in the constellation Sculptor. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. The figure of 7.1 magnitudes concerns the entire object; the 25′ x 7′ extension helps estimate its real contrast.",
+        "observing_notes": "In C65 (NGC 253 - Sculptor Galaxy), magnitude 7.1 and dimensions 25′ x 7′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 253 is one of the closest starburst galaxies. In the dusty core, stars are born at a rapid rate, and their feedback pushes a superwind of hot gas out of the disk."
+      },
+      "caldwell-C66": {
+        "short_description": "C66 (NGC 5694), Globular cluster in the constellation Hydra. Averted viewing shows the extent of the halo, while medium magnification helps capture the texture of the outer regions. For C66, the comparison between 3.6′ extension and integrated magnitude 10.2 guides the choice of the initial field.",
+        "observing_notes": "In C66 (NGC 5694), extended 3.6′ and integrated magnitude 10.2, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 5694 is a remote and unusually compact globular, weakly tied to the outer regions of the Milky Way. Some chemical and dynamic properties suggest an origin in an acquired dwarf galaxy."
+      },
+      "caldwell-C67": {
+        "short_description": "C67 (NGC 1097), Barred spiral galaxy in the constellation Fornax. It is best to start from the nucleus and the orientation of the halo; the bar and any hints of a spiral require dark skies and patient observation. At the eyepiece it should be searched on a scale of 9′ x 6′; the total brightness corresponds to integrated magnitude 9.2.",
+        "observing_notes": "In C67 (NGC 1097), of integrated magnitude 9.2, use the 9′ x 6′ dimensions to choose the field and compare how far the halo extends beyond the core.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 1097 has a circumnuclear ring where gas forms stars at an intense rate. At the center is a supermassive black hole, while faint optical jets extend far beyond the disk."
+      },
+      "caldwell-C68": {
+        "short_description": "C68 (NGC 6729), Nebula in the constellation Corona Australis. Alternate direct and averted vision to follow edges, dark areas and condensations, keeping enough reference stars in the field. NGC 6729 - Nebula R Coronae Australis combines an apparent extent of 1.0′ with integrated magnitude 9.7, so aperture and sky impact differently.",
+        "observing_notes": "Keep a wide field and look for gradual changes in brightness between stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "The nebulosity around R Coronae Australis changes because the star is variable and nearby clouds cast moving shadows. The complex is one of the closest star-forming regions to the Solar System."
+      },
+      "caldwell-C69": {
+        "short_description": "C69 (NGC 6302), Planetary nebula in the constellation of Scorpius. At low magnification it may look like a fuzzy star; once centered, it often holds greater powers than many other nebulae. Field preparation for C69 starts from 0.8′ extension and integrated magnitude 12.8.",
+        "observing_notes": "The profile of C69 (NGC 6302 - Insect Nebula), integrated magnitude 12.8, occupies approximately 0.8′: choose a field large enough to include the comparison sky background.",
+        "best_seen": "Summer",
+        "curiosity_text": "The central star of the Butterfly Nebula exceeds 200,000 kelvin and is among the hottest known. A dense torus of dust hides the center and forces the gas to expand into the two opposite lobes."
+      },
+      "caldwell-C70": {
+        "short_description": "C70 (NGC 300), Spiral galaxy in the constellation Sculptor. At the eyepiece the light is soft and progressive: the dark sky counts more than the magnification to separate the halo from the background. The observable profile of C70 may be smaller than the cataloged 20′ x 13′ if the sky background reduces contrast; the total magnitude is 8.1.",
+        "observing_notes": "For C70 (NGC 300), of integrated magnitude 8.1, compare the observed diameter to 20′ x 13′; marked differences indicate that the sky background hides the external halo.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 300 is a relatively isolated spiral of the Sculptor Group. Cepheids and other variable stars within it have provided one of the most precise distance measurements for a nearby galaxy."
+      },
+      "caldwell-C71": {
+        "short_description": "C71 (NGC 2477), Open cluster in the constellation of Poppa. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The measurement of 27′ defines the scale of C71, while the integrated magnitude 5.8 summarizes all its light.",
+        "observing_notes": "For C71 (NGC 2477), of integrated magnitude 5.8, compare richness and concentration while keeping the entire 27′ extension visible.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2477 is so rich and concentrated that it resembles a globular, despite being an open disk cluster. It brings together hundreds of stars of different ages along the post-main-sequence evolution."
+      },
+      "caldwell-C72": {
+        "short_description": "C72 (NGC 55), Barred spiral galaxy in the constellation Sculptor. At the eyepiece the central area dominates; under a good sky the asymmetric distribution of light can suggest the bar and the start of the arms. To plan your observation, consider the integrated magnitude 8.2 and the apparent extent 32′ x 6′ together.",
+        "observing_notes": "For C72 (NGC 55), extended 32′ x 6′, first check axis and central condensation; magnitude 8.2 alone does not express surface brightness.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 55 is a near-edge barred galaxy with scattered star-forming regions and an irregular profile. Its proximity allows individual stars to be resolved despite the overall nebulous appearance."
+      },
+      "caldwell-C73": {
+        "short_description": "C73 (NGC 1851), Globular cluster in the constellation of Columba. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. NGC 1851 covers about 11′ in the sky and has an integrated magnitude of 7.3, two data points to be read together with the background contrast.",
+        "observing_notes": "For C73 (NGC 1851) the magnitude 7.3 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 1851 shows two distinct subgiant branches in the color-magnitude diagram. This double population could result from different formation episodes or even from the merger of two ancient clusters."
+      },
+      "caldwell-C74": {
+        "short_description": "C74, NGC 3132, the Southern Ring Nebula, is a bright planetary in Vela. It shows an oval disk with a darker central region and a bright star projected near the center; the actual star responsible for the nebula is a fainter companion. It is one of the best planetary targets in the southern sky. Its apparent scale is 0.8′; the 8.2 integrated magnitude does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "Use medium or high magnifications and compare the view with and without the OIII filter to read the oval and central cavity.",
+        "best_seen": "Spring",
+        "curiosity_text": "Images from the Webb telescope have revealed previously hidden molecular shells and arcs in the Southern Ring Nebula. The dying star has a close companion that contributes to the asymmetric structure of the ejected material."
+      },
+      "caldwell-C75": {
+        "short_description": "C75 (NGC 6124), Open cluster in the constellation of Scorpius. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. In the field, C75 extends for 29′: magnitude 5.8 should be interpreted as overall brightness.",
+        "observing_notes": "Use the 29′ extension as a scale to recognize C75 (NGC 6124); at integrated magnitude 5.8, note how many components emerge by switching to medium magnification.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6124 is a young cluster undergoing non-uniform interstellar extinction. The dust reddens some members more than others and can make a population born in the same period appear uneven."
+      },
+      "caldwell-C76": {
+        "short_description": "C76 (NGC 6231), Open cluster in the constellation of Scorpius. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 15′ and integrated magnitude 2.6, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C76 (NGC 6231), of integrated magnitude 2.6, initially retains a field wider than 15′; only narrow it if component separation improves.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6231 is the core of the large Scorpius OB1 association and contains numerous multiple massive stars. It was probably recorded by Hoggi in the seventeenth century, long before the great nineteenth-century catalogues."
+      },
+      "caldwell-C77": {
+        "short_description": "C77 (NGC 5128), Peculiar galaxy in the constellation Centaurus. Look for central condensation and overall extension first, then use averted vision to follow the faintest outer regions. The 7.0 magnitude figure concerns the entire object; the 18′ x 14′ extension helps estimate its real contrast.",
+        "observing_notes": "In C77 (NGC 5128 - Centaurus A), magnitude 7.0 and dimensions 18′ x 14′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "Centaurus A is the result of a merger: a band of dust cuts through a large elliptical galaxy, while the central black hole launches a relativistic jet observable from radio waves to X-rays."
+      },
+      "caldwell-C78": {
+        "short_description": "C78 (NGC 6541), Globular cluster in the constellation Corona Australis. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. For C78, ​​the comparison between 13′ extension and integrated magnitude 6.6 guides the choice of the initial field.",
+        "observing_notes": "In C78 (NGC 6541), extended 13′ and integrated magnitude 6.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6541 is one of the most concentrated globulars in the southern sky. The strong central density favors stellar encounters and makes the core a natural laboratory for the dynamics of ancient systems."
+      },
+      "caldwell-C79": {
+        "short_description": "C79 (NGC 3201), Globular cluster in the constellation of Vele. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. At the eyepiece it must be searched on an 18′ scale; the total brightness corresponds to integrated magnitude 6.7.",
+        "observing_notes": "For C79 (NGC 3201) the magnitude 6.7 is integrated: compare core and edge without expecting the same brightness from individual stars.",
+        "best_seen": "Spring",
+        "curiosity_text": "In NGC 3201, an inactive black hole candidate was identified by observing the orbital motion of its visible companion. The cluster also follows a retrograde orbit, indicating a possible external origin."
+      },
+      "caldwell-C80": {
+        "short_description": "C80, NGC 5139, Omega Centauri, is the largest and brightest globular cluster in the Milky Way. To the naked eye it may appear like a fuzzy star; in the telescope it extends into an enormous mass of stars, larger and less concentrated than many globular stars. From low northern latitudes it should be observed near the culmination. NGC 5139 - Omega Centauri combines an apparent extent of 36′ with integrated magnitude 3.6, so aperture and sky impact differently.",
+        "observing_notes": "It uses a field wide enough to contain it all and medium magnifications to resolve the vast stellar periphery.",
+        "best_seen": "Spring",
+        "curiosity_text": "Omega Centauri contains millions of stars with different compositions and ages, anomalous for a normal globular. It is probably the remnant core of a dwarf galaxy stripped from the Milky Way."
+      },
+      "caldwell-C81": {
+        "short_description": "C81 (NGC 6352), Globular cluster in the constellation of Altare. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. Field preparation for C81 starts at 7′ extent and integrated magnitude 8.1.",
+        "observing_notes": "With C81 (NGC 6352), integrated magnitude 8.1, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6352 is a relatively metal-rich globular, associated with the internal regions of the Galaxy. Its chemistry differs from that of the globulars poor in heavy elements that populate the remote halo."
+      },
+      "caldwell-C82": {
+        "short_description": "C82 (NGC 6193), Open cluster in the constellation of Altar. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. The observable profile of C82 can be smaller than the 15′ cataloged if the sky background reduces the contrast; the total magnitude is 5.2.",
+        "observing_notes": "On C82 (NGC 6193), of integrated magnitude 5.2, initially retains a field wider than 15′; only narrow it if component separation improves.",
+        "best_seen": "Summer",
+        "curiosity_text": "The massive stars of NGC 6193 illuminate the bright edge of nearby NGC 6188. Among them lies HD 150136, one of the most massive multiple star systems known in the Milky Way."
+      },
+      "caldwell-C83": {
+        "short_description": "C83 (NGC 4945), Barred spiral galaxy in the constellation Centaurus. The central structure is more obvious than the outer regions: look for the core first, then the elongation of the bar, and finally the faintest halo. The measurement of 20′ x 4′ defines the scale of C83, while the integrated magnitude 9.5 summarizes all its light.",
+        "observing_notes": "In C83 (NGC 4945), magnitude 9.5 and dimensions 20′ x 4′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4945 hides an active nucleus and an intense starburst behind the dust. A water maser allows us to track gas orbiting very close to the central black hole and measure its mass."
+      },
+      "caldwell-C84": {
+        "short_description": "C84 (NGC 5286), Globular cluster in the constellation Centaurus. At low magnification it appears as a concentrated halo; with more aperture and stable seeing the edge can become grainy and begin to resolve into stars. To plan your observation, consider the integrated magnitude 7.6 and the apparent extension 9′ together.",
+        "observing_notes": "In C84 (NGC 5286), extended 9′ and with integrated magnitude 7.6, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 5286 contains populations with different iron abundances, rare behavior for a globular. It could be the surviving nucleus of a dwarf galaxy assimilated by the Milky Way."
+      },
+      "caldwell-C85": {
+        "short_description": "C85 (IC 2391), Open cluster in the constellation of Vele. The rendering changes a lot with magnification: a wide field shows the outline of the group, while going up, pairs and small concatenations appear. IC 2391 - Omicron Velorum cluster covers about 50′ in the sky and has integrated magnitude 2.5, two data to be read together with the background contrast.",
+        "observing_notes": "In C85 (IC 2391 - Omicron Velorum Cluster) the integrated magnitude 2.5 does not describe the faintest stars: it uses the 50′ diameter to set the initial field.",
+        "best_seen": "Spring",
+        "curiosity_text": "IC 2391 is a nearby cluster about 50 million years old. The depletion limit of lithium in its less massive stars provides an independent and precise clock for estimating their age."
+      },
+      "caldwell-C86": {
+        "short_description": "C86 (NGC 6397), Globular cluster in the constellation of Altare. At low magnification it appears as a concentrated halo; with more aperture and stable seeing the edge can become grainy and begin to resolve into stars. Its apparent scale is 26′; the 5.6 integrated magnitude does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "On C86 (NGC 6397), of integrated magnitude 5.6, use the 26′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6397 is one of the closest and oldest globulars, with an age close to that of the Universe. Its core has undergone gravitational collapse, strongly concentrating the stars towards the center."
+      },
+      "caldwell-C87": {
+        "short_description": "C87 (NGC 1261), Globular cluster in the constellation of Clock. At first it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the dotted edge. In the field, C87 extends for 7′: magnitude 8.4 should be interpreted as overall brightness.",
+        "observing_notes": "With C87 (NGC 1261), integrated magnitude 8.4, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Winter",
+        "curiosity_text": "In NGC 1261 the stellar populations are not distributed in the same way: the second generation stars are more concentrated. The difference preserves information about the initial formation and subsequent dynamic shuffling."
+      },
+      "caldwell-C88": {
+        "short_description": "C88 (NGC 5823), Open cluster in the constellation of Compass. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. With dimensions 10′ and integrated magnitude 7.9, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C88 (NGC 5823), of integrated magnitude 7.9, initially retains a field wider than 10′; only narrow it if component separation improves.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 5823 was cataloged by Scottish astronomer James Dunlop during Australian observations in 1826. It is about 800 million years old, enough for the original most massive stars to have already disappeared."
+      },
+      "caldwell-C89": {
+        "short_description": "C89 (NGC 6087), Open cluster in the constellation Regulus. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. The 5.4 magnitude figure concerns the entire object; the 12′ extension helps to estimate the real contrast.",
+        "observing_notes": "For C89 (NGC 6087 - Cluster S Normae), of integrated magnitude 5.4, compare richness and concentration while keeping the entire 12′ extension visible.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6087 contains S Normae, a classical Cepheid variable. The fact that it belongs to a cluster allows us to compare its pulsation, distance and age with those of other stars born together."
+      },
+      "caldwell-C90": {
+        "short_description": "C90 (NGC 2867), Planetary nebula in the constellation Carina. Small dimensions and relatively high contrast make it suitable for medium enlargements; atmospheric stability remains decisive for fine details. For C90, the comparison between 0.2′ extension and integrated magnitude 9.7 guides the choice of the initial field.",
+        "observing_notes": "For C90 (NGC 2867), extended 0.2′ and integrated magnitude 9.7, compare the unfiltered view with the filtered one and note which structure really changes.",
+        "best_seen": "Spring",
+        "curiosity_text": "The central star of NGC 2867 is a Wolf-Rayet star rich in carbon and oxygen. Its spectrum exposes material produced in the deep nuclear phases before it was ejected to form the nebula."
+      },
+      "caldwell-C91": {
+        "short_description": "C91 (NGC 3532), Open cluster in the constellation Carina. The observational pleasure lies in separating the group from the stellar background and recognizing how the brightest stars define its structure. At the eyepiece it must be searched on a scale of 55′; the total brightness corresponds to integrated magnitude 3.0.",
+        "observing_notes": "In C91 (NGC 3532) the integrated magnitude 3.0 does not describe the fainter stars: it uses the 55′ diameter to set the initial field.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 3532 was the first target imaged by the Hubble Space Telescope in May 1990. That first light appeared blurry and helped reveal the mirror defect later corrected by the maintenance mission."
+      },
+      "caldwell-C92": {
+        "short_description": "C92, NGC 3372, the Carina Nebula, is a giant star-forming region in the southern sky. Bright areas, clusters and deep dark bands intertwine around Eta Carinae; with the naked eye and binoculars it is already impressive under a good sky. Its extension requires low magnification. NGC 3372 - Carina Nebula combines an apparent extent of 120′ x 120′ with integrated magnitude 6.2, so aperture and sky impact differently.",
+        "observing_notes": "Use binoculars or a wide-field telescope; explore Eta Carinae, the dark bands and the immersed clusters separately.",
+        "best_seen": "Spring",
+        "curiosity_text": "Eta Carinae, inside the Carina Nebula, survived the Great Eruption of the 19th century. The event ejected the Homunculus Nebula and briefly made the star one of the brightest in the sky."
+      },
+      "caldwell-C93": {
+        "short_description": "C93 (NGC 6752), Globular cluster in the constellation Peacock. The concentration towards the center is its dominant feature: the transition from a compact core to a sparser periphery is the detail to follow. Field preparation for C93 starts from 20′ extension and integrated magnitude 5.4.",
+        "observing_notes": "With C93 (NGC 6752), integrated magnitude 5.4, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6752 is so transparent between stars that much more distant galaxies appear behind the cluster in deep images. The field therefore superimposes objects separated by enormous cosmic distances."
+      },
+      "caldwell-C94": {
+        "short_description": "C94 (NGC 4755), Open cluster in the Southern Cross constellation. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brightest components. The observable profile of C94 can be smaller than the cataloged 10′ if the sky background reduces the contrast; the total magnitude is 4.2.",
+        "observing_notes": "On C94 (NGC 4755 - Scrigno di Gioielli), of integrated magnitude 4.2, initially preserves a field wider than 10′; only narrow it if component separation improves.",
+        "best_seen": "Spring",
+        "curiosity_text": "The Jewel Box owes its name to the contrast between blue stars and a central red supergiant. John Herschel compared it to a precious colored jewel observed through the telescope."
+      },
+      "caldwell-C95": {
+        "short_description": "C95 (NGC 6025), Open cluster in the constellation Triangulum Australis. The rendering changes a lot with magnification: a wide field shows the outline of the group, while going up, pairs and small concatenations appear. The 12′ measurement defines the scale of C95, while the integrated magnitude 5.1 summarizes all its light.",
+        "observing_notes": "For C95 (NGC 6025), of integrated magnitude 5.1, compare richness and concentration while keeping the entire 12′ extent visible.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6025 is a young and relatively compact cluster in the southern sky. The brightest stars trace a wedge shape, while the less conspicuous members extend the group well beyond the visual outline."
+      },
+      "caldwell-C96": {
+        "short_description": "C96 (NGC 2516), Open cluster in the constellation Carina. At the eyepiece, the design of the group counts above all: density, chains, voids and differences in brightness emerge better by keeping a bit of sky around. To plan your observation, consider the integrated magnitude 3.8 and the apparent extension 30′ together.",
+        "observing_notes": "For C96 (NGC 2516), which is 30′ across and has an integrated magnitude of 3.8, choose a field that leaves a margin of sky around the cluster before brightening.",
+        "best_seen": "Winter",
+        "curiosity_text": "NGC 2516 is called the Southern Beehive due to its similarity to M44. Its rich and nearby population includes chemically peculiar stars, useful for studying diffusion and magnetic fields in young stars."
+      },
+      "caldwell-C97": {
+        "short_description": "C97 (NGC 3766), Open cluster in the constellation Centaurus. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. NGC 3766 covers about 12′ in the sky and has an integrated magnitude of 5.3, two data points to be read together with the background contrast.",
+        "observing_notes": "In C97 (NGC 3766) the integrated magnitude 5.3 does not describe the fainter stars: it uses the 12′ diameter to set the initial field.",
+        "best_seen": "Spring",
+        "curiosity_text": "Observations of NGC 3766 revealed a class of variables that did not fit into traditional models. Many rotate rapidly: tilt and rotation seem crucial to explaining the faint pulsations."
+      },
+      "caldwell-C98": {
+        "short_description": "C98 (NGC 4609), Open cluster in the Southern Cross constellation. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brightest components. Its apparent scale is 5′; the 6.9 integrated magnitude does not alone describe what will be evident at the eyepiece.",
+        "observing_notes": "With C98 (NGC 4609), about 5′ wide and with integrated magnitude 6.9, first check the entire profile of the cluster and only then evaluate the closest pairs.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4609 appears projected against the much closer Coalsack Nebula. The dark dust absorbs and reddens the light from the cluster behind it, turning an array into a tool for measuring extinction."
+      },
+      "caldwell-C99": {
+        "short_description": "C99, the Coalsack Nebula, is a large dark nebula visible to the naked eye against the southern Milky Way, near the Southern Cross. It does not shine: it appears as a dark cavity where the stellar background seems to stop. Its shape is best appreciated without a telescope or with very low magnification binoculars. It extends about 400′ x 300′ and should be evaluated by contrast with the stellar background, not by an integrated magnitude.",
+        "observing_notes": "Observe it under a very dark sky with the naked eye or with binoculars, comparing the apparent void with the surrounding Milky Way.",
+        "best_seen": "Spring",
+        "curiosity_text": "The Coalsack does not emit light: it is a nearby cloud that obscures the Milky Way. In Australian Aboriginal traditions it forms the head of the Emu in the sky, a constellation drawn by dark spaces rather than stars."
+      },
+      "caldwell-C100": {
+        "short_description": "C100 (IC 2944), Open cluster in the constellation of Centaurus. It is a target to be read as a whole, looking for the central concentration and the geometric figures suggested by the brighter components. With dimensions 15′ and integrated magnitude 4.5, it requires a field consistent with its scale before looking for details.",
+        "observing_notes": "On C100 (IC 2944 - Lambda Centauri Cluster), of integrated magnitude 4.5, initially preserves a field wider than 15′; only narrow it if component separation improves.",
+        "best_seen": "Spring",
+        "curiosity_text": "IC 2944 contains Thackeray's globules, dense islands of dark dust silhouetted against bright hydrogen. Radiation from nearby stars is eroding them and may prevent some from collapsing into new stars."
+      },
+      "caldwell-C101": {
+        "short_description": "C101 (NGC 6744), Barred spiral galaxy in the constellation Peacock. It is best to start from the nucleus and the orientation of the halo; the bar and any hints of a spiral require dark skies and patient observation. The 9.0 magnitude figure concerns the entire object; the 16′ x 10′ extension helps estimate its real contrast.",
+        "observing_notes": "In C101 (NGC 6744), magnitude 9.0 and dimensions 16′ x 10′ must be read together: the surface contrast determines how much of the galaxy emerges.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6744 is one of the most convincing analogues of the Milky Way: large barred spiral with open arms and a small companion. Its disk, however, extends for almost double the diameter of our Galaxy."
+      },
+      "caldwell-C102": {
+        "short_description": "C102 (IC 2602), Open cluster in the constellation of Carina. The rendering changes a lot with magnification: a wide field shows the outline of the group, while going up, pairs and small concatenations appear. For C102, the comparison between 50′ extension and integrated magnitude 1.9 guides the choice of the initial field.",
+        "observing_notes": "For C102 (IC 2602 - Southern Pleiades), 50′ across and integrated magnitude 1.9, choose a field that leaves a margin of sky around the cluster before brightening.",
+        "best_seen": "Spring",
+        "curiosity_text": "IC 2602 is called the Southern Pleiades, but it is closer and younger than the Northern Pleiades. The bright Theta Carinae dominates a population visible even to the naked eye in a very wide field."
+      },
+      "caldwell-C103": {
+        "short_description": "C103 (NGC 2070), Nebula in the constellation Dorado. Alternate direct and averted vision to follow edges, dark areas and condensations, keeping enough reference stars in the field. At the eyepiece it must be searched on a scale of 40′ x 25′; the total brightness corresponds to the integrated magnitude 1.0.",
+        "observing_notes": "In C103 (NGC 2070 - Tarantula Nebula), of integrated magnitude 1.0, use the 40′ x 25′ dimensions to keep the entire nebulosity in the field before narrowing the frame.",
+        "best_seen": "Winter",
+        "curiosity_text": "Tarantula is the largest star-forming region of the Local Group. If it were at the distance of the Orion Nebula, it would cast shadows; the supernova SN 1987A also exploded in its vicinity."
+      },
+      "caldwell-C104": {
+        "short_description": "C104 (NGC 362), Globular cluster in the constellation of Tucanus. At first it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the dotted edge. NGC 362 combines an apparent extent of 13′ with integrated magnitude 6.6, so aperture and sky impact differently.",
+        "observing_notes": "On C104 (NGC 362), of integrated magnitude 6.6, use the 13′ diameter as a reference as you search for the first resolved stars.",
+        "best_seen": "Autumn",
+        "curiosity_text": "NGC 362 appears close to the Small Magellanic Cloud, but it belongs to the Milky Way and is much closer. It is relatively metal-rich and a few billion years younger than many classical globulars."
+      },
+      "caldwell-C105": {
+        "short_description": "C105 (NGC 4833), Globular cluster in the constellation of Moscow. At first it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the dotted edge. Field preparation for C105 starts at 14′ extension and integrated magnitude 7.3.",
+        "observing_notes": "With C105 (NGC 4833), integrated magnitude 7.3, it records central concentration and degree of peripheral resolution separately.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4833 is observed through a dusty region that dims its light. The orbit repeatedly takes it into the galactic disk, where tidal shocks may have taken away a substantial part of its original mass."
+      },
+      "caldwell-C106": {
+        "short_description": "C106, NGC 104, 47 Tucanae, is one of the brightest and most spectacular globulars in the sky. It shows a very dense core surrounded by a large halo of resolvable stars, with a more concentrated and regular appearance than Omega Centauri. The apparent proximity to the Small Magellanic Cloud creates an extraordinary field. The observable profile of C106 can be smaller than the 31′ cataloged if the sky background reduces the contrast; the total magnitude is 4.0.",
+        "observing_notes": "Use a medium field to include the halo, then zoom in to resolve the periphery and study the core.",
+        "best_seen": "Autumn",
+        "curiosity_text": "In 47 Tucanae the more massive stars migrate towards the center while the lighter ones move outwards. The distribution of blue stragglers works like a dynamic clock that measures how much the cluster has shuffled."
+      },
+      "caldwell-C107": {
+        "short_description": "C107 (NGC 6101), Globular cluster in the constellation Bird of Paradise. At first it looks like a small round cloud, but prolonged observation reveals differences between the bright core and the dotted edge. The measurement of 11′ defines the scale of C107, while the integrated magnitude 9.3 summarizes all its light.",
+        "observing_notes": "In C107 (NGC 6101), look for the transition between core and halo along all 11′ of the diameter, without relying on magnitude 9.3 alone.",
+        "best_seen": "Summer",
+        "curiosity_text": "NGC 6101 shows surprisingly little segregation by mass, despite its age. A population of stellar black holes retained in the cluster may have slowed down its internal dynamic evolution."
+      },
+      "caldwell-C108": {
+        "short_description": "C108 (NGC 4372), Globular cluster in the constellation of Moscow. It is an object that rewards progressive magnifications: first you recognize the halo, then you look for the resolution of the peripheral stars. To plan your observation, consider the integrated magnitude 7.8 and the apparent extension 19′ together.",
+        "observing_notes": "In C108 (NGC 4372), which extends 19′ and has an integrated magnitude of 7.8, note at what magnification the periphery changes from a uniform halo to a grainy texture.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 4372 lies behind the Coalsack dust and appears heavily red. It is a globular very low in metals, a relic of the early stages of formation of the Milky Way."
+      },
+      "caldwell-C109": {
+        "short_description": "C109 (NGC 3195), Planetary nebula in the constellation Chameleon. The shape is best read by alternating direct and averted viewing, looking for a disc, ring, or non-uniform internal structure. NGC 3195 covers about 0.6′; in the absence of a cataloged integrated magnitude, size and contrast determine the initial field.",
+        "observing_notes": "In C109 (NGC 3195) use the 0.6′ size to keep all the nebulosity in the field before narrowing the shot.",
+        "best_seen": "Spring",
+        "curiosity_text": "NGC 3195 is one of the southernmost planetary nebulae accessible to observers. Its elongated structure and high-speed flows indicate that the ejection of the central star was not spherical."
+      }
+    }
+  }
+}

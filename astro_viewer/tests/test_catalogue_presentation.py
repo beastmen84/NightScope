@@ -1,4 +1,5 @@
 from astro_viewer.app.services.catalogue_presentation import (
+    catalogue_display_name,
     catalogue_object_type_label,
     catalogue_observation_type_label,
 )
@@ -23,3 +24,9 @@ def test_catalogue_observation_types_have_italian_display_labels() -> None:
 def test_unknown_catalogue_values_remain_unchanged() -> None:
     assert catalogue_object_type_label("Future catalogue type") == "Future catalogue type"
     assert catalogue_observation_type_label("FutureMode") == "FutureMode"
+
+
+def test_catalogue_display_name_is_derived_with_designation_first() -> None:
+    assert catalogue_display_name("M1", "Crab Nebula") == "M1 Crab Nebula"
+    assert catalogue_display_name("M93", "M93") == "M93"
+    assert catalogue_display_name("C1", "") == "C1"

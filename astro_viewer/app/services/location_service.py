@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
+from astro_viewer.app.services.localization import format_number, tr
 
 
 logger = logging.getLogger(__name__)
@@ -34,13 +35,10 @@ WINDOWS_TO_IANA_TIMEZONES = {
 }
 
 WINDOWS_LOCATION_UNAVAILABLE_MESSAGE = (
-    "La posizione Windows non è disponibile. Scegli una città o inserisci le coordinate manualmente."
-)
-APPROXIMATE_LOCATION_SUCCESS_MESSAGE = (
-    "Posizione approssimata rilevata tramite connessione internet: {city}, {country}. La precisione può essere limitata."
+    tr("La posizione Windows non è disponibile. Scegli una città o inserisci le coordinate manualmente.")
 )
 APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE = (
-    "La posizione approssimata online non è disponibile. Scegli una città o inserisci le coordinate manualmente."
+    tr("La posizione approssimata online non è disponibile. Scegli una città o inserisci le coordinate manualmente.")
 )
 
 
@@ -94,9 +92,16 @@ class WindowsLocationProvider:
 
     def detect(self) -> LocationDetectionResult:
         payload = self._windows_location_payload(_windows_geolocation_script(precise=True))
-        location = self._location_from_windows_payload(payload, provider_label="Posizione Windows")
+        location = self._location_from_windows_payload(
+            payload,
+            provider_label=tr("Posizione Windows"),
+        )
         accuracy = payload.get("accuracy")
-        accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "precisa"
+        accuracy_label = (
+            tr("{value} m", value=format_number(float(accuracy)))
+            if _is_number(accuracy)
+            else tr("precisa")
+        )
         raw_timezone = str(payload.get("raw_provider_timezone") or payload.get("timezone") or "")
         return LocationDetectionResult(
             location=location,
@@ -105,7 +110,7 @@ class WindowsLocationProvider:
             accuracy=accuracy_label,
             approximate=False,
             raw_provider_timezone=raw_timezone,
-            message="Posizione Windows acquisita.",
+            message=tr("Posizione Windows acquisita."),
         )
 
     def diagnostics(self) -> dict:
@@ -141,7 +146,11 @@ class WindowsLocationProvider:
             raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, reason)
         return payload
 
-    def _location_from_windows_payload(self, payload: dict, provider_label: str = "Posizione Windows") -> ObserverLocation:
+    def _location_from_windows_payload(
+        self,
+        payload: dict,
+        provider_label: str,
+    ) -> ObserverLocation:
         latitude = _required_coordinate(payload, "latitude", -90.0, 90.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
         longitude = _required_coordinate(payload, "longitude", -180.0, 180.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
         windows_timezone = payload.get("timezone", "")
@@ -159,9 +168,16 @@ class WindowsCoarseLocationProvider(WindowsLocationProvider):
 
     def detect(self) -> LocationDetectionResult:
         payload = self._windows_location_payload(_windows_geolocation_script(precise=False))
-        location = self._location_from_windows_payload(payload, provider_label="Posizione Windows approssimata")
+        location = self._location_from_windows_payload(
+            payload,
+            provider_label=tr("Posizione Windows approssimata"),
+        )
         accuracy = payload.get("accuracy")
-        accuracy_label = f"{round(float(accuracy))} m" if _is_number(accuracy) else "approssimata"
+        accuracy_label = (
+            tr("{value} m", value=format_number(float(accuracy)))
+            if _is_number(accuracy)
+            else tr("approssimata")
+        )
         raw_timezone = str(payload.get("raw_provider_timezone") or payload.get("timezone") or "")
         return LocationDetectionResult(
             location=location,
@@ -170,7 +186,7 @@ class WindowsCoarseLocationProvider(WindowsLocationProvider):
             accuracy=accuracy_label,
             approximate=True,
             raw_provider_timezone=raw_timezone,
-            message="Posizione Windows approssimata acquisita.",
+            message=tr("Posizione Windows approssimata acquisita."),
         )
 
 
@@ -212,7 +228,7 @@ class IpGeolocationProvider:
         if endpoint.endswith("ipwho.is/") and payload.get("success") is False:
             raise ValueError(str(payload.get("message") or "IP geolocation failed."))
 
-        city = str(payload.get("city") or "Posizione approssimata").strip()
+        city = str(payload.get("city") or "").strip() or tr("Posizione approssimata")
         region = str(payload.get("region") or payload.get("region_name") or "").strip()
         country = str(payload.get("country_name") or payload.get("country") or "").strip()
         timezone_value = payload.get("timezone")
@@ -221,7 +237,7 @@ class IpGeolocationProvider:
         timezone_name = str(timezone_value or system_timezone()).strip()
         latitude = _required_coordinate(payload, "latitude", -90.0, 90.0, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE)
         longitude = _required_coordinate(payload, "longitude", -180.0, 180.0, APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE)
-        accuracy = payload.get("accuracy_radius") or payload.get("accuracy") or "city-level"
+        accuracy = payload.get("accuracy_radius") or payload.get("accuracy") or tr("livello città")
         location = ObserverLocation(
             city=city,
             country=country,
@@ -236,7 +252,12 @@ class IpGeolocationProvider:
             accuracy=str(accuracy),
             approximate=True,
             region=region,
-            message=APPROXIMATE_LOCATION_SUCCESS_MESSAGE.format(city=city, country=country or "unknown"),
+            message=tr(
+                "Posizione approssimata rilevata tramite connessione internet: "
+                "{city}, {country}. La precisione può essere limitata.",
+                city=city,
+                country=country or tr("sconosciuto"),
+            ),
         )
 
     def _write_cache(self, result: LocationDetectionResult) -> None:
@@ -245,6 +266,7 @@ class IpGeolocationProvider:
         try:
             self._cache_path.parent.mkdir(parents=True, exist_ok=True)
             payload = result.to_qml()
+            payload.pop("message", None)
             payload["cachedAt"] = datetime.now().isoformat(timespec="seconds")
             self._cache_path.write_text(json.dumps(payload), encoding="utf-8")
         except OSError:
@@ -267,12 +289,14 @@ class IpGeolocationProvider:
                 location=location,
                 provider=payload.get("provider", self.name),
                 source=f"{payload.get('source', 'cached IP geolocation')} cached",
-                accuracy=payload.get("accuracy", "city-level"),
+                accuracy=payload.get("accuracy", tr("livello città")),
                 approximate=True,
                 region=payload.get("region", ""),
-                message=APPROXIMATE_LOCATION_SUCCESS_MESSAGE.format(
+                message=tr(
+                    "Posizione approssimata rilevata tramite connessione internet: "
+                    "{city}, {country}. La precisione può essere limitata.",
                     city=location.city,
-                    country=location.country or "unknown",
+                    country=location.country or tr("sconosciuto"),
                 ),
             )
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
@@ -295,10 +319,14 @@ class ManualCityProvider:
             location=location,
             provider=self.name,
             source="SQLite City",
-            accuracy="city coordinates",
+            accuracy=tr("coordinate della città"),
             approximate=False,
             country_code=str(city.get("country_code") or ""),
-            message=f"Posizione impostata su {city['city']}, {city['country']}.",
+            message=tr(
+                "Posizione impostata su {city}, {country}.",
+                city=city["city"],
+                country=city["country"],
+            ),
         )
 
 
@@ -324,10 +352,14 @@ class ManualCoordinatesProvider:
         return LocationDetectionResult(
             location=location,
             provider=self.name,
-            source="Coordinate manuali",
-            accuracy="user supplied",
+            source=tr("Coordinate manuali"),
+            accuracy=tr("fornita dall'utente"),
             approximate=False,
-            message=f"Coordinate impostate: {latitude:.4f}, {longitude:.4f}.",
+            message=tr(
+                "Coordinate impostate: {latitude}, {longitude}.",
+                latitude=format_number(latitude, decimals=4),
+                longitude=format_number(longitude, decimals=4),
+            ),
         )
 
 
@@ -422,7 +454,10 @@ class LocationService:
         return self.detect_ip_location(allow_online).location
 
     def _location_from_windows_payload(self, payload: dict) -> ObserverLocation:
-        return WindowsLocationProvider()._location_from_windows_payload(payload)
+        return WindowsLocationProvider()._location_from_windows_payload(
+            payload,
+            provider_label=tr("Posizione Windows"),
+        )
 
     def windows_location_diagnostics(self) -> dict:
         provider = self.windows_provider
@@ -477,7 +512,11 @@ class LocationService:
                 region=str(city.get("admin_region") or result.region),
                 country_code=str(city.get("country_code") or result.country_code),
                 raw_provider_timezone=raw_timezone,
-                message=f"Posizione Windows acquisita: {city['city']}, {city['country']}.",
+                message=tr(
+                    "Posizione Windows acquisita: {city}, {country}.",
+                    city=city["city"],
+                    country=city["country"],
+                ),
             )
 
         fallback_timezone = self._timezone_from_coordinates(latitude, longitude, raw_timezone)

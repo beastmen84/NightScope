@@ -123,19 +123,22 @@ Item {
             spacing: 8
 
             StatusPill {
-                text: qsTr("Sessioni: ") + (root.summary.total || 0)
+                text: qsTr("Sessioni: %1").arg(root.summary.total || 0)
                 accentColor: theme.cyan
             }
             StatusPill {
-                text: qsTr("Oggetti distinti: ") + (root.summary.uniqueObjects || 0)
+                text: qsTr("Oggetti distinti: %1").arg(root.summary.uniqueObjects || 0)
                 accentColor: theme.violet
             }
             StatusPill {
-                text: qsTr("Valutazione media: ") + (root.summary.averageRating > 0 ? root.summary.averageRating + "/5" : "-")
+                text: qsTr("Valutazione media: %1").arg(
+                          root.summary.averageRating > 0
+                          ? root.summary.averageRatingLabel + "/5"
+                          : "-")
                 accentColor: theme.amber
             }
             StatusPill {
-                text: qsTr("Ultima: ") + (root.summary.latestLabel || "-")
+                text: qsTr("Ultima: %1").arg(root.summary.latestLabel || "-")
                 accentColor: theme.teal
             }
             Item { Layout.fillWidth: true }
@@ -163,7 +166,7 @@ Item {
                 Layout.fillWidth: true
                 text: root.filteredObservations().length === 1
                       ? qsTr("1 risultato")
-                      : root.filteredObservations().length + qsTr(" risultati")
+                      : qsTr("%1 risultati").arg(root.filteredObservations().length)
                 color: theme.textSecondary
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignRight
@@ -434,7 +437,8 @@ Item {
 
         Text {
             Layout.fillWidth: true
-            text: qsTr("L'osservazione di ") + (root.pendingDeletion.objectName || qsTr("questo oggetto")) + qsTr(" verrà eliminata definitivamente.")
+            text: qsTr("L'osservazione di %1 verrà eliminata definitivamente.")
+                .arg(root.pendingDeletion.objectName || qsTr("questo oggetto"))
             color: theme.textSecondary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

@@ -113,6 +113,7 @@ def _create_initialization_splash(app):
     from PySide6.QtCore import Qt
     from PySide6.QtGui import QIcon, QPixmap
     from PySide6.QtWidgets import QDialog, QLabel, QProgressBar, QVBoxLayout
+    from astro_viewer.app.services.localization import render_text, tr
 
     dialog = QDialog()
     dialog.setWindowTitle(APP_NAME)
@@ -176,17 +177,17 @@ def _create_initialization_splash(app):
     app_name.setAlignment(Qt.AlignHCenter)
     layout.addWidget(app_name)
 
-    message = QLabel("Inizializzazione database al primo avvio...")
+    message = QLabel(render_text(tr("Inizializzazione database al primo avvio...")))
     message.setObjectName("message")
     message.setAlignment(Qt.AlignHCenter)
     layout.addWidget(message)
 
-    secondary = QLabel("Preparazione cataloghi e dati locali.")
+    secondary = QLabel(render_text(tr("Preparazione cataloghi e dati locali.")))
     secondary.setObjectName("secondary")
     secondary.setAlignment(Qt.AlignHCenter)
     layout.addWidget(secondary)
 
-    status = QLabel("Creazione database...")
+    status = QLabel(render_text(tr("Creazione database...")))
     status.setObjectName("status")
     status.setAlignment(Qt.AlignHCenter)
     layout.addWidget(status)
@@ -202,11 +203,13 @@ def _create_initialization_splash(app):
     return dialog, status, progress
 
 
-def _update_initialization_splash(app, splash, message: str) -> None:
+def _update_initialization_splash(app, splash, message: object) -> None:
     if not splash:
         return
     _, status, progress = splash
-    status.setText(message)
+    from astro_viewer.app.services.localization import render_text
+
+    status.setText(render_text(message))
     next_value = progress.value() + 9
     progress.setValue(18 if next_value > 92 else next_value)
     app.processEvents()
@@ -278,17 +281,25 @@ def run_app() -> int:
     try:
         controller = _build_controller(progress_callback=progress_callback)
     except Exception:
+        from astro_viewer.app.services.localization import render_text, tr
+
         logging.getLogger(__name__).exception("NightScope database initialization failed.")
+        error_title = tr("Impossibile inizializzare il database locale.")
         if splash:
-            _update_initialization_splash(app, splash, "Impossibile inizializzare il database locale.")
+            _update_initialization_splash(app, splash, error_title)
             splash[0].close()
         QMessageBox.critical(
             None,
             APP_NAME,
-            "Impossibile inizializzare il database locale.\n\n"
-            "Verifica i permessi della cartella dell'applicazione e riavvia NightScope.",
+            render_text(
+                tr(
+                    "Impossibile inizializzare il database locale.\n\n"
+                    "Verifica i permessi della cartella dell'applicazione e riavvia NightScope."
+                )
+            ),
         )
         return 1
+    translation_manager.languageChanged.connect(controller.retranslatePresentation)
     if splash:
         splash[0].close()
 
@@ -321,6 +332,7 @@ def run_qml_smoke_test() -> int:
     translation_manager = _build_translation_manager()
     translation_manager.install()
     controller = _build_controller()
+    translation_manager.languageChanged.connect(controller.retranslatePresentation)
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)

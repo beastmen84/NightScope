@@ -19,7 +19,9 @@ Item {
     function currentLocationTitle() {
         if (!controller.hasValidLocation)
             return qsTr("Nessuna posizione")
-        return controller.location.city + " (" + controller.location.latitude.toFixed(4) + " / " + controller.location.longitude.toFixed(4) + ")"
+        return qsTr("%1 (%2)")
+            .arg(controller.location.city)
+            .arg(controller.location.coordinatesLabel)
     }
 
     AppTheme {
@@ -300,7 +302,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: modelData.latitude.toFixed(2) + ", " + modelData.longitude.toFixed(2)
+                                        text: modelData.coordinatesLabel
                                         color: theme.textMuted
                                         font.pixelSize: 11
                                     }
@@ -397,7 +399,9 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: controller.locationDetails.approximate === true
-                        text: qsTr("Origine: ") + controller.locationDetails.source + "  -  accuratezza: " + controller.locationDetails.accuracy
+                        text: qsTr("Origine: %1  -  accuratezza: %2")
+                            .arg(controller.locationDetails.source)
+                            .arg(controller.locationDetails.accuracy)
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap

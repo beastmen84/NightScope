@@ -12,6 +12,7 @@ from astro_viewer.app.services.observation_conditions_service import (
     ObservationConditionInputs,
 )
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
+from astro_viewer.app.services.localization import tr
 
 
 class NsomCategoryScoreService:
@@ -38,7 +39,7 @@ class NsomCategoryScoreService:
             deep_sky_score=deep_sky_score,
             planetary_label=scorer.score_label(planetary_score),
             deep_sky_label=scorer.score_label(deep_sky_score),
-            explanation=(
+            explanation=tr(
                 "Condizioni di categoria NSOM: ambiente atmosferico, fondo cielo e Luna "
                 "sono applicati una sola volta; sessione ed equipaggiamento restano separati."
             ),

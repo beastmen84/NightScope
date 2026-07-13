@@ -12,10 +12,11 @@ from pathlib import Path
 from typing import Callable
 
 from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
+from astro_viewer.app.services.localization import tr
 
 
 logger = logging.getLogger(__name__)
-ProgressCallback = Callable[[str], None]
+ProgressCallback = Callable[[object], None]
 SCHEMA_VERSION = 14
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
@@ -145,13 +146,13 @@ def initialize_database(
     progress_callback: ProgressCallback | None = None,
     geonames_data_dir: Path | None = None,
 ) -> None:
-    _notify_progress(progress_callback, "Creazione database...")
+    _notify_progress(progress_callback, tr("Creazione database..."))
     database_path.parent.mkdir(parents=True, exist_ok=True)
     schema_sql = schema_path.read_text(encoding="utf-8")
     catalogue_objects_path = schema_path.with_name("catalogue_objects_seed.csv")
 
     if database_path.exists() and not _database_is_healthy(database_path):
-        _notify_progress(progress_callback, "Ricostruzione database locale...")
+        _notify_progress(progress_callback, tr("Ricostruzione database locale..."))
         _quarantine_database(database_path)
     elif database_path.exists():
         _backup_database(database_path)
@@ -169,7 +170,7 @@ def initialize_database(
             logger.exception("Database bootstrap failed during schema migration.")
             raise
         logger.warning("Database appears damaged; rebuilding from local schema.", exc_info=True)
-        _notify_progress(progress_callback, "Ricostruzione database locale...")
+        _notify_progress(progress_callback, tr("Ricostruzione database locale..."))
         _quarantine_database(database_path)
         _build_database(
             database_path,
@@ -230,7 +231,7 @@ def _build_database(
             connection.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         data_dir = catalogue_objects_path.parent
         geonames_source_dir = geonames_data_dir or database_path.parent
-        _notify_progress(progress_callback, "Importazione cataloghi...")
+        _notify_progress(progress_callback, tr("Importazione cataloghi..."))
         _import_geonames_cities_if_available(
             connection,
             geonames_source_dir,
@@ -259,12 +260,12 @@ def _build_database(
         _seed_object_descriptions(connection, data_dir / "object_descriptions_seed.csv")
         _seed_object_curiosities(connection, data_dir / "object_curiosities_seed.csv")
         _seed_default_profiles(connection)
-        _notify_progress(progress_callback, "Finalizzazione...")
+        _notify_progress(progress_callback, tr("Finalizzazione..."))
         connection.commit()
     logger.info("Database ready.")
 
 
-def _notify_progress(progress_callback: ProgressCallback | None, message: str) -> None:
+def _notify_progress(progress_callback: ProgressCallback | None, message: object) -> None:
     if progress_callback:
         progress_callback(message)
 
@@ -697,7 +698,10 @@ def _import_geonames_cities_if_available(
     from astro_viewer.app.database.geonames_importer import import_geonames_cities
 
     def report_progress(rows: int) -> None:
-        _notify_progress(progress_callback, f"Importazione catalogo città... {rows} righe")
+        _notify_progress(
+            progress_callback,
+            tr("Importazione catalogo città... {rows} righe", rows=rows),
+        )
 
     existing_city_count = connection.execute("SELECT COUNT(*) FROM City").fetchone()[0]
     if existing_city_count:

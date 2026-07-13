@@ -111,6 +111,8 @@ def test_service_uses_observable_target_map_without_changing_payload_geometry() 
         "id": "galaxy",
         "name": "Galaxy",
         "type": "Galaxy",
+        "typeLabel": "Galassia",
+        "typeCode": "galaxy",
         "score": 10,
         "inPlan": False,
         "isBest": False,

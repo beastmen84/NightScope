@@ -5,6 +5,7 @@ from typing import Iterable
 
 from astro_viewer.app.models.equipment import FocalReducer
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.services.localization import format_compact_number, join_text, tr
 
 
 @dataclass(frozen=True)
@@ -15,7 +16,11 @@ class ReducerRecommendationItem:
 
     @property
     def display_label(self) -> str:
-        return f"{self.name} ({self.reduction_factor:g}x)"
+        return tr(
+            "{name} ({factor}x)",
+            name=self.name,
+            factor=format_compact_number(self.reduction_factor),
+        )
 
     def to_payload(self) -> dict[str, object]:
         return {
@@ -85,11 +90,11 @@ class ReducerRecommendationService:
             applicable=True,
             available=available,
             label=(
-                "Riduttore fotografico consigliato"
+                tr("Riduttore fotografico consigliato")
                 if available
-                else "Riduttore fotografico suggerito (non disponibile)"
+                else tr("Riduttore fotografico suggerito (non disponibile)")
             ),
-            value=" / ".join(item.display_label for item in items),
+            value=join_text([item.display_label for item in items], " / "),
             items=items,
         )
 

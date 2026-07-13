@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from astro_viewer.app.services.localization import format_compact_number, format_number, tr
+
 
 @dataclass(frozen=True)
 class WeatherHour:
@@ -33,6 +35,22 @@ class WeatherHour:
         data["cloudCoverHigh"] = self.cloud_cover_high
         data["windGustsKmh"] = self.wind_gusts_kmh
         data["dewPointC"] = self.dew_point_c
+        data["cloudCoverLabel"] = tr(
+            "{value}%", value=format_number(self.cloud_cover)
+        )
+        data["precipitationProbabilityLabel"] = tr(
+            "{value}%", value=format_number(self.precipitation_probability)
+        )
+        data["windLabel"] = tr(
+            "{value} km/h", value=format_number(self.wind_kmh)
+        )
+        data["humidityLabel"] = tr(
+            "{value}%", value=format_number(self.humidity)
+        )
+        data["temperatureLabel"] = tr(
+            "{value} °C",
+            value=format_compact_number(self.temperature_c, max_decimals=1),
+        )
         return data
 
 
@@ -56,6 +74,22 @@ class WeatherSummary:
         data["precipitationProbability"] = self.precipitation_probability
         data["windKmh"] = self.wind_kmh
         data["temperatureC"] = self.temperature_c
+        data["cloudCoverLabel"] = tr(
+            "{value}%", value=format_number(self.cloud_cover)
+        )
+        data["precipitationProbabilityLabel"] = tr(
+            "{value}%", value=format_number(self.precipitation_probability)
+        )
+        data["windLabel"] = tr(
+            "{value} km/h", value=format_number(self.wind_kmh)
+        )
+        data["humidityLabel"] = tr(
+            "{value}%", value=format_number(self.humidity)
+        )
+        data["temperatureLabel"] = tr(
+            "{value} °C",
+            value=format_compact_number(self.temperature_c, max_decimals=1),
+        )
         return data
 
 

@@ -16,10 +16,10 @@ def test_profile_capabilities_with_multiple_eyepieces_preserve_display_values() 
 
     assert capabilities["availableMagnificationMin"] == "20x"
     assert capabilities["availableMagnificationMax"] == "65x"
-    assert capabilities["exitPupilMin"] == "2.0 mm"
-    assert capabilities["exitPupilMax"] == "6.5 mm"
-    assert capabilities["trueFieldMin"] == "0.92 gradi"
-    assert capabilities["trueFieldMax"] == "3.40 gradi"
+    assert capabilities["exitPupilMin"] == "2,0 mm"
+    assert capabilities["exitPupilMax"] == "6,5 mm"
+    assert capabilities["trueFieldMin"] == "0,92 gradi"
+    assert capabilities["trueFieldMax"] == "3,40 gradi"
     assert capabilities["availableConfigurationsText"] == "20x, 65x"
     assert capabilities["availableConfigurations"] == [
         {
@@ -49,8 +49,8 @@ def test_profile_capabilities_include_barlow_and_no_barlow_configurations() -> N
     )
 
     assert capabilities["availableMagnificationMax"] == "130x"
-    assert capabilities["exitPupilMin"] == "1.0 mm"
-    assert capabilities["trueFieldMin"] == "0.46 gradi"
+    assert capabilities["exitPupilMin"] == "1,0 mm"
+    assert capabilities["trueFieldMin"] == "0,46 gradi"
     assert capabilities["availableConfigurationsText"] == "20x, 41x, 65x, 130x"
     assert [(item["label"], item["magnification"], item["barlow"]) for item in capabilities["availableConfigurations"]] == [
         ("32 mm", "20x", "No"),

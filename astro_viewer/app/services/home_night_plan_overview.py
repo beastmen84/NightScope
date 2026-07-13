@@ -4,7 +4,10 @@ from collections import Counter
 from collections.abc import Mapping, Sequence
 
 from astro_viewer.app.models.sky import NightPlanItem
+from astro_viewer.app.services.catalogue_presentation import catalogue_object_type_label
+from astro_viewer.app.services.direction_presentation import direction_code, direction_label
 from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModel
+from astro_viewer.app.services.localization import join_text, presentation_text, tr
 from astro_viewer.app.services.nsom_target import unique_targets_by_id
 
 
@@ -67,19 +70,23 @@ def _profile_payload(
     equipment_parts = [
         part
         for part in (
-            _count_label(telescope_count, "telescopio", "telescopi"),
-            _count_label(binocular_count, "binocolo", "binocoli"),
-            _count_label(eyepiece_count, "oculare", "oculari"),
-            _count_label(barlow_count, "Barlow", "Barlow"),
+            _telescope_count_label(telescope_count),
+            _binocular_count_label(binocular_count),
+            _eyepiece_count_label(eyepiece_count),
+            _barlow_count_label(barlow_count),
         )
         if part
     ]
     if not equipment_parts:
-        equipment_parts.append("occhio nudo")
-    name = _text(active_profile, "profile_name") or "Occhio nudo"
+        equipment_parts.append(tr("occhio nudo"))
+    name = _text(active_profile, "profile_name") or tr("Occhio nudo")
     return {
         "name": name,
-        "summary": f"Profilo attivo: {name}  ·  {'  ·  '.join(equipment_parts)}",
+        "summary": tr(
+            "Profilo attivo: {name}  ·  {equipment}",
+            name=name,
+            equipment=join_text(equipment_parts, "  ·  "),
+        ),
         "telescopeCount": telescope_count,
         "eyepieceCount": eyepiece_count,
         "barlowCount": barlow_count,
@@ -96,24 +103,24 @@ def _plan_payload(
     loading: bool,
 ) -> dict[str, object]:
     titles = {
-        "pending": "Piano in aggiornamento",
-        "recommended": "Piano osservativo consigliato",
-        "monitor": "Finestra da monitorare",
-        "discouraged": "Sessione sconsigliata",
-        "unavailable": "Piano osservativo non disponibile",
+        "pending": tr("Piano in aggiornamento"),
+        "recommended": tr("Piano osservativo consigliato"),
+        "monitor": tr("Finestra da monitorare"),
+        "discouraged": tr("Sessione sconsigliata"),
+        "unavailable": tr("Piano osservativo non disponibile"),
     }
     subtitles = {
-        "pending": "La sequenza sarà calcolata appena la posizione è disponibile",
-        "recommended": "Le quattro opportunità migliori, ordinate per orario",
-        "monitor": "Condizioni variabili: nessuna sequenza viene consigliata",
-        "discouraged": "Nessun piano consigliato nelle condizioni previste",
-        "unavailable": "Servono posizione e condizioni aggiornate",
+        "pending": tr("La sequenza sarà calcolata appena la posizione è disponibile"),
+        "recommended": tr("Le quattro opportunità migliori, ordinate per orario"),
+        "monitor": tr("Condizioni variabili: nessuna sequenza viene consigliata"),
+        "discouraged": tr("Nessun piano consigliato nelle condizioni previste"),
+        "unavailable": tr("Servono posizione e condizioni aggiornate"),
     }
     if state == "recommended" and not items:
         message = (
-            "Aggiornamento del piano osservativo..."
+            tr("Aggiornamento del piano osservativo...")
             if loading
-            else "Nessun oggetto utile nella finestra notturna."
+            else tr("Nessun oggetto utile nella finestra notturna.")
         )
     elif state == "recommended":
         message = ""
@@ -156,7 +163,8 @@ def _plan_items(
                 "image": item.image,
                 "typeLabel": _localized_type(_text(target, "type")),
                 "timeLabel": item.time_label,
-                "direction": item.direction,
+                "directionCode": direction_code(item.direction),
+                "direction": direction_label(item.direction),
                 "difficulty": item.difficulty,
                 "compactSetup": _compact_setup(
                     item.setup,
@@ -181,27 +189,27 @@ def _alternatives_payload(
     planet_count = sum(item["category"] == "planet" for item in items)
     deep_sky_count = len(items) - planet_count
     titles = {
-        "monitor": "Oggetti visibili da monitorare",
-        "discouraged": "Oggetti astronomicamente visibili stasera",
+        "monitor": tr("Oggetti visibili da monitorare"),
+        "discouraged": tr("Oggetti astronomicamente visibili stasera"),
     }
     subtitles = {
-        "pending": "La lista sarà calcolata appena la posizione è disponibile",
-        "recommended": "Fuori dal piano, ordinati per finestra osservativa",
-        "monitor": "Visibilità astronomica; verifica le condizioni prima di osservare",
-        "discouraged": "Geometria favorevole, ma la sessione non è consigliata",
-        "unavailable": "Servono posizione e condizioni aggiornate",
+        "pending": tr("La lista sarà calcolata appena la posizione è disponibile"),
+        "recommended": tr("Fuori dal piano, ordinati per finestra osservativa"),
+        "monitor": tr("Visibilità astronomica; verifica le condizioni prima di osservare"),
+        "discouraged": tr("Geometria favorevole, ma la sessione non è consigliata"),
+        "unavailable": tr("Servono posizione e condizioni aggiornate"),
     }
     subtitle = subtitles[state]
     if sky_quality_warning and state in {"recommended", "monitor"}:
         subtitle = sky_quality_warning
     empty_text = (
-        "Calcolo della visibilità..."
+        tr("Calcolo della visibilità...")
         if loading or state == "pending"
-        else "Nessun altro oggetto utile fuori dal piano."
+        else tr("Nessun altro oggetto utile fuori dal piano.")
     )
     return {
         "state": state,
-        "title": titles.get(state, "Altri oggetti visibili stasera"),
+        "title": titles.get(state, tr("Altri oggetti visibili stasera")),
         "subtitle": subtitle,
         "emptyText": empty_text,
         "totalCount": len(items),
@@ -221,11 +229,12 @@ def _alternative_item(item: Mapping[str, object]) -> dict[str, object]:
         "name": _text(item, "name"),
         "image": _text(item, "image"),
         "category": category,
-        "categoryLabel": "Pianeta" if category == "planet" else "Cielo profondo",
+        "categoryLabel": tr("Pianeta") if category == "planet" else tr("Cielo profondo"),
         "typeLabel": _localized_type(_text(item, "type")),
-        "windowLabel": window_label or "n/d",
-        "direction": _text(item, "direction") or "n/d",
-        "difficulty": _text(item, "difficulty") or "n/d",
+        "windowLabel": window_label or tr("n/d"),
+        "directionCode": direction_code(_text(item, "direction")),
+        "direction": direction_label(_text(item, "direction")),
+        "difficulty": _text(item, "difficulty") or tr("n/d"),
     }
 
 
@@ -258,7 +267,7 @@ def _compact_setup(
         return setup_model.setup_text or fallback
 
     option = next(
-        (candidate for candidate in setup_model.setup_options if candidate.role == "Consigliato"),
+        (candidate for candidate in setup_model.setup_options if candidate.role_code == "recommended"),
         setup_model.setup_options[0] if setup_model.setup_options else None,
     )
     setup_label = option.detail_label if option else setup_model.setup_text
@@ -277,7 +286,7 @@ def _compact_setup(
         and option.barlow.casefold() not in setup_label.casefold()
     ):
         parts.append(option.barlow)
-    return "  ·  ".join(dict.fromkeys(parts)) or fallback
+    return join_text(list(dict.fromkeys(parts)), "  ·  ") if parts else fallback
 
 
 def _instrument_label(setup_model: EquipmentSetupReadModel | None) -> str:
@@ -286,9 +295,9 @@ def _instrument_label(setup_model: EquipmentSetupReadModel | None) -> str:
     if _is_telescope(setup_model):
         return setup_model.telescope_name
     if setup_model.equipment_type == "Binocular":
-        return setup_model.setup_text or "Binocolo"
+        return setup_model.setup_text or tr("Binocolo")
     if setup_model.equipment_type == "NakedEye" or setup_model.setup_type == "naked_eye":
-        return "Occhio nudo"
+        return tr("Occhio nudo")
     return setup_model.telescope_name
 
 
@@ -313,43 +322,32 @@ def _session_state(session: Mapping[str, object]) -> str:
 
 
 def _localized_type(value: str) -> str:
-    normalized = value.casefold()
-    labels = (
-        ("milky way star cloud", "Nube stellare della Via Lattea"),
-        ("supernova remnant", "Resto di supernova"),
-        ("optical double", "Stella doppia ottica"),
-        ("asterism", "Asterismo"),
-        ("planetary nebula", "Nebulosa planetaria"),
-        ("h ii region nebula with cluster", "Regione H II con ammasso"),
-        ("h ii region", "Regione H II"),
-        ("nebula with cluster", "Nebulosa con ammasso"),
-        ("diffuse nebula", "Nebulosa diffusa"),
-        ("barred spiral galaxy", "Galassia spirale barrata"),
-        ("dwarf elliptical galaxy", "Galassia ellittica nana"),
-        ("elliptical galaxy", "Galassia ellittica"),
-        ("lenticular galaxy", "Galassia lenticolare"),
-        ("spiral galaxy", "Galassia spirale"),
-        ("starburst galaxy", "Galassia starburst"),
-        ("galaxy", "Galassia"),
-        ("globular cluster", "Ammasso globulare"),
-        ("open cluster", "Ammasso aperto"),
-        ("cluster", "Ammasso"),
-        ("nebula", "Nebulosa"),
-    )
-    if normalized in {"planet", "pianeta"}:
-        return "Pianeta"
-    for fragment, label in labels:
-        if fragment in normalized:
-            return label
-    return value or "Oggetto"
+    return catalogue_object_type_label(value) if value else tr("Oggetto")
 
 
-def _count_label(count: int, singular: str, plural: str) -> str:
+def _telescope_count_label(count: int) -> str:
     if count <= 0:
         return ""
-    return f"{count} {singular if count == 1 else plural}"
+    return tr("{count} telescopio", count=count) if count == 1 else tr("{count} telescopi", count=count)
+
+
+def _binocular_count_label(count: int) -> str:
+    if count <= 0:
+        return ""
+    return tr("{count} binocolo", count=count) if count == 1 else tr("{count} binocoli", count=count)
+
+
+def _eyepiece_count_label(count: int) -> str:
+    if count <= 0:
+        return ""
+    return tr("{count} oculare", count=count) if count == 1 else tr("{count} oculari", count=count)
+
+
+def _barlow_count_label(count: int) -> str:
+    if count <= 0:
+        return ""
+    return tr("{count} Barlow", count=count)
 
 
 def _text(payload: Mapping[str, object], key: str) -> str:
-    value = payload.get(key, "")
-    return "" if value is None else str(value)
+    return presentation_text(payload.get(key, ""))

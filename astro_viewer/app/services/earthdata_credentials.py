@@ -12,6 +12,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from astro_viewer.app.services.localization import tr
+
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +44,7 @@ class EarthdataCredentialState:
     secure_store_available: bool = False
     connection_verified: bool = False
     authorization_required: bool = False
-    message: str = "Credenziali Earthdata non configurate."
+    message: str = tr("Credenziali Earthdata non configurate.")
 
 
 @dataclass(frozen=True)
@@ -73,7 +75,7 @@ class EarthdataCredentialStore:
                 username=username,
                 configured=False,
                 secure_store_available=False,
-                message="Archivio credenziali di sistema non disponibile.",
+                message=tr("Archivio credenziali di sistema non disponibile."),
             )
         configured = bool(username and self.password())
         connection_verified = configured and payload.get(EARTHDATA_VERIFIED_USERNAME_KEY) == username
@@ -83,13 +85,13 @@ class EarthdataCredentialStore:
             and payload.get(EARTHDATA_AUTHORIZATION_REQUIRED_USERNAME_KEY) == username
         )
         if connection_verified:
-            message = "Connessione Earthdata LAADS verificata."
+            message = tr("Connessione Earthdata LAADS verificata.")
         elif authorization_required:
-            message = "Autorizza l'app LAADS OPeNDAP, poi ripeti il test."
+            message = tr("Autorizza l'app LAADS OPeNDAP, poi ripeti il test.")
         elif configured:
-            message = "Credenziali Earthdata salvate. Esegui il test connessione."
+            message = tr("Credenziali Earthdata salvate. Esegui il test connessione.")
         else:
-            message = "Credenziali Earthdata non configurate."
+            message = tr("Credenziali Earthdata non configurate.")
         return EarthdataCredentialState(
             username=username,
             configured=configured,
@@ -121,9 +123,9 @@ class EarthdataCredentialStore:
         clean_username = username.strip()
         clean_password = password
         if not clean_username or not clean_password:
-            raise ValueError("Inserisci username e password Earthdata.")
+            raise ValueError(tr("Inserisci username e password Earthdata."))
         if self._backend is None:
-            raise RuntimeError("Archivio credenziali di sistema non disponibile.")
+            raise RuntimeError(tr("Archivio credenziali di sistema non disponibile."))
 
         old_username = self.username()
         try:
@@ -132,7 +134,9 @@ class EarthdataCredentialStore:
                 self._delete_backend_password(old_username)
         except Exception as exc:
             logger.warning("Earthdata password could not be saved to secure store.", exc_info=True)
-            raise RuntimeError("Impossibile salvare le credenziali nel vault di sistema.") from exc
+            raise RuntimeError(
+                tr("Impossibile salvare le credenziali nel vault di sistema.")
+            ) from exc
 
         payload = self._read_json(self._preferences_path)
         payload[EARTHDATA_USERNAME_KEY] = clean_username
@@ -143,7 +147,7 @@ class EarthdataCredentialStore:
             username=clean_username,
             configured=True,
             secure_store_available=True,
-            message="Credenziali Earthdata salvate. Esegui il test connessione.",
+            message=tr("Credenziali Earthdata salvate. Esegui il test connessione."),
         )
 
     def remove(self) -> EarthdataCredentialState:
@@ -159,7 +163,7 @@ class EarthdataCredentialStore:
             username="",
             configured=False,
             secure_store_available=self.secure_store_available,
-            message="Credenziali Earthdata rimosse.",
+            message=tr("Credenziali Earthdata rimosse."),
         )
 
     def mark_connection_verified(self, message: str) -> EarthdataCredentialState:
@@ -228,7 +232,10 @@ class EarthdataConnectionTester:
 
     def test(self, username: str, password: str) -> EarthdataConnectionResult:
         if not username or not password:
-            return EarthdataConnectionResult(False, "Credenziali Earthdata non configurate.")
+            return EarthdataConnectionResult(
+                False,
+                tr("Credenziali Earthdata non configurate."),
+            )
 
         with tempfile.TemporaryDirectory(prefix="nightscope-earthdata-") as temp_dir:
             netrc_path = Path(temp_dir) / "_netrc"
@@ -242,7 +249,13 @@ class EarthdataConnectionTester:
                 response = self._session().get(self._dds_url, timeout=(20, 60), allow_redirects=True)
             except requests.RequestException as exc:
                 logger.warning("Earthdata connection test failed.", exc_info=True)
-                return EarthdataConnectionResult(False, f"Connessione Earthdata non riuscita: {exc.__class__.__name__}.")
+                return EarthdataConnectionResult(
+                    False,
+                    tr(
+                        "Connessione Earthdata non riuscita: {error_type}.",
+                        error_type=exc.__class__.__name__,
+                    ),
+                )
             finally:
                 if previous_netrc is None:
                     os.environ.pop("NETRC", None)
@@ -250,18 +263,33 @@ class EarthdataConnectionTester:
                     os.environ["NETRC"] = previous_netrc
 
         if response.status_code != 200:
-            return EarthdataConnectionResult(False, f"Earthdata ha risposto con HTTP {response.status_code}.")
+            return EarthdataConnectionResult(
+                False,
+                tr(
+                    "Earthdata ha risposto con HTTP {status_code}.",
+                    status_code=response.status_code,
+                ),
+            )
         if "Dataset {" in response.text and "AllAngle_Composite_Snow_Free" in response.text:
-            return EarthdataConnectionResult(True, "Connessione Earthdata LAADS verificata.")
+            return EarthdataConnectionResult(
+                True,
+                tr("Connessione Earthdata LAADS verificata."),
+            )
         if self._requires_laads_authorization(response):
             return EarthdataConnectionResult(
                 False,
-                "Autorizza l'app LAADS OPeNDAP, poi ripeti il test.",
+                tr("Autorizza l'app LAADS OPeNDAP, poi ripeti il test."),
                 authorization_required=True,
             )
         if "Earthdata Login" in response.text:
-            return EarthdataConnectionResult(False, "Login Earthdata non riuscito. Verifica username e password.")
-        return EarthdataConnectionResult(False, "Risposta Earthdata non riconosciuta.")
+            return EarthdataConnectionResult(
+                False,
+                tr("Login Earthdata non riuscito. Verifica username e password."),
+            )
+        return EarthdataConnectionResult(
+            False,
+            tr("Risposta Earthdata non riconosciuta."),
+        )
 
     @staticmethod
     def _requires_laads_authorization(response: requests.Response) -> bool:

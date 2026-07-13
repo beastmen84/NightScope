@@ -9,6 +9,7 @@ from astro_viewer.app.models.filtering import (
     TARGET_FILTER_CLASS_MINIMUM_APERTURE_MM,
 )
 from astro_viewer.app.models.observing import CelestialObject
+from astro_viewer.app.services.localization import tr
 
 
 @dataclass(frozen=True)
@@ -76,15 +77,15 @@ class FilterRecommendationService:
                 primary_classes,
                 filters,
                 telescope_aperture_mm,
-                available_label="Filtro raccomandato",
-                unavailable_label="Filtro suggerito (non disponibile)",
+                available_label=tr("Filtro raccomandato"),
+                unavailable_label=tr("Filtro suggerito (non disponibile)"),
             ),
             optional_color=self._select(
                 color_classes,
                 filters,
                 telescope_aperture_mm,
-                available_label="Filtro colorato opzionale",
-                unavailable_label="Filtro colorato opzionale (non disponibile)",
+                available_label=tr("Filtro colorato opzionale"),
+                unavailable_label=tr("Filtro colorato opzionale (non disponibile)"),
             ),
         )
 

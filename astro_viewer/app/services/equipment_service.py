@@ -9,6 +9,12 @@ from astro_viewer.app.models.recommendation_candidate import RecommendationCandi
 from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.target_observation_traits import TargetObservationTraits
 from astro_viewer.app.services.recommendation_presenter import RecommendationPresenter
+from astro_viewer.app.services.localization import (
+    format_compact_number,
+    format_number,
+    join_text,
+    tr,
+)
 from astro_viewer.app.services.equipment_setup_score_read_model import (
     EQUIPMENT_SETUP_SCORE_COMPONENT_WEIGHTS,
     EquipmentSetupScoreReadModel,
@@ -24,15 +30,22 @@ class EquipmentService:
         self._setup_score_read_model_builder = EquipmentSetupScoreReadModelBuilder()
 
     def naked_eye_telescope(self) -> Telescope:
-        return Telescope(self.NAKED_EYE_ID, "Occhio nudo", 0, 0, "Occhio nudo", "nessuna")
+        return Telescope(
+            self.NAKED_EYE_ID,
+            tr("Occhio nudo"),
+            0,
+            0,
+            tr("Occhio nudo"),
+            tr("nessuna"),
+        )
 
     def beginner_presets(self) -> list[BeginnerPreset]:
         return [
-            BeginnerPreset("naked-eye", "Occhio nudo", "Costellazioni e meteore", "Nessuna configurazione richiesta.", "Luna, Venere, Giove, sciami meteorici"),
-            BeginnerPreset("binoculars", "Binocolo 10x50", "Ammassi aperti e Luna", "Campo ampio e uso immediato.", "M31, Pleiadi, Luna crescente"),
-            BeginnerPreset("small-scope", "Telescopio piccolo", "Luna, pianeti luminosi, stelle doppie", "Rifrattore o Maksutov fino a 90 mm.", "Giove, Saturno, Albireo"),
-            BeginnerPreset("medium-scope", "Telescopio medio", "Pianeti e cielo profondo brillante", "Strumento versatile da 130-200 mm.", "M13, M57, nebulose luminose"),
-            BeginnerPreset("large-scope", "Telescopio grande", "Oggetti deboli e dettagli planetari", "Richiede seeing e acclimatazione accurati.", "Galassie, nebulose planetarie, globulari risolti"),
+            BeginnerPreset("naked-eye", tr("Occhio nudo"), tr("Costellazioni e meteore"), tr("Nessuna configurazione richiesta."), tr("Luna, Venere, Giove, sciami meteorici")),
+            BeginnerPreset("binoculars", tr("Binocolo 10x50"), tr("Ammassi aperti e Luna"), tr("Campo ampio e uso immediato."), tr("M31, Pleiadi, Luna crescente")),
+            BeginnerPreset("small-scope", tr("Telescopio piccolo"), tr("Luna, pianeti luminosi, stelle doppie"), tr("Rifrattore o Maksutov fino a 90 mm."), tr("Giove, Saturno, Albireo")),
+            BeginnerPreset("medium-scope", tr("Telescopio medio"), tr("Pianeti e cielo profondo brillante"), tr("Strumento versatile da 130-200 mm."), tr("M13, M57, nebulose luminose")),
+            BeginnerPreset("large-scope", tr("Telescopio grande"), tr("Oggetti deboli e dettagli planetari"), tr("Richiede seeing e acclimatazione accurati."), tr("Galassie, nebulose planetarie, globulari risolti")),
         ]
 
     def default_telescopes(self) -> list[Telescope]:
@@ -41,9 +54,9 @@ class EquipmentService:
     def default_eyepieces(self) -> list[Eyepiece]:
         return [
             Eyepiece("plossl-25", "Plossl 25 mm", 25.0, 52.0),
-            Eyepiece("wide-15", "Grandangolare 15 mm", 15.0, 68.0),
-            Eyepiece("planetary-10", "Planetario 10 mm", 10.0, 60.0),
-            Eyepiece("planetary-6", "Planetario 6 mm", 6.0, 58.0),
+            Eyepiece("wide-15", tr("Grandangolare 15 mm"), 15.0, 68.0),
+            Eyepiece("planetary-10", tr("Planetario 10 mm"), 10.0, 60.0),
+            Eyepiece("planetary-6", tr("Planetario 6 mm"), 6.0, 58.0),
         ]
 
     def calculations(self, telescope: Telescope, eyepieces: list[Eyepiece], barlow: float) -> list[dict]:
@@ -60,11 +73,30 @@ class EquipmentService:
                 )
                 rows.append(
                     {
-                        "eyepiece": eyepiece.name if eyepiece.eyepiece_type != "Zoom" else f"{eyepiece.name} @ {focal_position['position']}",
-                        "magnification": f"{values['magnification']:.0f}x",
-                        "trueField": f"{values['true_field_of_view_deg']:.2f} gradi",
-                        "exitPupil": f"{values['exit_pupil_mm']:.1f} mm",
-                        "barlow": f"{barlow:g}x",
+                        "eyepiece": (
+                            eyepiece.name
+                            if eyepiece.eyepiece_type != "Zoom"
+                            else join_text(
+                                [eyepiece.name, focal_position["position"]], " @ "
+                            )
+                        ),
+                        "magnification": tr(
+                            "{value}x",
+                            value=format_number(values["magnification"]),
+                        ),
+                        "trueField": tr(
+                            "{value} gradi",
+                            value=format_number(
+                                values["true_field_of_view_deg"], decimals=2
+                            ),
+                        ),
+                        "exitPupil": tr(
+                            "{value} mm",
+                            value=format_number(values["exit_pupil_mm"], decimals=1),
+                        ),
+                        "barlow": tr(
+                            "{value}x", value=format_compact_number(barlow)
+                        ),
                     }
                 )
         return rows
@@ -107,20 +139,20 @@ class EquipmentService:
         if not self.has_optical_telescope(telescope):
             return {
                 "name": telescope.name,
-                "aperture": "n/d",
-                "focalLength": "n/d",
-                "practicalMagnification": "n/d",
-                "availableMagnificationMin": "n/d",
-                "availableMagnificationMax": "n/d",
-                "exitPupilMin": "n/d",
-                "exitPupilMax": "n/d",
-                "trueFieldMin": "n/d",
-                "trueFieldMax": "n/d",
-                "lightGathering": "1x occhio",
-                "limitingMagnitude": "n/d",
-                "resolution": "n/d",
+                "aperture": tr("n/d"),
+                "focalLength": tr("n/d"),
+                "practicalMagnification": tr("n/d"),
+                "availableMagnificationMin": tr("n/d"),
+                "availableMagnificationMax": tr("n/d"),
+                "exitPupilMin": tr("n/d"),
+                "exitPupilMax": tr("n/d"),
+                "trueFieldMin": tr("n/d"),
+                "trueFieldMax": tr("n/d"),
+                "lightGathering": tr("1x occhio"),
+                "limitingMagnitude": tr("n/d"),
+                "resolution": tr("n/d"),
                 "availableConfigurations": [],
-                "availableConfigurationsText": "Aggiungi attrezzatura al profilo",
+                "availableConfigurationsText": tr("Aggiungi attrezzatura al profilo"),
             }
         min_magnification = max(1, round(telescope.aperture_mm / 5))
         max_magnification = max(min_magnification, round(telescope.aperture_mm * 2))
@@ -133,20 +165,26 @@ class EquipmentService:
         true_fields = [item["trueFieldValue"] for item in configurations]
         return {
             "name": telescope.name,
-            "aperture": f"{telescope.aperture_mm} mm",
-            "focalLength": f"{telescope.focal_length_mm} mm",
-            "practicalMagnification": f"{min_magnification}x - {max_magnification}x",
-            "availableMagnificationMin": f"{min(magnifications):.0f}x" if magnifications else "n/d",
-            "availableMagnificationMax": f"{max(magnifications):.0f}x" if magnifications else "n/d",
-            "exitPupilMin": f"{min(exit_pupils):.1f} mm" if exit_pupils else "n/d",
-            "exitPupilMax": f"{max(exit_pupils):.1f} mm" if exit_pupils else "n/d",
-            "trueFieldMin": f"{min(true_fields):.2f} gradi" if true_fields else "n/d",
-            "trueFieldMax": f"{max(true_fields):.2f} gradi" if true_fields else "n/d",
-            "lightGathering": f"{light_gathering}x occhio",
-            "limitingMagnitude": f"{limiting_magnitude:.1f} stimata",
-            "resolution": f"{resolution:.2f}\" stimata",
+            "aperture": tr("{value} mm", value=format_number(telescope.aperture_mm)),
+            "focalLength": tr("{value} mm", value=format_number(telescope.focal_length_mm)),
+            "practicalMagnification": tr(
+                "{minimum}x - {maximum}x",
+                minimum=format_number(min_magnification),
+                maximum=format_number(max_magnification),
+            ),
+            "availableMagnificationMin": tr("{value}x", value=format_number(min(magnifications))) if magnifications else tr("n/d"),
+            "availableMagnificationMax": tr("{value}x", value=format_number(max(magnifications))) if magnifications else tr("n/d"),
+            "exitPupilMin": tr("{value} mm", value=format_number(min(exit_pupils), decimals=1)) if exit_pupils else tr("n/d"),
+            "exitPupilMax": tr("{value} mm", value=format_number(max(exit_pupils), decimals=1)) if exit_pupils else tr("n/d"),
+            "trueFieldMin": tr("{value} gradi", value=format_number(min(true_fields), decimals=2)) if true_fields else tr("n/d"),
+            "trueFieldMax": tr("{value} gradi", value=format_number(max(true_fields), decimals=2)) if true_fields else tr("n/d"),
+            "lightGathering": tr("{value}x occhio", value=light_gathering),
+            "limitingMagnitude": tr("{value} stimata", value=format_number(limiting_magnitude, decimals=1)),
+            "resolution": tr("{value}\" stimata", value=format_number(resolution, decimals=2)),
             "availableConfigurations": configurations,
-            "availableConfigurationsText": ", ".join(item["magnification"] for item in configurations[:12]) if configurations else "Aggiungi oculari al profilo",
+            "availableConfigurationsText": join_text(
+                [item["magnification"] for item in configurations[:12]], ", "
+            ) if configurations else tr("Aggiungi oculari al profilo"),
         }
 
     def suggest_for_object(
@@ -331,7 +369,7 @@ class EquipmentService:
             label=label,
             detail_label=detail_label,
             multiplier=multiplier,
-            barlow_label=barlow.name if barlow else "No",
+            barlow_label=barlow.name if barlow else tr("No"),
             telescope_name=telescope.name,
         )
 
@@ -353,7 +391,7 @@ class EquipmentService:
             label=label,
             detail_label=label,
             multiplier=1.0,
-            barlow_label="No",
+            barlow_label=tr("No"),
         )
 
     @staticmethod
@@ -388,20 +426,35 @@ class EquipmentService:
             seen.add(key)
             configurations.append(
                 {
-                    "label": eyepiece.name + (f" @ {configuration.focal_position_label}" if eyepiece.eyepiece_type == "Zoom" else ""),
-                    "magnification": f"{magnification}x",
+                    "label": (
+                        join_text(
+                            [eyepiece.name, configuration.focal_position_label],
+                            " @ ",
+                        )
+                        if eyepiece.eyepiece_type == "Zoom"
+                        else eyepiece.name
+                    ),
+                    "magnification": tr("{value}x", value=format_number(magnification)),
                     "magnificationValue": float(magnification),
                     "trueFieldValue": eyepiece.apparent_field_deg / max(magnification, 1),
                     "exitPupilValue": telescope.aperture_mm / max(magnification, 1),
-                    "barlow": barlow.name if barlow else "No",
+                    "barlow": barlow.name if barlow else tr("No"),
                 }
             )
-        return sorted(configurations, key=lambda item: int(item["magnification"].replace("x", "")))
+        return sorted(configurations, key=lambda item: item["magnificationValue"])
 
     @staticmethod
     def _eyepiece_focal_positions(eyepiece: Eyepiece, ideal_focal_mm: float) -> list[dict]:
         if eyepiece.eyepiece_type != "Zoom":
-            return [{"focal": eyepiece.focal_length_mm, "position": f"{eyepiece.focal_length_mm:g} mm"}]
+            return [
+                {
+                    "focal": eyepiece.focal_length_mm,
+                    "position": tr(
+                        "{value} mm",
+                        value=format_compact_number(eyepiece.focal_length_mm),
+                    ),
+                }
+            ]
         minimum = eyepiece.min_focal_length_mm or min(eyepiece.focal_length_mm, eyepiece.max_focal_length_mm or eyepiece.focal_length_mm)
         maximum = eyepiece.max_focal_length_mm or max(eyepiece.focal_length_mm, minimum)
         low = min(minimum, maximum)
@@ -416,7 +469,15 @@ class EquipmentService:
             if key in seen:
                 continue
             seen.add(key)
-            positions.append({"focal": rounded, "position": f"{rounded:g} mm"})
+            positions.append(
+                {
+                    "focal": rounded,
+                    "position": tr(
+                        "{value} mm",
+                        value=format_compact_number(rounded),
+                    ),
+                }
+            )
         return positions
 
     def _recommended_candidate(self, candidates: list[RecommendationCandidate]) -> RecommendationCandidate:

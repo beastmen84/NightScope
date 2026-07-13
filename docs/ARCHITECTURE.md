@@ -57,11 +57,19 @@ persists changes and calls `QQmlApplicationEngine.retranslate()`, so QML
 bindings using `qsTr()` update without rebuilding controller state or
 recomputing NSOM.
 
-Italian is the source and fallback language; English loads `en.qm`. Static QML
-labels, commands, dialogs and presentation copy are covered by the catalogues.
-Editorial catalogue fields and strings already composed by backend services
-remain domain data in Italian and are not duplicated in the UI catalogues.
-PyInstaller packages the entire translations directory.
+Italian is the source and fallback language. Runtime packs are auto-discovered
+from `<code>.json` metadata and use matching Qt `<code>.qm` catalogues, so the
+sidebar and PyInstaller spec contain no hard-coded language list. Static QML
+copy uses `qsTr()`. Python services retain lazy `tr()` messages and structured
+`content_text()` references until the controller renders a QML property.
+Dates, numbers, seeded descriptions, curiosities, catalogue names and equipment
+notes therefore follow the selected locale without changing domain codes or
+user-entered text.
+
+Internal read models consume canonical, unrendered payloads. A language switch
+emits presentation signals only and does not recompute astronomy, weather,
+equipment, scoring or NSOM. The complete file contract and the code-free process
+for adding another language are documented in [LOCALIZATION.md](LOCALIZATION.md).
 
 ## NightScope Observation Model
 

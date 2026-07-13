@@ -147,7 +147,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.hasEvent ? root.eventData.timingValue : "n/d"
+                        text: root.hasEvent ? root.eventData.timingValue : qsTr("n/d")
                         color: theme.textPrimary
                         font.pixelSize: 18
                         font.weight: Font.DemiBold
@@ -156,7 +156,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasDistinctWindow
-                        text: qsTr("Finestra osservativa: ") + root.eventWindow
+                        text: qsTr("Finestra osservativa: %1").arg(root.eventWindow)
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -174,7 +174,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.separationLabel || "").length > 0
-                        text: qsTr("Separazione minima: ") + (root.eventData.separationLabel || "")
+                        text: qsTr("Separazione minima: %1").arg(root.eventData.separationLabel || "")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -192,10 +192,10 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 244
-                    title: root.hasEvent && root.eventData.type === "Congiunzione solare"
+                    title: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                            ? qsTr("Indicazione di sicurezza")
                            : qsTr("Con il tuo profilo")
-                    subtitle: root.hasEvent && root.eventData.type === "Congiunzione solare"
+                    subtitle: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                               ? qsTr("Evento informativo, non osservativo")
                               : qsTr("Configurazione consigliata per l'evento")
                     accentColor: theme.cyan
@@ -226,7 +226,7 @@ Item {
                             model: root.eventObjects()
 
                             delegate: DarkButton {
-                                text: qsTr("Apri ") + modelData.name
+                                text: qsTr("Apri %1").arg(modelData.name)
                                 accentColor: root.accentColor
                                 onClicked: root.openObject(modelData.id)
                             }
