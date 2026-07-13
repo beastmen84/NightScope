@@ -107,7 +107,10 @@ The localization tests verify language discovery, symmetric complete TS
 catalogues, compiled QM assets, structured seed coverage, placeholder parity,
 runtime switching, preference preservation, locale formatting, third-language
 discovery, presentation-only refresh and packaging. They also reject raw static
-QML text, translated sentence concatenation and derived catalogue fields.
+QML text (including labels inside JavaScript objects), translated sentence
+concatenation, derived catalogue fields, zero-width spaces and regressions in
+reviewed astronomy terminology. Localized filter choices are verified after
+rendering so their order follows the displayed language.
 
 Before a release run:
 

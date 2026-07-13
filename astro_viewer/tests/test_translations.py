@@ -36,9 +36,9 @@ PLACEHOLDER_PATTERN = re.compile(
     r"%L?\d+|%n|\{[A-Za-z_][A-Za-z0-9_]*(?:![rsa])?(?::[^{}]+)?\}"
 )
 STATIC_QML_TEXT_PATTERN = re.compile(
-    r"^\s*(?:property\s+string\s+)?"
-    r"(?:text|title|subtitle|placeholderText|toolTip|accessibleName|emptyText|"
-    r"message|description)\s*:\s*([\"'])(.*?)\1",
+    r"^\s*(?:\{\s*)?(?:property\s+string\s+)?[\"']?"
+    r"(?:label|text|title|subtitle|placeholderText|toolTip|accessibleName|emptyText|"
+    r"message|description)[\"']?\s*:\s*([\"'])(.*?)\1",
     re.MULTILINE,
 )
 
@@ -126,6 +126,69 @@ def test_structured_content_covers_every_translatable_seed_field() -> None:
                 assert all(str(value).strip() for value in translated_fields.values())
 
 
+def test_reviewed_structured_content_uses_consistent_astronomy_terms() -> None:
+    english = json.loads((TRANSLATIONS_DIR / "en.json").read_text(encoding="utf-8"))
+    italian = json.loads((TRANSLATIONS_DIR / "it.json").read_text(encoding="utf-8"))
+    descriptions = english["content"]["objects"]
+
+    expected_constellations = {
+        "messier-M5": "Serpens",
+        "messier-M6": "Scorpius",
+        "messier-M16": "Serpens",
+        "messier-M26": "Scutum",
+        "messier-M30": "Capricornus",
+        "messier-M46": "Puppis",
+        "messier-M50": "Monoceros",
+        "messier-M53": "Coma Berenices",
+        "messier-M63": "Canes Venatici",
+        "messier-M71": "Sagitta",
+        "messier-M77": "Cetus",
+        "messier-M79": "Lepus",
+        "messier-M80": "Scorpius",
+        "messier-M102": "Draco",
+        "caldwell-C5": "Camelopardalis",
+        "caldwell-C16": "Lacerta",
+        "caldwell-C21": "Canes Venatici",
+        "caldwell-C37": "Vulpecula",
+        "caldwell-C51": "Cetus",
+        "caldwell-C71": "Puppis",
+        "caldwell-C79": "Vela",
+        "caldwell-C81": "Ara",
+        "caldwell-C87": "Horologium",
+        "caldwell-C88": "Circinus",
+        "caldwell-C89": "Norma",
+        "caldwell-C93": "Pavo",
+        "caldwell-C95": "Triangulum Australe",
+        "caldwell-C104": "Tucana",
+        "caldwell-C105": "Musca",
+        "caldwell-C107": "Apus",
+        "caldwell-C109": "Chamaeleon",
+    }
+    for object_id, constellation in expected_constellations.items():
+        assert constellation in descriptions[object_id]["short_description"]
+
+    assert "Beehive Cluster" in descriptions["messier-M44"]["short_description"]
+    assert "Whirlpool Galaxy" in descriptions["messier-M51"]["short_description"]
+    assert "Owl Cluster" in descriptions["caldwell-C13"]["short_description"]
+    assert "Jewel Box Cluster" in descriptions["caldwell-C94"]["observing_notes"]
+    assert all(
+        "\u200b" not in path.read_text(encoding="utf-8")
+        for path in TRANSLATIONS_DIR.glob("*.json")
+    )
+
+    italian_catalogue = italian["content"]["catalogue_objects"]
+    assert italian_catalogue["messier-M3"]["description"].endswith("Cani da Caccia.")
+    assert italian_catalogue["messier-M11"]["description"].endswith("Scudo.")
+    assert italian_catalogue["messier-M41"]["description"].endswith("Cane Maggiore.")
+    italian_filters = italian["content"]["equipment_filters"]
+    assert italian_filters["astronomik::h-beta visual"]["notes"] == (
+        "Per nebulose dominate dalla riga H-beta."
+    )
+    assert italian_filters["baader::oiii super-g 9 nm"]["notes"] == (
+        "Filtro OIII stretto per aperture medio-grandi."
+    )
+
+
 def test_translation_manager_switches_live_and_preserves_preferences(
     tmp_path: Path,
 ) -> None:
@@ -166,6 +229,50 @@ def test_translation_manager_switches_live_and_preserves_preferences(
     assert manager.setLanguage("it")
     assert QCoreApplication.translate("main", "Calendario") == "Calendario"
     assert engine.retranslate_calls == 2
+
+
+def test_catalogue_choices_are_sorted_after_localization(tmp_path: Path) -> None:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    manager = TranslationManager(TRANSLATIONS_DIR, tmp_path / "preferences.json")
+    assert app is not None
+    assert manager.install()
+    assert manager.setLanguage("en")
+
+    controller = AppController.__new__(AppController)
+    QObject.__init__(controller)
+    controller._catalogue_objects = [
+        {
+            "catalogues": ["Sistema Solare"],
+            "type": "planetary nebula",
+            "constellation": "",
+            "recommended_observation_type": "General",
+        },
+        {
+            "catalogues": ["Messier"],
+            "type": "galaxy",
+            "constellation": "",
+            "recommended_observation_type": "HighMagnification",
+        },
+        {
+            "catalogues": ["Caldwell"],
+            "type": "open cluster",
+            "constellation": "",
+            "recommended_observation_type": "WideField",
+        },
+    ]
+
+    try:
+        options = controller.catalogueFilterOptions
+        for key in ("catalogueChoices", "typeChoices", "observationTypeChoices"):
+            labels = [item["label"] for item in options[key]]
+            assert labels == sorted(labels, key=str.casefold)
+        assert [item["label"] for item in options["observationTypeChoices"]] == [
+            "General",
+            "High magnification",
+            "Wide field",
+        ]
+    finally:
+        assert manager.setLanguage("it")
 
 
 def test_third_language_pack_requires_no_runtime_code_change(tmp_path: Path) -> None:
@@ -323,8 +430,47 @@ def test_curated_english_astronomy_terms_remain_technically_correct() -> None:
     for source, translation in expected.items():
         assert by_source[source] == {translation}
 
+    expected_by_context = {
+        ("", "Crescente"): "Waxing crescent",
+        ("", "Calante"): "Waning crescent",
+        ("", "Gibbosa crescente"): "Waxing gibbous",
+        ("", "Cielo profondo favorito"): "Favorable for deep-sky observing",
+        ("", "Altro"): "Other",
+        ("", "Durata utile non disponibile"): "Useful duration unavailable",
+        ("", "Recupero dati VIIRS NASA..."): "Retrieving NASA VIIRS data...",
+        ("", "quota utile"): "a useful altitude",
+        (
+            "",
+            "senza Barlow per mantenere contrasto e campo",
+        ): "without a Barlow to preserve contrast and field of view",
+        (
+            "",
+            "È un evento da pianificare usando protezioni certificate specifiche "
+            "per l'osservazione solare.",
+        ): "Plan this event using certified protection designed specifically for solar viewing.",
+        ("EquipmentOpticsPage", "%1 di %2 Barlow"): "%1 of %2 Barlow lenses",
+        ("ObjectCataloguePage", "Tutti"): "All",
+        ("ObjectDetailPage", "A.R."): "R.A.",
+    }
+    for key, translation in expected_by_context.items():
+        assert entries[key] == translation
+
     rendered = "\n".join(entries.values()).casefold()
-    for forbidden in ("gearbox", "sunscreen", "discreet", "maximum height"):
+    for forbidden in (
+        "gearbox",
+        "sunscreen",
+        "discreet",
+        "maximum height",
+        "profit share",
+        "maintain tackle",
+        "data recovery",
+        "crescent gibbous",
+        "out of plane",
+        "service life not available",
+        "colorful (",
+        "100mm opening",
+        "certified sun protection",
+    ):
         assert forbidden not in rendered
 
 

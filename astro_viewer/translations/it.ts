@@ -731,6 +731,11 @@
       <translation>Fisso</translation>
     </message>
     <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="967" />
+      <source>È un evento da pianificare usando protezioni certificate specifiche per l'osservazione solare.</source>
+      <translation>È un evento da pianificare usando protezioni certificate specifiche per l'osservazione solare.</translation>
+    </message>
+    <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1125" />
       <source>{designation} {name}</source>
       <translation>{designation} {name}</translation>
@@ -2032,11 +2037,6 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="965" />
       <source>Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.</source>
       <translation>Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="967" />
-      <source>È un evento da pianificare con protezione solare certificata.</source>
-      <translation>È un evento da pianificare con protezione solare certificata.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="969" />
@@ -5949,6 +5949,7 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <translation>Oculari</translation>
     </message>
     <message>
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="19" />
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="225" />
       <source>Barlow</source>
       <translation>Barlow</translation>
@@ -7311,6 +7312,16 @@ Verifica i permessi della cartella dell'applicazione e riavvia NightScope.</tran
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="604" />
       <source>Periodo migliore: %1</source>
       <translation>Periodo migliore: %1</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="117" />
+      <source>A.R.</source>
+      <translation>A.R.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="118" />
+      <source>Dec</source>
+      <translation>Dec</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="622" />

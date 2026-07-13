@@ -16,7 +16,7 @@ Item {
         { "label": qsTr("Tutti"), "value": "all" },
         { "label": qsTr("Telescopi"), "value": "telescope" },
         { "label": qsTr("Oculari"), "value": "eyepiece" },
-        { "label": "Barlow", "value": "barlow" },
+        { "label": qsTr("Barlow"), "value": "barlow" },
         { "label": qsTr("Binocoli"), "value": "binocular" },
         { "label": qsTr("Filtri"), "value": "filter" },
         { "label": qsTr("Riduttori"), "value": "reducer" }

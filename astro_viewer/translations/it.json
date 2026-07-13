@@ -22,7 +22,7 @@
       },
       "messier-M3": {
         "name": "M3",
-        "description": "M3 (NGC 5272) - Ammasso globulare nei Canes Venatici."
+        "description": "M3 (NGC 5272) - Ammasso globulare nei Cani da Caccia."
       },
       "messier-M4": {
         "name": "Ammasso Globulare del Ragno",
@@ -54,7 +54,7 @@
       },
       "messier-M11": {
         "name": "Ammasso dell'Anatra Selvatica",
-        "description": "M11 (NGC 6705) - Ammasso aperto nello Scutum."
+        "description": "M11 (NGC 6705) - Ammasso aperto nello Scudo."
       },
       "messier-M12": {
         "name": "M12",
@@ -74,7 +74,7 @@
       },
       "messier-M16": {
         "name": "Nebulosa Aquila",
-        "description": "M16 (NGC 6611) - Nebulosa della regione H II con ammasso in Serpens."
+        "description": "M16 (NGC 6611) - Nebulosa della regione H II con ammasso nel Serpente."
       },
       "messier-M17": {
         "name": "Nebulosa Omega, Cigno, Ferro di cavallo, Aragosta o Segno di spunta",
@@ -174,7 +174,7 @@
       },
       "messier-M41": {
         "name": "Piccolo Ammasso dell'Alveare",
-        "description": "M41 (NGC 2287) - Ammasso aperto nel Canis Major."
+        "description": "M41 (NGC 2287) - Ammasso aperto nel Cane Maggiore."
       },
       "messier-M42": {
         "name": "Grande Nebulosa di Orione",
@@ -194,11 +194,11 @@
       },
       "messier-M46": {
         "name": "M46",
-        "description": "M46 (NGC 2437) - Ammasso aperto in Puppis."
+        "description": "M46 (NGC 2437) - Ammasso aperto nella Poppa."
       },
       "messier-M47": {
         "name": "M47",
-        "description": "M47 (NGC 2422) - Ammasso aperto in Puppis."
+        "description": "M47 (NGC 2422) - Ammasso aperto nella Poppa."
       },
       "messier-M48": {
         "name": "M48",
@@ -214,7 +214,7 @@
       },
       "messier-M51": {
         "name": "Galassia Vortice",
-        "description": "M51 (NGC 5194,NGC 5195) - Galassia a spirale nei Canes Venatici."
+        "description": "M51 (NGC 5194,NGC 5195) - Galassia a spirale nei Cani da Caccia."
       },
       "messier-M52": {
         "name": "Ammasso dello Scorpione",
@@ -262,7 +262,7 @@
       },
       "messier-M63": {
         "name": "Galassia Girasole",
-        "description": "M63 (NGC 5055) - Galassia a spirale nei Canes Venatici."
+        "description": "M63 (NGC 5055) - Galassia a spirale nei Cani da Caccia."
       },
       "messier-M64": {
         "name": "Galassia Occhio Nero",
@@ -294,7 +294,7 @@
       },
       "messier-M71": {
         "name": "Ammasso Pesce Angelo",
-        "description": "M71 (NGC 6838) - Ammasso globulare in Sagitta."
+        "description": "M71 (NGC 6838) - Ammasso globulare nella Freccia."
       },
       "messier-M72": {
         "name": "M72",
@@ -318,7 +318,7 @@
       },
       "messier-M77": {
         "name": "Cetus A o Galassia Calamaro",
-        "description": "M77 (NGC 1068) - Galassia a spirale in Cetus."
+        "description": "M77 (NGC 1068) - Galassia a spirale nella Balena."
       },
       "messier-M78": {
         "name": "M78",
@@ -326,7 +326,7 @@
       },
       "messier-M79": {
         "name": "M79",
-        "description": "M79 (NGC 1904) - Ammasso globulare nella Lepus."
+        "description": "M79 (NGC 1904) - Ammasso globulare nella Lepre."
       },
       "messier-M80": {
         "name": "M80",
@@ -382,11 +382,11 @@
       },
       "messier-M93": {
         "name": "M93",
-        "description": "M93 (NGC 2447) - Ammasso aperto in Puppis."
+        "description": "M93 (NGC 2447) - Ammasso aperto nella Poppa."
       },
       "messier-M94": {
         "name": "Galassia Occhio di Coccodrillo o Occhio di Gatto",
-        "description": "M94 (NGC 4736) - Galassia a spirale nei Canes Venatici."
+        "description": "M94 (NGC 4736) - Galassia a spirale nei Cani da Caccia."
       },
       "messier-M95": {
         "name": "M95",
@@ -418,7 +418,7 @@
       },
       "messier-M102": {
         "name": "Galassia del fuso",
-        "description": "M102 (NGC 5866) - Galassia lenticolare nel Draco."
+        "description": "M102 (NGC 5866) - Galassia lenticolare nel Drago."
       },
       "messier-M103": {
         "name": "M103",
@@ -434,7 +434,7 @@
       },
       "messier-M106": {
         "name": "M106",
-        "description": "M106 (NGC 4258) - Galassia a spirale nei Canes Venatici."
+        "description": "M106 (NGC 4258) - Galassia a spirale nei Cani da Caccia."
       },
       "messier-M107": {
         "name": "Ammasso Crocifisso",
@@ -2078,7 +2078,7 @@
         "notes": "Contrasto selettivo sulle righe OIII."
       },
       "astronomik::h-beta visual": {
-        "notes": "Per nebulose dominano dalla riga H-beta."
+        "notes": "Per nebulose dominate dalla riga H-beta."
       },
       "astronomik::cls": {
         "notes": "Riduzione moderata dell'inquinamento luminoso."
@@ -2090,7 +2090,7 @@
         "notes": "Filtro visivo OIII da 10 nm."
       },
       "baader::oiii super-g 9 nm": {
-        "notes": "Filtro OIII stretto per apertura medio-grandi."
+        "notes": "Filtro OIII stretto per aperture medio-grandi."
       },
       "baader::neodymium moon & skyglow": {
         "notes": "Contrasto lunare e planetario con vetro al neodimio."

@@ -629,23 +629,19 @@ class AppController(QObject):
     def catalogueFilterOptions(self) -> dict:
         object_types = self._catalogue_option_values("type")
         observation_types = self._catalogue_option_values("recommended_observation_type")
-        type_choices = sorted(
-            ({"value": value, "label": catalogue_object_type_label(value)} for value in object_types),
-            key=lambda item: item["label"].casefold(),
-        )
-        observation_type_choices = sorted(
-            (
-                {"value": value, "label": catalogue_observation_type_label(value)}
-                for value in observation_types
-            ),
-            key=lambda item: item["label"].casefold(),
-        )
+        type_choices = [
+            {"value": value, "label": catalogue_object_type_label(value)}
+            for value in object_types
+        ]
+        observation_type_choices = [
+            {"value": value, "label": catalogue_observation_type_label(value)}
+            for value in observation_types
+        ]
         catalogue_choices = [
             {"value": value, "label": self._catalogue_label(value)}
             for value in self._catalogue_option_values("catalogue")
         ]
-        catalogue_choices.sort(key=lambda item: str(item["label"]).casefold())
-        return render_payload({
+        options = render_payload({
             "catalogues": self._catalogue_option_values("catalogue"),
             "catalogueChoices": catalogue_choices,
             "types": object_types,
@@ -654,6 +650,9 @@ class AppController(QObject):
             "observationTypes": observation_types,
             "observationTypeChoices": observation_type_choices,
         })
+        for key in ("catalogueChoices", "typeChoices", "observationTypeChoices"):
+            options[key].sort(key=lambda item: str(item["label"]).casefold())
+        return options
 
     @Property("QVariant", notify=catalogueChanged)
     def catalogueFilterState(self) -> dict:

@@ -1193,8 +1193,8 @@ class Phase6RealDataTests(unittest.TestCase):
             '"label": qsTr("Dimensione")',
             '"label": qsTr("Dim. max")',
             '"label": qsTr("Osservazione")',
-            '"label": "A.R."',
-            '"label": "Dec"',
+            '"label": qsTr("A.R.")',
+            '"label": qsTr("Dec")',
             '"label": qsTr("Utile (≥15°)")',
             '"label": qsTr("Visibile nel mese corrente")',
         ):

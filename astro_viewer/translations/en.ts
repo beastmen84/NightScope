@@ -381,7 +381,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="143" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="489" />
       <source>Crescente</source>
-      <translation>Growing</translation>
+      <translation>Waxing crescent</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="145" />
@@ -731,6 +731,11 @@
       <translation>Fixed</translation>
     </message>
     <message>
+      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="967" />
+      <source>È un evento da pianificare usando protezioni certificate specifiche per l'osservazione solare.</source>
+      <translation>Plan this event using certified protection designed specifically for solar viewing.</translation>
+    </message>
+    <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1125" />
       <source>{designation} {name}</source>
       <translation>{designation} {name}</translation>
@@ -780,7 +785,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="319" />
       <source>Cielo profondo favorito</source>
-      <translation>Deep sky favorite</translation>
+      <translation>Favorable for deep-sky observing</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="321" />
@@ -1148,7 +1153,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="469" />
       <source>Filtro lunare consigliato oltre 100 mm di apertura.</source>
-      <translation>Recommended moon filter over 100mm opening.</translation>
+      <translation>Moon filter recommended above 100 mm aperture.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="471" />
@@ -1204,7 +1209,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="493" />
       <source>Gibbosa crescente</source>
-      <translation>Crescent gibbous</translation>
+      <translation>Waxing gibbous</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="495" />
@@ -1225,7 +1230,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="501" />
       <source>Calante</source>
-      <translation>Waning</translation>
+      <translation>Waning crescent</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="511" />
@@ -1397,7 +1402,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="585" />
       <source>Altro</source>
-      <translation>More</translation>
+      <translation>Other</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="587" />
@@ -1438,7 +1443,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="689" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="709" />
       <source>Gli elementi integrati non possono essere modificati.</source>
-      <translation>Embedded elements cannot be edited.</translation>
+      <translation>Built-in items cannot be edited.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="601" />
@@ -1453,7 +1458,7 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="695" />
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="715" />
       <source>Gli elementi integrati non possono essere eliminati.</source>
-      <translation>Embedded items cannot be deleted.</translation>
+      <translation>Built-in items cannot be deleted.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="607" />
@@ -1737,17 +1742,17 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="789" />
       <source>Colorato (giallo)</source>
-      <translation>Colorful (yellow)</translation>
+      <translation>Colored (yellow)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="791" />
       <source>Colorato (arancio)</source>
-      <translation>Colorful (orange)</translation>
+      <translation>Colored (orange)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="793" />
       <source>Colorato (rosso)</source>
-      <translation>Colorful (red)</translation>
+      <translation>Colored (red)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="795" />
@@ -1757,22 +1762,22 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="797" />
       <source>Colorato (blu scuro)</source>
-      <translation>Colorful (dark blue)</translation>
+      <translation>Colored (dark blue)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="799" />
       <source>Colorato (verde)</source>
-      <translation>Colorful (green)</translation>
+      <translation>Colored (green)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="801" />
       <source>Colorato (verde chiaro)</source>
-      <translation>Colorful (light green)</translation>
+      <translation>Colored (light green)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="803" />
       <source>Colorato (viola)</source>
-      <translation>Colorful (purple)</translation>
+      <translation>Colored (purple)</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="805" />
@@ -2032,11 +2037,6 @@
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="965" />
       <source>Conta più il cielo buio del telescopio: servono campo ampio, pazienza e vista adattata al buio.</source>
       <translation>The dark sky counts more than the telescope: you need a wide field, patience and eyesight adapted to the dark.</translation>
-    </message>
-    <message>
-      <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="967" />
-      <source>È un evento da pianificare con protezione solare certificata.</source>
-      <translation>It is an event to plan with certified sun protection.</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="969" />
@@ -2718,7 +2718,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1361" />
       <source>Fuori dal piano, ordinati per finestra osservativa</source>
-      <translation>Out of plane, sorted by observation window</translation>
+      <translation>Outside the plan, sorted by observing window</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1363" />
@@ -3566,7 +3566,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1843" />
       <source>Durata utile non disponibile</source>
-      <translation>Service life not available</translation>
+      <translation>Useful duration unavailable</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="1845" />
@@ -3875,7 +3875,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2081" />
       <source>senza Barlow per mantenere contrasto e campo</source>
-      <translation>without Barlow to maintain tackle and field</translation>
+      <translation>without a Barlow to preserve contrast and field of view</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2087" />
@@ -4198,7 +4198,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2291" />
       <source>Recupero dati VIIRS NASA...</source>
-      <translation>VIIRS NASA data recovery...</translation>
+      <translation>Retrieving NASA VIIRS data...</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2293" />
@@ -4590,7 +4590,7 @@
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2507" />
       <source>quota utile</source>
-      <translation>profit share</translation>
+      <translation>a useful altitude</translation>
     </message>
     <message>
       <location filename="../../../../AppData/Local/Temp/nightscope_python_translations.cpp" line="2509" />
@@ -5748,7 +5748,7 @@ Check the application folder permissions and restart NightScope.</translation>
     <message>
       <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="271" />
       <source>%1 di %2 Barlow</source>
-      <translation>%1 by %2 Barlow</translation>
+      <translation>%1 of %2 Barlow lenses</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/EquipmentOpticsPage.qml" line="316" />
@@ -5949,6 +5949,7 @@ Check the application folder permissions and restart NightScope.</translation>
       <translation>Eyepieces</translation>
     </message>
     <message>
+      <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="19" />
       <location filename="../app/ui/pages/EquipmentProfilesPage.qml" line="225" />
       <source>Barlow</source>
       <translation>Barlow lenses</translation>
@@ -6955,7 +6956,7 @@ Check the application folder permissions and restart NightScope.</translation>
       <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="16" />
       <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="25" />
       <source>Tutti</source>
-      <translation>Everyone</translation>
+      <translation>All</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectCataloguePage.qml" line="46" />
@@ -7311,6 +7312,16 @@ Check the application folder permissions and restart NightScope.</translation>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="604" />
       <source>Periodo migliore: %1</source>
       <translation>Best time: %1</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="117" />
+      <source>A.R.</source>
+      <translation>R.A.</translation>
+    </message>
+    <message>
+      <location filename="../app/ui/pages/ObjectDetailPage.qml" line="118" />
+      <source>Dec</source>
+      <translation>Dec</translation>
     </message>
     <message>
       <location filename="../app/ui/pages/ObjectDetailPage.qml" line="622" />

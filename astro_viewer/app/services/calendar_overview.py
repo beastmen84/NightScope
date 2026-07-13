@@ -364,7 +364,10 @@ def _why_text(
             "vista adattata al buio."
         )
     if event_type == "Eclissi" and "solare" in normalized_title:
-        return tr("È un evento da pianificare con protezione solare certificata.")
+        return tr(
+            "È un evento da pianificare usando protezioni certificate specifiche "
+            "per l'osservazione solare."
+        )
     if event_type == "Eclissi":
         if visibility_state != "visible":
             return tr(
