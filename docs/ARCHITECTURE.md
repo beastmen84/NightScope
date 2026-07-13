@@ -25,9 +25,13 @@ NightScope is organized around a small desktop application package:
   next to the application/repository root and is not distributed as seed data.
 - `astro_viewer/resources`: icons, images and themes consumed by QML and build
   packaging.
+- `astro_viewer/translations`: Qt Linguist source (`.ts`) and compiled (`.qm`)
+  catalogues for the Italian source UI and the English UI translation.
 - `astro_viewer/tests`: unittest/pytest-compatible regression tests.
 - `astro_viewer/tools`: one-off import, validation and packaging-support tools.
 - `packaging`: PyInstaller spec, hooks and Windows build script.
+- `tools/update_translations.ps1`: deterministic QML extraction, catalogue
+  completeness validation and `.qm` compilation.
 
 ## Architectural Style
 
@@ -43,6 +47,21 @@ The current implementation is coherent, but the ViewModel/controller layer has
 grown beyond a narrow presentation adapter. `AppController` also orchestrates
 refresh flows, profile mutation, object formatting, weather digests, calendar
 presentation and recommendation enrichment.
+
+## UI Localization
+
+`TranslationManager` is created before the controller and QML engine. It reads
+the `language` key from `user_preferences.json`, installs the selected Qt
+catalogue and is exposed to QML as `translationManager`. The sidebar selector
+persists changes and calls `QQmlApplicationEngine.retranslate()`, so QML
+bindings using `qsTr()` update without rebuilding controller state or
+recomputing NSOM.
+
+Italian is the source and fallback language; English loads `en.qm`. Static QML
+labels, commands, dialogs and presentation copy are covered by the catalogues.
+Editorial catalogue fields and strings already composed by backend services
+remain domain data in Italian and are not duplicated in the UI catalogues.
+PyInstaller packages the entire translations directory.
 
 ## NightScope Observation Model
 

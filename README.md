@@ -35,6 +35,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
 - Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
   operazioni di aggiunta, modifica ed eliminazione delle sessioni.
+- Interfaccia QML localizzata in italiano e inglese, con selettore persistente
+  nella barra laterale e cambio lingua live senza ricalcolare NSOM.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
   Barlow, binocoli, filtri e riduttori. Le voci integrate sono in sola lettura;
   quelle personalizzate restano modificabili ed eliminabili dall'utente.
@@ -44,7 +46,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.28.0`.
+Versione corrente sorgente: `1.29.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -128,6 +130,16 @@ sessioni, oggetti distinti, valutazione media e ultima osservazione. I nuovi
 record propongono data/ora locale, localita' e setup del profilo attivo; il Log
 resta indipendente da score, ranking e NSOM. La distribuzione Windows non e'
 stata rigenerata.
+
+In `1.29.0` l'interfaccia QML usa cataloghi Qt Linguist italiani e inglesi in
+`astro_viewer/translations`. Il selettore `Lingua` nella barra laterale applica
+la scelta live e la salva in `user_preferences.json`; i cataloghi compilati
+sono inclusi anche nel bundle PyInstaller. `tools/update_translations.ps1`
+estrae le stringhe QML, mantiene l'italiano come lingua sorgente, verifica che
+entrambi i cataloghi siano completi e rigenera i file `.qm`. La localizzazione
+copre etichette, comandi, dialoghi e testi di presentazione definiti nel QML;
+descrizioni, curiosita' e messaggi gia' composti dai servizi restano contenuti
+italiani. La distribuzione Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

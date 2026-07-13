@@ -52,11 +52,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.28.0`:
+Measured on the current Windows development environment for `1.29.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `711 passed, 7 subtests passed` | `0:01:55.69` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `715 passed, 7 subtests passed` | `0:01:45.91` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -75,6 +75,10 @@ exclusion from scoring and ObserverCapability. The `1.28.0` additions cover
 the complete observation-log repository and controller CRUD cycle, validation,
 unlimited result projection, navigation and preservation through database
 bootstrap and runtime-folder copies.
+The `1.29.0` additions validate symmetric and complete Italian/English Qt
+catalogues, compiled translation assets, live runtime switching, preference
+preservation, sidebar exposure and PyInstaller packaging. QML smoke tests are
+also run with both languages from disposable runtime directories.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

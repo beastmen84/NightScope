@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.28.0`
-- Dist `1.28.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.29.0`
+- Dist `1.29.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `53244e2 Add observation log`
+- Commit sorgente validato: `5ef1fdf Add Italian and English UI translations`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `53244e2`; non sostituire questo
+documentazione. Per lo stato del codice usare `5ef1fdf`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `5ef1fdf Add Italian and English UI translations`
 - `53244e2 Add observation log`
 - `87f2285 Make filter recommendations aperture-aware`
 - `a859d75 Add photographic reducer recommendations`
@@ -93,6 +94,26 @@ backfocus.
 La pagina separata `Log Osservazioni` e' implementata da `1.28.0` tra Calendario
 e Meteo. La sezione resta fuori dal dettaglio oggetto e non modifica score,
 ranking, NSOM o configurazioni consigliate.
+
+La localizzazione UI `1.29.0` e' implementata con cataloghi Qt Linguist `it` ed
+`en`. Il selettore nella barra laterale cambia live il testo QML e salva la
+lingua nelle preferenze senza ricalcolare NSOM. Descrizioni, curiosita' e
+messaggi gia' composti dai servizi restano contenuti italiani.
+
+## Localizzazione UI 1.29.0
+
+- `TranslationManager` viene installato prima del controller e del caricamento
+  QML; italiano e' lingua sorgente/fallback, inglese carica `en.qm`.
+- `translationManager` espone alla barra laterale opzioni lingua e codice
+  corrente; `engine.retranslate()` aggiorna live i binding `qsTr()`.
+- La preferenza `language` condivide `user_preferences.json` e viene aggiornata
+  atomicamente preservando le altre chiavi.
+- `astro_viewer/translations` contiene `it.ts`, `en.ts` e i due cataloghi `.qm`;
+  PyInstaller include l'intera directory.
+- `tools/update_translations.ps1` estrae 565 messaggi QML, completa il catalogo
+  sorgente italiano, rifiuta cataloghi incompleti e compila entrambi i `.qm`.
+- La barra di navigazione usa uno `ScrollView`, mantenendo selettore lingua e
+  riepilogo sessione accessibili anche all'altezza minima supportata.
 
 ## Log Osservazioni 1.28.0
 
@@ -364,7 +385,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.28.0
+## Validazione 1.29.0
 
 Eseguita nella venv corrente:
 
@@ -373,7 +394,9 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
-.\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\ObservationLogPage.qml
+.\tools\update_translations.ps1
+$qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
+& .\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui @qmlFiles
 ```
 
 Risultati:
@@ -381,12 +404,14 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `711 passed`, `557 warnings`, `7 subtests passed` in `115,69 s`.
-- `qmllint` sulla pagina Log: exit `0`, nessun warning.
-- QML smoke: exit `0`, eseguito con runtime temporaneo senza salvare file nella
-  root del progetto.
-- Verificati CRUD repository/controller, elenco senza limite, validazioni,
-  preservazione e copia dei dati utente e ordine della navigazione.
+- Suite: `715 passed`, `557 warnings`, `7 subtests passed` in `105,91 s`.
+- Cataloghi: 565 messaggi completi per lingua; entrambi i `.qm` compilati.
+- `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
+  non qualificato, nessun errore QML.
+- QML smoke italiano e inglese: exit `0`, eseguiti in parallelo con runtime
+  temporanei senza salvare file nella root del progetto.
+- Verificati cambio live, fallback italiano, persistenza della lingua,
+  preservazione delle altre preferenze, packaging e ordine della navigazione.
 - Dist non rigenerata.
 
 Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
