@@ -9,14 +9,15 @@ Aggiornato: 2026-07-13
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `60c5d46 Complete scalable application localization`
+- Commit sorgente validato: `5f6c2d0 Fix localization review findings`
 
-Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `60c5d46`; non sostituire questo
+Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
+stato del codice usare `5f6c2d0`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `5f6c2d0 Fix localization review findings`
 - `60c5d46 Complete scalable application localization`
 - `5ef1fdf Add Italian and English UI translations`
 - `53244e2 Add observation log`
@@ -118,9 +119,14 @@ restano invariati.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1472` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1474` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
+- La review successiva ha corretto la terminologia astronomica inglese, i nomi
+  IAU delle costellazioni, i caratteri invisibili nei contenuti, la sicurezza
+  per l'osservazione solare, `R.A.` e l'ordinamento localizzato dei filtri.
+- I test di regressione coprono ora anche label dentro oggetti QML, termini
+  editoriali revisionati, assenza di `U+200B` e sorting dopo il rendering.
 - L'aggiunta del francese richiede solo `fr.json`, `fr.ts` e `fr.qm`, seguendo
   `docs/LOCALIZATION.md`; nessuna modifica applicativa e' necessaria.
 - La barra di navigazione usa uno `ScrollView`, mantenendo selettore lingua e
@@ -416,8 +422,8 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `725 passed`, `558 warnings`, `7 subtests passed` in `111,24 s`.
-- Cataloghi: `1472` messaggi completi per lingua; entrambi i `.qm` compilati.
+- Suite: `727 passed`, `557 warnings`, `7 subtests passed` in `43,41 s`.
+- Cataloghi: `1474` messaggi completi per lingua; entrambi i `.qm` compilati.
 - Updater JSON/TS verificati idempotenti; un secondo passaggio conserva gli
   hash di tutti i sorgenti tradotti.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
