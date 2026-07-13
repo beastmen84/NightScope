@@ -420,12 +420,12 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("isObservingNight", qml)
         self.assertIn("Previsione mobile delle prossime 24 ore", qml)
         self.assertIn("Notte osservativa", qml)
-        cloud_card_start = qml.index('title: "Copertura nuvolosa oraria"')
+        cloud_card_start = qml.index('title: qsTr("Copertura nuvolosa oraria")')
         weather_bars_start = qml.index("WeatherBars {", cloud_card_start)
         cloud_header = qml[cloud_card_start:weather_bars_start]
         self.assertIn("headerContent: [", cloud_header)
-        self.assertIn('text: "Notte osservativa"', cloud_header)
-        self.assertEqual(qml.count('text: "Notte osservativa"'), 1)
+        self.assertIn('text: qsTr("Notte osservativa")', cloud_header)
+        self.assertEqual(qml.count('text: qsTr("Notte osservativa")'), 1)
         self.assertIn("? theme.cyan", qml)
         self.assertNotIn("ScrollBar.horizontal", qml)
         self.assertNotIn("controller.observingWeatherHourly", qml)
@@ -433,19 +433,19 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Radianza VIIRS", qml)
         self.assertIn("Osservazioni VIIRS", qml)
         self.assertIn("SQM stimato", qml)
-        self.assertIn('title: "Aerosol atmosferico"', qml)
+        self.assertIn('title: qsTr("Aerosol atmosferico")', qml)
         self.assertIn("visible: controller.atmosphericTransparency.visible", qml)
-        self.assertIn('subtitle: "NASA MAIAC AOD"', qml)
-        self.assertIn('MetricTile { label: "AOD 550 nm"', qml)
-        self.assertIn('MetricTile { label: "Effetto aerosol"', qml)
-        self.assertIn('MetricTile { label: "Freschezza"', qml)
+        self.assertIn('subtitle: qsTr("NASA MAIAC AOD")', qml)
+        self.assertIn('MetricTile { label: qsTr("AOD 550 nm")', qml)
+        self.assertIn('MetricTile { label: qsTr("Effetto aerosol")', qml)
+        self.assertIn('MetricTile { label: qsTr("Freschezza")', qml)
         self.assertIn("Recupero dati NASA AOD...", qml)
-        self.assertIn('title: "Particolato locale"', qml)
+        self.assertIn('title: qsTr("Particolato locale")', qml)
         self.assertIn("visible: controller.localAtmosphere.visible", qml)
-        self.assertIn('MetricTile { label: "PM2.5"', qml)
-        self.assertIn('MetricTile { label: "PM10"', qml)
-        self.assertIn('MetricTile { label: "Aria locale"', qml)
-        self.assertIn('MetricTile { label: "Fonte"', qml)
+        self.assertIn('MetricTile { label: qsTr("PM2.5")', qml)
+        self.assertIn('MetricTile { label: qsTr("PM10")', qml)
+        self.assertIn('MetricTile { label: qsTr("Aria locale")', qml)
+        self.assertIn('MetricTile { label: qsTr("Fonte")', qml)
         self.assertIn("controller.localAtmosphere.sourceDetail", qml)
         self.assertNotIn("weatherLocationLayout", qml)
 
@@ -462,8 +462,8 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("controller.activeLocationSource", qml)
         self.assertIn("controller.homeNightPlanOverview", qml)
         self.assertIn("root.nightProfileOverview.summary", qml)
-        self.assertIn('title: root.nightPlanOverview.title || "Piano osservativo"', qml)
-        self.assertIn('title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"', qml)
+        self.assertIn('title: root.nightPlanOverview.title || qsTr("Piano osservativo")', qml)
+        self.assertIn('title: root.nightAlternativesOverview.title || qsTr("Altri oggetti visibili stasera")', qml)
         self.assertIn("delegate: HomePlanStepRow", qml)
         self.assertIn("delegate: HomeVisibleTargetRow", qml)
         plan_step_qml = (
@@ -507,7 +507,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Quando osservarlo", detail_qml)
         self.assertIn("Con il tuo profilo", detail_qml)
         self.assertIn("Consigli osservativi", detail_qml)
-        self.assertIn('text: "Apri " + modelData.name', detail_qml)
+        self.assertIn('text: qsTr("Apri ") + modelData.name', detail_qml)
         self.assertIn("root.eventData.whyText", detail_qml)
         self.assertIn("root.eventData.setupText", detail_qml)
         self.assertIn("root.eventData.tips", detail_qml)
@@ -521,14 +521,14 @@ class ReleaseScenarioTests(unittest.TestCase):
         ui_pages = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages"
         location_qml = (ui_pages / "LocationPage.qml").read_text(encoding="utf-8")
         qml = (ui_pages / "DataProvidersPage.qml").read_text(encoding="utf-8")
-        self.assertIn('title: "Posizioni recenti"', location_qml)
-        self.assertIn('text: "Nessuna posizione recente."', location_qml)
+        self.assertIn('title: qsTr("Posizioni recenti")', location_qml)
+        self.assertIn('text: qsTr("Nessuna posizione recente.")', location_qml)
         self.assertNotIn("visible: controller.recentLocations.length > 0", location_qml)
-        self.assertNotIn('title: "Earthdata NASA"', location_qml)
-        self.assertIn('text: "Provider dati"', qml)
-        self.assertIn('title: "Earthdata NASA"', qml)
+        self.assertNotIn('title: qsTr("Earthdata NASA")', location_qml)
+        self.assertIn('text: qsTr("Provider dati")', qml)
+        self.assertIn('title: qsTr("Earthdata NASA")', qml)
         self.assertIn('earthdataRegistrationUrl: "https://urs.earthdata.nasa.gov/users/new"', qml)
-        self.assertIn('headerActionText: "Create account"', qml)
+        self.assertIn('headerActionText: qsTr("Create account")', qml)
         self.assertIn("headerActionWidth: 148", qml)
         self.assertIn("!controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified", qml)
         self.assertIn("&& !controller.earthdataAuthorizationRequired", qml)
@@ -538,28 +538,50 @@ class ReleaseScenarioTests(unittest.TestCase):
         )
         self.assertIn("onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)", qml)
         self.assertIn('openAQRegistrationUrl: "https://explore.openaq.org/register"', qml)
-        self.assertIn('title: "OpenAQ"', qml)
-        self.assertIn('placeholderText: controller.openaqCredentialsConfigured ? "Nuova API key OpenAQ" : "API key OpenAQ"', qml)
+        self.assertIn('title: qsTr("OpenAQ")', qml)
+        self.assertIn(
+            'placeholderText: controller.openaqCredentialsConfigured ? qsTr("Nuova API key OpenAQ") : qsTr("API key OpenAQ")',
+            qml,
+        )
         self.assertIn("controller.saveOpenAQApiKey(openaqApiKey.text)", qml)
         self.assertIn("controller.testOpenAQConnection()", qml)
         self.assertIn("controller.removeOpenAQCredentials()", qml)
-        openaq_card = qml[qml.index('title: "OpenAQ"') :]
+        openaq_card = qml[qml.index('title: qsTr("OpenAQ")') :]
         self.assertNotIn("Autorizza app", openaq_card)
 
     def test_location_page_prioritizes_city_search_layout(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "LocationPage.qml").read_text(encoding="utf-8")
-        self.assertLess(qml.index('title: "Posizione attuale"'), qml.index('title: "Ricerca città"'))
-        self.assertLess(qml.index('title: "Ricerca città"'), qml.index('title: "Posizioni recenti"'))
-        self.assertLess(qml.index("title: \"Rilevamento posizione all'avvio\""), qml.index('title: "Posizione Windows"'))
-        self.assertLess(qml.index('title: "Posizione Windows"'), qml.index('title: "Località IP (ipapi/ipwho)"'))
-        self.assertLess(qml.index('title: "Località IP (ipapi/ipwho)"'), qml.index('title: "Coordinate manuali"'))
+        self.assertLess(
+            qml.index('title: qsTr("Posizione attuale")'),
+            qml.index('title: qsTr("Ricerca città")'),
+        )
+        self.assertLess(
+            qml.index('title: qsTr("Ricerca città")'),
+            qml.index('title: qsTr("Posizioni recenti")'),
+        )
+        self.assertLess(
+            qml.index("title: qsTr(\"Rilevamento posizione all'avvio\")"),
+            qml.index('title: qsTr("Posizione Windows")'),
+        )
+        self.assertLess(
+            qml.index('title: qsTr("Posizione Windows")'),
+            qml.index('title: qsTr("Località IP (ipapi/ipwho)")'),
+        )
+        self.assertLess(
+            qml.index('title: qsTr("Località IP (ipapi/ipwho)")'),
+            qml.index('title: qsTr("Coordinate manuali")'),
+        )
         self.assertIn("Layout.rowSpan: root.width > 1040 ? 2 : 1", qml)
         self.assertIn("clip: true", qml)
-        city_card = qml[qml.index('title: "Ricerca città"') : qml.index('title: "Posizione Windows"')]
+        city_card = qml[
+            qml.index('title: qsTr("Ricerca città")') : qml.index(
+                'title: qsTr("Posizione Windows")'
+            )
+        ]
         self.assertIn("contentFillsHeight: true", city_card)
         self.assertIn("Layout.fillHeight: true", city_card)
         self.assertNotIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", city_card)
-        self.assertIn('subtitle: "Geolocalizzazione IP"', qml)
+        self.assertIn('subtitle: qsTr("Geolocalizzazione IP")', qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)

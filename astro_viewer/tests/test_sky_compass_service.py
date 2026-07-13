@@ -158,23 +158,29 @@ def test_sky_compass_excludes_targets_that_are_not_observable_now() -> None:
 def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
     glass_card_source = GLASS_CARD.read_text(encoding="utf-8")
-    sky_compass_block = source[source.index("id: skyCompassCard") : source.index('text: "Piano della notte"')]
-    events_title_index = source.index('title: "Prossimi eventi"')
+    sky_compass_block = source[
+        source.index("id: skyCompassCard") : source.index('text: qsTr("Piano della notte")')
+    ]
+    events_title_index = source.index('title: qsTr("Prossimi eventi")')
     events_start_index = source.rindex("\n            GlassCard {", 0, events_title_index)
     events_block = source[events_start_index:]
 
-    assert source.index('title: "Sky Compass"') < source.index('text: "Piano della notte"')
-    assert source.index('title: "Prossimi eventi"') > source.index('title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"')
-    assert 'title: "Mappa cielo"' not in source
+    assert source.index('title: qsTr("Sky Compass")') < source.index(
+        'text: qsTr("Piano della notte")'
+    )
+    assert source.index('title: qsTr("Prossimi eventi")') > source.index(
+        'title: root.nightAlternativesOverview.title || qsTr("Altri oggetti visibili stasera")'
+    )
+    assert 'title: qsTr("Mappa cielo")' not in source
     assert "controller.skyMap" not in source
     assert "columns: skyCompassCard.wide ? 3 : skyCompassCard.medium ? 2 : 1" in sky_compass_block
     assert "Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0" in sky_compass_block
-    assert 'text: skyCompassCard.sessionRecommended ? "Inizia da" : "Guarda verso"' in sky_compass_block
+    assert 'text: skyCompassCard.sessionRecommended ? qsTr("Inizia da") : qsTr("Guarda verso")' in sky_compass_block
     assert "accentColor: theme.teal" in sky_compass_block
     assert "property alias headerContent: headerContentRow.data" in glass_card_source
     assert "id: headerContentRow" in glass_card_source
     assert "headerContent: [" in sky_compass_block
-    alternatives_binding = 'text: skyCompassCard.sessionRecommended ? "Alternative" : "Altre direzioni"'
+    alternatives_binding = 'text: skyCompassCard.sessionRecommended ? qsTr("Alternative") : qsTr("Altre direzioni")'
     assert alternatives_binding in sky_compass_block
     assert sky_compass_block.index(alternatives_binding) < sky_compass_block.index("GridLayout {")
     assert "Nessuna alternativa utile" not in sky_compass_block
@@ -193,10 +199,10 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
     assert "skyCompassGeometricTargetCountLabel" in source
     assert "iconKind === \"planet\"" in source
     assert 'property bool sessionRecommended: root.sessionOverview.state === "recommended"' in sky_compass_block
-    assert '"Dove iniziare stasera" : "Orientamento del cielo"' in sky_compass_block
-    assert '"Inizia da" : "Guarda verso"' in sky_compass_block
-    assert '"Alternative" : "Altre direzioni"' in sky_compass_block
-    assert '"Target principali" : "Target nella direzione"' in sky_compass_block
+    assert 'qsTr("Dove iniziare stasera") : qsTr("Orientamento del cielo")' in sky_compass_block
+    assert 'qsTr("Inizia da") : qsTr("Guarda verso")' in sky_compass_block
+    assert 'qsTr("Alternative") : qsTr("Altre direzioni")' in sky_compass_block
+    assert 'qsTr("Target principali") : qsTr("Target nella direzione")' in sky_compass_block
     assert 'text: root.skyCompassTypeLabel(modelData.type)' in sky_compass_block
     assert "Migliore zona osservativa" not in source
     assert "targetNames" not in source
@@ -207,12 +213,12 @@ def test_home_replaces_sky_map_with_sky_compass_without_timer() -> None:
 def test_sky_compass_qml_localizes_catalogue_target_types() -> None:
     source = HOME_PAGE.read_text(encoding="utf-8")
 
-    assert 'return "Nube stellare della Via Lattea"' in source
-    assert 'return "Ammasso globulare"' in source
-    assert 'return "Ammasso aperto"' in source
-    assert 'return "Galassia spirale"' in source
-    assert 'return "Nebulosa planetaria"' in source
-    assert 'return "Resto di supernova"' in source
+    assert 'return qsTr("Nube stellare della Via Lattea")' in source
+    assert 'return qsTr("Ammasso globulare")' in source
+    assert 'return qsTr("Ammasso aperto")' in source
+    assert 'return qsTr("Galassia spirale")' in source
+    assert 'return qsTr("Nebulosa planetaria")' in source
+    assert 'return qsTr("Resto di supernova")' in source
 
 
 def test_home_sky_compass_filter_reacts_to_payload_and_scopes_both_cards() -> None:
@@ -228,7 +234,7 @@ def test_home_sky_compass_filter_reacts_to_payload_and_scopes_both_cards() -> No
     assert "root.targetFilter = \"all\"" in source
     assert "function onSkyCompassChanged()" in source
     assert "root.syncSkyCompassFilter(root.controller" in source
-    assert 'text: "Solo suggeriti ora"' in source
+    assert 'text: qsTr("Solo suggeriti ora")' in source
     assert "enabled: root.skyCompassFilterAvailable" in source
     assert "checkable: true" in source
     assert "checked: root.skyCompassFilterEnabled" in source

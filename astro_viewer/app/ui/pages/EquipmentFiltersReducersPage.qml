@@ -23,8 +23,8 @@ Item {
         "SCT_CLASSIC", "EDGEHD", "REFRACTOR", "RC", "UNIVERSAL", "OTHER"
     ]
     readonly property var opticalSystemLabels: [
-        "SCT classico", "EdgeHD", "Rifrattore", "Ritchey-Chrétien",
-        "Universale", "Altro"
+        qsTr("SCT classico"), qsTr("EdgeHD"), qsTr("Rifrattore"), qsTr("Ritchey-Chrétien"),
+        qsTr("Universale"), qsTr("Altro")
     ]
 
     function optionalText(value) {
@@ -101,7 +101,7 @@ Item {
         filterTransmission.text = item ? root.optionalText(item.transmission_pct) : ""
         filterAperture.text = item ? root.optionalText(item.minimum_aperture_mm) : ""
         filterNotes.text = item ? (item.notes || "") : ""
-        filterDialog.title = item ? "Modifica filtro" : "Aggiungi filtro"
+        filterDialog.title = item ? qsTr("Modifica filtro") : qsTr("Aggiungi filtro")
         filterDialog.open()
     }
 
@@ -120,16 +120,16 @@ Item {
         reducerImaging.checked = item ? item.imaging_compatible : true
         reducerCorrected.checked = item ? item.corrected_field : true
         reducerNotes.text = item ? (item.notes || "") : ""
-        reducerDialog.title = item ? "Modifica riduttore" : "Aggiungi riduttore"
+        reducerDialog.title = item ? qsTr("Modifica riduttore") : qsTr("Aggiungi riduttore")
         reducerDialog.open()
     }
 
     function reducerUseLabel(item) {
         if (item.visual_compatible && item.imaging_compatible)
-            return "Visuale + foto"
+            return qsTr("Visuale + foto")
         if (item.visual_compatible)
-            return "Visuale"
-        return "Fotografico"
+            return qsTr("Visuale")
+        return qsTr("Fotografico")
     }
 
     AppTheme { id: theme }
@@ -152,7 +152,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Catalogo filtri e riduttori"
+                    text: qsTr("Catalogo filtri e riduttori")
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -161,7 +161,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Accessori ottici disponibili per i profili osservativi"
+                    text: qsTr("Accessori ottici disponibili per i profili osservativi")
                     color: theme.textSecondary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
@@ -170,7 +170,7 @@ Item {
 
             DarkTextField {
                 Layout.preferredWidth: 330
-                placeholderText: "Cerca filtro o riduttore..."
+                placeholderText: qsTr("Cerca filtro o riduttore...")
                 onTextChanged: root.accessorySearch = text
             }
         }
@@ -214,7 +214,7 @@ Item {
                             spacing: 2
                             Text {
                                 Layout.fillWidth: true
-                                text: "Catalogo filtri"
+                                text: qsTr("Catalogo filtri")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
@@ -230,7 +230,7 @@ Item {
                         }
 
                         DarkButton {
-                            text: "Aggiungi filtro"
+                            text: qsTr("Aggiungi filtro")
                             accentColor: theme.teal
                             onClicked: root.openFilterDialog(null)
                         }
@@ -263,7 +263,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: root.filteredFilters().length === 0
-                                text: "Nessun filtro trovato."
+                                text: qsTr("Nessun filtro trovato.")
                                 color: theme.textSecondary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -302,7 +302,7 @@ Item {
                             spacing: 2
                             Text {
                                 Layout.fillWidth: true
-                                text: "Catalogo riduttori"
+                                text: qsTr("Catalogo riduttori")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
@@ -318,7 +318,7 @@ Item {
                         }
 
                         DarkButton {
-                            text: "Aggiungi riduttore"
+                            text: qsTr("Aggiungi riduttore")
                             accentColor: theme.amber
                             onClicked: root.openReducerDialog(null)
                         }
@@ -351,7 +351,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: root.filteredReducers().length === 0
-                                text: "Nessun riduttore trovato."
+                                text: qsTr("Nessun riduttore trovato.")
                                 color: theme.textSecondary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -396,12 +396,12 @@ Item {
                 }
                 DarkButton {
                     visible: !filterRow.itemData.is_builtin
-                    text: "Modifica"
+                    text: qsTr("Modifica")
                     onClicked: filterRow.edit()
                 }
                 DarkButton {
                     visible: !filterRow.itemData.is_builtin
-                    text: "Elimina"
+                    text: qsTr("Elimina")
                     danger: true
                     onClicked: filterRow.deleteRequested()
                 }
@@ -467,12 +467,12 @@ Item {
                 }
                 DarkButton {
                     visible: !reducerRow.itemData.is_builtin
-                    text: "Modifica"
+                    text: qsTr("Modifica")
                     onClicked: reducerRow.edit()
                 }
                 DarkButton {
                     visible: !reducerRow.itemData.is_builtin
-                    text: "Elimina"
+                    text: qsTr("Elimina")
                     danger: true
                     onClicked: reducerRow.deleteRequested()
                 }
@@ -504,8 +504,8 @@ Item {
 
     DarkDialog {
         id: filterDialog
-        title: "Aggiungi filtro"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi filtro")
+        acceptText: qsTr("Salva")
         onAccepted: {
             var typeCode = root.filterTypeCodes[filterType.currentIndex]
             if (root.editFilter.id !== undefined) {
@@ -520,21 +520,21 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: "Modello" }
+            DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
             DarkComboBox { id: filterType; Layout.columnSpan: 2; Layout.fillWidth: true; model: root.filterTypeLabels }
-            DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: "Lunghezza d'onda centrale (nm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: "Larghezza banda (nm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: "Trasmissione (%)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterAperture; Layout.fillWidth: true; placeholderText: "Apertura minima (mm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: qsTr("Lunghezza d'onda centrale (nm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: qsTr("Larghezza banda (nm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: qsTr("Trasmissione (%)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura minima (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
         }
     }
 
     DarkDialog {
         id: reducerDialog
-        title: "Aggiungi riduttore"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi riduttore")
+        acceptText: qsTr("Salva")
         preferredWidth: 780
         onAccepted: {
             var systemCode = root.opticalSystemCodes[reducerSystem.currentIndex]
@@ -550,16 +550,16 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: "Fattore (es. 0.63)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore (es. 0.63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkComboBox { id: reducerSystem; Layout.fillWidth: true; model: root.opticalSystemLabels }
-            DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: "Connessione" }
-            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: "Backfocus (mm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: reducerVisual; Layout.fillWidth: true; text: "Uso visuale" }
-            CheckBox { id: reducerImaging; Layout.fillWidth: true; text: "Uso fotografico" }
-            CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: "Correzione del campo" }
-            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: qsTr("Connessione") }
+            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: qsTr("Backfocus (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            CheckBox { id: reducerVisual; Layout.fillWidth: true; text: qsTr("Uso visuale") }
+            CheckBox { id: reducerImaging; Layout.fillWidth: true; text: qsTr("Uso fotografico") }
+            CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: qsTr("Correzione del campo") }
+            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
 
             RowLayout {
                 Layout.columnSpan: 2
@@ -568,7 +568,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Telescopi compatibili"
+                    text: qsTr("Telescopi compatibili")
                     color: theme.textPrimary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
@@ -576,8 +576,8 @@ Item {
 
                 Text {
                     text: root.reducerTelescopeIds.length === 1
-                          ? "1 selezionato"
-                          : root.reducerTelescopeIds.length + " selezionati"
+                          ? qsTr("1 selezionato")
+                          : root.reducerTelescopeIds.length + qsTr(" selezionati")
                     color: theme.textMuted
                     font.pixelSize: 12
                 }
@@ -587,7 +587,7 @@ Item {
                 id: reducerTelescopeSearchField
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
-                placeholderText: "Cerca telescopio compatibile..."
+                placeholderText: qsTr("Cerca telescopio compatibile...")
                 onTextChanged: root.reducerTelescopeSearch = text
             }
 
@@ -619,15 +619,15 @@ Item {
 
     DarkDialog {
         id: deleteFilterDialog
-        title: "Elimina filtro"
-        acceptText: root.controller.equipmentUsage("filter", root.deleteFilter.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina filtro")
+        acceptText: root.controller.equipmentUsage("filter", root.deleteFilter.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: root.controller.deleteFilterModel(root.deleteFilter.id, root.controller.equipmentUsage("filter", root.deleteFilter.catalog_id || "") > 0)
         Text {
             Layout.fillWidth: true
             text: root.controller.equipmentUsage("filter", root.deleteFilter.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare il filtro dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare il filtro dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
@@ -636,15 +636,15 @@ Item {
 
     DarkDialog {
         id: deleteReducerDialog
-        title: "Elimina riduttore"
-        acceptText: root.controller.equipmentUsage("reducer", root.deleteReducer.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina riduttore")
+        acceptText: root.controller.equipmentUsage("reducer", root.deleteReducer.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: root.controller.deleteReducerModel(root.deleteReducer.id, root.controller.equipmentUsage("reducer", root.deleteReducer.catalog_id || "") > 0)
         Text {
             Layout.fillWidth: true
             text: root.controller.equipmentUsage("reducer", root.deleteReducer.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare il riduttore dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare il riduttore dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

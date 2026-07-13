@@ -166,7 +166,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Calendario astronomico"
+                        text: qsTr("Calendario astronomico")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -175,7 +175,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Opposizioni, congiunzioni, Luna, eclissi e sciami meteorici"
+                        text: qsTr("Opposizioni, congiunzioni, Luna, eclissi e sciami meteorici")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -194,14 +194,14 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 212
-                    title: "In evidenza nei prossimi 30 giorni"
-                    subtitle: "Eventi osservativi da controllare per primi"
+                    title: qsTr("In evidenza nei prossimi 30 giorni")
+                    subtitle: qsTr("Eventi osservativi da controllare per primi")
                     accentColor: theme.amber
 
                     Text {
                         Layout.fillWidth: true
                         visible: (root.calendarOverview.highlights || []).length === 0
-                        text: "Nessun evento rilevante nei prossimi 30 giorni."
+                        text: qsTr("Nessun evento rilevante nei prossimi 30 giorni.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -247,8 +247,8 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 212
-                    title: "Panoramica"
-                    subtitle: root.filteredEvents().length + " eventi nella vista corrente"
+                    title: qsTr("Panoramica")
+                    subtitle: root.filteredEvents().length + qsTr(" eventi nella vista corrente")
                     accentColor: theme.cyan
 
                     GridLayout {
@@ -258,43 +258,43 @@ Item {
                         rowSpacing: 10
 
                         MetricTile {
-                            label: "Prossimo"
+                            label: qsTr("Prossimo")
                             value: root.nextEventLabel()
                             accentColor: theme.amber
                         }
 
                         MetricTile {
-                            label: "Luna"
+                            label: qsTr("Luna")
                             value: root.countEvents("Luna").toString()
                             accentColor: theme.amber
                         }
 
                         MetricTile {
-                            label: "Opposizioni"
+                            label: qsTr("Opposizioni")
                             value: root.countEvents("Opposizione").toString()
                             accentColor: theme.cyan
                         }
 
                         MetricTile {
-                            label: "Cong. planetarie"
+                            label: qsTr("Cong. planetarie")
                             value: root.countEvents("Congiunzione planetaria").toString()
                             accentColor: theme.violet
                         }
 
                         MetricTile {
-                            label: "Cong. solari"
+                            label: qsTr("Cong. solari")
                             value: root.countEvents("Congiunzione solare").toString()
                             accentColor: theme.coral
                         }
 
                         MetricTile {
-                            label: "Sciami"
+                            label: qsTr("Sciami")
                             value: root.countEvents("Sciame meteorico").toString()
                             accentColor: theme.teal
                         }
 
                         MetricTile {
-                            label: "Eclissi"
+                            label: qsTr("Eclissi")
                             value: root.countEvents("Eclissi").toString()
                             accentColor: theme.coral
                         }
@@ -306,8 +306,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Vista calendario"
-                subtitle: root.filteredEvents().length + " di " + root.calendarEvents.length + " eventi"
+                title: qsTr("Vista calendario")
+                subtitle: root.filteredEvents().length + qsTr(" di ") + root.calendarEvents.length + qsTr(" eventi")
                 accentColor: theme.violet
 
                 ColumnLayout {
@@ -316,33 +316,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Periodo"
-                        color: theme.textSecondary
-                        font.pixelSize: 12
-                        font.weight: Font.DemiBold
-                    }
-
-                    Flow {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: implicitHeight
-                        spacing: 8
-
-                        Repeater {
-                            model: ["30 giorni", "6 mesi", "12 mesi"]
-
-                            delegate: DarkButton {
-                                text: modelData
-                                checkable: true
-                                checked: root.selectedDateFilter === modelData
-                                accentColor: theme.violet
-                                onClicked: root.selectedDateFilter = modelData
-                            }
-                        }
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Tipo evento"
+                        text: qsTr("Periodo")
                         color: theme.textSecondary
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
@@ -355,13 +329,43 @@ Item {
 
                         Repeater {
                             model: [
-                                { "label": "Tutti", "value": "Tutti" },
-                                { "label": "Luna", "value": "Luna" },
-                                { "label": "Opposizioni", "value": "Opposizione" },
-                                { "label": "Cong. planetarie", "value": "Congiunzione planetaria" },
-                                { "label": "Cong. solari", "value": "Congiunzione solare" },
-                                { "label": "Sciami", "value": "Sciame meteorico" },
-                                { "label": "Eclissi", "value": "Eclissi" }
+                                { "label": qsTr("30 giorni"), "value": "30 giorni" },
+                                { "label": qsTr("6 mesi"), "value": "6 mesi" },
+                                { "label": qsTr("12 mesi"), "value": "12 mesi" }
+                            ]
+
+                            delegate: DarkButton {
+                                text: modelData.label
+                                checkable: true
+                                checked: root.selectedDateFilter === modelData.value
+                                accentColor: theme.violet
+                                onClicked: root.selectedDateFilter = modelData.value
+                            }
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Tipo evento")
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                    }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: implicitHeight
+                        spacing: 8
+
+                        Repeater {
+                            model: [
+                                { "label": qsTr("Tutti"), "value": "Tutti" },
+                                { "label": qsTr("Luna"), "value": "Luna" },
+                                { "label": qsTr("Opposizioni"), "value": "Opposizione" },
+                                { "label": qsTr("Cong. planetarie"), "value": "Congiunzione planetaria" },
+                                { "label": qsTr("Cong. solari"), "value": "Congiunzione solare" },
+                                { "label": qsTr("Sciami"), "value": "Sciame meteorico" },
+                                { "label": qsTr("Eclissi"), "value": "Eclissi" }
                             ]
 
                             delegate: DarkButton {
@@ -384,7 +388,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Timeline eventi"
+                    text: qsTr("Timeline eventi")
                     color: theme.textPrimary
                     font.pixelSize: 20
                     font.weight: Font.DemiBold
@@ -392,7 +396,7 @@ Item {
                 }
 
                 StatusPill {
-                    text: root.filteredEvents().length + " eventi"
+                    text: root.filteredEvents().length + qsTr(" eventi")
                     accentColor: theme.cyan
                 }
             }
@@ -425,7 +429,7 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: root.filteredEvents().length === 0
-                text: "Nessun evento per i filtri selezionati."
+                text: qsTr("Nessun evento per i filtri selezionati.")
                 color: theme.textSecondary
                 font.pixelSize: 13
                 horizontalAlignment: Text.AlignHCenter

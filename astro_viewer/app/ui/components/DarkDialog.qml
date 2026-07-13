@@ -6,8 +6,8 @@ Popup {
     id: root
 
     property string title: ""
-    property string acceptText: "Conferma"
-    property string cancelText: "Annulla"
+    property string acceptText: qsTr("Conferma")
+    property string cancelText: qsTr("Annulla")
     property bool showAccept: true
     property bool acceptDanger: false
     property bool closeOnAccept: true

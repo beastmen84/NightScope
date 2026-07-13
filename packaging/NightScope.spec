@@ -10,6 +10,7 @@ datas = [
     (str(ROOT / "VERSION"), "."),
     (str(ROOT / "manuale.html"), "."),
     (str(APP_DIR / "app" / "ui"), "astro_viewer/app/ui"),
+    (str(APP_DIR / "translations"), "astro_viewer/translations"),
     (str(APP_DIR / "resources"), "astro_viewer/resources"),
     (str(APP_DIR / "data" / "schema.sql"), "astro_viewer/data"),
     (str(APP_DIR / "data" / "catalogue_objects_seed.csv"), "astro_viewer/data"),

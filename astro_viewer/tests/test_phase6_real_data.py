@@ -977,24 +977,24 @@ class Phase6RealDataTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         expected_labels = [
-            'text: "Home"',
-            'text: "Calendario"',
-            'text: "Log Osservazioni"',
-            'text: "Meteo"',
-            'text: "Configurazione"',
-            'text: "Località"',
-            'text: "Provider dati"',
-            'text: "Profili"',
-            'text: "Cataloghi"',
-            'text: "Oggetti celesti"',
-            'text: "Telescopi"',
-            'text: "Oculari e Barlow"',
-            'text: "Filtri e riduttori"',
-            'text: "Binocoli"',
+            'text: qsTr("Home")',
+            'text: qsTr("Calendario")',
+            'text: qsTr("Log Osservazioni")',
+            'text: qsTr("Meteo")',
+            'text: qsTr("Configurazione")',
+            'text: qsTr("Località")',
+            'text: qsTr("Provider dati")',
+            'text: qsTr("Profili")',
+            'text: qsTr("Cataloghi")',
+            'text: qsTr("Oggetti celesti")',
+            'text: qsTr("Telescopi")',
+            'text: qsTr("Oculari e Barlow")',
+            'text: qsTr("Filtri e riduttori")',
+            'text: qsTr("Binocoli")',
         ]
         positions = [main_qml.index(label) for label in expected_labels]
         self.assertEqual(positions, sorted(positions))
-        self.assertNotIn('text: "Strumenti"', main_qml)
+        self.assertNotIn('text: qsTr("Strumenti")', main_qml)
         self.assertIn("dataProviders", main_qml)
         self.assertIn("observationLog", main_qml)
         self.assertIn("equipmentProfiles", main_qml)
@@ -1017,46 +1017,46 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("limitingFactor", main_qml)
         self.assertNotIn("appController.weatherSummary.scoreValue", main_qml)
         self.assertNotIn("appController.weatherSummary.alert", main_qml)
-        self.assertIn('window.detailBackTarget === "objectCatalogue" ? "Torna al catalogo"', main_qml)
+        self.assertIn('window.detailBackTarget === "objectCatalogue" ? qsTr("Torna al catalogo")', main_qml)
         self.assertIn("controller.catalogueObjects", object_catalogue_qml)
         self.assertIn("appController.selectCatalogueObject", main_qml)
-        self.assertIn('text: "Esplora gli oggetti astronomici disponibili nel catalogo."', object_catalogue_qml)
-        self.assertIn('placeholderText: "Cerca ID o nome..."', object_catalogue_qml)
+        self.assertIn('text: qsTr("Esplora gli oggetti astronomici disponibili nel catalogo.")', object_catalogue_qml)
+        self.assertIn('placeholderText: qsTr("Cerca ID o nome...")', object_catalogue_qml)
         for filter_label in (
-            'text: "Ricerca"',
-            'text: "Catalogo"',
-            'text: "Tipo"',
-            'text: "Costellazione"',
-            'text: "Osservazione"',
-            'text: "Visibilità"',
+            'text: qsTr("Ricerca")',
+            'text: qsTr("Catalogo")',
+            'text: qsTr("Tipo")',
+            'text: qsTr("Costellazione")',
+            'text: qsTr("Osservazione")',
+            'text: qsTr("Visibilità")',
         ):
             self.assertIn(filter_label, object_catalogue_qml)
         self.assertIn("controller.catalogueMonthLabels", object_catalogue_qml)
         self.assertIn("enabled: controller.catalogueVisibleThisMonthFilter", object_catalogue_qml)
         self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
         self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
-        self.assertIn('text: "Visibili nel mese"', object_catalogue_qml)
-        self.assertNotIn('FilterLabel { text: "Mese" }', object_catalogue_qml)
+        self.assertIn('text: qsTr("Visibili nel mese")', object_catalogue_qml)
+        self.assertNotIn('FilterLabel { text: qsTr("Mese") }', object_catalogue_qml)
         self.assertLess(object_catalogue_qml.index("id: visibleThisMonthFilter"), object_catalogue_qml.index("id: monthFilter"))
         self.assertIn("Layout.preferredWidth: 170", object_catalogue_qml)
-        self.assertIn('TableHeader { text: "Tipo"; Layout.preferredWidth: 164 }', object_catalogue_qml)
+        self.assertIn('TableHeader { text: qsTr("Tipo"); Layout.preferredWidth: 164 }', object_catalogue_qml)
         self.assertIn("root.textOrDash(itemData.type_label)", object_catalogue_qml)
         self.assertIn('model: root.choiceModel("typeChoices")', object_catalogue_qml)
         self.assertIn('model: root.choiceModel("observationTypeChoices")', object_catalogue_qml)
         self.assertIn('valueRole: "value"', object_catalogue_qml)
         for table_header in (
-            'TableHeader { text: "Costellazione"',
-            'TableHeader { text: "Magnitudine"',
-            'TableHeader { text: "Dimensione"',
-            'TableHeader { text: "Osservazione"',
-            'TableHeader { text: "Utile (≥15°)"; Layout.preferredWidth: 104 }',
+            'TableHeader { text: qsTr("Costellazione")',
+            'TableHeader { text: qsTr("Magnitudine")',
+            'TableHeader { text: qsTr("Dimensione")',
+            'TableHeader { text: qsTr("Osservazione")',
+            'TableHeader { text: qsTr("Utile (≥15°)"); Layout.preferredWidth: 104 }',
         ):
             self.assertIn(table_header, object_catalogue_qml)
-        self.assertNotIn('TableHeader { text: "Visibile nel mese"', object_catalogue_qml)
-        self.assertNotIn('TableHeader { text: "Cost."', object_catalogue_qml)
-        self.assertNotIn('TableHeader { text: "Mag."', object_catalogue_qml)
-        self.assertNotIn('TableHeader { text: "Dim."', object_catalogue_qml)
-        self.assertNotIn('TableHeader { text: "Osserv."', object_catalogue_qml)
+        self.assertNotIn('TableHeader { text: qsTr("Visibile nel mese")', object_catalogue_qml)
+        self.assertNotIn('TableHeader { text: qsTr("Cost.")', object_catalogue_qml)
+        self.assertNotIn('TableHeader { text: qsTr("Mag.")', object_catalogue_qml)
+        self.assertNotIn('TableHeader { text: qsTr("Dim.")', object_catalogue_qml)
+        self.assertNotIn('TableHeader { text: qsTr("Osserv.")', object_catalogue_qml)
         self.assertIn("root.textOrDash(itemData.constellation)", object_catalogue_qml)
         self.assertIn("is_usefully_observable_label", object_catalogue_qml)
         self.assertIn("root.usefulObservableText(itemData)", object_catalogue_qml)
@@ -1064,18 +1064,18 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn('controller.catalogueFilteredCount + " / " + controller.catalogueTotalCount', object_catalogue_qml)
         self.assertIn("backLabel", object_detail_qml)
         self.assertIn("property bool isCatalogueDetail", object_detail_qml)
-        self.assertIn('root.isCatalogueDetail ? "Scheda catalogo"', object_detail_qml)
+        self.assertIn('root.isCatalogueDetail ? qsTr("Scheda catalogo")', object_detail_qml)
         self.assertIn("root.hasObject && !root.isCatalogueDetail", object_detail_qml)
         self.assertIn("label: root.originMetricLabel()", object_detail_qml)
-        self.assertIn('"label": "Costellazione"', object_detail_qml)
-        self.assertIn('text: "Catalogo binocoli"', binoculars_qml)
-        self.assertIn('placeholderText: "Cerca binocolo..."', binoculars_qml)
-        self.assertIn('placeholderText: "Diametro obiettivo (mm)"', binoculars_qml)
+        self.assertIn('"label": qsTr("Costellazione")', object_detail_qml)
+        self.assertIn('text: qsTr("Catalogo binocoli")', binoculars_qml)
+        self.assertIn('placeholderText: qsTr("Cerca binocolo...")', binoculars_qml)
+        self.assertIn('placeholderText: qsTr("Diametro obiettivo (mm)")', binoculars_qml)
         self.assertIn("controller.binocularCatalog", binoculars_qml)
         self.assertIn("controller.addBinocularModel", binoculars_qml)
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
-        self.assertIn('text: "Stabilizzato"', binoculars_qml)
+        self.assertIn('text: qsTr("Stabilizzato")', binoculars_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
         for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
             self.assertGreaterEqual(
@@ -1087,7 +1087,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 ),
                 2,
             )
-        self.assertIn('text: "Catalogo filtri e riduttori"', filters_reducers_qml)
+        self.assertIn('text: qsTr("Catalogo filtri e riduttori")', filters_reducers_qml)
         self.assertIn("controller.filterCatalog", filters_reducers_qml)
         self.assertIn("controller.reducerCatalog", filters_reducers_qml)
         self.assertIn("controller.filterClassOptions", filters_reducers_qml)
@@ -1101,14 +1101,11 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('"1 selezionato"', filters_reducers_qml)
         self.assertIn('" selezionati"', filters_reducers_qml)
         self.assertNotIn("reducerModels", filters_reducers_qml)
-        self.assertIn('title: "Binocoli"', profiles_qml)
-        self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
-        self.assertIn('title: "Filtri"', profiles_qml)
-        self.assertIn('title: "Riduttori"', profiles_qml)
-        self.assertIn(
-            'model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]',
-            profiles_qml,
-        )
+        self.assertIn('title: qsTr("Binocoli")', profiles_qml)
+        self.assertIn('emptyText: qsTr("Nessun binocolo assegnato.")', profiles_qml)
+        self.assertIn('title: qsTr("Filtri")', profiles_qml)
+        self.assertIn('title: qsTr("Riduttori")', profiles_qml)
+        self.assertIn("model: root.equipmentFilterOptions", profiles_qml)
         self.assertIn("homeNightPlanOverview", home_qml)
         self.assertNotIn('equipmentType === "Binocular"', home_qml)
         self.assertIn('setup_model.equipment_type == "Binocular"', home_overview_service)
@@ -1178,26 +1175,26 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("function includeCatalogueMetric(value)", object_detail_qml)
         self.assertIn('return text !== "n/d"', object_detail_qml)
         self.assertIn("visible: root.isCatalogueDetail", object_detail_qml)
-        self.assertIn('title: "Dati di catalogo"', object_detail_qml)
+        self.assertIn('title: qsTr("Dati di catalogo")', object_detail_qml)
         self.assertIn("columns: root.width > 1160 ? 4 : root.width > 760 ? 2 : 1", object_detail_qml)
         self.assertIn("model: root.catalogueMetadataItems()", object_detail_qml)
         self.assertIn("text: root.catalogueBadgeText()", object_detail_qml)
-        self.assertIn('title: "Descrizione"', object_detail_qml)
+        self.assertIn('title: qsTr("Descrizione")', object_detail_qml)
         self.assertNotIn("Oggetto di catalogo", object_detail_qml)
 
         for label in (
-            '"label": "Catalogo"',
-            '"label": "ID catalogo"',
-            '"label": "Tipo"',
-            '"label": "Costellazione"',
-            '"label": "Magnitudine"',
-            '"label": "Dimensione"',
-            '"label": "Dim. max"',
-            '"label": "Osservazione"',
+            '"label": qsTr("Catalogo")',
+            '"label": qsTr("ID catalogo")',
+            '"label": qsTr("Tipo")',
+            '"label": qsTr("Costellazione")',
+            '"label": qsTr("Magnitudine")',
+            '"label": qsTr("Dimensione")',
+            '"label": qsTr("Dim. max")',
+            '"label": qsTr("Osservazione")',
             '"label": "A.R."',
             '"label": "Dec"',
-            '"label": "Utile (≥15°)"',
-            '"label": "Visibile nel mese corrente"',
+            '"label": qsTr("Utile (≥15°)")',
+            '"label": qsTr("Visibile nel mese corrente")',
         ):
             self.assertIn(label, object_detail_qml)
         self.assertIn("objectData.catalogueUsefullyObservableLabel", object_detail_qml)
@@ -1211,36 +1208,36 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.observingObjectDetail", object_detail_qml)
 
         for observing_section in (
-            'title: "Finestra osservativa"',
-            'title: "Configurazione consigliata"',
+            'title: qsTr("Finestra osservativa")',
+            'title: qsTr("Configurazione consigliata")',
         ):
             self.assertIn(observing_section, object_detail_qml)
-        self.assertIn('title: root.evaluationData.title || "Valutazione osservativa"', object_detail_qml)
-        self.assertIn('label: "Momento migliore"', object_detail_qml)
-        self.assertIn('label: "Inizio utile"', object_detail_qml)
-        self.assertIn('label: "Fine utile"', object_detail_qml)
+        self.assertIn('title: root.evaluationData.title || qsTr("Valutazione osservativa")', object_detail_qml)
+        self.assertIn('label: qsTr("Momento migliore")', object_detail_qml)
+        self.assertIn('label: qsTr("Inizio utile")', object_detail_qml)
+        self.assertIn('label: qsTr("Fine utile")', object_detail_qml)
         self.assertIn("root.geometryData.showHorizonEvents === true", object_detail_qml)
-        self.assertIn('title: "Ciclo lunare"', object_detail_qml)
+        self.assertIn('title: qsTr("Ciclo lunare")', object_detail_qml)
         self.assertIn('objectData.id === "moon"', object_detail_qml)
         self.assertIn("objectData.moonPhase", object_detail_qml)
         self.assertIn("objectData.moonIllumination", object_detail_qml)
         self.assertNotIn("Storico osservazioni", object_detail_qml)
         self.assertNotIn("controller.observationHistory", object_detail_qml)
         self.assertNotIn("controller.saveObservation", object_detail_qml)
-        description_start = object_detail_qml.index('title: "Descrizione"')
-        configuration_start = object_detail_qml.index('title: "Configurazione consigliata"')
+        description_start = object_detail_qml.index('title: qsTr("Descrizione")')
+        configuration_start = object_detail_qml.index('title: qsTr("Configurazione consigliata")')
         self.assertNotIn("maximumLineCount", object_detail_qml[description_start:configuration_start])
         self.assertRegex(
             object_detail_qml,
             r"GridLayout \{\s+id: observingDetailGrid\s+"
             r"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]+"
-            r'title: "Finestra osservativa"',
+            r'title: qsTr\("Finestra osservativa"\)',
         )
         self.assertIn("columns: root.width > 1180 ? 2 : 1", object_detail_qml)
         self.assertRegex(
             object_detail_qml,
             r"visible: root\.hasObject && !root\.isCatalogueDetail[\s\S]{0,180}"
-            r'title: "Configurazione consigliata"',
+            r'title: qsTr\("Configurazione consigliata"\)',
         )
 
     def test_catalogue_objects_expose_all_deep_sky_rows_sorted(self) -> None:

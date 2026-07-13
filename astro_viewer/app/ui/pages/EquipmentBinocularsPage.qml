@@ -18,7 +18,7 @@ Item {
         binocularMagnification.text = String(item.magnification || "")
         binocularObjective.text = String(item.objective_diameter_mm || "")
         binocularStabilized.checked = item.image_stabilized || false
-        binocularDialog.title = "Modifica modello"
+        binocularDialog.title = qsTr("Modifica modello")
         binocularDialog.open()
     }
 
@@ -29,7 +29,7 @@ Item {
         binocularMagnification.text = ""
         binocularObjective.text = ""
         binocularStabilized.checked = false
-        binocularDialog.title = "Aggiungi modello"
+        binocularDialog.title = qsTr("Aggiungi modello")
         binocularDialog.open()
     }
 
@@ -73,7 +73,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Catalogo binocoli"
+                        text: qsTr("Catalogo binocoli")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -82,7 +82,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Modelli disponibili per i profili osservativi"
+                        text: qsTr("Modelli disponibili per i profili osservativi")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         wrapMode: Text.WordWrap
@@ -91,12 +91,12 @@ Item {
 
                 DarkTextField {
                     Layout.preferredWidth: 300
-                    placeholderText: "Cerca binocolo..."
+                    placeholderText: qsTr("Cerca binocolo...")
                     onTextChanged: root.binocularSearch = text
                 }
 
                 DarkButton {
-                    text: "Aggiungi modello"
+                    text: qsTr("Aggiungi modello")
                     accentColor: theme.cyan
                     onClicked: root.openAddDialog()
                 }
@@ -143,7 +143,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.filteredBinocularModels().length === 0
-                    text: "Nessun binocolo trovato."
+                    text: qsTr("Nessun binocolo trovato.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -188,7 +188,7 @@ Item {
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Modifica"
+                    text: qsTr("Modifica")
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10
@@ -197,7 +197,7 @@ Item {
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Elimina"
+                    text: qsTr("Elimina")
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10
@@ -210,15 +210,15 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 StatusPill { text: itemData.spec_label; accentColor: theme.cyan }
-                StatusPill { visible: itemData.image_stabilized; text: "IS"; accentColor: theme.violet }
+                StatusPill { visible: itemData.image_stabilized; text: qsTr("IS"); accentColor: theme.violet }
             }
         }
     }
 
     DarkDialog {
         id: binocularDialog
-        title: "Aggiungi modello"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi modello")
+        acceptText: qsTr("Salva")
         onAccepted: {
             if (root.editModel.id !== undefined) {
                 controller.updateBinocularModel(root.editModel.id, binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularStabilized.checked)
@@ -233,26 +233,26 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: binocularBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: "Ingrandimento"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: "Diametro obiettivo (mm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: "Stabilizzato" }
+            DarkTextField { id: binocularBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: qsTr("Ingrandimento"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: qsTr("Diametro obiettivo (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
         }
     }
 
     DarkDialog {
         id: deleteBinocularDialog
-        title: "Elimina modello"
-        acceptText: controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina modello")
+        acceptText: controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: controller.deleteBinocularModel(root.deleteModel.id, controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("binocular", root.deleteModel.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare il modello dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare il modello dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

@@ -68,7 +68,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Meteo osservativo"
+                        text: qsTr("Meteo osservativo")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -77,7 +77,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.hasValidLocation ? "Meteo per: " + controller.activeLocationLabel + " - " + controller.activeLocationSource : "Configura una posizione per visualizzare il meteo."
+                        text: controller.hasValidLocation ? qsTr("Meteo per: ") + controller.activeLocationLabel + " - " + controller.activeLocationSource : qsTr("Configura una posizione per visualizzare il meteo.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -87,7 +87,7 @@ Item {
                 DarkButton {
                     Layout.preferredWidth: 118
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    text: controller.weatherRefreshRunning ? "Aggiorno..." : "Aggiorna"
+                    text: controller.weatherRefreshRunning ? qsTr("Aggiorno...") : qsTr("Aggiorna")
                     enabled: controller.hasValidLocation && !controller.weatherRefreshRunning && !controller.startupLocationDetectionRunning
                     accentColor: theme.cyan
                     onClicked: controller.refreshWeatherNow()
@@ -109,7 +109,7 @@ Item {
                     id: weatherStateText
                     anchors.fill: parent
                     anchors.margins: 11
-                    text: controller.weatherRefreshRunning ? "Aggiornamento meteo in corso..." : controller.isLoading ? "Caricamento meteo..." : controller.weatherStatus
+                    text: controller.weatherRefreshRunning ? qsTr("Aggiornamento meteo in corso...") : controller.isLoading ? qsTr("Caricamento meteo...") : controller.weatherStatus
                     color: theme.textPrimary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -126,21 +126,21 @@ Item {
                 columnSpacing: 12
                 rowSpacing: 12
 
-                MetricTile { label: "Nuvolosità"; value: controller.weatherSummary.cloudCover + "%"; accentColor: theme.cyan }
-                MetricTile { label: "Precipitazioni"; value: controller.weatherSummary.precipitationProbability + "%"; accentColor: theme.coral }
-                MetricTile { label: "Vento"; value: controller.weatherSummary.windKmh + " km/h"; accentColor: theme.teal }
-                MetricTile { label: "Umidità"; value: controller.weatherSummary.humidity + "%"; accentColor: theme.violet }
-                MetricTile { label: "Temperatura"; value: controller.weatherSummary.temperatureC + " °C"; accentColor: theme.amber }
-                MetricTile { label: "Seeing"; value: controller.seeingTransparency.seeing; accentColor: theme.green }
-                MetricTile { label: "Trasparenza meteo"; value: controller.seeingTransparency.transparency; accentColor: theme.cyan }
-                MetricTile { label: "Bortle"; value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
+                MetricTile { label: qsTr("Nuvolosità"); value: controller.weatherSummary.cloudCover + "%"; accentColor: theme.cyan }
+                MetricTile { label: qsTr("Precipitazioni"); value: controller.weatherSummary.precipitationProbability + "%"; accentColor: theme.coral }
+                MetricTile { label: qsTr("Vento"); value: controller.weatherSummary.windKmh + " km/h"; accentColor: theme.teal }
+                MetricTile { label: qsTr("Umidità"); value: controller.weatherSummary.humidity + "%"; accentColor: theme.violet }
+                MetricTile { label: qsTr("Temperatura"); value: controller.weatherSummary.temperatureC + " °C"; accentColor: theme.amber }
+                MetricTile { label: qsTr("Seeing"); value: controller.seeingTransparency.seeing; accentColor: theme.green }
+                MetricTile { label: qsTr("Trasparenza meteo"); value: controller.seeingTransparency.transparency; accentColor: theme.cyan }
+                MetricTile { label: qsTr("Bortle"); value: controller.skyQuality.bortleClass + " - " + controller.skyQuality.description; accentColor: theme.violet }
             }
 
             GlassCard {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Qualità cielo locale"
+                title: qsTr("Qualità cielo locale")
                 subtitle: controller.skyQuality.source
                 accentColor: theme.violet
 
@@ -152,26 +152,26 @@ Item {
 
                     MetricTile {
                         visible: controller.skyQuality.hasViirsRadiance
-                        label: "Osservazioni VIIRS"
+                        label: qsTr("Osservazioni VIIRS")
                         value: controller.skyQuality.viirsObservationCount + " obs"
                         accentColor: theme.violet
                     }
                     MetricTile {
-                        label: controller.skyQuality.hasViirsRadiance ? "Radianza VIIRS" : "SQM"
+                        label: controller.skyQuality.hasViirsRadiance ? qsTr("Radianza VIIRS") : "SQM"
                         value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.viirsRadiance + " nW/cm2 sr" : controller.skyQuality.skyBrightness + " mag/arcsec2"
                         accentColor: theme.cyan
                     }
                     MetricTile {
-                        label: controller.skyQuality.hasViirsRadiance ? "SQM stimato" : "Limite visuale"
+                        label: controller.skyQuality.hasViirsRadiance ? qsTr("SQM stimato") : qsTr("Limite visuale")
                         value: controller.skyQuality.hasViirsRadiance ? controller.skyQuality.skyBrightness + " mag/arcsec2" : controller.skyQuality.limitingMagnitude + " mag"
                         accentColor: theme.teal
                     }
-                    MetricTile { label: "Confidenza"; value: root.skyQualityConfidenceText(); accentColor: theme.amber }
+                    MetricTile { label: qsTr("Confidenza"); value: root.skyQualityConfidenceText(); accentColor: theme.amber }
                 }
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Seeing: " + controller.seeingTransparency.source + " (" + controller.seeingTransparency.confidence + ")"
+                    text: qsTr("Seeing: ") + controller.seeingTransparency.source + " (" + controller.seeingTransparency.confidence + ")"
                     color: theme.textMuted
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
@@ -180,7 +180,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: controller.viirsSkyQualityRunning || controller.lightPollutionStatus.length > 0
-                    text: controller.viirsSkyQualityRunning ? "Recupero dati VIIRS NASA..." : controller.lightPollutionStatus
+                    text: controller.viirsSkyQualityRunning ? qsTr("Recupero dati VIIRS NASA...") : controller.lightPollutionStatus
                     color: controller.viirsSkyQualityRunning ? theme.cyan : theme.textMuted
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
@@ -192,8 +192,8 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: controller.atmosphericTransparency.visible
-                title: "Aerosol atmosferico"
-                subtitle: "NASA MAIAC AOD"
+                title: qsTr("Aerosol atmosferico")
+                subtitle: qsTr("NASA MAIAC AOD")
                 accentColor: controller.atmosphericTransparency.running ? theme.cyan : controller.atmosphericTransparency.hasData ? theme.green : theme.amber
 
                 GridLayout {
@@ -203,10 +203,10 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: "AOD 550 nm"; value: controller.atmosphericTransparency.aod550; accentColor: theme.cyan }
-                    MetricTile { label: "Effetto aerosol"; value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
-                    MetricTile { label: "Freschezza"; value: controller.atmosphericTransparency.freshness; accentColor: theme.amber }
-                    MetricTile { label: "Fonte"; value: controller.atmosphericTransparency.productLabel; accentColor: theme.violet }
+                    MetricTile { label: qsTr("AOD 550 nm"); value: controller.atmosphericTransparency.aod550; accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Effetto aerosol"); value: controller.atmosphericTransparency.transparency; accentColor: theme.green }
+                    MetricTile { label: qsTr("Freschezza"); value: controller.atmosphericTransparency.freshness; accentColor: theme.amber }
+                    MetricTile { label: qsTr("Fonte"); value: controller.atmosphericTransparency.productLabel; accentColor: theme.violet }
                 }
 
                 Text {
@@ -221,7 +221,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: controller.atmosphericTransparency.running || !controller.atmosphericTransparency.hasData
-                    text: controller.atmosphericTransparency.running ? "Recupero dati NASA AOD..." : controller.atmosphericTransparency.message
+                    text: controller.atmosphericTransparency.running ? qsTr("Recupero dati NASA AOD...") : controller.atmosphericTransparency.message
                     color: controller.atmosphericTransparency.running ? theme.cyan : theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -233,8 +233,8 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: controller.localAtmosphere.visible
-                title: "Particolato locale"
-                subtitle: "OpenAQ PM2.5/PM10"
+                title: qsTr("Particolato locale")
+                subtitle: qsTr("OpenAQ PM2.5/PM10")
                 accentColor: controller.localAtmosphere.freshnessWarning ? theme.amber : theme.teal
 
                 GridLayout {
@@ -244,11 +244,11 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: "PM2.5"; value: controller.localAtmosphere.pm25; accentColor: theme.teal }
-                    MetricTile { label: "PM10"; value: controller.localAtmosphere.pm10; accentColor: theme.cyan }
-                    MetricTile { label: "Aria locale"; value: controller.localAtmosphere.clarity; accentColor: theme.amber }
-                    MetricTile { label: "Fonte"; value: controller.localAtmosphere.source; accentColor: theme.violet }
-                    MetricTile { label: "Freschezza"; value: controller.localAtmosphere.freshness; accentColor: theme.amber }
+                    MetricTile { label: qsTr("PM2.5"); value: controller.localAtmosphere.pm25; accentColor: theme.teal }
+                    MetricTile { label: qsTr("PM10"); value: controller.localAtmosphere.pm10; accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Aria locale"); value: controller.localAtmosphere.clarity; accentColor: theme.amber }
+                    MetricTile { label: qsTr("Fonte"); value: controller.localAtmosphere.source; accentColor: theme.violet }
+                    MetricTile { label: qsTr("Freschezza"); value: controller.localAtmosphere.freshness; accentColor: theme.amber }
                 }
 
                 Text {
@@ -274,8 +274,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Copertura nuvolosa oraria"
-                subtitle: "Previsione mobile delle prossime 24 ore"
+                title: qsTr("Copertura nuvolosa oraria")
+                subtitle: qsTr("Previsione mobile delle prossime 24 ore")
                 accentColor: theme.scoreColor(controller.weatherSummary.score)
                 headerContent: [
                     RowLayout {
@@ -289,7 +289,7 @@ Item {
                         }
 
                         Text {
-                            text: "Notte osservativa"
+                            text: qsTr("Notte osservativa")
                             color: theme.textSecondary
                             font.pixelSize: 11
                         }
@@ -306,7 +306,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.displayWeatherHours.length === 0
-                    text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
+                    text: controller.isLoading || controller.weatherRefreshRunning ? qsTr("Caricamento meteo...") : controller.weatherStatus.length > 0 ? controller.weatherStatus : qsTr("Dati meteo non disponibili al momento.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -317,8 +317,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Dettaglio orario"
-                subtitle: "Previsione mobile delle prossime 24 ore"
+                title: qsTr("Dettaglio orario")
+                subtitle: qsTr("Previsione mobile delle prossime 24 ore")
                 accentColor: theme.teal
 
                 Rectangle {
@@ -419,18 +419,18 @@ Item {
                     columnSpacing: 12
                     rowSpacing: 12
 
-                    MetricTile { label: "Orario"; value: root.selectedHourText("time", "", "-"); accentColor: theme.cyan }
-                    MetricTile { label: "Nuvolosità"; value: root.selectedHourText("cloudCover", "%", "-"); accentColor: theme.cyan }
-                    MetricTile { label: "Pioggia"; value: root.selectedHourText("precipitationProbability", "%", "-"); accentColor: theme.coral }
-                    MetricTile { label: "Vento"; value: root.selectedHourText("windKmh", " km/h", "-"); accentColor: theme.teal }
-                    MetricTile { label: "Umidità"; value: root.selectedHourText("humidity", "%", "-"); accentColor: theme.violet }
-                    MetricTile { label: "Temperatura"; value: root.selectedHourText("temperatureC", " °C", "-"); accentColor: theme.amber }
+                    MetricTile { label: qsTr("Orario"); value: root.selectedHourText("time", "", "-"); accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Nuvolosità"); value: root.selectedHourText("cloudCover", "%", "-"); accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Pioggia"); value: root.selectedHourText("precipitationProbability", "%", "-"); accentColor: theme.coral }
+                    MetricTile { label: qsTr("Vento"); value: root.selectedHourText("windKmh", " km/h", "-"); accentColor: theme.teal }
+                    MetricTile { label: qsTr("Umidità"); value: root.selectedHourText("humidity", "%", "-"); accentColor: theme.violet }
+                    MetricTile { label: qsTr("Temperatura"); value: root.selectedHourText("temperatureC", " °C", "-"); accentColor: theme.amber }
                 }
 
                 Text {
                     Layout.fillWidth: true
                     visible: root.displayWeatherHours.length === 0
-                    text: controller.isLoading || controller.weatherRefreshRunning ? "Caricamento meteo..." : controller.weatherStatus.length > 0 ? controller.weatherStatus : "Dati meteo non disponibili al momento."
+                    text: controller.isLoading || controller.weatherRefreshRunning ? qsTr("Caricamento meteo...") : controller.weatherStatus.length > 0 ? controller.weatherStatus : qsTr("Dati meteo non disponibili al momento.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

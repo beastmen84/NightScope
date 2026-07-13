@@ -21,7 +21,7 @@ Item {
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
     property int detailMetricHeight: 88
-    property string backLabel: "Torna alla Home"
+    property string backLabel: qsTr("Torna alla Home")
     signal backToHome()
 
     function safeValue(value) {
@@ -59,7 +59,7 @@ Item {
     }
 
     function originMetricLabel() {
-        return root.hasCatalogueDistance() ? "Catalogo" : "Distanza"
+        return root.hasCatalogueDistance() ? qsTr("Catalogo") : qsTr("Distanza")
     }
 
     function originMetricValue() {
@@ -90,7 +90,7 @@ Item {
         if (!root.hasObject)
             return ""
         var catalogue = root.safeValue(objectData.catalogue)
-        return catalogue === "n/d" ? "Catalogo" : "Catalogo " + catalogue
+        return catalogue === "n/d" ? qsTr("Catalogo") : qsTr("Catalogo ") + catalogue
     }
 
     function catalogueSummaryText() {
@@ -108,23 +108,23 @@ Item {
 
     function catalogueMetadataItems() {
         var source = [
-            { "label": "Catalogo", "value": objectData.catalogue, "accent": theme.violet },
-            { "label": "ID catalogo", "value": objectData.catalogueId, "accent": theme.cyan },
-            { "label": "Tipo", "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
-            { "label": "Costellazione", "value": objectData.constellation, "accent": theme.amber },
-            { "label": "Magnitudine", "value": objectData.magnitude, "accent": theme.cyan },
-            { "label": "Dimensione", "value": objectData.apparentSize, "accent": theme.green },
-            { "label": "Dim. max", "value": root.maxAngularSizeText(), "accent": theme.teal },
-            { "label": "Osservazione", "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType, "accent": theme.amber },
+            { "label": qsTr("Catalogo"), "value": objectData.catalogue, "accent": theme.violet },
+            { "label": qsTr("ID catalogo"), "value": objectData.catalogueId, "accent": theme.cyan },
+            { "label": qsTr("Tipo"), "value": objectData.catalogueTypeLabel || objectData.type, "accent": theme.teal },
+            { "label": qsTr("Costellazione"), "value": objectData.constellation, "accent": theme.amber },
+            { "label": qsTr("Magnitudine"), "value": objectData.magnitude, "accent": theme.cyan },
+            { "label": qsTr("Dimensione"), "value": objectData.apparentSize, "accent": theme.green },
+            { "label": qsTr("Dim. max"), "value": root.maxAngularSizeText(), "accent": theme.teal },
+            { "label": qsTr("Osservazione"), "value": objectData.catalogueObservationTypeLabel || objectData.recommendedObservationType, "accent": theme.amber },
             { "label": "A.R.", "value": objectData.rightAscension, "accent": theme.violet },
             { "label": "Dec", "value": objectData.declination, "accent": theme.coral },
-            { "label": "Alt. attuale", "value": objectData.currentAltitude, "accent": theme.cyan },
-            { "label": "Azimut", "value": objectData.currentAzimuth, "accent": theme.coral },
-            { "label": "Sorge", "value": objectData.riseTime, "accent": theme.teal },
-            { "label": "Transita", "value": objectData.culminationTime, "accent": theme.green },
-            { "label": "Tramonta", "value": objectData.setTime, "accent": theme.amber },
-            { "label": "Utile (≥15°)", "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
-            { "label": "Visibile nel mese corrente", "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted }
+            { "label": qsTr("Alt. attuale"), "value": objectData.currentAltitude, "accent": theme.cyan },
+            { "label": qsTr("Azimut"), "value": objectData.currentAzimuth, "accent": theme.coral },
+            { "label": qsTr("Sorge"), "value": objectData.riseTime, "accent": theme.teal },
+            { "label": qsTr("Transita"), "value": objectData.culminationTime, "accent": theme.green },
+            { "label": qsTr("Tramonta"), "value": objectData.setTime, "accent": theme.amber },
+            { "label": qsTr("Utile (≥15°)"), "value": objectData.catalogueUsefullyObservableLabel, "accent": objectData.catalogueUsefullyObservable === true ? theme.green : theme.textMuted },
+            { "label": qsTr("Visibile nel mese corrente"), "value": objectData.catalogueVisibleCurrentMonthLabel, "accent": objectData.catalogueVisibleCurrentMonth === true ? theme.green : theme.textMuted }
         ]
         var result = []
         for (var i = 0; i < source.length; i++) {
@@ -182,7 +182,7 @@ Item {
             if (option.magnification && option.magnification.length > 0)
                 parts.push(option.magnification)
             if (option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
-                parts.push("Pupilla " + option.exitPupil)
+                parts.push(qsTr("Pupilla ") + option.exitPupil)
             return parts.join("  -  ")
         }
         return option.magnification + "  -  " + option.trueField + "  -  " + option.exitPupil
@@ -191,15 +191,15 @@ Item {
     function setupDetailText() {
         if (root.isBinocularRecommendation()) {
             var option = root.recommendedSetupOption()
-            var parts = ["Binocolo: " + objectData.recommended_setup]
+            var parts = [qsTr("Binocolo: ") + objectData.recommended_setup]
             if (option && option.magnification && option.magnification.length > 0)
-                parts.push("Ingrandimento: " + option.magnification)
+                parts.push(qsTr("Ingrandimento: ") + option.magnification)
             if (option && option.exitPupil && option.exitPupil.length > 0 && option.exitPupil !== "n/d")
-                parts.push("Pupilla d'uscita: " + option.exitPupil)
-            parts.push("Difficoltà: " + objectData.difficulty)
+                parts.push(qsTr("Pupilla d'uscita: ") + option.exitPupil)
+            parts.push(qsTr("Difficoltà: ") + objectData.difficulty)
             return parts.join("  -  ")
         }
-        return "Oculare: " + objectData.bestEyepiece + "  -  Barlow: " + objectData.barlow + "  -  Difficoltà: " + objectData.difficulty
+        return qsTr("Oculare: ") + objectData.bestEyepiece + "  -  " + qsTr("Barlow: ") + objectData.barlow + "  -  " + qsTr("Difficoltà: ") + objectData.difficulty
     }
 
     function drawMoonPhase(ctx, width, height, phaseAngle) {
@@ -311,7 +311,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.hasObject ? (root.isCatalogueDetail ? "Scheda catalogo" : "Dettaglio osservativo") : "Nessun oggetto selezionato"
+                    text: root.hasObject ? (root.isCatalogueDetail ? qsTr("Scheda catalogo") : qsTr("Dettaglio osservativo")) : qsTr("Nessun oggetto selezionato")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -361,7 +361,7 @@ Item {
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             anchors.margins: 14
-                            text: root.objectData.imageAttribution || "Fonte immagine"
+                            text: root.objectData.imageAttribution || qsTr("Fonte immagine")
                             color: theme.cyan
                             font.pixelSize: 10
                             wrapMode: Text.WordWrap
@@ -387,8 +387,8 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.minimumHeight: 118
-                        title: "Finestra osservativa"
-                        subtitle: root.geometryData.durationText || "Durata utile non disponibile"
+                        title: qsTr("Finestra osservativa")
+                        subtitle: root.geometryData.durationText || qsTr("Durata utile non disponibile")
                         accentColor: theme.teal
 
                         Text {
@@ -412,7 +412,7 @@ Item {
                         spacing: 8
 
                         StatusPill {
-                            text: root.geometryData.status || objectData.observingStatus || "Da valutare"
+                            text: root.geometryData.status || objectData.observingStatus || qsTr("Da valutare")
                             accentColor: root.geometryAccent(root.geometryData.state || "unavailable")
                         }
 
@@ -455,17 +455,17 @@ Item {
                         columnSpacing: 12
                         rowSpacing: 12
 
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Magnitudine"; value: objectData.magnitude; accentColor: theme.cyan }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Magnitudine"); value: objectData.magnitude; accentColor: theme.cyan }
                         MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: root.originMetricLabel(); value: root.originMetricValue(); accentColor: theme.violet }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza massima"; value: objectData.max_altitude; accentColor: theme.teal }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Direzione"; value: objectData.direction; accentColor: theme.amber }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Momento migliore"; value: root.geometryData.bestTimeLabel || "n/d"; accentColor: theme.green }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Azimut"; value: objectData.azimuth; accentColor: theme.coral }
-                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: "Altezza attuale"; value: root.geometryData.currentAltitude || objectData.currentAltitude; accentColor: theme.cyan }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: "Sorge"; value: root.geometryData.riseTime || "n/d"; accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: "Tramonta"; value: root.geometryData.setTime || "n/d"; accentColor: theme.amber }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: "Inizio utile"; value: root.geometryData.windowStart || "n/d"; accentColor: theme.teal }
-                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: "Fine utile"; value: root.geometryData.windowEnd || "n/d"; accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza massima"); value: objectData.max_altitude; accentColor: theme.teal }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Direzione"); value: objectData.direction; accentColor: theme.amber }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Momento migliore"); value: root.geometryData.bestTimeLabel || "n/d"; accentColor: theme.green }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Azimut"); value: objectData.azimuth; accentColor: theme.coral }
+                        MetricTile { Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Altezza attuale"); value: root.geometryData.currentAltitude || objectData.currentAltitude; accentColor: theme.cyan }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Sorge"); value: root.geometryData.riseTime || "n/d"; accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.showHorizonEvents === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Tramonta"); value: root.geometryData.setTime || "n/d"; accentColor: theme.amber }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Inizio utile"); value: root.geometryData.windowStart || "n/d"; accentColor: theme.teal }
+                        MetricTile { visible: root.geometryData.isDeepSky === true; Layout.preferredHeight: root.detailMetricHeight; label: qsTr("Fine utile"); value: root.geometryData.windowEnd || "n/d"; accentColor: theme.amber }
                     }
                 }
             }
@@ -503,7 +503,7 @@ Item {
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         anchors.margins: 14
-                        text: root.objectData.imageAttribution || "Fonte immagine"
+                        text: root.objectData.imageAttribution || qsTr("Fonte immagine")
                         color: theme.cyan
                         font.pixelSize: 10
                         wrapMode: Text.WordWrap
@@ -569,7 +569,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Dati di catalogo"
+                title: qsTr("Dati di catalogo")
                 subtitle: root.catalogueSummaryText()
                 accentColor: theme.cyan
 
@@ -598,9 +598,9 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Descrizione"
+                title: qsTr("Descrizione")
                 subtitle: objectData.bestSeen && objectData.bestSeen.length > 0
-                          ? "Periodo migliore: " + objectData.bestSeen
+                          ? qsTr("Periodo migliore: ") + objectData.bestSeen
                           : (root.isCatalogueDetail ? (objectData.catalogueTypeLabel || objectData.type) : objectData.type)
                 accentColor: theme.cyan
 
@@ -618,8 +618,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Curiosità"
-                subtitle: "Storia, scienza e contesto"
+                title: qsTr("Curiosità")
+                subtitle: qsTr("Storia, scienza e contesto")
                 accentColor: theme.violet
 
                 Text {
@@ -633,7 +633,7 @@ Item {
                 Text {
                     visible: (root.objectData.curiositySourceUrl || "").length > 0
                     Layout.fillWidth: true
-                    text: "Fonte: <a href=\"" + (root.objectData.curiositySourceUrl || "") + "\">"
+                    text: qsTr("Fonte: <a href=\"") + (root.objectData.curiositySourceUrl || "") + "\">"
                           + (root.objectData.curiositySourceLabel || "Apri la fonte") + "</a>"
                     textFormat: Text.RichText
                     color: theme.textSecondary
@@ -649,10 +649,10 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Configurazione consigliata"
+                title: qsTr("Configurazione consigliata")
                 subtitle: (root.equipmentData.telescopeName || "").length > 0
-                          ? "Setup scelto per " + root.equipmentData.telescopeName
-                          : "Suggerimento operativo"
+                          ? qsTr("Setup scelto per ") + root.equipmentData.telescopeName
+                          : qsTr("Suggerimento operativo")
                 accentColor: theme.amber
 
                 Text {
@@ -667,7 +667,7 @@ Item {
                 Text {
                     visible: objectData.setupReason && objectData.setupReason.length > 0
                     Layout.fillWidth: true
-                    text: "Perché questa configurazione: " + objectData.setupReason
+                    text: qsTr("Perché questa configurazione: ") + objectData.setupReason
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -687,7 +687,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: modelData.data.label || "Filtro"
+                                text: modelData.data.label || qsTr("Filtro")
                                 color: theme.textSecondary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -696,8 +696,8 @@ Item {
 
                             StatusPill {
                                 text: modelData.data.available
-                                      ? (modelData.data.filterClassLabel || "Disponibile")
-                                      : "Non disponibile"
+                                      ? (modelData.data.filterClassLabel || qsTr("Disponibile"))
+                                      : qsTr("Non disponibile")
                                 accentColor: modelData.data.available
                                              ? modelData.accent : theme.amber
                             }
@@ -724,7 +724,7 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            text: root.reducerRecommendationData.label || "Riduttore fotografico"
+                            text: root.reducerRecommendationData.label || qsTr("Riduttore fotografico")
                             color: theme.textSecondary
                             font.pixelSize: 13
                             font.weight: Font.DemiBold
@@ -733,7 +733,7 @@ Item {
 
                         StatusPill {
                             text: root.reducerRecommendationData.available
-                                  ? "Nel profilo" : "Non disponibile"
+                                  ? qsTr("Nel profilo") : qsTr("Non disponibile")
                             accentColor: root.reducerRecommendationData.available
                                          ? theme.cyan : theme.amber
                         }
@@ -794,8 +794,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Ciclo lunare"
-                subtitle: (objectData.moonPhase || "Fase lunare") + "  -  " + (objectData.moonIllumination || "n/d") + "  -  " + (objectData.moonCycleDay || "")
+                title: qsTr("Ciclo lunare")
+                subtitle: (objectData.moonPhase || qsTr("Fase lunare")) + "  -  " + (objectData.moonIllumination || "n/d") + "  -  " + (objectData.moonCycleDay || "")
                 accentColor: theme.cyan
 
                 RowLayout {
@@ -804,14 +804,14 @@ Item {
 
                     Repeater {
                         model: [
-                            { "label": "Nuova", "angle": 0 },
-                            { "label": "Crescente", "angle": 45 },
-                            { "label": "Primo quarto", "angle": 90 },
-                            { "label": "Gibbosa", "angle": 135 },
-                            { "label": "Piena", "angle": 180 },
-                            { "label": "Calante", "angle": 225 },
-                            { "label": "Ultimo quarto", "angle": 270 },
-                            { "label": "Falce calante", "angle": 315 }
+                            { "label": qsTr("Nuova"), "angle": 0 },
+                            { "label": qsTr("Crescente"), "angle": 45 },
+                            { "label": qsTr("Primo quarto"), "angle": 90 },
+                            { "label": qsTr("Gibbosa"), "angle": 135 },
+                            { "label": qsTr("Piena"), "angle": 180 },
+                            { "label": qsTr("Calante"), "angle": 225 },
+                            { "label": qsTr("Ultimo quarto"), "angle": 270 },
+                            { "label": qsTr("Falce calante"), "angle": 315 }
                         ]
 
                         delegate: ColumnLayout {
@@ -901,13 +901,13 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Seleziona un oggetto"
-                subtitle: "Il dettaglio si apre dalle pagine dell'app"
+                title: qsTr("Seleziona un oggetto")
+                subtitle: qsTr("Il dettaglio si apre dalle pagine dell'app")
                 accentColor: theme.cyan
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Scegli un oggetto dalla Home, dal calendario o dal catalogo."
+                    text: qsTr("Scegli un oggetto dalla Home, dal calendario o dal catalogo.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -919,8 +919,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: root.evaluationData.title || "Valutazione osservativa"
-                subtitle: root.evaluationData.subtitle || "Geometria e condizioni locali"
+                title: root.evaluationData.title || qsTr("Valutazione osservativa")
+                subtitle: root.evaluationData.subtitle || qsTr("Geometria e condizioni locali")
                 accentColor: root.sessionAccent(root.sessionData.state || "unavailable")
 
                 Text {
@@ -962,7 +962,7 @@ Item {
                 Text {
                     visible: (root.evaluationData.reasons || []).length === 0
                     Layout.fillWidth: true
-                    text: "Valutazione specifica non disponibile."
+                    text: qsTr("Valutazione specifica non disponibile.")
                     color: theme.textMuted
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

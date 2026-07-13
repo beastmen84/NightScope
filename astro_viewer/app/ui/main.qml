@@ -13,7 +13,7 @@ ApplicationWindow {
     minimumWidth: 1040
     minimumHeight: 700
     visibility: Window.Maximized
-    title: "NightScope"
+    title: qsTr("NightScope")
     color: theme.background
     palette.window: theme.background
     palette.windowText: theme.textPrimary
@@ -113,7 +113,7 @@ ApplicationWindow {
 
                         Text {
                             Layout.fillWidth: true
-                            text: "NightScope"
+                            text: qsTr("NightScope")
                             color: theme.textPrimary
                             font.pixelSize: 22
                             font.weight: Font.DemiBold
@@ -130,13 +130,21 @@ ApplicationWindow {
                     }
                 }
 
-                ColumnLayout {
+                ScrollView {
+                    id: sidebarNavigation
                     Layout.fillWidth: true
-                    spacing: 8
+                    Layout.fillHeight: true
+                    clip: true
+                    contentWidth: availableWidth
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+                    ColumnLayout {
+                        width: sidebarNavigation.availableWidth
+                        spacing: 8
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Home"
+                        text: qsTr("Home")
                         iconSource: appController.assetBaseUrl + "/resources/icons/home.svg"
                         selected: window.currentPage === "home" || (window.currentPage === "detail" && window.detailBackTarget === "home")
                         onClicked: window.currentPage = "home"
@@ -144,7 +152,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Calendario"
+                        text: qsTr("Calendario")
                         iconSource: appController.assetBaseUrl + "/resources/icons/calendar.svg"
                         selected: window.currentPage === "calendar" || (window.currentPage === "detail" && window.detailBackTarget === "calendar")
                         onClicked: {
@@ -155,7 +163,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Log Osservazioni"
+                        text: qsTr("Log Osservazioni")
                         iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
                         selected: window.currentPage === "observationLog"
                         onClicked: window.currentPage = "observationLog"
@@ -163,7 +171,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Meteo"
+                        text: qsTr("Meteo")
                         iconSource: appController.assetBaseUrl + "/resources/icons/cloud.svg"
                         selected: window.currentPage === "weather"
                         onClicked: window.currentPage = "weather"
@@ -172,7 +180,7 @@ ApplicationWindow {
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 8
-                        text: "Configurazione"
+                        text: qsTr("Configurazione")
                         color: theme.textMuted
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -181,7 +189,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Località"
+                        text: qsTr("Località")
                         iconSource: appController.assetBaseUrl + "/resources/icons/location.svg"
                         selected: window.currentPage === "location"
                         onClicked: window.currentPage = "location"
@@ -189,7 +197,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Provider dati"
+                        text: qsTr("Provider dati")
                         iconSource: appController.assetBaseUrl + "/resources/icons/cloud.svg"
                         selected: window.currentPage === "dataProviders"
                         onClicked: window.currentPage = "dataProviders"
@@ -197,7 +205,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Profili"
+                        text: qsTr("Profili")
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentProfiles"
                         onClicked: window.currentPage = "equipmentProfiles"
@@ -206,7 +214,7 @@ ApplicationWindow {
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 8
-                        text: "Cataloghi"
+                        text: qsTr("Cataloghi")
                         color: theme.textMuted
                         font.pixelSize: 11
                         font.weight: Font.DemiBold
@@ -215,7 +223,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Oggetti celesti"
+                        text: qsTr("Oggetti celesti")
                         iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
                         selected: window.currentPage === "objectCatalogue" || (window.currentPage === "detail" && window.detailBackTarget === "objectCatalogue")
                         onClicked: window.currentPage = "objectCatalogue"
@@ -223,7 +231,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Telescopi"
+                        text: qsTr("Telescopi")
                         iconSource: appController.assetBaseUrl + "/resources/icons/telescope.svg"
                         selected: window.currentPage === "equipmentTelescopes"
                         onClicked: window.currentPage = "equipmentTelescopes"
@@ -231,7 +239,7 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Oculari e Barlow"
+                        text: qsTr("Oculari e Barlow")
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentOptics"
                         onClicked: window.currentPage = "equipmentOptics"
@@ -239,23 +247,53 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
-                        text: "Filtri e riduttori"
+                        text: qsTr("Filtri e riduttori")
                         iconSource: appController.assetBaseUrl + "/resources/icons/equipment.svg"
                         selected: window.currentPage === "equipmentFiltersReducers"
                         onClicked: window.currentPage = "equipmentFiltersReducers"
                     }
 
-                    NavButton {
-                        Layout.fillWidth: true
-                        text: "Binocoli"
-                        iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
-                        selected: window.currentPage === "equipmentBinoculars"
-                        onClicked: window.currentPage = "equipmentBinoculars"
+                        NavButton {
+                            Layout.fillWidth: true
+                            text: qsTr("Binocoli")
+                            iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
+                            selected: window.currentPage === "equipmentBinoculars"
+                            onClicked: window.currentPage = "equipmentBinoculars"
+                        }
                     }
                 }
 
-                Item {
-                    Layout.fillHeight: true
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: qsTr("Lingua")
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                        elide: Text.ElideRight
+                    }
+
+                    DarkComboBox {
+                        id: languageSelector
+                        Layout.preferredWidth: 128
+                        model: translationManager.languageOptions
+                        textRole: "label"
+                        valueRole: "code"
+                        currentIndex: {
+                            var options = translationManager.languageOptions
+                            for (var index = 0; index < options.length; index += 1) {
+                                if (options[index].code === translationManager.languageCode)
+                                    return index
+                            }
+                            return 0
+                        }
+                        onActivated: function(index) {
+                            translationManager.setLanguage(model[index].code)
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -276,7 +314,7 @@ ApplicationWindow {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Stasera"
+                                text: qsTr("Stasera")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -284,7 +322,7 @@ ApplicationWindow {
                             }
 
                             StatusPill {
-                                text: window.sidebarSession.badge || "Da valutare"
+                                text: window.sidebarSession.badge || qsTr("Da valutare")
                                 accentColor: window.sidebarSessionAccent(window.sidebarSession.state || "unavailable")
                             }
                         }
@@ -292,7 +330,7 @@ ApplicationWindow {
                         Text {
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
-                            text: window.sidebarSession.windowText || "Finestra osservativa non disponibile"
+                            text: window.sidebarSession.windowText || qsTr("Finestra osservativa non disponibile")
                             color: theme.textPrimary
                             font.pixelSize: 12
                             font.weight: Font.DemiBold
@@ -304,7 +342,7 @@ ApplicationWindow {
                         Text {
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
-                            text: window.sidebarSession.limitingFactor || "Condizioni della sessione non valutabili"
+                            text: window.sidebarSession.limitingFactor || qsTr("Condizioni della sessione non valutabili")
                             color: theme.textMuted
                             font.pixelSize: 11
                             wrapMode: Text.WordWrap
@@ -362,9 +400,9 @@ ApplicationWindow {
         id: detailPage
         ObjectDetailPage {
             controller: appController
-            backLabel: window.detailBackTarget === "objectCatalogue" ? "Torna al catalogo"
-                : window.detailBackTarget === "calendar" ? "Torna al calendario"
-                : "Torna alla Home"
+            backLabel: window.detailBackTarget === "objectCatalogue" ? qsTr("Torna al catalogo")
+                : window.detailBackTarget === "calendar" ? qsTr("Torna al calendario")
+                : qsTr("Torna alla Home")
             onBackToHome: window.currentPage = window.detailBackTarget
         }
     }

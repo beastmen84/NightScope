@@ -12,6 +12,15 @@ Item {
     property string removeFilter: "Tutti"
     property string addSearch: ""
     property string removeSearch: ""
+    readonly property var equipmentFilterOptions: [
+        { "label": qsTr("Tutti"), "value": "Tutti" },
+        { "label": qsTr("Telescopi"), "value": "Telescopi" },
+        { "label": qsTr("Oculari"), "value": "Oculari" },
+        { "label": "Barlow", "value": "Barlow" },
+        { "label": qsTr("Binocoli"), "value": "Binocoli" },
+        { "label": qsTr("Filtri"), "value": "Filtri" },
+        { "label": qsTr("Riduttori"), "value": "Riduttori" }
+    ]
 
     function matchesFilter(item, filter, searchText) {
         var typeOk = filter === "Tutti"
@@ -81,7 +90,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Profili"
+                    text: qsTr("Profili")
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -110,27 +119,27 @@ Item {
                     id: activeProfileCard
                     visible: controller.equipmentProfiles.length !== 1
                     Layout.fillWidth: true
-                    title: "Profilo attivo"
-                    subtitle: "Configurazione usata dalle raccomandazioni"
+                    title: qsTr("Profilo attivo")
+                    subtitle: qsTr("Configurazione usata dalle raccomandazioni")
                     accentColor: theme.green
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.activeEquipmentProfile.profile_name || "Occhio nudo"
+                        text: controller.activeEquipmentProfile.profile_name || qsTr("Occhio nudo")
                         color: theme.textPrimary
                         font.pixelSize: 26
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
                     }
 
-                    StatusPill { text: "Attivo"; accentColor: theme.green }
+                    StatusPill { text: qsTr("Attivo"); accentColor: theme.green }
                 }
 
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.columnSpan: activeProfileCard.visible ? 1 : profileGrid.columns
-                    title: controller.equipmentProfiles.length === 1 ? "Profilo" : "Lista profili"
-                    subtitle: "Profili osservativi salvati"
+                    title: controller.equipmentProfiles.length === 1 ? qsTr("Profilo") : qsTr("Lista profili")
+                    subtitle: qsTr("Profili osservativi salvati")
                     accentColor: theme.cyan
 
                     Repeater {
@@ -141,7 +150,7 @@ Item {
                             spacing: 10
 
                             StatusPill {
-                                text: modelData.active === 1 ? "Attivo" : "Profilo"
+                                text: modelData.active === 1 ? qsTr("Attivo") : qsTr("Profilo")
                                 accentColor: modelData.active === 1 ? theme.green : theme.textMuted
                             }
 
@@ -155,13 +164,13 @@ Item {
                             }
 
                             DarkButton {
-                                text: "Imposta attivo"
+                                text: qsTr("Imposta attivo")
                                 enabled: modelData.active !== 1
                                 onClicked: controller.setActiveEquipmentProfile(modelData.id)
                             }
 
                             DarkButton {
-                                text: "Rinomina"
+                                text: qsTr("Rinomina")
                                 onClicked: {
                                     root.renameProfileId = modelData.id
                                     renameProfileName.text = modelData.profile_name
@@ -170,7 +179,7 @@ Item {
                             }
 
                             DarkButton {
-                                text: "Elimina"
+                                text: qsTr("Elimina")
                                 danger: true
                                 onClicked: controller.deleteEquipmentProfile(modelData.id)
                             }
@@ -179,7 +188,7 @@ Item {
 
                     DarkButton {
                         Layout.fillWidth: true
-                        text: "Aggiungi profilo"
+                        text: qsTr("Aggiungi profilo")
                         onClicked: addProfileDialog.open()
                     }
                 }
@@ -189,8 +198,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Equipaggiamento assegnato"
-                subtitle: "Elementi catalogo assegnati al profilo attivo"
+                title: qsTr("Equipaggiamento assegnato")
+                subtitle: qsTr("Elementi catalogo assegnati al profilo attivo")
                 accentColor: theme.amber
 
                 GridLayout {
@@ -201,48 +210,48 @@ Item {
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Telescopi"
-                        emptyText: "Nessun telescopio assegnato. Il profilo usa Occhio nudo."
+                        title: qsTr("Telescopi")
+                        emptyText: qsTr("Nessun telescopio assegnato. Il profilo usa Occhio nudo.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "telescope" })
                         accent: theme.cyan
                     }
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Oculari"
-                        emptyText: "Nessun oculare assegnato."
+                        title: qsTr("Oculari")
+                        emptyText: qsTr("Nessun oculare assegnato.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "eyepiece" })
                         accent: theme.teal
                     }
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Barlow"
-                        emptyText: "Nessuna Barlow assegnata."
+                        title: qsTr("Barlow")
+                        emptyText: qsTr("Nessuna Barlow assegnata.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "barlow" })
                         accent: theme.violet
                     }
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Binocoli"
-                        emptyText: "Nessun binocolo assegnato."
+                        title: qsTr("Binocoli")
+                        emptyText: qsTr("Nessun binocolo assegnato.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "binocular" })
                         accent: theme.cyan
                     }
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Filtri"
-                        emptyText: "Nessun filtro assegnato."
+                        title: qsTr("Filtri")
+                        emptyText: qsTr("Nessun filtro assegnato.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "filter" })
                         accent: theme.green
                     }
 
                     EquipmentGroup {
                         Layout.preferredWidth: 1
-                        title: "Riduttori"
-                        emptyText: "Nessun riduttore assegnato."
+                        title: qsTr("Riduttori")
+                        emptyText: qsTr("Nessun riduttore assegnato.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "reducer" })
                         accent: theme.coral
                     }
@@ -254,14 +263,14 @@ Item {
 
                     DarkButton {
                         Layout.fillWidth: true
-                        text: "Aggiungi equipaggiamento"
+                        text: qsTr("Aggiungi equipaggiamento")
                         onClicked: addEquipmentDialog.open()
                     }
 
                     DarkButton {
                         Layout.fillWidth: true
                         enabled: controller.profileAssignedEquipment.length > 0
-                        text: "Rimuovi equipaggiamento"
+                        text: qsTr("Rimuovi equipaggiamento")
                         onClicked: removeEquipmentDialog.open()
                     }
                 }
@@ -271,7 +280,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Capacità del profilo"
+                title: qsTr("Capacità del profilo")
                 subtitle: controller.telescopeCapabilities.name
                 accentColor: theme.violet
 
@@ -281,14 +290,14 @@ Item {
                     columnSpacing: 10
                     rowSpacing: 10
 
-                    MetricTile { label: "Apertura"; value: controller.telescopeCapabilities.aperture; accentColor: theme.cyan }
-                    MetricTile { label: "Focale"; value: controller.telescopeCapabilities.focalLength; accentColor: theme.teal }
-                    MetricTile { label: "Magnificazione minima"; value: controller.telescopeCapabilities.availableMagnificationMin; accentColor: theme.green }
-                    MetricTile { label: "Magnificazione massima"; value: controller.telescopeCapabilities.availableMagnificationMax; accentColor: theme.amber }
-                    MetricTile { label: "Pupilla minima"; value: controller.telescopeCapabilities.exitPupilMin; accentColor: theme.coral }
-                    MetricTile { label: "Pupilla massima"; value: controller.telescopeCapabilities.exitPupilMax; accentColor: theme.violet }
-                    MetricTile { label: "Campo reale minimo"; value: controller.telescopeCapabilities.trueFieldMin; accentColor: theme.cyan }
-                    MetricTile { label: "Campo reale massimo"; value: controller.telescopeCapabilities.trueFieldMax; accentColor: theme.teal }
+                    MetricTile { label: qsTr("Apertura"); value: controller.telescopeCapabilities.aperture; accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Focale"); value: controller.telescopeCapabilities.focalLength; accentColor: theme.teal }
+                    MetricTile { label: qsTr("Magnificazione minima"); value: controller.telescopeCapabilities.availableMagnificationMin; accentColor: theme.green }
+                    MetricTile { label: qsTr("Magnificazione massima"); value: controller.telescopeCapabilities.availableMagnificationMax; accentColor: theme.amber }
+                    MetricTile { label: qsTr("Pupilla minima"); value: controller.telescopeCapabilities.exitPupilMin; accentColor: theme.coral }
+                    MetricTile { label: qsTr("Pupilla massima"); value: controller.telescopeCapabilities.exitPupilMax; accentColor: theme.violet }
+                    MetricTile { label: qsTr("Campo reale minimo"); value: controller.telescopeCapabilities.trueFieldMin; accentColor: theme.cyan }
+                    MetricTile { label: qsTr("Campo reale massimo"); value: controller.telescopeCapabilities.trueFieldMax; accentColor: theme.teal }
                 }
 
                 Flow {
@@ -307,8 +316,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Binocoli del profilo"
-                subtitle: "Capacità derivate dai binocoli assegnati"
+                title: qsTr("Binocoli del profilo")
+                subtitle: qsTr("Capacità derivate dai binocoli assegnati")
                 accentColor: theme.cyan
 
                 Flow {
@@ -359,7 +368,7 @@ Item {
                 StatusPill { text: itemData.specLabel || ""; accentColor: theme.cyan }
                 StatusPill {
                     visible: itemData.imageStabilized === true
-                    text: "IS"
+                    text: qsTr("IS")
                     accentColor: theme.violet
                 }
                 Item { Layout.fillWidth: true }
@@ -371,7 +380,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Pupilla d’uscita"
+                    text: qsTr("Pupilla d’uscita")
                     color: theme.textSecondary
                     font.pixelSize: 12
                     elide: Text.ElideRight
@@ -423,7 +432,7 @@ Item {
             delegate: RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-                StatusPill { text: "✓"; accentColor: theme.green }
+                StatusPill { text: qsTr("✓"); accentColor: theme.green }
                 Text {
                     Layout.fillWidth: true
                     text: modelData.name
@@ -544,7 +553,7 @@ Item {
                 }
 
                 DarkButton {
-                    text: itemData.assigned ? "Già assegnato" : "Assegna"
+                    text: itemData.assigned ? qsTr("Già assegnato") : qsTr("Assegna")
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10
@@ -569,40 +578,40 @@ Item {
 
     DarkDialog {
         id: addProfileDialog
-        title: "Aggiungi profilo"
-        acceptText: "Aggiungi"
+        title: qsTr("Aggiungi profilo")
+        acceptText: qsTr("Aggiungi")
         onAccepted: controller.addEquipmentProfile(addProfileName.text)
 
         DarkTextField {
             id: addProfileName
             Layout.fillWidth: true
-            placeholderText: "Nome profilo"
+            placeholderText: qsTr("Nome profilo")
         }
     }
 
     DarkDialog {
         id: renameProfileDialog
-        title: "Rinomina profilo"
-        acceptText: "Rinomina"
+        title: qsTr("Rinomina profilo")
+        acceptText: qsTr("Rinomina")
         onAccepted: controller.renameEquipmentProfile(root.renameProfileId, renameProfileName.text)
 
         DarkTextField {
             id: renameProfileName
             Layout.fillWidth: true
-            placeholderText: "Nome profilo"
+            placeholderText: qsTr("Nome profilo")
         }
     }
 
     DarkDialog {
         id: addEquipmentDialog
-        title: "Aggiungi equipaggiamento"
+        title: qsTr("Aggiungi equipaggiamento")
         preferredWidth: 960
         showAccept: false
-        cancelText: "Chiudi"
+        cancelText: qsTr("Chiudi")
 
         DarkTextField {
             Layout.fillWidth: true
-            placeholderText: "Cerca equipaggiamento..."
+            placeholderText: qsTr("Cerca equipaggiamento...")
             onTextChanged: root.addSearch = text
         }
 
@@ -611,16 +620,16 @@ Item {
             spacing: 8
 
             Repeater {
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]
+                model: root.equipmentFilterOptions
 
                 delegate: DarkButton {
-                    text: modelData
+                    text: modelData.label
                     checkable: false
-                    checked: root.addFilter === modelData
-                    accentColor: modelData === "Telescopi" ? theme.cyan : modelData === "Oculari" ? theme.teal : modelData === "Barlow" ? theme.amber : modelData === "Binocoli" ? theme.cyan : modelData === "Filtri" ? theme.green : modelData === "Riduttori" ? theme.coral : theme.violet
+                    checked: root.addFilter === modelData.value
+                    accentColor: modelData.value === "Telescopi" ? theme.cyan : modelData.value === "Oculari" ? theme.teal : modelData.value === "Barlow" ? theme.amber : modelData.value === "Binocoli" ? theme.cyan : modelData.value === "Filtri" ? theme.green : modelData.value === "Riduttori" ? theme.coral : theme.violet
                     onClicked: {
-                        if (root.addFilter !== modelData)
-                            root.addFilter = modelData
+                        if (root.addFilter !== modelData.value)
+                            root.addFilter = modelData.value
                     }
                 }
             }
@@ -628,7 +637,7 @@ Item {
 
         Text {
             Layout.fillWidth: true
-            text: root.filteredAddEquipment().length + " risultati"
+            text: root.filteredAddEquipment().length + qsTr(" risultati")
             color: theme.textMuted
             font.pixelSize: 12
             elide: Text.ElideRight
@@ -656,7 +665,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 visible: addEquipmentGrid.count === 0
-                text: "Nessun elemento trovato."
+                text: qsTr("Nessun elemento trovato.")
                 color: theme.textSecondary
                 font.pixelSize: 13
             }
@@ -665,21 +674,22 @@ Item {
 
     DarkDialog {
         id: removeEquipmentDialog
-        title: "Rimuovi equipaggiamento"
+        title: qsTr("Rimuovi equipaggiamento")
         showAccept: false
-        cancelText: "Chiudi"
+        cancelText: qsTr("Chiudi")
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
             DarkComboBox {
                 Layout.preferredWidth: 160
-                model: ["Tutti", "Telescopi", "Oculari", "Barlow", "Binocoli", "Filtri", "Riduttori"]
-                onCurrentTextChanged: root.removeFilter = currentText
+                model: root.equipmentFilterOptions
+                textRole: "label"
+                onActivated: function(index) { root.removeFilter = model[index].value }
             }
             DarkTextField {
                 Layout.fillWidth: true
-                placeholderText: "Cerca..."
+                placeholderText: qsTr("Cerca...")
                 onTextChanged: root.removeSearch = text
             }
         }
@@ -688,7 +698,7 @@ Item {
             model: root.filteredAssignedEquipment()
             delegate: EquipmentRow {
                 itemData: modelData
-                actionText: "Rimuovi dal profilo"
+                actionText: qsTr("Rimuovi dal profilo")
                 accent: root.equipmentAccent(modelData)
                 onAction: controller.removeEquipmentFromActiveProfile(modelData.kind, modelData.id)
             }

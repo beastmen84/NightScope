@@ -54,7 +54,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             Layout.minimumWidth: 140
-            text: root.value("name", "Oggetto")
+            text: root.value("name", qsTr("Oggetto"))
             color: theme.textPrimary
             font.pixelSize: 13
             font.weight: Font.DemiBold
@@ -64,7 +64,7 @@ Rectangle {
 
         Text {
             Layout.preferredWidth: 170
-            text: root.value("typeLabel", "Oggetto")
+            text: root.value("typeLabel", qsTr("Oggetto"))
             color: theme.textSecondary
             font.pixelSize: 12
             maximumLineCount: 1
@@ -126,7 +126,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: root.value("name", "Oggetto")
+                    text: root.value("name", qsTr("Oggetto"))
                     color: theme.textPrimary
                     font.pixelSize: 14
                     font.weight: Font.DemiBold
@@ -137,7 +137,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: root.value("typeLabel", "Oggetto") + "  -  " + root.value("categoryLabel", "")
+                    text: root.value("typeLabel", qsTr("Oggetto")) + "  -  " + root.value("categoryLabel", "")
                     color: theme.textSecondary
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap

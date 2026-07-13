@@ -102,7 +102,7 @@ Rectangle {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: root.value("name", "Oggetto")
+                    text: root.value("name", qsTr("Oggetto"))
                     color: theme.textPrimary
                     font.pixelSize: 15
                     font.weight: Font.DemiBold
@@ -124,7 +124,7 @@ Rectangle {
             Text {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 0
-                text: root.value("typeLabel", "Oggetto") + "  -  " + root.timeDirectionLabel()
+                text: root.value("typeLabel", qsTr("Oggetto")) + "  -  " + root.timeDirectionLabel()
                 color: theme.textSecondary
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap

@@ -38,7 +38,7 @@ Item {
         eyepieceName.text = values.eyepiece || ""
         ratingInput.currentIndex = item ? Math.max(0, Math.min(4, 5 - item.rating)) : 1
         observationNotes.text = item ? item.notes : ""
-        editorDialog.title = item ? "Modifica osservazione" : "Nuova osservazione"
+        editorDialog.title = item ? qsTr("Modifica osservazione") : qsTr("Nuova osservazione")
         editorDialog.open()
     }
 
@@ -93,7 +93,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Log Osservazioni"
+                    text: qsTr("Log Osservazioni")
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -102,7 +102,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Archivio delle sessioni e delle configurazioni utilizzate"
+                    text: qsTr("Archivio delle sessioni e delle configurazioni utilizzate")
                     color: theme.textSecondary
                     font.pixelSize: 14
                     elide: Text.ElideRight
@@ -110,7 +110,7 @@ Item {
             }
 
             DarkButton {
-                text: "Aggiungi osservazione"
+                text: qsTr("Aggiungi osservazione")
                 accentColor: theme.teal
                 onClicked: root.openEditor(null)
             }
@@ -123,19 +123,19 @@ Item {
             spacing: 8
 
             StatusPill {
-                text: "Sessioni: " + (root.summary.total || 0)
+                text: qsTr("Sessioni: ") + (root.summary.total || 0)
                 accentColor: theme.cyan
             }
             StatusPill {
-                text: "Oggetti distinti: " + (root.summary.uniqueObjects || 0)
+                text: qsTr("Oggetti distinti: ") + (root.summary.uniqueObjects || 0)
                 accentColor: theme.violet
             }
             StatusPill {
-                text: "Valutazione media: " + (root.summary.averageRating > 0 ? root.summary.averageRating + "/5" : "-")
+                text: qsTr("Valutazione media: ") + (root.summary.averageRating > 0 ? root.summary.averageRating + "/5" : "-")
                 accentColor: theme.amber
             }
             StatusPill {
-                text: "Ultima: " + (root.summary.latestLabel || "-")
+                text: qsTr("Ultima: ") + (root.summary.latestLabel || "-")
                 accentColor: theme.teal
             }
             Item { Layout.fillWidth: true }
@@ -149,19 +149,21 @@ Item {
 
             DarkTextField {
                 Layout.preferredWidth: 340
-                placeholderText: "Cerca oggetto, luogo, setup o note..."
+                placeholderText: qsTr("Cerca oggetto, luogo, setup o note...")
                 onTextChanged: root.searchQuery = text
             }
 
             DarkComboBox {
                 Layout.preferredWidth: 190
-                model: ["Tutte le valutazioni", "5/5", "4/5", "3/5", "2/5", "1/5"]
+                model: [qsTr("Tutte le valutazioni"), "5/5", "4/5", "3/5", "2/5", "1/5"]
                 onCurrentIndexChanged: root.ratingFilter = currentIndex === 0 ? 0 : 6 - currentIndex
             }
 
             Text {
                 Layout.fillWidth: true
-                text: root.filteredObservations().length + " risultat" + (root.filteredObservations().length === 1 ? "o" : "i")
+                text: root.filteredObservations().length === 1
+                      ? qsTr("1 risultato")
+                      : root.filteredObservations().length + qsTr(" risultati")
                 color: theme.textSecondary
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignRight
@@ -207,10 +209,10 @@ Item {
                         anchors.rightMargin: 14
                         spacing: 12
 
-                        Text { Layout.preferredWidth: 126; text: "Data e ora"; color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
-                        Text { Layout.preferredWidth: 138; text: "Oggetto"; color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
-                        Text { Layout.fillWidth: true; text: "Dettagli"; color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
-                        Text { Layout.preferredWidth: 54; text: "Voto"; color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter }
+                        Text { Layout.preferredWidth: 126; text: qsTr("Data e ora"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        Text { Layout.preferredWidth: 138; text: qsTr("Oggetto"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        Text { Layout.fillWidth: true; text: qsTr("Dettagli"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold }
+                        Text { Layout.preferredWidth: 54; text: qsTr("Voto"); color: theme.textSecondary; font.pixelSize: 11; font.weight: Font.DemiBold; horizontalAlignment: Text.AlignHCenter }
                         Item { Layout.preferredWidth: 142 }
                     }
                 }
@@ -291,12 +293,12 @@ Item {
 
                                 DarkButton {
                                     Layout.fillWidth: true
-                                    text: "Modifica"
+                                    text: qsTr("Modifica")
                                     onClicked: root.openEditor(observationRow.modelData)
                                 }
                                 DarkButton {
                                     Layout.fillWidth: true
-                                    text: "Elimina"
+                                    text: qsTr("Elimina")
                                     danger: true
                                     onClicked: {
                                         root.pendingDeletion = observationRow.modelData
@@ -312,8 +314,8 @@ Item {
                         visible: observationList.count === 0
                         width: Math.min(440, parent.width - 40)
                         text: root.controller && root.controller.observationLog.length > 0
-                              ? "Nessuna osservazione corrisponde ai filtri."
-                              : "Il log è vuoto. Aggiungi la prima osservazione."
+                              ? qsTr("Nessuna osservazione corrisponde ai filtri.")
+                              : qsTr("Il log è vuoto. Aggiungi la prima osservazione.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         horizontalAlignment: Text.AlignHCenter
@@ -328,7 +330,7 @@ Item {
         id: editorDialog
         parent: root
         preferredWidth: 760
-        acceptText: root.editedObservation.id !== undefined ? "Salva modifiche" : "Aggiungi"
+        acceptText: root.editedObservation.id !== undefined ? qsTr("Salva modifiche") : qsTr("Aggiungi")
         closeOnAccept: false
         onAccepted: root.saveEditor()
 
@@ -339,11 +341,11 @@ Item {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 6
-                Text { text: "Data"; color: theme.textSecondary; font.pixelSize: 12 }
+                Text { text: qsTr("Data"); color: theme.textSecondary; font.pixelSize: 12 }
                 DarkTextField {
                     id: observationDate
                     Layout.fillWidth: true
-                    placeholderText: "AAAA-MM-GG"
+                    placeholderText: qsTr("AAAA-MM-GG")
                     validator: RegularExpressionValidator { regularExpression: /\d{4}-\d{2}-\d{2}/ }
                 }
             }
@@ -351,11 +353,11 @@ Item {
             ColumnLayout {
                 Layout.preferredWidth: 150
                 spacing: 6
-                Text { text: "Ora"; color: theme.textSecondary; font.pixelSize: 12 }
+                Text { text: qsTr("Ora"); color: theme.textSecondary; font.pixelSize: 12 }
                 DarkTextField {
                     id: observationTime
                     Layout.fillWidth: true
-                    placeholderText: "HH:MM"
+                    placeholderText: qsTr("HH:MM")
                     validator: RegularExpressionValidator { regularExpression: /\d{2}:\d{2}/ }
                 }
             }
@@ -363,7 +365,7 @@ Item {
             ColumnLayout {
                 Layout.preferredWidth: 120
                 spacing: 6
-                Text { text: "Valutazione"; color: theme.textSecondary; font.pixelSize: 12 }
+                Text { text: qsTr("Valutazione"); color: theme.textSecondary; font.pixelSize: 12 }
                 DarkComboBox { id: ratingInput; Layout.fillWidth: true; model: ["5/5", "4/5", "3/5", "2/5", "1/5"] }
             }
         }
@@ -371,15 +373,15 @@ Item {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 6
-            Text { text: "Oggetto osservato"; color: theme.textSecondary; font.pixelSize: 12 }
-            DarkTextField { id: objectName; Layout.fillWidth: true; placeholderText: "Es. M42, Giove, Luna" }
+            Text { text: qsTr("Oggetto osservato"); color: theme.textSecondary; font.pixelSize: 12 }
+            DarkTextField { id: objectName; Layout.fillWidth: true; placeholderText: qsTr("Es. M42, Giove, Luna") }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 6
-            Text { text: "Luogo"; color: theme.textSecondary; font.pixelSize: 12 }
-            DarkTextField { id: locationName; Layout.fillWidth: true; placeholderText: "Località di osservazione" }
+            Text { text: qsTr("Luogo"); color: theme.textSecondary; font.pixelSize: 12 }
+            DarkTextField { id: locationName; Layout.fillWidth: true; placeholderText: qsTr("Località di osservazione") }
         }
 
         RowLayout {
@@ -389,23 +391,23 @@ Item {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 6
-                Text { text: "Telescopio"; color: theme.textSecondary; font.pixelSize: 12 }
-                DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Telescopio utilizzato" }
+                Text { text: qsTr("Telescopio"); color: theme.textSecondary; font.pixelSize: 12 }
+                DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: qsTr("Telescopio utilizzato") }
             }
 
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 6
-                Text { text: "Oculare"; color: theme.textSecondary; font.pixelSize: 12 }
-                DarkTextField { id: eyepieceName; Layout.fillWidth: true; placeholderText: "Oculare utilizzato" }
+                Text { text: qsTr("Oculare"); color: theme.textSecondary; font.pixelSize: 12 }
+                DarkTextField { id: eyepieceName; Layout.fillWidth: true; placeholderText: qsTr("Oculare utilizzato") }
             }
         }
 
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 6
-            Text { text: "Note"; color: theme.textSecondary; font.pixelSize: 12 }
-            DarkTextArea { id: observationNotes; Layout.fillWidth: true; placeholderText: "Condizioni, dettagli visibili e impressioni" }
+            Text { text: qsTr("Note"); color: theme.textSecondary; font.pixelSize: 12 }
+            DarkTextArea { id: observationNotes; Layout.fillWidth: true; placeholderText: qsTr("Condizioni, dettagli visibili e impressioni") }
         }
 
         Text {
@@ -421,8 +423,8 @@ Item {
     DarkDialog {
         id: deleteDialog
         parent: root
-        title: "Elimina osservazione"
-        acceptText: "Elimina"
+        title: qsTr("Elimina osservazione")
+        acceptText: qsTr("Elimina")
         acceptDanger: true
         preferredWidth: 480
         onAccepted: {
@@ -432,7 +434,7 @@ Item {
 
         Text {
             Layout.fillWidth: true
-            text: "L'osservazione di " + (root.pendingDeletion.objectName || "questo oggetto") + " verrà eliminata definitivamente."
+            text: qsTr("L'osservazione di ") + (root.pendingDeletion.objectName || qsTr("questo oggetto")) + qsTr(" verrà eliminata definitivamente.")
             color: theme.textSecondary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

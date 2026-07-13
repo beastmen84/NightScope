@@ -120,8 +120,12 @@ def test_observation_log_qml_uses_crud_contract_and_navigation_order() -> None:
     main_qml = (ui_dir / "main.qml").read_text(encoding="utf-8")
     page_qml = (ui_dir / "pages" / "ObservationLogPage.qml").read_text(encoding="utf-8")
 
-    assert main_qml.index('text: "Calendario"') < main_qml.index('text: "Log Osservazioni"')
-    assert main_qml.index('text: "Log Osservazioni"') < main_qml.index('text: "Meteo"')
+    assert main_qml.index('text: qsTr("Calendario")') < main_qml.index(
+        'text: qsTr("Log Osservazioni")'
+    )
+    assert main_qml.index('text: qsTr("Log Osservazioni")') < main_qml.index(
+        'text: qsTr("Meteo")'
+    )
     assert 'window.currentPage === "observationLog"' in main_qml
     assert "controller.observationLog" in page_qml
     assert "controller.addObservation" in page_qml

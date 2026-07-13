@@ -20,7 +20,7 @@ Item {
         telescopeFocal.text = String(item.focal_length_mm || "")
         telescopeMount.text = item.mount_type || ""
         telescopeNotes.text = item.notes || ""
-        telescopeDialog.title = "Modifica modello"
+        telescopeDialog.title = qsTr("Modifica modello")
         telescopeDialog.open()
     }
 
@@ -33,7 +33,7 @@ Item {
         telescopeFocal.text = ""
         telescopeMount.text = ""
         telescopeNotes.text = ""
-        telescopeDialog.title = "Aggiungi modello"
+        telescopeDialog.title = qsTr("Aggiungi modello")
         telescopeDialog.open()
     }
 
@@ -77,7 +77,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Catalogo telescopi"
+                        text: qsTr("Catalogo telescopi")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -86,7 +86,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Modelli disponibili per i profili osservativi"
+                        text: qsTr("Modelli disponibili per i profili osservativi")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         wrapMode: Text.WordWrap
@@ -95,12 +95,12 @@ Item {
 
                 DarkTextField {
                     Layout.preferredWidth: 300
-                    placeholderText: "Cerca telescopio..."
+                    placeholderText: qsTr("Cerca telescopio...")
                     onTextChanged: root.telescopeSearch = text
                 }
 
                 DarkButton {
-                    text: "Aggiungi modello"
+                    text: qsTr("Aggiungi modello")
                     accentColor: theme.cyan
                     onClicked: root.openAddDialog()
                 }
@@ -147,7 +147,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.filteredTelescopeModels().length === 0
-                    text: "Nessun telescopio trovato."
+                    text: qsTr("Nessun telescopio trovato.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -192,7 +192,7 @@ Item {
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Modifica"
+                    text: qsTr("Modifica")
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10
@@ -201,7 +201,7 @@ Item {
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Elimina"
+                    text: qsTr("Elimina")
                     implicitHeight: 32
                     leftPadding: 10
                     rightPadding: 10
@@ -224,15 +224,15 @@ Item {
                 spacing: 8
                 StatusPill { text: itemData.aperture_mm + " mm"; accentColor: theme.cyan }
                 StatusPill { text: itemData.focal_length_mm + " mm"; accentColor: theme.teal }
-                StatusPill { text: "f/" + itemData.focal_ratio; accentColor: theme.amber }
+                StatusPill { text: qsTr("f/") + itemData.focal_ratio; accentColor: theme.amber }
             }
         }
     }
 
     DarkDialog {
         id: telescopeDialog
-        title: "Aggiungi modello"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi modello")
+        acceptText: qsTr("Salva")
         onAccepted: {
             if (root.editModel.id !== undefined) {
                 controller.updateTelescopeModel(root.editModel.id, telescopeBrand.text, telescopeName.text, telescopeType.text, telescopeAperture.text, telescopeFocal.text, telescopeMount.text, telescopeNotes.text)
@@ -247,28 +247,28 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkTextField { id: telescopeType; Layout.fillWidth: true; placeholderText: "Tipo ottico" }
-            DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: "Apertura mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: "Montatura" }
-            DarkTextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkTextField { id: telescopeType; Layout.fillWidth: true; placeholderText: qsTr("Tipo ottico") }
+            DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura mm"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: qsTr("Focale mm"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: qsTr("Montatura") }
+            DarkTextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
         }
     }
 
     DarkDialog {
         id: deleteTelescopeDialog
-        title: "Elimina modello"
-        acceptText: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina modello")
+        acceptText: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: controller.deleteTelescopeModel(root.deleteModel.id, controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("telescope", root.deleteModel.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare il modello dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare il modello dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

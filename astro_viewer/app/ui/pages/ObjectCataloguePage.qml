@@ -57,7 +57,7 @@ Item {
             return item.is_usefully_observable_label
         if (item.observable_label !== undefined && item.observable_label !== "")
             return item.observable_label
-        return item.is_usefully_observable === true || item.observable === true ? "Sì" : "—"
+        return item.is_usefully_observable === true || item.observable === true ? qsTr("Sì") : "—"
     }
 
     function clearFilters() {
@@ -95,7 +95,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Oggetti celesti"
+                        text: qsTr("Oggetti celesti")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -104,7 +104,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Esplora gli oggetti astronomici disponibili nel catalogo."
+                        text: qsTr("Esplora gli oggetti astronomici disponibili nel catalogo.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         wrapMode: Text.WordWrap
@@ -132,12 +132,12 @@ Item {
                         Layout.columnSpan: root.width > 880 ? 1 : 2
                         spacing: 6
 
-                        FilterLabel { text: "Ricerca" }
+                        FilterLabel { text: qsTr("Ricerca") }
 
                         DarkTextField {
                             id: searchField
                             Layout.fillWidth: true
-                            placeholderText: "Cerca ID o nome..."
+                            placeholderText: qsTr("Cerca ID o nome...")
                             onTextChanged: controller.searchCatalogue(text)
                         }
                     }
@@ -146,7 +146,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 6
 
-                        FilterLabel { text: "Catalogo" }
+                        FilterLabel { text: qsTr("Catalogo") }
 
                         DarkComboBox {
                             id: catalogueFilter
@@ -160,7 +160,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 6
 
-                        FilterLabel { text: "Tipo" }
+                        FilterLabel { text: qsTr("Tipo") }
 
                         DarkComboBox {
                             id: typeFilter
@@ -176,7 +176,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 6
 
-                        FilterLabel { text: "Costellazione" }
+                        FilterLabel { text: qsTr("Costellazione") }
 
                         DarkComboBox {
                             id: constellationFilter
@@ -190,7 +190,7 @@ Item {
                         Layout.fillWidth: true
                         spacing: 6
 
-                        FilterLabel { text: "Osservazione" }
+                        FilterLabel { text: qsTr("Osservazione") }
 
                         DarkComboBox {
                             id: observationTypeFilter
@@ -207,7 +207,7 @@ Item {
                         Layout.columnSpan: root.width > 880 ? 1 : 2
                         spacing: 6
 
-                        FilterLabel { text: "Visibilità" }
+                        FilterLabel { text: qsTr("Visibilità") }
 
                         RowLayout {
                             Layout.fillWidth: true
@@ -216,7 +216,7 @@ Item {
                             CheckBox {
                                 id: visibleThisMonthFilter
                                 Layout.fillWidth: true
-                                text: "Visibili nel mese"
+                                text: qsTr("Visibili nel mese")
                                 checked: controller.catalogueVisibleThisMonthFilter
                                 onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
                             }
@@ -240,7 +240,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.catalogueFilteredCount + " di " + controller.catalogueTotalCount + " oggetti"
+                        text: controller.catalogueFilteredCount + qsTr(" di ") + controller.catalogueTotalCount + qsTr(" oggetti")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -248,7 +248,7 @@ Item {
                     }
 
                     DarkButton {
-                        text: "Pulisci filtri"
+                        text: qsTr("Pulisci filtri")
                         accentColor: theme.teal
                         onClicked: root.clearFilters()
                     }
@@ -277,14 +277,14 @@ Item {
                         anchors.rightMargin: 10
                         spacing: 8
 
-                        TableHeader { text: "ID"; Layout.preferredWidth: 64 }
-                        TableHeader { text: "Nome"; Layout.fillWidth: true; Layout.minimumWidth: 120 }
-                        TableHeader { text: "Tipo"; Layout.preferredWidth: 164 }
-                        TableHeader { text: "Costellazione"; Layout.preferredWidth: 112 }
-                        TableHeader { text: "Magnitudine"; Layout.preferredWidth: 92 }
-                        TableHeader { text: "Dimensione"; Layout.preferredWidth: 94 }
-                        TableHeader { text: "Osservazione"; Layout.preferredWidth: 130 }
-                        TableHeader { text: "Utile (≥15°)"; Layout.preferredWidth: 104 }
+                        TableHeader { text: qsTr("ID"); Layout.preferredWidth: 64 }
+                        TableHeader { text: qsTr("Nome"); Layout.fillWidth: true; Layout.minimumWidth: 120 }
+                        TableHeader { text: qsTr("Tipo"); Layout.preferredWidth: 164 }
+                        TableHeader { text: qsTr("Costellazione"); Layout.preferredWidth: 112 }
+                        TableHeader { text: qsTr("Magnitudine"); Layout.preferredWidth: 92 }
+                        TableHeader { text: qsTr("Dimensione"); Layout.preferredWidth: 94 }
+                        TableHeader { text: qsTr("Osservazione"); Layout.preferredWidth: 130 }
+                        TableHeader { text: qsTr("Utile (≥15°)"); Layout.preferredWidth: 104 }
                     }
                 }
 
@@ -344,7 +344,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: controller.catalogueFilteredCount === 0
-                    text: "Nessun oggetto trovato."
+                    text: qsTr("Nessun oggetto trovato.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

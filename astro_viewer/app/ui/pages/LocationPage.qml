@@ -10,7 +10,7 @@ Item {
 
     function compactCountry() {
         if (!controller.hasValidLocation)
-            return "Nessuna posizione configurata"
+            return qsTr("Nessuna posizione configurata")
         if (controller.location.country === undefined || controller.location.country === "")
             return controller.location.timezone
         return controller.location.country + "  -  " + controller.location.timezone
@@ -18,7 +18,7 @@ Item {
 
     function currentLocationTitle() {
         if (!controller.hasValidLocation)
-            return "Nessuna posizione"
+            return qsTr("Nessuna posizione")
         return controller.location.city + " (" + controller.location.latitude.toFixed(4) + " / " + controller.location.longitude.toFixed(4) + ")"
     }
 
@@ -50,7 +50,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Configurazione località"
+                        text: qsTr("Configurazione località")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -81,8 +81,8 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 148
-                    title: "Posizione attuale"
-                    subtitle: controller.hasValidLocation ? controller.activeLocationSource : "Nessuna posizione configurata"
+                    title: qsTr("Posizione attuale")
+                    subtitle: controller.hasValidLocation ? controller.activeLocationSource : qsTr("Nessuna posizione configurata")
                     accentColor: theme.green
 
                     RowLayout {
@@ -90,7 +90,7 @@ Item {
                         spacing: 12
 
                         StatusPill {
-                            text: controller.hasValidLocation ? "Attiva" : "Da configurare"
+                            text: controller.hasValidLocation ? qsTr("Attiva") : qsTr("Da configurare")
                             accentColor: controller.hasValidLocation ? theme.green : theme.amber
                         }
 
@@ -118,7 +118,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: !controller.hasValidLocation
-                                text: "Configura una posizione per ottenere meteo e cielo locale."
+                                text: qsTr("Configura una posizione per ottenere meteo e cielo locale.")
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 elide: Text.ElideRight
@@ -131,8 +131,8 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 148
-                    title: "Rilevamento posizione all'avvio"
-                    subtitle: "Origini usate quando NightScope parte."
+                    title: qsTr("Rilevamento posizione all'avvio")
+                    subtitle: qsTr("Origini usate quando NightScope parte.")
                     accentColor: theme.teal
 
                     GridLayout {
@@ -147,7 +147,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Avvio"
+                                text: qsTr("Avvio")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -156,7 +156,7 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: "Rileva automaticamente"
+                                text: qsTr("Rileva automaticamente")
                                 checked: controller.autoDetectLocationOnStartup
                                 onToggled: controller.setAutoDetectLocationOnStartup(checked)
                             }
@@ -168,7 +168,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Origini"
+                                text: qsTr("Origini")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -177,7 +177,7 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: "Posizione Windows"
+                                text: qsTr("Posizione Windows")
                                 enabled: controller.autoDetectLocationOnStartup && (controller.allowApproximateOnlineLocation || !controller.useWindowsLocationOnStartup)
                                 checked: controller.autoDetectLocationOnStartup && controller.useWindowsLocationOnStartup
                                 opacity: enabled || checked ? 1 : 0.55
@@ -191,7 +191,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Fallback"
+                                text: qsTr("Fallback")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 font.weight: Font.DemiBold
@@ -200,7 +200,7 @@ Item {
 
                             CheckBox {
                                 Layout.fillWidth: true
-                                text: "Fallback online"
+                                text: qsTr("Fallback online")
                                 enabled: controller.autoDetectLocationOnStartup && (controller.useWindowsLocationOnStartup || !controller.allowApproximateOnlineLocation)
                                 checked: controller.autoDetectLocationOnStartup && controller.allowApproximateOnlineLocation
                                 opacity: enabled || checked ? 1 : 0.55
@@ -226,15 +226,15 @@ Item {
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: root.width > 1040 ? 428 : 248
                     clip: true
-                    title: "Ricerca città"
-                    subtitle: "Catalogo GeoNames offline"
+                    title: qsTr("Ricerca città")
+                    subtitle: qsTr("Catalogo GeoNames offline")
                     accentColor: theme.amber
                     contentFillsHeight: true
 
                     TextField {
                         id: citySearch
                         Layout.fillWidth: true
-                        placeholderText: "Cerca città"
+                        placeholderText: qsTr("Cerca città")
                         onTextChanged: controller.searchCities(text)
                     }
 
@@ -251,7 +251,7 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 12
                             visible: !controller.hasCitySearchQuery
-                            text: "Digita una città per mostrare risultati offline."
+                            text: qsTr("Digita una città per mostrare risultati offline.")
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
@@ -262,7 +262,7 @@ Item {
                             anchors.fill: parent
                             anchors.margins: 12
                             visible: controller.hasCitySearchQuery && controller.cityResults.length === 0
-                            text: "Nessuna città trovata."
+                            text: qsTr("Nessuna città trovata.")
                             color: theme.textSecondary
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
@@ -322,13 +322,13 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: 206
-                    title: "Posizione Windows"
-                    subtitle: "Precisa con fallback Windows approssimato"
+                    title: qsTr("Posizione Windows")
+                    subtitle: qsTr("Precisa con fallback Windows approssimato")
                     accentColor: theme.cyan
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato."
+                        text: qsTr("Usa i servizi di localizzazione di Windows con consenso di sistema. Se il provider preciso non risponde, NightScope tenta il fallback Windows approssimato.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -336,7 +336,7 @@ Item {
 
                     Button {
                         Layout.fillWidth: true
-                        text: "Usa posizione Windows"
+                        text: qsTr("Usa posizione Windows")
                         onClicked: controller.useWindowsLocation()
                     }
 
@@ -357,7 +357,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "La posizione Windows non è disponibile. Provare la posizione approssimata online?"
+                                text: qsTr("La posizione Windows non è disponibile. Provare la posizione approssimata online?")
                                 color: theme.textPrimary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -365,7 +365,7 @@ Item {
 
                             Button {
                                 Layout.fillWidth: true
-                                text: "Usa posizione approssimata online"
+                                text: qsTr("Usa posizione approssimata online")
                                 onClicked: controller.useApproximateOnlineLocation()
                             }
                         }
@@ -376,13 +376,13 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: 206
-                    title: "Località IP (ipapi/ipwho)"
-                    subtitle: "Geolocalizzazione IP"
+                    title: qsTr("Località IP (ipapi/ipwho)")
+                    subtitle: qsTr("Geolocalizzazione IP")
                     accentColor: theme.violet
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso."
+                        text: qsTr("Stima città, paese, coordinate e fuso orario tramite connessione internet. Precisione limitata; non viene usata senza consenso.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -390,14 +390,14 @@ Item {
 
                     Button {
                         Layout.fillWidth: true
-                        text: "Usa posizione approssimata online"
+                        text: qsTr("Usa posizione approssimata online")
                         onClicked: controller.useApproximateOnlineLocation()
                     }
 
                     Text {
                         Layout.fillWidth: true
                         visible: controller.locationDetails.approximate === true
-                        text: "Origine: " + controller.locationDetails.source + "  -  accuratezza: " + controller.locationDetails.accuracy
+                        text: qsTr("Origine: ") + controller.locationDetails.source + "  -  accuratezza: " + controller.locationDetails.accuracy
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
@@ -408,14 +408,14 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
-                    title: "Posizioni recenti"
-                    subtitle: "Ultime posizioni salvate o caricate"
+                    title: qsTr("Posizioni recenti")
+                    subtitle: qsTr("Ultime posizioni salvate o caricate")
                     accentColor: theme.violet
 
                     Text {
                         Layout.fillWidth: true
                         visible: controller.recentLocations.length === 0
-                        text: "Nessuna posizione recente."
+                        text: qsTr("Nessuna posizione recente.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -462,7 +462,7 @@ Item {
 
                                 Button {
                                     Layout.preferredWidth: 64
-                                    text: "Usa"
+                                    text: qsTr("Usa")
                                     onClicked: controller.selectRecentLocation(index)
                                 }
                             }
@@ -481,14 +481,14 @@ Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
                     Layout.minimumHeight: 206
-                    title: "Coordinate manuali"
-                    subtitle: "Inserimento diretto"
+                    title: qsTr("Coordinate manuali")
+                    subtitle: qsTr("Inserimento diretto")
                     accentColor: theme.teal
 
                     TextField {
                         id: manualLabel
                         Layout.fillWidth: true
-                        placeholderText: "Nome luogo"
+                        placeholderText: qsTr("Nome luogo")
                     }
 
                     GridLayout {
@@ -500,21 +500,21 @@ Item {
                         TextField {
                             id: manualLatitude
                             Layout.fillWidth: true
-                            placeholderText: "Latitudine"
+                            placeholderText: qsTr("Latitudine")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
 
                         TextField {
                             id: manualLongitude
                             Layout.fillWidth: true
-                            placeholderText: "Longitudine"
+                            placeholderText: qsTr("Longitudine")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
                     }
 
                     Button {
                         Layout.fillWidth: true
-                        text: "Imposta coordinate"
+                        text: qsTr("Imposta coordinate")
                         onClicked: controller.setManualLocation(manualLatitude.text, manualLongitude.text, manualLabel.text)
                     }
                 }

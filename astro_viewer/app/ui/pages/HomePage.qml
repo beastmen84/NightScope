@@ -153,55 +153,55 @@ Item {
         var raw = typeText || ""
         var value = raw.toLowerCase()
         if (value.indexOf("milky way star cloud") >= 0)
-            return "Nube stellare della Via Lattea"
+            return qsTr("Nube stellare della Via Lattea")
         if (value.indexOf("supernova remnant") >= 0)
-            return "Resto di supernova"
+            return qsTr("Resto di supernova")
         if (value.indexOf("optical double") >= 0)
-            return "Stella doppia ottica"
+            return qsTr("Stella doppia ottica")
         if (value.indexOf("asterism") >= 0)
-            return "Asterismo"
+            return qsTr("Asterismo")
         if (value.indexOf("planetary nebula") >= 0)
-            return "Nebulosa planetaria"
+            return qsTr("Nebulosa planetaria")
         if (value.indexOf("h ii region nebula with cluster") >= 0)
-            return "Regione H II con ammasso"
+            return qsTr("Regione H II con ammasso")
         if (value.indexOf("h ii region") >= 0)
-            return "Regione H II"
+            return qsTr("Regione H II")
         if (value.indexOf("nebula with cluster") >= 0)
-            return "Nebulosa con ammasso"
+            return qsTr("Nebulosa con ammasso")
         if (value.indexOf("diffuse nebula") >= 0)
-            return "Nebulosa diffusa"
+            return qsTr("Nebulosa diffusa")
         if (value.indexOf("barred spiral galaxy") >= 0)
-            return "Galassia spirale barrata"
+            return qsTr("Galassia spirale barrata")
         if (value.indexOf("dwarf elliptical galaxy") >= 0)
-            return "Galassia ellittica nana"
+            return qsTr("Galassia ellittica nana")
         if (value.indexOf("elliptical galaxy") >= 0)
-            return "Galassia ellittica"
+            return qsTr("Galassia ellittica")
         if (value.indexOf("lenticular galaxy") >= 0)
-            return "Galassia lenticolare"
+            return qsTr("Galassia lenticolare")
         if (value.indexOf("spiral galaxy") >= 0)
-            return "Galassia spirale"
+            return qsTr("Galassia spirale")
         if (value.indexOf("starburst galaxy") >= 0)
-            return "Galassia starburst"
+            return qsTr("Galassia starburst")
         if (value.indexOf("galaxy") >= 0)
-            return "Galassia"
+            return qsTr("Galassia")
         if (value.indexOf("globular cluster") >= 0)
-            return "Ammasso globulare"
+            return qsTr("Ammasso globulare")
         if (value.indexOf("open cluster") >= 0)
-            return "Ammasso aperto"
+            return qsTr("Ammasso aperto")
         if (value.indexOf("cluster") >= 0)
-            return "Ammasso"
+            return qsTr("Ammasso")
         if (value === "planet" || value === "pianeta")
-            return "Pianeta"
+            return qsTr("Pianeta")
         if (value.indexOf("nebula") >= 0)
-            return "Nebulosa"
+            return qsTr("Nebulosa")
         return raw
     }
 
     function skyCompassGeometricTargetCountLabel(count) {
         var value = Number(count || 0)
         if (value === 1)
-            return "1 target geometricamente visibile"
-        return value + " target geometricamente visibili"
+            return qsTr("1 target geometricamente visibile")
+        return value + qsTr(" target geometricamente visibili")
     }
 
     function sessionAccent(state) {
@@ -255,10 +255,10 @@ Item {
 
     function alternativeFilterLabel(filter) {
         if (filter === "planet")
-            return "Pianeti " + root.alternativeCount(filter)
+            return qsTr("Pianeti ") + root.alternativeCount(filter)
         if (filter === "deep_sky")
-            return "Cielo profondo " + root.alternativeCount(filter)
-        return "Tutti " + root.alternativeCount("all")
+            return qsTr("Cielo profondo ") + root.alternativeCount(filter)
+        return qsTr("Tutti ") + root.alternativeCount("all")
     }
 
     function weatherMetricColor(kind, value) {
@@ -312,7 +312,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Stasera dal tuo cielo"
+                        text: qsTr("Stasera dal tuo cielo")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -329,7 +329,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.nightProfileOverview.summary || "Profilo attivo: Occhio nudo"
+                        text: root.nightProfileOverview.summary || qsTr("Profilo attivo: Occhio nudo")
                         color: theme.cyan
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -357,7 +357,7 @@ Item {
                     id: statusText
                     anchors.fill: parent
                     anchors.margins: 11
-                    text: controller.isLoading ? "Aggiornamento dei dati del cielo..." : controller.serviceStatus
+                    text: controller.isLoading ? qsTr("Aggiornamento dei dati del cielo...") : controller.serviceStatus
                     color: theme.textPrimary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -384,7 +384,7 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Sessione di stasera"
+                        title: qsTr("Sessione di stasera")
                         subtitle: root.sessionOverview.detail || ""
                         subtitleWrap: true
                         accentColor: root.sessionAccent(root.sessionOverview.state || "unavailable")
@@ -398,7 +398,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 Layout.minimumWidth: 0
-                                text: root.sessionOverview.windowText || "Finestra osservativa non disponibile"
+                                text: root.sessionOverview.windowText || qsTr("Finestra osservativa non disponibile")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
@@ -424,7 +424,7 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Luna"
+                        title: qsTr("Luna")
                         subtitle: root.moonOverview.summary || ""
                         accentColor: theme.amber
 
@@ -465,7 +465,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: "Sorge " + controller.moonSummary.rise_time
+                                        text: qsTr("Sorge ") + controller.moonSummary.rise_time
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
@@ -474,7 +474,7 @@ Item {
 
                                     Text {
                                         Layout.fillWidth: true
-                                        text: "Tramonta " + controller.moonSummary.set_time
+                                        text: qsTr("Tramonta ") + controller.moonSummary.set_time
                                         color: theme.textPrimary
                                         font.pixelSize: 13
                                         font.weight: Font.DemiBold
@@ -529,7 +529,7 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Condizioni planetarie"
+                        title: qsTr("Condizioni planetarie")
                         subtitle: root.planetaryOverview.secondaryMetric || ""
                         subtitleWrap: true
                         accentColor: theme.teal
@@ -573,7 +573,7 @@ Item {
                     GlassCard {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 160
-                        title: "Condizioni del cielo profondo"
+                        title: qsTr("Condizioni del cielo profondo")
                         subtitle: root.deepSkyOverview.secondaryMetric || ""
                         subtitleWrap: true
                         accentColor: theme.violet
@@ -620,7 +620,7 @@ Item {
                     Layout.maximumWidth: topOverview.usableWidth / 3
                     Layout.preferredHeight: 334
                     Layout.alignment: Qt.AlignTop
-                    title: "Meteo osservativo"
+                    title: qsTr("Meteo osservativo")
                     subtitle: controller.weatherStatus.length > 0
                               ? controller.weatherStatus : (root.weatherOverview.windowText || "")
                     subtitleWrap: true
@@ -657,7 +657,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Nuvole (media)"
+                                    text: qsTr("Nuvole (media)")
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -698,7 +698,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Vento (media)"
+                                    text: qsTr("Vento (media)")
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -739,7 +739,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: "Pioggia (max)"
+                                    text: qsTr("Pioggia (max)")
                                     color: theme.textSecondary
                                     font.pixelSize: 10
                                     horizontalAlignment: Text.AlignHCenter
@@ -867,15 +867,15 @@ Item {
                 property bool sessionRecommended: root.sessionOverview.state === "recommended"
                 property string sessionCaution: compassData.cautionText
                                                 || (sessionRecommended ? "" :
-                                                    "Condizioni della sessione non confermate: usa la direzione solo come orientamento.")
+                                                    qsTr("Condizioni della sessione non confermate: usa la direzione solo come orientamento."))
 
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 Layout.minimumHeight: skyCompassCard.compassData.available && wide ? 286 : 0
-                title: "Sky Compass"
+                title: qsTr("Sky Compass")
                 subtitle: skyCompassCard.sessionRecommended
-                          ? "Dove iniziare stasera" : "Orientamento del cielo"
+                          ? qsTr("Dove iniziare stasera") : qsTr("Orientamento del cielo")
                 accentColor: theme.teal
                 headerContent: [
                     RowLayout {
@@ -884,7 +884,7 @@ Item {
                         spacing: 8
 
                         Text {
-                            text: skyCompassCard.sessionRecommended ? "Alternative" : "Altre direzioni"
+                            text: skyCompassCard.sessionRecommended ? qsTr("Alternative") : qsTr("Altre direzioni")
                             color: theme.textSecondary
                             font.pixelSize: 12
                             font.weight: Font.DemiBold
@@ -906,7 +906,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: !skyCompassCard.compassData.available
-                    text: skyCompassCard.compassData.message || "Nessun target consigliato al momento."
+                    text: skyCompassCard.compassData.message || qsTr("Nessun target consigliato al momento.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -1018,7 +1018,7 @@ Item {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     anchors.top: parent.top
                                     anchors.topMargin: 10
-                                    text: "N"
+                                    text: qsTr("N")
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     font.weight: Font.DemiBold
@@ -1028,7 +1028,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.right: parent.right
                                     anchors.rightMargin: 12
-                                    text: "E"
+                                    text: qsTr("E")
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     font.weight: Font.DemiBold
@@ -1038,7 +1038,7 @@ Item {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     anchors.bottom: parent.bottom
                                     anchors.bottomMargin: 10
-                                    text: "S"
+                                    text: qsTr("S")
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     font.weight: Font.DemiBold
@@ -1048,7 +1048,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     anchors.left: parent.left
                                     anchors.leftMargin: 12
-                                    text: "O"
+                                    text: qsTr("O")
                                     color: theme.textSecondary
                                     font.pixelSize: 12
                                     font.weight: Font.DemiBold
@@ -1062,7 +1062,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: skyCompassCard.sessionRecommended ? "Inizia da" : "Guarda verso"
+                                    text: skyCompassCard.sessionRecommended ? qsTr("Inizia da") : qsTr("Guarda verso")
                                     color: theme.textSecondary
                                     font.pixelSize: 13
                                     font.weight: Font.DemiBold
@@ -1092,8 +1092,8 @@ Item {
                                     Text {
                                         Layout.fillWidth: true
                                         text: skyCompassCard.sessionRecommended
-                                              ? (skyCompassCard.compassData.zoneLabel || "Zona consigliata")
-                                              : "Zona con più target"
+                                              ? (skyCompassCard.compassData.zoneLabel || qsTr("Zona consigliata"))
+                                              : qsTr("Zona con più target")
                                         color: theme.teal
                                         font.pixelSize: 15
                                         font.weight: Font.DemiBold
@@ -1134,7 +1134,7 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            text: "Perché questa direzione?"
+                            text: qsTr("Perché questa direzione?")
                             color: theme.textPrimary
                             font.pixelSize: 15
                             font.weight: Font.DemiBold
@@ -1192,7 +1192,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 text: skyCompassCard.sessionRecommended
-                                      ? "Target principali" : "Target nella direzione"
+                                      ? qsTr("Target principali") : qsTr("Target nella direzione")
                                 color: theme.textPrimary
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
@@ -1325,7 +1325,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
-                    text: "Piano della notte"
+                    text: qsTr("Piano della notte")
                     color: theme.textPrimary
                     font.pixelSize: 18
                     font.weight: Font.DemiBold
@@ -1336,15 +1336,15 @@ Item {
                     id: skyCompassFilterButton
                     Layout.preferredWidth: 164
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    text: "Solo suggeriti ora"
+                    text: qsTr("Solo suggeriti ora")
                     enabled: root.skyCompassFilterAvailable
                     checkable: true
                     checked: root.skyCompassFilterEnabled
                     accentColor: theme.cyan
                     ToolTip.visible: hovered
                     ToolTip.text: root.skyCompassFilterAvailable
-                                  ? "Mostra nelle due schede solo gli oggetti nella zona indicata da Sky Compass"
-                                  : "Nessun target osservabile in questo momento"
+                                  ? qsTr("Mostra nelle due schede solo gli oggetti nella zona indicata da Sky Compass")
+                                  : qsTr("Nessun target osservabile in questo momento")
                     onClicked: root.setSkyCompassFilter(checked)
                 }
             }
@@ -1362,9 +1362,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: root.nightPlanOverview.title || "Piano osservativo"
+                    title: root.nightPlanOverview.title || qsTr("Piano osservativo")
                     subtitle: root.skyCompassFilterEnabled && root.nightPlanOverview.showsSequence
-                              ? "Tappe del piano nella zona indicata da Sky Compass"
+                              ? qsTr("Tappe del piano nella zona indicata da Sky Compass")
                               : (root.nightPlanOverview.subtitle || "")
                     subtitleWrap: true
                     headerBadgeText: root.nightPlanOverview.badge || ""
@@ -1415,7 +1415,7 @@ Item {
 
                                 Text {
                                     Layout.fillWidth: true
-                                    text: root.nightPlanOverview.windowLabel || "Possibile finestra"
+                                    text: root.nightPlanOverview.windowLabel || qsTr("Possibile finestra")
                                     color: theme.textMuted
                                     font.pixelSize: 12
                                     wrapMode: Text.WordWrap
@@ -1460,7 +1460,7 @@ Item {
                         visible: root.skyCompassFilterEnabled
                                  && root.nightPlanOverview.showsSequence
                                  && root.filteredNightPlanItems().length === 0
-                        text: "Nessuna tappa del piano nella zona suggerita in questo momento."
+                        text: qsTr("Nessuna tappa del piano nella zona suggerita in questo momento.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -1471,12 +1471,12 @@ Item {
                     Layout.fillWidth: true
                     Layout.columnSpan: centerGrid.columns > 1 ? 2 : 1
                     Layout.alignment: Qt.AlignTop
-                    title: root.nightAlternativesOverview.title || "Altri oggetti visibili stasera"
+                    title: root.nightAlternativesOverview.title || qsTr("Altri oggetti visibili stasera")
                     subtitle: root.skyCompassFilterEnabled
-                              ? "Oggetti nella zona indicata da Sky Compass; filtra ulteriormente per categoria"
+                              ? qsTr("Oggetti nella zona indicata da Sky Compass; filtra ulteriormente per categoria")
                               : (root.nightAlternativesOverview.subtitle || "")
                     subtitleWrap: true
-                    headerBadgeText: root.alternativeCount("all") > 0 ? root.alternativeCount("all") + " oggetti" : ""
+                    headerBadgeText: root.alternativeCount("all") > 0 ? root.alternativeCount("all") + qsTr(" oggetti") : ""
                     headerBadgeColor: theme.cyan
                     accentColor: theme.cyan
 
@@ -1533,7 +1533,7 @@ Item {
                         Text {
                             Layout.fillWidth: true
                             Layout.minimumWidth: 140
-                            text: "Oggetto"
+                            text: qsTr("Oggetto")
                             color: theme.textMuted
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
@@ -1541,7 +1541,7 @@ Item {
 
                         Text {
                             Layout.preferredWidth: 170
-                            text: "Tipo"
+                            text: qsTr("Tipo")
                             color: theme.textMuted
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
@@ -1549,7 +1549,7 @@ Item {
 
                         Text {
                             Layout.preferredWidth: 145
-                            text: "Finestra"
+                            text: qsTr("Finestra")
                             color: theme.textMuted
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
@@ -1557,7 +1557,7 @@ Item {
 
                         Text {
                             Layout.preferredWidth: 105
-                            text: "Direzione"
+                            text: qsTr("Direzione")
                             color: theme.textMuted
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
@@ -1566,7 +1566,7 @@ Item {
                         Text {
                             Layout.preferredWidth: 90
                             horizontalAlignment: Text.AlignRight
-                            text: "Difficoltà"
+                            text: qsTr("Difficoltà")
                             color: theme.textMuted
                             font.pixelSize: 11
                             font.weight: Font.DemiBold
@@ -1629,8 +1629,8 @@ Item {
                         Layout.fillWidth: true
                         visible: root.filteredNightAlternatives().length === 0
                         text: root.skyCompassFilterEnabled
-                              ? "Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento."
-                              : (root.nightAlternativesOverview.emptyText || "Nessun altro oggetto utile fuori dal piano.")
+                              ? qsTr("Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento.")
+                              : (root.nightAlternativesOverview.emptyText || qsTr("Nessun altro oggetto utile fuori dal piano."))
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -1643,10 +1643,10 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 Layout.alignment: Qt.AlignTop
-                title: "Prossimi eventi"
-                subtitle: "Ordinati per data"
+                title: qsTr("Prossimi eventi")
+                subtitle: qsTr("Ordinati per data")
                 accentColor: theme.amber
-                headerActionText: "Vedi tutti"
+                headerActionText: qsTr("Vedi tutti")
                 headerActionAccentColor: theme.amber
                 onHeaderActionClicked: root.openCalendar()
 
@@ -1720,7 +1720,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.chronologicalEvents(1).length === 0
-                    text: "Nessun evento imminente disponibile."
+                    text: qsTr("Nessun evento imminente disponibile.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                 }

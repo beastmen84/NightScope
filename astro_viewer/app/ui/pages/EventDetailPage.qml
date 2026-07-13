@@ -70,14 +70,14 @@ Item {
                 spacing: 14
 
                 DarkButton {
-                    text: "Torna al Calendario"
+                    text: qsTr("Torna al Calendario")
                     accentColor: root.accentColor
                     onClicked: root.backToCalendar()
                 }
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.hasEvent ? "Dettaglio evento" : "Nessun evento selezionato"
+                    text: root.hasEvent ? qsTr("Dettaglio evento") : qsTr("Nessun evento selezionato")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -133,13 +133,13 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 244
-                    title: "Quando osservarlo"
-                    subtitle: "Istante, finestra e visibilità locale"
+                    title: qsTr("Quando osservarlo")
+                    subtitle: qsTr("Istante, finestra e visibilità locale")
                     accentColor: theme.amber
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.hasEvent ? root.eventData.timingLabel : "Istante evento"
+                        text: root.hasEvent ? root.eventData.timingLabel : qsTr("Istante evento")
                         color: theme.textMuted
                         font.pixelSize: 12
                         font.weight: Font.DemiBold
@@ -156,7 +156,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasDistinctWindow
-                        text: "Finestra osservativa: " + root.eventWindow
+                        text: qsTr("Finestra osservativa: ") + root.eventWindow
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -165,7 +165,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && root.eventWindow.length === 0
-                        text: "Nessuna finestra osservativa locale"
+                        text: qsTr("Nessuna finestra osservativa locale")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -174,7 +174,7 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.separationLabel || "").length > 0
-                        text: "Separazione minima: " + (root.eventData.separationLabel || "")
+                        text: qsTr("Separazione minima: ") + (root.eventData.separationLabel || "")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -193,11 +193,11 @@ Item {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.type === "Congiunzione solare"
-                           ? "Indicazione di sicurezza"
-                           : "Con il tuo profilo"
+                           ? qsTr("Indicazione di sicurezza")
+                           : qsTr("Con il tuo profilo")
                     subtitle: root.hasEvent && root.eventData.type === "Congiunzione solare"
-                              ? "Evento informativo, non osservativo"
-                              : "Configurazione consigliata per l'evento"
+                              ? qsTr("Evento informativo, non osservativo")
+                              : qsTr("Configurazione consigliata per l'evento")
                     accentColor: theme.cyan
 
                     Text {
@@ -226,7 +226,7 @@ Item {
                             model: root.eventObjects()
 
                             delegate: DarkButton {
-                                text: "Apri " + modelData.name
+                                text: qsTr("Apri ") + modelData.name
                                 accentColor: root.accentColor
                                 onClicked: root.openObject(modelData.id)
                             }
@@ -240,8 +240,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Consigli osservativi"
-                subtitle: "Azioni pratiche per preparare l'evento"
+                title: qsTr("Consigli osservativi")
+                subtitle: qsTr("Azioni pratiche per preparare l'evento")
                 accentColor: theme.teal
 
                 Repeater {
@@ -276,13 +276,13 @@ Item {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
-                title: "Nessun evento selezionato"
-                subtitle: "Torna al calendario e scegli una voce dalla timeline"
+                title: qsTr("Nessun evento selezionato")
+                subtitle: qsTr("Torna al calendario e scegli una voce dalla timeline")
                 accentColor: theme.violet
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Seleziona una scheda evento per aprire il dettaglio."
+                    text: qsTr("Seleziona una scheda evento per aprire il dettaglio.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap

@@ -25,7 +25,7 @@ Item {
         eyepieceAfovRange.text = item && item.afov_min && item.afov_max ? item.afov_min + "-" + item.afov_max : ""
         eyepieceBarrel.text = item ? (item.barrel_size || "") : ""
         eyepieceNotes.text = item ? (item.notes || "") : ""
-        eyepieceDialog.title = item ? "Modifica oculare" : "Aggiungi oculare"
+        eyepieceDialog.title = item ? qsTr("Modifica oculare") : qsTr("Aggiungi oculare")
         eyepieceDialog.open()
     }
 
@@ -36,7 +36,7 @@ Item {
         barlowMultiplier.text = item ? String(item.multiplier || "") : ""
         barlowBarrel.text = item ? (item.barrel_size || "") : ""
         barlowNotes.text = item ? (item.notes || "") : ""
-        barlowDialog.title = item ? "Modifica Barlow" : "Aggiungi Barlow"
+        barlowDialog.title = item ? qsTr("Modifica Barlow") : qsTr("Aggiungi Barlow")
         barlowDialog.open()
     }
 
@@ -103,7 +103,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Catalogo oculari e Barlow"
+                    text: qsTr("Catalogo oculari e Barlow")
                     color: theme.textPrimary
                     font.pixelSize: 34
                     font.weight: Font.DemiBold
@@ -112,7 +112,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: "Accessori ottici disponibili per i profili osservativi"
+                    text: qsTr("Accessori ottici disponibili per i profili osservativi")
                     color: theme.textSecondary
                     font.pixelSize: 14
                     wrapMode: Text.WordWrap
@@ -121,7 +121,7 @@ Item {
 
             DarkTextField {
                 Layout.preferredWidth: 330
-                placeholderText: "Cerca oculare o Barlow..."
+                placeholderText: qsTr("Cerca oculare o Barlow...")
                 onTextChanged: root.opticsSearch = text
             }
         }
@@ -166,7 +166,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Catalogo oculari"
+                                text: qsTr("Catalogo oculari")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
@@ -183,7 +183,7 @@ Item {
                         }
 
                         DarkButton {
-                            text: "Aggiungi oculare"
+                            text: qsTr("Aggiungi oculare")
                             accentColor: theme.teal
                             onClicked: root.openEyepieceDialog(null)
                         }
@@ -217,7 +217,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: root.filteredEyepieces().length === 0
-                                text: "Nessun oculare trovato."
+                                text: qsTr("Nessun oculare trovato.")
                                 color: theme.textSecondary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -257,7 +257,7 @@ Item {
 
                             Text {
                                 Layout.fillWidth: true
-                                text: "Catalogo Barlow"
+                                text: qsTr("Catalogo Barlow")
                                 color: theme.textPrimary
                                 font.pixelSize: 18
                                 font.weight: Font.DemiBold
@@ -274,7 +274,7 @@ Item {
                         }
 
                         DarkButton {
-                            text: "Aggiungi Barlow"
+                            text: qsTr("Aggiungi Barlow")
                             accentColor: theme.amber
                             onClicked: root.openBarlowDialog(null)
                         }
@@ -309,7 +309,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: root.filteredBarlows().length === 0
-                                text: "Nessuna Barlow trovata."
+                                text: qsTr("Nessuna Barlow trovata.")
                                 color: theme.textSecondary
                                 font.pixelSize: 13
                                 wrapMode: Text.WordWrap
@@ -358,13 +358,13 @@ Item {
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Modifica"
+                    text: qsTr("Modifica")
                     onClicked: opticRow.edit()
                 }
 
                 DarkButton {
                     visible: !itemData.is_builtin
-                    text: "Elimina"
+                    text: qsTr("Elimina")
                     danger: true
                     onClicked: opticRow.deleteRequested()
                 }
@@ -412,8 +412,8 @@ Item {
 
     DarkDialog {
         id: eyepieceDialog
-        title: "Aggiungi oculare"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi oculare")
+        acceptText: qsTr("Salva")
         onAccepted: {
             if (root.editEyepiece.id !== undefined) {
                 controller.updateEyepieceModel(root.editEyepiece.id, eyepieceBrand.text, eyepieceModel.text, eyepieceType.currentIndex === 1 ? "Zoom" : "Fixed", eyepieceFocal.text, eyepieceMinFocal.text, eyepieceMaxFocal.text, eyepieceAfov.text, eyepieceBarrel.text, eyepieceAfovRange.text, eyepieceNotes.text)
@@ -428,23 +428,23 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: ["Fisso", "Zoom"] }
-            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentIndex === 1 ? "Focale max mm" : "Focale mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: "Focale min mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: "Focale max mm"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: "AFOV medio"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: "AFOV min-max opzionale" }
-            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
-            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: [qsTr("Fisso"), "Zoom"] }
+            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; placeholderText: eyepieceType.currentIndex === 1 ? qsTr("Focale max mm") : qsTr("Focale mm"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale min mm"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale max mm"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: qsTr("AFOV medio"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: qsTr("AFOV min-max opzionale") }
+            DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: qsTr("Barilotto") }
+            DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: qsTr("Note") }
         }
     }
 
     DarkDialog {
         id: barlowDialog
-        title: "Aggiungi Barlow"
-        acceptText: "Salva"
+        title: qsTr("Aggiungi Barlow")
+        acceptText: qsTr("Salva")
         onAccepted: {
             if (root.editBarlow.id !== undefined) {
                 controller.updateBarlowModel(root.editBarlow.id, barlowBrand.text, barlowModel.text, barlowMultiplier.text, barlowBarrel.text, barlowNotes.text)
@@ -459,26 +459,26 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: "Marca" }
-            DarkTextField { id: barlowModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: "Moltiplicatore"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: "Barilotto" }
-            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+            DarkTextField { id: barlowBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
+            DarkTextField { id: barlowModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkTextField { id: barlowMultiplier; Layout.fillWidth: true; placeholderText: qsTr("Moltiplicatore"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: barlowBarrel; Layout.fillWidth: true; placeholderText: qsTr("Barilotto") }
+            DarkTextField { id: barlowNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
         }
     }
 
     DarkDialog {
         id: deleteEyepieceDialog
-        title: "Elimina oculare"
-        acceptText: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina oculare")
+        acceptText: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: controller.deleteEyepieceModel(root.deleteEyepiece.id, controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("eyepiece", root.deleteEyepiece.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare l'oculare dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare l'oculare dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap
@@ -487,16 +487,16 @@ Item {
 
     DarkDialog {
         id: deleteBarlowDialog
-        title: "Elimina Barlow"
-        acceptText: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0 ? "Rimuovi dai profili e continua" : "Elimina"
+        title: qsTr("Elimina Barlow")
+        acceptText: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0 ? qsTr("Rimuovi dai profili e continua") : qsTr("Elimina")
         acceptDanger: true
         onAccepted: controller.deleteBarlowModel(root.deleteBarlow.id, controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0)
 
         Text {
             Layout.fillWidth: true
             text: controller.equipmentUsage("barlow", root.deleteBarlow.catalog_id || "") > 0
-                ? "Questo elemento è utilizzato da uno o più profili."
-                : "Eliminare la Barlow dal catalogo?"
+                ? qsTr("Questo elemento è utilizzato da uno o più profili.")
+                : qsTr("Eliminare la Barlow dal catalogo?")
             color: theme.textPrimary
             font.pixelSize: 14
             wrapMode: Text.WordWrap

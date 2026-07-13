@@ -34,7 +34,7 @@ SpinBox {
 
         Text {
             anchors.centerIn: parent
-            text: "+"
+            text: qsTr("+")
             color: root.enabled ? root.accentColor : theme.textMuted
             font.pixelSize: 16
             font.weight: Font.DemiBold
@@ -49,7 +49,7 @@ SpinBox {
 
         Text {
             anchors.centerIn: parent
-            text: "-"
+            text: qsTr("-")
             color: root.enabled ? root.accentColor : theme.textMuted
             font.pixelSize: 16
             font.weight: Font.DemiBold

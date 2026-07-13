@@ -242,14 +242,14 @@ def test_upper_home_cards_use_the_overview_contract_without_category_scores() ->
     glass_card = GLASS_CARD.read_text(encoding="utf-8")
 
     assert "controller.homeObservingOverview" in qml
-    assert 'title: "Sessione di stasera"' in qml
-    assert 'title: "Condizioni planetarie"' in qml
-    assert 'title: "Condizioni del cielo profondo"' in qml
+    assert 'title: qsTr("Sessione di stasera")' in qml
+    assert 'title: qsTr("Condizioni planetarie")' in qml
+    assert 'title: qsTr("Condizioni del cielo profondo")' in qml
     assert "root.weatherOverview.badge" in qml
     assert "root.moonOverview.summary" in qml
-    assert 'title: "Qualità osservativa"' not in qml
-    assert 'title: "Punteggio planetario"' not in qml
-    assert 'title: "Punteggio cielo profondo"' not in qml
+    assert 'title: qsTr("Qualità osservativa")' not in qml
+    assert 'title: qsTr("Punteggio planetario")' not in qml
+    assert 'title: qsTr("Punteggio cielo profondo")' not in qml
     assert "controller.advancedScores.planetaryScore" not in qml
     assert "controller.advancedScores.deepSkyScore" not in qml
     assert "function observingLimitFactor" not in qml

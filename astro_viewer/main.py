@@ -93,6 +93,15 @@ def _build_controller(progress_callback=None):
     return AppController(base_dir=BASE_DIR, database_path=database_path)
 
 
+def _build_translation_manager():
+    from astro_viewer.app.services.translation_manager import TranslationManager
+
+    return TranslationManager(
+        translations_dir=BASE_DIR / "translations",
+        preferences_path=RUNTIME_DIR / "user_preferences.json",
+    )
+
+
 def _database_initialization_required() -> bool:
     from astro_viewer.app.database.bootstrap import database_initialization_required
 
@@ -256,6 +265,8 @@ def run_app() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORG_NAME)
+    translation_manager = _build_translation_manager()
+    translation_manager.install()
 
     try:
         initialization_required = _database_initialization_required()
@@ -284,7 +295,9 @@ def run_app() -> int:
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
+    engine.rootContext().setContextProperty("translationManager", translation_manager)
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "app" / "ui" / "main.qml")))
+    translation_manager.attach_engine(engine)
 
     if not engine.rootObjects():
         return 1
@@ -305,11 +318,15 @@ def run_qml_smoke_test() -> int:
     app = QGuiApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORG_NAME)
+    translation_manager = _build_translation_manager()
+    translation_manager.install()
     controller = _build_controller()
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(BASE_DIR / "app" / "ui"))
     engine.rootContext().setContextProperty("appController", controller)
+    engine.rootContext().setContextProperty("translationManager", translation_manager)
     engine.load(QUrl.fromLocalFile(str(BASE_DIR / "app" / "ui" / "main.qml")))
+    translation_manager.attach_engine(engine)
     if not engine.rootObjects():
         return 1
     QTimer.singleShot(0, app.quit)

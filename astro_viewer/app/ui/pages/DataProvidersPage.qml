@@ -38,7 +38,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Provider dati"
+                        text: qsTr("Provider dati")
                         color: theme.textPrimary
                         font.pixelSize: 34
                         font.weight: Font.DemiBold
@@ -47,7 +47,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Configura gli accessi opzionali ai servizi esterni."
+                        text: qsTr("Configura gli accessi opzionali ai servizi esterni.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -67,14 +67,14 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
-                    title: "Earthdata NASA"
-                    subtitle: controller.earthdataConnectionVerified ? "Connessione LAADS verificata" : (controller.earthdataCredentialsConfigured ? "Credenziali salvate nel vault di sistema" : "Accesso opzionale ai dati VIIRS")
+                    title: qsTr("Earthdata NASA")
+                    subtitle: controller.earthdataConnectionVerified ? qsTr("Connessione LAADS verificata") : (controller.earthdataCredentialsConfigured ? qsTr("Credenziali salvate nel vault di sistema") : qsTr("Accesso opzionale ai dati VIIRS"))
                     accentColor: controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber)
-                    headerActionText: "Create account"
+                    headerActionText: qsTr("Create account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified && !controller.earthdataAuthorizationRequired
                     headerActionAccentColor: theme.cyan
-                    headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired ? "Account already configured" : "Create a NASA Earthdata account"
+                    headerActionToolTip: controller.earthdataConnectionVerified || controller.earthdataAuthorizationRequired ? qsTr("Account already configured") : qsTr("Create a NASA Earthdata account")
                     onHeaderActionClicked: Qt.openUrlExternally(root.earthdataRegistrationUrl)
 
                     Connections {
@@ -91,7 +91,7 @@ Item {
                         spacing: 10
 
                         StatusPill {
-                            text: controller.earthdataConnectionTestRunning ? "Verifica" : (controller.earthdataConnectionVerified ? "Verificato" : (controller.earthdataAuthorizationRequired ? "Autorizza" : (controller.earthdataCredentialsConfigured ? "Da testare" : "Fallback")))
+                            text: controller.earthdataConnectionTestRunning ? qsTr("Verifica") : (controller.earthdataConnectionVerified ? qsTr("Verificato") : (controller.earthdataAuthorizationRequired ? qsTr("Autorizza") : (controller.earthdataCredentialsConfigured ? qsTr("Da testare") : qsTr("Fallback"))))
                             accentColor: controller.earthdataConnectionTestRunning ? theme.cyan : (controller.earthdataConnectionVerified ? theme.green : (controller.earthdataAuthorizationRequired ? theme.violet : theme.amber))
                         }
 
@@ -113,7 +113,7 @@ Item {
                         DarkTextField {
                             id: earthdataUsername
                             Layout.fillWidth: true
-                            placeholderText: "Utente Earthdata"
+                            placeholderText: qsTr("Utente Earthdata")
                             enabled: controller.earthdataSecureStorageAvailable
                             Component.onCompleted: text = controller.earthdataUsername
                         }
@@ -121,7 +121,7 @@ Item {
                         DarkTextField {
                             id: earthdataPassword
                             Layout.fillWidth: true
-                            placeholderText: controller.earthdataCredentialsConfigured ? "Nuova password" : "Password Earthdata"
+                            placeholderText: controller.earthdataCredentialsConfigured ? qsTr("Nuova password") : qsTr("Password Earthdata")
                             echoMode: TextInput.Password
                             enabled: controller.earthdataSecureStorageAvailable
                         }
@@ -133,7 +133,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 112
-                            text: "Salva"
+                            text: qsTr("Salva")
                             enabled: !controller.earthdataConnectionTestRunning && controller.earthdataSecureStorageAvailable && earthdataUsername.text.trim().length > 0 && earthdataPassword.text.trim().length > 0
                             accentColor: theme.green
                             onClicked: {
@@ -144,7 +144,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 148
-                            text: controller.earthdataConnectionTestRunning ? "Verifica..." : "Test connessione"
+                            text: controller.earthdataConnectionTestRunning ? qsTr("Verifica...") : qsTr("Test connessione")
                             enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified
                             accentColor: theme.cyan
                             onClicked: controller.testEarthdataConnection()
@@ -152,7 +152,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 128
-                            text: "Autorizza app"
+                            text: qsTr("Autorizza app")
                             enabled: controller.earthdataAuthorizationRequired && !controller.earthdataConnectionTestRunning && !controller.earthdataConnectionVerified
                             accentColor: theme.violet
                             onClicked: Qt.openUrlExternally(controller.earthdataAuthorizationUrl)
@@ -164,7 +164,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 96
-                            text: "Rimuovi"
+                            text: qsTr("Rimuovi")
                             enabled: controller.earthdataCredentialsConfigured && !controller.earthdataConnectionTestRunning
                             danger: true
                             onClicked: {
@@ -180,14 +180,14 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 206
-                    title: "OpenAQ"
-                    subtitle: controller.openaqConnectionVerified ? "Connessione API verificata" : (controller.openaqCredentialsConfigured ? "API key salvata nel vault di sistema" : "Accesso opzionale ai dati qualità aria")
+                    title: qsTr("OpenAQ")
+                    subtitle: controller.openaqConnectionVerified ? qsTr("Connessione API verificata") : (controller.openaqCredentialsConfigured ? qsTr("API key salvata nel vault di sistema") : qsTr("Accesso opzionale ai dati qualità aria"))
                     accentColor: controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet)
-                    headerActionText: "Create account"
+                    headerActionText: qsTr("Create account")
                     headerActionWidth: 148
                     headerActionEnabled: !controller.openaqConnectionTestRunning && !controller.openaqConnectionVerified
                     headerActionAccentColor: theme.cyan
-                    headerActionToolTip: controller.openaqConnectionVerified ? "Account already configured" : "Create an OpenAQ account"
+                    headerActionToolTip: controller.openaqConnectionVerified ? qsTr("Account already configured") : qsTr("Create an OpenAQ account")
                     onHeaderActionClicked: Qt.openUrlExternally(root.openAQRegistrationUrl)
 
                     RowLayout {
@@ -195,7 +195,7 @@ Item {
                         spacing: 10
 
                         StatusPill {
-                            text: controller.openaqConnectionTestRunning ? "Verifica" : (controller.openaqConnectionVerified ? "Verificato" : (controller.openaqCredentialsConfigured ? "Da testare" : "Non configurato"))
+                            text: controller.openaqConnectionTestRunning ? qsTr("Verifica") : (controller.openaqConnectionVerified ? qsTr("Verificato") : (controller.openaqCredentialsConfigured ? qsTr("Da testare") : qsTr("Non configurato")))
                             accentColor: controller.openaqConnectionTestRunning ? theme.cyan : (controller.openaqConnectionVerified ? theme.green : (controller.openaqCredentialsConfigured ? theme.amber : theme.violet))
                         }
 
@@ -211,7 +211,7 @@ Item {
                     DarkTextField {
                         id: openaqApiKey
                         Layout.fillWidth: true
-                        placeholderText: controller.openaqCredentialsConfigured ? "Nuova API key OpenAQ" : "API key OpenAQ"
+                        placeholderText: controller.openaqCredentialsConfigured ? qsTr("Nuova API key OpenAQ") : qsTr("API key OpenAQ")
                         echoMode: TextInput.Password
                         enabled: controller.openaqSecureStorageAvailable
                     }
@@ -222,7 +222,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 112
-                            text: "Salva"
+                            text: qsTr("Salva")
                             enabled: !controller.openaqConnectionTestRunning && controller.openaqSecureStorageAvailable && openaqApiKey.text.trim().length > 0
                             accentColor: theme.green
                             onClicked: {
@@ -233,7 +233,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 148
-                            text: controller.openaqConnectionTestRunning ? "Verifica..." : "Test connessione"
+                            text: controller.openaqConnectionTestRunning ? qsTr("Verifica...") : qsTr("Test connessione")
                             enabled: controller.openaqCredentialsConfigured && !controller.openaqConnectionTestRunning
                             accentColor: theme.cyan
                             onClicked: controller.testOpenAQConnection()
@@ -245,7 +245,7 @@ Item {
 
                         DarkButton {
                             Layout.preferredWidth: 96
-                            text: "Rimuovi"
+                            text: qsTr("Rimuovi")
                             enabled: controller.openaqCredentialsConfigured && !controller.openaqConnectionTestRunning
                             danger: true
                             onClicked: {
