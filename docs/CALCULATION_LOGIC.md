@@ -160,8 +160,11 @@ selected setup or any score. Catalogue detail remains on the raw
 `selectedObject` contract.
 
 Observation persistence is intentionally not part of object detail. The
-SQLite repository and controller slot remain available for a future dedicated
-`Log Osservazioni` surface.
+dedicated `Log Osservazioni` surface owns complete CRUD operations on
+`ObservationHistory`, with no result cut. Its service validates local date/time,
+object name and the 1-5 rating, rejects future entries and builds only
+score-free presentation fields and aggregate counts. It does not feed NSOM,
+Planner, Home, Sky Compass, Equipment or target recommendations.
 
 Sky Compass runs from the same prepared pool but filters `observable_now=False`.
 Its direction contribution is the NSOM `ObservableTargetValue` scaled by a

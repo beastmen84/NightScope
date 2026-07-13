@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.27.1`
-- Dist `1.27.1` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.28.0`
+- Dist `1.28.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `87f2285 Make filter recommendations aperture-aware`
+- Commit sorgente validato: `53244e2 Add observation log`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `87f2285`; non sostituire questo
+documentazione. Per lo stato del codice usare `53244e2`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `53244e2 Add observation log`
 - `87f2285 Make filter recommendations aperture-aware`
 - `a859d75 Add photographic reducer recommendations`
 - `40a0a39 Add profile-aware filter recommendations`
@@ -89,9 +90,23 @@ e non cambiano la configurazione calcolata. Un eventuale calcolo ottico reale
 del riduttore resta futuro e richiederebbe camera, sensore, image circle e
 backfocus.
 
-Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
-osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
-restano disponibili. Non implementare il Log senza richiesta esplicita.
+La pagina separata `Log Osservazioni` e' implementata da `1.28.0` tra Calendario
+e Meteo. La sezione resta fuori dal dettaglio oggetto e non modifica score,
+ranking, NSOM o configurazioni consigliate.
+
+## Log Osservazioni 1.28.0
+
+- `ObservationRepository` espone inserimento, elenco completo ordinato,
+  modifica ed eliminazione; non esiste piu' il limite storico di 10 record.
+- `ObservationLogService` valida data/ora locale, oggetto e voto `1-5`, rifiuta
+  record futuri e costruisce entry QML e riepilogo senza dipendenze NSOM.
+- Il controller espone `observationLog`, `observationLogSummary`, default locali
+  e slot CRUD sincroni. Il vecchio `saveObservation` legato all'oggetto
+  selezionato e `observationHistory` sono stati rimossi.
+- La UI permette ricerca su oggetto, luogo, setup e note, filtro per voto,
+  inserimento, modifica ed eliminazione con conferma.
+- La tabella `ObservationHistory` non cambia schema; bootstrap, copia runtime e
+  preservazione dei dati utente restano invariati.
 
 ## Catalogo Canonico 1.27.0
 
@@ -349,7 +364,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.27.1
+## Validazione 1.28.0
 
 Eseguita nella venv corrente:
 
@@ -357,8 +372,8 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\python.exe -m pytest -n 4 -q
-.\.venv\Scripts\pyside6-qmllint.exe astro_viewer\app\ui\pages\EquipmentFiltersReducersPage.qml
+.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
+.\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui astro_viewer\app\ui\pages\ObservationLogPage.qml
 ```
 
 Risultati:
@@ -366,12 +381,13 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `703 passed`, `557 warnings`, `7 subtests passed` in `119,08 s`.
-- `pyside6-qmllint` sulla pagina Equipment: exit `0`, nessun warning.
-- Verificati setup telescopio/binocolo, soglie prodotto e target, fallback
-  singolo, catalogo canonico a 48 filtri e persistenza Equipment.
-- QML smoke non eseguito per non creare file runtime; la dist non e' stata
-  rigenerata.
+- Suite: `711 passed`, `557 warnings`, `7 subtests passed` in `115,69 s`.
+- `qmllint` sulla pagina Log: exit `0`, nessun warning.
+- QML smoke: exit `0`, eseguito con runtime temporaneo senza salvare file nella
+  root del progetto.
+- Verificati CRUD repository/controller, elenco senza limite, validazioni,
+  preservazione e copia dei dati utente e ordine della navigazione.
+- Dist non rigenerata.
 
 Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 

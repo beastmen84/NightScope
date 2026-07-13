@@ -1,5 +1,22 @@
 # Changelog
 
+## NightScope 1.28.0 - 2026-07-13
+
+- Aggiunta la pagina `Log Osservazioni` tra Calendario e Meteo, con riepilogo,
+  ricerca testuale, filtro per valutazione ed elenco completo senza tagli.
+- Sostituito il vecchio inserimento legato al dettaglio oggetto con un
+  contratto CRUD dedicato: aggiunta, modifica ed eliminazione delle sessioni,
+  con data/ora locale, oggetto, luogo, telescopio, oculare, voto e note.
+- I nuovi record propongono localita' e setup del profilo attivo; il backend
+  valida formato, voto e natura retrospettiva del log. La tabella SQLite
+  esistente resta invariata e i dati utente continuano a essere preservati.
+- Aggiunti read model e riepiloghi score-free separati da NSOM, Planner, Home,
+  Equipment e raccomandazioni osservative.
+- Verificati Ruff, compileall, `pip check`, `qmllint`, QML smoke in runtime
+  temporaneo e suite completa parallela: `711 passed`, `557 warnings`,
+  `7 subtests passed` in `115,69 s`.
+- Dist `1.28.0` non rigenerata.
+
 ## NightScope 1.27.1 - 2026-07-13
 
 - Limitate le raccomandazioni filtro alle configurazioni che selezionano un

@@ -33,6 +33,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
+- Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
+  operazioni di aggiunta, modifica ed eliminazione delle sessioni.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
   Barlow, binocoli, filtri e riduttori. Le voci integrate sono in sola lettura;
   quelle personalizzate restano modificabili ed eliminabili dall'utente.
@@ -42,7 +44,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.27.1`.
+Versione corrente sorgente: `1.28.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -117,6 +119,14 @@ compatibilita' esatte per ID e il profilo attivo; se il prodotto compatibile non
 e' posseduto, viene mostrato come suggerimento non disponibile. La proiezione
 non calcola una nuova configurazione ottica e resta fuori da EquipmentService,
 ObserverCapability, score, ranking e NSOM. La distribuzione Windows non e'
+stata rigenerata.
+
+In `1.28.0` la navigazione include `Log Osservazioni` tra Calendario e Meteo.
+La pagina conserva tutte le sessioni senza un limite implicito, permette
+ricerca, filtro per voto, inserimento, modifica ed eliminazione e riepiloga
+sessioni, oggetti distinti, valutazione media e ultima osservazione. I nuovi
+record propongono data/ora locale, localita' e setup del profilo attivo; il Log
+resta indipendente da score, ranking e NSOM. La distribuzione Windows non e'
 stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
@@ -255,9 +265,9 @@ mostra stato geometrico e Session separati con badge di sessione espliciti,
 sostituisce i placeholder deep sky
 con inizio/fine utile, mantiene il ciclo lunare e non tronca la descrizione. Lo
 storico e l'inserimento delle osservazioni sono stati rimossi dal dettaglio;
-repository e database restano disponibili per una futura pagina dedicata
-`Log Osservazioni`. Il testo del periodo migliore lunare e' corretto anche nei
-database gia' inizializzati. La distribuzione Windows resta alla `1.18.8`.
+da `1.28.0` sono gestiti nella pagina dedicata `Log Osservazioni`. Il testo del
+periodo migliore lunare e' corretto anche nei database gia' inizializzati. La
+distribuzione Windows resta alla `1.18.8`.
 
 In `1.20.0` il Calendario usa un orizzonte unico di 365 giorni senza tagli per
 priorita': fasi lunari, opposizioni, congiunzioni planetarie e solari, eclissi e

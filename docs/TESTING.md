@@ -52,11 +52,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.27.1`:
+Measured on the current Windows development environment for `1.28.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4` | `703 passed, 7 subtests passed` | `0:01:59.08` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `711 passed, 7 subtests passed` | `0:01:55.69` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -71,7 +71,10 @@ target photographic flags, exact reducer matching against the target-specific
 telescope, structured custom compatibility and the complete Home-detail payload
 path. The current filter coverage also checks telescope-only presentation,
 product and target aperture thresholds, single-class fallback copy and
-exclusion from scoring and ObserverCapability.
+exclusion from scoring and ObserverCapability. The `1.28.0` additions cover
+the complete observation-log repository and controller CRUD cycle, validation,
+unlimited result projection, navigation and preservation through database
+bootstrap and runtime-folder copies.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were
