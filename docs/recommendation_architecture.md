@@ -670,9 +670,12 @@ own.
 ### Filters
 
 The current `FilterRecommendationService` compares explicit target preferences
-with filters assigned to the active profile. It returns one primary choice and
-an optional color choice as presentation metadata; filters are not optical
-configurations and do not alter score or setup.
+with the telescope already selected for the target, its aperture, the complete
+filter catalogue and filters assigned to the active profile. Product minimum
+aperture and target-specific thresholds remove unsuitable choices before the
+service returns one primary choice and one optional color choice. Filters are
+presentation metadata, not optical configurations, and do not alter score or
+setup.
 
 A future optical model could attach measured filter transmission and
 camera/sensor response to `RecommendationCandidate` or a successor model, but

@@ -59,9 +59,7 @@ against current manufacturer catalog pages and manuals. Primary references:
 The packaged filter set contains 48 unique visual night-observation products;
 eyepiece solar filters are intentionally excluded. Barrel size is not modeled:
 the same product is not duplicated for `1.25\"` and `2\"`. Color filters use
-explicit classes such as `COLOR_RED` and `COLOR_LIGHT_BLUE`; an unrecognized
-legacy color can remain `COLOR_UNSPECIFIED` for migration compatibility but is
-not a selectable recommendation class.
+explicit classes such as `COLOR_RED` and `COLOR_LIGHT_BLUE`.
 
 Target filter preferences in `catalogue_objects_seed.csv` use primary UHC,
 OIII or H-beta classes only where the object-specific visual guidance supports
@@ -70,8 +68,12 @@ them. The main cross-checks are Lumicon's visual-use guide
 (`https://www.astronomik.com/en/Visual-Filters/UHC/`) and NASA's Caldwell object
 notes where available. Solar-System preferences keep attenuation/contrast as
 the primary recommendation and any color filter as a separate optional level.
-The runtime matches these classes only against filters in the active profile;
-it does not use them in setup selection, ObserverCapability, score or NSOM.
+The Celestron guidance also limits the yellow-filter suggestion for Uranus and
+Neptune to apertures of about `11\"`, represented as `280 mm`. The runtime first
+checks the target-specific telescope and its aperture against the complete
+filter catalogue, then selects only compatible products assigned to the active
+profile. It does not use filters in setup selection, ObserverCapability, score
+or NSOM.
 
 Reducer compatibility is model-specific and stored separately from the
 reduction factor. Sixteen exact links for dedicated reducers use normalized

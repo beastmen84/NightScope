@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.27.0`
-- Dist `1.27.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.27.1`
+- Dist `1.27.1` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `a859d75 Add photographic reducer recommendations`
+- Commit sorgente validato: `87f2285 Make filter recommendations aperture-aware`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `a859d75`; non sostituire questo
+documentazione. Per lo stato del codice usare `87f2285`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `87f2285 Make filter recommendations aperture-aware`
 - `a859d75 Add photographic reducer recommendations`
 - `40a0a39 Add profile-aware filter recommendations`
 - `cbc14c4 Localize remaining profile messages`
@@ -25,6 +26,7 @@ hash con un valore previsto prima del commit.
 
 ## Commit Equipment Recenti
 
+- `87f2285 Make filter recommendations aperture-aware`
 - `a859d75 Add photographic reducer recommendations`
 - `d360b58 Refine target filter preferences`
 - `40a0a39 Add profile-aware filter recommendations`
@@ -177,7 +179,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   profili validi distinti, senza duplicare il telescopio tra campo legacy e
   relazione molti-a-molti.
 
-## Raccomandazione Filtri 1.26.0
+## Raccomandazione Filtri 1.27.1
 
 - `CatalogueObject` espone `best_filter_class`, `fallback_filter_class` e
   `optional_color_filter_class`; le 219 righe conservano invariati tutti i
@@ -188,15 +190,20 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   Giove e Saturno preferiscono contrasto con Moon & Skyglow come alternativa.
   Gli eventuali colori, incluso il giallo per Urano e Nettuno, restano
   raccomandazioni secondarie separate.
-- `FilterRecommendationService` usa solo i filtri del profilo attivo, segue
-  l'ordine primaria/fallback e sceglie un solo prodotto in modo deterministico.
-  Se manca, mostra la classe richiesta come `non disponibile`.
+- `FilterRecommendationService` opera solo se il setup target-specifico sceglie
+  un telescopio reale. Il catalogo completo e l'apertura verificano prima la
+  classe; soltanto i filtri del profilo attivo possono risultare disponibili.
+- Il match scarta prodotti sotto la relativa `minimum_aperture_mm` e preferisce
+  la soglia valida piu' alta prima dei tie-break per nome e ID. Il colore giallo
+  opzionale per Urano e Nettuno richiede almeno `280 mm`.
+- L'ordine resta primaria/fallback, ma se nessun prodotto posseduto e' adatto
+  viene mostrata soltanto la classe primaria utilizzabile come
+  `non disponibile`, senza testo ambiguo con due classi.
 - `observingObjectDetail_v3` trasporta un payload sanitizzato con `primary`,
   `optionalColor` e il ramo separato `reducerRecommendation`; il dettaglio
   Catalogo non mostra configurazioni osservative e resta invariato.
-- La migrazione schema 13 consolida i duplicati `1.25\"`/`2\"`, conserva l'ID
-  canonico piu' vecchio e rimappa tutte le assegnazioni dei profili. Le vecchie
-  classi `COLOR` riconoscibili vengono convertite al colore specifico.
+- Il runtime usa direttamente il catalogo canonico senza migrazioni dei vecchi
+  duplicati per barilotto e senza la classe `COLOR_UNSPECIFIED`.
 - Questa funzione non modifica EquipmentService, ObserverCapability, score,
   ranking, Planner, Home, Sky Compass o NSOM.
 
@@ -342,18 +349,16 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.27.0
+## Validazione 1.27.1
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\ruff.exe check astro_viewer
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
 .\.venv\Scripts\python.exe -m pytest -n 4 -q
 .\.venv\Scripts\pyside6-qmllint.exe astro_viewer\app\ui\pages\EquipmentFiltersReducersPage.qml
-.\.venv\Scripts\pyside6-qmllint.exe astro_viewer\app\ui\pages\ObjectDetailPage.qml
-# QML smoke eseguito con RUNTIME_DIR temporanea
 ```
 
 Risultati:
@@ -361,13 +366,12 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `701 passed`, `557 warnings`, `7 subtests passed` in `126,42 s`.
-- QML smoke con runtime temporanea: exit `0`; nessun file runtime conservato.
-- `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
-- Confronto CSV: 219/219 righe oggetto identiche nei campi preesistenti; il
-  nuovo flag fotografico e' vero per 53 target. Verificati inoltre mapping
-  personalizzati add/update, validazione degli ID telescopio e persistenza al
-  reseed.
+- Suite: `703 passed`, `557 warnings`, `7 subtests passed` in `119,08 s`.
+- `pyside6-qmllint` sulla pagina Equipment: exit `0`, nessun warning.
+- Verificati setup telescopio/binocolo, soglie prodotto e target, fallback
+  singolo, catalogo canonico a 48 filtri e persistenza Equipment.
+- QML smoke non eseguito per non creare file runtime; la dist non e' stata
+  rigenerata.
 
 Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 

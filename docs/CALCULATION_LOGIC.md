@@ -706,14 +706,24 @@ Filter recommendation boundary:
 - `CatalogueObject` can define a primary filter class, one equivalent fallback
   class and one optional specific color class. Solar-System targets use the
   same three-field contract through local configuration.
-- `FilterRecommendationService` checks only filters assigned to the active
-  profile. It follows class priority and emits at most one product for the
-  primary level and one for the optional color level.
-- If no assigned product matches, the detail reports the preferred class as
-  `non disponibile`; it never invents an owned product.
+- `FilterRecommendationService` runs only when the target-specific Equipment
+  setup selects a real telescope. Binocular and naked-eye recommendations do
+  not expose eyepiece filters.
+- The selected telescope aperture is checked against both product
+  `minimum_aperture_mm` and any target-specific class threshold. The complete
+  catalogue determines whether a class is usable; only products assigned to
+  the active profile can be reported as available.
+- Class priority remains primary then fallback. Within one class, the product
+  with the highest supported minimum-aperture threshold is preferred; name and
+  ID are deterministic tie-breaks only after suitability checks.
+- If no assigned product matches, the detail reports only the preferred usable
+  class as `non disponibile`; it never invents an owned product or joins the
+  primary and fallback labels.
 - Primary and fallback are alternatives, not a request to stack filters. The
   optional color is presented separately because color-filter observing is a
   specialized choice.
+- Yellow-filter detail on Uranus and Neptune is suppressed below `280 mm`, in
+  line with the source guidance for 11-inch-class apertures.
 - Filter format is intentionally not modeled. A product exists once in the
   catalogue even when sold in multiple barrel sizes.
 - This logic is presentation-only. It does not alter Equipment setup selection,

@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.27.1 - 2026-07-13
+
+- Limitate le raccomandazioni filtro alle configurazioni che selezionano un
+  telescopio reale; setup a occhio nudo o binocolo non espongono piu' accessori
+  da oculare non utilizzabili.
+- La selezione confronta ora l'apertura del telescopio con
+  `minimum_aperture_mm`, scarta le classi prive di prodotti adatti nel catalogo
+  e preferisce, fra i filtri posseduti validi, la soglia supportata piu' alta.
+- Aggiunto il vincolo specifico di `280 mm` per il filtro giallo opzionale su
+  Urano e Nettuno. Se manca un prodotto adatto viene mostrata soltanto la classe
+  primaria, senza unire primaria e fallback nello stesso testo.
+- Rimossi il percorso di migrazione dei vecchi filtri duplicati per barilotto,
+  la classe `COLOR_UNSPECIFIED` e i relativi test: la base di sviluppo parte
+  direttamente dal catalogo canonico con classi colore esplicite.
+- Corretta la concordanza italiana nel selettore dei telescopi compatibili dei
+  riduttori: `1 selezionato`, altrimenti `N selezionati`.
+- Verificati Ruff, compileall, `pip check`, `qmllint` della pagina Equipment e
+  suite completa parallela: `703 passed`, `557 warnings`, `7 subtests passed`
+  in `119,08 s`.
+- Dist `1.27.1` non rigenerata.
+
 ## NightScope 1.27.0 - 2026-07-13
 
 - Aggiunto a `CatalogueObject` il flag fotografico

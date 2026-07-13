@@ -316,9 +316,10 @@ Services hold business logic:
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
 - `FilterRecommendationService`: presentation-only matching between target
-  filter preferences and filters assigned to the active profile. It returns at
-  most one primary recommendation and one optional color recommendation and
-  never changes setup or NSOM values.
+  filter preferences, the aperture of the target-specific telescope, the
+  complete filter catalogue and products assigned to the active profile. It
+  returns at most one aperture-compatible primary recommendation and one
+  optional color recommendation and never changes setup or NSOM values.
 - `ReducerRecommendationService`: presentation-only matching between a target
   photographic-reducer flag, the target-specific telescope selected by
   `EquipmentService` and exact normalized reducer compatibility. It prefers

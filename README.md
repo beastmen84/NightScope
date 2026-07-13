@@ -42,7 +42,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.27.0`.
+Versione corrente sorgente: `1.27.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -104,13 +104,12 @@ ranking. I punteggi display restano campi di compatibilita' dove
 servono alla presentazione. Eventuali spiegazioni NSOM complete sono lavoro
 futuro di design.
 
-In `1.26.0` il catalogo filtri elimina la duplicazione per barilotto e usa
-classi colore esplicite. Il dettaglio aperto dalla Home confronta le preferenze
-del target con i filtri del profilo attivo: mostra un prodotto posseduto oppure
-la classe suggerita come non disponibile, separando sempre il filtro colorato
-facoltativo dalla raccomandazione primaria. Questa proiezione non entra in
-EquipmentService, ObserverCapability, score, Planner, Sky Compass o NSOM. La
-distribuzione Windows non e' stata rigenerata.
+Il catalogo filtri usa prodotti unici e classi colore esplicite. Il dettaglio
+aperto dalla Home confronta le preferenze del target con i filtri del profilo
+attivo solo quando la configurazione scelta usa un telescopio. Prodotti e classi
+sono verificati rispetto all'apertura; il filtro colorato facoltativo resta
+separato dalla raccomandazione primaria. Questa proiezione non entra in
+EquipmentService, ObserverCapability, score, Planner, Sky Compass o NSOM.
 
 In `1.27.0` il dettaglio osservativo puo' inoltre raccomandare un riduttore per
 astrofotografia. Il confronto usa il telescopio gia' scelto per il target,
