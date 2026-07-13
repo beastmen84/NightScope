@@ -1,28 +1,31 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-12
+Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.25.1`
-- Dist `1.25.1` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.26.0`
+- Dist `1.26.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `e1b3c5d Align content migration test with schema 10`
+- Commit sorgente validato: `d360b58 Refine target filter preferences`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `e1b3c5d`; non sostituire questo
+documentazione. Per lo stato del codice usare `d360b58`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `40a0a39 Add profile-aware filter recommendations`
 - `cbc14c4 Localize remaining profile messages`
 - `bbeec59 Add filter and reducer equipment UI`
 - `276c686 Add Sky Compass Home filter`
 
 ## Commit Equipment Recenti
 
+- `d360b58 Refine target filter preferences`
+- `40a0a39 Add profile-aware filter recommendations`
 - `1b524a9 Harden equipment catalog integrity`
 - `6e2732d Package accessory catalog seeds`
 - `bbeec59 Add filter and reducer equipment UI`
@@ -72,17 +75,18 @@ restano separati dai nuovi contenuti editoriali. L'audit `1.25.1` ha inoltre
 chiuso integrita' profili/Equipment, aggiornamento dei seed editoriali e
 localizzazione dei messaggi residui senza modificare NSOM.
 
-Resta futuro il punto 5: suggerire al massimo un filtro adatto nel dettaglio e
-progettare l'effetto reale dei riduttori su setup e ObserverCapability. Gli
-accessori introdotti in `1.25.0` sono intenzionalmente passivi e non modificano
-score, ranking, configurazioni consigliate o NSOM. Non anticipare questa policy
-senza una progettazione esplicita di compatibilita' e priorita'.
+Il sottopunto filtri del punto 5 e' concluso in `1.26.0`: il dettaglio
+osservativo puo' mostrare un filtro primario e un colore opzionale confrontando
+le preferenze del target con il profilo attivo. E' una proiezione score-free e
+non cambia la configurazione calcolata. Resta futuro il sottopunto riduttori:
+progettare l'effetto reale su setup e ObserverCapability senza anticipare una
+policy di compatibilita' o priorita'.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.25.1
+## Catalogo Canonico 1.26.0
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -96,7 +100,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `12`; il bootstrap migra e rimuove `MessierObject`, valida
+- Lo schema SQLite e' `13`; il bootstrap migra e rimuove `MessierObject`, valida
   identita', riferimenti e primarie dei seed e distingue contenuti editoriali
   gestiti da import personalizzati.
 - I seed correnti sono `catalogue_objects_seed.csv` e
@@ -135,22 +139,24 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
   e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
 
-## Equipment 1.25.1
+## Equipment 1.26.0
 
 - La pagina `Filtri e riduttori` usa due cataloghi affiancati con ricerca e
   layout responsive coerente con `Oculari e Barlow`.
-- Il seed contiene 77 filtri visuali di 6 produttori e 24
+- Il seed contiene 48 filtri visuali unici di 6 produttori e 24
   riduttori/correttori di 7 produttori; provenienza e riferimenti sono in
   `astro_viewer/data/DATA_SOURCES.md`.
-- I filtri conservano classe, formato, banda/lunghezza d'onda, trasmissione e
-  apertura minima. I riduttori conservano fattore, sistema e modelli
+- I filtri conservano classe, banda/lunghezza d'onda, trasmissione e apertura
+  minima. Il barilotto non e' modellato e le classi colorate identificano il
+  colore specifico. I riduttori conservano fattore, sistema e modelli
   compatibili, connessione, backfocus, uso visuale/fotografico e correzione del
   campo.
 - `ReducerTelescopeCompatibility` conserva 16 associazioni esatte tra riduttori
   dedicati e `TelescopeModel`; i riduttori universali non ricevono associazioni
   artificiali. Il campo descrittivo dei modelli resta disponibile alla UI.
-- Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo, ma
-  l'assegnazione emette solo `equipmentChanged` e non ricalcola NSOM o capacita'.
+- Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo.
+  `equipmentChanged` aggiorna immediatamente anche un dettaglio osservativo
+  aperto, ma non ricalcola NSOM o capacita'.
 - Tutti i cataloghi Equipment espongono `is_builtin`. Le voci seed non mostrano
   `Modifica` o `Elimina` e il repository blocca entrambe le operazioni; le voci
   create dall'utente restano modificabili ed eliminabili dopo aver rimosso i
@@ -159,6 +165,29 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   assegnazioni orfane nelle sei tabelle profilo e i conteggi d'uso considerano
   profili validi distinti, senza duplicare il telescopio tra campo legacy e
   relazione molti-a-molti.
+
+## Raccomandazione Filtri 1.26.0
+
+- `CatalogueObject` espone `best_filter_class`, `fallback_filter_class` e
+  `optional_color_filter_class`; le 219 righe conservano invariati tutti i
+  metadati astronomici precedenti.
+- Il seed assegna una preferenza primaria a 35 nebulose: 12 UHC, 20 OIII e 3
+  H-beta. Il fallback e' riservato ad alternative equivalenti, non allo stacking.
+- Luna e Venere preferiscono polarizzatore con ND come alternativa. Marte,
+  Giove e Saturno preferiscono contrasto con Moon & Skyglow come alternativa.
+  Gli eventuali colori, incluso il giallo per Urano e Nettuno, restano
+  raccomandazioni secondarie separate.
+- `FilterRecommendationService` usa solo i filtri del profilo attivo, segue
+  l'ordine primaria/fallback e sceglie un solo prodotto in modo deterministico.
+  Se manca, mostra la classe richiesta come `non disponibile`.
+- `observingObjectDetail_v2` trasporta un payload sanitizzato con `primary` e
+  `optionalColor`; il ramo dettaglio Catalogo non mostra configurazioni
+  osservative e resta invariato.
+- La migrazione schema 13 consolida i duplicati `1.25\"`/`2\"`, conserva l'ID
+  canonico piu' vecchio e rimappa tutte le assegnazioni dei profili. Le vecchie
+  classi `COLOR` riconoscibili vengono convertite al colore specifico.
+- Questa funzione non modifica EquipmentService, ObserverCapability, score,
+  ranking, Planner, Home, Sky Compass o NSOM. I riduttori restano passivi.
 
 ## NSOM Canonico
 
@@ -285,20 +314,18 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.25.1
+## Validazione 1.26.0
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check astro_viewer
+.\.venv\Scripts\ruff.exe check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\python.exe -m pytest -n auto -q
-.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
-.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
-.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
+.\.venv\Scripts\python.exe -m pytest -n 4 -q
+.\.venv\Scripts\pyside6-qmllint.exe astro_viewer\app\ui\pages\EquipmentFiltersReducersPage.qml
+.\.venv\Scripts\pyside6-qmllint.exe astro_viewer\app\ui\pages\ObjectDetailPage.qml
+# QML smoke eseguito con RUNTIME_DIR temporanea
 ```
 
 Risultati:
@@ -306,15 +333,14 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `683 passed`, `558 warnings`, `7 subtests passed` in `60,32 s`.
-- Smoke Python: exit `0`.
-- Smoke QML: exit `0`.
+- Suite: `692 passed`, `557 warnings`, `7 subtests passed` in `87,19 s`.
+- QML smoke con runtime temporanea: exit `0`; nessun file runtime conservato.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
-- Asset: 228 JPEG RGB `512 x 512` (219 cielo profondo e 9 Sistema Solare), seed
-  e file coerenti.
-- Fonti curiosita': 227 URL distinte verificate.
+- Confronto CSV: 219/219 righe oggetto identiche nei campi preesistenti; nessun
+  modello filtro precedente perso, 37 duplicati di formato rimossi e 8 modelli
+  Celestron aggiunti.
 
-Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 

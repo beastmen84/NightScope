@@ -16,8 +16,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
   degli altri oggetti senza esporre score grezzi.
 - Dettaglio osservativo state-aware con finestra utile, momento migliore,
-  configurazione target-specific, valutazione locale, curiosita' documentata e
-  ciclo lunare.
+  configurazione target-specific, filtro primario/colore opzionale coerenti con
+  il profilo attivo, valutazione locale, curiosita' documentata e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
@@ -42,7 +42,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.25.1`.
+Versione corrente sorgente: `1.26.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -67,10 +67,11 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
   quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
-  replacement path NSOM separato. Filtri e riduttori sono gia' assegnabili al
-  profilo ma restano inventario passivo: non modificano ancora setup, capacita',
-  score o ranking. I riduttori dedicati dispongono di associazioni normalizzate
-  ai modelli di telescopio per la futura policy, senza effetti runtime attuali.
+  replacement path NSOM separato. I filtri assegnati al profilo alimentano solo
+  la raccomandazione leggibile nel dettaglio osservativo: una scelta primaria e
+  un eventuale colore opzionale, senza modificare setup, capacita', score o
+  ranking. I riduttori restano inventario passivo; quelli dedicati dispongono di
+  associazioni normalizzate ai modelli di telescopio per la futura policy.
 - Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
   solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
   proiettano la designazione richiesta senza duplicare righe o conteggi.
@@ -102,6 +103,14 @@ condizioni AOD/OpenAQ, senza nuovi pannelli NSOM e senza spiegazioni visibili de
 ranking. I punteggi display restano campi di compatibilita' dove
 servono alla presentazione. Eventuali spiegazioni NSOM complete sono lavoro
 futuro di design.
+
+In `1.26.0` il catalogo filtri elimina la duplicazione per barilotto e usa
+classi colore esplicite. Il dettaglio aperto dalla Home confronta le preferenze
+del target con i filtri del profilo attivo: mostra un prodotto posseduto oppure
+la classe suggerita come non disponibile, separando sempre il filtro colorato
+facoltativo dalla raccomandazione primaria. Questa proiezione non entra in
+EquipmentService, ObserverCapability, score, Planner, Sky Compass o NSOM. La
+distribuzione Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -400,7 +409,8 @@ I seed locali vivono in `astro_viewer/data/`:
 - `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
 - `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.
 - `binocular_catalog_seed.csv`: catalogo binocoli.
-- `filter_catalog_seed.csv`: 77 filtri visuali con classe e metadati spettrali.
+- `filter_catalog_seed.csv`: 48 filtri visuali unici con classe e metadati
+  spettrali; il formato del barilotto non viene modellato.
 - `reducer_catalog_seed.csv`: 24 riduttori/correttori con compatibilita' ottica
   e parametri di montaggio.
 - `reducer_telescope_compatibility_seed.csv`: associazioni esatte tra riduttori

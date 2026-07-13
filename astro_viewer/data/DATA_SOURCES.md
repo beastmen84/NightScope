@@ -27,7 +27,7 @@ product revision before purchase recommendations.
 
 The equipment seeds were audited against manufacturer catalog pages on 2026-06-22. Historical placeholder rows marked `Catalog seed entry` and unresolved `To verify` rows were removed from the packaged seed files.
 
-The visual-filter and focal-reducer additions were checked on 2026-07-12
+The visual-filter and focal-reducer additions were checked on 2026-07-13
 against current manufacturer catalog pages and manuals. Primary references:
 
 - Astronomik visual filters: `https://www.astronomik.com/en/Visual-Filters/`
@@ -39,6 +39,10 @@ against current manufacturer catalog pages and manuals. Primary references:
 - Celestron filters and focal reducers:
   `https://www.celestron.com/collections/astronomy-filters` and
   `https://www.celestron.com/blogs/knowledgebase/understanding-focal-reducers`
+- Celestron visual color, neutral-density and polarizing guidance:
+  `https://www.celestron.com/blogs/knowledgebase/what-are-the-different-types-of-eyepiece-filters-colored-neutral-density-and-polarizing`
+  and
+  `https://www.celestron.com/products/variable-polarizing-filter-1-25`
 - Optolong visual-filter families:
   `https://www.optolong.com/cms/column/index/id/30.html`
 - Starizona SCT reducers: `https://starizona.com/collections/starizona-optics`
@@ -47,14 +51,29 @@ against current manufacturer catalog pages and manuals. Primary references:
 - Sky-Watcher matched ED reducers:
   `https://www.skywatcher.com/series/imaging-accessories/`
 
-The packaged filter set is limited to visual night-observation accessories;
-eyepiece solar filters are intentionally excluded. Reducer compatibility is
-model-specific and stored separately from the reduction factor. Sixteen exact
-links for dedicated reducers use normalized `TelescopeModel` IDs; universal or
-system-level reducers intentionally have no fabricated model association. The
-`visual_compatible` and `imaging_compatible` flags describe intended use, but
-the current runtime does not infer suitability, alter recommendations or apply
-any score from these rows.
+The packaged filter set contains 48 unique visual night-observation products;
+eyepiece solar filters are intentionally excluded. Barrel size is not modeled:
+the same product is not duplicated for `1.25\"` and `2\"`. Color filters use
+explicit classes such as `COLOR_RED` and `COLOR_LIGHT_BLUE`; an unrecognized
+legacy color can remain `COLOR_UNSPECIFIED` for migration compatibility but is
+not a selectable recommendation class.
+
+Target filter preferences in `catalogue_objects_seed.csv` use primary UHC,
+OIII or H-beta classes only where the object-specific visual guidance supports
+them. The main cross-checks are Lumicon's visual-use guide
+(`https://www.lumiconinc.com/uses`), Astronomik's UHC guidance
+(`https://www.astronomik.com/en/Visual-Filters/UHC/`) and NASA's Caldwell object
+notes where available. Solar-System preferences keep attenuation/contrast as
+the primary recommendation and any color filter as a separate optional level.
+The runtime matches these classes only against filters in the active profile;
+it does not use them in setup selection, ObserverCapability, score or NSOM.
+
+Reducer compatibility is model-specific and stored separately from the
+reduction factor. Sixteen exact links for dedicated reducers use normalized
+`TelescopeModel` IDs; universal or system-level reducers intentionally have no
+fabricated model association. The `visual_compatible` and
+`imaging_compatible` flags describe intended use, but reducers still do not
+alter recommendations or apply any score.
 
 No API keys or vendor-specific private data are included.
 

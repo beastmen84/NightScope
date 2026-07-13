@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.25.1`:
+Current runtime status for `1.26.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -69,12 +69,12 @@ Current runtime status for `1.25.1`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
-- Filters and focal reducers are persistent profile inventory. Their structured
-  compatibility fields are available to the controller. Dedicated built-in
-  reducers also expose normalized telescope IDs through
-  `ReducerTelescopeCompatibility`, but assignment emits only
-  `equipmentChanged`: neither accessory enters `EquipmentService`,
-  ObserverCapability, setup selection, scoring, Planner or NSOM yet.
+- Filters and focal reducers are persistent profile inventory. Filter classes
+  can feed the score-free observing-detail recommendation read model, which
+  selects from the active profile only; they still do not enter
+  `EquipmentService`, ObserverCapability, setup selection, scoring, Planner or
+  NSOM. Dedicated built-in reducers expose normalized telescope IDs through
+  `ReducerTelescopeCompatibility` but remain passive inventory.
 - Planner now consumes the telescope selected by `EquipmentService` for each
   target in a multi-instrument profile and emits up to four selected
   opportunities before chronological presentation.
@@ -143,8 +143,9 @@ Current runtime status for `1.25.1`:
   key suitable for Messier, Caldwell and future catalogue identifiers.
 - `ObservingObjectDetailService` owns the score-free read model used by the
   observing detail opened from Home or Calendar. It combines live target
-  geometry, Session metadata and target-specific Equipment selection while
-  keeping the raw Catalogue branch on the existing `selectedObject` contract.
+  geometry, Session metadata, target-specific Equipment selection and the
+  sanitized filter recommendation projection while keeping the raw Catalogue
+  branch on the existing `selectedObject` contract.
   Its Session badge is qualified locally (`Sessione ...`), so the compact Home
   payload and layout remain unchanged.
   `ObjectDetailPage.qml` switches between those contracts by source; the Moon
@@ -314,6 +315,10 @@ Services hold business logic:
   seeing/transparency and provider-gated AOD/OpenAQ conditions.
 - `EquipmentService`: magnification, true field, exit pupil, profile
   capabilities and setup recommendation.
+- `FilterRecommendationService`: presentation-only matching between target
+  filter preferences and filters assigned to the active profile. It returns at
+  most one primary recommendation and one optional color recommendation and
+  never changes setup or NSOM values.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
   NASA VIIRS and offline fallback.
 - `NasaAodProvider`: NASA MAIAC aerosol lookup using VIIRS primary and MODIS
@@ -576,9 +581,10 @@ overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart. They also verify
-filter/reducer CRUD, schema-v12 migration, managed-content provenance, exact
-reducer compatibility, orphan cleanup, forced unlinking and passive assignment
-without NSOM or capability refresh.
+filter/reducer CRUD, schema-v13 migration, filter duplicate remapping,
+profile-aware detail recommendations, managed-content provenance, exact reducer
+compatibility, orphan cleanup, forced unlinking and assignment without NSOM or
+capability refresh.
 
 ## Cache Ownership
 

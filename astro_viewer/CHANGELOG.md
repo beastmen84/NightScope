@@ -1,5 +1,37 @@
 # Changelog
 
+## NightScope 1.26.0 - 2026-07-13
+
+- Normalizzato il catalogo filtri a 48 modelli visuali unici: il formato
+  `1.25\"`/`2\"` non e' piu' un dato applicativo e le precedenti varianti di
+  formato vengono consolidate senza perdere le assegnazioni ai profili.
+- Sostituita la classe generica `COLOR` con classi colore esplicite e aggiunto
+  il relativo menu a tendina per i filtri utente. Le righe legacy non
+  riconoscibili restano leggibili come `COLOR_UNSPECIFIED`, ma non sono
+  selezionabili ne' raccomandabili.
+- Aggiunti otto filtri Celestron mancanti, incluso il polarizzatore variabile e
+  le principali classi Wratten visuali. Il seed conserva un solo modello per
+  prodotto, indipendentemente dal barilotto.
+- Esteso il catalogo oggetti con preferenza filtro primaria, alternativa
+  equivalente e colore opzionale. Le preferenze deep-sky coprono 35 nebulose
+  Messier/Caldwell con classi UHC, OIII o H-beta; Luna e pianeti usano una
+  policy separata per attenuazione/contrasto e colore facoltativo.
+- Il dettaglio osservativo usa soltanto i filtri assegnati al profilo attivo e
+  mostra al massimo una raccomandazione primaria e una colorata opzionale. Se
+  un prodotto adatto e' presente ne indica il nome; altrimenti espone la classe
+  suggerita come non disponibile. Le alternative sono preferenze, non filtri
+  da sovrapporre.
+- Portato `observingObjectDetail` alla versione `v2` e lo schema SQLite alla
+  versione `13`. La migrazione riclassifica i colori riconoscibili, consolida i
+  duplicati di formato e rimappa gli ID gia' usati dai profili.
+- Filtri e riduttori non entrano in EquipmentService, ObserverCapability,
+  score, ranking, Planner o NSOM. I riduttori restano inventario passivo in
+  attesa della policy dedicata.
+- Verificati confronto strutturato dei 219 oggetti, Ruff, compileall, `pip
+  check`, `qmllint`, QML smoke test temporaneo e suite completa parallela:
+  `692 passed`, `557 warnings`, `7 subtests passed` in `87,19 s`.
+- Dist `1.26.0` non rigenerata.
+
 ## NightScope 1.25.1 - 2026-07-12
 
 - Resi completamente read-only tutti gli elementi Equipment inclusi: la UI

@@ -154,7 +154,10 @@ fields. Deep-sky rows expose useful-window start/end instead of placeholder
 horizon events, while Solar-System targets retain real rise/set data. Session
 state is metadata and never changes target geometry or score. Equipment labels
 come from the setup selected for that target, including multi-telescope
-profiles. Catalogue detail remains on the raw `selectedObject` contract.
+profiles. A separate filter projection may show one primary recommendation and
+one optional color recommendation from the active profile; neither changes the
+selected setup or any score. Catalogue detail remains on the raw
+`selectedObject` contract.
 
 Observation persistence is intentionally not part of object detail. The
 SQLite repository and controller slot remain available for a future dedicated
@@ -697,6 +700,26 @@ Assigned equipment only:
   `ObserverCapability` projection.
 - If no optical telescope is assigned, a naked-eye fallback is used or the
   recommendation asks the user to add appropriate equipment.
+
+Filter recommendation boundary:
+
+- `CatalogueObject` can define a primary filter class, one equivalent fallback
+  class and one optional specific color class. Solar-System targets use the
+  same three-field contract through local configuration.
+- `FilterRecommendationService` checks only filters assigned to the active
+  profile. It follows class priority and emits at most one product for the
+  primary level and one for the optional color level.
+- If no assigned product matches, the detail reports the preferred class as
+  `non disponibile`; it never invents an owned product.
+- Primary and fallback are alternatives, not a request to stack filters. The
+  optional color is presented separately because color-filter observing is a
+  specialized choice.
+- Filter format is intentionally not modeled. A product exists once in the
+  catalogue even when sold in multiple barrel sizes.
+- This logic is presentation-only. It does not alter Equipment setup selection,
+  ObserverCapability, target score, Planner, Home ranking, Sky Compass or NSOM.
+  Focal reducers remain outside both setup and score until their policy is
+  designed separately.
 
 Zoom eyepieces:
 
