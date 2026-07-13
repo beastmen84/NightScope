@@ -5,7 +5,7 @@ from contextlib import closing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from astro_viewer.app.database.bootstrap import initialize_database
+from astro_viewer.app.database.bootstrap import _migrate_filter_catalog, initialize_database
 from astro_viewer.app.database.equipment_catalog_repository import (
     FILTER_CLASS_LABELS,
     OPTICAL_SYSTEM_LABELS,
@@ -29,10 +29,18 @@ def test_filter_and_reducer_seeds_are_comprehensive_and_structured() -> None:
         filters = repository.filters()
         reducers = repository.reducers()
 
-        assert len(filters) == 77
+        assert len(filters) == 48
         assert len(reducers) == 24
         assert all(item["is_builtin"] for item in filters + reducers)
-        assert set(FILTER_CLASS_LABELS).issubset({item["filter_class"] for item in filters})
+        seeded_classes = {item["filter_class"] for item in filters}
+        assert set(FILTER_CLASS_LABELS) - {"COLOR_UNSPECIFIED"} == seeded_classes
+        assert all("barrel_size" not in item for item in filters)
+        assert any(
+            item["brand"] == "Celestron"
+            and item["model"] == "Variable Polarizing Filter"
+            and item["filter_class"] == "POLARIZING"
+            for item in filters
+        )
         assert {"SCT_CLASSIC", "EDGEHD", "REFRACTOR", "RC"}.issubset(
             {item["optical_system"] for item in reducers}
         )
@@ -54,7 +62,6 @@ def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
             "NightScope",
             "Filtro prova",
             "OIII",
-            "1.25",
             central_wavelength_nm=500.7,
             bandwidth_nm=11,
             transmission_pct=92,
@@ -71,7 +78,6 @@ def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
             "NightScope",
             "Filtro prova aggiornato",
             "UHC",
-            "2",
             bandwidth_nm=25,
         )
         assert ok
@@ -185,7 +191,6 @@ def test_builtin_equipment_cannot_be_modified_in_repository() -> None:
                 optical_filter["brand"],
                 f"{optical_filter['model']} modificato",
                 optical_filter["filter_class"],
-                optical_filter["barrel_size"],
             ),
             repository.update_reducer(
                 reducer["id"],
@@ -210,7 +215,7 @@ def test_filter_and_reducer_profile_assignment_and_safe_deletion() -> None:
         profile = repository.active_profile()
         assert profile is not None
         profile_id = int(profile["id"])
-        assert repository.add_filter("Custom", "Filtro profilo", "UHC", "1.25")[0]
+        assert repository.add_filter("Custom", "Filtro profilo", "UHC")[0]
         assert repository.add_reducer(
             "Custom",
             "Riduttore profilo",
@@ -342,7 +347,7 @@ def test_reducer_compatibility_uses_catalog_telescope_ids() -> None:
 def test_reinitialization_marks_seed_rows_without_reclassifying_custom_rows() -> None:
     temporary_directory, database_path, repository = _database()
     try:
-        assert repository.add_filter("Custom", "Persistente", "CLS", "2")[0]
+        assert repository.add_filter("Custom", "Persistente", "CLS")[0]
         initialize_database(database_path, SCHEMA_PATH)
         refreshed = EquipmentCatalogRepository(database_path)
         assert all(item["is_builtin"] for item in refreshed.filters() if item["brand"] != "Custom")
@@ -364,3 +369,58 @@ def test_reinitialization_marks_seed_rows_without_reclassifying_custom_rows() ->
         }.issubset(tables)
     finally:
         temporary_directory.cleanup()
+
+
+def test_filter_catalog_migration_collapses_barrel_duplicates_without_losing_profiles() -> None:
+    with closing(sqlite3.connect(":memory:")) as connection:
+        connection.row_factory = sqlite3.Row
+        connection.executescript(
+            """
+            CREATE TABLE FilterCatalog (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                brand TEXT NOT NULL,
+                model TEXT NOT NULL,
+                filter_class TEXT NOT NULL,
+                barrel_size TEXT,
+                central_wavelength_nm REAL,
+                bandwidth_nm REAL,
+                transmission_pct REAL,
+                minimum_aperture_mm INTEGER,
+                notes TEXT,
+                is_builtin INTEGER NOT NULL DEFAULT 0,
+                UNIQUE (brand, model, barrel_size)
+            );
+            CREATE TABLE EquipmentProfileFilter (
+                profile_id INTEGER NOT NULL,
+                filter_id TEXT NOT NULL,
+                PRIMARY KEY (profile_id, filter_id)
+            );
+            INSERT INTO FilterCatalog (
+                id, brand, model, filter_class, barrel_size, is_builtin
+            ) VALUES
+                (10, 'Example', 'OIII', 'OIII', '1.25', 1),
+                (11, 'Example', 'OIII', 'OIII', '2', 1),
+                (12, 'Example', 'Red', 'COLOR', '1.25', 0);
+            INSERT INTO EquipmentProfileFilter (profile_id, filter_id)
+            VALUES (7, 'catalog-filter-11');
+            """
+        )
+
+        _migrate_filter_catalog(connection)
+
+        columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(FilterCatalog)")
+        }
+        filters = connection.execute(
+            "SELECT id, model, filter_class FROM FilterCatalog ORDER BY id"
+        ).fetchall()
+        assignments = connection.execute(
+            "SELECT profile_id, filter_id FROM EquipmentProfileFilter"
+        ).fetchall()
+
+    assert "barrel_size" not in columns
+    assert [tuple(row) for row in filters] == [
+        (10, "OIII", "OIII"),
+        (12, "Red", "COLOR_RED"),
+    ]
+    assert [tuple(row) for row in assignments] == [(7, "catalog-filter-10")]

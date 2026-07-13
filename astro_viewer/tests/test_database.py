@@ -41,6 +41,9 @@ class DatabaseBootstrapTests(unittest.TestCase):
             reader = csv.DictReader(file)
             self.assertIn("max_angular_size_deg", reader.fieldnames or [])
             self.assertIn("recommended_observation_type", reader.fieldnames or [])
+            self.assertIn("best_filter_class", reader.fieldnames or [])
+            self.assertIn("fallback_filter_class", reader.fieldnames or [])
+            self.assertIn("optional_color_filter_class", reader.fieldnames or [])
             rows = list(reader)
 
         self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
@@ -62,6 +65,17 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertEqual(observation_types["messier-M27"], "General")
         self.assertEqual(observation_types["messier-M97"], "General")
         self.assertEqual(observation_types["messier-M107"], "General")
+        filter_preferences = {
+            row["object_id"]: (
+                row["best_filter_class"],
+                row["fallback_filter_class"],
+                row["optional_color_filter_class"],
+            )
+            for row in rows
+        }
+        self.assertEqual(filter_preferences["messier-M1"], ("UHC", "", ""))
+        self.assertEqual(filter_preferences["messier-M27"], ("OIII", "", ""))
+        self.assertEqual(filter_preferences["messier-M3"], ("", "", ""))
 
         with (data_dir / "catalogue_designations_seed.csv").open(
             "r", encoding="utf-8", newline=""
@@ -404,7 +418,9 @@ class DatabaseBootstrapTests(unittest.TestCase):
                         SELECT
                             'MESSIER-m1', nome, tipo, costellazione, magnitudine,
                             ascensione_retta, declinazione, dimensione_apparente,
-                            max_angular_size_deg, recommended_observation_type, descrizione
+                            max_angular_size_deg, recommended_observation_type,
+                            best_filter_class, fallback_filter_class,
+                            optional_color_filter_class, descrizione
                         FROM CatalogueObject
                         WHERE object_id = 'messier-M1'
                         """
@@ -1065,7 +1081,9 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 version = connection.execute("PRAGMA user_version").fetchone()[0]
                 row = connection.execute(
                     """
-                    SELECT descrizione, max_angular_size_deg, recommended_observation_type
+                    SELECT descrizione, max_angular_size_deg, recommended_observation_type,
+                           best_filter_class, fallback_filter_class,
+                           optional_color_filter_class
                     FROM CatalogueObject
                     WHERE object_id = ?
                     """,
@@ -1087,6 +1105,9 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(row["descrizione"], "nota locale")
             self.assertEqual(row["max_angular_size_deg"], 0.117)
             self.assertEqual(row["recommended_observation_type"], "General")
+            self.assertEqual(row["best_filter_class"], "UHC")
+            self.assertEqual(row["fallback_filter_class"], "")
+            self.assertEqual(row["optional_color_filter_class"], "")
             self.assertEqual(tuple(designation), ("Messier", "M1", "messier-M1"))
             self.assertEqual(row["recommended_observation_type"], "General")
 

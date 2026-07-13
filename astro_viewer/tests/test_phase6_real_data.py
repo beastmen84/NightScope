@@ -776,6 +776,34 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
 
+    def test_owned_filter_recommendation_reaches_home_observing_detail(self) -> None:
+        with _controller() as controller:
+            optical_filter = next(
+                item for item in controller.filterCatalog if item["filter_class"] == "OIII"
+            )
+            controller.assignEquipmentToActiveProfile(
+                "filter",
+                optical_filter["catalog_id"],
+            )
+            target = controller._apply_object_content(
+                _object("messier-M27", "M27", "Planetary nebula", "7.4")
+            )
+            controller._selected_object = target
+            controller._selected_object_source = "observing"
+            controller._sky_compass_candidate_snapshot = [target]
+
+            payload = controller.observingObjectDetail
+            recommendation = payload["equipment"]["filterRecommendations"]["primary"]
+
+            self.assertEqual(target.best_filter_class, "OIII")
+            self.assertTrue(recommendation["available"])
+            self.assertEqual(recommendation["filterClass"], "OIII")
+            self.assertEqual(recommendation["filterId"], optical_filter["catalog_id"])
+            self.assertEqual(
+                recommendation["value"],
+                optical_filter["display_name"],
+            )
+
     def test_filter_and_reducer_controller_crud_keeps_custom_provenance(self) -> None:
         with _controller() as controller:
             initial_filter_count = len(controller.filterCatalog)
@@ -786,7 +814,6 @@ class Phase6RealDataTests(unittest.TestCase):
                     "NightScope",
                     "Filtro controller",
                     "UHC",
-                    "1.25",
                     "",
                     "25",
                     "95",
@@ -952,6 +979,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('text: "Catalogo filtri e riduttori"', filters_reducers_qml)
         self.assertIn("controller.filterCatalog", filters_reducers_qml)
         self.assertIn("controller.reducerCatalog", filters_reducers_qml)
+        self.assertIn("controller.filterClassOptions", filters_reducers_qml)
+        self.assertNotIn("filterBarrel", filters_reducers_qml)
         self.assertIn("controller.addFilterModel", filters_reducers_qml)
         self.assertIn("controller.addReducerModel", filters_reducers_qml)
         self.assertIn("controller.deleteFilterModel", filters_reducers_qml)
@@ -970,6 +999,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('equipmentType === "Binocular"', object_detail_qml)
         self.assertIn("setupDetailText()", object_detail_qml)
         self.assertIn("Pupilla d'uscita", object_detail_qml)
+        self.assertIn("setupFilterRecommendations()", object_detail_qml)
+        self.assertIn("filterRecommendationsData", object_detail_qml)
 
     def test_object_detail_catalogue_mode_uses_catalogue_layout(self) -> None:
         object_detail_qml = (

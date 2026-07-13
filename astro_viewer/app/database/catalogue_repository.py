@@ -12,7 +12,9 @@ class CatalogueRepository:
     _OBJECT_COLUMNS = """
         object_id, nome, tipo, costellazione, magnitudine,
         ascensione_retta, declinazione, dimensione_apparente,
-        max_angular_size_deg, recommended_observation_type, descrizione
+        max_angular_size_deg, recommended_observation_type,
+        best_filter_class, fallback_filter_class,
+        optional_color_filter_class, descrizione
     """
 
     def __init__(self, database_path: Path):
@@ -201,5 +203,8 @@ class CatalogueRepository:
             "apparent_size": row["dimensione_apparente"],
             "max_angular_size_deg": row["max_angular_size_deg"],
             "recommended_observation_type": row["recommended_observation_type"],
+            "best_filter_class": row["best_filter_class"] or "",
+            "fallback_filter_class": row["fallback_filter_class"] or "",
+            "optional_color_filter_class": row["optional_color_filter_class"] or "",
             "description": row["descrizione"],
         }

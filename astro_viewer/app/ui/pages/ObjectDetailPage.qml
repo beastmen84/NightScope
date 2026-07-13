@@ -16,6 +16,7 @@ Item {
     readonly property var sessionData: objectData.session || ({})
     readonly property var evaluationData: objectData.evaluation || ({})
     readonly property var equipmentData: objectData.equipment || ({})
+    readonly property var filterRecommendationsData: equipmentData.filterRecommendations || ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
     property int detailMetricHeight: 88
@@ -143,6 +144,17 @@ Item {
             seen[key] = true
             result.push(options[i])
         }
+        return result
+    }
+
+    function setupFilterRecommendations() {
+        var result = []
+        var primary = root.filterRecommendationsData.primary || ({})
+        var optionalColor = root.filterRecommendationsData.optionalColor || ({})
+        if (primary.applicable)
+            result.push({ "data": primary, "accent": theme.teal })
+        if (optionalColor.applicable)
+            result.push({ "data": optionalColor, "accent": theme.violet })
         return result
     }
 
@@ -658,6 +670,46 @@ Item {
                     color: theme.textSecondary
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
+                }
+
+                Repeater {
+                    model: root.setupFilterRecommendations()
+
+                    delegate: ColumnLayout {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.data.label || "Filtro"
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                                wrapMode: Text.WordWrap
+                            }
+
+                            StatusPill {
+                                text: modelData.data.available
+                                      ? (modelData.data.filterClassLabel || "Disponibile")
+                                      : "Non disponibile"
+                                accentColor: modelData.data.available
+                                             ? modelData.accent : theme.amber
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData.data.value || ""
+                            color: theme.textPrimary
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+                    }
                 }
 
                 Repeater {

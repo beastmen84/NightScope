@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModel
 
 
-OBSERVING_OBJECT_DETAIL_SCHEMA_VERSION = "observing_object_detail_v1"
+OBSERVING_OBJECT_DETAIL_SCHEMA_VERSION = "observing_object_detail_v2"
 
 _SCORE_KEYS = {
     "score",
@@ -34,6 +34,7 @@ class ObservingObjectDetailService:
         setup_model: EquipmentSetupReadModel | None,
         altitude_threshold_deg: float,
         is_deep_sky: bool,
+        filter_recommendations: Mapping[str, object] | None = None,
     ) -> dict[str, object]:
         payload = _sanitized_object_payload(object_payload)
         session_payload = _session_payload(session)
@@ -73,6 +74,9 @@ class ObservingObjectDetailService:
             "equipmentType": setup_model.equipment_type if setup_model else "",
             "setupType": setup_model.recommended_setup_type if setup_model else "",
             "usesTargetSelection": bool(setup_model and setup_model.telescope_name),
+            "filterRecommendations": _filter_recommendations_payload(
+                filter_recommendations
+            ),
         }
         payload.update(
             {
@@ -109,6 +113,33 @@ def _session_payload(session: Mapping[str, object]) -> dict[str, object]:
         "detail": _text(session, "detail"),
         "description": _text(session, "description"),
         "limitingFactor": _text(session, "limitingFactor"),
+    }
+
+
+def _filter_recommendations_payload(
+    recommendations: Mapping[str, object] | None,
+) -> dict[str, object]:
+    if not isinstance(recommendations, Mapping):
+        return {"primary": {}, "optionalColor": {}}
+    return {
+        "primary": _filter_recommendation_payload(recommendations.get("primary")),
+        "optionalColor": _filter_recommendation_payload(
+            recommendations.get("optionalColor")
+        ),
+    }
+
+
+def _filter_recommendation_payload(value: object) -> dict[str, object]:
+    if not isinstance(value, Mapping) or value.get("applicable") is not True:
+        return {}
+    return {
+        "applicable": True,
+        "available": value.get("available") is True,
+        "label": _text(value, "label"),
+        "value": _text(value, "value"),
+        "filterClass": _text(value, "filterClass"),
+        "filterClassLabel": _text(value, "filterClassLabel"),
+        "filterId": _text(value, "filterId"),
     }
 
 

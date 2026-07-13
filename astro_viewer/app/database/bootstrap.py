@@ -11,10 +11,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
+from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
+
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -318,9 +320,19 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
         "BinocularCatalog",
         {"is_builtin": "INTEGER NOT NULL DEFAULT 0"},
     )
+    _add_columns(
+        connection,
+        "CatalogueObject",
+        {
+            "best_filter_class": "TEXT",
+            "fallback_filter_class": "TEXT",
+            "optional_color_filter_class": "TEXT",
+        },
+    )
     _migrate_catalogue_tables(connection)
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
+    _migrate_filter_catalog(connection)
     _remove_orphan_profile_assignments(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
@@ -406,12 +418,15 @@ def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
         INSERT OR IGNORE INTO CatalogueObject (
             object_id, nome, tipo, costellazione, magnitudine,
             ascensione_retta, declinazione, dimensione_apparente,
-            max_angular_size_deg, recommended_observation_type, descrizione
+            max_angular_size_deg, recommended_observation_type,
+            best_filter_class, fallback_filter_class,
+            optional_color_filter_class, descrizione
         )
         SELECT
             'messier-' || messier_id, nome, tipo, costellazione, magnitudine,
             ascensione_retta, declinazione, dimensione_apparente,
-            max_angular_size_deg, recommended_observation_type, descrizione
+            max_angular_size_deg, recommended_observation_type,
+            NULL, NULL, NULL, descrizione
         FROM MessierObject
         """
     )
@@ -524,6 +539,122 @@ def _ensure_profile_binocular_table(connection: sqlite3.Connection) -> None:
         )
         """
     )
+
+
+def _migrate_filter_catalog(connection: sqlite3.Connection) -> None:
+    columns = {
+        str(row[1])
+        for row in connection.execute("PRAGMA table_info(FilterCatalog)").fetchall()
+    }
+    if "barrel_size" not in columns:
+        connection.execute(
+            "UPDATE FilterCatalog SET filter_class = 'COLOR_UNSPECIFIED' WHERE filter_class = 'COLOR'"
+        )
+        return
+
+    rows = connection.execute(
+        """
+        SELECT id, brand, model, filter_class, central_wavelength_nm,
+               bandwidth_nm, transmission_pct, minimum_aperture_mm,
+               notes, is_builtin
+        FROM FilterCatalog
+        ORDER BY id
+        """
+    ).fetchall()
+    canonical_by_key: dict[tuple[str, str], sqlite3.Row] = {}
+    canonical_id_by_old_id: dict[int, int] = {}
+    for row in rows:
+        key = (str(row["brand"]).strip().casefold(), str(row["model"]).strip().casefold())
+        canonical = canonical_by_key.setdefault(key, row)
+        canonical_id_by_old_id[int(row["id"])] = int(canonical["id"])
+
+    connection.execute("DROP TABLE IF EXISTS FilterCatalog_new")
+    connection.execute(
+        """
+        CREATE TABLE FilterCatalog_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand TEXT NOT NULL,
+            model TEXT NOT NULL,
+            filter_class TEXT NOT NULL,
+            central_wavelength_nm REAL,
+            bandwidth_nm REAL,
+            transmission_pct REAL,
+            minimum_aperture_mm INTEGER,
+            notes TEXT,
+            is_builtin INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (brand, model)
+        )
+        """
+    )
+    connection.executemany(
+        """
+        INSERT INTO FilterCatalog_new (
+            id, brand, model, filter_class, central_wavelength_nm,
+            bandwidth_nm, transmission_pct, minimum_aperture_mm,
+            notes, is_builtin
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (
+                int(row["id"]),
+                row["brand"],
+                row["model"],
+                _legacy_filter_class(row),
+                row["central_wavelength_nm"],
+                row["bandwidth_nm"],
+                row["transmission_pct"],
+                row["minimum_aperture_mm"],
+                row["notes"],
+                row["is_builtin"],
+            )
+            for row in canonical_by_key.values()
+        ],
+    )
+    for old_id, canonical_id in canonical_id_by_old_id.items():
+        if old_id == canonical_id:
+            continue
+        old_catalog_id = f"catalog-filter-{old_id}"
+        canonical_catalog_id = f"catalog-filter-{canonical_id}"
+        connection.execute(
+            """
+            INSERT OR IGNORE INTO EquipmentProfileFilter (profile_id, filter_id)
+            SELECT profile_id, ?
+            FROM EquipmentProfileFilter
+            WHERE filter_id = ?
+            """,
+            (canonical_catalog_id, old_catalog_id),
+        )
+        connection.execute(
+            "DELETE FROM EquipmentProfileFilter WHERE filter_id = ?",
+            (old_catalog_id,),
+        )
+    connection.execute("DROP TABLE FilterCatalog")
+    connection.execute("ALTER TABLE FilterCatalog_new RENAME TO FilterCatalog")
+
+
+def _legacy_filter_class(row: sqlite3.Row) -> str:
+    filter_class = str(row["filter_class"] or "").strip().upper()
+    if filter_class != "COLOR":
+        return filter_class
+    model = str(row["model"] or "").casefold()
+    if "yellow" in model or "giallo" in model:
+        return "COLOR_YELLOW"
+    if "orange" in model or "arancio" in model:
+        return "COLOR_ORANGE"
+    if "red" in model or "rosso" in model:
+        return "COLOR_RED"
+    if "light blue" in model or "azzurro" in model:
+        return "COLOR_LIGHT_BLUE"
+    if "dark blue" in model or "blu scuro" in model:
+        return "COLOR_DARK_BLUE"
+    if "light green" in model or "verde chiaro" in model:
+        return "COLOR_LIGHT_GREEN"
+    if "green" in model or "verde" in model:
+        return "COLOR_GREEN"
+    if "violet" in model or "viola" in model:
+        return "COLOR_VIOLET"
+    return "COLOR_UNSPECIFIED"
 
 
 def _database_is_healthy(database_path: Path) -> bool:
@@ -785,6 +916,9 @@ def _seed_catalogue(
             row["dimensione_apparente"],
             _optional_float(row["max_angular_size_deg"]),
             row["recommended_observation_type"],
+            (row.get("best_filter_class") or "").strip().upper(),
+            (row.get("fallback_filter_class") or "").strip().upper(),
+            (row.get("optional_color_filter_class") or "").strip().upper(),
             row["descrizione"],
         )
         for row in source_object_rows
@@ -794,12 +928,17 @@ def _seed_catalogue(
         INSERT INTO CatalogueObject (
             object_id, nome, tipo, costellazione, magnitudine,
             ascensione_retta, declinazione, dimensione_apparente,
-            max_angular_size_deg, recommended_observation_type, descrizione
+            max_angular_size_deg, recommended_observation_type,
+            best_filter_class, fallback_filter_class,
+            optional_color_filter_class, descrizione
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(object_id) DO UPDATE SET
             max_angular_size_deg = excluded.max_angular_size_deg,
-            recommended_observation_type = excluded.recommended_observation_type
+            recommended_observation_type = excluded.recommended_observation_type,
+            best_filter_class = excluded.best_filter_class,
+            fallback_filter_class = excluded.fallback_filter_class,
+            optional_color_filter_class = excluded.optional_color_filter_class
         """,
         object_rows,
     )
@@ -846,6 +985,23 @@ def _validate_catalogue_seed(
             raise ValueError(f"Catalogue object {object_id} is missing name or type.")
         if row["recommended_observation_type"] not in CATALOGUE_OBSERVATION_TYPES:
             raise ValueError(f"Invalid observation type for {object_id}.")
+        best_filter_class = (row.get("best_filter_class") or "").strip().upper()
+        if best_filter_class and best_filter_class not in FILTER_CLASS_CODES:
+            raise ValueError(f"Invalid best filter class for {object_id}.")
+        fallback_filter_class = (row.get("fallback_filter_class") or "").strip().upper()
+        if fallback_filter_class and fallback_filter_class not in FILTER_CLASS_CODES:
+            raise ValueError(f"Invalid fallback filter class for {object_id}.")
+        if fallback_filter_class and not best_filter_class:
+            raise ValueError(f"Fallback filter class without primary class for {object_id}.")
+        if fallback_filter_class == best_filter_class and fallback_filter_class:
+            raise ValueError(f"Duplicate filter preference for {object_id}.")
+        color_filter_class = (row.get("optional_color_filter_class") or "").strip().upper()
+        if color_filter_class and (
+            color_filter_class not in FILTER_CLASS_CODES
+            or not color_filter_class.startswith("COLOR_")
+            or color_filter_class == "COLOR_UNSPECIFIED"
+        ):
+            raise ValueError(f"Invalid optional color filter class for {object_id}.")
         max_size = _optional_float(row["max_angular_size_deg"])
         if max_size is None or max_size <= 0:
             raise ValueError(f"Invalid angular size for {object_id}.")
@@ -1057,12 +1213,19 @@ def _seed_filters_reducers_catalog(
     connection.executemany(
         """
         INSERT INTO FilterCatalog (
-            brand, model, filter_class, barrel_size, central_wavelength_nm,
+            brand, model, filter_class, central_wavelength_nm,
             bandwidth_nm, transmission_pct, minimum_aperture_mm, notes,
             is_builtin
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-        ON CONFLICT(brand, model, barrel_size) DO UPDATE SET is_builtin = 1
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        ON CONFLICT(brand, model) DO UPDATE SET
+            filter_class = excluded.filter_class,
+            central_wavelength_nm = excluded.central_wavelength_nm,
+            bandwidth_nm = excluded.bandwidth_nm,
+            transmission_pct = excluded.transmission_pct,
+            minimum_aperture_mm = excluded.minimum_aperture_mm,
+            notes = excluded.notes,
+            is_builtin = 1
         """,
         _filter_catalog_rows(filter_path),
     )
@@ -1147,7 +1310,6 @@ def _filter_catalog_rows(filter_path: Path | None) -> list[tuple]:
                 row["brand"],
                 row["model"],
                 row["filter_class"],
-                row["barrel_size"],
                 _optional_float(row.get("central_wavelength_nm", "")),
                 _optional_float(row.get("bandwidth_nm", "")),
                 _optional_float(row.get("transmission_pct", "")),

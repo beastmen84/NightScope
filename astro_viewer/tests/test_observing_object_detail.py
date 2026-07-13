@@ -57,7 +57,7 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
         is_deep_sky=True,
     )
 
-    assert payload["schemaVersion"] == "observing_object_detail_v1"
+    assert payload["schemaVersion"] == "observing_object_detail_v2"
     assert "score" not in payload
     assert "scoreLabel" not in payload
     assert "scoreExplanation" not in payload
@@ -72,6 +72,49 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
     assert payload["session"]["badge"] == "Sessione da monitorare"
     assert payload["evaluation"]["warning"] == "Fattore limitante: nuvolosità"
     assert payload["equipment"]["telescopeName"] == "Newton 200"
+    assert payload["equipment"]["filterRecommendations"] == {
+        "primary": {},
+        "optionalColor": {},
+    }
+
+
+def test_observing_detail_exposes_only_sanitized_filter_recommendations() -> None:
+    payload = ObservingObjectDetailService().build(
+        object_payload=_target().to_qml(),
+        geometry_state="later",
+        session={"state": "monitor"},
+        setup_model=None,
+        altitude_threshold_deg=15.0,
+        is_deep_sky=True,
+        filter_recommendations={
+            "primary": {
+                "applicable": True,
+                "available": True,
+                "label": "Filtro raccomandato",
+                "value": "Astronomik OIII",
+                "filterClass": "OIII",
+                "filterClassLabel": "OIII",
+                "filterId": "catalog-filter-3",
+                "internal": "not exposed",
+            },
+            "optionalColor": {
+                "applicable": True,
+                "available": False,
+                "label": "Filtro colorato opzionale (non disponibile)",
+                "value": "Colorato (rosso)",
+                "filterClass": "COLOR_RED",
+                "filterClassLabel": "Colorato (rosso)",
+                "filterId": "",
+            },
+        },
+    )
+
+    recommendations = payload["equipment"]["filterRecommendations"]
+    assert recommendations["primary"]["value"] == "Astronomik OIII"
+    assert recommendations["primary"]["available"] is True
+    assert "internal" not in recommendations["primary"]
+    assert recommendations["optionalColor"]["filterClass"] == "COLOR_RED"
+    assert recommendations["optionalColor"]["available"] is False
 
 
 def test_lunar_detail_keeps_phase_fields_and_real_horizon_events() -> None:

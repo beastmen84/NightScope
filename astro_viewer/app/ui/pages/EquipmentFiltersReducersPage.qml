@@ -14,16 +14,9 @@ Item {
     property var deleteFilter: ({})
     property var deleteReducer: ({})
     property string accessorySearch: ""
-    readonly property var filterTypeCodes: [
-        "UHC", "OIII", "H_BETA", "CLS", "MOON_SKYGLOW", "ND",
-        "POLARIZING", "COLOR", "CONTRAST", "CHROMATIC", "COMET"
-    ]
-    readonly property var filterTypeLabels: [
-        "UHC", "OIII", "H-beta", "Riduzione inquinamento luminoso",
-        "Luna e contrasto", "Densità neutra", "Polarizzatore",
-        "Colorato planetario", "Contrasto planetario",
-        "Correzione cromatica", "Comete"
-    ]
+    readonly property var filterTypeOptions: controller ? controller.filterClassOptions : []
+    readonly property var filterTypeCodes: filterTypeOptions.map(function(item) { return item.code })
+    readonly property var filterTypeLabels: filterTypeOptions.map(function(item) { return item.label })
     readonly property var opticalSystemCodes: [
         "SCT_CLASSIC", "EDGEHD", "REFRACTOR", "RC", "UNIVERSAL", "OTHER"
     ]
@@ -46,7 +39,7 @@ Item {
             return true
         var text = (
             item.brand + " " + item.model + " " + item.filter_class_label + " " +
-            item.barrel_size + " " + (item.notes || "")
+            (item.notes || "")
         ).toLowerCase()
         return text.indexOf(query) >= 0
     }
@@ -79,8 +72,8 @@ Item {
         editFilter = item || ({})
         filterBrand.text = item ? item.brand : ""
         filterModel.text = item ? item.model : ""
-        filterType.currentIndex = Math.max(0, root.filterTypeCodes.indexOf(item ? item.filter_class : "UHC"))
-        filterBarrel.currentIndex = item && item.barrel_size === "2" ? 1 : 0
+        var typeIndex = root.filterTypeCodes.indexOf(item ? item.filter_class : "UHC")
+        filterType.currentIndex = item && typeIndex < 0 ? -1 : Math.max(0, typeIndex)
         filterCentral.text = item ? root.optionalText(item.central_wavelength_nm) : ""
         filterBandwidth.text = item ? root.optionalText(item.bandwidth_nm) : ""
         filterTransmission.text = item ? root.optionalText(item.transmission_pct) : ""
@@ -403,7 +396,6 @@ Item {
                 Layout.fillWidth: true
                 spacing: 8
                 StatusPill { text: filterRow.itemData.filter_class_label; accentColor: theme.teal }
-                StatusPill { text: filterRow.itemData.barrel_size + "\""; accentColor: theme.cyan }
                 StatusPill {
                     visible: filterRow.itemData.bandwidth_nm !== null
                     text: root.optionalText(filterRow.itemData.bandwidth_nm) + " nm"
@@ -492,11 +484,10 @@ Item {
         acceptText: "Salva"
         onAccepted: {
             var typeCode = root.filterTypeCodes[filterType.currentIndex]
-            var barrel = filterBarrel.currentIndex === 1 ? "2" : "1.25"
             if (root.editFilter.id !== undefined) {
-                root.controller.updateFilterModel(root.editFilter.id, filterBrand.text, filterModel.text, typeCode, barrel, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
+                root.controller.updateFilterModel(root.editFilter.id, filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
             } else {
-                root.controller.addFilterModel(filterBrand.text, filterModel.text, typeCode, barrel, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
+                root.controller.addFilterModel(filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
             }
         }
 
@@ -507,8 +498,7 @@ Item {
             rowSpacing: 8
             DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: "Marca" }
             DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: "Modello" }
-            DarkComboBox { id: filterType; Layout.fillWidth: true; model: root.filterTypeLabels }
-            DarkComboBox { id: filterBarrel; Layout.fillWidth: true; model: ["1.25\"", "2\""] }
+            DarkComboBox { id: filterType; Layout.columnSpan: 2; Layout.fillWidth: true; model: root.filterTypeLabels }
             DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: "Lunghezza d'onda centrale (nm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: "Larghezza banda (nm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: "Trasmissione (%)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }

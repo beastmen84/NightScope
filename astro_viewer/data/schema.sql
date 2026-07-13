@@ -50,6 +50,9 @@ CREATE TABLE IF NOT EXISTS CatalogueObject (
     dimensione_apparente TEXT,
     max_angular_size_deg REAL,
     recommended_observation_type TEXT,
+    best_filter_class TEXT,
+    fallback_filter_class TEXT,
+    optional_color_filter_class TEXT,
     descrizione TEXT
 );
 
@@ -169,14 +172,13 @@ CREATE TABLE IF NOT EXISTS FilterCatalog (
     brand TEXT NOT NULL,
     model TEXT NOT NULL,
     filter_class TEXT NOT NULL,
-    barrel_size TEXT NOT NULL,
     central_wavelength_nm REAL,
     bandwidth_nm REAL,
     transmission_pct REAL,
     minimum_aperture_mm INTEGER,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
-    UNIQUE (brand, model, barrel_size)
+    UNIQUE (brand, model)
 );
 
 CREATE TABLE IF NOT EXISTS ReducerCatalog (

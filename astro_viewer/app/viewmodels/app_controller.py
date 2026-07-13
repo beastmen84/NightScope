@@ -33,6 +33,10 @@ from astro_viewer.app.models.equipment import (
     OpticalFilter,
     Telescope,
 )
+from astro_viewer.app.models.filtering import (
+    FILTER_CLASS_OPTIONS,
+    SOLAR_SYSTEM_FILTER_PREFERENCES,
+)
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
     CelestialObject,
@@ -50,6 +54,9 @@ from astro_viewer.app.services.equipment_service import EquipmentService
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupReadModel,
     EquipmentSetupReadModelBuilder,
+)
+from astro_viewer.app.services.filter_recommendation_service import (
+    FilterRecommendationService,
 )
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.location_service import (
@@ -262,6 +269,7 @@ class AppController(QObject):
         self._weather_service = OpenMeteoWeatherService(self._weather_cache_repository)
         self._equipment_service = EquipmentService()
         self._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
+        self._filter_recommendation_service = FilterRecommendationService()
         self._score_service = ObservingScoreService()
         self._light_pollution_service = LightPollutionService(
             self._sky_quality_repository,
@@ -809,6 +817,10 @@ class AppController(QObject):
         payload = self._object_to_qml(adjusted_target)
         status = str(payload.get("observingStatus", ""))
         setup_model = getattr(self, "_equipment_setup_read_models_by_object_id", {}).get(target.id)
+        filter_recommendations = self._filter_recommendation_service.recommend(
+            adjusted_target,
+            self._active_profile_filters(),
+        )
         session = self.homeObservingOverview.get("session", {})
         is_deep_sky = not self._is_planetary_or_lunar_target(target)
         return self._observing_object_detail_service.build(
@@ -816,6 +828,7 @@ class AppController(QObject):
             geometry_state=self._observing_status_state(status),
             session=session,
             setup_model=setup_model,
+            filter_recommendations=filter_recommendations.to_payload(),
             altitude_threshold_deg=self._observing_altitude_threshold(target),
             is_deep_sky=is_deep_sky,
         )
@@ -910,6 +923,13 @@ class AppController(QObject):
     @Property("QVariant", notify=equipmentChanged)
     def filterCatalog(self) -> list[dict]:
         return self._catalog_filters
+
+    @Property("QVariant", constant=True)
+    def filterClassOptions(self) -> list[dict[str, str]]:
+        return [
+            {"code": code, "label": label}
+            for code, label in FILTER_CLASS_OPTIONS
+        ]
 
     @Property("QVariant", notify=equipmentChanged)
     def reducerCatalog(self) -> list[dict]:
@@ -1807,13 +1827,12 @@ class AppController(QObject):
         )
         self._after_binocular_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, str, str, str)
+    @Slot(str, str, str, str, str, str, str, str)
     def addFilterModel(
         self,
         brand: str,
         model: str,
         filter_class: str,
-        barrel_size: str,
         central_wavelength: str,
         bandwidth: str,
         transmission: str,
@@ -1833,7 +1852,6 @@ class AppController(QObject):
             brand,
             model,
             filter_class,
-            barrel_size,
             central_wavelength_nm=central,
             bandwidth_nm=width,
             transmission_pct=transmission_pct,
@@ -1842,14 +1860,13 @@ class AppController(QObject):
         )
         self._after_passive_accessory_catalog_change(message, ok)
 
-    @Slot(int, str, str, str, str, str, str, str, str, str)
+    @Slot(int, str, str, str, str, str, str, str, str)
     def updateFilterModel(
         self,
         filter_id: int,
         brand: str,
         model: str,
         filter_class: str,
-        barrel_size: str,
         central_wavelength: str,
         bandwidth: str,
         transmission: str,
@@ -1870,7 +1887,6 @@ class AppController(QObject):
             brand,
             model,
             filter_class,
-            barrel_size,
             central_wavelength_nm=central,
             bandwidth_nm=width,
             transmission_pct=transmission_pct,
@@ -3692,6 +3708,18 @@ class AppController(QObject):
             item,
             image=image["image_path"] if image else item.image,
             notes=notes,
+            best_filter_class=(
+                item.best_filter_class
+                or str((catalogue_item or {}).get("best_filter_class") or "")
+            ),
+            fallback_filter_class=(
+                item.fallback_filter_class
+                or str((catalogue_item or {}).get("fallback_filter_class") or "")
+            ),
+            optional_color_filter_class=(
+                item.optional_color_filter_class
+                or str((catalogue_item or {}).get("optional_color_filter_class") or "")
+            ),
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
@@ -3847,6 +3875,9 @@ class AppController(QObject):
             "max_angular_size_deg": row["max_angular_size_deg"],
             "max_angular_size_label": AppController._format_catalogue_angle(row["max_angular_size_deg"]),
             "recommended_observation_type": row["recommended_observation_type"] or "",
+            "best_filter_class": row.get("best_filter_class") or "",
+            "fallback_filter_class": row.get("fallback_filter_class") or "",
+            "optional_color_filter_class": row.get("optional_color_filter_class") or "",
             "description": row["description"] or "",
             "search_terms": search_terms,
             "catalogue_sort_index": row.get("primary_sort_index"),
@@ -3865,6 +3896,9 @@ class AppController(QObject):
         elif config.object_type == "Pianeta":
             observation_type = "HighMagnification"
         description = self._object_descriptions.get(config.object_id, {})
+        best_filter_class, fallback_filter_class, optional_color_filter_class = (
+            SOLAR_SYSTEM_FILTER_PREFERENCES.get(config.object_id, ("", "", ""))
+        )
         display_id = f"S{sort_index}"
         return {
             "catalogue": SOLAR_SYSTEM_CATALOGUE,
@@ -3892,6 +3926,9 @@ class AppController(QObject):
             "max_angular_size_deg": None,
             "max_angular_size_label": "",
             "recommended_observation_type": observation_type,
+            "best_filter_class": best_filter_class,
+            "fallback_filter_class": fallback_filter_class,
+            "optional_color_filter_class": optional_color_filter_class,
             "description": description.get("short_description", "").strip(),
             "image": config.image,
             "solar_system_body_id": config.object_id,
@@ -4256,6 +4293,9 @@ class AppController(QObject):
                 apparent_size=item["apparent_size"],
                 max_angular_size_deg=item["max_angular_size_deg"],
                 recommended_observation_type=item["recommended_observation_type"],
+                best_filter_class=item.get("best_filter_class", ""),
+                fallback_filter_class=item.get("fallback_filter_class", ""),
+                optional_color_filter_class=item.get("optional_color_filter_class", ""),
             )
         )
 
@@ -4276,6 +4316,9 @@ class AppController(QObject):
                 difficulty="n/d",
                 setup_options=[],
                 equipment_explanation="",
+                best_filter_class=item.get("best_filter_class", ""),
+                fallback_filter_class=item.get("fallback_filter_class", ""),
+                optional_color_filter_class=item.get("optional_color_filter_class", ""),
             )
         return self._apply_object_content(
             CelestialObject(
@@ -4301,6 +4344,9 @@ class AppController(QObject):
                 apparent_size="",
                 max_angular_size_deg=None,
                 recommended_observation_type=item["recommended_observation_type"],
+                best_filter_class=item.get("best_filter_class", ""),
+                fallback_filter_class=item.get("fallback_filter_class", ""),
+                optional_color_filter_class=item.get("optional_color_filter_class", ""),
             )
         )
 
@@ -5662,7 +5708,6 @@ class AppController(QObject):
             id=row["catalog_id"],
             name=f"{row['brand']} {row['model']}",
             filter_class=str(row["filter_class"]),
-            barrel_size=str(row.get("barrel_size") or ""),
             central_wavelength_nm=(
                 float(row["central_wavelength_nm"])
                 if row.get("central_wavelength_nm") is not None
@@ -5910,12 +5955,8 @@ class AppController(QObject):
                     "id": optical_filter["catalog_id"],
                     "name": optical_filter["display_name"],
                     "badge": "Filtro",
-                    "details": (
-                        f"{optical_filter['filter_class_label']} · "
-                        f"{optical_filter['barrel_size']}\""
-                    ),
+                    "details": optical_filter["filter_class_label"],
                     "type": optical_filter["filter_class_label"],
-                    "secondaryBadge": optical_filter["barrel_size"],
                 }
             )
         for reducer in self._catalog_reducers:
@@ -5988,11 +6029,7 @@ class AppController(QObject):
                     "id": optical_filter["catalog_id"],
                     "name": optical_filter["display_name"],
                     "badge": "Filtro",
-                    "details": (
-                        f"{optical_filter['filter_class_label']} · "
-                        f"{optical_filter['barrel_size']}\""
-                    ),
-                    "secondaryBadge": optical_filter["barrel_size"],
+                    "details": optical_filter["filter_class_label"],
                 }
             )
         assigned_reducer_ids = set(self._active_profile_state()["reducer_ids"])

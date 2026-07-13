@@ -82,7 +82,6 @@ class OpticalFilter:
     id: str
     name: str
     filter_class: str
-    barrel_size: str
     central_wavelength_nm: float | None = None
     bandwidth_nm: float | None = None
     transmission_pct: float | None = None
@@ -91,7 +90,6 @@ class OpticalFilter:
     def to_qml(self) -> dict:
         data = asdict(self)
         data["filterClass"] = self.filter_class
-        data["barrelSize"] = self.barrel_size
         data["centralWavelengthNm"] = self.central_wavelength_nm
         data["bandwidthNm"] = self.bandwidth_nm
         data["transmissionPct"] = self.transmission_pct

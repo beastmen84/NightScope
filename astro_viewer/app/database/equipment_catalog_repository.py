@@ -4,20 +4,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-
-FILTER_CLASS_LABELS = {
-    "UHC": "UHC",
-    "OIII": "OIII",
-    "H_BETA": "H-beta",
-    "CLS": "Riduzione inquinamento luminoso",
-    "MOON_SKYGLOW": "Luna e contrasto",
-    "ND": "Densità neutra",
-    "POLARIZING": "Polarizzatore",
-    "COLOR": "Colorato planetario",
-    "CONTRAST": "Contrasto planetario",
-    "CHROMATIC": "Correzione cromatica",
-    "COMET": "Comete",
-}
+from astro_viewer.app.models.filtering import FILTER_CLASS_LABELS
 
 OPTICAL_SYSTEM_LABELS = {
     "SCT_CLASSIC": "SCT classico",
@@ -574,11 +561,11 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, filter_class, barrel_size,
+                SELECT id, brand, model, filter_class,
                        central_wavelength_nm, bandwidth_nm, transmission_pct,
                        minimum_aperture_mm, notes, is_builtin
                 FROM FilterCatalog
-                ORDER BY brand, model, barrel_size
+                ORDER BY brand, model
                 """
             ).fetchall()
         return [self._filter_model(row) for row in rows]
@@ -588,7 +575,6 @@ class EquipmentCatalogRepository:
         brand: str,
         model: str,
         filter_class: str,
-        barrel_size: str,
         central_wavelength_nm: float | None = None,
         bandwidth_nm: float | None = None,
         transmission_pct: float | None = None,
@@ -599,7 +585,6 @@ class EquipmentCatalogRepository:
             brand,
             model,
             filter_class,
-            barrel_size,
             central_wavelength_nm,
             bandwidth_nm,
             transmission_pct,
@@ -612,20 +597,20 @@ class EquipmentCatalogRepository:
             duplicate = connection.execute(
                 """
                 SELECT id FROM FilterCatalog
-                WHERE brand = ? AND model = ? AND barrel_size = ?
+                WHERE brand = ? AND model = ?
                 """,
-                values[:2] + (values[3],),
+                values[:2],
             ).fetchone()
             if duplicate:
                 return False, "Questo filtro è già presente nel catalogo."
             connection.execute(
                 """
                 INSERT INTO FilterCatalog (
-                    brand, model, filter_class, barrel_size,
+                    brand, model, filter_class,
                     central_wavelength_nm, bandwidth_nm, transmission_pct,
                     minimum_aperture_mm, notes
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 values,
             )
@@ -638,7 +623,6 @@ class EquipmentCatalogRepository:
         brand: str,
         model: str,
         filter_class: str,
-        barrel_size: str,
         central_wavelength_nm: float | None = None,
         bandwidth_nm: float | None = None,
         transmission_pct: float | None = None,
@@ -649,7 +633,6 @@ class EquipmentCatalogRepository:
             brand,
             model,
             filter_class,
-            barrel_size,
             central_wavelength_nm,
             bandwidth_nm,
             transmission_pct,
@@ -670,16 +653,16 @@ class EquipmentCatalogRepository:
             duplicate = connection.execute(
                 """
                 SELECT id FROM FilterCatalog
-                WHERE brand = ? AND model = ? AND barrel_size = ? AND id <> ?
+                WHERE brand = ? AND model = ? AND id <> ?
                 """,
-                values[:2] + (values[3], filter_id),
+                values[:2] + (filter_id,),
             ).fetchone()
             if duplicate:
                 return False, "Questo filtro è già presente nel catalogo."
             connection.execute(
                 """
                 UPDATE FilterCatalog
-                SET brand = ?, model = ?, filter_class = ?, barrel_size = ?,
+                SET brand = ?, model = ?, filter_class = ?,
                     central_wavelength_nm = ?, bandwidth_nm = ?,
                     transmission_pct = ?, minimum_aperture_mm = ?, notes = ?
                 WHERE id = ?
@@ -1142,7 +1125,6 @@ class EquipmentCatalogRepository:
             "display_name": f"{row['brand']} {row['model']}",
             "filter_class": filter_class,
             "filter_class_label": FILTER_CLASS_LABELS.get(filter_class, filter_class),
-            "barrel_size": row["barrel_size"] or "",
             "central_wavelength_nm": row["central_wavelength_nm"],
             "bandwidth_nm": row["bandwidth_nm"],
             "transmission_pct": row["transmission_pct"],
@@ -1181,7 +1163,6 @@ class EquipmentCatalogRepository:
         brand: str,
         model: str,
         filter_class: str,
-        barrel_size: str,
         central_wavelength_nm: float | None,
         bandwidth_nm: float | None,
         transmission_pct: float | None,
@@ -1191,9 +1172,8 @@ class EquipmentCatalogRepository:
         clean_brand = brand.strip()
         clean_model = model.strip()
         clean_class = filter_class.strip().upper()
-        clean_barrel = barrel_size.strip()
-        if not clean_brand or not clean_model or not clean_barrel:
-            return (), "Marca, modello e formato sono obbligatori."
+        if not clean_brand or not clean_model:
+            return (), "Marca e modello sono obbligatori."
         if clean_class not in FILTER_CLASS_LABELS:
             return (), "Tipo di filtro non valido."
         if central_wavelength_nm is not None and central_wavelength_nm <= 0:
@@ -1208,7 +1188,6 @@ class EquipmentCatalogRepository:
             clean_brand,
             clean_model,
             clean_class,
-            clean_barrel,
             central_wavelength_nm,
             bandwidth_nm,
             transmission_pct,

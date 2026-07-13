@@ -35,6 +35,9 @@ class CelestialObject:
     apparent_size: str = ""
     max_angular_size_deg: float | None = None
     recommended_observation_type: str = ""
+    best_filter_class: str = ""
+    fallback_filter_class: str = ""
+    optional_color_filter_class: str = ""
     recommended_setup_type: str = ""
     setup_options: list[dict] = field(default_factory=list)
     equipment_explanation: str = ""
@@ -60,6 +63,9 @@ class CelestialObject:
         data["apparentSize"] = self.apparent_size
         data["maxAngularSizeDeg"] = self.max_angular_size_deg
         data["recommendedObservationType"] = self.recommended_observation_type
+        data["bestFilterClass"] = self.best_filter_class
+        data["fallbackFilterClass"] = self.fallback_filter_class
+        data["optionalColorFilterClass"] = self.optional_color_filter_class
         data["recommendedSetupType"] = self.recommended_setup_type
         data["setupOptions"] = self.setup_options
         data["equipmentExplanation"] = self.equipment_explanation
