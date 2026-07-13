@@ -58,7 +58,7 @@ NSOM separates Universe, Sky, Observer, Session, Opportunity and Confidence:
 - Opportunity combines target, observer, timing and session for ranking.
 - Recommendation Confidence is metadata and does not scale score.
 
-Current runtime status for `1.26.0`:
+Current runtime status for `1.27.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries consume the canonical NSOM observation environment.
@@ -69,12 +69,12 @@ Current runtime status for `1.26.0`:
   only when provider-quality gates pass.
 - Equipment remains setup-local; its current score is not replaced by an NSOM
   scalar, but ObserverCapability boundaries are explicit.
-- Filters and focal reducers are persistent profile inventory. Filter classes
-  can feed the score-free observing-detail recommendation read model, which
-  selects from the active profile only; they still do not enter
-  `EquipmentService`, ObserverCapability, setup selection, scoring, Planner or
-  NSOM. Dedicated built-in reducers expose normalized telescope IDs through
-  `ReducerTelescopeCompatibility` but remain passive inventory.
+- Filters and focal reducers are persistent profile inventory. Separate
+  presentation services can feed the score-free observing-detail read model,
+  but neither accessory enters `EquipmentService`, ObserverCapability, setup
+  selection, scoring, Planner or NSOM. Reducer recommendations additionally
+  require a target flag, the telescope already selected for that target and an
+  exact normalized `ReducerTelescopeCompatibility` link.
 - Planner now consumes the telescope selected by `EquipmentService` for each
   target in a multi-instrument profile and emits up to four selected
   opportunities before chronological presentation.
@@ -278,7 +278,7 @@ Important pages:
 - Moon summary,
 - visible planet/deep-sky lists,
 - active profile equipment snapshot,
-- passive filter/reducer catalog and assignment snapshots,
+- filter/reducer catalogue and assignment snapshots,
 - sky quality, seeing/transparency and NSOM category scores,
 - night plan and Sky Compass,
 - generic catalogue object dictionaries and catalogue filter state,
@@ -319,6 +319,12 @@ Services hold business logic:
   filter preferences and filters assigned to the active profile. It returns at
   most one primary recommendation and one optional color recommendation and
   never changes setup or NSOM values.
+- `ReducerRecommendationService`: presentation-only matching between a target
+  photographic-reducer flag, the target-specific telescope selected by
+  `EquipmentService` and exact normalized reducer compatibility. It prefers
+  compatible reducers in the active profile, otherwise reports compatible
+  catalogue products as unavailable, and never recalculates optical values or
+  changes setup and NSOM values.
 - `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
   NASA VIIRS and offline fallback.
 - `NasaAodProvider`: NASA MAIAC aerosol lookup using VIIRS primary and MODIS
@@ -581,9 +587,10 @@ overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart. They also verify
-filter/reducer CRUD, schema-v13 migration, filter duplicate remapping,
-profile-aware detail recommendations, managed-content provenance, exact reducer
-compatibility, orphan cleanup, forced unlinking and assignment without NSOM or
+filter/reducer CRUD, schema-v14 migration, filter duplicate remapping,
+profile-aware filter and reducer detail recommendations, managed-content
+provenance, exact built-in and custom reducer compatibility, reseed
+preservation, orphan cleanup, forced unlinking and assignment without NSOM or
 capability refresh.
 
 ## Cache Ownership

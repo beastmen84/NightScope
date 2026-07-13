@@ -42,7 +42,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.26.0`.
+Versione corrente sorgente: `1.27.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -67,11 +67,11 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 - ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
   quando disponibili e validi; non esistono feature flag di rollback.
 - Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
-  replacement path NSOM separato. I filtri assegnati al profilo alimentano solo
-  la raccomandazione leggibile nel dettaglio osservativo: una scelta primaria e
-  un eventuale colore opzionale, senza modificare setup, capacita', score o
-  ranking. I riduttori restano inventario passivo; quelli dedicati dispongono di
-  associazioni normalizzate ai modelli di telescopio per la futura policy.
+  replacement path NSOM separato. Filtri e riduttori alimentano soltanto
+  raccomandazioni leggibili nel dettaglio osservativo, senza modificare setup,
+  capacita', score o ranking. I riduttori fotografici richiedono sia il flag del
+  target sia un'associazione esatta normalizzata con il telescopio scelto per
+  quel target.
 - Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
   solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
   proiettano la designazione richiesta senza duplicare righe o conteggi.
@@ -111,6 +111,14 @@ la classe suggerita come non disponibile, separando sempre il filtro colorato
 facoltativo dalla raccomandazione primaria. Questa proiezione non entra in
 EquipmentService, ObserverCapability, score, Planner, Sky Compass o NSOM. La
 distribuzione Windows non e' stata rigenerata.
+
+In `1.27.0` il dettaglio osservativo puo' inoltre raccomandare un riduttore per
+astrofotografia. Il confronto usa il telescopio gia' scelto per il target,
+compatibilita' esatte per ID e il profilo attivo; se il prodotto compatibile non
+e' posseduto, viene mostrato come suggerimento non disponibile. La proiezione
+non calcola una nuova configurazione ottica e resta fuori da EquipmentService,
+ObserverCapability, score, ranking e NSOM. La distribuzione Windows non e'
+stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -386,7 +394,7 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `12`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
+All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `14`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
 
 I sidecar runtime `user_preferences.json`, `location_cache.json` e
 `nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori
@@ -401,8 +409,8 @@ I seed locali vivono in `astro_viewer/data/`:
 
 - `cities15000.txt`: dump GeoNames incluso nel package.
 - `countryInfo.txt`, `admin1CodesASCII.txt`: arricchimento paesi e regioni GeoNames.
-- `catalogue_objects_seed.csv`: 219 target Messier/Caldwell e relativi metadati
-  astronomici.
+- `catalogue_objects_seed.csv`: 219 target Messier/Caldwell, relativi metadati
+  astronomici e flag di opportunita' fotografica per il riduttore.
 - `catalogue_designations_seed.csv`: 219 designazioni e ordinamento per
   catalogo.
 - `telescope_catalog_seed.csv`: catalogo telescopi.
@@ -414,7 +422,8 @@ I seed locali vivono in `astro_viewer/data/`:
 - `reducer_catalog_seed.csv`: 24 riduttori/correttori con compatibilita' ottica
   e parametri di montaggio.
 - `reducer_telescope_compatibility_seed.csv`: associazioni esatte tra riduttori
-  dedicati e modelli di telescopio inclusi.
+  dedicati e modelli di telescopio inclusi; le voci personalizzate usano la
+  stessa relazione normalizzata.
 - `light_pollution_seed.csv`: fallback locale per qualità cielo.
 - `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
 - `object_descriptions_seed.csv`: 228 descrizioni e note osservative specifiche.

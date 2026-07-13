@@ -52,11 +52,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.26.0`:
+Measured on the current Windows development environment for `1.27.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4` | `692 passed, 7 subtests passed` | `0:01:27.19` |
+| `python -m pytest -q -n 4` | `701 passed, 7 subtests passed` | `0:02:06.42` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -65,12 +65,13 @@ projections and the target-taxonomy contract for every raw type in all 219
 Messier/Caldwell records. It also covers the NSOM invariants for single-pass
 factor construction and defensive Home/Planner/Sky Compass counts. The count
 also includes the lower-Home Sky Compass filter contract and live target
-membership replacement without a general Home refresh. The `1.26.0` baseline
-adds schema-v13 filter migration, preservation of profile assignments while
-barrel duplicates collapse, explicit color classes, primary/fallback/optional
-target preferences, deterministic active-profile matching and the complete
-Home-detail payload path. Filters and reducers remain absent from scoring and
-ObserverCapability tests.
+membership replacement without a general Home refresh. The `1.27.0` baseline
+includes schema-v14 migration, preservation of profile assignments while
+filter barrel duplicates collapse, explicit color classes, deterministic
+profile-aware filter matching, target photographic flags, exact reducer
+matching against the target-specific telescope, structured custom compatibility
+and the complete Home-detail payload path. Filters and reducers remain absent
+from scoring and ObserverCapability tests.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

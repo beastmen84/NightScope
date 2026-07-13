@@ -10,7 +10,7 @@ to fit short-term implementation constraints.
 Changes to this document should be rare and should require explicit
 architectural review.
 
-Current runtime status for `1.26.0`:
+Current runtime status for `1.27.0`:
 
 - Planner, Home `recommendedDeepSky`, Best Object, Sky Compass and upper-Home
   category summaries use one canonical NSOM environment.
@@ -55,6 +55,11 @@ Current runtime status for `1.26.0`:
   separate optional color suggestion. The result is presentation metadata: it
   does not enter ObserverCapability, Equipment setup selection, score, Planner,
   Sky Compass or NSOM. Reducers remain passive.
+- `1.27.0` adds a separate score-free photographic-reducer recommendation.
+  It requires an explicit target flag, the telescope already selected for that
+  target and exact normalized imaging compatibility. Owned matches are shown
+  first; otherwise catalogue matches are marked unavailable. No focal length,
+  field, capability, score or NSOM value is changed.
 - The historical migration report set was removed in `1.15.2`; the active state
   is summarized by `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` and
   `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`.
@@ -609,19 +614,18 @@ obtain very different results from the same `ObservableTargetValue`.
 a scalar summary for Planner, but that scalar is a projection of the capability
 profile, not the capability itself.
 
-Implementation status for `1.26.0`: ObserverCapability is implemented as a
+Implementation status for `1.27.0`: ObserverCapability is implemented as a
 multidimensional internal profile with target-specific `Q_target` projection.
 Planner, Best Object and Detail/Object use that projection where practical value
 is required. Equipment recommendations remain setup-local: `EquipmentService`
 still owns concrete eyepiece, Barlow, binocular and fallback setup choices,
 while `observer_capability_adapter.py` exposes the Observer layer boundary for
-NSOM consumers. Assigned filters remain outside both paths; a separate
-presentation service can name an owned filter in observing detail without
-changing capability or setup. Reducers are persisted and displayed but remain
-passive. Exact built-in reducer compatibility is available as normalized
-telescope IDs; the next reducer policy must still validate target class,
-aperture, connection and profile context before selecting one or changing
-effective focal length.
+NSOM consumers. Assigned filters and reducers remain outside both paths;
+separate presentation services can name an owned filter or a photographically
+compatible reducer in observing detail without changing capability or setup.
+Reducer matching requires the selected telescope and an exact normalized link.
+A future optical-train policy would still need camera, sensor, image-circle and
+backfocus context before changing effective focal length or configuration.
 
 Closed migration report tooling and historical comparison services were removed
 in `1.15.2`; future observer-capability work should start from the runtime model,

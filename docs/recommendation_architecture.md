@@ -649,24 +649,34 @@ scoring.
 
 ### Focal Reducers
 
-Focal reducers should become configuration modifiers similar to Barlows but
-with inverse optical effects:
+The current `ReducerRecommendationService` is presentation-only. For targets
+explicitly marked as photographic reducer opportunities, it matches the
+telescope already selected by `EquipmentService` against exact normalized
+compatibility links. It reports owned products first or catalogue products as
+unavailable, without changing the selected configuration.
+
+A future camera/sensor-aware optical-train model could make focal reducers
+configuration modifiers similar to Barlows but with inverse optical effects:
 
 - lower magnification
 - larger true field
 - larger exit pupil
 
-They should be included by the builder as part of configuration enumeration,
-not handled in QML.
+That future calculation should be included by the builder as part of
+configuration enumeration, not handled in QML. It requires camera sensor,
+image-circle and backfocus data that the current visual setup model does not
+own.
 
 ### Filters
 
-Filters should probably not be modeled as optical configurations until the app
-has target/filter compatibility data.
+The current `FilterRecommendationService` compares explicit target preferences
+with filters assigned to the active profile. It returns one primary choice and
+an optional color choice as presentation metadata; filters are not optical
+configurations and do not alter score or setup.
 
-Future filter support should compare target traits against filter capabilities,
-for example nebula emission type or lunar/planetary contrast use. The selected
-filter could then be attached to `RecommendationCandidate` or a successor model.
+A future optical model could attach measured filter transmission and
+camera/sensor response to `RecommendationCandidate` or a successor model, but
+that is separate from the current visual recommendation.
 
 ### Additional Catalogues
 

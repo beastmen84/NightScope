@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.26.0`
-- Dist `1.26.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.27.0`
+- Dist `1.27.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `d360b58 Refine target filter preferences`
+- Commit sorgente validato: `a859d75 Add photographic reducer recommendations`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `d360b58`; non sostituire questo
+documentazione. Per lo stato del codice usare `a859d75`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `a859d75 Add photographic reducer recommendations`
 - `40a0a39 Add profile-aware filter recommendations`
 - `cbc14c4 Localize remaining profile messages`
 - `bbeec59 Add filter and reducer equipment UI`
@@ -24,6 +25,7 @@ hash con un valore previsto prima del commit.
 
 ## Commit Equipment Recenti
 
+- `a859d75 Add photographic reducer recommendations`
 - `d360b58 Refine target filter preferences`
 - `40a0a39 Add profile-aware filter recommendations`
 - `1b524a9 Harden equipment catalog integrity`
@@ -33,6 +35,7 @@ hash con un valore previsto prima del commit.
 
 ## Commit Catalogo Recenti
 
+- `a859d75 Add photographic reducer recommendations`
 - `e1b3c5d Align content migration test with schema 10`
 - `f9331b8 Refresh managed catalogue content safely`
 - `60a9510 Replace Solar System placeholder images`
@@ -75,18 +78,20 @@ restano separati dai nuovi contenuti editoriali. L'audit `1.25.1` ha inoltre
 chiuso integrita' profili/Equipment, aggiornamento dei seed editoriali e
 localizzazione dei messaggi residui senza modificare NSOM.
 
-Il sottopunto filtri del punto 5 e' concluso in `1.26.0`: il dettaglio
+Il punto 5 e' concluso per lo scope concordato. Da `1.26.0` il dettaglio
 osservativo puo' mostrare un filtro primario e un colore opzionale confrontando
-le preferenze del target con il profilo attivo. E' una proiezione score-free e
-non cambia la configurazione calcolata. Resta futuro il sottopunto riduttori:
-progettare l'effetto reale su setup e ObserverCapability senza anticipare una
-policy di compatibilita' o priorita'.
+le preferenze del target con il profilo attivo. Da `1.27.0` puo' inoltre
+raccomandare un riduttore fotografico usando il telescopio gia' scelto per il
+target e compatibilita' esatte normalizzate. Entrambe sono proiezioni score-free
+e non cambiano la configurazione calcolata. Un eventuale calcolo ottico reale
+del riduttore resta futuro e richiederebbe camera, sensore, image circle e
+backfocus.
 
 Resta come idea futura una pagina separata `Log Osservazioni`. La sezione
 osservazioni e' stata rimossa dal dettaglio oggetto, ma repository e persistenza
 restano disponibili. Non implementare il Log senza richiesta esplicita.
 
-## Catalogo Canonico 1.26.0
+## Catalogo Canonico 1.27.0
 
 - `CatalogueObject` contiene una riga per target fisico.
 - `CatalogueDesignation` associa catalogo, codice e ordine allo stesso
@@ -100,12 +105,15 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `13`; il bootstrap migra e rimuove `MessierObject`, valida
+- Lo schema SQLite e' `14`; il bootstrap migra e rimuove `MessierObject`, valida
   identita', riferimenti e primarie dei seed e distingue contenuti editoriali
   gestiti da import personalizzati.
 - I seed correnti sono `catalogue_objects_seed.csv` e
   `catalogue_designations_seed.csv`: 110 Messier e 109 Caldwell, senza
   sovrapposizioni per definizione del Caldwell originale.
+- `catalogue_objects_seed.csv` abilita `imaging_reducer_recommended` su 53
+  target estesi. Il flag e' indipendente dalla tassonomia e non entra in score
+  o ranking.
 - La UI espone 228 righe complessive: 219 target cielo profondo e 9 corpi del
   Sistema Solare. Il filtro Caldwell contiene C1-C109 in ordine naturale.
 - Il toggle Home `Solo suggeriti ora` usa tutti gli ID in `skyCompass.targets`
@@ -139,7 +147,7 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
   `audit_curiosity_sources.py` ricontrolla le fonti via rete. La policy completa
   e' in `docs/IMAGE_ASSET_POLICY.md`; DSS non e' usato.
 
-## Equipment 1.26.0
+## Equipment 1.27.0
 
 - La pagina `Filtri e riduttori` usa due cataloghi affiancati con ricerca e
   layout responsive coerente con `Oculari e Barlow`.
@@ -154,6 +162,9 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - `ReducerTelescopeCompatibility` conserva 16 associazioni esatte tra riduttori
   dedicati e `TelescopeModel`; i riduttori universali non ricevono associazioni
   artificiali. Il campo descrittivo dei modelli resta disponibile alla UI.
+- I riduttori creati dall'utente usano la stessa relazione normalizzata: il
+  form offre ricerca e selezione multipla sui 133 modelli di telescopio, il
+  repository valida gli ID e i collegamenti sopravvivono al reseed.
 - Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo.
   `equipmentChanged` aggiorna immediatamente anche un dettaglio osservativo
   aperto, ma non ricalcola NSOM o capacita'.
@@ -180,14 +191,31 @@ restano disponibili. Non implementare il Log senza richiesta esplicita.
 - `FilterRecommendationService` usa solo i filtri del profilo attivo, segue
   l'ordine primaria/fallback e sceglie un solo prodotto in modo deterministico.
   Se manca, mostra la classe richiesta come `non disponibile`.
-- `observingObjectDetail_v2` trasporta un payload sanitizzato con `primary` e
-  `optionalColor`; il ramo dettaglio Catalogo non mostra configurazioni
-  osservative e resta invariato.
+- `observingObjectDetail_v3` trasporta un payload sanitizzato con `primary`,
+  `optionalColor` e il ramo separato `reducerRecommendation`; il dettaglio
+  Catalogo non mostra configurazioni osservative e resta invariato.
 - La migrazione schema 13 consolida i duplicati `1.25\"`/`2\"`, conserva l'ID
   canonico piu' vecchio e rimappa tutte le assegnazioni dei profili. Le vecchie
   classi `COLOR` riconoscibili vengono convertite al colore specifico.
 - Questa funzione non modifica EquipmentService, ObserverCapability, score,
-  ranking, Planner, Home, Sky Compass o NSOM. I riduttori restano passivi.
+  ranking, Planner, Home, Sky Compass o NSOM.
+
+## Raccomandazione Riduttori 1.27.0
+
+- `ReducerRecommendationService` opera solo se il target abilita
+  `imaging_reducer_recommended` e la configurazione consigliata contiene un ID
+  telescopio.
+- Il match richiede `imaging_compatible` e un collegamento esatto
+  `ReducerTelescopeCompatibility`; le descrizioni testuali non vengono
+  interpretate.
+- Prima vengono cercati i riduttori nel profilo attivo. Se non esiste un match
+  posseduto, i prodotti compatibili del catalogo sono mostrati come
+  `non disponibili`; senza match esatto la riga non compare.
+- Piu' match sono elencati in ordine deterministico. Non viene scelto un
+  presunto migliore senza dati su camera, sensore, image circle e backfocus.
+- La funzione non calcola focale o campo risultanti e non modifica
+  EquipmentService, ObserverCapability, score, ranking, Planner, Home, Sky
+  Compass o NSOM.
 
 ## NSOM Canonico
 
@@ -314,7 +342,7 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.26.0
+## Validazione 1.27.0
 
 Eseguita nella venv corrente:
 
@@ -333,12 +361,13 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `692 passed`, `557 warnings`, `7 subtests passed` in `87,19 s`.
+- Suite: `701 passed`, `557 warnings`, `7 subtests passed` in `126,42 s`.
 - QML smoke con runtime temporanea: exit `0`; nessun file runtime conservato.
 - `pyside6-qmllint`: exit `0`; restano warning statiche QML gia' note.
-- Confronto CSV: 219/219 righe oggetto identiche nei campi preesistenti; nessun
-  modello filtro precedente perso, 37 duplicati di formato rimossi e 8 modelli
-  Celestron aggiunti.
+- Confronto CSV: 219/219 righe oggetto identiche nei campi preesistenti; il
+  nuovo flag fotografico e' vero per 53 target. Verificati inoltre mapping
+  personalizzati add/update, validazione degli ID telescopio e persistenza al
+  reseed.
 
 Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 

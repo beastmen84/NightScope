@@ -1,5 +1,32 @@
 # Changelog
 
+## NightScope 1.27.0 - 2026-07-13
+
+- Aggiunto a `CatalogueObject` il flag fotografico
+  `imaging_reducer_recommended`: il seed lo abilita per 53 target estesi senza
+  modificare gli altri metadati delle 219 righe catalografiche.
+- Introdotto `ReducerRecommendationService`, separato da Equipment e NSOM. Il
+  servizio parte dal telescopio scelto per il target, richiede una
+  compatibilita' esatta normalizzata e considera soltanto riduttori dichiarati
+  adatti all'imaging.
+- Il dettaglio osservativo indica i riduttori compatibili gia' nel profilo
+  attivo oppure, se assenti, quelli presenti nel catalogo come suggerimenti non
+  disponibili. Piu' prodotti compatibili vengono elencati deterministicamente:
+  senza camera e sensore non viene inventata una priorita' ottica.
+- Portato `observingObjectDetail` alla versione `v3` e lo schema SQLite alla
+  versione `14`. Le migrazioni esistenti ricevono il nuovo flag con valore
+  predefinito falso e il bootstrap riallinea solo il campo gestito dal seed.
+- La compatibilita' dei riduttori personalizzati usa ora una selezione
+  ricercabile dei modelli `TelescopeModel`, con collegamenti normalizzati
+  molti-a-molti preservati durante il reseed e validati dal repository.
+- La raccomandazione e' esclusivamente fotografica e di presentazione: non
+  calcola focale o campo risultanti e non modifica `EquipmentService`,
+  `ObserverCapability`, score, ranking, Planner, Home, Sky Compass o NSOM.
+- Verificati confronto strutturato dei 219 oggetti, Ruff, compileall, `pip
+  check`, `qmllint`, QML smoke test temporaneo e suite completa parallela:
+  `701 passed`, `557 warnings`, `7 subtests passed` in `126,42 s`.
+- Dist `1.27.0` non rigenerata.
+
 ## NightScope 1.26.0 - 2026-07-13
 
 - Normalizzato il catalogo filtri a 48 modelli visuali unici: il formato

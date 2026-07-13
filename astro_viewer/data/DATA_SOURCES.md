@@ -39,13 +39,18 @@ against current manufacturer catalog pages and manuals. Primary references:
 - Celestron filters and focal reducers:
   `https://www.celestron.com/collections/astronomy-filters` and
   `https://www.celestron.com/blogs/knowledgebase/understanding-focal-reducers`
+- Celestron reducer/corrector and EdgeHD reducer product guidance:
+  `https://www.celestron.com/products/reducer-corrector` and
+  `https://www.celestron.com/products/reducer-lens-7x-edgehd-1100`
 - Celestron visual color, neutral-density and polarizing guidance:
   `https://www.celestron.com/blogs/knowledgebase/what-are-the-different-types-of-eyepiece-filters-colored-neutral-density-and-polarizing`
   and
   `https://www.celestron.com/products/variable-polarizing-filter-1-25`
 - Optolong visual-filter families:
   `https://www.optolong.com/cms/column/index/id/30.html`
-- Starizona SCT reducers: `https://starizona.com/collections/starizona-optics`
+- Starizona SCT reducers and imaging guidance:
+  `https://starizona.com/collections/starizona-optics` and
+  `https://starizona.com/blogs/tutorials/imaging-with-a-sct`
 - William Optics reducer/flattener compatibility:
   `https://support.williamoptics.com/guides/flattener-back-focus-adjustment`
 - Sky-Watcher matched ED reducers:
@@ -72,8 +77,19 @@ Reducer compatibility is model-specific and stored separately from the
 reduction factor. Sixteen exact links for dedicated reducers use normalized
 `TelescopeModel` IDs; universal or system-level reducers intentionally have no
 fabricated model association. The `visual_compatible` and
-`imaging_compatible` flags describe intended use, but reducers still do not
-alter recommendations or apply any score.
+`imaging_compatible` flags describe intended use. User-created reducers use the
+same normalized relation and may select more than one exact telescope model;
+the free-text compatibility description is not used for matching.
+
+`catalogue_objects_seed.csv` marks 53 extended targets with
+`imaging_reducer_recommended`. The initial selection follows the 53 existing
+`WideField` classifications as a conservative photographic opportunity flag.
+The manufacturer references above support the general field-enlargement use
+case, not a per-target product endorsement, and the flag does not claim that
+every optical train will frame the target. Runtime recommendation therefore
+still requires the target-specific telescope and an exact imaging-compatible
+reducer link. The result is presentation metadata only and does not alter
+setup, capability, score or NSOM.
 
 No API keys or vendor-specific private data are included.
 

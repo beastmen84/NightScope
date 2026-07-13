@@ -718,8 +718,27 @@ Filter recommendation boundary:
   catalogue even when sold in multiple barrel sizes.
 - This logic is presentation-only. It does not alter Equipment setup selection,
   ObserverCapability, target score, Planner, Home ranking, Sky Compass or NSOM.
-  Focal reducers remain outside both setup and score until their policy is
-  designed separately.
+
+Photographic reducer recommendation boundary:
+
+- `CatalogueObject.imaging_reducer_recommended` explicitly marks targets for
+  which a reducer can be useful in astrophotography. It is independent of the
+  target category and is not a score input.
+- `ReducerRecommendationService` runs only when the flag is true and the
+  target-specific Equipment recommendation identifies a telescope.
+- A candidate must be `imaging_compatible` and have an exact normalized link to
+  that telescope. Descriptive compatibility text is never parsed.
+- Compatible reducers assigned to the active profile are reported as
+  available. If none is owned, exact matches from the global catalogue are
+  reported as `non disponibile`. Without an exact match, no reducer row is
+  shown.
+- Multiple exact matches are listed deterministically. NightScope does not
+  invent a single best reducer without camera, sensor, image circle and
+  backfocus context.
+- This logic is presentation-only. Reduction factor, effective focal length,
+  field of view and exposure are not recalculated. Reducers remain outside
+  Equipment setup selection, ObserverCapability, target score, Planner, Home
+  ranking, Sky Compass and NSOM.
 
 Zoom eyepieces:
 
