@@ -34,4 +34,6 @@ SOLAR_SYSTEM_FILTER_PREFERENCES = {
     "mars": ("CONTRAST", "MOON_SKYGLOW", "COLOR_RED"),
     "jupiter": ("CONTRAST", "MOON_SKYGLOW", "COLOR_LIGHT_BLUE"),
     "saturn": ("CONTRAST", "MOON_SKYGLOW", "COLOR_LIGHT_BLUE"),
+    "uranus": ("", "", "COLOR_YELLOW"),
+    "neptune": ("", "", "COLOR_YELLOW"),
 }

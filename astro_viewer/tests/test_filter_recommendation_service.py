@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from astro_viewer.app.models.equipment import OpticalFilter
+from astro_viewer.app.models.filtering import SOLAR_SYSTEM_FILTER_PREFERENCES
 from astro_viewer.app.models.observing import CelestialObject
 from astro_viewer.app.services.filter_recommendation_service import (
     FilterRecommendationService,
@@ -86,6 +87,29 @@ def test_legacy_unspecified_color_is_never_recommended() -> None:
     )
 
     assert recommendation.optional_color.applicable is False
+
+
+def test_solar_system_policy_keeps_color_as_a_secondary_recommendation() -> None:
+    assert SOLAR_SYSTEM_FILTER_PREFERENCES["moon"] == (
+        "POLARIZING",
+        "ND",
+        "COLOR_YELLOW",
+    )
+    assert SOLAR_SYSTEM_FILTER_PREFERENCES["mars"] == (
+        "CONTRAST",
+        "MOON_SKYGLOW",
+        "COLOR_RED",
+    )
+    assert SOLAR_SYSTEM_FILTER_PREFERENCES["uranus"] == (
+        "",
+        "",
+        "COLOR_YELLOW",
+    )
+    assert SOLAR_SYSTEM_FILTER_PREFERENCES["neptune"] == (
+        "",
+        "",
+        "COLOR_YELLOW",
+    )
 
 
 def _filter(filter_id: str, name: str, filter_class: str) -> OpticalFilter:
