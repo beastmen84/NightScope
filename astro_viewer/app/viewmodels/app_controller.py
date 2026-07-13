@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -12,7 +12,12 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from PySide6.QtCore import QCoreApplication, QObject, Property, QTimer, QUrl, Signal, Slot
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees
-from astro_viewer.app.astronomy.engine import MockAstronomyEngine, ObserverLocation, ObservingNightWindow
+from astro_viewer.app.astronomy.engine import (
+    MockAstronomyEngine,
+    ObserverLocation,
+    ObservingNightWindow,
+    TransientCalendarEventSource,
+)
 from astro_viewer.app.astronomy.skyfield_engine import (
     DEEP_SKY_USEFUL_ALTITUDE_DEG,
     EphemerisUnavailableError,
@@ -194,6 +199,7 @@ class AppController(QObject):
         home_recommended_deep_sky_nsom_ranking_service: HomeRecommendedDeepSkyNsomRankingService | None = None,
         nsom_category_score_service: NsomCategoryScoreService | None = None,
         sky_compass_service: SkyCompassService | None = None,
+        transient_event_sources: Sequence[TransientCalendarEventSource] = (),
     ):
         super().__init__()
         self._earthdataConnectionTestFinished.connect(self._finish_earthdata_connection_test)
@@ -267,7 +273,11 @@ class AppController(QObject):
         self._sky_compass_live_refresh_running = False
         self._sky_compass_live_refresh_request_id = 0
         try:
-            self._astronomy_engine = SkyfieldAstronomyEngine(base_dir / "data", self._catalogue_repository)
+            self._astronomy_engine = SkyfieldAstronomyEngine(
+                base_dir / "data",
+                self._catalogue_repository,
+                transient_event_sources,
+            )
         except EphemerisUnavailableError:
             logger.error("Skyfield engine unavailable; using fallback astronomy data.", exc_info=True)
             self._astronomy_engine = MockAstronomyEngine()

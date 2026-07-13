@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.30.0`:
+Measured on the current Windows development environment for `1.31.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `725 passed, 7 subtests passed` | `0:01:51.24` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `731 passed, 7 subtests passed` | `0:01:30.40` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -84,6 +84,10 @@ sidebar and packaging need no code changes. Boundary tests also ensure internal
 services consume canonical payloads and a presentation-only language refresh
 does not recompute astronomy, weather, equipment, scoring or NSOM. QML smoke
 tests are run in Italian and English from disposable runtime directories.
+The `1.31.0` additions cover generic orbital-element persistence, deterministic
+offline ISS pass prediction, fresh-cache reuse, bounded stale fallback,
+interval-aware Calendar/Home filtering and source/fact presentation without
+Catalogue, scoring, Equipment, Planner or NSOM coupling.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

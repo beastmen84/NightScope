@@ -133,6 +133,17 @@ class AstronomicalEvent:
     target_object_id: str = ""
     target_object_ids: tuple[str, ...] = field(default_factory=tuple)
     angular_separation_deg: float | None = None
+    event_type_code: str = ""
+    source_code: str = "annual_astronomy"
+    source_label: str = field(default_factory=lambda: tr("Eventi astronomici annuali"))
+    starts_at: str = ""
+    ends_at: str = ""
+    peak_at: str = ""
+    event_facts: tuple[tuple[str, str, str], ...] = field(default_factory=tuple)
+    data_source: str = ""
+    data_updated_at: str = ""
+    data_valid_until: str = ""
+    data_freshness: str = ""
 
     def to_qml(self) -> dict:
         data = asdict(self)
@@ -147,4 +158,18 @@ class AstronomicalEvent:
         data["targetObjectId"] = self.target_object_id
         data["targetObjectIds"] = list(self.target_object_ids)
         data["angularSeparationDeg"] = self.angular_separation_deg
+        data["eventTypeCode"] = self.event_type_code
+        data["sourceCode"] = self.source_code
+        data["sourceLabel"] = self.source_label
+        data["startsAt"] = self.starts_at
+        data["endsAt"] = self.ends_at
+        data["peakAt"] = self.peak_at
+        data["eventFacts"] = [
+            {"code": code, "label": label, "value": value}
+            for code, label, value in self.event_facts
+        ]
+        data["dataSource"] = self.data_source
+        data["dataUpdatedAt"] = self.data_updated_at
+        data["dataValidUntil"] = self.data_valid_until
+        data["dataFreshness"] = self.data_freshness
         return data

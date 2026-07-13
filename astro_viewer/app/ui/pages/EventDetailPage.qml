@@ -194,10 +194,14 @@ Item {
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                            ? qsTr("Indicazione di sicurezza")
-                           : qsTr("Con il tuo profilo")
+                           : root.hasEvent && root.eventData.typeCode === "satellite_pass"
+                             ? qsTr("Osservazione")
+                             : qsTr("Con il tuo profilo")
                     subtitle: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                               ? qsTr("Evento informativo, non osservativo")
-                              : qsTr("Configurazione consigliata per l'evento")
+                              : root.hasEvent && root.eventData.typeCode === "satellite_pass"
+                                ? qsTr("Indicazioni essenziali per il passaggio")
+                                : qsTr("Configurazione consigliata per l'evento")
                     accentColor: theme.cyan
 
                     Text {
@@ -231,6 +235,61 @@ Item {
                                 onClicked: root.openObject(modelData.id)
                             }
                         }
+                    }
+                }
+
+                GlassCard {
+                    visible: root.hasEvent
+                             && ((root.eventData.eventFacts || []).length > 0
+                                 || (root.eventData.dataSource || "").length > 0)
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: 244
+                    title: root.hasEvent && root.eventData.typeCode === "satellite_pass"
+                           ? qsTr("Dettagli del passaggio")
+                           : qsTr("Dettagli evento")
+                    subtitle: root.hasEvent ? (root.eventData.sourceLabel || "") : ""
+                    accentColor: theme.violet
+
+                    Repeater {
+                        model: root.hasEvent ? (root.eventData.eventFacts || []) : []
+
+                        delegate: RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: modelData.label
+                                color: theme.textSecondary
+                                font.pixelSize: 13
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                text: modelData.value
+                                color: theme.textPrimary
+                                font.pixelSize: 13
+                                font.weight: Font.DemiBold
+                            }
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.dataSource || "").length > 0
+                        text: qsTr("Fonte: %1").arg(root.eventData.dataSource || "")
+                        color: theme.textMuted
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.dataFreshness || "").length > 0
+                        text: root.eventData.dataFreshness || ""
+                        color: theme.textMuted
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
                     }
                 }
             }

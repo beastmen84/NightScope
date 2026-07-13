@@ -78,7 +78,11 @@ def _copy_legacy_sidecar(source: Path, target: Path) -> None:
 
 
 def _build_controller(progress_callback=None):
+    from astro_viewer.app.astronomy.iss_passes import IssPassEventSource
     from astro_viewer.app.database.bootstrap import initialize_database
+    from astro_viewer.app.database.orbital_element_cache_repository import (
+        OrbitalElementCacheRepository,
+    )
     from astro_viewer.app.services.logging_service import configure_logging
     from astro_viewer.app.viewmodels.app_controller import AppController
 
@@ -90,7 +94,12 @@ def _build_controller(progress_callback=None):
         progress_callback=progress_callback,
         geonames_data_dir=_data_dir(),
     )
-    return AppController(base_dir=BASE_DIR, database_path=database_path)
+    iss_pass_source = IssPassEventSource(OrbitalElementCacheRepository(database_path))
+    return AppController(
+        base_dir=BASE_DIR,
+        database_path=database_path,
+        transient_event_sources=(iss_pass_source,),
+    )
 
 
 def _build_translation_manager():

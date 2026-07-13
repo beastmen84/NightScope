@@ -186,9 +186,10 @@ Current runtime status for `1.27.0`:
   object's visibility for the current local year/month and caches it by object
   and location. The detail result is independent from list filter state and
   uses unknown rather than `No` when location or calculation is unavailable.
-- `CalendarOverviewService` v2 projects the complete 365-day event set into a
+- `CalendarOverviewService` v3 projects annual and short-horizon events into a
   score-free read model. Event instant, observing window, local visibility,
-  participants and angular separation are separate fields; future setups use
+  participants, angular separation, source and interval facts are separate
+  fields; future setups use
   profile capability without reusing tonight's seeing. Highlight selection
   combines intrinsic event priority with a bounded local-visibility penalty.
   Event and participant IDs are normalized before presentation counts so an
@@ -197,6 +198,17 @@ Current runtime status for `1.27.0`:
   projection excludes solar conjunctions while the complete Calendar keeps
   them. The legacy `events` property remains available only for compatibility
   and no event is removed by a usefulness cap.
+- `TransientCalendarEventSource` is the extension boundary for location-aware
+  operational events that do not belong to `CatalogueObject`. Production
+  currently injects `IssPassEventSource`; tests opt in explicitly so they never
+  perform unplanned network calls. A failed transient source is logged and
+  cannot remove the annual Skyfield event set.
+- ISS prediction uses public CelesTrak OMM elements, Skyfield/SGP4 propagation,
+  a 10-day moving horizon, a 10-degree minimum altitude, satellite sunlight and
+  local solar altitude at or below -6 degrees. `OrbitalElementCacheRepository`
+  refreshes after 6 hours and permits a recent cached element set for at most 3
+  days if refresh fails. This path has no Catalogue, score, Equipment, Planner,
+  Home ranking or NSOM dependency.
 - Planetary conjunction candidates are observational close approaches found by
   `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
   The annual contract retains minima up to 6 degrees, then samples adjacent
@@ -406,6 +418,8 @@ Repositories own SQLite persistence:
   foreign keys, usage counts operate on distinct valid profiles and reducer
   rows expose normalized exact telescope compatibility where available.
 - `WeatherCacheRepository`: weather response cache.
+- `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
+  short-horizon orbital event sources.
 - `SkyQualityRepository`: light-pollution estimate cache.
 - `ObjectImageRepository`: image and description lookup.
 - `ObservationRepository`: observation history.
@@ -479,6 +493,10 @@ Calendar event detail flow:
    for each. Oppositions and solar conjunctions map to their single planet;
    Moon phases and lunar eclipses map to `moon`, allowing the existing object
    detail navigation to be reused.
+5. Transient events can instead expose explicit start/end/peak timestamps,
+   source freshness and fact rows without mapping to any catalogue target. ISS
+   passes use this path and therefore show operational observing guidance
+   rather than active-profile equipment recommendations.
 
 ## Refresh Flow
 

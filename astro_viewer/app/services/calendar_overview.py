@@ -13,7 +13,7 @@ from astro_viewer.app.services.localization import (
 )
 
 
-CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v2"
+CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v3"
 CALENDAR_HORIZON_DAYS = 365
 
 _EVENT_TYPE_CODES = {
@@ -24,6 +24,7 @@ _EVENT_TYPE_CODES = {
     "Congiunzione solare": "solar_conjunction",
     "Sciame meteorico": "meteor_shower",
     "Eclissi": "eclipse",
+    "Passaggio ISS": "satellite_pass",
 }
 
 _EVENT_TYPE_LABELS = {
@@ -33,6 +34,7 @@ _EVENT_TYPE_LABELS = {
     "solar_conjunction": tr("Congiunzione solare"),
     "meteor_shower": tr("Sciame meteorico"),
     "eclipse": tr("Eclissi"),
+    "satellite_pass": tr("Passaggio ISS"),
 }
 
 
@@ -52,7 +54,10 @@ class CalendarOverviewService:
             event_at = _event_datetime(event, now)
             if event_at is None:
                 continue
-            days_until = (event_at.date() - now.date()).days
+            event_end = _event_end_datetime(event, now)
+            if event_end is not None and event_end < now:
+                continue
+            days_until = max(0, (event_at.date() - now.date()).days)
             if not 0 <= days_until <= CALENDAR_HORIZON_DAYS:
                 continue
             event_id = _text(event, "id").casefold()
@@ -118,6 +123,7 @@ class CalendarOverviewService:
                 ),
                 "showers": counts["meteor_shower"],
                 "eclipses": counts["eclipse"],
+                "satellitePasses": counts["satellite_pass"],
             },
         }
 
@@ -131,7 +137,11 @@ def _event_payload(
     has_configured_equipment: bool,
 ) -> dict[str, object]:
     event_type = _text(event, "type") or _text(event, "event_type")
-    event_type_code = _event_type_code(event_type)
+    event_type_code = (
+        _text(event, "eventTypeCode")
+        or _text(event, "event_type_code")
+        or _event_type_code(event_type)
+    )
     title = _text(event, "title")
     date_label = _text(event, "date_label") or format_datetime(event_at, include_time=False)
     timing_label = (
@@ -159,6 +169,7 @@ def _event_payload(
     )
     setup = _profile_setup_text(
         event_type,
+        event_type_code,
         title,
         _text(event, "setup"),
         visibility_state=visibility_state,
@@ -185,6 +196,9 @@ def _event_payload(
         "type": _event_type_label(event_type_code, event_type),
         "dateLabel": date_label,
         "eventAt": event_at.isoformat(),
+        "startsAt": _text(event, "startsAt") or _text(event, "starts_at") or event_at.isoformat(),
+        "endsAt": _text(event, "endsAt") or _text(event, "ends_at"),
+        "peakAt": _text(event, "peakAt") or _text(event, "peak_at"),
         "daysUntil": days_until,
         "timingKind": timing_kind,
         "timingLabel": timing_label,
@@ -203,14 +217,23 @@ def _event_payload(
         "targetObjects": _mapping_list(event.get("targetObjects")),
         "angularSeparationDeg": angular_separation_deg,
         "separationLabel": _separation_label(angular_separation_deg),
+        "sourceCode": _text(event, "sourceCode") or _text(event, "source_code"),
+        "sourceLabel": _text(event, "sourceLabel") or _text(event, "source_label"),
+        "eventFacts": _mapping_list(event.get("eventFacts", event.get("event_facts"))),
+        "dataSource": _text(event, "dataSource") or _text(event, "data_source"),
+        "dataUpdatedAt": _text(event, "dataUpdatedAt") or _text(event, "data_updated_at"),
+        "dataValidUntil": _text(event, "dataValidUntil") or _text(event, "data_valid_until"),
+        "dataFreshness": _text(event, "dataFreshness") or _text(event, "data_freshness"),
         "whyText": _why_text(
             event_type,
+            event_type_code,
             title,
             _text(event, "note"),
             visibility_state=visibility_state,
         ),
         "tips": _observing_tips(
             event_type,
+            event_type_code,
             title,
             visibility_state=visibility_state,
         ),
@@ -219,7 +242,12 @@ def _event_payload(
 
 
 def _event_datetime(event: Mapping[str, object], now: datetime) -> datetime | None:
-    value = _text(event, "eventAt") or _text(event, "event_at")
+    value = (
+        _text(event, "startsAt")
+        or _text(event, "starts_at")
+        or _text(event, "eventAt")
+        or _text(event, "event_at")
+    )
     if value:
         try:
             parsed = datetime.fromisoformat(value)
@@ -245,8 +273,22 @@ def _event_datetime(event: Mapping[str, object], now: datetime) -> datetime | No
     return parsed.replace(tzinfo=now.tzinfo)
 
 
+def _event_end_datetime(event: Mapping[str, object], now: datetime) -> datetime | None:
+    value = _text(event, "endsAt") or _text(event, "ends_at")
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=now.tzinfo)
+    return parsed.astimezone(now.tzinfo)
+
+
 def _profile_setup_text(
     event_type: str,
+    event_type_code: str,
     title: str,
     setup: str,
     *,
@@ -254,6 +296,8 @@ def _profile_setup_text(
     has_configured_equipment: bool,
 ) -> str:
     normalized_title = title.casefold()
+    if event_type_code == "satellite_pass":
+        return setup or tr("Osservabile a occhio nudo; il telescopio non serve.")
     if event_type == "Sciame meteorico":
         return tr(
             "Il telescopio non serve: osserva a occhio nudo. Un binocolo può essere utile "
@@ -331,12 +375,18 @@ def _profile_setup_text(
 
 def _why_text(
     event_type: str,
+    event_type_code: str,
     title: str,
     fallback: str,
     *,
     visibility_state: str,
 ) -> str:
     normalized_title = title.casefold()
+    if event_type_code == "satellite_pass":
+        return tr(
+            "La stazione è illuminata dal Sole e attraversa il cielo mentre, per "
+            "l'osservatore, il Sole è abbastanza sotto l'orizzonte."
+        )
     if event_type == "Opposizione":
         return tr(
             "Il pianeta resta visibile a lungo, diventa più luminoso e permette di "
@@ -393,11 +443,19 @@ def _why_text(
 
 def _observing_tips(
     event_type: str,
+    event_type_code: str,
     title: str,
     *,
     visibility_state: str,
 ) -> list[str]:
     normalized_title = title.casefold()
+    if event_type_code == "satellite_pass":
+        return [
+            tr("Raggiungi un punto con orizzonte libero qualche minuto prima."),
+            tr("Segui la ISS a occhio nudo dalla direzione iniziale a quella finale."),
+            tr("Non usare alti ingrandimenti: il passaggio è rapido."),
+            tr("Ricontrolla l'orario dopo un aggiornamento dei dati orbitali."),
+        ]
     if event_type == "Opposizione":
         return [
             tr("Usa alti ingrandimenti solo se il seeing lo permette."),

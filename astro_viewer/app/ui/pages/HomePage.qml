@@ -109,6 +109,8 @@ Item {
             return theme.violet
         if (typeCode === "solar_conjunction")
             return theme.coral
+        if (typeCode === "satellite_pass")
+            return theme.cyan
         return theme.cyan
     }
 

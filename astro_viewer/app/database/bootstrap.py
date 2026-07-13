@@ -17,7 +17,7 @@ from astro_viewer.app.services.localization import tr
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -26,6 +26,7 @@ REQUIRED_TABLES = {
     "CatalogueObject",
     "CatalogueDesignation",
     "WeatherCache",
+    "OrbitalElementCache",
     "ObservationHistory",
     "TelescopeBrand",
     "TelescopeModel",
@@ -271,6 +272,26 @@ def _notify_progress(progress_callback: ProgressCallback | None, message: object
 
 
 def _migrate_database(connection: sqlite3.Connection) -> None:
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS OrbitalElementCache (
+            provider TEXT NOT NULL,
+            object_id TEXT NOT NULL,
+            element_format TEXT NOT NULL,
+            fetched_at TEXT NOT NULL,
+            source_epoch TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            payload TEXT NOT NULL,
+            PRIMARY KEY (provider, object_id)
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_orbital_element_cache_expiry
+        ON OrbitalElementCache(expires_at)
+        """
+    )
     _add_columns(
         connection,
         "City",

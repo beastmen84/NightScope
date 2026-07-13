@@ -1,5 +1,27 @@
 # Changelog
 
+## NightScope 1.31.0 - 2026-07-13
+
+- Aggiunta una pipeline di eventi transitori score-free, distinta dagli eventi
+  astronomici annuali e pronta per ulteriori provider senza creare oggetti di
+  catalogo o coinvolgere Planner, Equipment, Home ranking e NSOM.
+- Integrati come prima sorgente i passaggi visibili della ISS per la posizione
+  attiva, con finestra ingresso-uscita, culminazione, altezza massima,
+  direzioni, durata, illuminazione e dettaglio sorgente nel Calendario.
+- La Home riusa il contratto cronologico del Calendario e include i passaggi
+  ISS ancora in corso o futuri tra i prossimi eventi; quelli conclusi vengono
+  rimossi anche se appartengono alla data corrente.
+- Aggiunta `OrbitalElementCache` allo schema SQLite `15`: i dati OMM pubblici
+  CelesTrak vengono aggiornati ogni 6 ore, con fallback offline massimo di 3
+  giorni e previsione mobile limitata a 10 giorni.
+- Riutilizzate Skyfield, SGP4, Requests e NumPy gia' installate; pandas e
+  astroquery non sono necessari per questa prima sorgente e non sono stati
+  aggiunti.
+- Verificati `pip check`, Ruff, compileall, cataloghi Qt completi `1517/1517`,
+  `qmllint`, smoke test backend/QML e suite completa parallela: `731 passed`,
+  `561 warnings`, `7 subtests passed` in `90,40 s`.
+- Dist `1.31.0` non rigenerata.
+
 ## NightScope 1.28.0 - 2026-07-13
 
 - Aggiunta la pagina `Log Osservazioni` tra Calendario e Meteo, con riepilogo,

@@ -27,6 +27,20 @@ class ObserverLocation:
     timezone: str
 
 
+class TransientCalendarEventSource(Protocol):
+    """Produces location-aware events outside the annual astronomy pipeline."""
+
+    def upcoming_events(
+        self,
+        location: ObserverLocation,
+        *,
+        now: datetime,
+        timescale: object,
+        ephemeris: object,
+    ) -> list[AstronomicalEvent]:
+        ...
+
+
 @dataclass(frozen=True)
 class ObservingNightWindow:
     """Location-aware planning bounds for the current or next observing night."""

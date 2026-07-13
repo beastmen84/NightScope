@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import logging
 from calendar import monthrange
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, time, timedelta
 from itertools import combinations
@@ -13,7 +14,12 @@ from skyfield import almanac, eclipselib, magnitudelib, searchlib
 from skyfield.api import Loader, Star, wgs84
 
 from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_hours
-from astro_viewer.app.astronomy.engine import AstronomyEngine, ObserverLocation, ObservingNightWindow
+from astro_viewer.app.astronomy.engine import (
+    AstronomyEngine,
+    ObserverLocation,
+    ObservingNightWindow,
+    TransientCalendarEventSource,
+)
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
 from astro_viewer.app.models.observing import (
     AstronomicalEvent,
@@ -123,9 +129,15 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
 
     PLANET_IDS = {"mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"}
 
-    def __init__(self, data_dir: Path, catalogue_repository: CatalogueRepository | None):
+    def __init__(
+        self,
+        data_dir: Path,
+        catalogue_repository: CatalogueRepository | None,
+        transient_event_sources: Sequence[TransientCalendarEventSource] = (),
+    ):
         self._data_dir = data_dir
         self._catalogue_repository = catalogue_repository
+        self._transient_event_sources = tuple(transient_event_sources)
         self._loader = Loader(str(data_dir / "skyfield"))
         self._timescale = self._loader.timescale()
         self._ephemeris = self._load_ephemeris()
@@ -755,6 +767,22 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             )
 
         events.extend(self._recurring_meteor_showers(now, end_datetime))
+        for source in self._transient_event_sources:
+            try:
+                events.extend(
+                    source.upcoming_events(
+                        location,
+                        now=now,
+                        timescale=self._timescale,
+                        ephemeris=self._ephemeris,
+                    )
+                )
+            except Exception:
+                logger.warning(
+                    "Transient calendar event source failed: %s",
+                    type(source).__name__,
+                    exc_info=True,
+                )
         return sorted(events, key=lambda event: event.event_at)
 
     def _planetary_conjunction_events(

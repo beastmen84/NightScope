@@ -47,7 +47,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.30.0`.
+Versione corrente sorgente: `1.31.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -153,6 +153,18 @@ L'aggiunta di una terza lingua richiede soltanto i relativi file sotto
 I servizi consumano payload canonici non renderizzati e la traduzione avviene
 solo al boundary QML, quindi la lingua non puo' cambiare conteggi, classifiche o
 decisioni NSOM. La distribuzione Windows non e' stata rigenerata.
+
+In `1.31.0` il Calendario integra i passaggi visibili della ISS come eventi
+operativi a breve termine, separati dal catalogo e dalla generazione annuale.
+Per la posizione attiva mostra ingresso e uscita visibili, culminazione,
+altezza massima, direzioni, durata e illuminazione; gli stessi eventi entrano
+automaticamente nella card Home `Prossimi eventi` in ordine cronologico. Gli
+elementi orbitali OMM pubblici di CelesTrak sono conservati nella cache SQLite:
+refresh ogni 6 ore, fallback fino a 3 giorni in caso di rete assente e finestra
+mobile di previsione di 10 giorni. Il calcolo usa le dipendenze gia' presenti
+Skyfield/SGP4 e non introduce pandas, astroquery, account esterni, oggetti di
+catalogo, score, Equipment, Planner o NSOM. La distribuzione Windows non e'
+stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -428,7 +440,7 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `14`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
+All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `15`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
 
 I sidecar runtime `user_preferences.json`, `location_cache.json` e
 `nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori

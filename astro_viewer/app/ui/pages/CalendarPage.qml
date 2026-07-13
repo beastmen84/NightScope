@@ -34,6 +34,8 @@ Item {
             return theme.violet
         if (typeCode === "solar_conjunction")
             return theme.coral
+        if (typeCode === "satellite_pass")
+            return theme.cyan
         return theme.cyan
     }
 
@@ -175,7 +177,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: qsTr("Opposizioni, congiunzioni, Luna, eclissi e sciami meteorici")
+                        text: qsTr("Eventi astronomici annuali e passaggi ISS a breve termine")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -300,6 +302,12 @@ Item {
                             value: root.countEvents("eclipse").toString()
                             accentColor: theme.coral
                         }
+
+                        MetricTile {
+                            label: qsTr("Passaggi ISS")
+                            value: root.countEvents("satellite_pass").toString()
+                            accentColor: theme.cyan
+                        }
                     }
                 }
             }
@@ -369,7 +377,8 @@ Item {
                                 { "label": qsTr("Cong. planetarie"), "value": "planetary_conjunction" },
                                 { "label": qsTr("Cong. solari"), "value": "solar_conjunction" },
                                 { "label": qsTr("Sciami"), "value": "meteor_shower" },
-                                { "label": qsTr("Eclissi"), "value": "eclipse" }
+                                { "label": qsTr("Eclissi"), "value": "eclipse" },
+                                { "label": qsTr("ISS"), "value": "satellite_pass" }
                             ]
 
                             delegate: DarkButton {

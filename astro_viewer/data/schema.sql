@@ -92,6 +92,20 @@ CREATE TABLE IF NOT EXISTS WeatherCache (
 
 CREATE INDEX IF NOT EXISTS idx_weather_cache_key ON WeatherCache(cache_key);
 
+CREATE TABLE IF NOT EXISTS OrbitalElementCache (
+    provider TEXT NOT NULL,
+    object_id TEXT NOT NULL,
+    element_format TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    source_epoch TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    PRIMARY KEY (provider, object_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_orbital_element_cache_expiry
+ON OrbitalElementCache(expires_at);
+
 CREATE TABLE IF NOT EXISTS ObservationHistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,

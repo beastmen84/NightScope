@@ -125,7 +125,7 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
         has_configured_equipment=False,
     )
 
-    assert overview["schemaVersion"] == "calendar_overview_v2"
+    assert overview["schemaVersion"] == "calendar_overview_v3"
     assert overview["horizonDays"] == 365
     assert overview["totalCount"] == 3
     assert [item["id"] for item in overview["items"]] == [
@@ -138,6 +138,7 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
     assert overview["items"][1]["visibilityLabel"] == "Non visibile nella notte"
     assert overview["counts"]["solarConjunctions"] == 1
     assert overview["counts"]["planetaryConjunctions"] == 0
+    assert overview["counts"]["satellitePasses"] == 0
     assert [item["id"] for item in overview["homeItems"]] == [
         "moon-new",
         "saturn-opposition",
@@ -234,6 +235,53 @@ def test_calendar_highlights_balance_priority_with_local_visibility() -> None:
     ]
 
 
+def test_calendar_keeps_ongoing_intervals_and_drops_completed_passes() -> None:
+    completed = _event(
+        event_id="iss-completed",
+        title="Passaggio della ISS",
+        event_type="Passaggio ISS",
+        event_at="2026-07-11T09:00:00+03:00",
+        usefulness=0,
+        visibility_state="visible",
+        visibility_label="Visibile localmente",
+    ).to_qml()
+    completed.update(
+        {
+            "eventTypeCode": "satellite_pass",
+            "startsAt": "2026-07-11T09:00:00+03:00",
+            "endsAt": "2026-07-11T09:06:00+03:00",
+        }
+    )
+    ongoing = dict(completed)
+    ongoing.update(
+        {
+            "id": "iss-ongoing",
+            "startsAt": "2026-07-11T11:58:00+03:00",
+            "endsAt": "2026-07-11T12:04:00+03:00",
+            "eventFacts": [
+                {"code": "duration", "label": "Durata", "value": "6 min"}
+            ],
+            "sourceCode": "short_horizon_satellite_passes",
+            "sourceLabel": "Passaggi satellitari a breve termine",
+            "dataSource": "CelesTrak GP / OMM",
+            "dataFreshness": "Dati orbitali recenti in cache",
+        }
+    )
+
+    overview = CalendarOverviewService().build(
+        events=[completed, ongoing],
+        now=NOW,
+        has_configured_equipment=False,
+    )
+
+    assert [item["id"] for item in overview["items"]] == ["iss-ongoing"]
+    assert [item["id"] for item in overview["homeItems"]] == ["iss-ongoing"]
+    assert overview["counts"]["satellitePasses"] == 1
+    assert overview["items"][0]["eventFacts"][0]["value"] == "6 min"
+    assert overview["items"][0]["dataSource"] == "CelesTrak GP / OMM"
+    assert overview["items"][0]["priorityLabel"] == "Informativo"
+
+
 def test_calendar_event_copy_is_compact_and_visibility_aware() -> None:
     shower = _event(
         event_id="meteor-shower",
@@ -301,6 +349,9 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     assert "root.eventData.compactTimingValue" in event_row_qml
     assert "root.hasDistinctWindow" in event_detail_qml
     assert "root.eventData.separationLabel" in event_detail_qml
+    assert "root.eventData.eventFacts" in event_detail_qml
+    assert '"satellite_pass"' in calendar_qml
+    assert '"satellite_pass"' in home_qml
     assert "model: root.eventObjects()" in event_detail_qml
     assert "Apri oggetto per stasera" not in event_detail_qml
     assert "controller.calendarOverview" in home_qml
