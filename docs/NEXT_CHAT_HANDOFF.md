@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.29.0`
-- Dist `1.29.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.30.0`
+- Dist `1.30.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `5ef1fdf Add Italian and English UI translations`
+- Commit sorgente validato: `60c5d46 Complete scalable application localization`
 
 Il commit release che aggiorna questo handoff contiene solo metadata e
-documentazione. Per lo stato del codice usare `5ef1fdf`; non sostituire questo
+documentazione. Per lo stato del codice usare `60c5d46`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `60c5d46 Complete scalable application localization`
 - `5ef1fdf Add Italian and English UI translations`
 - `53244e2 Add observation log`
 - `87f2285 Make filter recommendations aperture-aware`
@@ -95,23 +96,33 @@ La pagina separata `Log Osservazioni` e' implementata da `1.28.0` tra Calendario
 e Meteo. La sezione resta fuori dal dettaglio oggetto e non modifica score,
 ranking, NSOM o configurazioni consigliate.
 
-La localizzazione UI `1.29.0` e' implementata con cataloghi Qt Linguist `it` ed
-`en`. Il selettore nella barra laterale cambia live il testo QML e salva la
-lingua nelle preferenze senza ricalcolare NSOM. Descrizioni, curiosita' e
-messaggi gia' composti dai servizi restano contenuti italiani.
+La localizzazione `1.30.0` copre QML, messaggi Python, read model, formati
+locali e contenuti strutturati dei seed. Il selettore nella barra laterale
+cambia live lingua e locale, preserva le altre preferenze e non ricalcola
+astronomia, meteo, equipaggiamento, score o NSOM. I testi inseriti dall'utente
+restano invariati.
 
-## Localizzazione UI 1.29.0
+## Localizzazione Completa 1.30.0
 
 - `TranslationManager` viene installato prima del controller e del caricamento
-  QML; italiano e' lingua sorgente/fallback, inglese carica `en.qm`.
-- `translationManager` espone alla barra laterale opzioni lingua e codice
-  corrente; `engine.retranslate()` aggiorna live i binding `qsTr()`.
+  QML; italiano e' lingua sorgente/fallback e i pack sono scoperti dai file
+  `<codice>.json`, senza una lista di lingue in Python, QML o packaging.
+- Ogni lingua usa `<codice>.json` per metadata, formati e contenuti editoriali,
+  `<codice>.ts` per i messaggi QML/Python e `<codice>.qm` per il runtime.
+- `translationManager` espone automaticamente alla barra laterale le lingue
+  scoperte; `engine.retranslate()` aggiorna live i binding `qsTr()`.
 - La preferenza `language` condivide `user_preferences.json` e viene aggiornata
   atomicamente preservando le altre chiavi.
-- `astro_viewer/translations` contiene `it.ts`, `en.ts` e i due cataloghi `.qm`;
-  PyInstaller include l'intera directory.
-- `tools/update_translations.ps1` estrae 565 messaggi QML, completa il catalogo
-  sorgente italiano, rifiuta cataloghi incompleti e compila entrambi i `.qm`.
+- Le stringhe Python sono lazy e i servizi interni consumano valori canonici;
+  date, numeri e payload vengono renderizzati solo al boundary Qt/QML.
+- `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
+  include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
+  la spec.
+- Gli updater estraggono `1472` messaggi per lingua, preservano le traduzioni
+  gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
+  e producono output idempotente.
+- L'aggiunta del francese richiede solo `fr.json`, `fr.ts` e `fr.qm`, seguendo
+  `docs/LOCALIZATION.md`; nessuna modifica applicativa e' necessaria.
 - La barra di navigazione usa uno `ScrollView`, mantenendo selettore lingua e
   riepilogo sessione accessibili anche all'altezza minima supportata.
 
@@ -385,16 +396,17 @@ Rimossi:
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
 
-## Validazione 1.29.0
+## Validazione 1.30.0
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check astro_viewer
-.\.venv\Scripts\python.exe -m compileall -q astro_viewer
+.\.venv\Scripts\python.exe -m ruff check astro_viewer tools
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
-.\tools\update_translations.ps1
+.\tools\update_translations.ps1 -UpdateOnly
+.\tools\update_translations.ps1 -CompileOnly
 $qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
 & .\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui @qmlFiles
 ```
@@ -404,17 +416,20 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `715 passed`, `557 warnings`, `7 subtests passed` in `105,91 s`.
-- Cataloghi: 565 messaggi completi per lingua; entrambi i `.qm` compilati.
+- Suite: `725 passed`, `558 warnings`, `7 subtests passed` in `111,24 s`.
+- Cataloghi: `1472` messaggi completi per lingua; entrambi i `.qm` compilati.
+- Updater JSON/TS verificati idempotenti; un secondo passaggio conserva gli
+  hash di tutti i sorgenti tradotti.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
   non qualificato, nessun errore QML.
 - QML smoke italiano e inglese: exit `0`, eseguiti in parallelo con runtime
   temporanei senza salvare file nella root del progetto.
-- Verificati cambio live, fallback italiano, persistenza della lingua,
-  preservazione delle altre preferenze, packaging e ordine della navigazione.
+- Verificati cambio live, fallback italiano, formati locali, contenuti seed,
+  persistenza della lingua, preservazione delle altre preferenze, terza lingua
+  sintetica, packaging, ordine della navigazione e assenza di ricalcoli NSOM.
 - Dist non rigenerata.
 
-Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 
@@ -432,6 +447,7 @@ Le 557 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 - `docs/ARCHITECTURE.md`
 - `docs/CALCULATION_LOGIC.md`
+- `docs/LOCALIZATION.md`
 - `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`
 - `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`
 - `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`

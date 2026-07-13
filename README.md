@@ -35,8 +35,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
 - Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
   operazioni di aggiunta, modifica ed eliminazione delle sessioni.
-- Interfaccia QML localizzata in italiano e inglese, con selettore persistente
-  nella barra laterale e cambio lingua live senza ricalcolare NSOM.
+- Interfaccia e contenuti applicativi localizzati in italiano e inglese, con
+  selettore persistente, formati locali e cambio lingua live senza ricalcolare
+  meteo, astronomia, equipaggiamento o NSOM.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
   Barlow, binocoli, filtri e riduttori. Le voci integrate sono in sola lettura;
   quelle personalizzate restano modificabili ed eliminabili dall'utente.
@@ -46,7 +47,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.29.0`.
+Versione corrente sorgente: `1.30.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -140,6 +141,18 @@ entrambi i cataloghi siano completi e rigenera i file `.qm`. La localizzazione
 copre etichette, comandi, dialoghi e testi di presentazione definiti nel QML;
 descrizioni, curiosita' e messaggi gia' composti dai servizi restano contenuti
 italiani. La distribuzione Windows non e' stata rigenerata.
+
+In `1.30.0` la localizzazione copre anche messaggi Python, read model, date,
+numeri, descrizioni, curiosita', nomi catalogo e note dell'equipaggiamento
+integrato. I valori canonici del dominio e i testi inseriti dall'utente restano
+invariati. I language pack sono scoperti dai metadata `<codice>.json`, senza
+liste lingua nel codice, e usano i corrispondenti cataloghi Qt `.ts`/`.qm`.
+L'aggiunta di una terza lingua richiede soltanto i relativi file sotto
+`astro_viewer/translations` e l'esecuzione degli updater documentati in
+`docs/LOCALIZATION.md`; sidebar, runtime e packaging non richiedono modifiche.
+I servizi consumano payload canonici non renderizzati e la traduzione avviene
+solo al boundary QML, quindi la lingua non puo' cambiare conteggi, classifiche o
+decisioni NSOM. La distribuzione Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

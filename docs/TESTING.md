@@ -43,8 +43,9 @@ Serial full suite fallback:
 
 ## Developer Dependency
 
-Parallel execution uses `pytest-xdist`. Install developer-only test dependencies
-with:
+Parallel execution uses `pytest-xdist`. Translation updaters can use
+`deep-translator`; it is a developer-only dependency and is not required by the
+application runtime. Install developer dependencies with:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
@@ -52,11 +53,11 @@ with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.29.0`:
+Measured on the current Windows development environment for `1.30.0`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `715 passed, 7 subtests passed` | `0:01:45.91` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `725 passed, 7 subtests passed` | `0:01:51.24` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -75,10 +76,14 @@ exclusion from scoring and ObserverCapability. The `1.28.0` additions cover
 the complete observation-log repository and controller CRUD cycle, validation,
 unlimited result projection, navigation and preservation through database
 bootstrap and runtime-folder copies.
-The `1.29.0` additions validate symmetric and complete Italian/English Qt
-catalogues, compiled translation assets, live runtime switching, preference
-preservation, sidebar exposure and PyInstaller packaging. QML smoke tests are
-also run with both languages from disposable runtime directories.
+The `1.30.0` additions validate auto-discovered language packs, symmetric and
+complete Qt catalogues, compiled translation assets, structured seed coverage,
+locale-aware dates and numbers, live runtime switching, preference preservation
+and PyInstaller packaging. A synthetic third language verifies that runtime,
+sidebar and packaging need no code changes. Boundary tests also ensure internal
+services consume canonical payloads and a presentation-only language refresh
+does not recompute astronomy, weather, equipment, scoring or NSOM. QML smoke
+tests are run in Italian and English from disposable runtime directories.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were
