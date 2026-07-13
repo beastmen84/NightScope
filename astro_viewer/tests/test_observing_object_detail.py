@@ -57,7 +57,7 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
         is_deep_sky=True,
     )
 
-    assert payload["schemaVersion"] == "observing_object_detail_v2"
+    assert payload["schemaVersion"] == "observing_object_detail_v3"
     assert "score" not in payload
     assert "scoreLabel" not in payload
     assert "scoreExplanation" not in payload
@@ -76,6 +76,7 @@ def test_observing_detail_contract_is_score_free_and_distinguishes_window_from_b
         "primary": {},
         "optionalColor": {},
     }
+    assert payload["equipment"]["reducerRecommendation"] == {}
 
 
 def test_observing_detail_exposes_only_sanitized_filter_recommendations() -> None:
@@ -115,6 +116,43 @@ def test_observing_detail_exposes_only_sanitized_filter_recommendations() -> Non
     assert "internal" not in recommendations["primary"]
     assert recommendations["optionalColor"]["filterClass"] == "COLOR_RED"
     assert recommendations["optionalColor"]["available"] is False
+
+
+def test_observing_detail_exposes_only_sanitized_reducer_recommendation() -> None:
+    payload = ObservingObjectDetailService().build(
+        object_payload=_target().to_qml(),
+        geometry_state="later",
+        session={"state": "monitor"},
+        setup_model=None,
+        altitude_threshold_deg=15.0,
+        is_deep_sky=True,
+        reducer_recommendation={
+            "applicable": True,
+            "available": True,
+            "label": "Riduttore fotografico consigliato",
+            "value": "Celestron 0.63x",
+            "internal": "not exposed",
+            "items": [
+                {
+                    "reducerId": "catalog-reducer-1",
+                    "displayLabel": "Celestron 0.63x",
+                    "reductionFactor": 0.63,
+                    "internal": "not exposed",
+                }
+            ],
+        },
+    )
+
+    recommendation = payload["equipment"]["reducerRecommendation"]
+    assert recommendation["available"] is True
+    assert recommendation["items"] == [
+        {
+            "reducerId": "catalog-reducer-1",
+            "displayLabel": "Celestron 0.63x",
+            "reductionFactor": 0.63,
+        }
+    ]
+    assert "internal" not in recommendation
 
 
 def test_lunar_detail_keeps_phase_fields_and_real_horizon_events() -> None:

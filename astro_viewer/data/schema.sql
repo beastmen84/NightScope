@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS CatalogueObject (
     best_filter_class TEXT,
     fallback_filter_class TEXT,
     optional_color_filter_class TEXT,
+    imaging_reducer_recommended INTEGER NOT NULL DEFAULT 0,
     descrizione TEXT
 );
 

@@ -17,6 +17,7 @@ Item {
     readonly property var evaluationData: objectData.evaluation || ({})
     readonly property var equipmentData: objectData.equipment || ({})
     readonly property var filterRecommendationsData: equipmentData.filterRecommendations || ({})
+    readonly property var reducerRecommendationData: equipmentData.reducerRecommendation || ({})
     property bool hasObject: objectData && objectData.name !== undefined && objectData.name !== ""
     property bool isCatalogueDetail: root.hasObject && selectedIsCatalogueDetail
     property int detailMetricHeight: 88
@@ -709,6 +710,41 @@ Item {
                             font.pixelSize: 13
                             wrapMode: Text.WordWrap
                         }
+                    }
+                }
+
+                ColumnLayout {
+                    visible: root.reducerRecommendationData.applicable === true
+                    Layout.fillWidth: true
+                    spacing: 4
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: root.reducerRecommendationData.label || "Riduttore fotografico"
+                            color: theme.textSecondary
+                            font.pixelSize: 13
+                            font.weight: Font.DemiBold
+                            wrapMode: Text.WordWrap
+                        }
+
+                        StatusPill {
+                            text: root.reducerRecommendationData.available
+                                  ? "Nel profilo" : "Non disponibile"
+                            accentColor: root.reducerRecommendationData.available
+                                         ? theme.cyan : theme.amber
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.reducerRecommendationData.value || ""
+                        color: theme.textPrimary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
                     }
                 }
 

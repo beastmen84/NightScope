@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from astro_viewer.app.services.equipment_setup_read_model import EquipmentSetupReadModel
 
 
-OBSERVING_OBJECT_DETAIL_SCHEMA_VERSION = "observing_object_detail_v2"
+OBSERVING_OBJECT_DETAIL_SCHEMA_VERSION = "observing_object_detail_v3"
 
 _SCORE_KEYS = {
     "score",
@@ -35,6 +35,7 @@ class ObservingObjectDetailService:
         altitude_threshold_deg: float,
         is_deep_sky: bool,
         filter_recommendations: Mapping[str, object] | None = None,
+        reducer_recommendation: Mapping[str, object] | None = None,
     ) -> dict[str, object]:
         payload = _sanitized_object_payload(object_payload)
         session_payload = _session_payload(session)
@@ -76,6 +77,9 @@ class ObservingObjectDetailService:
             "usesTargetSelection": bool(setup_model and setup_model.telescope_name),
             "filterRecommendations": _filter_recommendations_payload(
                 filter_recommendations
+            ),
+            "reducerRecommendation": _reducer_recommendation_payload(
+                reducer_recommendation
             ),
         }
         payload.update(
@@ -140,6 +144,34 @@ def _filter_recommendation_payload(value: object) -> dict[str, object]:
         "filterClass": _text(value, "filterClass"),
         "filterClassLabel": _text(value, "filterClassLabel"),
         "filterId": _text(value, "filterId"),
+    }
+
+
+def _reducer_recommendation_payload(
+    recommendation: Mapping[str, object] | None,
+) -> dict[str, object]:
+    if (
+        not isinstance(recommendation, Mapping)
+        or recommendation.get("applicable") is not True
+    ):
+        return {}
+    items = recommendation.get("items")
+    return {
+        "applicable": True,
+        "available": recommendation.get("available") is True,
+        "label": _text(recommendation, "label"),
+        "value": _text(recommendation, "value"),
+        "items": [
+            {
+                "reducerId": _text(item, "reducerId"),
+                "displayLabel": _text(item, "displayLabel"),
+                "reductionFactor": item.get("reductionFactor"),
+            }
+            for item in items
+            if isinstance(item, Mapping)
+        ]
+        if isinstance(items, list | tuple)
+        else [],
     }
 
 

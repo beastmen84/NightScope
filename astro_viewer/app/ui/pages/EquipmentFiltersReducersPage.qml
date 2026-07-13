@@ -14,6 +14,8 @@ Item {
     property var deleteFilter: ({})
     property var deleteReducer: ({})
     property string accessorySearch: ""
+    property string reducerTelescopeSearch: ""
+    property var reducerTelescopeIds: []
     readonly property var filterTypeOptions: controller ? controller.filterClassOptions : []
     readonly property var filterTypeCodes: filterTypeOptions.map(function(item) { return item.code })
     readonly property var filterTypeLabels: filterTypeOptions.map(function(item) { return item.label })
@@ -68,6 +70,26 @@ Item {
         })
     }
 
+    function filteredReducerTelescopeModels() {
+        var query = root.reducerTelescopeSearch.toLowerCase().trim()
+        return root.controller.telescopeCatalogModels.filter(function(item) {
+            if (query.length === 0)
+                return true
+            return (item.brand + " " + item.name + " " + item.optical_type)
+                    .toLowerCase().indexOf(query) >= 0
+        })
+    }
+
+    function setReducerTelescopeSelected(catalogId, selected) {
+        var next = root.reducerTelescopeIds.slice()
+        var index = next.indexOf(catalogId)
+        if (selected && index < 0)
+            next.push(catalogId)
+        else if (!selected && index >= 0)
+            next.splice(index, 1)
+        root.reducerTelescopeIds = next
+    }
+
     function openFilterDialog(item) {
         editFilter = item || ({})
         filterBrand.text = item ? item.brand : ""
@@ -89,7 +111,9 @@ Item {
         reducerModel.text = item ? item.model : ""
         reducerFactor.text = item ? root.optionalText(item.reduction_factor) : ""
         reducerSystem.currentIndex = Math.max(0, root.opticalSystemCodes.indexOf(item ? item.optical_system : "SCT_CLASSIC"))
-        reducerModels.text = item ? (item.compatible_models || "") : ""
+        reducerTelescopeIds = item ? (item.compatible_telescope_ids || []).slice() : []
+        reducerTelescopeSearch = ""
+        reducerTelescopeSearchField.text = ""
         reducerConnection.text = item ? (item.connection || "") : ""
         reducerBackfocus.text = item ? root.optionalText(item.backfocus_mm) : ""
         reducerVisual.checked = item ? item.visual_compatible : false
@@ -515,9 +539,9 @@ Item {
         onAccepted: {
             var systemCode = root.opticalSystemCodes[reducerSystem.currentIndex]
             if (root.editReducer.id !== undefined) {
-                root.controller.updateReducerModel(root.editReducer.id, reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, reducerModels.text, reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
+                root.controller.updateReducerModel(root.editReducer.id, reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
             } else {
-                root.controller.addReducerModel(reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, reducerModels.text, reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
+                root.controller.addReducerModel(reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
             }
         }
 
@@ -530,13 +554,64 @@ Item {
             DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: "Modello" }
             DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: "Fattore (es. 0.63)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkComboBox { id: reducerSystem; Layout.fillWidth: true; model: root.opticalSystemLabels }
-            DarkTextField { id: reducerModels; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Telescopi compatibili" }
             DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: "Connessione" }
             DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: "Backfocus (mm)"; inputMethodHints: Qt.ImhFormattedNumbersOnly }
             CheckBox { id: reducerVisual; Layout.fillWidth: true; text: "Uso visuale" }
             CheckBox { id: reducerImaging; Layout.fillWidth: true; text: "Uso fotografico" }
             CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: "Correzione del campo" }
             DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: "Note" }
+
+            RowLayout {
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Telescopi compatibili"
+                    color: theme.textPrimary
+                    font.pixelSize: 13
+                    font.weight: Font.DemiBold
+                }
+
+                Text {
+                    text: root.reducerTelescopeIds.length + " selezionati"
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                }
+            }
+
+            DarkTextField {
+                id: reducerTelescopeSearchField
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                placeholderText: "Cerca telescopio compatibile..."
+                onTextChanged: root.reducerTelescopeSearch = text
+            }
+
+            GridView {
+                id: reducerTelescopeGrid
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+                Layout.preferredHeight: 176
+                clip: true
+                cellWidth: width > 620 ? Math.floor(width / 2) : width
+                cellHeight: 42
+                boundsBehavior: Flickable.StopAtBounds
+                model: root.filteredReducerTelescopeModels()
+                ScrollBar.vertical: ScrollBar { }
+
+                delegate: CheckBox {
+                    required property var modelData
+                    width: GridView.view.cellWidth
+                    text: modelData.brand + " " + modelData.name
+                    checked: root.reducerTelescopeIds.indexOf(modelData.catalog_id) >= 0
+                    onToggled: root.setReducerTelescopeSelected(
+                        modelData.catalog_id,
+                        checked
+                    )
+                }
+            }
         }
     }
 

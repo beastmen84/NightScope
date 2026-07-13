@@ -16,7 +16,7 @@ from astro_viewer.app.models.filtering import FILTER_CLASS_CODES
 
 logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[str], None]
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
 REQUIRED_TABLES = {
     "City",
@@ -327,6 +327,7 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
             "best_filter_class": "TEXT",
             "fallback_filter_class": "TEXT",
             "optional_color_filter_class": "TEXT",
+            "imaging_reducer_recommended": "INTEGER NOT NULL DEFAULT 0",
         },
     )
     _migrate_catalogue_tables(connection)
@@ -420,13 +421,14 @@ def _migrate_catalogue_tables(connection: sqlite3.Connection) -> None:
             ascensione_retta, declinazione, dimensione_apparente,
             max_angular_size_deg, recommended_observation_type,
             best_filter_class, fallback_filter_class,
-            optional_color_filter_class, descrizione
+            optional_color_filter_class, imaging_reducer_recommended,
+            descrizione
         )
         SELECT
             'messier-' || messier_id, nome, tipo, costellazione, magnitudine,
             ascensione_retta, declinazione, dimensione_apparente,
             max_angular_size_deg, recommended_observation_type,
-            NULL, NULL, NULL, descrizione
+            NULL, NULL, NULL, 0, descrizione
         FROM MessierObject
         """
     )
@@ -919,6 +921,7 @@ def _seed_catalogue(
             (row.get("best_filter_class") or "").strip().upper(),
             (row.get("fallback_filter_class") or "").strip().upper(),
             (row.get("optional_color_filter_class") or "").strip().upper(),
+            _csv_bool(row.get("imaging_reducer_recommended", "")),
             row["descrizione"],
         )
         for row in source_object_rows
@@ -930,15 +933,17 @@ def _seed_catalogue(
             ascensione_retta, declinazione, dimensione_apparente,
             max_angular_size_deg, recommended_observation_type,
             best_filter_class, fallback_filter_class,
-            optional_color_filter_class, descrizione
+            optional_color_filter_class, imaging_reducer_recommended,
+            descrizione
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(object_id) DO UPDATE SET
             max_angular_size_deg = excluded.max_angular_size_deg,
             recommended_observation_type = excluded.recommended_observation_type,
             best_filter_class = excluded.best_filter_class,
             fallback_filter_class = excluded.fallback_filter_class,
-            optional_color_filter_class = excluded.optional_color_filter_class
+            optional_color_filter_class = excluded.optional_color_filter_class,
+            imaging_reducer_recommended = excluded.imaging_reducer_recommended
         """,
         object_rows,
     )
@@ -1002,6 +1007,13 @@ def _validate_catalogue_seed(
             or color_filter_class == "COLOR_UNSPECIFIED"
         ):
             raise ValueError(f"Invalid optional color filter class for {object_id}.")
+        reducer_recommendation = str(
+            row.get("imaging_reducer_recommended") or ""
+        ).strip()
+        if reducer_recommendation not in {"0", "1"}:
+            raise ValueError(
+                f"Invalid imaging reducer recommendation for {object_id}."
+            )
         max_size = _optional_float(row["max_angular_size_deg"])
         if max_size is None or max_size <= 0:
             raise ValueError(f"Invalid angular size for {object_id}.")

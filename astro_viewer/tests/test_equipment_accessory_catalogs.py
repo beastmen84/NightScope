@@ -58,6 +58,7 @@ def test_filter_and_reducer_seeds_are_comprehensive_and_structured() -> None:
 def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
     temporary_directory, _, repository = _database()
     try:
+        telescopes = repository.models()[:2]
         ok, _ = repository.add_filter(
             "NightScope",
             "Filtro prova",
@@ -96,11 +97,15 @@ def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
             visual_compatible=True,
             imaging_compatible=True,
             corrected_field=True,
+            compatible_telescope_ids=[telescopes[0]["catalog_id"]],
         )
         assert ok
         reducer = next(item for item in repository.reducers() if item["brand"] == "NightScope")
         assert not reducer["is_builtin"]
         assert reducer["optical_system_label"] == "Rifrattore"
+        assert reducer["compatible_telescope_ids"] == [
+            telescopes[0]["catalog_id"]
+        ]
 
         ok, _ = repository.update_reducer(
             reducer["id"],
@@ -110,11 +115,15 @@ def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
             "UNIVERSAL",
             visual_compatible=True,
             imaging_compatible=False,
+            compatible_telescope_ids=[telescopes[1]["catalog_id"]],
         )
         assert ok
         reducer = next(item for item in repository.reducers() if item["brand"] == "NightScope")
         assert reducer["model"] == "Riduttore prova aggiornato"
         assert not reducer["is_builtin"]
+        assert reducer["compatible_telescope_ids"] == [
+            telescopes[1]["catalog_id"]
+        ]
 
         assert repository.delete_filter(optical_filter["id"])[0]
         assert repository.delete_reducer(reducer["id"])[0]
@@ -340,6 +349,57 @@ def test_reducer_compatibility_uses_catalog_telescope_ids() -> None:
         assert telescope["display_name"] == "Celestron EdgeHD 8 OTA"
         assert edgehd["compatible_telescope_ids"] == [telescope["catalog_id"]]
         assert telescope["catalog_id"].startswith("catalog-telescope-")
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_custom_reducer_compatibility_survives_seed_refresh() -> None:
+    temporary_directory, database_path, repository = _database()
+    try:
+        telescope = repository.models()[0]
+        assert repository.add_reducer(
+            "Custom",
+            "Riduttore persistente",
+            0.8,
+            "REFRACTOR",
+            imaging_compatible=True,
+            compatible_telescope_ids=[telescope["catalog_id"]],
+        )[0]
+
+        initialize_database(database_path, SCHEMA_PATH)
+
+        refreshed = EquipmentCatalogRepository(database_path)
+        reducer = next(
+            item
+            for item in refreshed.reducers()
+            if item["model"] == "Riduttore persistente"
+        )
+        assert reducer["compatible_telescope_ids"] == [telescope["catalog_id"]]
+        assert (
+            f"{telescope['brand']} {telescope['name']}"
+            in reducer["compatible_models"]
+        )
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_custom_reducer_rejects_unknown_telescope_compatibility() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        ok, message = repository.add_reducer(
+            "Custom",
+            "Riduttore non valido",
+            0.8,
+            "REFRACTOR",
+            compatible_telescope_ids=["catalog-telescope-999999"],
+        )
+
+        assert not ok
+        assert "non esistono" in message
+        assert not any(
+            item["model"] == "Riduttore non valido"
+            for item in repository.reducers()
+        )
     finally:
         temporary_directory.cleanup()
 

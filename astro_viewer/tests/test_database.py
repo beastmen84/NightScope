@@ -44,6 +44,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertIn("best_filter_class", reader.fieldnames or [])
             self.assertIn("fallback_filter_class", reader.fieldnames or [])
             self.assertIn("optional_color_filter_class", reader.fieldnames or [])
+            self.assertIn("imaging_reducer_recommended", reader.fieldnames or [])
             rows = list(reader)
 
         self.assertEqual(len(rows), CATALOGUE_OBJECT_COUNT)
@@ -58,6 +59,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 CATALOGUE_OBSERVATION_TYPES,
                 row["object_id"],
             )
+            self.assertIn(row["imaging_reducer_recommended"], {"0", "1"})
         observation_types = {
             row["object_id"]: row["recommended_observation_type"]
             for row in rows
@@ -76,6 +78,14 @@ class DatabaseBootstrapTests(unittest.TestCase):
         self.assertEqual(filter_preferences["messier-M1"], ("UHC", "", ""))
         self.assertEqual(filter_preferences["messier-M27"], ("OIII", "", ""))
         self.assertEqual(filter_preferences["messier-M3"], ("", "", ""))
+        reducer_preferences = {
+            row["object_id"]: row["imaging_reducer_recommended"] == "1"
+            for row in rows
+        }
+        self.assertEqual(sum(reducer_preferences.values()), 53)
+        self.assertTrue(reducer_preferences["messier-M31"])
+        self.assertTrue(reducer_preferences["caldwell-C20"])
+        self.assertFalse(reducer_preferences["messier-M3"])
 
         with (data_dir / "catalogue_designations_seed.csv").open(
             "r", encoding="utf-8", newline=""
@@ -420,7 +430,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
                             ascensione_retta, declinazione, dimensione_apparente,
                             max_angular_size_deg, recommended_observation_type,
                             best_filter_class, fallback_filter_class,
-                            optional_color_filter_class, descrizione
+                            optional_color_filter_class,
+                            imaging_reducer_recommended, descrizione
                         FROM CatalogueObject
                         WHERE object_id = 'messier-M1'
                         """
@@ -1083,7 +1094,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     """
                     SELECT descrizione, max_angular_size_deg, recommended_observation_type,
                            best_filter_class, fallback_filter_class,
-                           optional_color_filter_class
+                           optional_color_filter_class,
+                           imaging_reducer_recommended
                     FROM CatalogueObject
                     WHERE object_id = ?
                     """,
@@ -1108,6 +1120,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             self.assertEqual(row["best_filter_class"], "UHC")
             self.assertEqual(row["fallback_filter_class"], "")
             self.assertEqual(row["optional_color_filter_class"], "")
+            self.assertEqual(row["imaging_reducer_recommended"], 0)
             self.assertEqual(tuple(designation), ("Messier", "M1", "messier-M1"))
             self.assertEqual(row["recommended_observation_type"], "General")
 

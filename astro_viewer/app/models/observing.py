@@ -38,6 +38,7 @@ class CelestialObject:
     best_filter_class: str = ""
     fallback_filter_class: str = ""
     optional_color_filter_class: str = ""
+    imaging_reducer_recommended: bool = False
     recommended_setup_type: str = ""
     setup_options: list[dict] = field(default_factory=list)
     equipment_explanation: str = ""
@@ -66,6 +67,7 @@ class CelestialObject:
         data["bestFilterClass"] = self.best_filter_class
         data["fallbackFilterClass"] = self.fallback_filter_class
         data["optionalColorFilterClass"] = self.optional_color_filter_class
+        data["imagingReducerRecommended"] = self.imaging_reducer_recommended
         data["recommendedSetupType"] = self.recommended_setup_type
         data["setupOptions"] = self.setup_options
         data["equipmentExplanation"] = self.equipment_explanation

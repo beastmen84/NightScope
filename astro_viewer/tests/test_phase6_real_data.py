@@ -28,6 +28,9 @@ from astro_viewer.app.models.sky import SeeingTransparency, SkyQuality
 from astro_viewer.app.models.weather import WeatherHour, WeatherSummary
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
 from astro_viewer.app.services.equipment_service import EquipmentService
+from astro_viewer.app.services.equipment_setup_read_model import (
+    EquipmentSetupReadModelBuilder,
+)
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, NasaViirsBlackMarbleProvider
 from astro_viewer.app.services.location_service import LocationDetectionResult
 from astro_viewer.app.services.seeing_service import SeeingTransparencyService
@@ -804,6 +807,59 @@ class Phase6RealDataTests(unittest.TestCase):
                 optical_filter["display_name"],
             )
 
+    def test_reducer_recommendation_uses_target_setup_and_active_profile(self) -> None:
+        with _controller() as controller:
+            telescope = next(
+                item
+                for item in controller.telescopeCatalogModels
+                if item["brand"] == "Celestron" and item["name"] == "NexStar 8SE"
+            )
+            reducer = next(
+                item
+                for item in controller.reducerCatalog
+                if item["brand"] == "Celestron"
+                and item["model"] == "Reducer-Corrector f/6.3"
+            )
+            target = controller._apply_object_content(
+                _object("messier-M31", "M31", "Spiral galaxy", "3.4")
+            )
+            setup_model = EquipmentSetupReadModelBuilder().from_suggestion(
+                target,
+                {
+                    "setupText": "Celestron NexStar 8SE",
+                    "setupOptions": [],
+                    "telescopeId": telescope["catalog_id"],
+                    "telescopeName": "Celestron NexStar 8SE",
+                    "equipmentType": "Telescope",
+                    "setupType": "telescope",
+                },
+            )
+            controller._equipment_setup_read_models_by_object_id[target.id] = setup_model
+            controller._selected_object = target
+            controller._selected_object_source = "observing"
+            controller._sky_compass_candidate_snapshot = [target]
+
+            suggested = controller.observingObjectDetail["equipment"][
+                "reducerRecommendation"
+            ]
+            self.assertTrue(target.imaging_reducer_recommended)
+            self.assertFalse(suggested["available"])
+            self.assertIn(reducer["display_name"], suggested["value"])
+
+            controller.assignEquipmentToActiveProfile(
+                "reducer",
+                reducer["catalog_id"],
+            )
+
+            available = controller.observingObjectDetail["equipment"][
+                "reducerRecommendation"
+            ]
+            self.assertTrue(available["available"])
+            self.assertEqual(
+                available["items"][0]["reducerId"],
+                reducer["catalog_id"],
+            )
+
     def test_filter_and_reducer_controller_crud_keeps_custom_provenance(self) -> None:
         with _controller() as controller:
             initial_filter_count = len(controller.filterCatalog)
@@ -825,7 +881,7 @@ class Phase6RealDataTests(unittest.TestCase):
                     "Riduttore controller",
                     "0.8",
                     "REFRACTOR",
-                    "Rifrattore prova",
+                    controller.telescopeCatalogModels[0]["catalog_id"],
                     "M48",
                     "55",
                     True,
@@ -845,6 +901,10 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             self.assertFalse(optical_filter["is_builtin"])
             self.assertFalse(reducer["is_builtin"])
+            self.assertEqual(
+                reducer["compatible_telescope_ids"],
+                [controller.telescopeCatalogModels[0]["catalog_id"]],
+            )
 
             controller.deleteFilterModel(optical_filter["id"], False)
             controller.deleteReducerModel(reducer["id"], False)
@@ -985,6 +1045,9 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.addReducerModel", filters_reducers_qml)
         self.assertIn("controller.deleteFilterModel", filters_reducers_qml)
         self.assertIn("controller.deleteReducerModel", filters_reducers_qml)
+        self.assertIn("reducerTelescopeGrid", filters_reducers_qml)
+        self.assertIn("compatible_telescope_ids", filters_reducers_qml)
+        self.assertNotIn("reducerModels", filters_reducers_qml)
         self.assertIn('title: "Binocoli"', profiles_qml)
         self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)
         self.assertIn('title: "Filtri"', profiles_qml)
@@ -1001,6 +1064,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("Pupilla d'uscita", object_detail_qml)
         self.assertIn("setupFilterRecommendations()", object_detail_qml)
         self.assertIn("filterRecommendationsData", object_detail_qml)
+        self.assertIn("reducerRecommendationData", object_detail_qml)
 
     def test_object_detail_catalogue_mode_uses_catalogue_layout(self) -> None:
         object_detail_qml = (

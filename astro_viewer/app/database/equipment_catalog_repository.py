@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterable
 from contextlib import closing
 from pathlib import Path
 
@@ -736,6 +737,10 @@ class EquipmentCatalogRepository:
             reducer["compatible_telescope_ids"] = [
                 item["catalog_id"] for item in compatibility
             ]
+            if compatibility:
+                reducer["compatible_models"] = "; ".join(
+                    item["display_name"] for item in compatibility
+                )
             reducers.append(reducer)
         return reducers
 
@@ -752,6 +757,7 @@ class EquipmentCatalogRepository:
         imaging_compatible: bool = True,
         corrected_field: bool = False,
         notes: str = "",
+        compatible_telescope_ids: Iterable[str] = (),
     ) -> tuple[bool, str]:
         values, error = self._validated_reducer_values(
             brand,
@@ -769,6 +775,14 @@ class EquipmentCatalogRepository:
         if error:
             return False, error
         with closing(self._connect()) as connection:
+            telescope_model_ids, compatibility_error = (
+                self._validated_reducer_telescope_ids(
+                    connection,
+                    compatible_telescope_ids,
+                )
+            )
+            if compatibility_error:
+                return False, compatibility_error
             duplicate = connection.execute(
                 """
                 SELECT id FROM ReducerCatalog
@@ -778,7 +792,7 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if duplicate:
                 return False, "Questo riduttore è già presente nel catalogo."
-            connection.execute(
+            cursor = connection.execute(
                 """
                 INSERT INTO ReducerCatalog (
                     brand, model, reduction_factor, optical_system,
@@ -789,6 +803,11 @@ class EquipmentCatalogRepository:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 values,
+            )
+            self._replace_reducer_telescope_compatibility(
+                connection,
+                int(cursor.lastrowid),
+                telescope_model_ids,
             )
             connection.commit()
         return True, "Riduttore aggiunto."
@@ -807,6 +826,7 @@ class EquipmentCatalogRepository:
         imaging_compatible: bool = True,
         corrected_field: bool = False,
         notes: str = "",
+        compatible_telescope_ids: Iterable[str] = (),
     ) -> tuple[bool, str]:
         values, error = self._validated_reducer_values(
             brand,
@@ -832,6 +852,14 @@ class EquipmentCatalogRepository:
                 return False, "Riduttore non trovato."
             if bool(existing["is_builtin"]):
                 return False, "Gli elementi integrati non possono essere modificati."
+            telescope_model_ids, compatibility_error = (
+                self._validated_reducer_telescope_ids(
+                    connection,
+                    compatible_telescope_ids,
+                )
+            )
+            if compatibility_error:
+                return False, compatibility_error
             duplicate = connection.execute(
                 """
                 SELECT id FROM ReducerCatalog
@@ -851,6 +879,11 @@ class EquipmentCatalogRepository:
                 WHERE id = ?
                 """,
                 values + (reducer_id,),
+            )
+            self._replace_reducer_telescope_compatibility(
+                connection,
+                reducer_id,
+                telescope_model_ids,
             )
             connection.commit()
         return True, "Riduttore aggiornato."
@@ -1235,6 +1268,57 @@ class EquipmentCatalogRepository:
             1 if corrected_field else 0,
             notes.strip(),
         ), ""
+
+    @staticmethod
+    def _validated_reducer_telescope_ids(
+        connection: sqlite3.Connection,
+        compatible_telescope_ids: Iterable[str],
+    ) -> tuple[tuple[int, ...], str]:
+        model_ids: list[int] = []
+        for value in compatible_telescope_ids:
+            catalog_id = str(value or "").strip()
+            prefix = "catalog-telescope-"
+            if not catalog_id.startswith(prefix):
+                return (), "Selezione dei telescopi compatibili non valida."
+            raw_model_id = catalog_id.removeprefix(prefix)
+            if not raw_model_id.isdigit() or int(raw_model_id) <= 0:
+                return (), "Selezione dei telescopi compatibili non valida."
+            model_id = int(raw_model_id)
+            if model_id not in model_ids:
+                model_ids.append(model_id)
+        if not model_ids:
+            return (), ""
+        placeholders = ", ".join("?" for _ in model_ids)
+        existing_ids = {
+            int(row[0])
+            for row in connection.execute(
+                f"SELECT id FROM TelescopeModel WHERE id IN ({placeholders})",
+                model_ids,
+            ).fetchall()
+        }
+        if existing_ids != set(model_ids):
+            return (), "Uno o più telescopi compatibili non esistono più."
+        return tuple(model_ids), ""
+
+    @staticmethod
+    def _replace_reducer_telescope_compatibility(
+        connection: sqlite3.Connection,
+        reducer_id: int,
+        telescope_model_ids: Iterable[int],
+    ) -> None:
+        connection.execute(
+            "DELETE FROM ReducerTelescopeCompatibility WHERE reducer_id = ?",
+            (reducer_id,),
+        )
+        connection.executemany(
+            """
+            INSERT INTO ReducerTelescopeCompatibility (
+                reducer_id, telescope_model_id
+            )
+            VALUES (?, ?)
+            """,
+            ((reducer_id, model_id) for model_id in telescope_model_ids),
+        )
 
     @staticmethod
     def _ensure_brand(connection: sqlite3.Connection, brand: str) -> int:

@@ -58,6 +58,9 @@ from astro_viewer.app.services.equipment_setup_read_model import (
 from astro_viewer.app.services.filter_recommendation_service import (
     FilterRecommendationService,
 )
+from astro_viewer.app.services.reducer_recommendation_service import (
+    ReducerRecommendationService,
+)
 from astro_viewer.app.services.light_pollution_service import LightPollutionService, ViirsCacheState
 from astro_viewer.app.services.location_service import (
     APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE,
@@ -270,6 +273,7 @@ class AppController(QObject):
         self._equipment_service = EquipmentService()
         self._equipment_setup_read_model_builder = EquipmentSetupReadModelBuilder()
         self._filter_recommendation_service = FilterRecommendationService()
+        self._reducer_recommendation_service = ReducerRecommendationService()
         self._score_service = ObservingScoreService()
         self._light_pollution_service = LightPollutionService(
             self._sky_quality_repository,
@@ -821,6 +825,18 @@ class AppController(QObject):
             adjusted_target,
             self._active_profile_filters(),
         )
+        setup_telescope_id = ""
+        if (
+            setup_model is not None
+            and setup_model.equipment_type == "Telescope"
+        ):
+            setup_telescope_id = setup_model.telescope_id
+        reducer_recommendation = self._reducer_recommendation_service.recommend(
+            adjusted_target,
+            setup_telescope_id,
+            self._active_profile_reducers(),
+            self._reducers,
+        )
         session = self.homeObservingOverview.get("session", {})
         is_deep_sky = not self._is_planetary_or_lunar_target(target)
         return self._observing_object_detail_service.build(
@@ -829,6 +845,7 @@ class AppController(QObject):
             session=session,
             setup_model=setup_model,
             filter_recommendations=filter_recommendations.to_payload(),
+            reducer_recommendation=reducer_recommendation.to_payload(),
             altitude_threshold_deg=self._observing_altitude_threshold(target),
             is_deep_sky=is_deep_sky,
         )
@@ -1910,7 +1927,7 @@ class AppController(QObject):
         model: str,
         reduction_factor: str,
         optical_system: str,
-        compatible_models: str,
+        compatible_telescope_ids: str,
         connection_name: str,
         backfocus: str,
         visual_compatible: bool,
@@ -1927,13 +1944,15 @@ class AppController(QObject):
             model,
             factor,
             optical_system,
-            compatible_models=compatible_models,
             connection_name=connection_name,
             backfocus_mm=backfocus_mm,
             visual_compatible=visual_compatible,
             imaging_compatible=imaging_compatible,
             corrected_field=corrected_field,
             notes=notes,
+            compatible_telescope_ids=self._catalog_id_list(
+                compatible_telescope_ids
+            ),
         )
         self._after_passive_accessory_catalog_change(message, ok)
 
@@ -1945,7 +1964,7 @@ class AppController(QObject):
         model: str,
         reduction_factor: str,
         optical_system: str,
-        compatible_models: str,
+        compatible_telescope_ids: str,
         connection_name: str,
         backfocus: str,
         visual_compatible: bool,
@@ -1963,13 +1982,15 @@ class AppController(QObject):
             model,
             factor,
             optical_system,
-            compatible_models=compatible_models,
             connection_name=connection_name,
             backfocus_mm=backfocus_mm,
             visual_compatible=visual_compatible,
             imaging_compatible=imaging_compatible,
             corrected_field=corrected_field,
             notes=notes,
+            compatible_telescope_ids=self._catalog_id_list(
+                compatible_telescope_ids
+            ),
         )
         self._after_passive_accessory_catalog_change(message, ok)
 
@@ -3720,6 +3741,12 @@ class AppController(QObject):
                 item.optional_color_filter_class
                 or str((catalogue_item or {}).get("optional_color_filter_class") or "")
             ),
+            imaging_reducer_recommended=(
+                item.imaging_reducer_recommended
+                or bool(
+                    (catalogue_item or {}).get("imaging_reducer_recommended")
+                )
+            ),
         )
 
     def _apply_deep_sky_pollution_context(self, objects: list[CelestialObject]) -> list[CelestialObject]:
@@ -3878,6 +3905,9 @@ class AppController(QObject):
             "best_filter_class": row.get("best_filter_class") or "",
             "fallback_filter_class": row.get("fallback_filter_class") or "",
             "optional_color_filter_class": row.get("optional_color_filter_class") or "",
+            "imaging_reducer_recommended": bool(
+                row.get("imaging_reducer_recommended")
+            ),
             "description": row["description"] or "",
             "search_terms": search_terms,
             "catalogue_sort_index": row.get("primary_sort_index"),
@@ -3929,6 +3959,7 @@ class AppController(QObject):
             "best_filter_class": best_filter_class,
             "fallback_filter_class": fallback_filter_class,
             "optional_color_filter_class": optional_color_filter_class,
+            "imaging_reducer_recommended": False,
             "description": description.get("short_description", "").strip(),
             "image": config.image,
             "solar_system_body_id": config.object_id,
@@ -4296,6 +4327,9 @@ class AppController(QObject):
                 best_filter_class=item.get("best_filter_class", ""),
                 fallback_filter_class=item.get("fallback_filter_class", ""),
                 optional_color_filter_class=item.get("optional_color_filter_class", ""),
+                imaging_reducer_recommended=bool(
+                    item.get("imaging_reducer_recommended")
+                ),
             )
         )
 
@@ -4319,6 +4353,7 @@ class AppController(QObject):
                 best_filter_class=item.get("best_filter_class", ""),
                 fallback_filter_class=item.get("fallback_filter_class", ""),
                 optional_color_filter_class=item.get("optional_color_filter_class", ""),
+                imaging_reducer_recommended=False,
             )
         return self._apply_object_content(
             CelestialObject(
@@ -4347,6 +4382,7 @@ class AppController(QObject):
                 best_filter_class=item.get("best_filter_class", ""),
                 fallback_filter_class=item.get("fallback_filter_class", ""),
                 optional_color_filter_class=item.get("optional_color_filter_class", ""),
+                imaging_reducer_recommended=False,
             )
         )
 
@@ -5576,6 +5612,16 @@ class AppController(QObject):
             self.equipmentChanged.emit()
             return None
         return factor, backfocus_mm
+
+    @staticmethod
+    def _catalog_id_list(value: str) -> tuple[str, ...]:
+        return tuple(
+            dict.fromkeys(
+                item.strip()
+                for item in str(value or "").split(",")
+                if item.strip()
+            )
+        )
 
     @staticmethod
     def _optional_float_input(value: str) -> float | None:
