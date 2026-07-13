@@ -821,16 +821,21 @@ class AppController(QObject):
         payload = self._object_to_qml(adjusted_target)
         status = str(payload.get("observingStatus", ""))
         setup_model = getattr(self, "_equipment_setup_read_models_by_object_id", {}).get(target.id)
-        filter_recommendations = self._filter_recommendation_service.recommend(
-            adjusted_target,
-            self._active_profile_filters(),
-        )
+        filter_recommendations = None
         setup_telescope_id = ""
         if (
             setup_model is not None
             and setup_model.equipment_type == "Telescope"
         ):
             setup_telescope_id = setup_model.telescope_id
+            telescope = self._find_telescope(setup_telescope_id)
+            if telescope is not None:
+                filter_recommendations = self._filter_recommendation_service.recommend(
+                    adjusted_target,
+                    self._active_profile_filters(),
+                    self._filters,
+                    telescope_aperture_mm=telescope.aperture_mm,
+                )
         reducer_recommendation = self._reducer_recommendation_service.recommend(
             adjusted_target,
             setup_telescope_id,
@@ -844,7 +849,11 @@ class AppController(QObject):
             geometry_state=self._observing_status_state(status),
             session=session,
             setup_model=setup_model,
-            filter_recommendations=filter_recommendations.to_payload(),
+            filter_recommendations=(
+                filter_recommendations.to_payload()
+                if filter_recommendations is not None
+                else None
+            ),
             reducer_recommendation=reducer_recommendation.to_payload(),
             altitude_threshold_deg=self._observing_altitude_threshold(target),
             is_deep_sky=is_deep_sky,

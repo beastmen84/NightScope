@@ -23,7 +23,6 @@ FILTER_CLASS_OPTIONS: tuple[tuple[str, str], ...] = (
 )
 
 FILTER_CLASS_LABELS = dict(FILTER_CLASS_OPTIONS)
-FILTER_CLASS_LABELS["COLOR_UNSPECIFIED"] = "Colorato (da riclassificare)"
 FILTER_CLASS_CODES = frozenset(FILTER_CLASS_LABELS)
 
 
@@ -36,4 +35,10 @@ SOLAR_SYSTEM_FILTER_PREFERENCES = {
     "saturn": ("CONTRAST", "MOON_SKYGLOW", "COLOR_LIGHT_BLUE"),
     "uranus": ("", "", "COLOR_YELLOW"),
     "neptune": ("", "", "COLOR_YELLOW"),
+}
+
+
+TARGET_FILTER_CLASS_MINIMUM_APERTURE_MM = {
+    ("uranus", "COLOR_YELLOW"): 280,
+    ("neptune", "COLOR_YELLOW"): 280,
 }

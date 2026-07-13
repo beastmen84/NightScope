@@ -5,7 +5,7 @@ from contextlib import closing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from astro_viewer.app.database.bootstrap import _migrate_filter_catalog, initialize_database
+from astro_viewer.app.database.bootstrap import initialize_database
 from astro_viewer.app.database.equipment_catalog_repository import (
     FILTER_CLASS_LABELS,
     OPTICAL_SYSTEM_LABELS,
@@ -33,7 +33,7 @@ def test_filter_and_reducer_seeds_are_comprehensive_and_structured() -> None:
         assert len(reducers) == 24
         assert all(item["is_builtin"] for item in filters + reducers)
         seeded_classes = {item["filter_class"] for item in filters}
-        assert set(FILTER_CLASS_LABELS) - {"COLOR_UNSPECIFIED"} == seeded_classes
+        assert set(FILTER_CLASS_LABELS) == seeded_classes
         assert all("barrel_size" not in item for item in filters)
         assert any(
             item["brand"] == "Celestron"
@@ -429,58 +429,3 @@ def test_reinitialization_marks_seed_rows_without_reclassifying_custom_rows() ->
         }.issubset(tables)
     finally:
         temporary_directory.cleanup()
-
-
-def test_filter_catalog_migration_collapses_barrel_duplicates_without_losing_profiles() -> None:
-    with closing(sqlite3.connect(":memory:")) as connection:
-        connection.row_factory = sqlite3.Row
-        connection.executescript(
-            """
-            CREATE TABLE FilterCatalog (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                brand TEXT NOT NULL,
-                model TEXT NOT NULL,
-                filter_class TEXT NOT NULL,
-                barrel_size TEXT,
-                central_wavelength_nm REAL,
-                bandwidth_nm REAL,
-                transmission_pct REAL,
-                minimum_aperture_mm INTEGER,
-                notes TEXT,
-                is_builtin INTEGER NOT NULL DEFAULT 0,
-                UNIQUE (brand, model, barrel_size)
-            );
-            CREATE TABLE EquipmentProfileFilter (
-                profile_id INTEGER NOT NULL,
-                filter_id TEXT NOT NULL,
-                PRIMARY KEY (profile_id, filter_id)
-            );
-            INSERT INTO FilterCatalog (
-                id, brand, model, filter_class, barrel_size, is_builtin
-            ) VALUES
-                (10, 'Example', 'OIII', 'OIII', '1.25', 1),
-                (11, 'Example', 'OIII', 'OIII', '2', 1),
-                (12, 'Example', 'Red', 'COLOR', '1.25', 0);
-            INSERT INTO EquipmentProfileFilter (profile_id, filter_id)
-            VALUES (7, 'catalog-filter-11');
-            """
-        )
-
-        _migrate_filter_catalog(connection)
-
-        columns = {
-            row[1] for row in connection.execute("PRAGMA table_info(FilterCatalog)")
-        }
-        filters = connection.execute(
-            "SELECT id, model, filter_class FROM FilterCatalog ORDER BY id"
-        ).fetchall()
-        assignments = connection.execute(
-            "SELECT profile_id, filter_id FROM EquipmentProfileFilter"
-        ).fetchall()
-
-    assert "barrel_size" not in columns
-    assert [tuple(row) for row in filters] == [
-        (10, "OIII", "OIII"),
-        (12, "Red", "COLOR_RED"),
-    ]
-    assert [tuple(row) for row in assignments] == [(7, "catalog-filter-10")]

@@ -791,6 +791,20 @@ class Phase6RealDataTests(unittest.TestCase):
             target = controller._apply_object_content(
                 _object("messier-M27", "M27", "Planetary nebula", "7.4")
             )
+            telescope = max(controller._telescopes, key=lambda item: item.aperture_mm)
+            controller._equipment_setup_read_models_by_object_id[target.id] = (
+                EquipmentSetupReadModelBuilder().from_suggestion(
+                    target,
+                    {
+                        "setupText": telescope.name,
+                        "setupOptions": [],
+                        "telescopeId": telescope.id,
+                        "telescopeName": telescope.name,
+                        "equipmentType": "Telescope",
+                        "setupType": "telescope",
+                    },
+                )
+            )
             controller._selected_object = target
             controller._selected_object_source = "observing"
             controller._sky_compass_candidate_snapshot = [target]
@@ -806,6 +820,39 @@ class Phase6RealDataTests(unittest.TestCase):
                 recommendation["value"],
                 optical_filter["display_name"],
             )
+
+    def test_filter_recommendation_is_hidden_for_binocular_setup(self) -> None:
+        with _controller() as controller:
+            optical_filter = next(
+                item for item in controller.filterCatalog if item["filter_class"] == "OIII"
+            )
+            controller.assignEquipmentToActiveProfile(
+                "filter",
+                optical_filter["catalog_id"],
+            )
+            target = controller._apply_object_content(
+                _object("messier-M27", "M27", "Planetary nebula", "7.4")
+            )
+            controller._equipment_setup_read_models_by_object_id[target.id] = (
+                EquipmentSetupReadModelBuilder().from_suggestion(
+                    target,
+                    {
+                        "setupText": "Binocolo 10x50",
+                        "setupOptions": [],
+                        "equipmentType": "Binocular",
+                        "setupType": "binocular",
+                    },
+                )
+            )
+            controller._selected_object = target
+            controller._selected_object_source = "observing"
+            controller._sky_compass_candidate_snapshot = [target]
+
+            recommendations = controller.observingObjectDetail["equipment"][
+                "filterRecommendations"
+            ]
+
+            self.assertEqual(recommendations, {"primary": {}, "optionalColor": {}})
 
     def test_reducer_recommendation_uses_target_setup_and_active_profile(self) -> None:
         with _controller() as controller:
@@ -1047,6 +1094,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.deleteReducerModel", filters_reducers_qml)
         self.assertIn("reducerTelescopeGrid", filters_reducers_qml)
         self.assertIn("compatible_telescope_ids", filters_reducers_qml)
+        self.assertIn('"1 selezionato"', filters_reducers_qml)
+        self.assertIn('" selezionati"', filters_reducers_qml)
         self.assertNotIn("reducerModels", filters_reducers_qml)
         self.assertIn('title: "Binocoli"', profiles_qml)
         self.assertIn('emptyText: "Nessun binocolo assegnato."', profiles_qml)

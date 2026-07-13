@@ -333,7 +333,6 @@ def _migrate_database(connection: sqlite3.Connection) -> None:
     _migrate_catalogue_tables(connection)
     _migrate_binocular_catalog(connection)
     _ensure_profile_binocular_table(connection)
-    _migrate_filter_catalog(connection)
     _remove_orphan_profile_assignments(connection)
     _add_columns(connection, "SkyQualityEstimate", {"confidence": "TEXT"})
     _add_columns(
@@ -541,122 +540,6 @@ def _ensure_profile_binocular_table(connection: sqlite3.Connection) -> None:
         )
         """
     )
-
-
-def _migrate_filter_catalog(connection: sqlite3.Connection) -> None:
-    columns = {
-        str(row[1])
-        for row in connection.execute("PRAGMA table_info(FilterCatalog)").fetchall()
-    }
-    if "barrel_size" not in columns:
-        connection.execute(
-            "UPDATE FilterCatalog SET filter_class = 'COLOR_UNSPECIFIED' WHERE filter_class = 'COLOR'"
-        )
-        return
-
-    rows = connection.execute(
-        """
-        SELECT id, brand, model, filter_class, central_wavelength_nm,
-               bandwidth_nm, transmission_pct, minimum_aperture_mm,
-               notes, is_builtin
-        FROM FilterCatalog
-        ORDER BY id
-        """
-    ).fetchall()
-    canonical_by_key: dict[tuple[str, str], sqlite3.Row] = {}
-    canonical_id_by_old_id: dict[int, int] = {}
-    for row in rows:
-        key = (str(row["brand"]).strip().casefold(), str(row["model"]).strip().casefold())
-        canonical = canonical_by_key.setdefault(key, row)
-        canonical_id_by_old_id[int(row["id"])] = int(canonical["id"])
-
-    connection.execute("DROP TABLE IF EXISTS FilterCatalog_new")
-    connection.execute(
-        """
-        CREATE TABLE FilterCatalog_new (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            brand TEXT NOT NULL,
-            model TEXT NOT NULL,
-            filter_class TEXT NOT NULL,
-            central_wavelength_nm REAL,
-            bandwidth_nm REAL,
-            transmission_pct REAL,
-            minimum_aperture_mm INTEGER,
-            notes TEXT,
-            is_builtin INTEGER NOT NULL DEFAULT 0,
-            UNIQUE (brand, model)
-        )
-        """
-    )
-    connection.executemany(
-        """
-        INSERT INTO FilterCatalog_new (
-            id, brand, model, filter_class, central_wavelength_nm,
-            bandwidth_nm, transmission_pct, minimum_aperture_mm,
-            notes, is_builtin
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        [
-            (
-                int(row["id"]),
-                row["brand"],
-                row["model"],
-                _legacy_filter_class(row),
-                row["central_wavelength_nm"],
-                row["bandwidth_nm"],
-                row["transmission_pct"],
-                row["minimum_aperture_mm"],
-                row["notes"],
-                row["is_builtin"],
-            )
-            for row in canonical_by_key.values()
-        ],
-    )
-    for old_id, canonical_id in canonical_id_by_old_id.items():
-        if old_id == canonical_id:
-            continue
-        old_catalog_id = f"catalog-filter-{old_id}"
-        canonical_catalog_id = f"catalog-filter-{canonical_id}"
-        connection.execute(
-            """
-            INSERT OR IGNORE INTO EquipmentProfileFilter (profile_id, filter_id)
-            SELECT profile_id, ?
-            FROM EquipmentProfileFilter
-            WHERE filter_id = ?
-            """,
-            (canonical_catalog_id, old_catalog_id),
-        )
-        connection.execute(
-            "DELETE FROM EquipmentProfileFilter WHERE filter_id = ?",
-            (old_catalog_id,),
-        )
-    connection.execute("DROP TABLE FilterCatalog")
-    connection.execute("ALTER TABLE FilterCatalog_new RENAME TO FilterCatalog")
-
-
-def _legacy_filter_class(row: sqlite3.Row) -> str:
-    filter_class = str(row["filter_class"] or "").strip().upper()
-    if filter_class != "COLOR":
-        return filter_class
-    model = str(row["model"] or "").casefold()
-    if "yellow" in model or "giallo" in model:
-        return "COLOR_YELLOW"
-    if "orange" in model or "arancio" in model:
-        return "COLOR_ORANGE"
-    if "red" in model or "rosso" in model:
-        return "COLOR_RED"
-    if "light blue" in model or "azzurro" in model:
-        return "COLOR_LIGHT_BLUE"
-    if "dark blue" in model or "blu scuro" in model:
-        return "COLOR_DARK_BLUE"
-    if "light green" in model or "verde chiaro" in model:
-        return "COLOR_LIGHT_GREEN"
-    if "green" in model or "verde" in model:
-        return "COLOR_GREEN"
-    if "violet" in model or "viola" in model:
-        return "COLOR_VIOLET"
-    return "COLOR_UNSPECIFIED"
 
 
 def _database_is_healthy(database_path: Path) -> bool:
@@ -1004,7 +887,6 @@ def _validate_catalogue_seed(
         if color_filter_class and (
             color_filter_class not in FILTER_CLASS_CODES
             or not color_filter_class.startswith("COLOR_")
-            or color_filter_class == "COLOR_UNSPECIFIED"
         ):
             raise ValueError(f"Invalid optional color filter class for {object_id}.")
         reducer_recommendation = str(

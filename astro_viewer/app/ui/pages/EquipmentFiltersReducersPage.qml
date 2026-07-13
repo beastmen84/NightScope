@@ -575,7 +575,9 @@ Item {
                 }
 
                 Text {
-                    text: root.reducerTelescopeIds.length + " selezionati"
+                    text: root.reducerTelescopeIds.length === 1
+                          ? "1 selezionato"
+                          : root.reducerTelescopeIds.length + " selezionati"
                     color: theme.textMuted
                     font.pixelSize: 12
                 }
