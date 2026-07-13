@@ -100,6 +100,10 @@ from astro_viewer.app.services.observation_conditions_read_model import (
     ObservationConditionedTargetReadModel,
     ObservationConditionsReadModelBuilder,
 )
+from astro_viewer.app.services.observation_log_service import (
+    ObservationLogService,
+    ObservationLogValidationError,
+)
 from astro_viewer.app.services.observing_score_service import ObservingScoreService
 from astro_viewer.app.services.observing_night_service import (
     consecutive_weather_groups,
@@ -288,6 +292,7 @@ class AppController(QObject):
         self._nsom_category_score_service = nsom_category_score_service or NsomCategoryScoreService()
         self._conditions_service = ObservationConditionsService()
         self._conditions_read_model_builder = ObservationConditionsReadModelBuilder()
+        self._observation_log_service = ObservationLogService()
         self._best_object_nsom_selection_service = (
             best_object_nsom_selection_service or BestObjectNsomSelectionService()
         )
@@ -340,7 +345,10 @@ class AppController(QObject):
         self._selected_object: CelestialObject | None = None
         self._selected_object_source = ""
         self._best_object: CelestialObject | None = None
-        self._observation_history = self._observation_repository.recent(limit=10)
+        self._observation_rows = self._observation_repository.list_all()
+        self._observation_log = self._observation_log_service.build_entries(self._observation_rows)
+        self._observation_log_summary = self._observation_log_service.build_summary(self._observation_rows)
+        self._observation_message = ""
 
         self._beginner_presets = self._equipment_service.beginner_presets()
         self._telescope_brands = self._equipment_catalog_repository.brands()
@@ -1057,8 +1065,29 @@ class AppController(QObject):
         return self._barlow
 
     @Property("QVariant", notify=observationChanged)
-    def observationHistory(self) -> list[dict]:
-        return self._observation_history
+    def observationLog(self) -> list[dict]:
+        return self._observation_log
+
+    @Property("QVariant", notify=observationChanged)
+    def observationLogSummary(self) -> dict:
+        return self._observation_log_summary
+
+    @Property("QVariant", notify=observationChanged)
+    def observationLogDefaults(self) -> dict:
+        now = datetime.now(self._zone())
+        telescope = self._current_telescope()
+        eyepieces = self._active_profile_eyepieces()
+        return {
+            "dateValue": now.strftime("%Y-%m-%d"),
+            "timeValue": now.strftime("%H:%M"),
+            "location": self._observation_location_label(),
+            "telescope": telescope.name,
+            "eyepiece": eyepieces[0].name if eyepieces else "",
+        }
+
+    @Property(str, notify=observationChanged)
+    def observationMessage(self) -> str:
+        return self._observation_message
 
     @Slot(str)
     def selectObject(self, object_id: str) -> None:
@@ -2081,29 +2110,122 @@ class AppController(QObject):
         self._refresh_active_profile_dependencies(reload_profile_equipment=True)
         self._emit_profile_dependent_changes()
 
-    @Slot(str, str)
-    def saveObservation(self, rating: str, notes: str) -> None:
-        if not self._selected_object:
-            return
+    @Slot(str, str, str, str, str, str, int, str, result=bool)
+    def addObservation(
+        self,
+        date_text: str,
+        time_text: str,
+        object_name: str,
+        location: str,
+        telescope: str,
+        eyepiece: str,
+        rating: int,
+        notes: str,
+    ) -> bool:
         try:
-            parsed_rating = int(rating)
-        except ValueError:
-            parsed_rating = 0
-        parsed_rating = max(0, min(5, parsed_rating))
-        location_label = self._location.city
-        if self._location.country:
-            location_label = f"{location_label}, {self._location.country}"
-        self._observation_repository.add(
-            date=datetime.now(self._zone()).isoformat(timespec="minutes"),
-            object_name=self._selected_object.name,
-            location=location_label,
-            telescope=self._current_telescope().name,
-            eyepiece=self._selected_object.best_eyepiece,
-            rating=parsed_rating,
-            notes=notes.strip(),
+            values = self._normalize_observation(
+                date_text,
+                time_text,
+                object_name,
+                location,
+                telescope,
+                eyepiece,
+                rating,
+                notes,
+            )
+        except ObservationLogValidationError as error:
+            self._set_observation_message(str(error))
+            return False
+        self._observation_repository.add(**values)
+        self._reload_observation_log("Osservazione aggiunta al log.")
+        return True
+
+    @Slot(int, str, str, str, str, str, str, int, str, result=bool)
+    def updateObservation(
+        self,
+        observation_id: int,
+        date_text: str,
+        time_text: str,
+        object_name: str,
+        location: str,
+        telescope: str,
+        eyepiece: str,
+        rating: int,
+        notes: str,
+    ) -> bool:
+        try:
+            values = self._normalize_observation(
+                date_text,
+                time_text,
+                object_name,
+                location,
+                telescope,
+                eyepiece,
+                rating,
+                notes,
+            )
+        except ObservationLogValidationError as error:
+            self._set_observation_message(str(error))
+            return False
+        if not self._observation_repository.update(observation_id, **values):
+            self._set_observation_message("L'osservazione selezionata non esiste più.")
+            return False
+        self._reload_observation_log("Osservazione aggiornata.")
+        return True
+
+    @Slot(int, result=bool)
+    def deleteObservation(self, observation_id: int) -> bool:
+        if not self._observation_repository.delete(observation_id):
+            self._set_observation_message("L'osservazione selezionata non esiste più.")
+            return False
+        self._reload_observation_log("Osservazione eliminata.")
+        return True
+
+    @Slot()
+    def clearObservationMessage(self) -> None:
+        if self._observation_message:
+            self._set_observation_message("")
+
+    def _normalize_observation(
+        self,
+        date_text: str,
+        time_text: str,
+        object_name: str,
+        location: str,
+        telescope: str,
+        eyepiece: str,
+        rating: int,
+        notes: str,
+    ) -> dict:
+        return self._observation_log_service.normalize(
+            date_text=date_text,
+            time_text=time_text,
+            object_name=object_name,
+            location=location,
+            telescope=telescope,
+            eyepiece=eyepiece,
+            rating=rating,
+            notes=notes,
+            now=datetime.now(self._zone()),
         )
-        self._observation_history = self._observation_repository.recent(limit=10)
+
+    def _reload_observation_log(self, message: str) -> None:
+        self._observation_rows = self._observation_repository.list_all()
+        self._observation_log = self._observation_log_service.build_entries(self._observation_rows)
+        self._observation_log_summary = self._observation_log_service.build_summary(self._observation_rows)
+        self._observation_message = message
         self.observationChanged.emit()
+
+    def _set_observation_message(self, message: str) -> None:
+        self._observation_message = message
+        self.observationChanged.emit()
+
+    def _observation_location_label(self) -> str:
+        if not self._has_valid_location():
+            return ""
+        if self._location.country:
+            return f"{self._location.city}, {self._location.country}"
+        return self._location.city
 
     def _refresh_all(self) -> None:
         self._set_loading(True)

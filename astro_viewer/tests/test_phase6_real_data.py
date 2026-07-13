@@ -979,6 +979,7 @@ class Phase6RealDataTests(unittest.TestCase):
         expected_labels = [
             'text: "Home"',
             'text: "Calendario"',
+            'text: "Log Osservazioni"',
             'text: "Meteo"',
             'text: "Configurazione"',
             'text: "Località"',
@@ -995,6 +996,7 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         self.assertNotIn('text: "Strumenti"', main_qml)
         self.assertIn("dataProviders", main_qml)
+        self.assertIn("observationLog", main_qml)
         self.assertIn("equipmentProfiles", main_qml)
         self.assertIn("objectCatalogue", main_qml)
         self.assertIn("equipmentTelescopes", main_qml)
@@ -1002,8 +1004,10 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("equipmentFiltersReducers", main_qml)
         self.assertIn("equipmentBinoculars", main_qml)
         self.assertIn("DataProvidersPage", main_qml)
+        self.assertIn("ObservationLogPage", main_qml)
         self.assertIn("EquipmentProfilesPage", main_qml)
         self.assertIn("ObjectCataloguePage", main_qml)
+
         self.assertIn("EquipmentTelescopesPage", main_qml)
         self.assertIn("EquipmentOpticsPage", main_qml)
         self.assertIn("EquipmentFiltersReducersPage", main_qml)
@@ -1114,6 +1118,56 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("setupFilterRecommendations()", object_detail_qml)
         self.assertIn("filterRecommendationsData", object_detail_qml)
         self.assertIn("reducerRecommendationData", object_detail_qml)
+
+    def test_observation_log_controller_supports_complete_crud(self) -> None:
+        with _controller() as controller:
+            defaults = controller.observationLogDefaults
+            initial_count = len(controller.observationLog)
+
+            self.assertTrue(
+                controller.addObservation(
+                    defaults["dateValue"],
+                    defaults["timeValue"],
+                    "M42",
+                    "Addis Ababa",
+                    "Dobson",
+                    "10 mm",
+                    4,
+                    "Nebulosità evidente",
+                )
+            )
+            self.assertEqual(len(controller.observationLog), initial_count + 1)
+            observation_id = controller.observationLog[0]["id"]
+            self.assertTrue(
+                controller.updateObservation(
+                    observation_id,
+                    defaults["dateValue"],
+                    defaults["timeValue"],
+                    "M42",
+                    "Addis Ababa",
+                    "Dobson",
+                    "8 mm",
+                    5,
+                    "Dettaglio aggiornato",
+                )
+            )
+            self.assertEqual(controller.observationLog[0]["rating"], 5)
+            self.assertEqual(controller.observationLogSummary["total"], initial_count + 1)
+            self.assertTrue(controller.deleteObservation(observation_id))
+            self.assertEqual(len(controller.observationLog), initial_count)
+            self.assertFalse(
+                controller.addObservation(
+                    defaults["dateValue"],
+                    defaults["timeValue"],
+                    "",
+                    "",
+                    "",
+                    "",
+                    4,
+                    "",
+                )
+            )
+            self.assertIn("oggetto", controller.observationMessage.lower())
 
     def test_object_detail_catalogue_mode_uses_catalogue_layout(self) -> None:
         object_detail_qml = (

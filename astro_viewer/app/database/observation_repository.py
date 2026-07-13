@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class ObservationRepository:
-    """Persistence boundary for future observing session notes."""
+    """Persistence boundary for the observation log."""
 
     def __init__(self, database_path: Path):
         self._database_path = database_path
@@ -25,9 +25,9 @@ class ObservationRepository:
         eyepiece: str,
         rating: int,
         notes: str,
-    ) -> None:
+    ) -> int:
         with closing(self._connect()) as connection:
-            connection.execute(
+            cursor = connection.execute(
                 """
                 INSERT INTO ObservationHistory (
                     date, object_name, location, telescope, eyepiece, rating, notes
@@ -37,16 +37,57 @@ class ObservationRepository:
                 (date, object_name, location, telescope, eyepiece, rating, notes),
             )
             connection.commit()
+            return int(cursor.lastrowid)
 
-    def recent(self, limit: int = 20) -> list[dict]:
+    def list_all(self) -> list[dict]:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
                 SELECT id, date, object_name, location, telescope, eyepiece, rating, notes
                 FROM ObservationHistory
                 ORDER BY date DESC, id DESC
-                LIMIT ?
-                """,
-                (limit,),
+                """
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def update(
+        self,
+        observation_id: int,
+        date: str,
+        object_name: str,
+        location: str,
+        telescope: str,
+        eyepiece: str,
+        rating: int,
+        notes: str,
+    ) -> bool:
+        with closing(self._connect()) as connection:
+            cursor = connection.execute(
+                """
+                UPDATE ObservationHistory
+                SET date = ?, object_name = ?, location = ?, telescope = ?,
+                    eyepiece = ?, rating = ?, notes = ?
+                WHERE id = ?
+                """,
+                (
+                    date,
+                    object_name,
+                    location,
+                    telescope,
+                    eyepiece,
+                    rating,
+                    notes,
+                    observation_id,
+                ),
+            )
+            connection.commit()
+            return cursor.rowcount == 1
+
+    def delete(self, observation_id: int) -> bool:
+        with closing(self._connect()) as connection:
+            cursor = connection.execute(
+                "DELETE FROM ObservationHistory WHERE id = ?",
+                (observation_id,),
+            )
+            connection.commit()
+            return cursor.rowcount == 1

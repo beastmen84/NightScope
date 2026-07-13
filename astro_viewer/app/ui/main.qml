@@ -155,6 +155,14 @@ ApplicationWindow {
 
                     NavButton {
                         Layout.fillWidth: true
+                        text: "Log Osservazioni"
+                        iconSource: appController.assetBaseUrl + "/resources/icons/target.svg"
+                        selected: window.currentPage === "observationLog"
+                        onClicked: window.currentPage = "observationLog"
+                    }
+
+                    NavButton {
+                        Layout.fillWidth: true
                         text: "Meteo"
                         iconSource: appController.assetBaseUrl + "/resources/icons/cloud.svg"
                         selected: window.currentPage === "weather"
@@ -315,6 +323,7 @@ ApplicationWindow {
             sourceComponent: {
                 if (window.currentPage === "detail") return detailPage
                 if (window.currentPage === "calendar") return calendarPage
+                if (window.currentPage === "observationLog") return observationLogPage
                 if (window.currentPage === "weather") return weatherPage
                 if (window.currentPage === "location") return locationPage
                 if (window.currentPage === "dataProviders") return dataProvidersPage
@@ -386,6 +395,13 @@ ApplicationWindow {
                 window.detailBackTarget = "calendar"
                 window.currentPage = "detail"
             }
+        }
+    }
+
+    Component {
+        id: observationLogPage
+        ObservationLogPage {
+            controller: appController
         }
     }
 

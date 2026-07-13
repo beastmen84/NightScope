@@ -10,6 +10,7 @@ Popup {
     property string cancelText: "Annulla"
     property bool showAccept: true
     property bool acceptDanger: false
+    property bool closeOnAccept: true
     property int preferredWidth: 720
     property int dialogPadding: 28
     default property alias content: body.data
@@ -89,7 +90,8 @@ Popup {
                 danger: root.acceptDanger
                 onClicked: {
                     root.accepted()
-                    root.close()
+                    if (root.closeOnAccept)
+                        root.close()
                 }
             }
         }

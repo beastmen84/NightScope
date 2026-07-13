@@ -1140,7 +1140,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
 
             equipment_after_update = EquipmentCatalogRepository(database_path)
             profile_names = [profile["profile_name"] for profile in equipment_after_update.profiles()]
-            observations = ObservationRepository(database_path).recent(limit=10)
+            observations = ObservationRepository(database_path).list_all()
             preferences_after_update = LocationPreferenceStore(runtime_dir / "user_preferences.json", runtime_dir / "location_cache.json")
             self.assertIn("Profilo portabile", profile_names)
             self.assertTrue(any(row["object_name"] == "Saturno" for row in observations))
@@ -1166,7 +1166,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
             copied_database_path = copied_runtime_dir / "nightscope.db"
 
             copied_profiles = EquipmentCatalogRepository(copied_database_path).profiles()
-            copied_observations = ObservationRepository(copied_database_path).recent(limit=10)
+            copied_observations = ObservationRepository(copied_database_path).list_all()
             copied_preferences = LocationPreferenceStore(
                 copied_runtime_dir / "user_preferences.json",
                 copied_runtime_dir / "location_cache.json",
