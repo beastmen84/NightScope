@@ -4,19 +4,20 @@ Aggiornato: 2026-07-13
 
 ## Stato Versioni
 
-- Versione sorgente: `1.30.0`
-- Dist `1.30.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.31.0`
+- Dist `1.31.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `5f6c2d0 Fix localization review findings`
+- Commit sorgente validato: `c758dac Add ISS calendar passes`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `5f6c2d0`; non sostituire questo
+stato del codice usare `c758dac`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `c758dac Add ISS calendar passes`
 - `5f6c2d0 Fix localization review findings`
 - `60c5d46 Complete scalable application localization`
 - `5ef1fdf Add Italian and English UI translations`
@@ -103,6 +104,36 @@ cambia live lingua e locale, preserva le altre preferenze e non ricalcola
 astronomia, meteo, equipaggiamento, score o NSOM. I testi inseriti dall'utente
 restano invariati.
 
+Da `1.31.0` il Calendario include anche eventi operativi transitori. La prima
+sorgente implementata calcola i passaggi ISS visibili per la posizione attiva;
+non crea `CatalogueObject`, non riceve score e non entra in Equipment, Planner,
+Home ranking o NSOM. Home continua a consumare la stessa proiezione cronologica
+del Calendario e mostra i passaggi ISS tra i prossimi eventi.
+
+## ISS ed Eventi Transitori 1.31.0
+
+- `TransientCalendarEventSource` e' il confine generico per future sorgenti
+  operative; `IssPassEventSource` e' l'unica implementazione attuale.
+- Il motore annuale Skyfield resta proprietario di fasi, opposizioni,
+  congiunzioni, eclissi e sciami. Una sorgente transitoria fallita viene
+  ignorata e non elimina questi eventi.
+- La ISS usa gli OMM pubblici CelesTrak del NORAD `25544`, senza account. Il
+  calcolo riusa Skyfield, SGP4, Requests e NumPy gia' installati; pandas e
+  astroquery non sono stati aggiunti perche' non servono a questa pipeline.
+- La finestra mobile e' di 10 giorni. Un passaggio richiede quota ISS almeno
+  `10 gradi`, satellite illuminato e Sole locale a quota non superiore a
+  `-6 gradi`; i campioni della finestra visibile sono distanziati di 10 secondi.
+- Ogni evento espone inizio, fine, culminazione, altezza massima, direzione
+  iniziale/finale, durata, illuminazione, fonte e freschezza dei dati.
+- Il dettaglio usa indicazioni operative score-free e non presenta la ISS come
+  setup personalizzato o oggetto apribile. Il Calendario ha filtro e conteggio
+  `ISS`; Home mantiene gli 8 eventi successivi su layout largo e 4 su stretto.
+- Gli intervalli conclusi vengono esclusi anche se appartengono al giorno
+  corrente; un passaggio gia' iniziato ma non concluso resta visibile.
+- `CalendarOverviewService` e' ora `calendar_overview_v3`; i nuovi campi sono
+  generici per supportare in seguito comete o asteroidi senza cambiare il
+  contratto base.
+
 ## Localizzazione Completa 1.30.0
 
 - `TranslationManager` viene installato prima del controller e del caricamento
@@ -119,7 +150,7 @@ restano invariati.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1474` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1517` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -160,7 +191,9 @@ restano invariati.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite e' `14`; il bootstrap migra e rimuove `MessierObject`, valida
+- Lo schema SQLite corrente e' `15`; la versione `14` ha introdotto il flag
+  riduttori, mentre la `15` aggiunge la cache orbitale. Il bootstrap migra e
+  rimuove `MessierObject`, valida
   identita', riferimenti e primarie dei seed e distingue contenuti editoriali
   gestiti da import personalizzati.
 - I seed correnti sono `catalogue_objects_seed.csv` e
@@ -380,6 +413,10 @@ Rimossi:
   solari come categoria informativa separata.
 - Eventi, finestre, visibilita', partecipanti e separazione sono campi distinti.
 - Home `Prossimi eventi` usa la proiezione Calendar corrente.
+- I passaggi ISS usano una sorgente a 10 giorni separata dall'orizzonte annuale
+  e vengono uniti soltanto nella proiezione cronologica finale.
+- Il contratto distingue `startsAt`, `endsAt`, `peakAt`, fatti operativi e
+  metadati sorgente; non assegna un target catalogo alla ISS.
 
 ### Catalogo
 
@@ -401,8 +438,11 @@ Rimossi:
   geometria lunare.
 - Open-Meteo conserva la cache sui fallimenti retryable e programma il retry
   controllato.
+- `OrbitalElementCache` conserva OMM/TLE per provider e oggetto. Per la ISS il
+  TTL e' 6 ore; se CelesTrak non risponde, un elemento resta utilizzabile fino
+  a 3 giorni dalla propria epoca, poi i passaggi non vengono inventati.
 
-## Validazione 1.30.0
+## Validazione 1.31.0
 
 Eseguita nella venv corrente:
 
@@ -415,6 +455,8 @@ Eseguita nella venv corrente:
 .\tools\update_translations.ps1 -CompileOnly
 $qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
 & .\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui @qmlFiles
+.\.venv\Scripts\python.exe -m astro_viewer.main --smoke-test
+.\.venv\Scripts\python.exe -m astro_viewer.main --qml-smoke-test
 ```
 
 Risultati:
@@ -422,20 +464,21 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `727 passed`, `557 warnings`, `7 subtests passed` in `43,41 s`.
-- Cataloghi: `1474` messaggi completi per lingua; entrambi i `.qm` compilati.
+- Suite: `731 passed`, `561 warnings`, `7 subtests passed` in `90,40 s`.
+- Cataloghi: `1517` messaggi completi per lingua; entrambi i `.qm` compilati.
 - Updater JSON/TS verificati idempotenti; un secondo passaggio conserva gli
   hash di tutti i sorgenti tradotti.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
   non qualificato, nessun errore QML.
-- QML smoke italiano e inglese: exit `0`, eseguiti in parallelo con runtime
-  temporanei senza salvare file nella root del progetto.
+- Smoke backend e QML del bootstrap di produzione: exit `0`. I test lingua
+  continuano a caricare la scena QML in italiano e inglese da runtime
+  temporanei.
 - Verificati cambio live, fallback italiano, formati locali, contenuti seed,
   persistenza della lingua, preservazione delle altre preferenze, terza lingua
   sintetica, packaging, ordine della navigazione e assenza di ricalcoli NSOM.
 - Dist non rigenerata.
 
-Le 558 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 561 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 
