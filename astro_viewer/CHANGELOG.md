@@ -1,5 +1,54 @@
 # Changelog
 
+## NightScope 1.33.0 - 2026-07-14
+
+- Eseguito un audit pre-release completo su codice Python/QML, database,
+  provider, dipendenze, dati, immagini, packaging, localizzazione, privacy e
+  documentazione. Non sono emersi difetti funzionali applicativi ad alta
+  severità; i gate di release ancora aperti sono raccolti in
+  `docs/RELEASE_CHECKLIST.md`.
+- Riscritto il README GitHub interamente in inglese come panoramica di prodotto
+  e sviluppo, separandolo dal changelog e rendendo espliciti stato pre-release,
+  uso della rete, privacy, limiti, build portatile e assenza della licenza di
+  progetto.
+- Sostituito il manuale italiano con un manuale HTML unico italiano/inglese,
+  responsive, stampabile e navigabile. Aggiunte guida iniziale, formule ottiche,
+  logica NSOM/equipaggiamento, calendario transitorio, provider, stati dei dati,
+  privacy, backup, troubleshooting e sicurezza solare.
+- Aggiunto nella testata della sidebar il pulsante di aiuto che apre il manuale
+  nella lingua corrente, con percorso valido sia da sorgente sia nel bundle
+  PyInstaller.
+- Corretto il manuale sulla semantica atmosferica: AOD resta la sorgente aerosol
+  primaria; OpenAQ può entrare nella trasparenza soltanto come fallback non
+  additivo quando qualità e freschezza sono accettate.
+- Rimossi da log informativi coordinate, chiavi località, payload diagnostici
+  Windows, dettagli di normalizzazione e username Earthdata. Rimossa anche la
+  diagnostica Windows inutilizzata dalla superficie pubblica del controller;
+  aggiunti test di regressione privacy.
+- Rimosso `deep-translator 1.11.4` dalle dipendenze developer dopo il finding
+  `PYSEC-2022-252`; gli updater usano ora un adapter developer minimale,
+  timeout-bounded e coperto da mock, senza dipendenza runtime aggiuntiva.
+- Allineato `requirements-dev.txt` agli strumenti documentati. Il runner esegue
+  una sola suite per invocazione, usa coverage di default, `--fast` per saltarlo
+  e `--security` per aggiungere `pip-audit`; pytest è limitato a quattro worker
+  per evitare pressione eccessiva sulla memoria. Gli smoke test backend/QML usano
+  una directory runtime temporanea e non toccano database, preferenze, cache o
+  log personali. La coverage esclude test e utility developer, evitando una
+  percentuale artificialmente gonfiata.
+- Unificata la directory runtime di database, preferenze, cache e log. Nel
+  bundle portatile `logs/nightscope.log` viene ora scritto accanto
+  all'eseguibile e non dentro la directory dati `_internal`; aggiunta una
+  copertura di regressione per override e cambio sicuro dell'handler.
+- Aggiornate architettura, localizzazione, fonti GeoNames con licenza CC BY 4.0,
+  audit e checklist di rilascio. Nessuna modifica a NSOM, Planner, ranking Home,
+  Equipment scoring, Sky Compass o schema SQLite, ancora `16`.
+- Validazione finale superata: `785` test e `7` subtest, coverage runtime `84%`,
+  `15` test traduzioni,
+  cataloghi IT/EN completi (`1595/1595`), smoke QML in entrambe le lingue,
+  lint di `30` file QML, `228` immagini verificate, `pip check`, Ruff,
+  `compileall` e `pip-audit` puliti.
+- La dist esistente resta `1.32.3`; dist `1.33.0` non rigenerata.
+
 ## NightScope 1.32.9 - 2026-07-14
 
 - Decodificato il bit field MAIAC `AOD_QA`: sono accettati soltanto pixel clear,

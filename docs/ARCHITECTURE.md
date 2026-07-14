@@ -21,8 +21,7 @@ NightScope is organized around a small desktop application package:
   import helpers.
 - `astro_viewer/app/models`: dataclasses used as service and controller DTOs.
 - `astro_viewer/data`: schema, catalog CSV files, seed data and Skyfield
-  ephemeris files. The runtime SQLite database is created as `nightscope.db`
-  next to the application/repository root and is not distributed as seed data.
+  ephemeris files. Runtime data is not distributed as seed data.
 - `astro_viewer/resources`: icons, images and themes consumed by QML and build
   packaging.
 - `astro_viewer/translations`: Qt Linguist source (`.ts`) and compiled (`.qm`)
@@ -48,6 +47,22 @@ grown beyond a narrow presentation adapter. `AppController` also orchestrates
 refresh flows, profile mutation, object formatting, weather digests, calendar
 presentation and recommendation enrichment.
 
+## Runtime Data Ownership
+
+`astro_viewer.main` resolves one runtime directory before constructing the
+translation manager, database, controller, or logger. In a source checkout it
+is the project root; in a frozen portable build it is the directory containing
+the executable. The developer/test-only `NIGHTSCOPE_RUNTIME_DIR` environment
+variable can override it for isolated validation.
+
+The SQLite database, JSON preferences, location cache, provider caches stored
+in SQLite, and rotating `logs/nightscope.log` file all belong to that same
+runtime directory. The application therefore never writes logs inside
+PyInstaller's bundled `_internal` data directory. The standard smoke checks use
+a fresh temporary override and remove it when each subprocess exits, so they do
+not reuse personal settings, start automatic location detection, or modify the
+checkout's runtime files.
+
 ## UI Localization
 
 `TranslationManager` is created before the controller and QML engine. It reads
@@ -65,6 +80,12 @@ copy uses `qsTr()`. Python services retain lazy `tr()` messages and structured
 Dates, numbers, seeded descriptions, curiosities, catalogue names and equipment
 notes therefore follow the selected locale without changing domain codes or
 user-entered text.
+
+The sidebar help button opens the packaged self-contained `manuale.html` through
+the constant `AppController.manualUrl`. The current runtime language is passed
+as `?lang=<code>`; the manual owns its Italian/English selection without adding
+another runtime translation surface. In source the file is resolved from the
+project root; in PyInstaller it is resolved from the bundle data root.
 
 Internal read models consume canonical, unrendered payloads. A language switch
 emits presentation signals only and does not recompute astronomy, weather,

@@ -128,6 +128,21 @@ ApplicationWindow {
                             elide: Text.ElideRight
                         }
                     }
+
+                    DarkButton {
+                        id: manualButton
+                        Layout.preferredWidth: 38
+                        Layout.preferredHeight: 38
+                        leftPadding: 0
+                        rightPadding: 0
+                        text: qsTr("?")
+                        Accessible.name: qsTr("Apri manuale")
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Apri manuale")
+                        onClicked: Qt.openUrlExternally(
+                            appController.manualUrl + "?lang=" + translationManager.languageCode
+                        )
+                    }
                 }
 
                 ScrollView {

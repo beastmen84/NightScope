@@ -17,7 +17,18 @@ def _resolve_base_dir() -> Path:
 
 BASE_DIR = _resolve_base_dir()
 PROJECT_ROOT = BASE_DIR.parent
-RUNTIME_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else PROJECT_ROOT
+
+
+def _resolve_runtime_dir() -> Path:
+    override = os.environ.get("NIGHTSCOPE_RUNTIME_DIR", "").strip()
+    if override:
+        return Path(override).expanduser().resolve()
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return PROJECT_ROOT
+
+
+RUNTIME_DIR = _resolve_runtime_dir()
 APP_NAME = "NightScope"
 ORG_NAME = "NightScope"
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
@@ -84,10 +95,8 @@ def _build_controller(progress_callback=None):
     from astro_viewer.app.database.orbital_element_cache_repository import (
         OrbitalElementCacheRepository,
     )
-    from astro_viewer.app.services.logging_service import configure_logging
     from astro_viewer.app.viewmodels.app_controller import AppController
 
-    configure_logging(BASE_DIR)
     database_path, schema_path = _database_paths()
     initialize_database(
         database_path,
@@ -377,7 +386,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     from astro_viewer.app.services.logging_service import configure_logging
 
-    configure_logging(BASE_DIR)
+    configure_logging(RUNTIME_DIR)
     try:
         args = parse_args()
         if args.qml_smoke_test:

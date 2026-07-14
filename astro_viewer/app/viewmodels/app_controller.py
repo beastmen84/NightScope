@@ -343,7 +343,6 @@ class AppController(QObject):
             "Configura una località per ottenere meteo e cielo locale."
         )
         self._offer_online_location_fallback = False
-        self._windows_location_diagnostics = self._empty_windows_diagnostics()
 
         self._visible_planets: list[CelestialObject] = []
         self._solar_system_objects: list[CelestialObject] = []
@@ -456,6 +455,10 @@ class AppController(QObject):
     @Property(str, constant=True)
     def assetBaseUrl(self) -> str:
         return QUrl.fromLocalFile(str(self._base_dir)).toString()
+
+    @Property(str, constant=True)
+    def manualUrl(self) -> str:
+        return QUrl.fromLocalFile(str(self._base_dir.parent / "manuale.html")).toString()
 
     @Property("QVariant", notify=locationChanged)
     def location(self) -> dict:
@@ -572,10 +575,6 @@ class AppController(QObject):
     @Property(bool, notify=openaqCredentialsChanged)
     def openaqConnectionVerified(self) -> bool:
         return self._openaq_credentials_state.connection_verified
-
-    @Property("QVariant", notify=locationChanged)
-    def windowsLocationDiagnostics(self) -> dict:
-        return render_payload(self._windows_location_diagnostics)
 
     @Property(bool, notify=locationChanged)
     def hasValidLocation(self) -> bool:
@@ -1584,17 +1583,6 @@ class AppController(QObject):
             self._clear_refresh_domains(RefreshDomain.AIR_QUALITY)
         self.openaqCredentialsChanged.emit()
         self.weatherChanged.emit()
-
-    @Slot()
-    def runWindowsLocationDiagnostics(self) -> None:
-        report = self._location_service.windows_location_diagnostics()
-        self._windows_location_diagnostics = report
-        logger.info("Windows location diagnostics exposed to UI: %s", report.get("providerStatus", "n/d"))
-        self._location_message = tr(
-            "Diagnostica posizione Windows completata. "
-            "Consulta il report qui sotto e nightscope.log."
-        )
-        self.locationChanged.emit()
 
     @Slot(int)
     def selectEquipmentSetup(self, index: int) -> None:
@@ -3819,12 +3807,7 @@ class AppController(QObject):
         location_key = LightPollutionService._location_key(location)
         self._nasa_aod_refresh_running = True
         self.weatherChanged.emit()
-        logger.info(
-            "NASA AOD refresh started for %s (lat=%.3f, lon=%.3f).",
-            location_key,
-            location.latitude,
-            location.longitude,
-        )
+        logger.info("NASA AOD refresh started for the active location.")
 
         def run_lookup() -> None:
             try:
@@ -3846,7 +3829,7 @@ class AppController(QObject):
     def _finish_nasa_aod_refresh(self, location_key: str, result: object) -> None:
         self._nasa_aod_refresh_running = False
         if not self._has_valid_location() or location_key != LightPollutionService._location_key(self._location):
-            logger.info("NASA AOD refresh result discarded for stale location %s.", location_key)
+            logger.info("NASA AOD refresh result discarded for a stale location.")
             self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.AOD)
             if self._has_valid_location():
@@ -7115,25 +7098,6 @@ class AppController(QObject):
             eyepieces=eyepiece_text,
             barlows=barlow_text,
         )
-
-    @staticmethod
-    def _empty_windows_diagnostics() -> dict:
-        return {
-            "ok": False,
-            "provider": "windows_precise",
-            "providerStatus": "not run",
-            "accessStatus": "not run",
-            "requestAccessResult": "not run",
-            "coordinatesReceived": False,
-            "coordinates": {},
-            "errorDetails": {},
-            "thread": {},
-            "winrt": {},
-            "steps": [],
-            "rawProviderResponse": "",
-            "rawProviderError": "",
-            "process": {},
-        }
 
     def _zone(self) -> ZoneInfo:
         if not self._location:

@@ -120,7 +120,11 @@ class WindowsLocationProvider:
 
     def diagnostics(self) -> dict:
         report = _run_windows_location_diagnostics()
-        logger.info("Windows location diagnostics report: %s", json.dumps(report, ensure_ascii=True))
+        logger.info(
+            "Windows location diagnostics completed: status=%s coordinates_received=%s.",
+            report.get("providerStatus", "n/d"),
+            bool(report.get("coordinatesReceived")),
+        )
         return report
 
     def _windows_location_payload(self, script: str) -> dict:
@@ -490,7 +494,10 @@ class LocationService:
             },
             "rawProviderResponse": "",
         }
-        logger.info("Windows location diagnostics report: %s", json.dumps(report, ensure_ascii=True))
+        logger.info(
+            "Windows location diagnostics unavailable: status=%s.",
+            report["providerStatus"],
+        )
         return report
 
     def system_timezone(self) -> str:
@@ -518,9 +525,8 @@ class LocationService:
             return _with_timezone(result, fallback_timezone)
 
         logger.info(
-            "Location timezone resolved from coordinates: provider=%s timezone=%s",
+            "Location timezone resolved from coordinates: provider=%s.",
             result.provider,
-            coordinate_timezone,
         )
         return _with_timezone(
             result,
@@ -544,12 +550,10 @@ class LocationService:
                 or self._provider_timezone_fallback(result)
             )
             logger.info(
-                "Windows precise location normalized via local City database: raw_timezone=%s city=%s country=%s timezone=%s distance_km=%.1f",
-                raw_timezone,
-                city["city"],
-                city["country"],
-                timezone_name,
+                "Windows precise location enriched from the local city database: "
+                "distance_km=%.1f coordinate_timezone=%s.",
                 float(city.get("distance_km") or 0.0),
+                bool(coordinate_timezone),
             )
             source = _append_source_once(result.source, "local City reverse lookup")
             if coordinate_timezone:
@@ -577,10 +581,8 @@ class LocationService:
         timezone_name = coordinate_timezone or self._provider_timezone_fallback(result)
         if coordinate_timezone:
             logger.info(
-                "Windows location timezone resolved from coordinates: provider=%s raw_timezone=%s timezone=%s",
+                "Windows location timezone resolved from coordinates: provider=%s.",
                 result.provider,
-                raw_timezone,
-                timezone_name,
             )
             return _with_timezone(
                 replace(result, raw_provider_timezone=raw_timezone),
@@ -589,9 +591,8 @@ class LocationService:
             )
 
         logger.info(
-            "Windows location kept provider/system timezone after coordinate lookup miss: provider=%s raw_timezone=%s",
+            "Windows location kept the provider/system timezone after coordinate lookup miss: provider=%s.",
             result.provider,
-            raw_timezone,
         )
         return _with_timezone(
             replace(result, raw_provider_timezone=raw_timezone),
@@ -1095,7 +1096,7 @@ def _required_coordinate(payload: dict, key: str, minimum: float, maximum: float
         logger.warning("Location provider returned non-numeric coordinates: %s", key)
         raise LocationUnavailableError(message, "null coordinates") from exc
     if not math.isfinite(coordinate) or not minimum <= coordinate <= maximum:
-        logger.warning("Location provider returned out-of-range coordinates: %s=%s", key, coordinate)
+        logger.warning("Location provider returned an out-of-range %s coordinate.", key)
         raise LocationUnavailableError(message, "null coordinates")
     return coordinate
 

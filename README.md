@@ -1,651 +1,249 @@
 # NightScope
 
-NightScope è un'app desktop Windows per astronomia osservativa. Combina calcoli astronomici locali, profili di equipaggiamento, meteo orario, stima del cielo locale e suggerimenti pratici per pianificare una sessione visuale.
+<p align="center">
+  <img src="astro_viewer/resources/icons/telescope.svg" width="88" alt="NightScope telescope icon">
+</p>
 
-L'obiettivo non è sostituire atlanti o software planetari completi, ma rispondere rapidamente alla domanda: cosa vale la pena osservare stanotte, da questa località, con questo setup?
+NightScope is a Windows desktop application for planning visual astronomy
+sessions. It combines local astronomical calculations, an observer location,
+weather and sky-quality data, and the equipment in the active profile to answer
+a practical question: **what is worth observing tonight, from here, with this
+setup?**
 
-## Funzionalità principali
+> [!IMPORTANT]
+> NightScope is still in pre-release development. The source tree is regularly
+> validated, but the final visual review, release licensing, signed Windows
+> artifact, and live-provider release matrix are not complete. The bundled
+> executable may lag behind the source.
 
-- Dashboard Home con qualità osservativa, Luna, meteo osservativo, punteggi planetari, cielo profondo e Sky Compass.
-- Sky Compass come guida live della Home: ogni minuto valuta gli oggetti
-  realmente osservabili adesso, combina qualità e concentrazione per direzione
-  e mantiene piano/Best Object come contesto, non come bonus dominante. Il
-  toggle `Solo suggeriti ora` applica la zona corrente alle due schede inferiori.
-- Piano osservativo consigliato: fino a quattro opportunità NSOM selezionate per qualità e poi ordinate cronologicamente, usando per ogni target lo strumento realmente scelto dal profilo multi-equipaggiamento.
-- Home inferiore state-aware: separa sequenza consigliata, finestra da
-  monitorare e sessione sconsigliata; mostra setup compatti e una tabella unica
-  degli altri oggetti senza esporre score grezzi.
-- Dettaglio osservativo state-aware con finestra utile, momento migliore,
-  configurazione target-specific, filtro primario/colore opzionale coerenti con
-  il profilo attivo, valutazione locale, curiosita' documentata e ciclo lunare.
-- Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
-- Calendario score-free con eventi annuali, passaggi ISS visibili e finestre
-  cometarie locali aggregate su piu' notti; Home riusa gli stessi prossimi
-  eventi in ordine cronologico.
-- Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
-  colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
-  oggetto.
-- Catalogo offline generico con 110 oggetti Messier, 109 Caldwell e 9 corpi del
-  Sistema Solare, con ricerca, filtri e immagini scientifiche locali con fonte.
-- Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
-- Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
-  filtro QA decodificato, fallback spaziale controllato, freschezza e fonte
-  satellite, separata da OpenAQ.
-- Sezione Meteo `Particolato locale` con dati OpenAQ opzionali per PM2.5,
-  PM10, aria locale, fonte e freschezza della misura.
-- Stima seeing/trasparenza atmosferica da nuvolosità, vento, raffiche, umidità,
-  visibilità e dew point, presentata separatamente dal fondo cielo Bortle/VIIRS.
-- Qualità cielo con Bortle/SQM da cache o dati reali NASA VIIRS Black Marble
-  tramite Earthdata; senza una fonte reale i valori restano `n/d`.
-- Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali; il fuso IANA viene ricavato offline dalle coordinate quando il provider non ne fornisce uno affidabile.
-- Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
-- Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
-  operazioni di aggiunta, modifica ed eliminazione delle sessioni.
-- Interfaccia e contenuti applicativi localizzati in italiano e inglese, con
-  selettore persistente, formati locali e cambio lingua live senza ricalcolare
-  meteo, astronomia, equipaggiamento o NSOM.
-- Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
-  Barlow, binocoli, filtri e riduttori. Le voci integrate sono modificabili ma
-  protette dall'eliminazione; quelle personalizzate restano modificabili ed
-  eliminabili dall'utente.
-- Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
-- Database SQLite embedded inizializzato da seed CSV locali.
-- Build Windows tramite PyInstaller.
+## What It Does
 
-## Stato
+- Builds a local observing night from sunset to sunrise for the selected
+  location and IANA timezone.
+- Calculates Sun, Moon, planet, Messier, and Caldwell visibility with Skyfield.
+- Produces a short observing plan and target-specific alternatives instead of
+  exposing internal raw scores.
+- Evaluates every telescope or binocular in the active profile for each target;
+  a profile without either instrument uses naked-eye mode.
+- Suggests practical telescope, eyepiece, Barlow, filter, and reducer context
+  while keeping optical compatibility and recommendation ranking separate.
+- Shows annual astronomical events, short-horizon visible ISS passes, and
+  multi-night comet windows in one calendar.
+- Provides live directional guidance through Sky Compass.
+- Stores observation logs and user-maintained equipment locally.
+- Includes offline catalogues for 110 Messier objects, 109 Caldwell objects,
+  nine Solar System targets, cities, equipment, descriptions, and credited
+  scientific images.
+- Switches the application and its content between Italian and English at
+  runtime.
 
-Versione corrente sorgente: `1.32.9`.
+NightScope is a decision-support tool, not a planetarium, telescope-control
+system, or substitute for an astronomical atlas.
 
-Distribuzione Windows corrente: `1.32.3`.
+## How Recommendations Work
 
-Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
+The recommendation path combines four distinct layers:
 
-- Planner: ranking `ObservationOpportunity`.
-- Home `recommendedDeepSky`: tutti i target utili della notte, ordinati per
-  `ObservableTargetValue`; `homeVisibleAlternatives` unifica pianeti e cielo
-  profondo escludendo gli ID presenti nel piano.
-- Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
-  multi-equipment, piano compatto e righe alternative lette direttamente dalla
-  QML della Home. Se il profilo non contiene telescopi o binocoli, la proiezione
-  mostra soltanto i target che il read model Equipment considera realistici a
-  occhio nudo, senza introdurre score o ranking aggiuntivi.
-- Best Object: selezione Home-specific basata su `ObservationOpportunity`.
-- Categorie Home: condizioni planetarie e cielo profondo proiettate dallo
-  stesso ambiente NSOM usato dagli altri consumer.
-- Sky Compass: direzione live basata su `ObservableTargetValue`, altitudine
-  corrente e densita' dei target osservabili ora.
-- Filtro Sky Compass Home: intersezione QML per ID canonico su piano e
-  alternative, aggiornata dal tick live senza ricalcolare ranking; il filtro si
-  disattiva se non resta alcun target osservabile.
-- Detail/Object: read model osservativo score-free, senza payload NSOM ombra.
-- ObservationConditions: AOD/OpenAQ e geometria lunare sono input canonici
-  quando disponibili e validi; non esistono feature flag di rollback.
-- Equipment: resta setup-local con boundary ObserverCapability espliciti, senza
-  replacement path NSOM separato. Filtri e riduttori alimentano soltanto
-  raccomandazioni leggibili nel dettaglio osservativo, senza modificare setup,
-  capacita', score o ranking. I riduttori fotografici richiedono sia il flag del
-  target sia un'associazione esatta normalizzata con il telescopio scelto per
-  quel target.
-- Catalogo: oggetti fisici e designazioni sono separati. Un target mantiene un
-  solo `object_id` anche quando appartiene a piu' cataloghi; filtri e ricerche
-  proiettano la designazione richiesta senza duplicare righe o conteggi.
-- Caldwell: C1-C109 sono target canonici separati dai 110 Messier, come previsto
-  dal catalogo originale; ricerca per codice Caldwell e identificativo NGC/IC,
-  ordinamento naturale e dettaglio usano il contratto catalogo esistente.
-- Contenuti catalogo: tutti i 228 target selezionabili hanno descrizione
-  osservativa, curiosita' con fonte e immagine scientifica dedicata. I 219 JPEG
-  deep-sky provengono da cutout 2MASS, Pan-STARRS1 o SkyMapper tramite CDS;
-  fonte, attribuzione e licenza sono visibili nel dettaglio.
-- Immagini Sistema Solare: i nove corpi esposti usano JPEG scientifici
-  rappresentativi da NASA/JPL Photojournal, con credito e pagina sorgente. Sono
-  immagini statiche processate e non rappresentano fase o aspetto corrente.
+1. **Astronomical geometry**: darkness, altitude, useful observing interval,
+   culmination, Moon separation, and Moon illumination.
+2. **Local conditions**: forecast cloud cover, humidity, wind, visibility,
+   estimated seeing and transparency, plus real sky-background data when
+   available.
+3. **Observer capability**: active-profile instruments, aperture, focal length,
+   eyepieces, Barlows, and whether the target is realistic with the selected
+   setup or with the naked eye.
+4. **Session context**: timing, target competition, useful duration, data
+   completeness, and whether the night is currently recommended, worth
+   monitoring, or discouraged.
 
-L'audit `1.21.1` rende esplicita l'identita' runtime dei target: Home, Best
-Object, Planner, Sky Compass e i conteggi della Home conservano una sola
-occorrenza per ID canonico, mantenendo stabile la prima. Intrinseco, seeing e
-confidence provider vengono costruiti una sola volta nel rispettivo passaggio;
-la confidence resta separata dal valore usato per il ranking.
+Internal quality values are implementation details. The UI presents useful
+windows, limiting factors, confidence and concrete setup guidance. Missing data
+is not replaced with optimistic synthetic values: for example, Bortle and SQM
+remain unavailable when NightScope has no real local source.
 
-`docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md` e' il riepilogo corrente dello stato
-backend NSOM. `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md` documenta il
-cleanup finale `1.21.0` di servizi ombra, rollback, diagnostica automatica e
-test di migrazione.
+ISS passes and comet windows deliberately bypass object scoring, Equipment,
+Planner, and the NightScope observation model. They are transient calendar
+events. Comet brightness is inherently uncertain and is presented as an
+estimate rather than a precise promise.
 
-La UI/QML visibile resta compatibility-first fuori dalle superfici riviste. In
-`1.16.0` la pagina Meteo ha ricevuto un primo passaggio semantico sui dati
-condizioni AOD/OpenAQ, senza nuovi pannelli NSOM e senza spiegazioni visibili del
-ranking. I punteggi display restano campi di compatibilita' dove
-servono alla presentazione. Eventuali spiegazioni NSOM complete sono lavoro
-futuro di design.
+Filters and focal reducers are also presentation guidance only. They do not
+change target ranking. Reducer suggestions require an exact, normalized match
+to the target-specific telescope and are intended for imaging context.
 
-Il catalogo filtri usa prodotti unici e classi colore esplicite. Il dettaglio
-aperto dalla Home confronta le preferenze del target con i filtri del profilo
-attivo solo quando la configurazione scelta usa un telescopio. Prodotti e classi
-sono verificati rispetto all'apertura; il filtro colorato facoltativo resta
-separato dalla raccomandazione primaria. Questa proiezione non entra in
-EquipmentService, ObserverCapability, score, Planner, Sky Compass o NSOM.
+The full model and its boundaries are documented in
+[`docs/CALCULATION_LOGIC.md`](docs/CALCULATION_LOGIC.md) and
+[`docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`](docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md).
 
-In `1.27.0` il dettaglio osservativo puo' inoltre raccomandare un riduttore per
-astrofotografia. Il confronto usa il telescopio gia' scelto per il target,
-compatibilita' esatte per ID e il profilo attivo; se il prodotto compatibile non
-e' posseduto, viene mostrato come suggerimento non disponibile. La proiezione
-non calcola una nuova configurazione ottica e resta fuori da EquipmentService,
-ObserverCapability, score, ranking e NSOM. La distribuzione Windows non e'
-stata rigenerata.
+## Data And Network Use
 
-In `1.28.0` la navigazione include `Log Osservazioni` tra Calendario e Meteo.
-La pagina conserva tutte le sessioni senza un limite implicito, permette
-ricerca, filtro per voto, inserimento, modifica ed eliminazione e riepiloga
-sessioni, oggetti distinti, valutazione media e ultima osservazione. I nuovi
-record propongono data/ora locale, localita' e setup del profilo attivo; il Log
-resta indipendente da score, ranking e NSOM. La distribuzione Windows non e'
-stata rigenerata.
+Most catalogue, timezone, equipment, ephemeris, propagation, and recommendation
+work is local. Network access is used only for current or optional external
+data.
 
-In `1.29.0` l'interfaccia QML usa cataloghi Qt Linguist italiani e inglesi in
-`astro_viewer/translations`. Il selettore `Lingua` nella barra laterale applica
-la scelta live e la salva in `user_preferences.json`; i cataloghi compilati
-sono inclusi anche nel bundle PyInstaller. `tools/update_translations.ps1`
-estrae le stringhe QML, mantiene l'italiano come lingua sorgente, verifica che
-entrambi i cataloghi siano completi e rigenera i file `.qm`. La localizzazione
-copre etichette, comandi, dialoghi e testi di presentazione definiti nel QML;
-descrizioni, curiosita' e messaggi gia' composti dai servizi restano contenuti
-italiani. La distribuzione Windows non e' stata rigenerata.
+| Source | Purpose | Account | Location sent |
+| --- | --- | --- | --- |
+| Open-Meteo | Hourly weather forecast | No | Yes |
+| Windows location | Precise OS location | No | Stays in the OS/app |
+| GeoNames | Offline city search and labels | No | No |
+| timezonefinder | Offline IANA timezone lookup | No | No |
+| CelesTrak | ISS orbital elements | No | No |
+| JPL SBDB | Comet orbital elements | No | No |
+| NASA Earthdata / LAADS | VIIRS sky background and MAIAC AOD | Optional login | Yes |
+| OpenAQ | Local particulate measurements | Optional API key | Yes |
+| IP geolocation fallback | Approximate location after explicit user action | No | Public IP is visible to the service |
 
-In `1.30.0` la localizzazione copre anche messaggi Python, read model, date,
-numeri, descrizioni, curiosita', nomi catalogo e note dell'equipaggiamento
-integrato. I valori canonici del dominio e i testi inseriti dall'utente restano
-invariati. I language pack sono scoperti dai metadata `<codice>.json`, senza
-liste lingua nel codice, e usano i corrispondenti cataloghi Qt `.ts`/`.qm`.
-L'aggiunta di una terza lingua richiede soltanto i relativi file sotto
-`astro_viewer/translations` e l'esecuzione degli updater documentati in
-`docs/LOCALIZATION.md`; sidebar, runtime e packaging non richiedono modifiche.
-I servizi consumano payload canonici non renderizzati e la traduzione avviene
-solo al boundary QML, quindi la lingua non puo' cambiare conteggi, classifiche o
-decisioni NSOM. La distribuzione Windows non e' stata rigenerata.
+CelesTrak and JPL downloads provide orbital catalogues; NightScope performs the
+location-specific pass and visibility calculations locally. External results
+are cached in SQLite with source-specific refresh and staleness rules.
 
-In `1.31.0` il Calendario integra i passaggi visibili della ISS come eventi
-operativi a breve termine, separati dal catalogo e dalla generazione annuale.
-Per la posizione attiva mostra ingresso e uscita visibili, culminazione,
-altezza massima, direzioni, durata e illuminazione; gli stessi eventi entrano
-automaticamente nella card Home `Prossimi eventi` in ordine cronologico. Gli
-elementi orbitali OMM pubblici di CelesTrak sono conservati nella cache SQLite:
-refresh ogni 6 ore, fallback fino a 3 giorni in caso di rete assente e finestra
-mobile di previsione di 10 giorni. Il calcolo usa le dipendenze gia' presenti
-Skyfield/SGP4 e non introduce pandas, astroquery, account esterni, oggetti di
-catalogo, score, Equipment, Planner o NSOM. La distribuzione Windows non e'
-stata rigenerata.
+See [`astro_viewer/data/DATA_SOURCES.md`](astro_viewer/data/DATA_SOURCES.md) for
+catalogue provenance and [`docs/IMAGE_ASSET_POLICY.md`](docs/IMAGE_ASSET_POLICY.md)
+for image attribution and redistribution policy.
 
-In `1.31.1` la pipeline ISS e' stata corretta dopo la review: il recupero
-rete/cache avviene fuori dal lock astronomico e non ritarda piu' la generazione
-annuale; un timer dedicato ricalcola le finestre ogni ora, mentre il download
-OMM resta limitato dalla TTL di 6 ore. Gli eventi passati senza intervallo
-vengono esclusi prima della deduplicazione, gli ID dei passaggi derivano dalla
-rivoluzione orbitale e il dettaglio mostra l'istante reale dell'ultimo
-aggiornamento invece di dichiararlo sempre appena avvenuto. La distribuzione
-Windows non e' stata rigenerata.
+## Privacy And Local Files
 
-In `1.32.0` la stessa pipeline transitoria include le comete senza trasformarle
-in oggetti di catalogo. NightScope interroga la NASA/JPL Small-Body Database
-pubblica senza account, conserva gli elementi in SQLite per 24 ore e ammette
-un fallback massimo di 7 giorni. Skyfield e pandas calcolano localmente una
-finestra mobile di 90 giorni: una notte richiede almeno 60 minuti con cometa
-sopra 20 gradi, Sole sotto -12 gradi, elongazione solare di almeno 30 gradi,
-magnitudine totale prevista non superiore a 14,5 e disturbo lunare compatibile.
-Le notti consecutive vengono aggregate in un solo evento per cometa e la
-magnitudine e' mostrata come intervallo indicativo, perche' la luminosita'
-cometaria reale puo' differire sensibilmente dalla previsione. Il calcolo non
-usa meteo, profilo attrezzatura, Catalogue, score, Planner, Home ranking o NSOM;
-`astroquery` non e' stato aggiunto perche' la query SBDB e il supporto orbitale
-Skyfield coprono gia' il flusso. La distribuzione Windows non e' stata
-rigenerata.
+NightScope does not require a NightScope account. The portable application keeps
+its runtime data next to the executable:
 
-In `1.32.1` il profilo iniziale si chiama `Default`; `Occhio nudo` indica invece
-la modalita' osservativa derivata quando il profilo non contiene telescopi o
-binocoli. Le voci integrate dei cataloghi strumenti possono essere corrette
-dall'utente senza diventare eliminabili e le modifiche vengono preservate dai
-seed successivi. I form distinguono i campi obbligatori da quelli facoltativi,
-mantengono aperto il dialogo in caso di errore e non mostrano indicatori vuoti.
-La navigazione laterale e' piu' compatta e Home, Meteo, Calendario e filtri di
-catalogo dipendenti dalla posizione mostrano stati espliciti prima della scelta
-della localita'. La distribuzione Windows non e' stata rigenerata.
+- `nightscope.db`: location, profiles, catalogues, caches, and observation log;
+- `user_preferences.json`: interface and provider state;
+- `location_cache.json`: last location acquisition result;
+- `logs/`: rotating diagnostic logs.
 
-In `1.32.2` le sei sorgenti CSV dell'equipaggiamento assegnano a ogni voce
-integrata una `seed_key` esplicita e immutabile. Correggere marca, modello o un
-parametro identificativo aggiorna quindi la stessa riga anziche' crearne una
-seconda; anche le compatibilita' riduttore-telescopio usano direttamente questi
-identificatori. Le chiavi iniziali restano identiche a quelle gia' presenti nei
-database `1.32.1`, lo schema SQLite resta `16` e gli override utente continuano
-a essere preservati. Un upgrade diretto da schemi precedenti assegna una sola
-volta gli ID espliciti alle righe integrate esistenti prima del reseed. La
-distribuzione Windows non e' stata rigenerata.
+Exact coordinates are therefore local application data, but they are sent to a
+provider when that provider needs a location-specific result, as shown above.
+Earthdata passwords and OpenAQ API keys are stored in the Windows credential
+vault through `keyring`; they are not written to the SQLite database or JSON
+preferences. Diagnostic logs intentionally avoid coordinates and credential
+identifiers.
 
-In `1.32.3` il secondo controllo visuale senza localita' corregge i valori
-fuorvianti `0,00` della qualita' cielo, ora sempre `n/d` finche' non esiste una
-localita' valida. Home, Meteo e Calendario offrono un accesso diretto alla
-configurazione e usano stati vuoti piu' brevi. Terminologia, unita' e formati
-dei cataloghi sono stati uniformati: barilotti localizzati con simbolo dei
-pollici, unita' tra parentesi nei form e virgola decimale negli esempi italiani.
-Il fallback QML delle dimensioni angolari era stato portato a `°`, ma il
-formatter backend ancora prioritario e' stato corretto soltanto in `1.32.4`.
-La distribuzione Windows `1.32.3` e' stata poi rigenerata dall'utente e usata
-per il controllo visuale con localita'.
+Back up `nightscope.db`, `user_preferences.json`, and `location_cache.json`
+before replacing or moving a development build.
 
-In `1.32.4` il controllo con Addis Abeba e profilo senza strumenti corregge il
-formatter backend che esponeva ancora `deg` nel Catalogo, filtra le alternative
-Home non realistiche a occhio nudo e riequilibra le colonne della tabella. La
-scheda Luna usa un'icona neutra, mentre Meteo dichiara che le metriche superiori
-sono aggregate sulla finestra notturna e localizza la baseline urbana
-NightScope. I campi manuali della localita' distinguono coordinate obbligatorie
-e nome facoltativo. La pipeline ISS non cambia: il controllo con OMM aggiornati
-ha confermato corretti gli zero passaggi visibili su Addis Abeba nella finestra
-mobile corrente. La distribuzione `1.32.4` non e' stata rigenerata.
+## Requirements
 
-In `1.32.5` la qualita' cielo non usa piu' baseline urbane o stime Bortle
-sintetiche. Il vecchio `light_pollution_seed.csv` e il fallback Bortle `5/6`
-sono stati rimossi; restano valide soltanto cache NASA VIIRS e dataset locali
-World Atlas/VIIRS realmente forniti. In loro assenza Meteo mostra Bortle, SQM e
-limite visuale come `n/d`, mentre seeing e pianificazione continuano sugli input
-disponibili senza inventare una penalita' luminosa. Home segnala che la
-visibilita' locale va verificata, riequilibra Nome/Tipo e consente due righe ai
-titoli dei prossimi eventi. La distribuzione `1.32.5` non e' stata rigenerata.
+- Windows 10 or Windows 11.
+- Python 3.12 or newer for source development.
+- A writable checkout or extracted portable application directory.
 
-In `1.32.6` la scheda Home del cielo profondo presenta come `Parziale` un
-diagnostico calcolato dal meteo quando manca la qualita' reale del cielo, senza
-trasformare il valore NSOM interno in un giudizio completo. Una cache VIIRS
-reale oltre la TTL resta utilizzabile, ma Meteo ne segnala la necessita' di
-aggiornamento anche se l'account Earthdata non e' configurato o verificato. La
-distribuzione `1.32.6` non e' stata rigenerata.
+The current application is Windows-focused. Other desktop platforms are not a
+tested release target.
 
-In `1.32.7` coordinate manuali e posizione Windows ricavano il fuso IANA dai
-poligoni geografici offline di `timezonefinder`, senza dipendere dal catalogo
-citta' o da servizi online. Le coordinate restano esatte; il reverse lookup
-GeoNames entro 50 km arricchisce soltanto nome, paese e regione della posizione
-Windows precisa. Il fuso del computer e' usato solo se il lookup geografico non
-e' disponibile, mentre un fuso IANA valido fornito dal servizio IP resta
-autorevole. Anche le vecchie coordinate manuali salvate vengono normalizzate
-quando sono ricaricate. La distribuzione `1.32.7` non e' stata rigenerata.
+## Run From Source
 
-In `1.32.8` la normalizzazione del fuso avviene soltanto quando viene acquisita
-una nuova posizione. Le localita' salvate dalla build corrente vengono
-riutilizzate senza percorsi di migrazione; rimossi anche il parametro interno
-per imporre un fuso alle coordinate manuali e le relative regressioni legacy.
-La selezione dal catalogo citta' usa ora `timezonefinder` come ogni altra
-coordinata, ignorando il fuso GeoNames. GeoNames resta per la ricerca citta'
-offline e per i metadati visibili: i suoi file occupano `8,13 MB` nella dist
-attuale (`1,14%`), ma citta' e alias importati occupano circa `55 MB` nel DB
-runtime. La distribuzione `1.32.8` non e' stata rigenerata.
-
-In `1.32.9` l'estrazione NASA MAIAC decodifica `AOD_QA` e accetta soltanto
-pixel clear con qualità AOD migliore: prova il pixel esatto, poi aree 5x5 e
-11x11 con almeno tre campioni affidabili, registrando raggio e distanza del
-pixel valido più vicino. Le assenze reali hanno una cache negativa di 6 ore,
-mentre errori di rete, autenticazione, download o parsing restano ritentabili;
-il messaggio Meteo riassume intervallo, prodotti e granuli controllati senza
-esporre un singolo granulo fuorviante. Home e Meteo mostrano la trasparenza
-atmosferica senza incorporarvi il Bortle, che resta una metrica separata. Il
-Calendario concede due righe alle date intervallo delle finestre cometarie e le
-unità VIIRS usano `cm²`. La distribuzione `1.32.9` non e' stata rigenerata.
-
-In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
-il valore salvato resta disponibile durante il controllo e in caso di errore
-NASA. Il pulsante Meteo `Aggiorna` avvia anche i controlli cache-aware VIIRS e
-AOD; AOD mantiene la propria TTL di 18 ore.
-
-In `1.17.1` le cache provider AOD e VIIRS riusano una misura valida anche quando
-la posizione Windows oscilla entro 500 metri. La policy spaziale non modifica
-le chiavi usate per identificare i refresh asincroni; evita soltanto fetch NASA
-duplicati per la stessa area. Il controllo AOD avviene prima di avviare il
-worker, quindi una cache fresca non presenta uno stato di recupero transitorio.
-
-La stessa patch distingue inoltre la ricerca automatica della posizione dalla
-sua reale assenza nella parte alta Home. Sessione, Meteo, condizioni planetarie,
-cielo profondo e Luna mostrano uno stato di attesa coerente; i testi delle card
-possono occupare due righe senza modificare le altezze correnti. In assenza di
-dati non vengono presentati suggerimenti favorevoli come se le condizioni
-fossero state calcolate.
-
-In `1.17.2` il refresh Open-Meteo distingue gli errori temporanei dagli errori
-client permanenti. Timeout, problemi di rete, HTTP `408`/`425`/`5xx` e risposte
-incomplete mantengono la cache e programmano un retry forzato dopo 5 minuti;
-HTTP `4xx` permanenti e `429` restano sul normale controllo orario. Il log
-include lo status HTTP senza esporre coordinate o parametri della richiesta.
-
-In `1.18.0` la parte bassa Home usa il contratto `homeNightPlanOverview`: la
-card piano e' state-aware, gli stati `monitor` e `discouraged` non mostrano una
-falsa sequenza numerata, e pianeti/cielo profondo fuori piano sono una tabella
-unica filtrabile senza score o motivazioni lunghe. La distribuzione Windows
-`dist/NightScope` e' stata rigenerata su richiesta con PyInstaller `6.21.0`:
-bundle `VERSION` `1.18.0`, smoke e QML smoke dell'eseguibile con exit code `0`.
-
-In `1.18.1` la notte osservativa non usa piu' fasce orarie generiche. Skyfield
-calcola per la posizione attiva il tramonto locale e l'alba successiva; lo
-stesso intervallo limita campionamento astronomico, meteo, seeing, score,
-Planner, Home e Sky Compass. Open-Meteo fornisce 48 ore e le ore vengono
-selezionate tramite timestamp completi, quindi finestre discontinue come
-`05:00-22:00` non possono essere costruite. Giorno polare e buio continuo sono
-stati espliciti. La distribuzione Windows non e' stata rigenerata in questo
-passaggio.
-
-In `1.18.2` i calcoli astronomici pesanti non occupano piu' il thread Qt. La
-geometria Luna-target usa una timeline Skyfield batch e viene riutilizzata tra
-Planner e diagnostica; il refresh freddo costruisce in background uno snapshot
-con notte, oggetti, Luna, eventi e visibilita' mensile. Anche il tick live Sky
-Compass e il reload deep-sky VIIRS applicano soltanto risultati ancora validi
-per request id e posizione. Scoring, payload QML e UI visibile restano invariati.
-
-In `1.18.3` il condizionamento per inquinamento luminoso non tronca piu' a dieci
-gli oggetti deep-sky ancora utili: l'intero pool raggiunge Home e Sky Compass
-prima dell'esclusione degli ID selezionati nel piano. La lista Home degli altri
-oggetti trattiene inoltre lo scroll di mouse e touchpad quando il puntatore e'
-sulla lista scrollabile, senza trasferirlo alla pagina quando raggiunge un
-estremo. La distribuzione Windows e' stata rigenerata su richiesta con bundle
-`VERSION` `1.18.3`; smoke e QML smoke dell'eseguibile terminano con exit code
-`0`.
-
-In `1.18.4` gli orari astronomici esposti con precisione al minuto conservano
-anche il minuto che contiene il tramonto calcolato con secondi da Skyfield. Home
-e Planner non ripiegano quindi sulla fine della finestra quando il momento
-migliore coincide con il tramonto. La migliore finestra meteo viene inoltre
-limitata all'alba locale esatta, senza produrre label come `04:00-07:00` quando
-la notte termina alle `06:12`. La distribuzione Windows `1.18.4` e' stata poi
-rigenerata manualmente per la verifica visuale.
-
-Anche il primo recupero Open-Meteo successivo allo snapshot astronomico usa ora
-un worker: il thread QML mantiene lo stato di caricamento e applica il risultato
-solo al completamento, senza attendere i timeout di rete su un avvio senza
-cache.
-
-La difficolta' osservativa dei pianeti distingue inoltre i target: Mercurio,
-Marte, Urano e Nettuno non ereditano piu' automaticamente `Facile` dalla sola
-categoria Pianeta. La classe considera target, apertura, altezza e tipo di
-strumento e continua a entrare nel vincolo pratico del Planner NSOM.
-
-I refresh AOD e OpenAQ in volo sono ora location-safe anche durante un cambio
-posizione: la presentazione precedente viene rimossa subito e un completamento
-con chiave obsoleta avvia automaticamente il recupero per la localita' corrente.
-OpenAQ ricontrolla inoltre la validita' delle credenziali prima di applicare il
-risultato.
-
-Il grafico e il dettaglio orario della pagina Meteo consumano ora
-`observingWeatherHourly`, cioe' soltanto i campioni della notte astronomica
-attiva. Il payload completo a 48 ore resta disponibile internamente per
-compatibilita', ma non viene piu' presentato sotto una label notturna.
-
-Il fallback legacy di Sky Compass resta disponibile se la selezione NSOM genera
-un errore, ma il passaggio viene ora registrato come warning diagnostico invece
-di essere silenzioso; forma e contenuto del payload QML di fallback non cambiano.
-
-Lo stack Earthaccess include inoltre un constraint `botocore` compatibile con
-`aiobotocore 3.7.x`; la `.venv` di riferimento usa `botocore 1.43.0` e supera
-`python -m pip check` senza dipendenze rotte.
-
-In `1.18.5` le finestre dei target campionati includono l'estremo astronomico
-esatto e stimano il passaggio della soglia tra due campioni. Le righe Home non
-mostrano quindi piu' intervalli nulli come `18:48-18:48` o `05:48-05:48`; il
-campione all'alba serve solo come confine e non puo' diventare il momento
-migliore dell'oggetto. La distribuzione Windows resta alla `1.18.4`.
-
-La descrizione Bortle della parte alta e della lista Home usa ora un'unica
-classificazione. Bortle 7 e' presentato coerentemente come `transizione
-suburbana-urbana`, senza alternare le precedenti etichette `cielo urbano` e
-`cielo suburbano luminoso`.
-
-In `1.18.6` grafico e dettaglio della pagina Meteo mostrano una finestra mobile
-delle prossime 24 ore a partire dall'ora locale corrente. Le ore appartenenti
-alla notte osservativa attiva hanno un accento distinto e la selezione del
-dettaglio resta legata al timestamp quando il timer orario fa scorrere la
-previsione. Score, seeing, trasparenza, Home e ranking NSOM continuano a usare
-soltanto `observingWeatherHourly`. La distribuzione Windows `1.18.6` e' stata
-poi rigenerata manualmente per la verifica visuale.
-
-In `1.18.7` la lista Home fuori piano e' ordinata prima per inizio della
-finestra osservativa e soltanto a parita' per momento migliore, categoria e
-nome. Nel dettaglio Meteo il cyan distingue l'ora selezionata dal teal delle ore
-notturne e la scrollbar orizzontale sovrapposta alle schede non viene piu'
-mostrata. La distribuzione Windows `1.18.7` e' stata poi rigenerata manualmente
-per la verifica visuale.
-
-In `1.18.8` la card inferiore della navigazione usa lo stato Session NSOM della
-Home invece del vecchio indice meteo: mostra badge, finestra e fattore
-limitante, senza score numerico. Le immagini del piano sono centrate rispetto
-al blocco testuale e lo spareggio finale per nome usa un ordinamento naturale
-dei numeri di catalogo (`M3`, `M40`, `M100`; analogo per Caldwell). Nella pagina
-Meteo la legenda `Notte osservativa` e' nell'header del grafico. La
-distribuzione Windows `1.18.8` e' stata poi rigenerata manualmente per la
-verifica visuale.
-
-In `1.19.0` il dettaglio aperto dalla Home dispone del contratto read-only
-`observingObjectDetail`, separato dal payload Catalogo. Il contratto distingue
-geometria dell'oggetto e stato della sessione, espone finestra e momento
-migliore senza score grezzi e usa il setup scelto per il singolo target. La UI
-mostra stato geometrico e Session separati con badge di sessione espliciti,
-sostituisce i placeholder deep sky
-con inizio/fine utile, mantiene il ciclo lunare e non tronca la descrizione. Lo
-storico e l'inserimento delle osservazioni sono stati rimossi dal dettaglio;
-da `1.28.0` sono gestiti nella pagina dedicata `Log Osservazioni`. Il testo del
-periodo migliore lunare e' corretto anche nei database gia' inizializzati. La
-distribuzione Windows resta alla `1.18.8`.
-
-In `1.20.0` il Calendario usa un orizzonte unico di 365 giorni senza tagli per
-priorita': fasi lunari, opposizioni, congiunzioni planetarie e solari, eclissi e
-sciami restano disponibili e ordinati cronologicamente. Le congiunzioni
-planetarie derivano dai minimi di separazione apparente entro 6 gradi e usano
-una finestra locale comune ai due pianeti; quelle col Sole sono eventi
-informativi separati e non producono consigli strumentali. Istante astronomico,
-finestra osservativa, separazione e visibilita' locale sono distinti; il numero
-`usefulness` non e' mostrato. Un massimo di eclissi non visibile non viene piu'
-presentato come finestra osservativa. La card Home `Prossimi eventi` usa lo
-stesso contratto, esclude le congiunzioni solari dalla preview e apre il
-relativo dettaglio. Il bundle Windows presente e' stato successivamente
-rigenerato alla `1.20.0`.
-
-In `1.20.1` la tabella `Oggetti celesti` conserva il filtro mensile ma rimuove
-la relativa colonna ridondante. Il dettaglio calcola invece sempre la
-visibilita' del solo oggetto nel mese corrente della localita', con cache
-dedicata e distinzione tra `No` e dato non disponibile. Tipi di oggetto e
-modalita' osservative hanno label italiane nella lista, nei filtri e nel
-dettaglio, mentre i valori canonici inglesi restano invariati nel backend. La
-distribuzione Windows resta alla `1.20.0`.
-
-`1.17.0` avvia la revisione della parte alta della Home con un contratto
-`homeObservingOverview` dedicato. Le card visibili separano ora stato e finestra
-della sessione, score solo meteo, condizioni descrittive planetarie/deep-sky e
-impatto lunare. I punteggi numerici di categoria non sono piu' esposti in questa
-sezione. Sky Compass usa lo stesso stato di sessione per distinguere una
-direzione consigliata da un semplice orientamento geometrico e mostra i tipi
-target in italiano. `Piano della notte` resta il prossimo capitolo separato.
-
-## Requisiti
-
-- Windows 10/11.
-- Python 3.12+ consigliato per sviluppo.
-- Virtualenv locale in `.venv`.
-
-Installazione dipendenze:
+From PowerShell in the repository root:
 
 ```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r astro_viewer\requirements.txt
-```
-
-## Avvio in sviluppo
-
-```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe astro_viewer\main.py
 ```
 
-Smoke test rapido:
+On first start NightScope initializes its SQLite database from the packaged
+schema and seed files. This can take longer than subsequent starts.
 
-```powershell
-.\.venv\Scripts\python.exe astro_viewer\main.py --smoke-test
-.\.venv\Scripts\python.exe astro_viewer\main.py --qml-smoke-test
-```
+## Validation
 
-Suite test:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m compileall astro_viewer
-```
-
-## Validazione
-
-Esegui tutti i controlli standard con:
-
-```powershell
-.\.venv\Scripts\python.exe tools\run_checks.py
-```
-
-Modalità rapida senza coverage:
+Fast validation without coverage:
 
 ```powershell
 .\.venv\Scripts\python.exe tools\run_checks.py --fast
 ```
 
-## Build Windows
+Full validation with coverage:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py
+```
+
+Include an installed-environment dependency audit:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --security
+```
+
+The standard runner performs dependency consistency, Ruff, bytecode
+compilation, one parallel test-suite pass, a backend smoke test, and a QML smoke
+test. Security mode additionally runs `pip-audit`. More focused commands and
+the latest measured baseline are in [`docs/TESTING.md`](docs/TESTING.md).
+
+## Build For Windows
 
 ```powershell
 .\packaging\build_windows.ps1
 ```
 
-La build usa `packaging/NightScope.spec` e include:
+PyInstaller writes the portable application to `dist\NightScope`. The build
+includes QML, translations, the bilingual manual, catalogue seeds, scientific
+images, GeoNames data, timezone boundary data, and the local JPL `de421`
+ephemeris.
 
-- UI QML e componenti;
-- `resources/` con icone e immagini locali;
-- `data/schema.sql`;
-- seed CSV separati per oggetti e designazioni catalografiche, immagini,
-  descrizioni, curiosita', telescopi, oculari, Barlow, binocoli, filtri,
-  riduttori e inquinamento luminoso;
-- dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
-- poligoni dei fusi inclusi dalla dipendenza `timezonefinder` tramite il relativo hook PyInstaller;
-- ephemeris `data/skyfield/de421.bsp`;
-- `manuale.html`;
-- `VERSION`.
+The application writes its database, preferences, caches, and logs beside the
+executable, so do not run it from a read-only directory. `dist` is intentionally
+ignored by Git and must be rebuilt and independently smoke-tested for a release.
 
-Output previsto:
-
-```text
-dist/NightScope/NightScope.exe
-```
-
-## Struttura repo
+## Project Layout
 
 ```text
 astro_viewer/
-  main.py
   app/
-    astronomy/
-    database/
-    models/
-    services/
-    ui/
-    viewmodels/
-  data/
-  resources/
-  tests/
-  tools/
-packaging/
-VERSION
-manuale.html
-README.md
+    astronomy/       Local ephemerides, event and visibility calculations
+    database/        SQLite bootstrap, repositories and migrations
+    domain/          Observation, equipment and recommendation contracts
+    services/        Providers, caches, localization and orchestration
+    ui/              QML application and reusable controls
+    viewmodels/      QML-facing read models and commands
+  data/              Schemas, seeds, GeoNames and local ephemeris data
+  resources/         Icons and credited catalogue images
+  tests/             Deterministic unit, integration and presentation tests
+  translations/      Runtime language packs and compiled Qt catalogues
+docs/                 Architecture, model, testing and release documentation
+packaging/            PyInstaller spec and Windows build script
+tools/                Validation and localization maintenance tools
+manuale.html          Self-contained Italian/English user manual
 ```
 
-## Database e dati
+Architecture details are in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). The current release audit and
+remaining release work are tracked in
+[`docs/RELEASE_CANDIDATE_REVIEW.md`](docs/RELEASE_CANDIDATE_REVIEW.md) and
+[`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md).
 
-Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene distribuito nel pacchetto: al primo avvio viene creato da `data/schema.sql` e dai seed locali. In sviluppo viene creato nella root del repository.
+## Known Limitations
 
-- città e alias GeoNames importati;
-- cataloghi strumenti importati;
-- oggetti catalografici, designazioni, immagini, descrizioni e curiosita'
-  importati;
-- un solo profilo predefinito `Default`, inizialmente in modalita' `Occhio nudo`
-  perche' privo di telescopi e binocoli;
-- cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
-- nessuna tabella legacy `Owned*`.
+- Local terrain, buildings, trees, horizon masks, and atmospheric extinction
+  near the horizon are not modeled.
+- Weather, AOD, particulate, and VIIRS availability depends on provider
+  coverage, freshness, authorization, and quality gates.
+- Comet magnitudes can differ materially from orbital-catalogue estimates.
+- Reducer recommendations do not model a complete camera and back-focus train.
+- There is no installer, automatic updater, artifact signature, or published
+  release hash yet.
+- The final manual and application visual matrix still requires a human pass on
+  the release build.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `16`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti. Le voci integrate dell'equipaggiamento hanno una chiave seed stabile: finche' non sono modificate seguono gli aggiornamenti inclusi, mentre una correzione utente viene conservata ai bootstrap successivi.
+Never observe the Sun through unfiltered optics. Use only a certified,
+full-aperture solar filter mounted securely in front of the instrument. Do not
+use eyepiece solar filters.
 
-I sidecar runtime `user_preferences.json`, `location_cache.json` e
-`nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori
-VIIRS elaborati sono invece nella tabella `SkyQualityEstimate`. Copiando la
-cartella NightScope completa si preservano profili, osservazioni, cache e
-preferenze. La password Earthdata resta nel vault di sistema e va reinserita
-sul nuovo computer.
+## Licensing And Attribution
 
-## Dataset locali
+NightScope includes data and images from sources with their own terms and
+attribution requirements. In particular, GeoNames data is distributed under
+CC BY 4.0, timezone boundary data used by `timezonefinder` is derived from
+`timezone-boundary-builder` under ODbL 1.0, and every catalogue image retains
+its source and credit metadata.
 
-I seed locali vivono in `astro_viewer/data/`:
+The NightScope source repository does **not yet contain a project license**.
+Until one is selected and added, do not assume permission to redistribute or
+publish modified application builds. Choosing the project license and
+consolidating third-party notices are release-blocking tasks.
 
-- `cities15000.txt`: dump GeoNames incluso nel package.
-- `countryInfo.txt`, `admin1CodesASCII.txt`: arricchimento paesi e regioni GeoNames.
-- `timezonefinder`: poligoni offline per ricavare il fuso IANA dalle coordinate;
-  i dati appartengono alla dipendenza e non sono duplicati nei seed NightScope.
-- `catalogue_objects_seed.csv`: 219 target Messier/Caldwell, relativi metadati
-  astronomici e flag di opportunita' fotografica per il riduttore.
-- `catalogue_designations_seed.csv`: 219 designazioni e ordinamento per
-  catalogo.
-- `telescope_catalog_seed.csv`: catalogo telescopi.
-- `eyepiece_catalog_seed.csv`: catalogo oculari, inclusi zoom.
-- `barlow_catalog_seed.csv`: catalogo Barlow/focal extender.
-- `binocular_catalog_seed.csv`: catalogo binocoli.
-- `filter_catalog_seed.csv`: 48 filtri visuali unici con classe e metadati
-  spettrali; il formato del barilotto non viene modellato.
-- `reducer_catalog_seed.csv`: 24 riduttori/correttori con compatibilita' ottica
-  e parametri di montaggio.
-- `reducer_telescope_compatibility_seed.csv`: associazioni esatte tra riduttori
-  dedicati e modelli di telescopio inclusi; le voci personalizzate usano la
-  stessa relazione normalizzata.
-- `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
-- `object_descriptions_seed.csv`: 228 descrizioni e note osservative specifiche.
-- `object_curiosities_seed.csv`: 228 fatti storici/scientifici con fonte
-  verificata.
+## Development Status
 
-Le fonti e i limiti sono documentati in `astro_viewer/data/DATA_SOURCES.md`.
-NightScope non distribuisce un seed sintetico per l'inquinamento luminoso;
-riconosce soltanto eventuali dataset reali preelaborati
-`light_pollution_world_atlas.csv` o `light_pollution_viirs_samples.csv`.
-
-## Import e manutenzione dati
-
-Gli import CLI usano upsert/deduplicazione:
-
-```powershell
-.\.venv\Scripts\python.exe astro_viewer\tools\import_cities.py astro_viewer\data\cities15000.txt --country-info astro_viewer\data\countryInfo.txt --admin1-codes astro_viewer\data\admin1CodesASCII.txt
-.\.venv\Scripts\python.exe astro_viewer\tools\import_telescope_catalog.py astro_viewer\data\telescope_catalog_seed.csv
-.\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\eyepiece_catalog_seed.csv
-.\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\barlow_catalog_seed.csv
-.\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
-.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
-.\.venv\Scripts\python.exe astro_viewer\tools\audit_curiosity_sources.py --workers 8
-```
-
-La provenienza e la policy di ridistribuzione delle immagini sono documentate
-in `docs/IMAGE_ASSET_POLICY.md`.
-
-I report generati dagli strumenti sono output locali e non vengono versionati. Se necessari, gli script li ricreano in `astro_viewer/reports/`.
-
-## Note operative
-
-- `dist/`, `build/`, `logs/`, cache Python e report generati non sono parte del repository.
-- `nasa_login.txt` non deve essere committato.
-- Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
-- Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Aerosol
-  atmosferico` da NASA MAIAC AOD. Il dato viene mantenuto come risultato
-  processato compatto con TTL positiva di 18 ore e negativa di 6 ore per le sole
-  assenze reali. Resta separato da seeing e trasparenza meteo;
-  `ObservationConditionsService` può usarlo come input condizioni solo quando i
-  gate provider-quality lo accettano.
-- La API key OpenAQ viene salvata tramite vault di sistema quando disponibile;
-  dopo un test connessione riuscito NightScope ricorda un'impronta sicura della
-  key verificata e la pagina Meteo può mostrare `Particolato locale`. OpenAQ PM
-  resta fallback/context rispetto ad AOD e non viene sommato come seconda
-  sorgente aerosol indipendente. Misure OpenAQ storiche non vengono presentate
-  come condizioni atmosferiche attuali.
-- PyInstaller è il percorso di build supportato.
-- Il workflow di test per sviluppo e review e' documentato in
-  `docs/TESTING.md`; la full suite parallela usa `pytest-xdist` via
-  `requirements-dev.txt`.
-
-## Manuale utente
-
-Il manuale sintetico per l'utente finale è in [manuale.html](manuale.html).
+NightScope is developed as a pre-release application. User-facing changes and
+fixes are recorded in [`astro_viewer/CHANGELOG.md`](astro_viewer/CHANGELOG.md);
+the README intentionally describes the current product instead of duplicating
+the changelog.

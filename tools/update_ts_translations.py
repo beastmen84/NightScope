@@ -3,15 +3,19 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 import time
 import xml.etree.ElementTree as ElementTree
 from collections import OrderedDict
 from pathlib import Path
 
-from deep_translator import GoogleTranslator
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from tools.translation_provider import GoogleTranslator  # noqa: E402
+
+
 TRANSLATIONS_DIR = PROJECT_ROOT / "astro_viewer" / "translations"
 TRANSLATION_CHUNK_LIMIT = 3_500
 SEPARATOR = "\n[NIGHTSCOPE_TS_SPLIT_0001]\n"

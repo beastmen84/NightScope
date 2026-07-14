@@ -22,6 +22,11 @@ class FakeCredentialBackend:
         self.passwords.pop((service_name, username), None)
 
 
+class FailingDeleteCredentialBackend(FakeCredentialBackend):
+    def delete_password(self, service_name: str, username: str) -> None:
+        raise RuntimeError("missing")
+
+
 class FakeEarthdataResponse:
     def __init__(self, text: str, url: str = "https://example.test", status_code: int = 200) -> None:
         self.text = text
@@ -70,6 +75,22 @@ class EarthdataCredentialStoreTests(unittest.TestCase):
             self.assertEqual(store.username(), "new-user")
             self.assertEqual(store.password(), "new-password")
             self.assertNotIn(("NightScope Earthdata", "old-user"), backend.passwords)
+
+    def test_missing_secure_password_log_does_not_expose_username(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = EarthdataCredentialStore(
+                Path(temp_dir) / "user_preferences.json",
+                backend=FailingDeleteCredentialBackend(),
+            )
+
+            with self.assertLogs(
+                "astro_viewer.app.services.earthdata_credentials", level="INFO"
+            ) as logs:
+                store._delete_backend_password("private-earthdata-user")
+
+        log_text = "\n".join(logs.output)
+        self.assertIn("password was not present", log_text)
+        self.assertNotIn("private-earthdata-user", log_text)
 
     def test_connection_status_is_persisted_and_reset_by_save(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -88,6 +88,22 @@ The update tools preserve existing reviewed translations. Use `--refresh` only
 when intentionally replacing all generated text, because it can overwrite
 editorial corrections.
 
+### Machine-Translation Provider
+
+The maintenance scripts use `tools/translation_provider.py`, a small
+timeout-bounded adapter around the public Google Translate mobile HTML response.
+It uses the runtime `requests` dependency, needs no NightScope or provider
+account, and is not imported by the application. It replaced the
+`deep-translator` developer dependency after a dependency audit flagged
+`PYSEC-2022-252`.
+
+This endpoint is a best-effort maintenance aid, not a stable contracted API.
+Network errors, response-shape changes and input-size violations fail explicitly
+instead of producing an empty translation. Mocked tests own deterministic
+coverage; a live probe is optional. Every generated translation must still be
+reviewed for astronomy terminology, placeholders, tone and UI fit before it is
+committed.
+
 ## Add Translatable Text
 
 - QML: wrap the complete sentence in `qsTr()`. Use `%1`, `%2`, and `.arg()`;

@@ -1,327 +1,183 @@
-# NightScope v1.0 Release Candidate Review
+# NightScope Pre-Release Audit
 
-Review date: 2026-06-25
+Review date: 2026-07-14
 
-Scope: architecture, calculations, code quality, documentation, tests, coverage
-and maintainability. No new features were implemented. PyInstaller was not run
-and `dist/` was not modified.
+Scope: Python and QML application code, SQLite/bootstrap paths, astronomy and
+recommendation boundaries, external-provider handling, localization, packaged
+data and images, developer tooling, dependency security, user documentation,
+privacy-sensitive logging, and Windows packaging configuration.
 
-Post-review note: this file preserves the original release-candidate findings.
-Several release-gate items were later addressed during v1.0 stabilization:
-`ruff` is clean, weather blocking is centralized in Python, the runtime
-database initialization/update path is portable, and standard validation can be
-run with `python tools/run_checks.py`.
+The existing `dist` directory was not rebuilt or modified during this audit.
 
-## Executive Result
+## Verdict
 
-NightScope is functionally coherent and the core calculation services are better
-tested than the surrounding UI/controller layer. The project is close to a
-stable 1.0, but it should not be considered ready for a high-quality v1.0 until
-the remaining release-gate and maintainability issues are addressed.
+No high-severity functional application defect was found. The deterministic
+suite, static checks, catalogue asset checks, and runtime dependency audit are
+clean after the fixes listed below.
 
-Release readiness: No, not yet.
+NightScope is nevertheless **not release-ready yet**. The remaining blockers
+are release-process and product decisions rather than a known broken core:
 
-Material blockers:
+1. The repository has no project `LICENSE` file and no consolidated
+   third-party notice.
+2. The user's final visual review is incomplete.
+3. The checked-in source is ahead of the existing Windows distribution, which
+   must be rebuilt from a clean environment and retested.
+4. The final live-provider matrix has not been executed for Open-Meteo,
+   CelesTrak, JPL SBDB, Earthdata VIIRS/AOD, OpenAQ, Windows location, and the
+   explicit IP fallback.
+5. Release dependencies are range-based rather than frozen into a tested lock
+   or SBOM, and the final artifact is not signed or accompanied by a hash.
 
-- `ruff` fails on one lint error in `skyfield_engine.py`.
-- Profile/equipment and refresh correctness have tests, but the most important
-  orchestration class is still under-covered and oversized.
-- Weather blocking criteria are duplicated between planner logic and QML
-  presentation, creating a realistic future inconsistency risk.
-- Equipment profile persistence has a legacy single-telescope field alongside
-  current many-to-many assignment tables, which is easy to misunderstand.
+Use `docs/RELEASE_CHECKLIST.md` as the release gate.
 
-## Architecture
-
-### Strengths
+## Defects Corrected In This Audit
 
-- The project has a clear folder structure: UI, ViewModel/controller, services,
-  repositories, models, astronomy, data and tests are separated.
-- Most domain calculations live in services rather than QML.
-- Repositories mostly stay focused on SQLite persistence.
-- Models are simple dataclasses and are easy to inspect.
-- Fallback paths exist for astronomy, weather, light pollution and location.
-- The refresh chain now explicitly recomputes profile-dependent recommendations
-  after active-profile and equipment changes.
-
-### Weaknesses
+### Developer dependency advisory
 
-- `AppController` is about 2290 lines and mixes orchestration, presentation
-  formatting, refresh invalidation, equipment mutation, weather digest,
-  calendar setup and object-detail reasoning.
-- `HomePage.qml` is about 1100 lines and contains non-trivial weather-blocking
-  presentation logic.
-- Cache ownership is split between repositories, services and controller fields
-  without a single documented invalidation policy.
-- Some thresholds are duplicated across Python and QML.
-- The equipment profile schema still carries legacy compatibility behavior.
+`deep-translator 1.11.4` was present only for translation maintenance, but the
+installed-environment audit reported `PYSEC-2022-252`. The package was removed
+from `requirements-dev.txt` and replaced by a small, timeout-bounded developer
+adapter using the already required `requests` dependency. The translation tools
+remain best-effort utilities and generated text still requires human review.
 
-### Suggested Future Improvements
+Advisory: `https://osv.dev/vulnerability/PYSEC-2022-252`.
 
-- Split `AppController` gradually into focused presenters or coordinator
-  objects after 1.0 stabilization.
-- Centralize weather-blocking thresholds in Python and expose the result to QML.
-- Centralize Moon-illumination parsing and night-hour selection.
-- Document or migrate the legacy `EquipmentProfile.telescope_id` field.
-- Keep all future ranking and scoring changes in services, with QML only
-  displaying controller-provided state.
+### Privacy-sensitive logging
 
-## Calculation Logic
-
-### Confirmed Calculations
-
-Astronomy:
-
-- Solar-system rise, set, transit, altitude, azimuth and night-window visibility
-  are computed through Skyfield.
-- Deep-sky visibility uses Messier catalog coordinates and sampled altitude
-  windows.
-- Deep-sky useful altitude threshold is higher than solar-system threshold.
+Several information logs could include exact coordinates, a location cache
+key, the complete Windows diagnostic payload, timezone/city normalization
+details, or an Earthdata username. The messages now retain operational status
+without those identifiers. Regression tests explicitly reject coordinate,
+payload, cache-key, and username disclosure.
 
-Observing quality:
+An unused Windows diagnostic property and slot were also removed from the QML
+controller surface. The developer service diagnostic remains available to its
+focused tests but no longer logs the raw report.
+
+### Validation runner and developer environment
+
+The default validation runner executed the full test suite once without and
+once with coverage. It now performs exactly one suite run: coverage by default,
+or no coverage with `--fast`. `requirements-dev.txt` now lists every tool used
+by the documented workflow. Optional `--security` runs `pip-audit`. Parallel
+pytest execution is capped at four workers; using every logical CPU caused
+unnecessary memory pressure in the Windows/PyCharm development environment.
+Coverage now targets application and entry-point modules only; tests and
+developer utilities no longer inflate the reported percentage.
 
-- Global score combines cloud, precipitation, wind, humidity and Moon
-  illumination.
-- Blocking weather suspends the observing plan when score, cloud or
-  precipitation crosses minimum usability thresholds.
-
-Planetary score:
-
-- Combines global weather, seeing, wind and Moon contribution.
-- Weather cap prevents excellent category scores under blocked weather.
-
-Deep-sky score:
-
-- Combines weather, transparency, light pollution and Moon illumination.
-- Moon and light-pollution penalties are object-type dependent.
-- Galaxies are penalized more than globular clusters under strong moonlight.
-
-Equipment:
-
-- Recommendations use active-profile equipment only.
-- Zoom eyepieces remain single records and are sampled internally.
-- Barlows are suggested only when assigned and only when they improve the setup.
-- Magnification, exit pupil and true field are calculated from telescope,
-  eyepiece and Barlow parameters.
-
-VIIRS/light pollution:
-
-- Uses cache, CSV providers, NASA Black Marble VIIRS when authorized and offline
-  fallback.
-- Radiance-to-Bortle conversion is threshold-based.
-
-### Potential Inconsistencies
-
-- Seeing can display as excellent while global observing quality is poor. This
-  is mathematically valid because seeing is atmospheric steadiness, not cloud or
-  rain usability. It remains a UX risk unless the blocked-session warning is
-  visually dominant.
-- Best-object selection uses a weather-factor floor, so a target can remain
-  selected in poor weather. The current global warning mitigates this by making
-  it a potential target, not a recommendation to observe now.
-- Planner weather blocking and QML warning logic are duplicated. They currently
-  match conceptually but can drift.
-
-### Hidden Assumptions
-
-- Resolved in `1.18.1`: astronomy, weather, seeing, Home, Planner and Sky Compass
-  now share the Skyfield sunset-to-sunrise `ObservingNightWindow` instead of
-  separate evening/morning clock ranges.
-- VIIRS cache freshness uses a 7-day revalidation interval; the interval is a
-  product-cadence policy rather than a guarantee that NASA has published a new
-  monthly composite.
-- Moon penalties use illumination only, not Moon altitude or angular distance.
-- Equipment recommendations assume catalog focal length, aperture and apparent
-  field values are trustworthy.
-
-### Possible Improvements
-
-- Expose a single computed `isObservingSessionBlocked` state from Python.
-- Add a service-level result that explains why a plan is suspended.
-- Add tests for Moon-heavy and high-light-pollution ranking in the controller
-  layer, not only service-level tests.
-- Add tests for profile delete/rename and active-profile equipment deletion
-  refresh paths.
-
-## Code Quality
-
-### Duplicated Logic
-
-- Weather blocking thresholds in planner and QML.
-- Score labels in observing score and astronomy engine.
-- Night-hour filtering in observing score, seeing and home digest.
-- Moon illumination string parsing in multiple services.
-- Deep-sky Moon/light-pollution adjustments in planner and controller.
-
-### Dead Code And Obsolete Code
-
-- No `TODO`, `FIXME`, `XXX`, `HACK`, `deprecated` or `obsolete` markers were
-  found by static text scan.
-- Several import/tool scripts have 0 percent test coverage because they are
-  operational tools, not because they are proven dead.
-
-### Technical Debt
-
-- `AppController`: 2290 lines.
-- `HomePage.qml`: 1109 lines.
-- `location_service.py`: 946 lines.
-- `equipment_catalog_repository.py`: 593 lines.
-- `skyfield_engine.py`: 557 lines.
-- `light_pollution_service.py`: 544 lines.
-- `equipment_service.py`: 514 lines.
-
-Large files are not automatically wrong, but the controller and home page are
-where future regressions are most likely.
-
-## Documentation
-
-Created:
-
-- `docs/ARCHITECTURE.md`
-- `docs/CALCULATION_LOGIC.md`
-- `docs/RELEASE_CANDIDATE_REVIEW.md`
-
-Completeness:
-
-- Architecture boundaries and data flow are documented.
-- Refresh and cache ownership are documented.
-- Astronomical, weather, Moon, VIIRS, recommendation and equipment calculations
-  are documented.
-- Known limitations are explicitly listed.
-
-Missing areas:
-
-- There is still no developer-facing API/reference document for every
-  `AppController` property and signal.
-- There is no schema migration guide for the profile-equipment legacy field.
-
-## Testing
-
-### Commands Run
-
-`ruff`:
-
-- Command: `.venv\Scripts\python.exe -m ruff check astro_viewer`
-- Result: failed.
-- Error: `F841 Local variable exc is assigned to but never used` in
-  `astro_viewer/app/astronomy/skyfield_engine.py:63`.
-
-`pytest`:
-
-- Command: `.venv\Scripts\python.exe -m pytest astro_viewer\tests -q`
-- Result: passed.
-- Summary: 107 passed in 70.93s.
-
-`pytest-cov`:
-
-- Command: `.venv\Scripts\python.exe -m pytest astro_viewer\tests -q --cov=astro_viewer --cov-report=term-missing`
-- Result: passed.
-- Summary: 107 passed in 60.47s.
-- Total coverage including tests/tools: 71%.
-- Application-only coverage: 75%.
-
-`smoke-test`:
-
-- Command: `.venv\Scripts\python.exe -m astro_viewer.main --smoke-test`
-- Result: passed.
-- Output showed app startup in no-location state with zero objects/weather, which
-  is expected without an active location.
-
-`qml-smoke-test`:
-
-- Command: `.venv\Scripts\python.exe -m astro_viewer.main --qml-smoke-test`
-- Result: passed.
-
-`compileall`:
-
-- Command: `.venv\Scripts\python.exe -m compileall astro_viewer`
-- Result: passed.
-
-Notes:
-
-- `pytest-cov` generated the full terminal report.
-- `coverage.py` was used only to print the application-only filtered view from
-  the `.coverage` data file.
-- The runtime database was restored after the initial test run.
-- The intermediate `.coverage` file was removed after extracting the report.
-
-### Coverage Of Critical Modules
-
-Strong coverage:
-
-- `observing_score_service.py`: 95%.
-- `night_planner_service.py`: 91%.
-- `advanced_observing_service.py`: 91%.
-- `seeing_service.py`: 90%.
-- `weather_service.py`: 83%.
-- `skyfield_engine.py`: 86%.
-- `sky_quality_repository.py`: 100%.
-- `weather_cache_repository.py`: 100%.
-
-Moderate or weak coverage:
-
-- `app_controller.py`: 65%.
-- `equipment_catalog_repository.py`: 51%.
-- `equipment_service.py`: 80%.
-- `light_pollution_service.py`: 78%.
-- `location_service.py`: 78%.
-- `database/bootstrap.py`: 77%.
-- `models/sky.py`: 74%.
-
-Untested or intentionally tool-like:
-
-- `main.py`: 0% under coverage because smoke tests were run separately.
-- `logging_service.py`: 0%.
-- Several `tools/*` scripts: 0%.
-
-### Untested Critical Paths
-
-- Some active-profile CRUD/delete/rename edge cases remain under-covered.
-- Some profile repository mutation paths are under-covered.
-- Controller-level integration of Moon/light-pollution presentation filtering is
-  weaker than service-level coverage.
-- QML warning behavior is covered only by smoke-level validation, not granular
-  UI assertions.
-
-### Recommended Additional Tests
-
-- Active profile delete and fallback profile refresh.
-- Profile rename when identity changes internally.
-- Deleting assigned telescope/eyepiece/Barlow from active profile.
-- Controller-level high-Moon ranking: galaxy vs globular vs open cluster.
-- Controller-level blocking-weather warning state matching planner blocking.
-
-## Long-Term Maintainability
-
-An experienced developer could maintain NightScope, especially with the new
-architecture and calculation documents. The main difficulty is that too much
-implicit behavior is concentrated in `AppController` and `HomePage.qml`.
-
-Most worrying areas:
-
-- `AppController`, because many refresh and presentation decisions intersect
-  there.
-- Profile/equipment persistence, because it mixes legacy and current schema
-  concepts.
-- Weather-blocked presentation, because criteria exist in both Python and QML.
-- Light-pollution/VIIRS, because provider fallback and cache freshness rules are
-  implicit and operationally complex.
-- Moon/deep-sky ranking, because the current model is intentionally simplified
-  and can be mistaken for a physical visibility model.
-
-## Release Readiness
-
-NightScope is not yet ready for a high-quality stable v1.0.
-
-Only material issues:
-
-- The lint gate fails and should be clean for v1.0.
-- The largest controller has insufficient coverage relative to its release
-  impact and historical refresh bugs.
-- The profile/equipment repository layer is under-covered for a critical user
-  workflow.
-- Weather blocking should have one source of truth to avoid plan/warning drift.
-- The legacy profile telescope field should be explicitly handled in code
-  comments or migration documentation before future maintenance.
-
-These are stabilization issues, not feature requests.
+### Runtime and log ownership
+
+The frozen entry point configured logs from the bundled code directory while
+the database and preferences were rooted beside the executable. In a PyInstaller
+onedir build this could place logs under `_internal/logs`, contradicting the
+portable-data contract and the user documentation. Logging now consumes the
+same resolved runtime directory as the database, preferences, and caches.
+
+The runtime resolver also accepts a developer/test-only override. Standard
+backend and QML smoke checks create a fresh temporary runtime, where automatic
+location detection is disabled by default, and delete it after the subprocess.
+They therefore do not depend on or modify the developer's database, preferences,
+caches, or logs.
+
+### User documentation and access
+
+The GitHub README was an Italian release diary mixed with project instructions.
+It is now an English product and contributor overview that links to the
+changelog for history and states the pre-release limitations explicitly.
+
+The former Italian-only manual contained a contradiction about OpenAQ's role in
+canonical transparency. It has been replaced by a self-contained Italian and
+English manual with a language selector, responsive navigation, print styling,
+privacy/provider guidance, troubleshooting, equipment formulas, and an
+astronomer-facing explanation of recommendation boundaries. A help button in
+the sidebar opens the manual in the current application language.
+
+## Reviewed Areas With No Confirmed Defect
+
+### Database and SQL
+
+Dynamic SQL identified by static analysis was inspected. Dynamic identifiers
+and placeholder counts come from fixed internal tables/columns or constructed
+integer counts; user values are bound parameters. No exploitable SQL injection
+path was found.
+
+Bootstrap remains schema version 16. Built-in equipment rows keep stable seed
+keys and user overrides; user-created rows remain separate. The legacy
+`EquipmentProfile.telescope_id` field is still technical debt, not the owner of
+the current many-to-many profile model.
+
+### Recommendation and astronomy boundaries
+
+The audit did not change NSOM, Planner, Home target ranking, Equipment scoring,
+Sky Compass scoring, or transient-event semantics. Moon geometry, atmosphere,
+sky background, observer capability, target timing, and session state retain
+their documented ownership. ISS and comet events remain outside Catalogue,
+Equipment, weather scoring, Planner, and NSOM.
+
+### Providers and asynchronous state
+
+External requests use HTTPS and bounded timeouts. Credentials are held through
+the system credential backend. Location/provider completion paths compare the
+active identity and reject stale asynchronous results. Provider no-data states
+remain distinct from authentication, network, parsing, and stale-cache states.
+
+### Data and assets
+
+The packaged deep-sky image set and Solar System image set passed their
+repository checks. GeoNames remains necessary for offline city search and
+labels; timezone calculation itself uses offline coordinate polygons. Synthetic
+light-pollution fallback data remains removed, so unavailable Bortle/SQM values
+stay unavailable.
+
+### Secrets
+
+No secret was found in tracked source files. Local credential/test files covered
+by `.gitignore` were not read, modified, or staged.
+
+## Residual Engineering Risk
+
+These items are not current release blockers by themselves, but they increase
+future regression cost:
+
+- `AppController` is approximately 7,100 lines and still mixes orchestration,
+  presentation projection, refresh ownership, and mutation commands.
+- `HomePage.qml` is approximately 1,700 lines.
+- `location_service.py`, `equipment_catalog_repository.py`, and
+  `skyfield_engine.py` are also large ownership surfaces.
+- There is no repository CI workflow; validation currently depends on local
+  execution.
+- QML lint exits successfully for all 30 files but reports a large existing set
+  of `unqualified access` warnings around Python context properties and nested
+  component ownership. Italian/English runtime smoke tests pass; removing the
+  warnings requires a separate, visually verified QML qualification pass.
+- The portable runtime requires a writable extracted folder and has no
+  installer/update/rollback workflow.
+- Skyfield/NumPy emit known deprecation warnings in the current environment.
+- Dependency ranges permit drift between development and a later rebuild.
+
+Refactoring the controller or schema immediately before release would create
+more risk than it removes. Track these as post-release work unless the remaining
+visual/provider checks expose a concrete defect.
+
+## Audit Evidence
+
+Baseline and final commands completed during this audit:
+
+| Check | Result |
+| --- | --- |
+| `python -m pip check` | No broken requirements |
+| `python -m ruff check astro_viewer tools` | Passed |
+| `python -m compileall -q astro_viewer tools` | Passed |
+| `python -m pytest -q -n 4 astro_viewer/tests` | 785 passed, 613 warnings, 7 subtests passed |
+| Runtime-only coverage | 84% across 15,212 statements |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Bandit application/tool scan | 0 high, 26 medium, 12 low; dynamic-SQL and subprocess findings manually reviewed |
+| Translation catalogues | IT/EN: 1,595 finished, 0 unfinished each |
+| Translation regression tests | 15 passed |
+| QML lint and smoke | 30 files linted; Italian and English smoke passed |
+| Deep-sky image repository check | 219 JPEG assets passed |
+| Solar System image repository check | 9 JPEG assets passed |
+
+Detailed commands, timings, known dependency warnings, and the disposable
+runtime contract are recorded in `docs/TESTING.md`.

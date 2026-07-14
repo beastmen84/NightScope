@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -110,7 +111,7 @@ class _CountingTransientSource:
 
 def _repository(tmp_path: Path) -> OrbitalElementCacheRepository:
     database_path = tmp_path / "comet-cache.db"
-    with sqlite3.connect(database_path) as connection:
+    with closing(sqlite3.connect(database_path)) as connection:
         connection.executescript((DATA_DIR / "schema.sql").read_text(encoding="utf-8"))
     return OrbitalElementCacheRepository(database_path)
 

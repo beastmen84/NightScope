@@ -1,0 +1,263 @@
+from __future__ import annotations
+
+import logging
+import re
+from html.parser import HTMLParser
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
+import requests
+
+from astro_viewer import main as main_module
+from astro_viewer.app.services.logging_service import (
+    LOG_HANDLER_NAME,
+    configure_logging,
+)
+from tools.run_checks import Check, _checks, _run_check
+from tools.translation_provider import (
+    GOOGLE_TRANSLATE_URL,
+    MAX_TRANSLATION_CHARACTERS,
+    REQUEST_TIMEOUT,
+    GoogleTranslator,
+    TranslationProviderError,
+)
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+class _ManualStructureParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.ids: list[str] = []
+        self.article_languages: list[str] = []
+        self.internal_links: list[str] = []
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        attributes = dict(attrs)
+        if attributes.get("id"):
+            self.ids.append(str(attributes["id"]))
+        if attributes.get("data-article"):
+            self.article_languages.append(str(attributes["data-article"]))
+        href = str(attributes.get("href") or "")
+        if href.startswith("#"):
+            self.internal_links.append(href[1:])
+
+
+def _response(*, text: str, status_code: int = 200) -> Mock:
+    response = Mock(spec=requests.Response)
+    response.text = text
+    if status_code >= 400:
+        response.raise_for_status.side_effect = requests.HTTPError(
+            f"HTTP {status_code}"
+        )
+    else:
+        response.raise_for_status.return_value = None
+    return response
+
+
+def test_translation_provider_uses_bounded_request_and_parses_result() -> None:
+    http_get = Mock(
+        return_value=_response(
+            text='<html><div class="result-container">Clear &amp; dark</div></html>'
+        )
+    )
+    translator = GoogleTranslator("it", "en", http_get=http_get)
+
+    assert translator.translate("Limpido e buio") == "Clear & dark"
+    http_get.assert_called_once_with(
+        GOOGLE_TRANSLATE_URL,
+        params={"sl": "it", "tl": "en", "q": "Limpido e buio"},
+        headers={
+            "Accept": "text/html",
+            "User-Agent": "NightScope translation maintenance tool",
+        },
+        timeout=REQUEST_TIMEOUT,
+    )
+
+
+def test_translation_provider_handles_local_and_invalid_responses() -> None:
+    http_get = Mock()
+    same_language = GoogleTranslator("it", "it", http_get=http_get)
+    assert same_language.translate(" Testo ") == "Testo"
+    assert same_language.translate("") == ""
+    http_get.assert_not_called()
+
+    missing = GoogleTranslator(
+        "it",
+        "en",
+        http_get=Mock(return_value=_response(text="<html></html>")),
+    )
+    with pytest.raises(TranslationProviderError, match="unrecognized"):
+        missing.translate("Testo")
+
+    failed = GoogleTranslator(
+        "it",
+        "en",
+        http_get=Mock(return_value=_response(text="", status_code=503)),
+    )
+    with pytest.raises(TranslationProviderError, match="HTTPError"):
+        failed.translate("Testo")
+
+    with pytest.raises(ValueError, match="exceeds"):
+        missing.translate("x" * (MAX_TRANSLATION_CHARACTERS + 1))
+
+
+def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None:
+    fast = _checks(include_coverage=False, include_security=False)
+    assert [check.name for check in fast] == [
+        "pip-check",
+        "ruff",
+        "compileall",
+        "pytest",
+        "smoke-test",
+        "qml-smoke-test",
+    ]
+    assert sum(check.name.startswith("pytest") for check in fast) == 1
+    pytest_check = next(check for check in fast if check.name == "pytest")
+    assert pytest_check.args[pytest_check.args.index("-n") + 1] == "4"
+
+    release = _checks(include_coverage=True, include_security=True)
+    assert [check.name for check in release].count("pip-audit") == 1
+    assert [check.name for check in release].count("pytest-cov") == 1
+    assert sum(check.name.startswith("pytest") for check in release) == 1
+    coverage_check = next(check for check in release if check.name == "pytest-cov")
+    assert "--cov=astro_viewer.app" in coverage_check.args
+    assert "--cov=astro_viewer.main" in coverage_check.args
+    assert "--cov=astro_viewer" not in coverage_check.args
+    assert all(
+        check.isolated_runtime
+        for check in release
+        if check.name in {"smoke-test", "qml-smoke-test"}
+    )
+
+
+def test_smoke_check_uses_and_removes_a_disposable_runtime() -> None:
+    completed = Mock(returncode=0)
+    with patch(
+        "tools.run_checks.subprocess.run", return_value=completed
+    ) as run:
+        assert (
+            _run_check(
+                Check("test-smoke", ("-c", "pass"), isolated_runtime=True)
+            )
+            == 0
+        )
+
+    environment = run.call_args.kwargs["env"]
+    runtime_dir = Path(environment["NIGHTSCOPE_RUNTIME_DIR"])
+    assert run.call_args.kwargs["cwd"] == PROJECT_ROOT
+    assert not runtime_dir.exists()
+
+
+def test_runtime_override_and_log_path_share_the_same_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("NIGHTSCOPE_RUNTIME_DIR", str(tmp_path))
+    runtime_dir = main_module._resolve_runtime_dir()
+    log_path = configure_logging(runtime_dir)
+
+    try:
+        assert runtime_dir == tmp_path.resolve()
+        assert log_path == runtime_dir / "logs" / "nightscope.log"
+        assert log_path.parent.is_dir()
+    finally:
+        root_logger = logging.getLogger()
+        for handler in tuple(root_logger.handlers):
+            if handler.get_name() == LOG_HANDLER_NAME:
+                root_logger.removeHandler(handler)
+                handler.close()
+
+
+def test_developer_requirements_include_validation_tools_without_deep_translator() -> None:
+    requirements = (PROJECT_ROOT / "requirements-dev.txt").read_text(
+        encoding="utf-8"
+    )
+    for package in ("bandit", "pip-audit", "pytest", "pytest-cov", "pytest-xdist", "ruff"):
+        assert package in requirements
+    assert "deep-translator" not in requirements
+
+
+def test_manual_is_packaged_and_linked_from_the_sidebar() -> None:
+    spec = (PROJECT_ROOT / "packaging" / "NightScope.spec").read_text(
+        encoding="utf-8"
+    )
+    qml = (
+        PROJECT_ROOT / "astro_viewer" / "app" / "ui" / "main.qml"
+    ).read_text(encoding="utf-8")
+    controller = (
+        PROJECT_ROOT
+        / "astro_viewer"
+        / "app"
+        / "viewmodels"
+        / "app_controller.py"
+    ).read_text(encoding="utf-8")
+
+    assert '(str(ROOT / "manuale.html"), ".")' in spec
+    assert "def manualUrl" in controller
+    assert 'self._base_dir.parent / "manuale.html"' in controller
+    assert "appController.manualUrl" in qml
+    assert 'qsTr("Apri manuale")' in qml
+    assert 'translationManager.languageCode' in qml
+
+
+def test_bilingual_manual_has_complete_navigation_and_current_provider_semantics() -> None:
+    manual = (PROJECT_ROOT / "manuale.html").read_text(encoding="utf-8")
+    parser = _ManualStructureParser()
+    parser.feed(manual)
+
+    assert len(parser.ids) == len(set(parser.ids))
+    assert parser.internal_links
+    assert set(parser.internal_links).issubset(set(parser.ids))
+    assert parser.article_languages.count("it") == 2
+    assert parser.article_languages.count("en") == 2
+    for language in ("it", "en"):
+        for section in (
+            "start",
+            "location",
+            "profiles",
+            "home",
+            "logic",
+            "equipment",
+            "catalogue",
+            "calendar",
+            "weather",
+            "log",
+            "data-states",
+            "privacy",
+            "troubleshooting",
+            "limits",
+        ):
+            assert f'{language}-{section}' in parser.ids
+
+    assert 'new URLSearchParams(window.location.search).get("lang")' in manual
+    assert "fallback non additivo" in manual
+    assert "non-additive fallback" in manual
+    assert "NightScope non usa OpenAQ per raccomandazioni" not in manual
+    assert "Do not use eyepiece solar filters" in manual
+    assert "Non usare filtri solari da oculare" in manual
+
+
+def test_github_readme_is_product_focused_and_links_release_documents() -> None:
+    readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert readme.startswith("# NightScope\n")
+    assert "Windows desktop application" in readme
+    assert "pre-release" in readme
+    assert "docs/RELEASE_CANDIDATE_REVIEW.md" in readme
+    assert "docs/RELEASE_CHECKLIST.md" in readme
+    assert "astro_viewer/CHANGELOG.md" in readme
+    assert "Versione corrente sorgente" not in readme
+
+    local_targets = {
+        target.split("#", 1)[0]
+        for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", readme)
+        if target and not target.startswith(("#", "http://", "https://"))
+    }
+    assert local_targets
+    assert not [
+        target for target in sorted(local_targets) if not (PROJECT_ROOT / target).exists()
+    ]

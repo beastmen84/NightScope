@@ -195,7 +195,7 @@ class EarthdataCredentialStore:
         try:
             self._backend.delete_password(self._service_name, username)
         except Exception:
-            logger.info("Earthdata password was not present in secure store for user %s.", username)
+            logger.info("Earthdata password was not present in the secure store.")
 
     @staticmethod
     def _load_keyring_backend() -> CredentialBackend | None:

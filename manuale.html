@@ -3,414 +3,1220 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Manuale NightScope</title>
+  <meta name="color-scheme" content="dark">
+  <title>NightScope - Manuale utente</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0d1015;
-      --panel: #151a20;
-      --panel-2: #1c222b;
-      --line: #303641;
-      --text: #edf3f7;
-      --muted: #aeb8c4;
-      --soft: #7f8b98;
-      --cyan: #65d6e8;
-      --teal: #63d7b4;
-      --amber: #f5c86a;
-      --violet: #b89cff;
-      --coral: #ff8f7a;
+      --bg: #0b0e12;
+      --surface: #12171d;
+      --surface-raised: #182029;
+      --line: #2a3540;
+      --line-strong: #3a4856;
+      --text: #edf3f6;
+      --muted: #aab6bf;
+      --cyan: #59c7d7;
+      --teal: #55bba7;
+      --amber: #e3b45b;
+      --red: #e57979;
+      --blue: #7aa7e8;
+      --content: 1120px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
-      background: radial-gradient(circle at top left, rgba(101, 214, 232, 0.12), transparent 32rem), var(--bg);
+      background: var(--bg);
       color: var(--text);
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      line-height: 1.55;
+      font: 16px/1.65 "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0;
     }
 
-    main {
-      width: min(1120px, calc(100% - 40px));
+    a {
+      color: var(--cyan);
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      color: #8bdce6;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 12px;
+      top: -80px;
+      z-index: 100;
+      padding: 10px 14px;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 4px;
+    }
+
+    .skip-link:focus {
+      top: 12px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 14, 18, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      width: min(100% - 32px, var(--content));
+      min-height: 64px;
       margin: 0 auto;
-      padding: 40px 0 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
     }
 
-    header {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(21, 26, 32, 0.86);
-      padding: 28px;
-      margin-bottom: 22px;
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 11px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .language-switch {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 3px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: var(--surface);
+    }
+
+    .language-switch button,
+    .print-button {
+      min-height: 34px;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .language-switch button {
+      min-width: 44px;
+      padding: 4px 10px;
+    }
+
+    .language-switch button[aria-pressed="true"] {
+      background: var(--cyan);
+      color: #071014;
+    }
+
+    .print-button {
+      padding: 5px 11px;
+      border: 1px solid var(--line-strong);
+      color: var(--text);
+    }
+
+    .print-button:hover {
+      background: var(--surface-raised);
+    }
+
+    .hero {
+      border-bottom: 1px solid var(--line);
+      background: #0f1419;
+    }
+
+    .hero-inner {
+      width: min(100% - 32px, var(--content));
+      margin: 0 auto;
+      padding: 58px 0 46px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     h1,
     h2,
     h3 {
-      margin: 0;
-      line-height: 1.18;
-    }
-
-    h1 {
-      font-size: 38px;
+      margin-top: 0;
+      line-height: 1.2;
       letter-spacing: 0;
     }
 
+    h1 {
+      max-width: 820px;
+      margin-bottom: 15px;
+      font-size: 56px;
+    }
+
+    .hero p {
+      max-width: 800px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .release-note {
+      margin-top: 28px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--amber);
+      background: #181a18;
+      color: #e8dfcb;
+    }
+
+    .manual-layout {
+      width: min(100% - 32px, var(--content));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 245px minmax(0, 1fr);
+      gap: 52px;
+      padding: 42px 0 72px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 88px;
+      align-self: start;
+      max-height: calc(100vh - 112px);
+      overflow: auto;
+      padding-right: 16px;
+    }
+
+    .toc-title {
+      margin: 0 0 12px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .toc ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc li + li {
+      margin-top: 2px;
+    }
+
+    .toc a {
+      display: block;
+      padding: 6px 9px;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .toc a:hover {
+      border-left-color: var(--cyan);
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section {
+      padding: 8px 0 42px;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 88px;
+    }
+
+    section + section {
+      padding-top: 42px;
+    }
+
+    section:last-child {
+      border-bottom: 0;
+    }
+
     h2 {
-      font-size: 24px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+      font-size: 30px;
     }
 
     h3 {
-      color: var(--cyan);
-      font-size: 17px;
-      margin-bottom: 6px;
+      margin: 28px 0 10px;
+      font-size: 19px;
     }
 
     p {
-      margin: 8px 0 0;
-      color: var(--muted);
-    }
-
-    a {
-      color: var(--cyan);
-    }
-
-    .subtitle {
-      max-width: 760px;
-      color: var(--muted);
-      font-size: 16px;
-      margin-top: 12px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(21, 26, 32, 0.9);
-      padding: 20px;
-    }
-
-    .wide {
-      grid-column: 1 / -1;
-    }
-
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .pill {
-      border: 1px solid rgba(101, 214, 232, 0.45);
-      border-radius: 999px;
-      color: var(--text);
-      background: rgba(101, 214, 232, 0.12);
-      padding: 6px 10px;
-      font-size: 13px;
-      font-weight: 600;
+      margin: 0 0 14px;
     }
 
     ul,
     ol {
-      margin: 10px 0 0;
-      padding-left: 20px;
-      color: var(--muted);
+      margin: 10px 0 18px;
+      padding-left: 24px;
     }
 
     li + li {
-      margin-top: 6px;
+      margin-top: 7px;
     }
 
-    .steps {
-      counter-reset: step;
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .steps li {
-      counter-increment: step;
-      position: relative;
-      padding-left: 42px;
-      min-height: 30px;
-    }
-
-    .steps li::before {
-      content: counter(step);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: rgba(99, 215, 180, 0.16);
-      color: var(--teal);
-      border: 1px solid rgba(99, 215, 180, 0.45);
-      font-weight: 700;
-    }
-
-    .note {
-      border-left: 4px solid var(--amber);
-      background: rgba(245, 200, 106, 0.09);
-      padding: 12px 14px;
-      margin-top: 14px;
-      color: var(--muted);
+    strong {
+      color: #ffffff;
     }
 
     code {
+      padding: 2px 5px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--surface);
+      color: #dce9ee;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    .steps {
+      margin: 22px 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: steps;
+      border-top: 1px solid var(--line);
+    }
+
+    .steps li {
+      position: relative;
+      min-height: 58px;
+      margin: 0;
+      padding: 16px 12px 16px 52px;
+      border-bottom: 1px solid var(--line);
+      counter-increment: steps;
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      color: var(--cyan);
+      text-align: center;
+      font-weight: 800;
+      line-height: 26px;
+    }
+
+    .callout {
+      margin: 22px 0;
+      padding: 15px 17px;
+      border-left: 4px solid var(--blue);
+      background: var(--surface);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: #181a18;
+    }
+
+    .callout.danger {
+      border-left-color: var(--red);
+      background: #1b1517;
+    }
+
+    .callout.good {
+      border-left-color: var(--teal);
+      background: #121b1a;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    .term-grid {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.33fr) minmax(0, 1fr);
+      margin: 22px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .term-grid dt,
+    .term-grid dd {
+      margin: 0;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .term-grid dt {
       color: var(--text);
-      background: var(--panel-2);
+      font-weight: 700;
+    }
+
+    .term-grid dd {
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      margin: 22px 0;
+      overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 1px 6px;
-      font-family: Consolas, "Courier New", monospace;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    th,
+    td {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--surface-raised);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    td {
+      color: var(--muted);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .formula {
+      display: block;
+      margin: 8px 0;
+      padding: 12px 14px;
+      overflow-wrap: anywhere;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0e1318;
+      color: #d9edf0;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 14px;
     }
 
     footer {
-      color: var(--soft);
-      font-size: 13px;
-      margin-top: 24px;
-      text-align: center;
+      border-top: 1px solid var(--line);
+      background: #0f1419;
     }
 
-    @media (max-width: 820px) {
-      main {
-        width: min(100% - 24px, 1120px);
-        padding-top: 24px;
+    .footer-inner {
+      width: min(100% - 32px, var(--content));
+      margin: 0 auto;
+      padding: 26px 0 34px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      h1 {
+        font-size: 46px;
       }
 
-      header {
-        padding: 22px;
+      .manual-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .toc {
+        position: static;
+        max-height: none;
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      .toc ul {
+        columns: 2;
+        column-gap: 24px;
+      }
+
+      .toc li {
+        break-inside: avoid;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner {
+        min-height: 58px;
+      }
+
+      .brand span {
+        display: none;
+      }
+
+      .hero-inner {
+        padding: 40px 0 34px;
       }
 
       h1 {
-        font-size: 30px;
+        font-size: 38px;
       }
 
-      .grid {
+      .hero p {
+        font-size: 17px;
+      }
+
+      .manual-layout {
+        padding-top: 26px;
+      }
+
+      .toc ul {
+        columns: 1;
+      }
+
+      .term-grid {
         grid-template-columns: 1fr;
+      }
+
+      .term-grid dt {
+        padding-bottom: 2px;
+        border-bottom: 0;
+      }
+
+      .term-grid dd {
+        padding-top: 2px;
+      }
+
+      .print-button {
+        display: none;
+      }
+    }
+
+    @media print {
+      :root {
+        --bg: #ffffff;
+        --surface: #f2f4f6;
+        --surface-raised: #e9edf0;
+        --line: #c8ced3;
+        --text: #101418;
+        --muted: #31383e;
+        --cyan: #006c7a;
+        --teal: #006d5b;
+        --amber: #805800;
+        --red: #8e1e1e;
+        --blue: #245b9c;
+      }
+
+      body {
+        background: #ffffff;
+        color: #101418;
+        font-size: 11pt;
+      }
+
+      .topbar,
+      .toc,
+      .skip-link {
+        display: none;
+      }
+
+      .hero-inner,
+      .manual-layout,
+      .footer-inner {
+        width: 100%;
+      }
+
+      .hero-inner {
+        padding: 0 0 24px;
+      }
+
+      .manual-layout {
+        display: block;
+        padding: 24px 0;
+      }
+
+      section {
+        break-inside: avoid;
+      }
+
+      a {
+        color: #101418;
+        text-decoration: none;
       }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Manuale NightScope</h1>
-      <p class="subtitle">Guida rapida all'uso dell'app per pianificare osservazioni astronomiche visuali in base a località, meteo, qualità del cielo e profilo strumenti.</p>
-      <div class="pill-row">
-        <span class="pill">Home osservativa</span>
-        <span class="pill">Profili strumenti</span>
-        <span class="pill">Oggetti celesti</span>
-        <span class="pill">Provider dati</span>
-        <span class="pill">Meteo</span>
-        <span class="pill">Log osservazioni</span>
-        <span class="pill">Cielo profondo</span>
-        <span class="pill">VIIRS opzionale</span>
+  <a class="skip-link" href="#it-main" data-copy-it>Vai al contenuto</a>
+  <a class="skip-link" href="#en-main" data-copy-en hidden>Skip to content</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="NightScope">
+        <img src="astro_viewer/resources/icons/telescope.svg" alt="">
+        <span>NightScope</span>
+      </a>
+      <div class="controls">
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" data-lang="it" aria-pressed="true">IT</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="print-button" type="button" id="print-manual">
+          <span data-copy-it>Stampa</span>
+          <span data-copy-en hidden>Print</span>
+        </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <section class="grid">
-      <article class="card wide">
-        <h2>Primo avvio</h2>
+  <div id="top" class="hero">
+    <div class="hero-inner" data-article="it">
+      <p class="eyebrow">Guida operativa e logica osservativa</p>
+      <h1>Manuale utente NightScope</h1>
+      <p>Configura la tua postazione, interpreta le raccomandazioni e prepara una sessione visuale sapendo quali dati sono reali, quali sono stimati e quali non sono disponibili.</p>
+      <div class="release-note"><strong>Stato pre-release.</strong> NightScope è vicino alla pubblicazione, ma la build finale e il controllo visuale completo non sono ancora conclusi.</div>
+    </div>
+    <div class="hero-inner" data-article="en" hidden>
+      <p class="eyebrow">Operating guide and observing logic</p>
+      <h1>NightScope user manual</h1>
+      <p>Configure your site, interpret recommendations, and prepare a visual session while knowing which data is measured, estimated, or unavailable.</p>
+      <div class="release-note"><strong>Pre-release status.</strong> NightScope is approaching publication, but the final build and complete visual review are not finished.</div>
+    </div>
+  </div>
+
+  <div class="manual-layout">
+    <nav class="toc" data-nav="it" aria-label="Indice">
+      <p class="toc-title">Indice</p>
+      <ul>
+        <li><a href="#it-start">1. Inizia da qui</a></li>
+        <li><a href="#it-location">2. Località e orario</a></li>
+        <li><a href="#it-profiles">3. Profili e strumenti</a></li>
+        <li><a href="#it-home">4. Home e sessione</a></li>
+        <li><a href="#it-logic">5. Logica raccomandazioni</a></li>
+        <li><a href="#it-equipment">6. Scelta equipaggiamento</a></li>
+        <li><a href="#it-catalogue">7. Catalogo e dettaglio</a></li>
+        <li><a href="#it-calendar">8. Calendario</a></li>
+        <li><a href="#it-weather">9. Meteo e qualità cielo</a></li>
+        <li><a href="#it-log">10. Log osservazioni</a></li>
+        <li><a href="#it-data-states">11. Dati mancanti e confidenza</a></li>
+        <li><a href="#it-privacy">12. Privacy e archiviazione</a></li>
+        <li><a href="#it-troubleshooting">13. Risoluzione problemi</a></li>
+        <li><a href="#it-limits">14. Limiti e sicurezza</a></li>
+      </ul>
+    </nav>
+
+    <nav class="toc" data-nav="en" aria-label="Contents" hidden>
+      <p class="toc-title">Contents</p>
+      <ul>
+        <li><a href="#en-start">1. Start here</a></li>
+        <li><a href="#en-location">2. Location and time</a></li>
+        <li><a href="#en-profiles">3. Profiles and equipment</a></li>
+        <li><a href="#en-home">4. Home and session</a></li>
+        <li><a href="#en-logic">5. Recommendation logic</a></li>
+        <li><a href="#en-equipment">6. Equipment selection</a></li>
+        <li><a href="#en-catalogue">7. Catalogue and detail</a></li>
+        <li><a href="#en-calendar">8. Calendar</a></li>
+        <li><a href="#en-weather">9. Weather and sky quality</a></li>
+        <li><a href="#en-log">10. Observation log</a></li>
+        <li><a href="#en-data-states">11. Missing data and confidence</a></li>
+        <li><a href="#en-privacy">12. Privacy and storage</a></li>
+        <li><a href="#en-troubleshooting">13. Troubleshooting</a></li>
+        <li><a href="#en-limits">14. Limits and safety</a></li>
+      </ul>
+    </nav>
+
+    <main id="it-main" data-article="it">
+      <section id="it-start">
+        <h2>1. Inizia da qui</h2>
+        <p>NightScope funziona anche senza account esterni. Per ottenere una prima pianificazione servono una località valida e, facoltativamente, gli strumenti che possiedi.</p>
         <ol class="steps">
-          <li>Apri <strong>Località</strong> e imposta la posizione osservativa con ricerca città, posizione Windows o coordinate manuali.</li>
-          <li>Apri <strong>Profili</strong> e controlla il profilo attivo. Quello iniziale si chiama <strong>Default</strong>; senza telescopi o binocoli assegnati, NightScope usa la modalità <strong>Occhio nudo</strong>.</li>
-          <li>Assegna telescopio, oculari e Barlow dal catalogo se vuoi raccomandazioni basate sul tuo setup reale.</li>
-          <li>Torna alla <strong>Home</strong>: il piano della notte e i suggerimenti vengono ricalcolati sulla località e sul profilo attivo.</li>
+          <li><strong>Avvia NightScope da una cartella scrivibile.</strong> La versione portatile salva database, preferenze e log accanto all'eseguibile.</li>
+          <li><strong>Imposta la località.</strong> Usa la posizione Windows, cerca una città offline oppure inserisci le coordinate.</li>
+          <li><strong>Controlla il profilo Default.</strong> Aggiungi telescopi o binocoli al profilo attivo. Senza questi strumenti NightScope usa la modalità Occhio nudo.</li>
+          <li><strong>Apri la Home.</strong> Leggi prima lo stato della sessione e il fattore limitante, poi il piano e le alternative.</li>
+          <li><strong>Configura i provider opzionali solo se ti servono.</strong> Earthdata aggiunge VIIRS/AOD; OpenAQ aggiunge misure locali di particolato.</li>
         </ol>
-      </article>
+        <div class="callout good"><strong>Il minimo indispensabile è la località.</strong> Astronomia, fuso orario, cataloghi, profili e logica dell'equipaggiamento sono locali. Il meteo corrente richiede internet.</div>
+      </section>
 
-      <article class="card">
-        <h2>Lingua</h2>
-        <p>Il selettore <strong>Lingua</strong> si trova nella parte inferiore della barra laterale, sopra il riepilogo della sessione.</p>
+      <section id="it-location">
+        <h2>2. Località e orario locale</h2>
+        <p>La località determina orizzonte astronomico, notte osservativa, altitudine e azimut degli oggetti, calendario locale, meteo e risultati dei provider. NightScope conserva le coordinate esatte fornite dal metodo scelto.</p>
+        <dl class="term-grid">
+          <dt>Posizione Windows</dt>
+          <dd>Richiede il permesso di localizzazione del sistema. Windows fornisce principalmente coordinate; NightScope calcola il fuso IANA offline e può arricchire il nome con il catalogo città locale.</dd>
+          <dt>Ricerca città</dt>
+          <dd>Usa GeoNames offline. Il nome serve alla presentazione; il fuso viene risolto dalle coordinate con i confini timezone locali.</dd>
+          <dt>Coordinate manuali</dt>
+          <dd>Accetta latitudine e longitudine senza obbligare a scegliere una città vicina. È il metodo più preciso per un sito remoto.</dd>
+          <dt>Fallback online</dt>
+          <dd>È un'azione esplicita e approssimata basata sull'indirizzo IP. Usala solo se gli altri metodi non sono disponibili.</dd>
+        </dl>
+        <p>Il dato essenziale non è il nome della città ma la coppia <strong>coordinate + fuso IANA</strong>. Il fuso gestisce ora legale e date locali; viene calcolato offline con <code>timezonefinder</code>, anche fuori dal raggio delle città importate.</p>
+        <div class="callout warning"><strong>Dopo un cambio località</strong> attendi l'aggiornamento. NightScope invalida risultati dipendenti dalla posizione e scarta le risposte asincrone arrivate per una località precedente.</div>
+      </section>
+
+      <section id="it-profiles">
+        <h2>3. Profili e cataloghi strumenti</h2>
+        <p>I <strong>cataloghi</strong> contengono modelli disponibili; i <strong>profili</strong> descrivono ciò che vuoi usare in una sessione. Il profilo iniziale si chiama <strong>Default</strong>; Occhio nudo è una modalità, non il nome del profilo.</p>
         <ul>
-          <li><strong>Italiano</strong> è la lingua sorgente e la scelta predefinita.</li>
-          <li><strong>English</strong> traduce immediatamente interfaccia, messaggi dei servizi, descrizioni, curiosità e note dei cataloghi integrati.</li>
-          <li>La scelta viene salvata nelle preferenze utente e riutilizzata agli avvii successivi.</li>
-          <li>Date, numeri e nomi dei mesi seguono le convenzioni della lingua selezionata.</li>
+          <li>Assegna al profilo telescopi, oculari, Barlow, binocoli, filtri e riduttori.</li>
+          <li>Se il profilo contiene più telescopi o binocoli, NightScope li valuta tutti per ogni target. Non esiste un unico telescopio globale selezionato per il ranking.</li>
+          <li>Le voci integrate possono essere corrette dall'utente ma non eliminate. Le voci create dall'utente possono essere modificate ed eliminate.</li>
+          <li>Oculari e Barlow vengono usati soltanto con un telescopio. Un profilo con soli binocoli resta una configurazione valida.</li>
+          <li>Senza telescopi e binocoli, le alternative vengono filtrate secondo la reale modalità Occhio nudo.</li>
         </ul>
-        <p>I nomi personalizzati, le note e il contenuto inserito nel Log Osservazioni restano invariati. Il cambio lingua aggiorna soltanto la presentazione e non ricalcola meteo, astronomia, equipaggiamento o NSOM.</p>
-      </article>
+        <p>Controlla sempre che il profilo corretto sia attivo prima di interpretare una raccomandazione: il setup mostrato nel dettaglio appartiene al target specifico e al profilo attivo.</p>
+      </section>
 
-      <article class="card">
-        <h2>Home</h2>
-        <p>La Home è il punto di partenza. Mostra qualità osservativa, Luna, valutazioni dedicate a pianeti e cielo profondo, meteo osservativo, Sky Compass e piano consigliato.</p>
+      <section id="it-home">
+        <h2>4. Home e stato della sessione</h2>
+        <p>La Home è il punto operativo. Le schede superiori riassumono la <strong>notte osservativa</strong>, non necessariamente l'ora corrente. La finestra normale va dal tramonto locale all'alba successiva.</p>
+        <dl class="term-grid">
+          <dt>Da valutare</dt>
+          <dd>Mancano località o dati sufficienti per una decisione.</dd>
+          <dt>Consigliata</dt>
+          <dd>Le condizioni e le opportunità disponibili sostengono una sessione.</dd>
+          <dt>Da monitorare</dt>
+          <dd>La sessione può essere utile, ma un fattore incerto o variabile richiede controllo.</dd>
+          <dt>Sconsigliata</dt>
+          <dd>Il limite dominante rende poco produttiva la sessione prevista.</dd>
+        </dl>
+        <h3>Piano e alternative</h3>
+        <p>Il piano propone fino a quattro opportunità di qualità e le dispone in ordine cronologico. La tabella inferiore contiene gli altri pianeti e oggetti deep-sky con una finestra utile, escludendo i target già nel piano. Aprendo una riga ottieni la spiegazione completa e il setup selezionato.</p>
+        <h3>Sky Compass</h3>
+        <p>Sky Compass viene aggiornato ogni minuto. Considera soltanto target osservabili in quel momento e combina qualità con densità per direzione. Il piano e il Best Object sono contesto e spareggio, non bonus che dominano la direzione.</p>
+        <h3>Prossimi eventi</h3>
+        <p>La Home riusa gli eventi futuri del calendario in ordine temporale. Passaggi ISS ravvicinati possono occupare più posizioni: non sono raccomandazioni NSOM e non competono con gli oggetti del piano.</p>
+      </section>
+
+      <section id="it-logic">
+        <h2>5. Come nasce una raccomandazione</h2>
+        <p>NightScope separa i fatti astronomici, le condizioni locali e la capacità dell'osservatore. Non esiste un singolo voto scientifico assoluto e i punteggi grezzi interni non vengono mostrati come verità all'utente.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Fattore</th><th>Cosa rappresenta</th><th>Esempi</th></tr></thead>
+            <tbody>
+              <tr><td>Qualità intrinseca</td><td>Caratteristiche del target indipendenti dalla tua località.</td><td>Tipo, magnitudine e natura dell'oggetto.</td></tr>
+              <tr><td>Geometria</td><td>Quanto e quando il target è utile nella notte locale.</td><td>Altitudine, durata, culminazione, cronologia.</td></tr>
+              <tr><td>Luna</td><td>Interferenza reale durante la finestra del target.</td><td>Separazione, illuminazione, altezza e sovrapposizione temporale.</td></tr>
+              <tr><td>Ambiente</td><td>Condizioni del cielo e dell'atmosfera disponibili.</td><td>Meteo, trasparenza, seeing, VIIRS, AOD o PM accettati.</td></tr>
+              <tr><td>Capacità</td><td>Quanto il setup target-specifico è adatto.</td><td>Apertura, campo, ingrandimento, raccolta luce, comfort.</td></tr>
+              <tr><td>Sessione</td><td>Decisione generale sulla notte.</td><td>Consigliata, da monitorare, sconsigliata, da valutare.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Per il cielo profondo una finestra utile richiede normalmente almeno <strong>15 gradi</strong> di altitudine; pianeti e Luna usano circa <strong>8 gradi</strong> nel dettaglio notturno. Sono soglie geometriche, non garanzie di buona resa vicino all'orizzonte.</p>
+        <div class="callout"><strong>La confidenza è metadata.</strong> Indica completezza, qualità e freschezza delle fonti ma non moltiplica di nascosto il valore del target. Un dato mancante non diventa automaticamente favorevole.</div>
+        <p>Lo stato generale della sessione non modifica la posizione dell'oggetto. Può cambiare la presentazione e il consiglio operativo, non la geometria astronomica.</p>
+      </section>
+
+      <section id="it-equipment">
+        <h2>6. Come viene scelto l'equipaggiamento</h2>
+        <p>Per ogni target NightScope costruisce le configurazioni possibili con l'equipaggiamento assegnato al profilo, calcola i valori ottici e confronta l'idoneità pratica. La scelta considera tipo, dimensione e magnitudine del target, campo necessario, quota e seeing previsto.</p>
+        <span class="formula">Ingrandimento = (focale telescopio / focale oculare) x fattore Barlow</span>
+        <span class="formula">Campo reale stimato = campo apparente oculare / ingrandimento</span>
+        <span class="formula">Pupilla di uscita = apertura telescopio / ingrandimento</span>
+        <p>Un ingrandimento teoricamente possibile non è sempre utile. Seeing, quota bassa, pupilla troppo piccola, campo insufficiente e complessità della Barlow possono rendere preferibile una configurazione meno spinta.</p>
         <ul>
-          <li><strong>Qualità osservativa</strong>: sintesi meteo con fattore limitante.</li>
-          <li><strong>Sky Compass</strong>: indica dove iniziare, spiega perché quella zona è consigliata, mostra i target principali e suggerisce alternative. Il pulsante <strong>Solo suggeriti ora</strong> filtra il piano e la lista sottostante sulla zona corrente, segue l'aggiornamento live e si disattiva quando non ci sono target osservabili. Non è un planetario.</li>
-          <li><strong>Piano osservativo consigliato</strong>: seleziona i target migliori per utilità, finestra e condizioni, poi li mostra in ordine cronologico di osservazione.</li>
-          <li><strong>Altri oggetti visibili stasera</strong>: tabella unica delle alternative non già presenti nel piano, con filtri per tutti i target, pianeti e cielo profondo.</li>
-          <li><strong>Prossimi eventi</strong>: calendario compatto degli eventi astronomici ordinati per data.</li>
+          <li><strong>Oggetti estesi:</strong> privilegiano campo reale e pupilla adeguati.</li>
+          <li><strong>Pianeti, Luna e dettagli compatti:</strong> possono beneficiare di maggiore ingrandimento, entro il limite del seeing e dell'apertura.</li>
+          <li><strong>Target deboli:</strong> richiedono soprattutto raccolta di luce, fondo cielo e trasparenza compatibili.</li>
+          <li><strong>Binocoli:</strong> vengono valutati come configurazioni complete; stabilizzazione e ingrandimento influenzano il comfort.</li>
         </ul>
-        <p>Fai clic su una scheda oggetto, inclusa la Luna, per aprire il dettaglio osservativo.</p>
-      </article>
+        <h3>Filtri</h3>
+        <p>Il dettaglio può proporre un filtro primario e un filtro colore opzionale tra quelli del profilo, rispettando target, apertura e classe del prodotto. Il filtro non cambia il setup selezionato, la capacità, il ranking o NSOM.</p>
+        <h3>Riduttori di focale</h3>
+        <p>La raccomandazione è fotografica e compare soltanto se il target è marcato come opportunità wide-field e il riduttore possiede un'associazione esatta con il telescopio scelto. NightScope non modella sensore, back focus e treno ottico completo.</p>
+        <div class="callout warning"><strong>Verifica sempre la compatibilità del produttore.</strong> La raccomandazione aiuta a restringere le opzioni, ma revisioni regionali, diametri del barilotto e accessori intermedi possono cambiare il risultato reale.</div>
+      </section>
 
-      <article class="card">
-        <h2>Dettaglio oggetto</h2>
-        <p>La pagina dettaglio sostituisce la Home e include un pulsante <strong>Torna alla Home</strong>.</p>
+      <section id="it-catalogue">
+        <h2>7. Oggetti celesti e dettaglio</h2>
+        <p>Il catalogo unifica Sistema Solare, Messier e Caldwell. Oggetto fisico e designazioni sono separati: una designazione aggiuntiva non crea un secondo target né duplica i calcoli.</p>
         <ul>
-          <li><strong>Finestra osservativa</strong>: quando conviene osservare l'oggetto.</li>
-          <li><strong>Descrizione</strong>: breve nota osservativa pensata per uso amatoriale.</li>
-          <li><strong>Curiosità</strong>: fatto storico o scientifico specifico con fonte apribile.</li>
-          <li><strong>Configurazione consigliata</strong>: oltre a telescopio, oculare e Barlow, può mostrare un filtro raccomandato presente nel profilo oppure la classe suggerita come non disponibile. Il filtro viene verificato rispetto all'apertura del telescopio scelto; un eventuale filtro colorato è indicato separatamente come opzione specialistica.</li>
-          <li><strong>Osservazione consigliata</strong>: setup scelto dal profilo attivo.</li>
-          <li><strong>Perché vale la pena osservarlo</strong>: motivazioni legate ad altezza, seeing, cielo e Luna.</li>
+          <li>Ricerca e filtri lavorano su nome, designazione, tipo, costellazione e modalità osservativa.</li>
+          <li><strong>Utile (almeno 15 gradi)</strong> riguarda gli oggetti deep-sky a coordinate fisse dalla località attiva. Non equivale a una raccomandazione meteo/equipaggiamento.</li>
+          <li><strong>Visibili nel mese</strong> è un calcolo astronomico per località e mese, senza meteo o score di sessione.</li>
+          <li>Il dettaglio aperto dal catalogo resta descrittivo; quello aperto da Home/Planner include il contesto osservativo della notte.</li>
+          <li>Immagini di pianeti e Luna sono rappresentative e statiche, non mostrano fase, orientamento o aspetto corrente.</li>
         </ul>
-        <p>Nel dettaglio Luna trovi anche una rappresentazione del ciclo lunare con indicatore del giorno corrente.</p>
-      </article>
+        <p>Crediti e sorgenti delle immagini e delle curiosità sono visibili nel dettaglio e aprono la pagina originale.</p>
+      </section>
 
-      <article class="card">
-        <h2>Località</h2>
-        <p>La località guida meteo, altezze, eventi, finestre osservative e dati VIIRS.</p>
-        <ul>
-          <li><strong>Ricerca città</strong>: usa il catalogo GeoNames offline incluso.</li>
-          <li><strong>Posizione Windows</strong>: usa i servizi di localizzazione del sistema e mantiene le coordinate ricevute.</li>
-          <li><strong>Fallback online</strong>: stima approssimata via connessione internet, solo con consenso.</li>
-          <li><strong>Coordinate manuali</strong>: utile per siti osservativi specifici, anche lontani dalle città incluse nel catalogo.</li>
-        </ul>
-        <p>Il fuso orario IANA viene ricavato offline dalle coordinate. Il nome della città e il paese sono descrittivi e non determinano gli orari astronomici.</p>
-        <p>Puoi abilitare il rilevamento automatico all'avvio e scegliere quali origini autorizzare.</p>
-        <p>Prima di impostare una località, Home, Meteo e Calendario mostrano valori non disponibili e indicano l'azione necessaria; anche i filtri del catalogo che dipendono dalla posizione restano disabilitati.</p>
-      </article>
+      <section id="it-calendar">
+        <h2>8. Calendario</h2>
+        <p>Il calendario riunisce sorgenti con tempi diversi, ma mantiene separata la loro semantica.</p>
+        <dl class="term-grid">
+          <dt>Eventi annuali</dt>
+          <dd>Fasi lunari, opposizioni, congiunzioni, eclissi e sciami meteorici calcolati o ricorrenti.</dd>
+          <dt>Passaggi ISS</dt>
+          <dd>Eventi a breve orizzonte calcolati localmente da elementi orbitali aggiornati. Mostrano ingresso, culminazione, uscita, quota massima, direzioni e durata quando il passaggio è visibile e il cielo è sufficientemente buio.</dd>
+          <dt>Finestre cometarie</dt>
+          <dd>Più notti utili vengono aggregate in un intervallo con data migliore. La magnitudine è prevista e può essere molto incerta.</dd>
+        </dl>
+        <p>ISS e comete sono <strong>score-free</strong>: non percorrono Catalogo, Equipment, Planner, meteo o NSOM. Servono a sapere che un oggetto transitorio sarà osservabile, non a dichiarare che è la scelta migliore della notte.</p>
+        <p>I dati orbitali sono scaricati senza inviare la località a CelesTrak o JPL; la propagazione e la verifica di visibilità locale avvengono sul computer.</p>
+      </section>
 
-      <article class="card">
-        <h2>Provider dati</h2>
-        <p>La pagina <strong>Provider dati</strong> raccoglie gli accessi opzionali ai servizi esterni senza mescolarli alla gestione della località.</p>
-        <ul>
-          <li><strong>Earthdata NASA</strong>: abilita il recupero opzionale dei dati VIIRS Black Marble e NASA MAIAC AOD.</li>
-          <li><strong>OpenAQ</strong>: salva e verifica una API key per mostrare l'atmosfera locale nella pagina Meteo.</li>
-          <li>Lo stato mostra se le credenziali sono assenti, salvate, da testare, autorizzate o verificate.</li>
-          <li>Earthdata include anche <strong>Autorizza app</strong>; OpenAQ usa solo API key, <strong>Salva</strong>, <strong>Test connessione</strong>, <strong>Rimuovi</strong> e <strong>Create account</strong>.</li>
-        </ul>
-        <p>Earthdata alimenta <strong>Qualità cielo locale</strong> con VIIRS Black Marble e, quando disponibile, <strong>Aerosol atmosferico</strong> con NASA MAIAC AOD. OpenAQ alimenta <strong>Particolato locale</strong>. I provider restano separati da seeing e trasparenza meteo; quando qualità e freschezza sono sufficienti possono entrare nella valutazione canonica delle condizioni, senza sommare AOD e particolato come due penalità indipendenti.</p>
-      </article>
+      <section id="it-weather">
+        <h2>9. Meteo, atmosfera e qualità del cielo</h2>
+        <p>Le schede superiori della pagina Meteo riassumono la notte osservativa. Il dettaglio orario mostra invece la previsione per la fascia selezionata. Open-Meteo è il provider meteo standard e non richiede account.</p>
+        <dl class="term-grid">
+          <dt>Seeing</dt>
+          <dd>Stabilità dell'immagine, importante soprattutto per pianeti, Luna e alto ingrandimento.</dd>
+          <dt>Trasparenza</dt>
+          <dd>Capacità dell'atmosfera di trasmettere luce; dipende da meteo e, quando accettati, aerosol/particolato.</dd>
+          <dt>Fondo cielo</dt>
+          <dd>Luminosità artificiale del cielo, descritta da VIIRS/SQM/Bortle quando esiste una fonte reale.</dd>
+        </dl>
+        <h3>VIIRS e Bortle</h3>
+        <p>Earthdata può fornire VIIRS Black Marble per una stima locale del fondo cielo. Senza una misura reale in cache o un dataset locale reale, Bortle, SQM e magnitudine limite restano <strong>n/d</strong>. NightScope non inventa un valore dalla città o dalle coordinate.</p>
+        <h3>NASA MAIAC AOD</h3>
+        <p>AOD a 550 nm descrive la colonna aerosol. NightScope accetta soltanto pixel che superano controlli di qualità, freschezza, incertezza e distanza locale. Il metodo e l'area di ricerca vengono mostrati perché un valore esatto e un fallback spaziale non hanno la stessa qualità.</p>
+        <h3>OpenAQ</h3>
+        <p>OpenAQ fornisce PM2.5 e PM10 vicino al suolo. È diverso da AOD e richiede una API key. Una misura corrente che supera i controlli di qualità può entrare nella trasparenza atmosferica come <strong>fallback non additivo</strong> quando AOD non è disponibile. AOD e OpenAQ non vengono mai sommati come due penalità indipendenti.</p>
+        <h3>Configurazione provider</h3>
+        <ol>
+          <li>Apri <strong>Provider dati</strong>.</li>
+          <li>Per Earthdata salva utente e password, autorizza l'app LAADS quando richiesto e prova la connessione.</li>
+          <li>Per OpenAQ crea una chiave personale, salvala e prova la connessione.</li>
+          <li>Torna a Meteo e attendi il refresh; un provider può legittimamente non trovare copertura o dati validi.</li>
+        </ol>
+        <div class="callout"><strong>Credenziali verificate non significano dato garantito.</strong> Copertura, data del prodotto, nuvole, QA, stazione e distanza possono produrre un risultato non disponibile corretto.</div>
+      </section>
 
-      <article class="card">
-        <h2>Oggetti celesti</h2>
-        <p>La pagina <strong>Oggetti celesti</strong> è un catalogo informativo, separato dalle raccomandazioni della Home e dal Planner.</p>
-        <ul>
-          <li>Mostra oggetti Messier, Caldwell e Sistema Solare nello stesso browser generico.</li>
-          <li>Permette ricerca e filtri per catalogo, tipo, costellazione e osservazione.</li>
-          <li><strong>Utile (≥15°)</strong> indica se un oggetto fisso raggiunge una quota pratica dalla località attiva.</li>
-          <li><strong>Visibile nel mese</strong> indica la visibilità astronomica nel mese selezionato, senza usare meteo o punteggi raccomandazione.</li>
-        </ul>
-        <p>Aprendo un oggetto dal catalogo, il dettaglio usa una modalità descrittiva e non mostra sezioni vuote o specifiche delle raccomandazioni. Le immagini cielo profondo sono asset scientifici locali; anche i nove corpi del Sistema Solare usano immagini scientifiche NASA/JPL rappresentative e non l'aspetto o la fase corrente. Il credito sotto l'immagine apre la pagina sorgente e la card Curiosità indica la propria fonte.</p>
-      </article>
+      <section id="it-log">
+        <h2>10. Log osservazioni</h2>
+        <p>Il log è un archivio locale indipendente dalle raccomandazioni. Puoi aggiungere, cercare, filtrare, modificare ed eliminare osservazioni registrando data, ora, target, sito, strumenti, valutazione e note.</p>
+        <p>La modifica di una raccomandazione o di un oggetto del catalogo non riscrive le osservazioni passate. Prima di cambiare build, esegui un backup del database per conservare il log.</p>
+      </section>
 
-      <article class="card">
-        <h2>Meteo</h2>
-        <p>La pagina Meteo usa Open-Meteo quando internet è disponibile e mantiene una cache locale per evitare schermate vuote se un refresh fallisce.</p>
-          <ul>
-            <li>Le schede principali mostrano nuvolosità, pioggia, vento, umidità, temperatura, seeing, trasparenza atmosferica notturna e Bortle come valori distinti.</li>
-            <li><strong>Aerosol atmosferico</strong>: se Earthdata è configurato e verificato, mostra AOD NASA MAIAC a 550 nm, prodotto sorgente, data misura, metodo, incertezza e QA raw. L'estrazione usa soltanto pixel di qualità sufficiente e indica l'eventuale area locale usata.</li>
-            <li><strong>Particolato locale</strong>: se OpenAQ è configurato e verificato, mostra PM2.5, PM10, limpidezza descrittiva, fonte/stazione e freschezza della misura.</li>
-            <li>Il dettaglio orario permette di selezionare una fascia e leggere i valori previsti.</li>
-            <li>Se non esistono dati iniziali e internet non è disponibile, la pagina indica che il meteo non è disponibile e permette un refresh manuale.</li>
-          </ul>
-      </article>
+      <section id="it-data-states">
+        <h2>11. Dati mancanti, cache e confidenza</h2>
+        <dl class="term-grid">
+          <dt>n/d o trattino</dt>
+          <dd>Il dato non esiste, non è applicabile o non è stato calcolato. Non significa zero.</dd>
+          <dt>No</dt>
+          <dd>Esito negativo di un calcolo effettivamente eseguito.</dd>
+          <dt>Cache / dato non recente</dt>
+          <dd>Ultimo risultato valido riutilizzato dopo un errore o in assenza di refresh. Fonte e freschezza devono essere lette insieme.</dd>
+          <dt>Confidenza</dt>
+          <dd>Descrive completezza e qualità delle fonti. È separata dal valore usato per ordinare i target.</dd>
+          <dt>Parziale</dt>
+          <dd>Una raccomandazione può essere utile ma priva, per esempio, del fondo cielo reale; la UI deve dichiarare il limite.</dd>
+        </dl>
+        <p>Un provider può restituire correttamente zero risultati. Non forzare refresh ripetuti se la pagina spiega che copertura o qualità non sono sufficienti.</p>
+      </section>
 
-      <article class="card">
-        <h2>Strumenti</h2>
-        <p>NightScope separa cataloghi e profili.</p>
-        <ul>
-          <li><strong>Profili</strong>: configurazioni osservative usate da Home, dettaglio e calendario.</li>
-          <li><strong>Telescopi</strong>: catalogo globale dei modelli.</li>
-          <li><strong>Oculari e Barlow</strong>: cataloghi globali degli accessori.</li>
-          <li><strong>Binocoli</strong>: catalogo globale dei modelli, inclusa la stabilizzazione.</li>
-          <li><strong>Filtri e riduttori</strong>: due cataloghi affiancati con ricerca, dati spettrali dei filtri e compatibilità ottica dei riduttori.</li>
-        </ul>
-        <p>Un profilo referenzia gli elementi catalogo tramite ID. Gli oculari zoom restano un singolo elemento con range focale e posizioni reali selezionabili, non una lista di oculari fissi. Puoi assegnare e rimuovere anche filtri e riduttori. Nel dettaglio osservativo NightScope può richiamare un filtro adatto all'apertura del telescopio scelto e, per i target fotografici predisposti, un riduttore compatibile con quel telescopio. Questi accessori non entrano nello score e non cambiano la configurazione calcolata.</p>
-        <p>Ogni filtro compare una sola volta anche se esiste in più formati. Quando aggiungi un filtro scegli una classe precisa dal menu; per i filtri colorati la classe comprende anche il colore.</p>
-        <p>Quando aggiungi un riduttore puoi cercare e selezionare uno o più modelli di telescopio compatibili. La raccomandazione fotografica usa soltanto questi collegamenti esatti: se il riduttore è nel profilo viene indicato come disponibile, altrimenti può comparire come suggerimento non disponibile.</p>
-        <p>Le voci incluse da NightScope mostrano <strong>Modifica</strong>, così puoi correggere dati errati o incompleti, ma non mostrano <strong>Elimina</strong>. Le correzioni restano memorizzate anche dopo gli aggiornamenti dei cataloghi inclusi. Gli elementi aggiunti dall'utente mostrano entrambi i comandi; se un elemento da eliminare è assegnato a un profilo, la conferma permette di rimuovere prima i relativi collegamenti.</p>
-        <p>Nei form, l'asterisco identifica i campi obbligatori e gli altri sono indicati come facoltativi. Un errore di validazione resta visibile nel dialogo senza chiuderlo; i dati facoltativi assenti non generano indicatori vuoti nelle schede.</p>
-      </article>
+      <section id="it-privacy">
+        <h2>12. Privacy, rete e archiviazione</h2>
+        <p>NightScope non richiede un account proprio. Nella versione portatile i dati applicativi vengono salvati accanto all'eseguibile.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dato o servizio</th><th>Dove va</th><th>Perché</th></tr></thead>
+            <tbody>
+              <tr><td>Coordinate</td><td>SQLite/JSON locali; Open-Meteo, Earthdata e OpenAQ quando usati.</td><td>Previsioni e prodotti locali.</td></tr>
+              <tr><td>Posizione Windows</td><td>Windows e NightScope.</td><td>Acquisizione precisa; nessun reverse geocoder online automatico.</td></tr>
+              <tr><td>Fallback IP</td><td>Servizio IP scelto dopo azione esplicita.</td><td>Posizione approssimata.</td></tr>
+              <tr><td>Elementi ISS/comete</td><td>Download da CelesTrak/JPL senza coordinate utente.</td><td>Propagazione locale.</td></tr>
+              <tr><td>Password Earthdata / chiave OpenAQ</td><td>Vault credenziali di Windows.</td><td>Autenticazione; non vengono salvate in SQLite.</td></tr>
+              <tr><td>Log osservazioni</td><td>Solo <code>nightscope.db</code>.</td><td>Archivio personale locale.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>I log diagnostici evitano coordinate e identificativi delle credenziali, ma possono contenere stato dei provider, errori tecnici e nomi generici delle operazioni.</p>
+        <h3>Backup</h3>
+        <p>A programma chiuso, copia almeno <code>nightscope.db</code>, <code>user_preferences.json</code> e <code>location_cache.json</code>. La cartella <code>logs</code> è utile per la diagnosi ma non è necessaria per ripristinare profili e osservazioni.</p>
+      </section>
 
-      <article class="card">
-        <h2>Calendario</h2>
-        <p>Il calendario raccoglie eventi annuali calcolati o ricorrenti, passaggi ISS a breve termine e finestre cometarie locali.</p>
-        <ul>
-          <li><strong>Eventi annuali</strong>: fasi lunari, opposizioni, congiunzioni, eclissi e sciami meteorici.</li>
-          <li><strong>Passaggi ISS</strong>: intervallo visibile, culminazione, altezza massima, direzioni e durata per la località attiva.</li>
-          <li><strong>Comete</strong>: una sola finestra aggregata per le notti consecutive geometricamente utili, con momento consigliato, magnitudine prevista, altezza e disturbo lunare.</li>
-        </ul>
-        <p>La magnitudine cometaria è una stima incerta: NightScope la mostra come intervallo e la luminosità reale può essere diversa. La finestra considera buio, altezza, elongazione e Luna, ma non il meteo.</p>
-        <p>ISS e comete non diventano oggetti del catalogo e ricevono indicazioni generiche, non uno score o un setup calcolato dal profilo. Gli stessi eventi possono apparire nella sezione <strong>Prossimi eventi</strong> della Home.</p>
-        <p>I dati ISS CelesTrak e cometari NASA/JPL SBDB sono pubblici e non richiedono un account; NightScope li conserva in cache per limitare le richieste.</p>
-      </article>
-
-      <article class="card">
-        <h2>Log Osservazioni</h2>
-        <p>Il Log conserva le sessioni già effettuate ed è separato dai consigli della Home e dal dettaglio degli oggetti.</p>
-        <ul>
-          <li><strong>Aggiungi osservazione</strong>: registra data, ora, oggetto, luogo, telescopio, oculare, valutazione e note.</li>
-          <li>Data, ora, località e setup vengono proposti dal contesto corrente e possono essere modificati prima del salvataggio.</li>
-          <li>La ricerca considera oggetto, luogo, setup e note; il filtro limita la lista a una valutazione specifica.</li>
-          <li><strong>Modifica</strong> aggiorna una sessione; <strong>Elimina</strong> richiede conferma.</li>
-        </ul>
-        <p>Il Log mostra tutte le osservazioni salvate e non modifica score, ranking o raccomandazioni NSOM.</p>
-      </article>
-
-      <article class="card">
-        <h2>Earthdata NASA, VIIRS e AOD</h2>
-        <p>L'accesso Earthdata è opzionale. Senza credenziali, la sezione AOD è nascosta; Bortle resta <strong>n/d</strong> salvo una misura VIIRS reale già in cache o un dataset locale reale configurato.</p>
-        <ul>
-          <li>Inserisci utente e password Earthdata in <strong>Provider dati</strong>.</li>
-          <li>Usa <strong>Test connessione</strong> per verificare LAADS OPeNDAP.</li>
-          <li>Se richiesto, usa <strong>Autorizza app</strong>, completa il consenso sul sito NASA e ripeti il test.</li>
-        </ul>
-        <p>Con test riuscito, NightScope può recuperare VIIRS Black Marble per la qualità del cielo locale e NASA MAIAC AOD per la sezione <strong>Aerosol atmosferico</strong>. AOD è un proxy della colonna aerosol, diverso dai PM2.5/PM10 OpenAQ al suolo; viene usato nelle condizioni soltanto quando i controlli di qualità, freschezza e località lo accettano.</p>
-        <p>Le credenziali vengono salvate nel vault di sistema quando disponibile. La password non viene salvata nel database SQLite.</p>
-      </article>
-
-      <article class="card">
-        <h2>OpenAQ</h2>
-        <p>OpenAQ usa una API key personale. Registrati su <strong>explore.openaq.org/register</strong>, salva la chiave in <strong>Provider dati</strong> e usa <strong>Test connessione</strong> per verificare accesso e raggiungibilità del servizio.</p>
-        <p>La label <strong>Limpidezza</strong> è descrittiva e deriva solo dal peggiore valore disponibile tra PM2.5 e PM10: aria limpida fino a 10/20 µg/m³, discreta fino a 25/50, velata fino a 50/100, polverosa fino a 75/150, molto polverosa oltre. Non è seeing e non è trasparenza astronomica.</p>
-        <p>NightScope classifica la freschezza delle misure OpenAQ: correnti sotto 24 ore, recenti tra 24 e 72 ore, vecchie tra 3 e 7 giorni, storiche oltre 7 giorni. Le misure storiche non vengono presentate come condizioni atmosferiche attuali.</p>
-        <p>NightScope non usa OpenAQ per raccomandazioni, planner, Sky Compass, seeing, trasparenza o punteggi osservativi.</p>
-      </article>
-
-      <article class="card">
-        <h2>Interpretare i punteggi</h2>
-        <p>I punteggi sono indicatori pratici, non misure scientifiche assolute.</p>
-        <ul>
-          <li><strong>Qualità osservativa</strong>: combina meteo e Luna.</li>
-          <li><strong>Punteggio planetario</strong>: privilegia seeing, vento e altezza dei pianeti.</li>
-          <li><strong>Punteggio cielo profondo</strong>: pesa Bortle, trasparenza, Luna e tipo di oggetto.</li>
-          <li><strong>Punteggio oggetto</strong>: aiuta a ordinare alternative simili.</li>
-        </ul>
-        <div class="note">Usa sempre il giudizio sul campo: ostacoli locali, luci dirette, foschia e seeing reale possono cambiare molto da un sito all'altro.</div>
-      </article>
-
-      <article class="card wide">
-        <h2>Risoluzione problemi</h2>
+      <section id="it-troubleshooting">
+        <h2>13. Risoluzione problemi</h2>
         <h3>La posizione Windows non funziona</h3>
-        <p>Controlla le autorizzazioni di localizzazione di Windows. In alternativa usa ricerca città, fallback online o coordinate manuali.</p>
+        <p>Controlla le autorizzazioni Localizzazione di Windows. In alternativa usa la ricerca città o le coordinate manuali; il fuso viene comunque calcolato offline.</p>
+        <h3>La Home non mostra raccomandazioni</h3>
+        <p>Verifica prima la località e lo stato sessione. Controlla poi il profilo attivo: senza strumenti vengono mostrati soltanto target realistici a occhio nudo. Una notte senza finestre utili può essere un risultato corretto.</p>
         <h3>Meteo non disponibile</h3>
-        <p>Verifica la connessione internet e usa <strong>Aggiorna</strong>. Se esiste una cache recente, NightScope continua a mostrare gli ultimi dati disponibili.</p>
-        <h3>VIIRS non si aggiorna</h3>
-        <p>Controlla credenziali Earthdata, autorizzazione LAADS e connessione internet. Una misura VIIRS reale già in cache resta disponibile; senza una fonte reale Bortle viene mostrato come <strong>n/d</strong>.</p>
-        <h3>Le raccomandazioni non usano il telescopio</h3>
-        <p>Apri <strong>Profili</strong>, verifica il profilo attivo e assegna almeno un telescopio. Senza telescopio, oculari e Barlow non vengono usati; se il profilo non contiene nemmeno binocoli, la modalità è Occhio nudo.</p>
-      </article>
-    </section>
+        <p>Controlla internet e usa Aggiorna. Se esiste una cache valida NightScope può mantenerla; leggi sempre la freschezza. Open-Meteo non usa le credenziali Earthdata.</p>
+        <h3>VIIRS o AOD non arrivano</h3>
+        <p>Controlla salvataggio, autorizzazione LAADS e test connessione. Anche con credenziali corrette il prodotto può non avere un pixel valido per data e località.</p>
+        <h3>OpenAQ non trova misure</h3>
+        <p>Verifica la chiave e la connessione. La stazione più vicina può essere troppo lontana, non recente o priva di PM2.5/PM10 accettabili.</p>
+        <h3>Il manuale non si apre</h3>
+        <p>Non separare l'eseguibile dalla cartella <code>_internal</code> della build PyInstaller. Nel sorgente, mantieni <code>manuale.html</code> nella radice del progetto.</p>
+      </section>
 
-    <footer>
-      NightScope 1.32.9 - manuale utente offline.
-    </footer>
-  </main>
+      <section id="it-limits">
+        <h2>14. Limiti, giudizio sul campo e sicurezza</h2>
+        <ul>
+          <li>NightScope non modella alberi, edifici, montagne, maschere d'orizzonte o luci dirette del sito.</li>
+          <li>L'estinzione atmosferica vicino all'orizzonte e la luminosità superficiale non sono modelli completi.</li>
+          <li>Meteo, seeing, trasparenza e magnitudine cometaria sono previsioni o stime, non misure garantite al telescopio.</li>
+          <li>Le immagini scientifiche locali sono rappresentative e non sostituiscono una mappa stellare per il puntamento.</li>
+          <li>Filtri e riduttori richiedono verifica fisica e documentazione del produttore.</li>
+        </ul>
+        <div class="callout danger"><strong>Sicurezza solare.</strong> Non osservare mai il Sole con ottiche non filtrate. Usa soltanto un filtro solare certificato, a tutta apertura, fissato davanti allo strumento. Non usare filtri solari da oculare.</div>
+        <p>Usa la raccomandazione come punto di partenza. Foschia locale, turbolenza, adattamento al buio, esperienza e qualità reale dello strumento restano responsabilità dell'osservatore.</p>
+      </section>
+    </main>
+
+    <main id="en-main" data-article="en" hidden>
+      <section id="en-start">
+        <h2>1. Start here</h2>
+        <p>NightScope works without external accounts. A valid location is enough for a first plan; adding the equipment you own makes the result target-specific.</p>
+        <ol class="steps">
+          <li><strong>Run NightScope from a writable folder.</strong> The portable build stores its database, preferences, and logs beside the executable.</li>
+          <li><strong>Set the location.</strong> Use Windows location, search the offline city catalogue, or enter coordinates.</li>
+          <li><strong>Check the Default profile.</strong> Add telescopes or binoculars to the active profile. Without either, NightScope uses Naked eye mode.</li>
+          <li><strong>Open Home.</strong> Read the session state and limiting factor first, then the plan and alternatives.</li>
+          <li><strong>Configure optional providers only when needed.</strong> Earthdata adds VIIRS/AOD; OpenAQ adds local particulate measurements.</li>
+        </ol>
+        <div class="callout good"><strong>Location is the minimum input.</strong> Astronomy, timezone, catalogues, profiles, and equipment logic are local. Current weather needs internet access.</div>
+      </section>
+
+      <section id="en-location">
+        <h2>2. Location and local time</h2>
+        <p>Location determines the astronomical horizon, observing night, target altitude and azimuth, local calendar, weather, and provider results. NightScope preserves the exact coordinates returned by the selected method.</p>
+        <dl class="term-grid">
+          <dt>Windows location</dt>
+          <dd>Requires OS location permission. Windows mainly supplies coordinates; NightScope resolves the IANA timezone offline and can enrich the label from the local city catalogue.</dd>
+          <dt>City search</dt>
+          <dd>Uses offline GeoNames data. The name is presentational; the timezone is resolved from local timezone boundaries at the city's coordinates.</dd>
+          <dt>Manual coordinates</dt>
+          <dd>Accepts latitude and longitude without requiring a nearby imported city. This is the most precise method for a remote site.</dd>
+          <dt>Online fallback</dt>
+          <dd>An explicit, approximate IP-based action. Use it only when the other methods are unavailable.</dd>
+        </dl>
+        <p>The essential pair is <strong>coordinates + IANA timezone</strong>, not the city name. The timezone handles daylight saving and local dates and is calculated offline with <code>timezonefinder</code>, including locations beyond the imported city catalogue.</p>
+        <div class="callout warning"><strong>After changing location</strong>, allow the refresh to finish. NightScope invalidates location-dependent results and discards asynchronous responses belonging to an earlier site.</div>
+      </section>
+
+      <section id="en-profiles">
+        <h2>3. Profiles and equipment catalogues</h2>
+        <p><strong>Catalogues</strong> contain available models; <strong>profiles</strong> describe what you intend to use in a session. The initial profile is named <strong>Default</strong>; Naked eye is an observing mode, not a profile name.</p>
+        <ul>
+          <li>Assign telescopes, eyepieces, Barlows, binoculars, filters, and reducers to the profile.</li>
+          <li>When a profile has several telescopes or binoculars, NightScope evaluates all of them for every target. There is no single global telescope for ranking.</li>
+          <li>Built-in rows can be corrected by the user but cannot be deleted. User-created rows can be edited and deleted.</li>
+          <li>Eyepieces and Barlows are used only with a telescope. A binocular-only profile is valid.</li>
+          <li>Without telescopes or binoculars, alternatives are filtered by the real Naked eye capability.</li>
+        </ul>
+        <p>Always confirm the active profile before interpreting a recommendation: the setup shown in detail belongs to that specific target and active profile.</p>
+      </section>
+
+      <section id="en-home">
+        <h2>4. Home and session state</h2>
+        <p>Home is the operational starting point. Its top metrics summarize the <strong>observing night</strong>, not necessarily the current hour. A normal window runs from local sunset to the next sunrise.</p>
+        <dl class="term-grid">
+          <dt>Pending</dt>
+          <dd>Location or sufficient data is missing, so a decision cannot be made.</dd>
+          <dt>Recommended</dt>
+          <dd>Available conditions and opportunities support an observing session.</dd>
+          <dt>Monitor</dt>
+          <dd>The session may be useful, but an uncertain or changing factor needs attention.</dd>
+          <dt>Discouraged</dt>
+          <dd>The dominant limit makes the forecast session unproductive.</dd>
+        </dl>
+        <h3>Plan and alternatives</h3>
+        <p>The plan selects up to four quality opportunities and orders them chronologically. The lower table contains other planets and deep-sky targets with a useful window, excluding objects already in the plan. Open a row for the full explanation and selected setup.</p>
+        <h3>Sky Compass</h3>
+        <p>Sky Compass updates every minute. It includes only targets observable at that moment and combines quality with target density by direction. Plan and Best Object are context and tie-breakers, not dominant direction bonuses.</p>
+        <h3>Upcoming events</h3>
+        <p>Home reuses future Calendar events in chronological order. Several nearby ISS passes can occupy multiple positions: they are not NSOM recommendations and do not compete with plan targets.</p>
+      </section>
+
+      <section id="en-logic">
+        <h2>5. How a recommendation is built</h2>
+        <p>NightScope separates astronomical facts, local conditions, and observer capability. There is no single absolute scientific rating, and internal raw scores are not presented as user-facing truth.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Factor</th><th>Meaning</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><td>Intrinsic quality</td><td>Target characteristics independent of your location.</td><td>Type, magnitude, and object nature.</td></tr>
+              <tr><td>Geometry</td><td>How and when the target is useful during the local night.</td><td>Altitude, duration, culmination, chronology.</td></tr>
+              <tr><td>Moon</td><td>Actual interference during the target window.</td><td>Separation, illumination, altitude, and time overlap.</td></tr>
+              <tr><td>Environment</td><td>Available sky and atmospheric conditions.</td><td>Weather, transparency, seeing, VIIRS, accepted AOD or PM.</td></tr>
+              <tr><td>Capability</td><td>How suitable the target-specific setup is.</td><td>Aperture, field, magnification, light grasp, comfort.</td></tr>
+              <tr><td>Session</td><td>Overall decision for the night.</td><td>Recommended, monitor, discouraged, pending.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A useful deep-sky window normally requires at least <strong>15 degrees</strong> altitude; planets and the Moon use about <strong>8 degrees</strong> in nightly detail. These are geometric thresholds, not guarantees of good low-horizon performance.</p>
+        <div class="callout"><strong>Confidence is metadata.</strong> It describes source completeness, quality, and freshness but does not secretly multiply target value. Missing data is not automatically favorable.</div>
+        <p>The overall session state does not alter target position. It can change presentation and operational advice, not astronomical geometry.</p>
+      </section>
+
+      <section id="en-equipment">
+        <h2>6. How equipment is selected</h2>
+        <p>For each target, NightScope builds possible configurations from equipment assigned to the active profile, calculates optical values, and compares practical suitability. Selection considers target type, size and magnitude, required field, altitude, and forecast seeing.</p>
+        <span class="formula">Magnification = (telescope focal length / eyepiece focal length) x Barlow factor</span>
+        <span class="formula">Estimated true field = eyepiece apparent field / magnification</span>
+        <span class="formula">Exit pupil = telescope aperture / magnification</span>
+        <p>A theoretically possible magnification is not always useful. Seeing, low altitude, a very small exit pupil, insufficient field, and Barlow complexity can make a less aggressive configuration preferable.</p>
+        <ul>
+          <li><strong>Extended objects:</strong> favor suitable true field and exit pupil.</li>
+          <li><strong>Planets, Moon, and compact detail:</strong> can benefit from higher power within seeing and aperture limits.</li>
+          <li><strong>Faint targets:</strong> primarily need compatible light grasp, sky background, and transparency.</li>
+          <li><strong>Binoculars:</strong> are evaluated as complete configurations; stabilization and magnification affect comfort.</li>
+        </ul>
+        <h3>Filters</h3>
+        <p>Detail may suggest one primary filter and an optional color filter from the active profile while respecting target, aperture, and product class. A filter does not change selected setup, capability, ranking, or NSOM.</p>
+        <h3>Focal reducers</h3>
+        <p>The recommendation is photographic and appears only when the target is marked as a wide-field opportunity and the reducer has an exact association with the selected telescope. NightScope does not model sensor, back focus, or the complete optical train.</p>
+        <div class="callout warning"><strong>Always verify manufacturer compatibility.</strong> The recommendation narrows the options, but regional revisions, barrel diameters, and intermediate accessories can change the physical result.</div>
+      </section>
+
+      <section id="en-catalogue">
+        <h2>7. Celestial objects and detail</h2>
+        <p>The catalogue combines Solar System, Messier, and Caldwell targets. Physical object and designations are separate: an added designation does not create a second target or duplicate calculations.</p>
+        <ul>
+          <li>Search and filters cover name, designation, type, constellation, and observing mode.</li>
+          <li><strong>Useful (at least 15 degrees)</strong> concerns fixed-coordinate deep-sky targets from the active location. It is not a weather/equipment recommendation.</li>
+          <li><strong>Visible in month</strong> is an astronomical calculation for location and month without session weather or recommendation score.</li>
+          <li>Detail opened from the catalogue remains descriptive; detail opened from Home/Planner includes the night's observing context.</li>
+          <li>Planet and Moon images are static representatives, not the current phase, orientation, or appearance.</li>
+        </ul>
+        <p>Image and curiosity credits are visible in detail and link to their original sources.</p>
+      </section>
+
+      <section id="en-calendar">
+        <h2>8. Calendar</h2>
+        <p>Calendar combines sources with different time horizons while preserving their separate semantics.</p>
+        <dl class="term-grid">
+          <dt>Annual events</dt>
+          <dd>Calculated or recurring lunar phases, oppositions, conjunctions, eclipses, and meteor showers.</dd>
+          <dt>ISS passes</dt>
+          <dd>Short-horizon events calculated locally from updated orbital elements. They show entry, culmination, exit, maximum altitude, directions, and duration when the station is illuminated and the observer's sky is sufficiently dark.</dd>
+          <dt>Comet windows</dt>
+          <dd>Several useful nights are aggregated into a range with a preferred date. Predicted magnitude can be highly uncertain.</dd>
+        </dl>
+        <p>ISS and comets are <strong>score-free</strong>: they do not pass through Catalogue, Equipment, Planner, weather, or NSOM. They tell you that a transient object should be visible, not that it is the night's best target.</p>
+        <p>Orbital catalogues are downloaded without sending your location to CelesTrak or JPL; propagation and local visibility checks run on your computer.</p>
+      </section>
+
+      <section id="en-weather">
+        <h2>9. Weather, atmosphere, and sky quality</h2>
+        <p>The top Weather metrics summarize the observing night. Hourly detail instead shows the forecast for the selected interval. Open-Meteo is the standard weather provider and needs no account.</p>
+        <dl class="term-grid">
+          <dt>Seeing</dt>
+          <dd>Image stability, particularly important for planets, the Moon, and high magnification.</dd>
+          <dt>Transparency</dt>
+          <dd>Atmospheric light transmission; it depends on weather and, when accepted, aerosol/particulate data.</dd>
+          <dt>Sky background</dt>
+          <dd>Artificial sky brightness, described by VIIRS/SQM/Bortle only when a real source exists.</dd>
+        </dl>
+        <h3>VIIRS and Bortle</h3>
+        <p>Earthdata can provide VIIRS Black Marble for a local sky-background estimate. Without a real cached measurement or real local dataset, Bortle, SQM, and limiting magnitude remain <strong>n/a</strong>. NightScope does not invent a value from city or coordinates.</p>
+        <h3>NASA MAIAC AOD</h3>
+        <p>AOD at 550 nm describes the aerosol column. NightScope accepts only pixels that pass quality, freshness, uncertainty, and local-distance gates. Extraction method and search area are displayed because an exact pixel and a spatial fallback do not have the same quality.</p>
+        <h3>OpenAQ</h3>
+        <p>OpenAQ supplies near-surface PM2.5 and PM10. It differs from AOD and requires an API key. A current measurement that passes quality gates can enter atmospheric transparency as a <strong>non-additive fallback</strong> when AOD is unavailable. AOD and OpenAQ are never added as two independent penalties.</p>
+        <h3>Provider setup</h3>
+        <ol>
+          <li>Open <strong>Data providers</strong>.</li>
+          <li>For Earthdata, save username and password, authorize the LAADS application when requested, and test the connection.</li>
+          <li>For OpenAQ, create a personal key, save it, and test the connection.</li>
+          <li>Return to Weather and allow the refresh to complete; a provider may legitimately have no coverage or valid data.</li>
+        </ol>
+        <div class="callout"><strong>Verified credentials do not guarantee a measurement.</strong> Coverage, product date, cloud, QA, station, and distance can correctly produce an unavailable result.</div>
+      </section>
+
+      <section id="en-log">
+        <h2>10. Observation log</h2>
+        <p>The log is a local archive independent from recommendations. You can add, search, filter, edit, and delete observations with date, time, target, site, equipment, rating, and notes.</p>
+        <p>Changing a recommendation or catalogue object does not rewrite past observations. Back up the database before changing builds to preserve the log.</p>
+      </section>
+
+      <section id="en-data-states">
+        <h2>11. Missing data, cache, and confidence</h2>
+        <dl class="term-grid">
+          <dt>n/a or dash</dt>
+          <dd>The value is missing, not applicable, or not calculated. It does not mean zero.</dd>
+          <dt>No</dt>
+          <dd>A negative result from a calculation that actually ran.</dd>
+          <dt>Cache / non-current</dt>
+          <dd>The last valid result reused after an error or without refresh. Read source and freshness together.</dd>
+          <dt>Confidence</dt>
+          <dd>Describes source completeness and quality. It is separate from the value used to order targets.</dd>
+          <dt>Partial</dt>
+          <dd>A recommendation may be useful but lack, for example, real sky-background data; the UI should state that limit.</dd>
+        </dl>
+        <p>A provider can correctly return zero results. Avoid repeated refresh attempts when the page explains that coverage or quality is insufficient.</p>
+      </section>
+
+      <section id="en-privacy">
+        <h2>12. Privacy, network, and storage</h2>
+        <p>NightScope has no application account. In the portable build, application data is stored beside the executable.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data or service</th><th>Destination</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>Coordinates</td><td>Local SQLite/JSON; Open-Meteo, Earthdata, and OpenAQ when used.</td><td>Location-specific forecasts and products.</td></tr>
+              <tr><td>Windows location</td><td>Windows and NightScope.</td><td>Precise acquisition; no automatic online reverse geocoder.</td></tr>
+              <tr><td>IP fallback</td><td>IP service after explicit action.</td><td>Approximate location.</td></tr>
+              <tr><td>ISS/comet elements</td><td>Downloaded from CelesTrak/JPL without user coordinates.</td><td>Local propagation.</td></tr>
+              <tr><td>Earthdata password / OpenAQ key</td><td>Windows credential vault.</td><td>Authentication; not stored in SQLite.</td></tr>
+              <tr><td>Observation log</td><td>Only <code>nightscope.db</code>.</td><td>Personal local archive.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Diagnostic logs avoid coordinates and credential identifiers, but can include provider state, technical errors, and generic operation names.</p>
+        <h3>Backup</h3>
+        <p>With the application closed, copy at least <code>nightscope.db</code>, <code>user_preferences.json</code>, and <code>location_cache.json</code>. The <code>logs</code> folder is useful for diagnosis but is not needed to restore profiles and observations.</p>
+      </section>
+
+      <section id="en-troubleshooting">
+        <h2>13. Troubleshooting</h2>
+        <h3>Windows location does not work</h3>
+        <p>Check Windows Location permissions. Alternatively, use city search or manual coordinates; the timezone is still calculated offline.</p>
+        <h3>Home shows no recommendations</h3>
+        <p>Check location and session state first. Then confirm the active profile: without equipment, only realistic naked-eye targets are shown. A night without useful windows can be a correct result.</p>
+        <h3>Weather is unavailable</h3>
+        <p>Check internet access and use Refresh. NightScope can retain a valid cache; always read freshness. Open-Meteo does not use Earthdata credentials.</p>
+        <h3>VIIRS or AOD does not arrive</h3>
+        <p>Check credential storage, LAADS authorization, and connection test. Even valid credentials may find no acceptable pixel for the product date and location.</p>
+        <h3>OpenAQ finds no measurements</h3>
+        <p>Verify the key and connection. The closest station may be too distant, old, or missing acceptable PM2.5/PM10 values.</p>
+        <h3>The manual does not open</h3>
+        <p>Do not separate the executable from the PyInstaller <code>_internal</code> folder. In the source tree, keep <code>manuale.html</code> in the project root.</p>
+      </section>
+
+      <section id="en-limits">
+        <h2>14. Limits, field judgment, and safety</h2>
+        <ul>
+          <li>NightScope does not model trees, buildings, mountains, horizon masks, or direct site lights.</li>
+          <li>Near-horizon atmospheric extinction and surface brightness are not complete models.</li>
+          <li>Weather, seeing, transparency, and comet magnitude are forecasts or estimates, not guaranteed telescope measurements.</li>
+          <li>Local scientific images are representative and do not replace a star chart for pointing.</li>
+          <li>Filters and reducers require physical verification and manufacturer documentation.</li>
+        </ul>
+        <div class="callout danger"><strong>Solar safety.</strong> Never observe the Sun through unfiltered optics. Use only a certified full-aperture solar filter secured in front of the instrument. Do not use eyepiece solar filters.</div>
+        <p>Use each recommendation as a starting point. Local haze, turbulence, dark adaptation, experience, and actual instrument quality remain the observer's responsibility.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span data-copy-it>NightScope - Manuale utente bilingue - revisione 1.33.0</span>
+      <span data-copy-en hidden>NightScope - Bilingual user manual - revision 1.33.0</span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var languageButtons = document.querySelectorAll("[data-lang]");
+      var articles = document.querySelectorAll("[data-article]");
+      var navs = document.querySelectorAll("[data-nav]");
+      var italianCopies = document.querySelectorAll("[data-copy-it]");
+      var englishCopies = document.querySelectorAll("[data-copy-en]");
+
+      function setCopies(nodes, hidden) {
+        for (var index = 0; index < nodes.length; index += 1) {
+          nodes[index].hidden = hidden;
+        }
+      }
+
+      function setLanguage(language, persist) {
+        var selected = language === "en" ? "en" : "it";
+        document.documentElement.lang = selected;
+        document.title = selected === "it"
+          ? "NightScope - Manuale utente"
+          : "NightScope - User manual";
+
+        for (var index = 0; index < articles.length; index += 1) {
+          articles[index].hidden = articles[index].getAttribute("data-article") !== selected;
+        }
+        for (var navIndex = 0; navIndex < navs.length; navIndex += 1) {
+          navs[navIndex].hidden = navs[navIndex].getAttribute("data-nav") !== selected;
+        }
+        for (var buttonIndex = 0; buttonIndex < languageButtons.length; buttonIndex += 1) {
+          var active = languageButtons[buttonIndex].getAttribute("data-lang") === selected;
+          languageButtons[buttonIndex].setAttribute("aria-pressed", active ? "true" : "false");
+        }
+
+        setCopies(italianCopies, selected !== "it");
+        setCopies(englishCopies, selected !== "en");
+
+        if (persist) {
+          try {
+            window.localStorage.setItem("nightscope-manual-language", selected);
+          } catch (error) {
+            // Direct file access may disable storage; the manual still works.
+          }
+        }
+      }
+
+      var queryLanguage = new URLSearchParams(window.location.search).get("lang");
+      var storedLanguage = "";
+      try {
+        storedLanguage = window.localStorage.getItem("nightscope-manual-language") || "";
+      } catch (error) {
+        storedLanguage = "";
+      }
+      var browserLanguage = (window.navigator.language || "it").toLowerCase();
+      var initialLanguage = queryLanguage === "it" || queryLanguage === "en"
+        ? queryLanguage
+        : storedLanguage === "it" || storedLanguage === "en"
+          ? storedLanguage
+          : browserLanguage.indexOf("it") === 0 ? "it" : "en";
+
+      for (var index = 0; index < languageButtons.length; index += 1) {
+        languageButtons[index].addEventListener("click", function (event) {
+          setLanguage(event.currentTarget.getAttribute("data-lang"), true);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+
+      document.getElementById("print-manual").addEventListener("click", function () {
+        window.print();
+      });
+
+      setLanguage(initialLanguage, false);
+    }());
+  </script>
 </body>
 </html>

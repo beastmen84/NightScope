@@ -634,7 +634,10 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
         self.assertTrue(controller._nasa_aod_refresh_running)
         self.assertTrue(controller.atmosphericTransparency["running"])
         self.assertEqual(len(emissions), 1)
-        self.assertIn("NASA AOD refresh started", "\n".join(logs.output))
+        log_text = "\n".join(logs.output)
+        self.assertIn("NASA AOD refresh started", log_text)
+        self.assertNotIn("9.030", log_text)
+        self.assertNotIn("38.740", log_text)
 
     def test_fresh_cache_skips_background_lookup_and_running_state(self) -> None:
         cached = NasaAodResult.ok(
@@ -689,7 +692,9 @@ class NasaAodControllerRefreshTests(unittest.TestCase):
 
         self.assertFalse(controller._nasa_aod_refresh_running)
         self.assertIs(controller._nasa_aod_result, previous)
-        self.assertIn("stale location", "\n".join(logs.output))
+        log_text = "\n".join(logs.output)
+        self.assertIn("stale location", log_text)
+        self.assertNotIn("44.495:11.343:bologna", log_text)
         controller._schedule_nasa_aod_refresh.assert_called_once_with()
 
     def test_finished_refresh_discards_result_after_credentials_are_unverified(self) -> None:

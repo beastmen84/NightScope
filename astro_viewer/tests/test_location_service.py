@@ -316,6 +316,25 @@ class LocationServiceWindowsTests(unittest.TestCase):
                     {"latitude": None, "longitude": None, "timezone": "E. Africa Standard Time"}
                 )
 
+    def test_out_of_range_coordinate_log_does_not_expose_value(self) -> None:
+        with self.assertLogs(
+            "astro_viewer.app.services.location_service", level="WARNING"
+        ) as logs:
+            with self.assertRaisesRegex(
+                LocationUnavailableError, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE
+            ):
+                self.service._location_from_windows_payload(
+                    {
+                        "latitude": 91.234567,
+                        "longitude": 12.4964,
+                        "timezone": "E. Africa Standard Time",
+                    }
+                )
+
+        log_text = "\n".join(logs.output)
+        self.assertIn("out-of-range latitude", log_text)
+        self.assertNotIn("91.234567", log_text)
+
     def test_windows_location_permission_denied_or_unavailable_provider(self) -> None:
         completed = subprocess.CompletedProcess(
             args=["powershell"],
@@ -388,7 +407,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
         )
 
         with patch("astro_viewer.app.services.location_service.subprocess.run", return_value=completed):
-            with self.assertLogs("astro_viewer.app.services.location_service", level="INFO"):
+            with self.assertLogs("astro_viewer.app.services.location_service", level="INFO") as logs:
                 report = self.service.windows_location_diagnostics()
 
         self.assertEqual(report["accessStatus"], "not-requested")
@@ -397,6 +416,9 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertTrue(report["winrt"]["geolocatorTypeAvailable"])
         self.assertIn("AsTask", report["errorDetails"]["message"])
         self.assertEqual(report["rawProviderResponse"], diagnostic_json)
+        log_text = "\n".join(logs.output)
+        self.assertNotIn(diagnostic_json, log_text)
+        self.assertNotIn("Cannot find an overload for AsTask", log_text)
 
     def test_windows_scripts_use_typed_winrt_async_bridge(self) -> None:
         location_script = _windows_geolocation_script(precise=True)

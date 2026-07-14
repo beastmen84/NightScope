@@ -19,7 +19,10 @@ resolves the timezone from the selected city's coordinates. The three packaged
 GeoNames files total 8,529,230 bytes. In the current development database,
 33,775 cities and 327,374 aliases occupy about 55 MB after SQLite compaction.
 
-GeoNames publishes dump formats at `https://download.geonames.org/export/dump/readme.txt`.
+GeoNames publishes these dump files under Creative Commons Attribution 4.0
+(`CC BY 4.0`) and provides them as-is. The official format and license notice is
+`https://download.geonames.org/export/dump/readme.txt`. A public NightScope
+artifact must retain the required GeoNames attribution.
 
 ## Coordinate Timezones
 
