@@ -162,6 +162,44 @@ def test_missing_weather_has_an_explicit_unavailable_state() -> None:
     assert payload["deepSky"]["hint"] == "Dati del cielo non disponibili"
 
 
+def test_missing_sky_quality_marks_deep_sky_diagnostic_as_partial() -> None:
+    payload = _service().build(
+        location_available=True,
+        location_pending=False,
+        weather=_weather(),
+        weather_available=True,
+        seeing=SeeingTransparency(
+            seeing="Good",
+            transparency="Good",
+            seeing_score=74,
+            transparency_score=76,
+            explanation="Weather-only estimate.",
+        ),
+        sky_quality=None,
+        moon=_moon("21%"),
+        category_scores=ObservingCategoryScores(
+            74,
+            86,
+            "Buona",
+            "Ottima",
+            "NSOM categories",
+        ),
+        session=ObservingSessionDecision(state="recommended"),
+        blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
+        suggested_window="22:00–01:00",
+        wind_label="debole",
+        category_source="nsom_category_diagnostic",
+    )
+
+    assert payload["deepSky"]["state"] == "partial"
+    assert payload["deepSky"]["label"] == "Parziale"
+    assert payload["deepSky"]["scoreValue"] == 86
+    assert payload["deepSky"]["secondaryMetric"] == "Qualità del cielo non disponibile"
+    assert payload["deepSky"]["hint"] == (
+        "Inquinamento luminoso non disponibile: visibilità degli oggetti deboli da verificare"
+    )
+
+
 def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
     payload = _service().build(
         location_available=True,
@@ -257,6 +295,8 @@ def test_upper_home_cards_use_the_overview_contract_without_category_scores() ->
     assert qml.count("subtitleWrap: true") >= 4
     assert 'root.planetaryOverview.state === "pending"' in qml
     assert 'root.deepSkyOverview.state === "pending"' in qml
+    assert 'root.deepSkyOverview.state === "partial"' in qml
+    assert "? theme.amber" in qml
     assert 'root.weatherOverview.state === "pending"' in qml
     assert "property bool subtitleWrap: false" in glass_card
     assert "wrapMode: root.subtitleWrap ? Text.WordWrap : Text.NoWrap" in glass_card

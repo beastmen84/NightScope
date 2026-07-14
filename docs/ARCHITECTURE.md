@@ -272,6 +272,9 @@ Current runtime status for `1.27.0`:
 - Missing sky quality is a first-class `None` state. Home marks local
   visibility as unverified and Weather shows `n/d`; NSOM, Equipment and seeing
   receive no synthetic Bortle input and continue with their remaining inputs.
+- If those remaining inputs still produce a deep-sky category diagnostic, the
+  Home read model marks it `partial` and presents an amber `Parziale` badge;
+  this presentation state does not modify the underlying NSOM score.
 - The overview boundary distinguishes startup location detection (`pending`)
   from a genuinely missing location (`unavailable`). Pending and no-data
   payloads are presentation-only states and cannot produce favourable category
@@ -716,6 +719,10 @@ Sky-quality cache:
   states based on `SkyQualityEstimate.updated_at`.
 - VIIRS is revalidated after 7 days. A stale value is served immediately and
   remains the fallback if the background NASA lookup fails.
+- The controller classifies the cache before checking Earthdata credentials.
+  With an unverified account, a stale real value remains available and Weather
+  shows that it must be updated; freshness does not overwrite provider
+  confidence.
 - Non-VIIRS rows from retired baseline/offline providers are removed at service
   startup. Real optional local datasets are read directly and not cached in
   `SkyQualityEstimate`.

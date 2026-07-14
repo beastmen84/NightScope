@@ -255,6 +255,40 @@ class RefreshManagerTest(unittest.TestCase):
         self.assertEqual(controller._light_pollution_status, "")
         self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
 
+    def test_unverified_earthdata_reports_stale_viirs_cache_without_lookup(self) -> None:
+        controller = AppController.__new__(AppController)
+        QObject.__init__(controller)
+        controller._location = ObserverLocation(
+            "Addis Ababa",
+            "Ethiopia",
+            9.03,
+            38.74,
+            "Africa/Addis_Ababa",
+        )
+        controller._earthdata_credentials_state = EarthdataCredentialState(
+            configured=False,
+            secure_store_available=True,
+            connection_verified=False,
+        )
+        controller._viirs_sky_quality_running = False
+        controller._light_pollution_status = ""
+        controller._light_pollution_service = Mock()
+        controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.STALE
+        controller._refresh_manager = RefreshManager()
+        weather_changes: list[bool] = []
+        controller.weatherChanged.connect(lambda: weather_changes.append(True))
+
+        with patch("astro_viewer.app.viewmodels.app_controller.Thread") as thread_cls:
+            controller._schedule_viirs_sky_quality_refresh()
+
+        thread_cls.assert_not_called()
+        self.assertEqual(
+            controller._light_pollution_status,
+            "Dati VIIRS in cache da aggiornare; configura o verifica l'account Earthdata.",
+        )
+        self.assertEqual(weather_changes, [True])
+        self.assertFalse(controller._refresh_manager.is_dirty(RefreshDomain.SKY_QUALITY))
+
     def test_stale_viirs_refresh_failure_reports_cached_fallback(self) -> None:
         controller = AppController.__new__(AppController)
         QObject.__init__(controller)

@@ -35,7 +35,8 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertNotIn("NightScope could not update all data", controller.serviceStatus)
             self.assertEqual(controller.homeObservingOverview["planetary"]["state"], "available")
-            self.assertEqual(controller.homeObservingOverview["deepSky"]["state"], "available")
+            self.assertEqual(controller.homeObservingOverview["deepSky"]["state"], "partial")
+            self.assertEqual(controller.homeObservingOverview["deepSky"]["label"], "Parziale")
 
     def test_home_overview_separates_session_weather_and_category_diagnostics(self) -> None:
         with self._controller_with_weather(_valid_weather_response()) as controller:

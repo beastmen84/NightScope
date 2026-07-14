@@ -177,9 +177,19 @@ def _deep_sky_payload(
     transparency = _quality_label(seeing.transparency if seeing else "")
     bortle = sky_quality.bortle_class if sky_quality else 0
     label = scores.deep_sky_label if scores else tr("n/d")
+    sky_quality_available = bortle > 0
+    if label == "n/d":
+        state = "unavailable"
+        display_label = label
+    elif not sky_quality_available:
+        state = "partial"
+        display_label = tr("Parziale")
+    else:
+        state = "available"
+        display_label = label
     return {
-        "state": "available" if label != "n/d" else "unavailable",
-        "label": label,
+        "state": state,
+        "label": display_label,
         "scoreValue": scores.deep_sky_score if scores else None,
         "primaryMetric": (
             tr("Trasparenza {value}", value=transparency)
@@ -247,6 +257,12 @@ def _deep_sky_hint(seeing: SeeingTransparency | None, sky_quality: SkyQuality | 
     sky_quality_available = sky_quality is not None and sky_quality.bortle_class > 0
     if not transparency_available and not sky_quality_available:
         return tr("Dati del cielo non disponibili")
+    if not sky_quality_available:
+        if seeing is not None and seeing.transparency_score < 40:
+            return tr("Trasparenza limitante; inquinamento luminoso non disponibile")
+        return tr(
+            "Inquinamento luminoso non disponibile: visibilità degli oggetti deboli da verificare"
+        )
     if transparency_available and seeing.transparency_score < 40:
         return tr("Trasparenza limitante per gli oggetti deboli")
     bortle = sky_quality.bortle_class if sky_quality else 0

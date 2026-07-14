@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.5`:
+Measured on the current Windows development environment for `1.32.6`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `751 passed, 7 subtests passed` | `0:01:52.43` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `753 passed, 7 subtests passed` | `0:01:59.03` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -127,6 +127,10 @@ cleanup of legacy non-VIIRS cache rows, explicit unavailable sky-quality state,
 weather-only seeing when Bortle is absent, continued reuse of real VIIRS cache
 and optional real local CSV data. QML checks cover `n/d` sky-quality metrics,
 balanced Home target columns and event titles capped at two lines.
+The `1.32.6` corrections cover the partial Home deep-sky state when weather is
+available without Bortle, non-optimistic faint-object copy, the amber partial
+badge and stale-VIIRS disclosure when Earthdata is not verified. The lifecycle
+test also confirms that this offline stale-cache path starts no network worker.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

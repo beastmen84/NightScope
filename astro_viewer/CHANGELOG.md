@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.32.6 - 2026-07-14
+
+- La scheda Home del cielo profondo usa ora lo stato esplicito `Parziale`
+  quando il diagnostico dispone del meteo ma non della qualita' cielo reale.
+  Il valore NSOM interno resta disponibile ai consumer, mentre badge e testo
+  non presentano piu' il risultato come un giudizio completo.
+- I suggerimenti deep-sky senza Bortle distinguono la trasparenza disponibile
+  dall'inquinamento luminoso mancante e non dichiarano piu' un buon potenziale
+  per gli oggetti deboli senza quel dato.
+- Il controllo cache VIIRS precede ora il gate delle credenziali Earthdata. Una
+  misura reale stale resta utilizzabile, ma Meteo avvisa che deve essere
+  aggiornata; una cache fresca continua a non richiedere accesso di rete.
+- Freschezza cache e confidenza della misura restano dimensioni separate: la
+  correzione non abbassa artificialmente la confidenza del dato VIIRS salvato.
+- Aggiornati e compilati i cataloghi italiano/inglese completi `1590/1590`.
+- Verificati `pip check`, Ruff, compileall, tutti i 30 QML e smoke
+  italiano/inglese; suite completa parallela: `753 passed`, `613 warnings`,
+  `7 subtests passed` in `119.03s`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.6` non rigenerata.
+
 ## NightScope 1.32.5 - 2026-07-14
 
 - Rimossi `light_pollution_seed.csv`, il provider di baseline urbana e il

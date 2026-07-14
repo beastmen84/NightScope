@@ -187,7 +187,11 @@ presentation state of `pending` for Session, Weather and category cards. A
 completed detection with no valid location emits `unavailable`. Neither state
 is a score and neither feeds recommendation calculations. Missing seeing and
 sky-quality inputs produce neutral no-data hints instead of inferring favourable
-deep-sky potential from zero/default placeholders.
+deep-sky potential from zero/default placeholders. When weather supports a
+deep-sky category diagnostic but sky quality is absent, the presentation state
+is `partial`: the backend score remains unchanged for existing consumers, while
+Home uses an amber `Parziale` badge and explicitly leaves faint-object
+visibility unverified.
 
 ### Solar-System Objects
 
@@ -850,6 +854,11 @@ Cache policy:
   product.
 - A failed lookup preserves the stale VIIRS value; only a successful lookup
   replaces it and resets `updated_at`.
+- Cache freshness is evaluated before the Earthdata credential gate. If a
+  stale real value exists but the account is not verified, Weather keeps the
+  value and exposes an update warning instead of presenting it as current.
+  Provider confidence remains the confidence of the stored measurement and is
+  not reused as a freshness indicator.
 - The Weather page `Aggiorna` command schedules this cache-aware check and does
   not force a network request while the VIIRS entry is fresh.
 - `SkyQualityEstimate` is a VIIRS provider cache. Legacy seed, local-baseline

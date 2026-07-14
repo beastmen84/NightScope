@@ -554,9 +554,11 @@ Item {
                         headerBadgeText: root.deepSkyOverview.label || ""
                         headerBadgeColor: root.deepSkyOverview.state === "pending"
                                           ? theme.cyan
-                                          : (root.deepSkyOverview.state === "unavailable"
-                                             ? theme.textMuted
-                                             : theme.scoreColor(root.deepSkyOverview.scoreValue))
+                                          : (root.deepSkyOverview.state === "partial"
+                                             ? theme.amber
+                                             : (root.deepSkyOverview.state === "unavailable"
+                                                ? theme.textMuted
+                                                : theme.scoreColor(root.deepSkyOverview.scoreValue)))
 
                         RowLayout {
                             Layout.fillWidth: true

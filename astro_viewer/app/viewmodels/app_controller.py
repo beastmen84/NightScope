@@ -3641,17 +3641,31 @@ class AppController(QObject):
             return
         if self._viirs_sky_quality_running:
             return
-        if not self._earthdata_credentials_state.connection_verified:
-            self._light_pollution_status = ""
-            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
-            return
         location = self._location
         if location is None:
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
         cache_state = self._light_pollution_service.viirs_cache_state(location)
         if cache_state is ViirsCacheState.FRESH:
+            status_changed = bool(self._light_pollution_status)
             self._light_pollution_status = ""
+            if status_changed:
+                self.weatherChanged.emit()
+            self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
+            return
+        if not self._earthdata_credentials_state.connection_verified:
+            status = (
+                tr(
+                    "Dati VIIRS in cache da aggiornare; configura o verifica "
+                    "l'account Earthdata."
+                )
+                if cache_state is ViirsCacheState.STALE
+                else ""
+            )
+            status_changed = status != self._light_pollution_status
+            self._light_pollution_status = status
+            if status_changed:
+                self.weatherChanged.emit()
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
 

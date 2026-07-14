@@ -52,7 +52,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.5`.
+Versione corrente sorgente: `1.32.6`.
 
 Distribuzione Windows corrente: `1.32.3`.
 
@@ -246,6 +246,13 @@ limite visuale come `n/d`, mentre seeing e pianificazione continuano sugli input
 disponibili senza inventare una penalita' luminosa. Home segnala che la
 visibilita' locale va verificata, riequilibra Nome/Tipo e consente due righe ai
 titoli dei prossimi eventi. La distribuzione `1.32.5` non e' stata rigenerata.
+
+In `1.32.6` la scheda Home del cielo profondo presenta come `Parziale` un
+diagnostico calcolato dal meteo quando manca la qualita' reale del cielo, senza
+trasformare il valore NSOM interno in un giudizio completo. Una cache VIIRS
+reale oltre la TTL resta utilizzabile, ma Meteo ne segnala la necessita' di
+aggiornamento anche se l'account Earthdata non e' configurato o verificato. La
+distribuzione `1.32.6` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
