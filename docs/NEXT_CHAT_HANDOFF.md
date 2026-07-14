@@ -1,22 +1,23 @@
 # NightScope - Next Chat Handoff
 
-Aggiornato: 2026-07-13
+Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.31.0`
-- Dist `1.31.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.31.1`
+- Dist `1.31.1` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `c758dac Add ISS calendar passes`
+- Commit sorgente validato: `50bffc1 Fix ISS calendar refresh lifecycle`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `c758dac`; non sostituire questo
+stato del codice usare `50bffc1`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `50bffc1 Fix ISS calendar refresh lifecycle`
 - `c758dac Add ISS calendar passes`
 - `5f6c2d0 Fix localization review findings`
 - `60c5d46 Complete scalable application localization`
@@ -110,13 +111,14 @@ non crea `CatalogueObject`, non riceve score e non entra in Equipment, Planner,
 Home ranking o NSOM. Home continua a consumare la stessa proiezione cronologica
 del Calendario e mostra i passaggi ISS tra i prossimi eventi.
 
-## ISS ed Eventi Transitori 1.31.0
+## ISS ed Eventi Transitori 1.31.x
 
 - `TransientCalendarEventSource` e' il confine generico per future sorgenti
-  operative; `IssPassEventSource` e' l'unica implementazione attuale.
+  operative; `IssPassEventSource` e' l'unica implementazione attuale. Da
+  `1.31.1` il confine separa preparazione provider/cache e calcolo Skyfield.
 - Il motore annuale Skyfield resta proprietario di fasi, opposizioni,
-  congiunzioni, eclissi e sciami. Una sorgente transitoria fallita viene
-  ignorata e non elimina questi eventi.
+  congiunzioni, eclissi e sciami. Non chiama provider transitori: una sorgente
+  lenta o fallita non ritarda e non elimina questi eventi.
 - La ISS usa gli OMM pubblici CelesTrak del NORAD `25544`, senza account. Il
   calcolo riusa Skyfield, SGP4, Requests e NumPy gia' installati; pandas e
   astroquery non sono stati aggiunti perche' non servono a questa pipeline.
@@ -129,10 +131,17 @@ del Calendario e mostra i passaggi ISS tra i prossimi eventi.
   setup personalizzato o oggetto apribile. Il Calendario ha filtro e conteggio
   `ISS`; Home mantiene gli 8 eventi successivi su layout largo e 4 su stretto.
 - Gli intervalli conclusi vengono esclusi anche se appartengono al giorno
-  corrente; un passaggio gia' iniziato ma non concluso resta visibile.
+  corrente; un passaggio gia' iniziato ma non concluso resta visibile. Gli
+  eventi istantanei di date passate vengono eliminati prima della deduplica.
 - `CalendarOverviewService` e' ora `calendar_overview_v3`; i nuovi campi sono
   generici per supportare in seguito comete o asteroidi senza cambiare il
   contratto base.
+- Il controller prepara rete/cache fuori dal lock astronomico, propaga gli
+  eventi sotto lock e rimpiazza solo il sottoinsieme transitorio se la location
+  key e' ancora attuale. Il ricalcolo avviene ogni ora; il fetch OMM resta
+  limitato dalla TTL di 6 ore.
+- Gli ID dei passaggi derivano dalla rivoluzione orbitale e non dai secondi del
+  picco previsto. Il dettaglio espone l'ora reale dell'ultimo aggiornamento.
 
 ## Localizzazione Completa 1.30.0
 
@@ -150,7 +159,7 @@ del Calendario e mostra i passaggi ISS tra i prossimi eventi.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1517` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1518` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -441,8 +450,10 @@ Rimossi:
 - `OrbitalElementCache` conserva OMM/TLE per provider e oggetto. Per la ISS il
   TTL e' 6 ore; se CelesTrak non risponde, un elemento resta utilizzabile fino
   a 3 giorni dalla propria epoca, poi i passaggi non vengono inventati.
+- Il timer ISS ricalcola ogni ora la finestra mobile usando la cache: non
+  trasforma la cadenza di calcolo in una richiesta CelesTrak oraria.
 
-## Validazione 1.31.0
+## Validazione 1.31.1
 
 Eseguita nella venv corrente:
 
@@ -464,10 +475,10 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `731 passed`, `561 warnings`, `7 subtests passed` in `90,40 s`.
-- Cataloghi: `1517` messaggi completi per lingua; entrambi i `.qm` compilati.
-- Updater JSON/TS verificati idempotenti; un secondo passaggio conserva gli
-  hash di tutti i sorgenti tradotti.
+- Suite: `733 passed`, `563 warnings`, `7 subtests passed` in `90,36 s`.
+- Cataloghi: `1518` messaggi completi per lingua; entrambi i `.qm` compilati.
+- Updater TS verificato idempotente: il secondo passaggio rileva `0` messaggi
+  nuovi e `1518` gia' presenti per lingua.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
   non qualificato, nessun errore QML.
 - Smoke backend e QML del bootstrap di produzione: exit `0`. I test lingua
@@ -478,7 +489,7 @@ Risultati:
   sintetica, packaging, ordine della navigazione e assenza di ricalcoli NSOM.
 - Dist non rigenerata.
 
-Le 561 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+Le 563 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
 
 ## Regole Operative
 
