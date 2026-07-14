@@ -4,19 +4,20 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.2`
-- Dist `1.32.2` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.32.3`
+- Dist `1.32.3` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `283c943 Stabilize equipment seed identities`
+- Commit sorgente validato: `836c90f Polish no-location UI presentation`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `283c943`; non sostituire questo
+stato del codice usare `836c90f`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit Recenti
 
+- `836c90f Polish no-location UI presentation`
 - `283c943 Stabilize equipment seed identities`
 - `7c7c196 Fix initial UI review findings`
 - `8ebc6bc Add comet observing windows`
@@ -128,6 +129,13 @@ potrebbero essere corretti. I CSV possiedono ID espliciti e le compatibilita'
 riduttore-telescopio li referenziano direttamente. Il controllo visivo puo'
 quindi partire dal commit sorgente `283c943`.
 
+`1.32.3` chiude il secondo controllo visuale senza localita'. La pagina Meteo
+non presenta piu' SQM o limite visuale a zero; Home, Meteo e Calendario portano
+direttamente alla configurazione della localita' e le sezioni vuote usano testo
+breve. Terminologia, unita' e formati dei cataloghi Equipment/Catalogo sono
+uniformati. Il prossimo passo e' il controllo visuale manuale con una localita'
+configurata, partendo dal commit sorgente `836c90f`.
+
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
 - `TransientCalendarEventSource` e' il confine generico per sorgenti operative.
@@ -235,6 +243,26 @@ quindi partire dal commit sorgente `283c943`.
   campi, rigenerare e verificare insieme i pack italiano/inglese; in `1.32.2`
   nessun valore descrittivo dei cataloghi e' stato modificato.
 
+## Correzioni Visuali Senza Localita' 1.32.3
+
+- La scheda `Qualita' cielo locale` verifica `hasValidLocation` per SQM, limite
+  visuale, confidenza e ramo VIIRS: senza localita' ogni valore e' `n/d` e un
+  payload precedente non puo' riapparire.
+- Home, Meteo e Calendario espongono `Configura localita'` e inoltrano il
+  comando alla pagina `location` tramite segnali QML dedicati. I messaggi nelle
+  sezioni interne sono stati abbreviati per evitare la ripetizione dello stesso
+  invito operativo.
+- I messaggi relativi alla configurazione utente usano `localita'`; i testi di
+  rilevamento Windows/IP continuano a usare `posizione` quando descrivono la
+  sorgente fisica del dato.
+- Oculari e Barlow mantengono il valore grezzo del barilotto nel database ma
+  espongono una label derivata locale, per esempio `1,25″ / 2″`. Le dimensioni
+  angolari del Catalogo usano `°`.
+- I form mostrano unita' tra parentesi, `0,63` nell'esempio italiano del
+  riduttore e `Stabilizzato` come booleano, senza definirlo facoltativo.
+- Nessun cambiamento a seed, ownership Equipment, schema SQLite, score, NSOM,
+  Planner, Home ranking, ISS o comete. Cataloghi Qt completi `1575/1575`.
+
 ## Localizzazione Completa 1.30.0
 
 - `TranslationManager` viene installato prima del controller e del caricamento
@@ -251,7 +279,7 @@ quindi partire dal commit sorgente `283c943`.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1571` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1575` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -561,7 +589,7 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.2
+## Validazione 1.32.3
 
 Eseguita nella venv corrente:
 
@@ -569,31 +597,32 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_database.py astro_viewer\tests\test_equipment_accessory_catalogs.py astro_viewer\tests\test_translations.py
+.\.venv\Lib\site-packages\PySide6\qmllint.exe <tutti i 30 file QML>
+.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests\test_equipment_accessory_catalogs.py astro_viewer\tests\test_home_observing_overview.py astro_viewer\tests\test_openaq_atmosphere.py astro_viewer\tests\test_release_scenarios.py astro_viewer\tests\test_phase6_real_data.py astro_viewer\tests\test_translations.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 git diff --check
 ```
 
-Il probe SQLite ha usato un database in `TemporaryDirectory`; nessun file
-runtime utente e' stato letto o modificato.
+Gli smoke QML italiano e inglese hanno usato database e preferenze distinti in
+`TemporaryDirectory`, con logging disabilitato; nessun file runtime utente e'
+stato letto o modificato.
 
 Risultati:
 
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Test finali database, Equipment e traduzioni: `66 passed` in `28,68 s`.
-- Suite: `747 passed`, `613 warnings`, `7 subtests passed` in `108,27 s`.
-- Verifica dei CSV: 468 chiavi uguali alle chiavi legacy `1.32.1`, zero
-  mismatch; tolte le nuove colonne, tutti i valori e il numero di righe dei
-  sette file coincidono con `HEAD` precedente.
-- Probe SQLite: schema `16`, `PRAGMA integrity_check = ok`, zero chiavi built-in
-  mancanti e conteggi `133/134/35/94/48/24`, con 16 compatibilita'.
+- `qmllint`: exit `0` su 30 file; nessun errore. Restano i warning strutturali
+  gia' noti per accessi QML non qualificati.
+- Test mirati: `147 passed`, `493 warnings`, `7 subtests passed` in `64,23 s`.
+- Suite: `748 passed`, `613 warnings`, `7 subtests passed` in `99,38 s`.
+- Cataloghi Qt italiano/inglese: `1575/1575`, zero `unfinished`; `.qm`
+  ricompilati con `lrelease`.
+- Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
+- Schema SQLite invariato a `16`; il nuovo test verifica label barilotto
+  `1,25″`, `1,25″ / 2″` e `2″` senza modificare i valori persistiti.
 - `git diff --check`: pulito.
-- Nessun file QML o catalogo di traduzione e' cambiato: `qmllint`, compilazione
-  `.qm` e smoke QML non sono stati ripetuti; resta valida la baseline `1.32.1` e
-  il prossimo passo e' il controllo visivo manuale dell'utente.
-- Dist `1.32.2` non rigenerata.
+- Dist `1.32.3` non rigenerata.
 
 I 563 warning preesistenti provengono dalla deprecazione dtype
 Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
