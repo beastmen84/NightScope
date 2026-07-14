@@ -4,19 +4,20 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.0`
-- Dist `1.32.0` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.32.1`
+- Dist `1.32.1` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `8ebc6bc Add comet observing windows`
+- Commit sorgente validato: `7c7c196 Fix initial UI review findings`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `8ebc6bc`; non sostituire questo
+stato del codice usare `7c7c196`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `7c7c196 Fix initial UI review findings`
 - `8ebc6bc Add comet observing windows`
 - `50bffc1 Fix ISS calendar refresh lifecycle`
 - `c758dac Add ISS calendar passes`
@@ -33,6 +34,7 @@ hash con un valore previsto prima del commit.
 
 ## Commit Equipment Recenti
 
+- `7c7c196 Fix initial UI review findings`
 - `87f2285 Make filter recommendations aperture-aware`
 - `a859d75 Add photographic reducer recommendations`
 - `d360b58 Refine target filter preferences`
@@ -112,6 +114,13 @@ restano score-free, non creano `CatalogueObject` e non entrano in Equipment,
 Planner, Home ranking o NSOM. Home continua a consumare la stessa proiezione
 cronologica del Calendario.
 
+`1.32.1` chiude il primo passaggio di correzione della panoramica UI richiesto
+dall'utente: barra laterale piu' compatta, stati coerenti prima della localita',
+form Equipment piu' chiari e voci integrate modificabili ma non eliminabili.
+Il profilo iniziale si chiama `Default`; `Occhio nudo` e' soltanto la modalita'
+derivata quando non sono assegnati telescopi o binocoli. Il prossimo passo e'
+il controllo visivo manuale dell'utente sulle schermate corrette.
+
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
 - `TransientCalendarEventSource` e' il confine generico per sorgenti operative.
@@ -167,6 +176,36 @@ cronologica del Calendario.
   e' una decisione di prodotto rinviata: l'utente ha gia' un'idea da valutare
   separatamente.
 
+## Correzioni UI ed Equipment 1.32.1
+
+- Il profilo iniziale e' `Default`. La migrazione schema rinomina soltanto il
+  vecchio profilo seed con ID `1`; se esiste gia' un profilo utente `Default`,
+  sceglie il primo suffisso libero senza sovrascriverlo.
+- `Occhio nudo` resta una modalita' osservativa, non un nome profilo. Viene
+  usata soltanto quando il profilo non contiene telescopi o binocoli; un profilo
+  con solo binocolo conserva indicazioni coerenti.
+- Lo schema SQLite `16` aggiunge `seed_key` e `is_user_modified` a telescopi,
+  oculari, Barlow, binocoli, filtri e riduttori. Le righe seed non modificate
+  seguono gli aggiornamenti inclusi; dopo una correzione utente, bootstrap e
+  reseed preservano valori e compatibilita' del riduttore.
+- Tutte le voci catalogo mostrano `Modifica`. `Elimina` resta disponibile solo
+  per le voci create dall'utente ed e' protetto anche nel repository; i test
+  coprono modifica persistente e blocco eliminazione per tutti e sei i cataloghi.
+- I form segnano i campi obbligatori con `*`, descrivono gli altri come
+  facoltativi e validano numeri, range Zoom/AFOV, Barlow, filtri e riduttori. Un
+  errore mantiene aperto il dialogo e mostra il messaggio del controller.
+- Le schede non mostrano pill colorate per focale relativa, banda,
+  trasmissione o backfocus assenti. Il doppio campo di focale massima Zoom e'
+  stato rimosso.
+- La sidebar usa pulsanti e spaziature verticali piu' compatti. Home, Meteo e
+  Calendario mostrano `n/d` o una richiesta di localita' prima della
+  configurazione; i filtri mensili del Catalogo restano disabilitati senza una
+  posizione valida.
+- I cataloghi Qt italiano/inglese sono completi `1571/1571`. Il tentativo di
+  acquisizione automatica con `QQuickWindow.grabWindow()` e plugin offscreen si
+  e' bloccato ed e' stato interrotto; non considerarlo un controllo visivo
+  superato. L'utente eseguira' la verifica manuale.
+
 ## Localizzazione Completa 1.30.0
 
 - `TranslationManager` viene installato prima del controller e del caricamento
@@ -183,7 +222,7 @@ cronologica del Calendario.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1552` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1571` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -224,8 +263,9 @@ cronologica del Calendario.
   designazioni secondarie.
 - Il filtro catalogo proietta la designazione richiesta ma non cambia l'ID e non
   incrementa `catalogueTotalCount`.
-- Lo schema SQLite corrente e' `15`; la versione `14` ha introdotto il flag
-  riduttori, mentre la `15` aggiunge la cache orbitale. Il bootstrap migra e
+- Lo schema SQLite corrente e' `16`; la versione `14` ha introdotto il flag
+  riduttori, la `15` la cache orbitale e la `16` la proprieta' persistente dei
+  seed Equipment e la migrazione del profilo `Default`. Il bootstrap migra e
   rimuove `MessierObject`, valida
   identita', riferimenti e primarie dei seed e distingue contenuti editoriali
   gestiti da import personalizzati.
@@ -289,10 +329,11 @@ cronologica del Calendario.
 - Filtri e riduttori possono essere assegnati e rimossi dal profilo attivo.
   `equipmentChanged` aggiorna immediatamente anche un dettaglio osservativo
   aperto, ma non ricalcola NSOM o capacita'.
-- Tutti i cataloghi Equipment espongono `is_builtin`. Le voci seed non mostrano
-  `Modifica` o `Elimina` e il repository blocca entrambe le operazioni; le voci
-  create dall'utente restano modificabili ed eliminabili dopo aver rimosso i
-  collegamenti ai profili.
+- Tutti i cataloghi Equipment espongono `is_builtin`, `seed_key` e
+  `is_user_modified`. Le voci seed mostrano `Modifica` ma non `Elimina`; il
+  repository consente le correzioni, marca l'override e continua a bloccare la
+  cancellazione. Le voci create dall'utente restano modificabili ed eliminabili
+  dopo aver rimosso i collegamenti ai profili.
 - Le connessioni Equipment abilitano le foreign key. La migrazione elimina
   assegnazioni orfane nelle sei tabelle profilo e i conteggi d'uso considerano
   profili validi distinti, senza duplicare il telescopio tra campo legacy e
@@ -421,6 +462,8 @@ Rimossi:
   naturale (`M3`, `M40`, `M100`).
 - Scroll interno non propaga alla pagina quando il puntatore e' nella lista.
 - Sidebar usa lo stato Sessione corrente, non la vecchia qualita' osservativa.
+- Prima di configurare la localita', riepilogo, Luna, alternative e prossimi
+  eventi mostrano uno stato non disponibile senza riusare valori dimostrativi.
 
 ### Meteo
 
@@ -429,6 +472,8 @@ Rimossi:
   selezionata.
 - Scrollbar orizzontale del dettaglio e' nascosta.
 - AOD e OpenAQ hanno semantica/freschezza esplicita.
+- Prima della localita', metriche e timeline mostrano `n/d` e una richiesta di
+  configurazione invece di valori meteo fittizi.
 
 ### Dettaglio Osservativo
 
@@ -452,11 +497,14 @@ Rimossi:
   multi-notte aggregata, non un evento giornaliero e non un oggetto catalogo.
 - Il contratto distingue `startsAt`, `endsAt`, `peakAt`, fatti operativi e
   metadati sorgente; non assegna un target catalogo a ISS o comete.
+- Prima della localita', conteggi, filtri e timeline sono disabilitati o `n/d`
+  e spiegano che la posizione e' necessaria.
 
 ### Catalogo
 
 - Lista senza colonna mensile ridondante.
-- Filtro `visibili nel mese` resta attivo.
+- Filtro `visibili nel mese` resta disponibile soltanto con una localita'
+  valida; il controller impedisce di abilitarlo anche fuori dalla QML.
 - Dettaglio mostra `Visibile nel mese corrente` calcolato per posizione e mese
   locali, indipendentemente dal filtro lista.
 - Tipi e modalita' osservative sono localizzati in italiano.
@@ -484,7 +532,7 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.0
+## Validazione 1.32.1
 
 Eseguita nella venv corrente:
 
@@ -492,36 +540,34 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_comet_windows.py astro_viewer\tests\test_calendar_overview.py
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_database.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 .\tools\update_translations.ps1
 $qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
-& .\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui @qmlFiles
-.\.venv\Scripts\python.exe -m astro_viewer.main --smoke-test
-.\.venv\Scripts\python.exe -m astro_viewer.main --qml-smoke-test
+& .\.venv\Scripts\pyside6-qmllint.exe @qmlFiles
 ```
+
+Smoke backend e QML sono stati eseguiti in processi separati impostando
+`astro_viewer.main.RUNTIME_DIR` a una `TemporaryDirectory`; i due smoke QML
+hanno usato rispettivamente preferenza `it` ed `en`. Nessun file runtime utente
+e' stato letto o modificato.
 
 Risultati:
 
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Test mirati Comete/Calendar: `15 passed`, `104 warnings` in `15,26 s`.
-- Suite: `739 passed`, `613 warnings`, `7 subtests passed` in `128,93 s`.
-- Cataloghi: `1552` messaggi completi per lingua; entrambi i `.qm` compilati.
+- Test database dopo il caso limite del nome profilo: `35 passed` in `17,92 s`.
+- Suite: `743 passed`, `613 warnings`, `7 subtests passed` in `138,45 s`.
+- Cataloghi: `1571` messaggi completi per lingua; entrambi i `.qm` compilati.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
   non qualificato, nessun errore QML.
-- Smoke backend e QML del bootstrap di produzione: exit `0`. Verificato anche
-  QML inglese da runtime temporaneo.
-- Render diretto Calendar verificato a `1200 x 900` e `720 x 720`: nove metriche
-  e filtri senza sovrapposizioni; il formato compatto prosegue nello scroll.
-- Probe reale del 2026-07-14 per Roma: query SBDB pubblica, calcolo in circa
-  `13,19 s` incluso fetch e due finestre (`C/2024 T5 (ATLAS)` e
-  `C/2026 A2 (Bok)`). I test automatici restano completamente offline.
-- Verificati cambio live, fallback italiano, formati locali, contenuti seed,
-  persistenza della lingua, preservazione delle altre preferenze, terza lingua
-  sintetica, packaging, ordine della navigazione e assenza di ricalcoli NSOM.
-- Dist `1.32.0` non rigenerata.
+- Smoke backend, QML italiano e QML inglese: exit `0` in runtime temporanei.
+- `git diff --check`: pulito.
+- L'acquisizione automatica delle schermate con il plugin Qt offscreen e'
+  rimasta bloccata su `grabWindow()` ed e' stata interrotta; resta da fare il
+  controllo visivo manuale dell'utente.
+- Dist `1.32.1` non rigenerata.
 
 I 563 warning preesistenti provengono dalla deprecazione dtype
 Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
