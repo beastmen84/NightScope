@@ -1,5 +1,27 @@
 # Changelog
 
+## NightScope 1.32.5 - 2026-07-14
+
+- Rimossi `light_pollution_seed.csv`, il provider di baseline urbana e il
+  fallback sintetico che assegnava Bortle `5/6` senza dati geografici reali.
+- `LightPollutionService` restituisce ora qualita' cielo solo da cache NASA
+  VIIRS o da un dataset locale World Atlas/VIIRS realmente fornito; altrimenti
+  espone uno stato assente e ripulisce le vecchie cache non VIIRS.
+- Meteo presenta Bortle, SQM, limite visuale e confidenza come `n/d` quando il
+  dato non esiste. Seeing e gli altri consumer continuano sugli input
+  disponibili senza applicare una penalita' luminosa inventata.
+- Home distingue gli oggetti soltanto compatibili con l'occhio nudo dalla
+  visibilita' locale verificata, riequilibra le colonne Nome/Tipo e consente ai
+  titoli dei prossimi eventi di occupare al massimo due righe.
+- Rimossi dal packaging e dalla documentazione i riferimenti al seed e al suo
+  import; mantenuto il supporto preparato per dataset locali reali opzionali.
+- Aggiornati e compilati i cataloghi italiano/inglese completi `1586/1586`.
+- Verificati `pip check`, Ruff, compileall, tutti i 30 QML e smoke
+  italiano/inglese; suite completa parallela: `751 passed`, `613 warnings`,
+  `7 subtests passed` in `112.43s`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.5` non rigenerata.
+
 ## NightScope 1.32.4 - 2026-07-14
 
 - Corretto il percorso realmente usato dal Catalogo per le dimensioni

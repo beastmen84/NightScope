@@ -267,6 +267,14 @@ class RefreshManagerTest(unittest.TestCase):
         )
         controller._viirs_sky_quality_running = False
         controller._light_pollution_status = ""
+        controller._sky_quality = SkyQuality(
+            4,
+            21.0,
+            0.1,
+            "NASA Black Marble VNP46A3",
+            "VIIRS",
+            "ok",
+        )
         controller._light_pollution_service = Mock()
         controller._light_pollution_service.viirs_cache_state.return_value = ViirsCacheState.STALE
         controller._light_pollution_service.remote_sky_quality.return_value = None

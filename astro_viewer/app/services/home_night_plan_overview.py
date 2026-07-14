@@ -204,8 +204,8 @@ def _alternatives_payload(
     }
     if naked_eye_only:
         titles = {
-            "monitor": tr("Oggetti visibili a occhio nudo"),
-            "discouraged": tr("Oggetti visibili a occhio nudo stasera"),
+            "monitor": tr("Oggetti compatibili con l'occhio nudo"),
+            "discouraged": tr("Oggetti compatibili con l'occhio nudo stasera"),
         }
     subtitles = {
         "pending": tr("La lista sarà calcolata appena la posizione è disponibile"),
@@ -222,14 +222,14 @@ def _alternatives_payload(
     elif loading or state == "pending":
         empty_text = tr("Calcolo della visibilità...")
     elif naked_eye_only:
-        empty_text = tr("Nessun altro oggetto osservabile a occhio nudo.")
+        empty_text = tr("Nessun altro oggetto compatibile con l'occhio nudo.")
     else:
         empty_text = tr("Nessun altro oggetto utile fuori dal piano.")
     return {
         "state": state,
         "title": titles.get(
             state,
-            tr("Altri oggetti visibili a occhio nudo")
+            tr("Altri oggetti compatibili con l'occhio nudo")
             if naked_eye_only
             else tr("Altri oggetti visibili stasera"),
         ),

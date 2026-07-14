@@ -224,10 +224,10 @@ def test_translation_manager_switches_live_and_preserves_preferences(
             7,
             4.6,
             18.8,
-            "Fonte: NightScope local urban baseline",
+            "Fonte: World Atlas sample",
             "urban",
         ).to_qml()
-    )["source"] == "Source: NightScope local urban baseline"
+    )["source"] == "Source: World Atlas sample"
     assert render_text(AppController._format_catalogue_angle(0.233)) == "0.233°"
 
     stored_preferences = json.loads(preferences_path.read_text(encoding="utf-8"))

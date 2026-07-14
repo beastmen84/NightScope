@@ -134,10 +134,6 @@ def _localized_source(value: str) -> str:
 
 def _localized_sky_quality_source(value: str) -> str:
     source = (value or "").strip()
-    if source == "Fonte: stima offline NightScope (nessun dataset locale)":
-        return tr("Fonte: stima offline NightScope (nessun dataset locale)")
-    if source == "Fonte: NightScope local urban baseline":
-        return tr("Fonte: baseline urbana locale NightScope")
     match = re.search(
         r"Fonte: NASA Black Marble VNP46A3 (\d{4}-\d{2}) "
         r"\(radiance ([0-9]+(?:\.[0-9]+)?) nW/cm\^2 sr, obs (\d+)\)",

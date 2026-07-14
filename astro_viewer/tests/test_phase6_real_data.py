@@ -1969,17 +1969,20 @@ class Phase6RealDataTests(unittest.TestCase):
             controller.setManualLocation("41.9028", "12.4964", "Roma")
 
             fake_weather.hourly_forecast.assert_called()
+            self.assertFalse(controller.hasSkyQuality)
+            self.assertEqual(controller.skyQuality, {})
 
-    def test_light_pollution_provider_fallback(self) -> None:
+    def test_light_pollution_has_no_synthetic_fallback(self) -> None:
         with _temp_database() as database_path:
+            repository = SkyQualityRepository(database_path)
             service = LightPollutionService(
-                SkyQualityRepository(database_path),
-                dataset_path=Path("missing-light-pollution.csv"),
+                repository,
+                data_dir=database_path.parent / "missing-data",
             )
             quality = service.sky_quality(ObserverLocation("Unknown", "", 1.0, 1.0, "UTC"))
 
-            self.assertEqual(quality.source, "Fonte: stima offline NightScope (nessun dataset locale)")
-            self.assertEqual(quality.confidence, "low")
+            self.assertIsNone(quality)
+            self.assertEqual(repository.list_estimates(), [])
 
     def test_light_pollution_world_atlas_csv_provider(self) -> None:
         with _temp_database() as database_path:
@@ -1995,17 +1998,19 @@ class Phase6RealDataTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
+            repository = SkyQualityRepository(database_path)
             service = LightPollutionService(
-                SkyQualityRepository(database_path),
-                dataset_path=data_dir / "light_pollution_seed.csv",
+                repository,
+                data_dir=data_dir,
             )
             quality = service.sky_quality(ObserverLocation("Bologna", "Italia", 44.4938, 11.3387, "Europe/Rome"))
 
             self.assertEqual(quality.source, "Fonte: World Atlas sample")
             self.assertEqual(quality.confidence, "high")
             self.assertEqual(quality.bortle_class, 3)
+            self.assertEqual(repository.list_estimates(), [])
 
-    def test_light_pollution_legacy_cache_is_refreshed(self) -> None:
+    def test_light_pollution_legacy_cache_is_removed(self) -> None:
         with _temp_database() as database_path:
             repository = SkyQualityRepository(database_path)
             repository.set(
@@ -2019,16 +2024,13 @@ class Phase6RealDataTests(unittest.TestCase):
             )
             service = LightPollutionService(
                 repository,
-                dataset_path=Path(__file__).resolve().parents[1] / "data" / "light_pollution_seed.csv",
+                data_dir=Path(__file__).resolve().parents[1] / "data",
             )
 
             quality = service.sky_quality(ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"))
 
-            self.assertEqual(quality.source, "Fonte: NightScope local urban baseline")
-            self.assertEqual(
-                quality.to_qml()["source"],
-                "Fonte: baseline urbana locale NightScope",
-            )
+            self.assertIsNone(quality)
+            self.assertIsNone(repository.get("9.030:38.740:addis ababa"))
 
     def test_viirs_tile_mapping_for_bologna(self) -> None:
         tile = NasaViirsBlackMarbleProvider._tile_for_location(

@@ -1507,8 +1507,10 @@ Item {
                         Item { Layout.preferredWidth: 4 }
 
                         Text {
-                            Layout.preferredWidth: 170
-                            Layout.maximumWidth: 220
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 210
+                            Layout.preferredWidth: 250
+                            Layout.maximumWidth: 300
                             text: qsTr("Oggetto")
                             color: theme.textMuted
                             font.pixelSize: 11
@@ -1517,7 +1519,9 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            Layout.minimumWidth: 130
+                            Layout.minimumWidth: 150
+                            Layout.preferredWidth: 180
+                            Layout.maximumWidth: 210
                             text: qsTr("Tipo")
                             color: theme.textMuted
                             font.pixelSize: 11
@@ -1642,7 +1646,7 @@ Item {
                             property bool hovered: false
 
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 74
+                            Layout.preferredHeight: 92
                             radius: 8
                             color: hovered ? "#1b222a" : "#151a20"
                             border.color: hovered ? root.eventAccent(modelData.typeCode) : "#29313b"
@@ -1670,6 +1674,7 @@ Item {
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     spacing: 2
 
                                     Text {
@@ -1678,7 +1683,8 @@ Item {
                                         color: theme.textPrimary
                                         font.pixelSize: 14
                                         font.weight: Font.DemiBold
-                                        maximumLineCount: 1
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
                                         elide: Text.ElideRight
                                     }
 

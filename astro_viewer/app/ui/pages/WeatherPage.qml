@@ -11,6 +11,7 @@ Item {
     property var controller
     property var displayWeatherHours: controller.weatherNext24Hours || []
     property string selectedWeatherHourTimestamp: ""
+    readonly property bool hasSkyQuality: controller.hasValidLocation && controller.hasSkyQuality
     signal openLocation()
 
     function selectedWeatherHourIndex() {
@@ -37,7 +38,7 @@ Item {
     }
 
     function skyQualityConfidenceText() {
-        if (!controller.hasValidLocation)
+        if (!root.hasSkyQuality)
             return qsTr("n/d")
         var quality = controller.skyQuality || {}
         return quality.confidenceLabel || quality.confidence || qsTr("n/d")
@@ -149,7 +150,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("Medie meteo nella finestra notturna; precipitazioni come probabilità massima, Bortle locale.")
+                    text: qsTr("Medie meteo nella finestra notturna; precipitazioni come probabilità massima, Bortle locale quando disponibile.")
                     color: theme.textMuted
                     font.pixelSize: 12
                     wrapMode: Text.WordWrap
@@ -171,7 +172,7 @@ Item {
                 MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d"); accentColor: theme.amber }
                 MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d"); accentColor: theme.green }
                 MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.transparency : qsTr("n/d"); accentColor: theme.cyan }
-                MetricTile { label: qsTr("Bortle locale"); value: controller.hasValidLocation ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
+                MetricTile { label: qsTr("Bortle locale"); value: root.hasSkyQuality ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
             }
 
             GlassCard {
@@ -179,7 +180,11 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: qsTr("Qualità cielo locale")
-                subtitle: controller.hasValidLocation ? controller.skyQuality.source : qsTr("n/d")
+                subtitle: root.hasSkyQuality
+                          ? controller.skyQuality.source
+                          : controller.hasValidLocation
+                            ? qsTr("Dati di inquinamento luminoso non disponibili")
+                            : qsTr("n/d")
                 accentColor: theme.violet
 
                 GridLayout {
@@ -189,15 +194,15 @@ Item {
                     rowSpacing: 12
 
                     MetricTile {
-                        visible: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
+                        visible: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
                         label: qsTr("Osservazioni VIIRS")
                         value: controller.skyQuality.viirsObservationCountLabel
                         accentColor: theme.violet
                     }
                     MetricTile {
-                        label: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
+                        label: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
                                ? qsTr("Radianza VIIRS") : "SQM"
-                        value: !controller.hasValidLocation
+                        value: !root.hasSkyQuality
                                ? qsTr("n/d")
                                : controller.skyQuality.hasViirsRadiance
                                  ? controller.skyQuality.viirsRadianceLabel
@@ -205,9 +210,9 @@ Item {
                         accentColor: theme.cyan
                     }
                     MetricTile {
-                        label: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
+                        label: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance
                                ? qsTr("SQM stimato") : qsTr("Limite visuale")
-                        value: !controller.hasValidLocation
+                        value: !root.hasSkyQuality
                                ? qsTr("n/d")
                                : controller.skyQuality.hasViirsRadiance
                                  ? controller.skyQuality.skyBrightnessLabel

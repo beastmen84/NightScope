@@ -52,8 +52,10 @@ Rectangle {
         }
 
         Text {
-            Layout.preferredWidth: 170
-            Layout.maximumWidth: 220
+            Layout.fillWidth: true
+            Layout.minimumWidth: 210
+            Layout.preferredWidth: 250
+            Layout.maximumWidth: 300
             text: root.value("name", qsTr("Oggetto"))
             color: theme.textPrimary
             font.pixelSize: 13
@@ -64,7 +66,9 @@ Rectangle {
 
         Text {
             Layout.fillWidth: true
-            Layout.minimumWidth: 130
+            Layout.minimumWidth: 150
+            Layout.preferredWidth: 180
+            Layout.maximumWidth: 210
             text: root.value("typeLabel", qsTr("Oggetto"))
             color: theme.textSecondary
             font.pixelSize: 12

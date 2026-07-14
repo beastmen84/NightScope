@@ -308,7 +308,7 @@ class AppController(QObject):
         self._score_service = ObservingScoreService()
         self._light_pollution_service = LightPollutionService(
             self._sky_quality_repository,
-            dataset_path=base_dir / "data" / "light_pollution_seed.csv",
+            data_dir=base_dir / "data",
             earthdata_credentials=self._earthdata_credential_store,
         )
         self._nasa_aod_provider = NasaAodProvider(
@@ -803,6 +803,10 @@ class AppController(QObject):
             sky_quality_warning=(
                 bortle_observing_warning(self._sky_quality.bortle_class)
                 if self._sky_quality
+                else tr(
+                    "Inquinamento luminoso non disponibile: visibilità locale da verificare."
+                )
+                if self._has_valid_location()
                 else ""
             ),
         ))
@@ -810,6 +814,10 @@ class AppController(QObject):
     @Property("QVariant", notify=weatherChanged)
     def skyQuality(self) -> dict:
         return render_payload(self._sky_quality.to_qml() if self._sky_quality else {})
+
+    @Property(bool, notify=weatherChanged)
+    def hasSkyQuality(self) -> bool:
+        return self._sky_quality is not None
 
     @Property("QVariant", notify=weatherChanged)
     def localAtmosphere(self) -> dict:
@@ -2501,14 +2509,7 @@ class AppController(QObject):
             0.0,
             tr("Configura una località per ottenere meteo e cielo locale."),
         )
-        self._sky_quality = SkyQuality(
-            0,
-            0.0,
-            0.0,
-            tr("Nessuna fonte"),
-            tr("n/d"),
-            "unavailable",
-        )
+        self._sky_quality = None
         self._seeing_transparency = SeeingTransparency(
             "",
             "",
@@ -3123,9 +3124,11 @@ class AppController(QObject):
         observing_hours = self._observing_weather_hours()
         self._weather_status = self._weather_status_from_error(error, self._weather_hours)
         self._weather_summary = self._score_service.weather_score(observing_hours, self._moon)
-        if self._sky_quality:
-            self._seeing_transparency = self._seeing_service.estimate(observing_hours, self._sky_quality)
-            self._refresh_equipment_recommendations_for_current_objects()
+        self._seeing_transparency = self._seeing_service.estimate(
+            observing_hours,
+            self._sky_quality,
+        )
+        self._refresh_equipment_recommendations_for_current_objects()
         self._recalculate_observing_outputs()
         self._refresh_local_atmosphere()
         self.weatherChanged.emit()
@@ -3652,6 +3655,12 @@ class AppController(QObject):
             self._clear_refresh_domains(RefreshDomain.SKY_QUALITY)
             return
 
+        unavailable_message = (
+            tr("Dati VIIRS NASA non disponibili; mantengo il dataset locale.")
+            if self._sky_quality is not None
+            else tr("Dati VIIRS NASA non disponibili; qualità cielo locale n/d.")
+        )
+
         self._mark_refresh_dirty(
             RefreshReason.SKY_QUALITY_TTL_EXPIRED,
             (RefreshDomain.SKY_QUALITY,),
@@ -3675,9 +3684,7 @@ class AppController(QObject):
                         "Aggiornamento VIIRS non disponibile; uso dati in cache."
                     )
                 else:
-                    message = tr(
-                        "Dati VIIRS NASA non disponibili; uso fonte locale."
-                    )
+                    message = unavailable_message
                 self._viirsSkyQualityFinished.emit(location_key, quality, message)
             except Exception:
                 logger.warning("Unexpected VIIRS sky-quality refresh failure.", exc_info=True)
@@ -3687,7 +3694,7 @@ class AppController(QObject):
                     (
                         tr("Aggiornamento VIIRS non disponibile; uso dati in cache.")
                         if cache_state is ViirsCacheState.STALE
-                        else tr("Dati VIIRS NASA non disponibili; uso fonte locale.")
+                        else unavailable_message
                     ),
                 )
 
@@ -3886,10 +3893,7 @@ class AppController(QObject):
     def _recalculate_after_condition_provider_refresh(self) -> None:
         if getattr(self, "_weather_refresh_running", False):
             return
-        if (
-            getattr(self, "_weather_summary", None) is None
-            or getattr(self, "_sky_quality", None) is None
-        ):
+        if getattr(self, "_weather_summary", None) is None:
             return
         self._recalculate_observing_outputs()
         self.dataChanged.emit()
@@ -3933,7 +3937,7 @@ class AppController(QObject):
         self._selected_telescope_index = self._initial_telescope_index()
         self._refresh_equipment_recommendations_for_current_objects()
         self._deep_sky = self._apply_deep_sky_pollution_context(self._deep_sky)
-        if self._weather_summary and self._sky_quality:
+        if self._weather_summary:
             self._recalculate_observing_outputs()
         else:
             self._refresh_conditioned_observing_candidates()

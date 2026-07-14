@@ -126,18 +126,23 @@ references.
 
 ## Light Pollution
 
-`light_pollution_seed.csv` is a small local lookup dataset for provider plumbing and common cities. It is not a replacement for a real World Atlas or VIIRS raster import.
+NightScope does not package synthetic city baselines or coordinate-based Bortle
+estimates. The former `light_pollution_seed.csv` was retired in `1.32.5` because
+its small hand-authored sample could not represent real local sky quality.
 
 Prepared external providers:
 
 - `light_pollution_world_atlas.csv`: optional preprocessed World Atlas / SQM sample grid. Expected columns are `latitude`, `longitude`, `radius_km`, and either `sky_brightness`/`sqm_mag_arcsec2` or `bortle_class`. Optional columns: `limiting_magnitude`, `source`, `confidence`.
 - `light_pollution_viirs_samples.csv`: optional preprocessed VIIRS / Black Marble sample grid with the same normalized columns after external preprocessing.
-- `light_pollution_seed.csv`: packaged NightScope local baseline used only when richer local datasets are absent.
-- Offline estimate fallback: used only when no local record matches the active location.
 
 When Earthdata credentials are configured, authorized and connection-verified, the app can query NASA LAADS OPeNDAP for a small NetCDF-4 subset (`.dap.nc4`) of the VIIRS Black Marble `VNP46A3` monthly product around the active location. The runtime query fetches only the local pixel window needed for the current location, reads `AllAngle_Composite_Snow_Free`, `AllAngle_Composite_Snow_Free_Num`, and `AllAngle_Composite_Snow_Free_Quality`, then caches the resulting local sky-quality estimate in `SkyQualityEstimate`.
 
-If Earthdata is not configured, the network is unavailable, NASA does not expose the matching product tile, or the returned subset cannot be parsed, NightScope keeps using the local CSV/cache fallback chain. Full raster products still require external preprocessing before packaging. NASA Black Marble information: `https://blackmarble.gsfc.nasa.gov/`
+If Earthdata is not configured and neither a cached VIIRS result nor a real
+preprocessed local dataset covers the active coordinates, sky quality is
+unavailable. The UI reports Bortle, SQM and naked-eye limiting magnitude as
+`n/d`; the backend does not synthesize a light-pollution penalty. Full raster
+products still require external preprocessing before packaging. NASA Black
+Marble information: `https://blackmarble.gsfc.nasa.gov/`
 
 ## Object Images, Descriptions And Curiosities
 

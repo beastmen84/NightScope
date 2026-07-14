@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class SkyQualityRepository:
-    """Caches local sky quality estimates."""
+    """Caches provider-derived sky quality estimates."""
 
     def __init__(self, database_path: Path):
         self._database_path = database_path
@@ -69,3 +69,16 @@ class SkyQualityRepository:
                 (location_key, bortle_class, limiting_magnitude, sky_brightness, source, confidence, updated_at),
             )
             connection.commit()
+
+    def delete_non_viirs_estimates(self) -> int:
+        """Remove legacy local or synthetic estimates from the provider cache."""
+        with closing(self._connect()) as connection:
+            cursor = connection.execute(
+                """
+                DELETE FROM SkyQualityEstimate
+                WHERE source NOT LIKE ?
+                """,
+                ("%NASA Black Marble VNP46A3%",),
+            )
+            connection.commit()
+        return max(0, cursor.rowcount)

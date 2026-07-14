@@ -269,6 +269,9 @@ Current runtime status for `1.27.0`:
   target selection and NSOM ranking remain unchanged.
 - Upper-Home sky quality and lower-Home observing guidance share the same
   Bortle presentation mapping; class 7 is the suburban-to-urban transition.
+- Missing sky quality is a first-class `None` state. Home marks local
+  visibility as unverified and Weather shows `n/d`; NSOM, Equipment and seeing
+  receive no synthetic Bortle input and continue with their remaining inputs.
 - The overview boundary distinguishes startup location detection (`pending`)
   from a genuinely missing location (`unavailable`). Pending and no-data
   payloads are presentation-only states and cannot produce favourable category
@@ -388,8 +391,9 @@ Services hold business logic:
   compatible reducers in the active profile, otherwise reports compatible
   catalogue products as unavailable, and never recalculates optical values or
   changes setup and NSOM values.
-- `LightPollutionService`: sky-quality lookup from cache, local CSV providers,
-  NASA VIIRS and offline fallback.
+- `LightPollutionService`: sky-quality lookup from NASA VIIRS cache, optional
+  real preprocessed local datasets and asynchronous NASA refresh. It returns
+  unavailable when none of those sources covers the active location.
 - `NasaAodProvider`: NASA MAIAC aerosol lookup using VIIRS primary and MODIS
   fallback. `AppController` starts it in the background when a valid location
   exists and Earthdata credentials have a successful connection test. It returns
@@ -708,12 +712,13 @@ Sky-quality cache:
 
 - Owner: `LightPollutionService` plus `SkyQualityRepository`.
 - Key: rounded latitude, longitude and city.
-- Local/non-VIIRS cache is reused unless its source matches a legacy marker.
 - NASA Black Marble VIIRS entries have explicit `missing`, `fresh` and `stale`
   states based on `SkyQualityEstimate.updated_at`.
 - VIIRS is revalidated after 7 days. A stale value is served immediately and
   remains the fallback if the background NASA lookup fails.
-- Non-VIIRS local sky-quality estimates still have no general age-based TTL.
+- Non-VIIRS rows from retired baseline/offline providers are removed at service
+  startup. Real optional local datasets are read directly and not cached in
+  `SkyQualityEstimate`.
 
 NASA AOD cache:
 

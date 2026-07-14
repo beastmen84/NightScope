@@ -48,9 +48,9 @@ availability and ownership:
   usable/blocked policy. This prevents the same clouds, humidity and wind from
   scaling a target once in `ObservationEnvironment` and again through a
   continuous Session score.
-- VIIRS sky quality is optional/hybrid. Real `viirs_radiance` can feed
-  sky-background calculations; local preprocessed/fallback sky-quality data must
-  remain distinguishable in confidence and source notes.
+- VIIRS sky quality is optional/hybrid. Real `viirs_radiance` or a real local
+  preprocessed dataset can feed sky-background calculations. Missing data stays
+  unavailable; no Bortle class or sky-background penalty is synthesized.
 - NASA AOD and OpenAQ particulate data are optional external provider inputs.
   They affect only the canonical atmospheric-transparency factor when already
   available and provider-quality gates pass. They never mutate
@@ -795,13 +795,16 @@ Recommended setup score:
 
 ## VIIRS And Light Pollution
 
-`LightPollutionService` resolves sky quality using:
+`LightPollutionService` resolves immediate sky quality using:
 
-1. cache,
-2. World Atlas CSV provider,
-3. local sky-quality CSV provider,
-4. NASA VIIRS Black Marble provider when Earthdata credentials are verified,
-5. offline estimate fallback.
+1. an exact or nearby cached NASA VIIRS Black Marble result,
+2. an optional real preprocessed World Atlas/VIIRS local dataset,
+3. unavailable (`None`) when neither source exists.
+
+When Earthdata credentials are verified, the controller performs the NASA
+VIIRS lookup asynchronously. A successful result replaces the immediate local
+state and is persisted; a failed lookup leaves a real local dataset in place or
+keeps sky quality unavailable.
 
 Cache key:
 
@@ -849,11 +852,17 @@ Cache policy:
   replaces it and resets `updated_at`.
 - The Weather page `Aggiorna` command schedules this cache-aware check and does
   not force a network request while the VIIRS entry is fresh.
+- `SkyQualityEstimate` is a VIIRS provider cache. Legacy seed, local-baseline
+  and offline-estimate rows are deleted at service startup. Optional local CSV
+  datasets are read directly and are not copied into this cache.
+- Without sky-quality data, seeing uses atmospheric weather inputs only and
+  light-pollution conditioning is omitted rather than assigned a neutral-looking
+  Bortle number. Weather exposes Bortle, SQM and visual limit as `n/d`.
 
 Known limitations:
 
-- Non-VIIRS local sky-quality estimates have no general age-based TTL.
-- Offline estimates are coarse and should not be treated as measured data.
+- Optional local preprocessed datasets carry their own source and confidence;
+  NightScope does not refresh those files automatically.
 - VIIRS radiance is converted through fixed thresholds, not calibrated against
   local horizon, terrain or transient lighting.
 

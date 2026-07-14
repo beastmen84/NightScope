@@ -33,7 +33,8 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Sezione Meteo `Particolato locale` con dati OpenAQ opzionali per PM2.5,
   PM10, aria locale, fonte e freschezza della misura.
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
-- Stima qualità cielo con Bortle/SQM locale e supporto opzionale ai dati NASA VIIRS Black Marble tramite Earthdata.
+- Qualità cielo con Bortle/SQM da cache o dati reali NASA VIIRS Black Marble
+  tramite Earthdata; senza una fonte reale i valori restano `n/d`.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
 - Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
@@ -51,7 +52,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.4`.
+Versione corrente sorgente: `1.32.5`.
 
 Distribuzione Windows corrente: `1.32.3`.
 
@@ -236,6 +237,15 @@ NightScope. I campi manuali della localita' distinguono coordinate obbligatorie
 e nome facoltativo. La pipeline ISS non cambia: il controllo con OMM aggiornati
 ha confermato corretti gli zero passaggi visibili su Addis Abeba nella finestra
 mobile corrente. La distribuzione `1.32.4` non e' stata rigenerata.
+
+In `1.32.5` la qualita' cielo non usa piu' baseline urbane o stime Bortle
+sintetiche. Il vecchio `light_pollution_seed.csv` e il fallback Bortle `5/6`
+sono stati rimossi; restano valide soltanto cache NASA VIIRS e dataset locali
+World Atlas/VIIRS realmente forniti. In loro assenza Meteo mostra Bortle, SQM e
+limite visuale come `n/d`, mentre seeing e pianificazione continuano sugli input
+disponibili senza inventare una penalita' luminosa. Home segnala che la
+visibilita' locale va verificata, riequilibra Nome/Tipo e consente due righe ai
+titoli dei prossimi eventi. La distribuzione `1.32.5` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -542,13 +552,15 @@ I seed locali vivono in `astro_viewer/data/`:
 - `reducer_telescope_compatibility_seed.csv`: associazioni esatte tra riduttori
   dedicati e modelli di telescopio inclusi; le voci personalizzate usano la
   stessa relazione normalizzata.
-- `light_pollution_seed.csv`: fallback locale per qualità cielo.
 - `object_images_seed.csv`: asset locali con fonte, attribuzione e licenza.
 - `object_descriptions_seed.csv`: 228 descrizioni e note osservative specifiche.
 - `object_curiosities_seed.csv`: 228 fatti storici/scientifici con fonte
   verificata.
 
 Le fonti e i limiti sono documentati in `astro_viewer/data/DATA_SOURCES.md`.
+NightScope non distribuisce un seed sintetico per l'inquinamento luminoso;
+riconosce soltanto eventuali dataset reali preelaborati
+`light_pollution_world_atlas.csv` o `light_pollution_viirs_samples.csv`.
 
 ## Import e manutenzione dati
 
@@ -559,7 +571,6 @@ Gli import CLI usano upsert/deduplicazione:
 .\.venv\Scripts\python.exe astro_viewer\tools\import_telescope_catalog.py astro_viewer\data\telescope_catalog_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\eyepiece_catalog_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_eyepiece_catalog.py astro_viewer\data\barlow_catalog_seed.csv
-.\.venv\Scripts\python.exe astro_viewer\tools\import_light_pollution.py astro_viewer\data\light_pollution_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\import_object_content.py astro_viewer\data\object_descriptions_seed.csv
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
 .\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check

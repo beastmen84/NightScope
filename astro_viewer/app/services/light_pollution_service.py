@@ -60,12 +60,6 @@ BORTLE_SKY_BRIGHTNESS = {
     9: 17.5,
 }
 
-LEGACY_CACHE_SOURCES = {
-    "Fonte: stima offline NightScope",
-}
-LEGACY_CACHE_MARKERS = (
-    "pending World Atlas import",
-)
 VIIRS_CACHE_RECHECK_INTERVAL = timedelta(days=7)
 VIIRS_CACHE_REUSE_RADIUS_KM = 0.5
 
@@ -77,12 +71,12 @@ class ViirsCacheState(str, Enum):
 
 
 class LightPollutionService:
-    """Provider-backed sky quality lookup with cache and offline fallback."""
+    """Resolve sky quality from real local datasets or NASA VIIRS."""
 
     def __init__(
         self,
         repository: SkyQualityRepository,
-        dataset_path: Path | None = None,
+        data_dir: Path | None = None,
         earthdata_credentials: EarthdataCredentialStore | None = None,
         *,
         clock: Callable[[], datetime] | None = None,
@@ -93,37 +87,25 @@ class LightPollutionService:
         self._clock = clock or (lambda: datetime.now(UTC))
         self._viirs_cache_recheck_interval = viirs_cache_recheck_interval
         self._viirs_cache_reuse_radius_km = max(0.0, float(viirs_cache_reuse_radius_km))
-        dataset_paths = _candidate_dataset_paths(dataset_path)
+        deleted_estimates = self._repository.delete_non_viirs_estimates()
+        if deleted_estimates:
+            logger.info(
+                "Removed %s non-VIIRS sky-quality cache entries.",
+                deleted_estimates,
+            )
+        dataset_paths = _candidate_dataset_paths(data_dir)
         self._remote_providers: list[LightPollutionProvider] = [
             NasaViirsBlackMarbleProvider(earthdata_credentials),
         ]
         self._providers: list[LightPollutionProvider] = [
             WorldAtlasCsvProvider(dataset_paths),
-            LocalSkyQualityCsvProvider([dataset_path] if dataset_path else []),
-            OfflineEstimateProvider(),
         ]
 
-    def sky_quality(self, location: ObserverLocation) -> SkyQuality:
-        key = self._location_key(location)
+    def sky_quality(self, location: ObserverLocation) -> SkyQuality | None:
         viirs_cached = self._cached_viirs_row(location)
         if viirs_cached:
             return self._to_model(viirs_cached)
-
-        cached = self._repository.get(key)
-        if cached and not self._is_legacy_cache(cached):
-            return self._to_model(cached)
-
-        quality = self._provider_quality(location)
-        self._repository.set(
-            key,
-            quality.bortle_class,
-            quality.limiting_magnitude,
-            quality.sky_brightness,
-            quality.source,
-            quality.confidence,
-            self._now().isoformat(),
-        )
-        return quality
+        return self._provider_quality(location)
 
     def viirs_cache_state(self, location: ObserverLocation) -> ViirsCacheState:
         cached = self._cached_viirs_row(location)
@@ -197,12 +179,12 @@ class LightPollutionService:
                 nearest_distance = distance
         return nearest
 
-    def _provider_quality(self, location: ObserverLocation) -> SkyQuality:
+    def _provider_quality(self, location: ObserverLocation) -> SkyQuality | None:
         for provider in self._providers:
             quality = provider.lookup(location)
             if quality:
                 return quality
-        return OfflineEstimateProvider().lookup(location)
+        return None
 
     @staticmethod
     def _description(bortle: int) -> str:
@@ -239,11 +221,6 @@ class LightPollutionService:
         )
 
     @staticmethod
-    def _is_legacy_cache(row: dict) -> bool:
-        source = row.get("source") or ""
-        return source in LEGACY_CACHE_SOURCES or any(marker in source for marker in LEGACY_CACHE_MARKERS)
-
-    @staticmethod
     def _is_viirs_cache(row: dict) -> bool:
         return "NASA Black Marble VNP46A3" in (row.get("source") or "")
 
@@ -265,24 +242,6 @@ class LightPollutionProvider(Protocol):
 
     def lookup(self, location: ObserverLocation) -> SkyQuality | None:
         ...
-
-
-class OfflineEstimateProvider:
-    name = "OfflineEstimateProvider"
-
-    def lookup(self, location: ObserverLocation) -> SkyQuality:
-        if location.city.lower().startswith("coordinate"):
-            bortle = 5
-        else:
-            bortle = 6
-        return SkyQuality(
-            bortle_class=bortle,
-            limiting_magnitude=BORTLE_LIMITING_MAGNITUDE[bortle],
-            sky_brightness=BORTLE_SKY_BRIGHTNESS[bortle],
-            source="Fonte: stima offline NightScope (nessun dataset locale)",
-            description=_description(bortle),
-            confidence="low",
-        )
 
 
 class CsvSkyQualityProvider:
@@ -313,17 +272,6 @@ class WorldAtlasCsvProvider(CsvSkyQualityProvider):
             dataset_paths,
             default_source="World Atlas / VIIRS preprocessed local dataset",
             default_confidence="high",
-        )
-
-
-class LocalSkyQualityCsvProvider(CsvSkyQualityProvider):
-    name = "LocalSkyQualityCsvProvider"
-
-    def __init__(self, dataset_paths: Iterable[Path | None]):
-        super().__init__(
-            dataset_paths,
-            default_source="NightScope local sky-quality seed",
-            default_confidence="medium",
         )
 
 
@@ -560,10 +508,9 @@ class NasaViirsBlackMarbleProvider:
         return session
 
 
-def _candidate_dataset_paths(dataset_path: Path | None) -> list[Path]:
-    if not dataset_path:
+def _candidate_dataset_paths(data_dir: Path | None) -> list[Path]:
+    if not data_dir:
         return []
-    data_dir = dataset_path.parent
     return [
         data_dir / "light_pollution_world_atlas.csv",
         data_dir / "light_pollution_viirs_samples.csv",

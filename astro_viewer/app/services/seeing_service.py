@@ -15,7 +15,11 @@ class SeeingTransparencyService:
     def __init__(self, provider: "SeeingProvider | None" = None):
         self._provider = provider or self._default_provider()
 
-    def estimate(self, hours: list[WeatherHour], sky_quality: SkyQuality) -> SeeingTransparency:
+    def estimate(
+        self,
+        hours: list[WeatherHour],
+        sky_quality: SkyQuality | None,
+    ) -> SeeingTransparency:
         return self._provider.estimate(hours, sky_quality)
 
     @staticmethod
@@ -28,14 +32,22 @@ class SeeingTransparencyService:
 class SeeingProvider(Protocol):
     name: str
 
-    def estimate(self, hours: list[WeatherHour], sky_quality: SkyQuality) -> SeeingTransparency:
+    def estimate(
+        self,
+        hours: list[WeatherHour],
+        sky_quality: SkyQuality | None,
+    ) -> SeeingTransparency:
         ...
 
 
 class BasicForecastSeeingProvider:
     name = "BasicForecastSeeingProvider"
 
-    def estimate(self, hours: list[WeatherHour], sky_quality: SkyQuality) -> SeeingTransparency:
+    def estimate(
+        self,
+        hours: list[WeatherHour],
+        sky_quality: SkyQuality | None,
+    ) -> SeeingTransparency:
         observing_hours = list(hours)
         if not observing_hours:
             return SeeingTransparency(
@@ -118,7 +130,9 @@ class BasicForecastSeeingProvider:
         return "Poor"
 
     @staticmethod
-    def _pollution_transparency_penalty(sky_quality: SkyQuality) -> int:
+    def _pollution_transparency_penalty(sky_quality: SkyQuality | None) -> int:
+        if sky_quality is None:
+            return 0
         radiance = getattr(sky_quality, "viirs_radiance", None)
         if radiance is not None:
             return min(48, round(math.log10(max(0.0, radiance) + 1.0) * 14))
@@ -168,7 +182,11 @@ class BasicForecastSeeingProvider:
 class MeteoblueSeeingProviderPlaceholder:
     name = "MeteoblueSeeingProviderPlaceholder"
 
-    def estimate(self, hours: list[WeatherHour], sky_quality: SkyQuality) -> SeeingTransparency:
+    def estimate(
+        self,
+        hours: list[WeatherHour],
+        sky_quality: SkyQuality | None,
+    ) -> SeeingTransparency:
         result = BasicForecastSeeingProvider().estimate(hours, sky_quality)
         return SeeingTransparency(
             result.seeing,

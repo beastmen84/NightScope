@@ -413,11 +413,16 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('text: !controller.hasValidLocation', qml)
         self.assertIn('qsTr("Configura località")', qml)
         self.assertIn("root.openLocation()", qml)
-        self.assertGreaterEqual(qml.count("value: !controller.hasValidLocation"), 2)
+        self.assertGreaterEqual(qml.count("value: !root.hasSkyQuality"), 2)
         self.assertIn(
-            "visible: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance",
+            "visible: root.hasSkyQuality && controller.skyQuality.hasViirsRadiance",
             qml,
         )
+        self.assertIn(
+            "readonly property bool hasSkyQuality: controller.hasValidLocation && controller.hasSkyQuality",
+            qml,
+        )
+        self.assertIn("Dati di inquinamento luminoso non disponibili", qml)
         self.assertIn("ListView.Horizontal", qml)
         self.assertIn("selectedWeatherHourIndex", qml)
         self.assertIn("selectedWeatherHourTimestamp", qml)
@@ -471,6 +476,13 @@ class ReleaseScenarioTests(unittest.TestCase):
 
     def test_home_page_displays_active_location_context(self) -> None:
         qml = (Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml").read_text(encoding="utf-8")
+        target_row_qml = (
+            Path(__file__).resolve().parents[1]
+            / "app"
+            / "ui"
+            / "components"
+            / "HomeVisibleTargetRow.qml"
+        ).read_text(encoding="utf-8")
         self.assertIn("controller.activeLocationLabel", qml)
         self.assertIn("controller.activeLocationSource", qml)
         self.assertIn("controller.homeNightPlanOverview", qml)
@@ -497,6 +509,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertNotIn("function hasBlockingWeather", qml)
         self.assertNotIn("function blockingWeatherReason", qml)
         self.assertNotIn("function blockingWeatherDetail", qml)
+        self.assertIn("Layout.preferredHeight: 92", qml)
+        self.assertIn("maximumLineCount: 2", qml[qml.index('title: qsTr("Prossimi eventi")'):])
+        self.assertIn("Layout.preferredWidth: 250", target_row_qml)
+        self.assertIn("Layout.preferredWidth: 180", target_row_qml)
 
     def test_calendar_event_cards_open_inline_detail_view(self) -> None:
         base_dir = Path(__file__).resolve().parents[1] / "app" / "ui"

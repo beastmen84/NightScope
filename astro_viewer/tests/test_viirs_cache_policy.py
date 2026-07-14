@@ -126,7 +126,7 @@ class ViirsCachePolicyTests(unittest.TestCase):
     def _service(self, provider: _FakeViirsProvider) -> LightPollutionService:
         service = LightPollutionService(
             self._repository,
-            dataset_path=Path(self._temp_dir.name) / "missing-light-pollution.csv",
+            data_dir=Path(self._temp_dir.name) / "missing-data",
             clock=lambda: NOW,
         )
         service._remote_providers = [provider]

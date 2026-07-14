@@ -23,20 +23,34 @@ from astro_viewer.app.services.seeing_service import SeeingTransparencyService
 
 
 class Phase3ServiceTests(unittest.TestCase):
-    def test_light_pollution_known_city(self) -> None:
+    def test_light_pollution_is_unavailable_without_real_provider_data(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
             initialize_database(database_path, schema_path)
+            repository = SkyQualityRepository(database_path)
 
             service = LightPollutionService(
-                SkyQualityRepository(database_path),
-                dataset_path=Path(__file__).resolve().parents[1] / "data" / "light_pollution_seed.csv",
+                repository,
+                data_dir=Path(__file__).resolve().parents[1] / "data",
             )
             quality = service.sky_quality(ObserverLocation("Milano", "Italia", 45.46, 9.19, "Europe/Rome"))
 
-            self.assertEqual(quality.bortle_class, 8)
-            self.assertEqual(quality.description, "Cielo urbano")
+            self.assertIsNone(quality)
+            self.assertEqual(repository.list_estimates(), [])
+
+    def test_seeing_transparency_without_sky_quality_uses_only_weather(self) -> None:
+        hours = [
+            WeatherHour("2026-06-21T22:00", "22:00", 12, 0, 7, 54, 18.0, 20_000),
+            WeatherHour("2026-06-21T23:00", "23:00", 15, 0, 8, 57, 17.5, 20_000),
+        ]
+
+        estimate = SeeingTransparencyService().estimate(hours, None)
+
+        self.assertEqual(
+            estimate.transparency_score,
+            estimate.atmospheric_transparency_score,
+        )
 
     def test_seeing_transparency_estimate(self) -> None:
         hours = [

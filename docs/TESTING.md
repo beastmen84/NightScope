@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.4`:
+Measured on the current Windows development environment for `1.32.5`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `750 passed, 7 subtests passed` | `0:01:55.79` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `751 passed, 7 subtests passed` | `0:01:52.43` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -122,6 +122,11 @@ night-aggregate Weather labels, localized urban-baseline provenance and manual
 coordinate required-state copy. A live CelesTrak probe for Addis Ababa is kept
 outside the deterministic suite; the product code was unchanged after it
 confirmed that the current ten-day `0` ISS count is physically consistent.
+The `1.32.5` corrections cover removal of the synthetic light-pollution seed,
+cleanup of legacy non-VIIRS cache rows, explicit unavailable sky-quality state,
+weather-only seeing when Bortle is absent, continued reuse of real VIIRS cache
+and optional real local CSV data. QML checks cover `n/d` sky-quality metrics,
+balanced Home target columns and event titles capped at two lines.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

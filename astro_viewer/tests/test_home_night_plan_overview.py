@@ -80,7 +80,7 @@ def test_discouraged_state_keeps_visibility_separate_from_recommendation() -> No
     assert payload["profile"]["summary"] == "Profilo attivo: Serate urbane  ·  occhio nudo"
     assert payload["plan"]["title"] == "Sessione sconsigliata"
     assert payload["plan"]["items"] == []
-    assert payload["alternatives"]["title"] == "Oggetti visibili a occhio nudo stasera"
+    assert payload["alternatives"]["title"] == "Oggetti compatibili con l'occhio nudo stasera"
     assert payload["alternatives"]["subtitle"] == (
         "Geometria favorevole, ma la sessione non è consigliata"
     )
@@ -155,7 +155,7 @@ def test_naked_eye_profile_hides_targets_requiring_an_optical_instrument() -> No
     )
 
     alternatives = payload["alternatives"]
-    assert alternatives["title"] == "Altri oggetti visibili a occhio nudo"
+    assert alternatives["title"] == "Altri oggetti compatibili con l'occhio nudo"
     assert alternatives["totalCount"] == 1
     assert alternatives["planetCount"] == 1
     assert alternatives["deepSkyCount"] == 0
