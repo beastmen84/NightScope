@@ -4,18 +4,19 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.8`
+- Versione sorgente: `1.32.9`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.32.8` non rigenerata.
-- Commit sorgente validato: `7be80cf Remove legacy location normalization`
+- Dist `1.32.9` non rigenerata.
+- Commit sorgente validato: `1c30467 Harden AOD quality and observing presentation`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `7be80cf`; non sostituire questo hash con un valore
+stato del codice usare `1c30467`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `1c30467 Harden AOD quality and observing presentation`
 - `7be80cf Remove legacy location normalization`
 - `9247a4f Resolve location timezones from coordinates`
 - `010d61f Clarify partial sky quality states`
@@ -179,6 +180,15 @@ la selezione dal catalogo citta' ricava il fuso dalle coordinate, senza usare
 il campo timezone GeoNames. Il fallback di sistema e' ora realmente lazy e non
 avvia PowerShell quando esiste gia' un risultato valido. Il controllo visuale
 puo' ripartire dal commit sorgente `7be80cf`.
+
+`1.32.9` chiude la review successiva dei dati AOD e delle ultime due
+incongruenze visive. MAIAC decodifica ora `AOD_QA`, usa soltanto pixel clear di
+qualita' migliore e prova pixel esatto, area 5x5 e area 11x11 con almeno tre
+campioni affidabili. Le assenze reali hanno cache negativa di 6 ore; errori
+transitori non vengono memorizzati. Home e Meteo mostrano la trasparenza
+atmosferica separata dal Bortle, le finestre cometarie possono usare due righe
+per la data e l'unita' VIIRS visibile usa `cm²`. Il prossimo passo e' il
+controllo visuale dell'utente dal commit sorgente `1c30467`.
 
 ## Localita' e Fusi 1.32.8
 
@@ -665,7 +675,8 @@ Rimossi:
 - `CelestialObject.intrinsic_score` e'
   interno e non compare in QML.
 - `SeeingTransparency.atmospheric_transparency_score` esclude il fondo cielo
-  statico ed e' interno.
+  statico ed e' numerico interno; QML riceve soltanto il label localizzato
+  `atmosphericTransparency`.
 - `CelestialObject.score` resta un campo display/compatibilita'; non spiega da
   solo l'ordine NSOM.
 - AOD/OpenAQ non muta `CelestialObject.score` e influenza una sola volta la
@@ -690,6 +701,8 @@ Rimossi:
 - Con localita' e meteo ma senza qualita' cielo reale, la scheda cielo profondo
   mostra `Parziale`; il suo score interno non viene esposto come valutazione
   completa.
+- La metrica primaria cielo profondo usa la trasparenza atmosferica; Bortle e
+  fondo cielo restano nella metrica separata e nel relativo suggerimento.
 
 ### Meteo
 
@@ -698,6 +711,8 @@ Rimossi:
   selezionata.
 - Scrollbar orizzontale del dettaglio e' nascosta.
 - AOD e OpenAQ hanno semantica/freschezza esplicita.
+- `Trasparenza notturna` usa il label atmosferico da meteo e non incorpora la
+  penalita' Bortle mostrata nella metrica adiacente.
 - Prima della localita', metriche e timeline mostrano `n/d` e una richiesta di
   configurazione invece di valori meteo fittizi.
 
@@ -721,6 +736,8 @@ Rimossi:
   e vengono uniti soltanto nella proiezione cronologica finale.
 - Le comete usano una sorgente a 90 giorni; ogni riga rappresenta una finestra
   multi-notte aggregata, non un evento giornaliero e non un oggetto catalogo.
+- La data compatta puo' occupare al massimo due righe, cosi' gli intervalli
+  cometari non vengono troncati.
 - Il contratto distingue `startsAt`, `endsAt`, `peakAt`, fatti operativi e
   metadati sorgente; non assegna un target catalogo a ISS o comete.
 - Prima della localita', conteggi, filtri e timeline sono disabilitati o `n/d`
@@ -744,7 +761,12 @@ Rimossi:
 - `SkyQualityEstimate` conserva soltanto cache VIIRS reali; le righe storiche
   non VIIRS vengono eliminate quando il servizio viene costruito. Se non
   esiste cache e non e' presente un dataset reale opzionale, Bortle e' `n/d`.
-- AOD usa TTL 18 ore e preflight cache prima del worker.
+- AOD usa TTL 18 ore per le misure positive e 6 ore per le sole assenze reali
+  `no_granules`/`no_valid_pixel`; autenticazione, ricerca, download e parsing
+  falliti restano ritentabili e non vengono memorizzati.
+- L'estrazione AOD decodifica il bit field MAIAC, prova pixel esatto, 5x5 e
+  11x11 e richiede almeno tre pixel affidabili nelle aree. Risultato, log e UI
+  conservano raggio e distanza del pixel valido piu' vicino.
 - AOD e VIIRS riusano dati validi entro 500 metri per assorbire jitter della
   posizione Windows.
 - Risultati provider con location key stale vengono scartati.
@@ -763,7 +785,7 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.8
+## Validazione 1.32.9
 
 Eseguita nella venv corrente:
 
@@ -771,9 +793,9 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_coordinate_timezone_service.py astro_viewer\tests\test_location_service.py
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_release_scenarios.py::ReleaseScenarioTests::test_addis_ababa_with_available_weather_keeps_app_usable astro_viewer\tests\test_release_scenarios.py::ReleaseScenarioTests::test_app_starts_with_saved_location_and_refreshes_weather astro_viewer\tests\test_release_scenarios.py::ReleaseScenarioTests::test_weather_refreshes_after_valid_location
-.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
+.\tools\update_translations.ps1
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_nasa_aod_provider.py astro_viewer\tests\test_observation_conditions_service.py astro_viewer\tests\test_nsom_category_score_service.py astro_viewer\tests\test_nsom_observation_environment.py
+.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
 git diff --check
 ```
 
@@ -786,17 +808,16 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Test mirati timezone/location: `35 passed` in `5,93 s`.
-- Tre scenari controller per Addis, posizione corrente salvata e refresh meteo:
-  `3 passed`, `87 warnings` in `33,27 s`.
-- Suite: `764 passed`, `613 warnings`, `7 subtests passed` in `103,34 s`.
-- Nessuna stringa QML/Python visibile aggiunta: cataloghi Qt invariati.
+- Test mirati AOD/condizioni/NSOM: `111 passed` in `2,91 s`.
+- Suite: `774 passed`, `613 warnings`, `7 subtests passed` in `65,28 s`.
+- Cataloghi Qt italiano/inglese completi e compilati: `1594/1594` ciascuno.
+- `qmllint`: exit `0` su tutti i 30 QML; restano le warning statiche gia' note.
 - Smoke standard: exit `0`.
 - Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
 - Schema SQLite invariato a `16`; nessuna migrazione. Nessun dato sintetico e'
   stato reintrodotto.
 - `git diff --check`: pulito.
-- Dist corrente `1.32.3`; dist `1.32.8` non rigenerata.
+- Dist corrente `1.32.3`; dist `1.32.9` non rigenerata.
 
 I warning provengono dalle deprecazioni `dtype` e `shape` interne a
 Skyfield/NumPy gia' note.
