@@ -4,18 +4,19 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.6`
+- Versione sorgente: `1.32.7`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.32.6` non rigenerata.
-- Commit sorgente validato: `010d61f Clarify partial sky quality states`
+- Dist `1.32.7` non rigenerata.
+- Commit sorgente validato: `9247a4f Resolve location timezones from coordinates`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `010d61f`; non sostituire questo hash con un valore
+stato del codice usare `9247a4f`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `9247a4f Resolve location timezones from coordinates`
 - `010d61f Clarify partial sky quality states`
 - `41d3c9c Remove synthetic sky quality fallback`
 - `034a9c3 Polish location-aware observing UI`
@@ -162,6 +163,47 @@ lo score NSOM interno. Una cache VIIRS reale stale resta disponibile, ma Meteo
 ne segnala ora la necessita' di aggiornamento anche quando Earthdata non e'
 configurato o verificato. Il controllo visuale puo' ripartire dal commit
 `010d61f`.
+
+`1.32.7` risolve il caso delle coordinate fuori dalla copertura utile del
+catalogo citta'. Coordinate manuali e posizioni Windows ricavano ora il fuso
+IANA direttamente da poligoni geografici offline; citta' e paese restano
+metadati descrittivi. Il match GeoNames entro 50 km resta solo sulla posizione
+Windows precisa e non sceglie mai il fuso. Il controllo visuale precedente
+nelle schermate fornite dall'utente e' coerente; il prossimo controllo della
+localita' deve partire dal commit sorgente `9247a4f`.
+
+## Localita' e Fusi 1.32.7
+
+- `CoordinateTimezoneService` usa `timezonefinder 8.2.5` offline e mantiene una
+  sola istanza lazy condivisa. Nessun account e nessuna query di rete sono
+  necessari.
+- Il dato operativo della localita' e' la terna coordinate esatte + fuso IANA.
+  Citta', paese e regione servono alla presentazione e alla ricerca, non alla
+  costruzione della notte locale o degli orari evento.
+- Windows Geolocator restituisce coordinate e accuratezza; lo script vede
+  soltanto il fuso del PC, non un fuso geografico, una citta' o un paese. Il
+  lookup a poligoni sostituisce quindi il precedente fallback basato sul PC.
+- La posizione Windows precisa conserva latitudine/longitudine ricevute e puo'
+  arricchire citta', paese e regione con GeoNames entro 50 km. La posizione
+  Windows approssimata non tenta il reverse lookup citta'.
+- Le coordinate manuali conservano il nome scelto dall'utente e non cercano di
+  inventare citta' o paese. Anche una vecchia posizione manuale salvata con il
+  fuso del computer viene rinormalizzata ogni volta che entra nel controller.
+- Un fuso IANA valido fornito dal provider IP resta autorevole. Se manca o non
+  e' valido, anche quel flusso usa il lookup geografico; il fuso del computer e'
+  soltanto il fallback in caso di indisponibilita' della libreria/dataset.
+- Il vecchio tentativo di usare il fuso della citta' entro 500 km e' rimosso.
+  Una regressione verifica inoltre che neppure la citta' entro 50 km possa
+  scegliere il fuso se il resolver geografico fallisce.
+- `timezonefinder` include circa 67 MB di dati e dipendenze nella venv. Alla
+  data del passaggio PyPI non pubblica una wheel Windows `8.2.5`; l'installazione
+  corrente ha compilato con successo una wheel dal sorgente su Python `3.14.5`.
+- PyInstaller `6.21.0` trova l'hook contrib `hook-timezonefinder.py`; la verifica
+  locale raccoglie 21 gruppi/file dati per circa 67 MB. La dist non e' stata
+  costruita, quindi il bundle frozen va verificato soltanto quando l'utente ne
+  richiedera' la rigenerazione.
+- Licenza codice `timezonefinder`: MIT. Dataset `timezone-boundary-builder`:
+  ODbL 1.0. Fonte e attribuzione sono in `astro_viewer/data/DATA_SOURCES.md`.
 
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
@@ -700,16 +742,16 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.6
+## Validazione 1.32.7
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check astro_viewer tools
+.\.venv\Scripts\python.exe -m ruff check astro_viewer
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\.venv\Lib\site-packages\PySide6\qmllint.exe <tutti i 30 file QML>
-.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests\test_viirs_cache_policy.py astro_viewer\tests\test_refresh_lifecycle.py astro_viewer\tests\test_home_observing_overview.py astro_viewer\tests\test_home_nsom_recommended_deep_sky_ranking.py astro_viewer\tests\test_observation_conditions_service.py astro_viewer\tests\test_nsom_observation_environment.py astro_viewer\tests\test_release_scenarios.py astro_viewer\tests\test_translations.py
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_coordinate_timezone_service.py astro_viewer\tests\test_location_service.py
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_release_scenarios.py::ReleaseScenarioTests::test_app_renormalizes_legacy_saved_manual_coordinate_timezone astro_viewer\tests\test_release_scenarios.py::ReleaseScenarioTests::test_addis_ababa_with_available_weather_keeps_app_usable
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 git diff --check
 ```
@@ -723,22 +765,23 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- `qmllint`: exit `0` su 30 file; nessun errore. Restano i warning strutturali
-  gia' noti per accessi QML non qualificati.
-- Test mirati Home/VIIRS/NSOM/traduzioni/scenari release: `154 passed`, `464
-  warnings` in `50,58 s`.
-- Suite: `753 passed`, `613 warnings`, `7 subtests passed` in `119,03 s`.
-- Cataloghi Qt italiano/inglese: `1590/1590`, zero `unfinished`; `.qm`
-  ricompilati con `lrelease`.
+- Test mirati timezone/location: `36 passed` in `11,58 s`.
+- Due scenari controller reali per coordinate manuali Addis e posizione legacy:
+  `2 passed`, `58 warnings` in `24,23 s`.
+- Suite: `766 passed`, `642 warnings`, `7 subtests passed` in `106,17 s`.
+- Verifica hook PyInstaller: 21 elementi dati `timezonefinder`, `67.155.091`
+  byte; nessuna build della dist.
+- Nessuna stringa QML/Python visibile aggiunta: cataloghi Qt invariati.
+- Smoke standard: exit `0`.
 - Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
 - Schema SQLite invariato a `16`; nessuna migrazione. Nessun dato sintetico e'
   stato reintrodotto.
 - `git diff --check`: pulito.
-- Dist corrente `1.32.3`; dist `1.32.6` non rigenerata.
+- Dist corrente `1.32.3`; dist `1.32.7` non rigenerata.
 
-I 563 warning preesistenti provengono dalla deprecazione dtype
-Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
-`skyfield.keplerlib` esercitate dai test cometari con NumPy 2.5.
+I warning provengono dalle deprecazioni `dtype` e `shape` interne a
+Skyfield/NumPy gia' note. L'aumento rispetto a `1.32.6` deriva dal nuovo scenario
+controller completo, che esercita un ulteriore refresh astronomico.
 
 ## Regole Operative
 
