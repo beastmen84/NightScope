@@ -4,18 +4,19 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.4`
+- Versione sorgente: `1.32.5`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.32.4` non rigenerata.
-- Commit sorgente validato: `034a9c3 Polish location-aware observing UI`
+- Dist `1.32.5` non rigenerata.
+- Commit sorgente validato: `41d3c9c Remove synthetic sky quality fallback`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `034a9c3`; non sostituire questo hash con un valore
+stato del codice usare `41d3c9c`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `41d3c9c Remove synthetic sky quality fallback`
 - `034a9c3 Polish location-aware observing UI`
 - `836c90f Polish no-location UI presentation`
 - `283c943 Stabilize equipment seed identities`
@@ -143,6 +144,15 @@ nudo, usa un'icona Luna neutra e assegna piu' spazio alla difficolta'. Meteo
 esplicita l'aggregazione notturna e localizza la baseline urbana. Il conteggio
 ISS `0` e' stato verificato con OMM correnti ed e' corretto. Il prossimo passo
 e' un nuovo controllo visuale dell'utente partendo dal commit `034a9c3`.
+
+`1.32.5` elimina la baseline urbana sintetica dopo la decisione di non mostrare
+un Bortle inventato quando Earthdata non e' disponibile. Qualita' cielo locale
+deriva ora soltanto da cache NASA VIIRS reale o da un dataset locale reale
+esplicitamente fornito; in assenza di entrambi la UI mostra `n/d`. Seeing,
+Equipment e condizioni osservative continuano con gli input disponibili senza
+applicare penalita' luminose presunte. Home riequilibra inoltre Nome/Tipo e
+limita a due righe i titoli dei prossimi eventi. Il prossimo passo e' il nuovo
+controllo visuale dell'utente dal commit `41d3c9c`.
 
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
@@ -295,9 +305,9 @@ e' un nuovo controllo visuale dell'utente partendo dal commit `034a9c3`.
   nuvolosita', vento, umidita' e temperatura sono medie; precipitazioni e' la
   probabilita' massima; seeing e trasparenza usano le stesse ore; Bortle e'
   locale e non orario.
-- `Fonte: NightScope local urban baseline` resta il valore canonico del dato ma
-  viene presentato come `Fonte: baseline urbana locale NightScope` in italiano
-  e `Source: NightScope local urban baseline` in inglese.
+- In `1.32.4` la sorgente sintetica `NightScope local urban baseline` veniva
+  localizzata. `1.32.5` ha poi rimosso sorgente, seed e fallback: non e' piu'
+  un dato disponibile nel runtime corrente.
 - Nelle coordinate manuali soltanto latitudine e longitudine sono obbligatorie;
   il nome resta facoltativo come gia' previsto dal controller. I pulsanti della
   pagina usano ora `DarkButton`. La sidebar non e' stata modificata: la
@@ -309,6 +319,26 @@ e' un nuovo controllo visuale dell'utente partendo dal commit `034a9c3`.
   Nessun campione soddisfa insieme quota, ISS illuminata e Sole locale `<= -6°`;
   il conteggio Calendario `0` e' quindi corretto e la pipeline non e' cambiata.
 - Cataloghi Qt completi `1586/1586`; schema SQLite ancora `16`.
+
+## Qualita' Cielo Reale 1.32.5
+
+- Rimossi `astro_viewer/data/light_pollution_seed.csv`, il relativo importer e
+  la voce PyInstaller. Non viene piu' assegnato automaticamente Bortle `5/6`.
+- `LightPollutionService` risolve soltanto cache NASA Black Marble VNP46A3 o
+  file locali reali opzionali `light_pollution_world_atlas.csv` e
+  `light_pollution_viirs_samples.csv`; altrimenti restituisce `None`.
+- All'avvio vengono eliminate da `SkyQualityEstimate` le vecchie righe non
+  VIIRS. I dataset locali reali vengono letti direttamente e non confluiscono
+  nella cache provider; non e' stata necessaria una migrazione schema.
+- Meteo espone Bortle, SQM, limite visuale e confidenza come `n/d` quando manca
+  una fonte reale. Seeing usa comunque il meteo notturno e non introduce una
+  penalita' da inquinamento luminoso sconosciuto.
+- Home parla di oggetti `compatibili` con l'occhio nudo quando la visibilita'
+  locale non puo' essere verificata. La tabella assegna piu' spazio al nome e
+  meno al tipo; le card eventi sono alte `92` pixel e il titolo usa al massimo
+  due righe.
+- Cataloghi Qt italiano/inglese completi `1586/1586`; schema SQLite ancora
+  `16`.
 
 ## Localizzazione Completa 1.30.0
 
@@ -617,6 +647,9 @@ Rimossi:
 
 - VIIRS viene rivalidato ogni 7 giorni mantenendo il valore stale in caso di
   errore NASA.
+- `SkyQualityEstimate` conserva soltanto cache VIIRS reali; le righe storiche
+  non VIIRS vengono eliminate quando il servizio viene costruito. Se non
+  esiste cache e non e' presente un dataset reale opzionale, Bortle e' `n/d`.
 - AOD usa TTL 18 ore e preflight cache prima del worker.
 - AOD e VIIRS riusano dati validi entro 500 metri per assorbire jitter della
   posizione Windows.
@@ -636,16 +669,16 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.4
+## Validazione 1.32.5
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
-.\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
+.\.venv\Scripts\python.exe -m compileall -q astro_viewer
 .\.venv\Lib\site-packages\PySide6\qmllint.exe <tutti i 30 file QML>
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py astro_viewer\tests\test_home_night_plan_overview.py astro_viewer\tests\test_home_recommendation_presentation.py
+.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests\test_translations.py astro_viewer\tests\test_home_night_plan_overview.py astro_viewer\tests\test_release_scenarios.py astro_viewer\tests\test_phase3_services.py astro_viewer\tests\test_viirs_cache_policy.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 git diff --check
 ```
@@ -661,15 +694,16 @@ Risultati:
 - Compileall: pulito.
 - `qmllint`: exit `0` su 30 file; nessun errore. Restano i warning strutturali
   gia' noti per accessi QML non qualificati.
-- Test mirati Home/traduzioni: `30 passed` in `2,32 s`; i due casi Phase 6
-  Catalogo/fonte passano separatamente.
-- Suite: `750 passed`, `613 warnings`, `7 subtests passed` in `115,79 s`.
+- Test mirati traduzioni/Home/servizi/cache: `68 passed` in `62,53 s`; i casi
+  Phase 6 sullo stato assente e sui dataset reali passano separatamente.
+- Suite: `751 passed`, `613 warnings`, `7 subtests passed` in `112,43 s`.
 - Cataloghi Qt italiano/inglese: `1586/1586`, zero `unfinished`; `.qm`
   ricompilati con `lrelease`.
 - Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
-- Schema SQLite invariato a `16`; nessuna migrazione o modifica seed.
+- Schema SQLite invariato a `16`; nessuna migrazione. Il seed sintetico e il
+  relativo importer sono stati rimossi intenzionalmente.
 - `git diff --check`: pulito.
-- Dist corrente `1.32.3`; dist `1.32.4` non rigenerata.
+- Dist corrente `1.32.3`; dist `1.32.5` non rigenerata.
 
 I 563 warning preesistenti provengono dalla deprecazione dtype
 Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
