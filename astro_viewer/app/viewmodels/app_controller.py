@@ -166,6 +166,12 @@ class AstronomyRefreshSnapshot:
     failed: bool = False
 
 
+@dataclass(frozen=True)
+class TransientEventRefreshSnapshot:
+    events: tuple[AstronomicalEvent, ...] = ()
+    failed: bool = False
+
+
 class AppController(QObject):
     dataChanged = Signal()
     selectedObjectChanged = Signal()
@@ -189,6 +195,7 @@ class AppController(QObject):
     _nasaAodRefreshFinished = Signal(str, object)
     _skyCompassLiveRefreshFinished = Signal(int, str, object)
     _astronomyRefreshFinished = Signal(int, str, str, object, object)
+    _transientEventsRefreshFinished = Signal(int, str, object)
 
     def __init__(
         self,
@@ -211,6 +218,7 @@ class AppController(QObject):
         self._nasaAodRefreshFinished.connect(self._finish_nasa_aod_refresh)
         self._skyCompassLiveRefreshFinished.connect(self._finish_sky_compass_live_refresh)
         self._astronomyRefreshFinished.connect(self._finish_astronomy_refresh)
+        self._transientEventsRefreshFinished.connect(self._finish_transient_event_refresh)
         self.dataChanged.connect(self.homeNightPlanChanged.emit)
         self.weatherChanged.connect(self.homeNightPlanChanged.emit)
         self.equipmentChanged.connect(self.homeNightPlanChanged.emit)
@@ -264,9 +272,17 @@ class AppController(QObject):
         self._astronomy_engine_lock = RLock()
         self._astronomy_refresh_running = False
         self._astronomy_refresh_request_id = 0
+        self._transient_event_refresh_running = False
+        self._transient_event_refresh_request_id = 0
+        self._transient_events_location_key = ""
         self._weather_refresh_timer = QTimer(self)
         self._weather_refresh_timer.setSingleShot(True)
         self._weather_refresh_timer.timeout.connect(self._refresh_weather_from_timer)
+        self._transient_event_refresh_timer = QTimer(self)
+        self._transient_event_refresh_timer.setSingleShot(True)
+        self._transient_event_refresh_timer.timeout.connect(
+            self._refresh_transient_events_from_timer
+        )
         self._sky_compass_live_timer = QTimer(self)
         self._sky_compass_live_timer.setInterval(60_000)
         self._sky_compass_live_timer.timeout.connect(self._refresh_sky_compass_live)
@@ -2421,6 +2437,7 @@ class AppController(QObject):
 
     def _refresh_no_location_context(self) -> None:
         self._cancel_astronomy_refresh()
+        self._cancel_transient_event_refresh()
         self._weather_refresh_timer.stop()
         self._weather_retry_pending = False
         self._weather_refresh_running = False
@@ -2446,6 +2463,7 @@ class AppController(QObject):
             image="resources/images/solar_system/moon.jpg",
         )
         self._events = []
+        self._transient_events_location_key = ""
         self._weather_hours = []
         self._weather_status = tr("Configura una posizione per visualizzare il meteo.")
         self._light_pollution_status = ""
@@ -2506,6 +2524,7 @@ class AppController(QObject):
         self.catalogueChanged.emit()
 
     def _refresh_astronomy(self) -> None:
+        self._cancel_transient_event_refresh()
         self._mark_refresh_dirty(
             RefreshReason.LOCATION_CHANGED,
             (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
@@ -2520,6 +2539,7 @@ class AppController(QObject):
             catalogue_visibility_cache_key=self._catalogue_visibility_cache_key(),
         )
         self._apply_astronomy_snapshot(snapshot)
+        self._start_transient_event_refresh()
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
 
     def _start_astronomy_refresh(
@@ -2543,6 +2563,7 @@ class AppController(QObject):
 
         self._cancel_sky_compass_live_refresh()
         if purpose in {ASTRONOMY_REFRESH_FULL, ASTRONOMY_REFRESH_NIGHT_ROLLOVER}:
+            self._cancel_transient_event_refresh()
             self._mark_refresh_dirty(
                 RefreshReason.LOCATION_CHANGED,
                 (RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT),
@@ -2604,7 +2625,16 @@ class AppController(QObject):
                 solar_system_objects = tuple(self._astronomy_engine.solar_system_objects(location))
                 deep_sky = tuple(self._astronomy_engine.recommended_deep_sky(location))
                 moon = self._astronomy_engine.moon_summary(location)
-                events = tuple(self._astronomy_engine.upcoming_events(location))
+                annual_events_method = getattr(
+                    self._astronomy_engine,
+                    "upcoming_annual_events",
+                    None,
+                )
+                events = tuple(
+                    annual_events_method(location)
+                    if callable(annual_events_method)
+                    else self._astronomy_engine.upcoming_events(location)
+                )
                 geometry_targets = tuple(
                     item for item in solar_system_objects if item.id not in {"sun", "moon"}
                 ) + deep_sky
@@ -2670,6 +2700,7 @@ class AppController(QObject):
             return
 
         self._apply_astronomy_snapshot(snapshot)
+        self._start_transient_event_refresh()
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
         if purpose == ASTRONOMY_REFRESH_FULL:
             try:
@@ -2713,7 +2744,21 @@ class AppController(QObject):
         self._base_solar_system_objects = list(snapshot.solar_system_objects)
         self._base_deep_sky = list(snapshot.deep_sky)
         self._moon = snapshot.moon
-        self._events = list(snapshot.events)
+        current_location_key = (
+            LightPollutionService._location_key(self._location)
+            if self._has_valid_location()
+            else ""
+        )
+        retained_transient_events = []
+        if current_location_key == getattr(self, "_transient_events_location_key", ""):
+            retained_transient_events = [
+                event
+                for event in getattr(self, "_events", [])
+                if event.source_code != "annual_astronomy"
+            ]
+        self._events = self._sorted_events(
+            list(snapshot.events) + retained_transient_events
+        )
         for object_id, summary in snapshot.moon_geometry:
             self._moon_geometry_condition_cache[object_id] = self._moon_geometry_summary_to_condition_input(summary)
         if snapshot.catalogue_visibility_cache_key is not None:
@@ -2728,6 +2773,132 @@ class AppController(QObject):
         self._astronomy_refresh_request_id += 1
         self._astronomy_refresh_running = False
         self._clear_refresh_domains(RefreshDomain.ASTRONOMY, RefreshDomain.EQUIPMENT)
+
+    def _start_transient_event_refresh(self) -> bool:
+        prepare_method = getattr(self._astronomy_engine, "prepare_transient_events", None)
+        build_method = getattr(self._astronomy_engine, "upcoming_transient_events", None)
+        if (
+            not self._has_valid_location()
+            or not callable(prepare_method)
+            or not callable(build_method)
+        ):
+            self._schedule_next_transient_event_refresh()
+            return False
+        if getattr(self, "_transient_event_refresh_running", False):
+            return False
+
+        timer = getattr(self, "_transient_event_refresh_timer", None)
+        if timer is not None:
+            timer.stop()
+        location = self._location
+        location_key = LightPollutionService._location_key(location)
+        self._transient_event_refresh_request_id = (
+            getattr(self, "_transient_event_refresh_request_id", 0) + 1
+        )
+        request_id = self._transient_event_refresh_request_id
+        self._transient_event_refresh_running = True
+
+        def run_refresh() -> None:
+            try:
+                prepared = prepare_method(location)
+                with self._astronomy_engine_lock_instance():
+                    events = tuple(build_method(location, prepared))
+                snapshot = TransientEventRefreshSnapshot(events=events)
+            except Exception:
+                logger.exception("Transient calendar event refresh failed.")
+                snapshot = TransientEventRefreshSnapshot(failed=True)
+            self._transientEventsRefreshFinished.emit(
+                request_id,
+                location_key,
+                snapshot,
+            )
+
+        try:
+            self._start_background_task(run_refresh)
+        except Exception:
+            self._transient_event_refresh_running = False
+            logger.warning("Transient calendar event worker could not start.", exc_info=True)
+            self._schedule_next_transient_event_refresh()
+            return False
+        return True
+
+    @Slot(int, str, object)
+    def _finish_transient_event_refresh(
+        self,
+        request_id: int,
+        location_key: str,
+        snapshot: object,
+    ) -> None:
+        if request_id != getattr(self, "_transient_event_refresh_request_id", 0):
+            return
+        self._transient_event_refresh_running = False
+        if (
+            not self._has_valid_location()
+            or location_key != LightPollutionService._location_key(self._location)
+        ):
+            return
+
+        if isinstance(snapshot, TransientEventRefreshSnapshot) and not snapshot.failed:
+            annual_events = [
+                event
+                for event in getattr(self, "_events", [])
+                if event.source_code == "annual_astronomy"
+            ]
+            self._events = self._sorted_events(annual_events + list(snapshot.events))
+            self._transient_events_location_key = location_key
+            self.dataChanged.emit()
+        self._schedule_next_transient_event_refresh()
+
+    def _refresh_transient_events_from_timer(self) -> None:
+        if not self._start_transient_event_refresh():
+            self._schedule_next_transient_event_refresh()
+
+    def _schedule_next_transient_event_refresh(self) -> None:
+        timer = getattr(self, "_transient_event_refresh_timer", None)
+        interval_method = getattr(
+            self._astronomy_engine,
+            "transient_event_refresh_interval",
+            None,
+        )
+        if (
+            timer is None
+            or not QCoreApplication.instance()
+            or not self._has_valid_location()
+            or not callable(interval_method)
+        ):
+            if timer is not None:
+                timer.stop()
+            return
+        try:
+            interval = interval_method()
+        except Exception:
+            logger.warning("Transient event refresh interval is unavailable.", exc_info=True)
+            timer.stop()
+            return
+        if not isinstance(interval, timedelta) or interval.total_seconds() <= 0:
+            timer.stop()
+            return
+        delay_ms = max(60_000, int(interval.total_seconds() * 1000))
+        timer.start(delay_ms)
+
+    def _cancel_transient_event_refresh(self) -> None:
+        timer = getattr(self, "_transient_event_refresh_timer", None)
+        if timer is not None:
+            timer.stop()
+        if not getattr(self, "_transient_event_refresh_running", False):
+            return
+        self._transient_event_refresh_request_id += 1
+        self._transient_event_refresh_running = False
+
+    @staticmethod
+    def _sorted_events(events: list[AstronomicalEvent]) -> list[AstronomicalEvent]:
+        def sort_key(event: AstronomicalEvent) -> float:
+            try:
+                return datetime.fromisoformat(event.event_at).timestamp()
+            except (OSError, TypeError, ValueError):
+                return float("inf")
+
+        return sorted(events, key=sort_key)
 
     def _refresh_weather_and_conditions(self) -> bool:
         self._mark_refresh_dirty(

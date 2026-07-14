@@ -166,15 +166,18 @@ def test_calendar_counts_event_and_participant_ids_once() -> None:
     duplicate["id"] = " MARS-JUPITER-CONJUNCTION "
     out_of_range_duplicate = dict(event)
     out_of_range_duplicate["eventAt"] = "2025-08-14T22:00:00+03:00"
+    stale_unique = dict(out_of_range_duplicate)
+    stale_unique["id"] = "stale-unique-event"
 
     overview = CalendarOverviewService().build(
-        events=[out_of_range_duplicate, event, duplicate],
+        events=[out_of_range_duplicate, stale_unique, event, duplicate],
         now=NOW,
         has_configured_equipment=False,
     )
 
     assert overview["totalCount"] == 1
     assert overview["counts"]["planetaryConjunctions"] == 1
+    assert overview["items"][0]["eventAt"] == "2026-08-14T22:00:00+03:00"
     assert overview["items"][0]["targetObjectIds"] == ["mars", "jupiter"]
     assert [item["id"] for item in overview["items"][0]["targetObjects"]] == [
         "mars",
@@ -265,6 +268,7 @@ def test_calendar_keeps_ongoing_intervals_and_drops_completed_passes() -> None:
             "sourceLabel": "Passaggi satellitari a breve termine",
             "dataSource": "CelesTrak GP / OMM",
             "dataFreshness": "Dati orbitali recenti in cache",
+            "dataUpdatedAt": "2026-07-11T08:30:00+00:00",
         }
     )
 
@@ -279,6 +283,9 @@ def test_calendar_keeps_ongoing_intervals_and_drops_completed_passes() -> None:
     assert overview["counts"]["satellitePasses"] == 1
     assert overview["items"][0]["eventFacts"][0]["value"] == "6 min"
     assert overview["items"][0]["dataSource"] == "CelesTrak GP / OMM"
+    assert overview["items"][0]["dataUpdatedLabel"] == (
+        "Ultimo aggiornamento: 11/07/2026 11:30"
+    )
     assert overview["items"][0]["priorityLabel"] == "Informativo"
 
 
@@ -350,6 +357,8 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     assert "root.hasDistinctWindow" in event_detail_qml
     assert "root.eventData.separationLabel" in event_detail_qml
     assert "root.eventData.eventFacts" in event_detail_qml
+    assert "root.eventData.dataUpdatedLabel" in event_detail_qml
+    assert "Quando osservare l'evento" in event_detail_qml
     assert '"satellite_pass"' in calendar_qml
     assert '"satellite_pass"' in home_qml
     assert "model: root.eventObjects()" in event_detail_qml

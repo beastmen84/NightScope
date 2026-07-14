@@ -18,6 +18,7 @@ from astro_viewer.app.astronomy.engine import (
     AstronomyEngine,
     ObserverLocation,
     ObservingNightWindow,
+    PreparedTransientCalendarEvents,
     TransientCalendarEventSource,
 )
 from astro_viewer.app.database.catalogue_repository import CatalogueRepository
@@ -622,7 +623,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             sample_times=tuple(self._format_dt(sample_time) for sample_time in sample_times),
         )
 
-    def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
+    def upcoming_annual_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
         now = self._now(location)
         end_datetime = now + timedelta(days=CALENDAR_EVENT_HORIZON_DAYS)
         start = self._to_skyfield_time(now)
@@ -767,23 +768,66 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             )
 
         events.extend(self._recurring_meteor_showers(now, end_datetime))
+        return sorted(events, key=lambda event: event.event_at)
+
+    def prepare_transient_events(
+        self,
+        location: ObserverLocation,
+    ) -> PreparedTransientCalendarEvents:
+        now = self._now(location)
+        entries: list[tuple[TransientCalendarEventSource, object]] = []
         for source in self._transient_event_sources:
             try:
+                prepared_data = source.prepare_event_data(location, now=now)
+                if prepared_data is not None:
+                    entries.append((source, prepared_data))
+            except Exception:
+                logger.warning(
+                    "Transient calendar event preparation failed: %s",
+                    type(source).__name__,
+                    exc_info=True,
+                )
+        return PreparedTransientCalendarEvents(now=now, entries=tuple(entries))
+
+    def upcoming_transient_events(
+        self,
+        location: ObserverLocation,
+        prepared: PreparedTransientCalendarEvents,
+    ) -> list[AstronomicalEvent]:
+        events: list[AstronomicalEvent] = []
+        for source, prepared_data in prepared.entries:
+            try:
                 events.extend(
-                    source.upcoming_events(
+                    source.build_events(
                         location,
-                        now=now,
+                        now=prepared.now,
                         timescale=self._timescale,
                         ephemeris=self._ephemeris,
+                        prepared_data=prepared_data,
                     )
                 )
             except Exception:
                 logger.warning(
-                    "Transient calendar event source failed: %s",
+                    "Transient calendar event calculation failed: %s",
                     type(source).__name__,
                     exc_info=True,
                 )
         return sorted(events, key=lambda event: event.event_at)
+
+    def transient_event_refresh_interval(self) -> timedelta | None:
+        intervals = [
+            interval
+            for source in self._transient_event_sources
+            if isinstance((interval := getattr(source, "refresh_interval", None)), timedelta)
+            and interval.total_seconds() > 0
+        ]
+        return min(intervals) if intervals else None
+
+    def upcoming_events(self, location: ObserverLocation) -> list[AstronomicalEvent]:
+        annual_events = self.upcoming_annual_events(location)
+        prepared = self.prepare_transient_events(location)
+        transient_events = self.upcoming_transient_events(location, prepared)
+        return sorted(annual_events + transient_events, key=lambda event: event.event_at)
 
     def _planetary_conjunction_events(
         self,

@@ -57,6 +57,8 @@ class CalendarOverviewService:
             event_end = _event_end_datetime(event, now)
             if event_end is not None and event_end < now:
                 continue
+            if event_end is None and event_at.date() < now.date():
+                continue
             days_until = max(0, (event_at.date() - now.date()).days)
             if not 0 <= days_until <= CALENDAR_HORIZON_DAYS:
                 continue
@@ -73,6 +75,7 @@ class CalendarOverviewService:
                     _event_payload(
                         event,
                         event_at=event_at,
+                        now=now,
                         days_until=days_until,
                         usefulness=usefulness,
                         has_configured_equipment=has_configured_equipment,
@@ -132,6 +135,7 @@ def _event_payload(
     event: Mapping[str, object],
     *,
     event_at: datetime,
+    now: datetime,
     days_until: int,
     usefulness: int,
     has_configured_equipment: bool,
@@ -189,6 +193,7 @@ def _event_payload(
     if primary_target_id and primary_target_id.casefold() not in normalized_target_ids:
         target_object_ids.insert(0, primary_target_id)
     priority_state, priority_label = _priority(usefulness)
+    data_updated_at = _text(event, "dataUpdatedAt") or _text(event, "data_updated_at")
     return {
         "id": _text(event, "id"),
         "title": title,
@@ -221,7 +226,8 @@ def _event_payload(
         "sourceLabel": _text(event, "sourceLabel") or _text(event, "source_label"),
         "eventFacts": _mapping_list(event.get("eventFacts", event.get("event_facts"))),
         "dataSource": _text(event, "dataSource") or _text(event, "data_source"),
-        "dataUpdatedAt": _text(event, "dataUpdatedAt") or _text(event, "data_updated_at"),
+        "dataUpdatedAt": data_updated_at,
+        "dataUpdatedLabel": _data_updated_label(data_updated_at, now),
         "dataValidUntil": _text(event, "dataValidUntil") or _text(event, "data_valid_until"),
         "dataFreshness": _text(event, "dataFreshness") or _text(event, "data_freshness"),
         "whyText": _why_text(
@@ -284,6 +290,20 @@ def _event_end_datetime(event: Mapping[str, object], now: datetime) -> datetime 
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=now.tzinfo)
     return parsed.astimezone(now.tzinfo)
+
+
+def _data_updated_label(value: str, now: datetime) -> str:
+    if not value:
+        return ""
+    try:
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=now.tzinfo)
+    else:
+        parsed = parsed.astimezone(now.tzinfo)
+    return tr("Ultimo aggiornamento: {date}", date=format_datetime(parsed))
 
 
 def _profile_setup_text(

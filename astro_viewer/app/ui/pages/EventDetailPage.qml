@@ -133,7 +133,7 @@ Item {
                 GlassCard {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 244
-                    title: qsTr("Quando osservarlo")
+                    title: qsTr("Quando osservare l'evento")
                     subtitle: qsTr("Istante, finestra e visibilità locale")
                     accentColor: theme.amber
 
@@ -287,6 +287,15 @@ Item {
                         Layout.fillWidth: true
                         visible: root.hasEvent && (root.eventData.dataFreshness || "").length > 0
                         text: root.eventData.dataFreshness || ""
+                        color: theme.textMuted
+                        font.pixelSize: 12
+                        wrapMode: Text.WordWrap
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.hasEvent && (root.eventData.dataUpdatedLabel || "").length > 0
+                        text: root.eventData.dataUpdatedLabel || ""
                         color: theme.textMuted
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap

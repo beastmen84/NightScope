@@ -504,7 +504,7 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("root.eventData.visibilityLabel", row_qml)
         self.assertNotIn("root.eventData.usefulness", row_qml)
         self.assertIn("Torna al Calendario", detail_qml)
-        self.assertIn("Quando osservarlo", detail_qml)
+        self.assertIn("Quando osservare l'evento", detail_qml)
         self.assertIn("Con il tuo profilo", detail_qml)
         self.assertIn("Consigli osservativi", detail_qml)
         self.assertIn('text: qsTr("Apri %1").arg(modelData.name)', detail_qml)

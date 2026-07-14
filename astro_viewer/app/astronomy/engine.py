@@ -30,15 +30,34 @@ class ObserverLocation:
 class TransientCalendarEventSource(Protocol):
     """Produces location-aware events outside the annual astronomy pipeline."""
 
-    def upcoming_events(
+    refresh_interval: timedelta
+
+    def prepare_event_data(
+        self,
+        location: ObserverLocation,
+        *,
+        now: datetime,
+    ) -> object | None:
+        ...
+
+    def build_events(
         self,
         location: ObserverLocation,
         *,
         now: datetime,
         timescale: object,
         ephemeris: object,
+        prepared_data: object,
     ) -> list[AstronomicalEvent]:
         ...
+
+
+@dataclass(frozen=True)
+class PreparedTransientCalendarEvents:
+    """Network/cache data ready for a short Skyfield calculation."""
+
+    now: datetime
+    entries: tuple[tuple[TransientCalendarEventSource, object], ...] = ()
 
 
 @dataclass(frozen=True)

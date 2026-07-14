@@ -8,7 +8,12 @@ from unittest.mock import Mock
 from PySide6.QtCore import QCoreApplication, QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation, ObservingNightWindow
-from astro_viewer.app.models.observing import CelestialObject, MoonGeometrySummary, MoonSummary
+from astro_viewer.app.models.observing import (
+    AstronomicalEvent,
+    CelestialObject,
+    MoonGeometrySummary,
+    MoonSummary,
+)
 from astro_viewer.app.services.observation_conditions_service import MoonGeometryConditionInput
 from astro_viewer.app.services.refresh_lifecycle import RefreshManager
 from astro_viewer.app.viewmodels.app_controller import (
@@ -248,14 +253,46 @@ def test_astronomy_snapshot_preloads_geometry_and_catalogue_visibility() -> None
     controller._refresh_equipment_recommendations_for_current_objects.assert_called_once()
 
 
+def test_transient_event_refresh_prepares_without_lock_and_schedules_next_run() -> None:
+    app = QCoreApplication.instance() or QCoreApplication([])
+    assert app is not None
+    controller, _engine = _controller()
+    tasks = []
+    lock = _TrackingLock()
+    transient_engine = _TransientAstronomyEngine(lock)
+    controller._astronomy_engine = transient_engine
+    controller._astronomy_engine_lock_instance = lambda: lock
+    controller._start_background_task = tasks.append
+    controller._events = [_calendar_event("annual", "annual_astronomy")]
+
+    assert controller._start_transient_event_refresh() is True
+    assert transient_engine.calls == []
+    assert len(tasks) == 1
+
+    tasks[0]()
+
+    assert transient_engine.calls == ["prepare_unlocked", "build_locked"]
+    assert [event.id for event in controller._events] == ["annual", "iss"]
+    assert controller._transient_events_location_key == "41.900:12.500:roma"
+    controller._transient_event_refresh_timer.start.assert_called_once_with(3_600_000)
+
+
 def _controller() -> tuple[AppController, _AstronomyEngine]:
     controller = AppController.__new__(AppController)
     QObject.__init__(controller)
     controller._astronomyRefreshFinished.connect(controller._finish_astronomy_refresh)
+    controller._transientEventsRefreshFinished.connect(
+        controller._finish_transient_event_refresh
+    )
     controller._location = ObserverLocation("Roma", "Italia", 41.9, 12.5, "Europe/Rome")
     controller._astronomy_engine = _AstronomyEngine()
     controller._astronomy_refresh_running = False
     controller._astronomy_refresh_request_id = 0
+    controller._transient_event_refresh_running = False
+    controller._transient_event_refresh_request_id = 0
+    controller._transient_event_refresh_timer = Mock()
+    controller._transient_events_location_key = ""
+    controller._events = []
     controller._sky_compass_live_refresh_running = False
     controller._sky_compass_live_refresh_request_id = 0
     controller._refresh_manager = RefreshManager()
@@ -288,8 +325,11 @@ class _AstronomyEngine:
     def moon_summary(self, _location: ObserverLocation) -> MoonSummary:
         return MoonSummary("Crescente", "20%", "20:00", "05:00", "", "")
 
-    def upcoming_events(self, _location: ObserverLocation) -> list:
+    def upcoming_annual_events(self, _location: ObserverLocation) -> list:
         return []
+
+    def upcoming_events(self, _location: ObserverLocation) -> list:
+        raise AssertionError("The annual snapshot must not invoke transient sources.")
 
     def moon_geometry_batch(
         self,
@@ -316,4 +356,60 @@ def _target(object_id: str, name: str, object_type: str) -> CelestialObject:
         visibility_class="",
         azimuth="180 gradi",
         time_above_horizon="4 h",
+    )
+
+
+class _TrackingLock:
+    def __init__(self) -> None:
+        self.active = False
+
+    def __enter__(self):
+        assert self.active is False
+        self.active = True
+        return self
+
+    def __exit__(self, _exc_type, _exc_value, _traceback) -> None:
+        self.active = False
+
+
+class _TransientAstronomyEngine:
+    def __init__(self, lock: _TrackingLock) -> None:
+        self._lock = lock
+        self.calls: list[str] = []
+
+    def prepare_transient_events(self, _location: ObserverLocation) -> object:
+        assert self._lock.active is False
+        self.calls.append("prepare_unlocked")
+        return object()
+
+    def upcoming_transient_events(
+        self,
+        _location: ObserverLocation,
+        _prepared: object,
+    ) -> list[AstronomicalEvent]:
+        assert self._lock.active is True
+        self.calls.append("build_locked")
+        return [_calendar_event("iss", "short_horizon_satellite_passes")]
+
+    @staticmethod
+    def transient_event_refresh_interval() -> timedelta:
+        return timedelta(hours=1)
+
+
+def _calendar_event(event_id: str, source_code: str) -> AstronomicalEvent:
+    return AstronomicalEvent(
+        id=event_id,
+        title=event_id,
+        event_type="Passaggio ISS" if event_id == "iss" else "Luna",
+        date_label="11/07/2026",
+        best_time="22:00",
+        usefulness=0,
+        setup="",
+        note="",
+        event_at=(
+            "2026-07-11T22:00:00+00:00"
+            if event_id == "iss"
+            else "2026-07-11T20:00:00+00:00"
+        ),
+        source_code=source_code,
     )

@@ -47,7 +47,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.31.0`.
+Versione corrente sorgente: `1.31.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -165,6 +165,15 @@ mobile di previsione di 10 giorni. Il calcolo usa le dipendenze gia' presenti
 Skyfield/SGP4 e non introduce pandas, astroquery, account esterni, oggetti di
 catalogo, score, Equipment, Planner o NSOM. La distribuzione Windows non e'
 stata rigenerata.
+
+In `1.31.1` la pipeline ISS e' stata corretta dopo la review: il recupero
+rete/cache avviene fuori dal lock astronomico e non ritarda piu' la generazione
+annuale; un timer dedicato ricalcola le finestre ogni ora, mentre il download
+OMM resta limitato dalla TTL di 6 ore. Gli eventi passati senza intervallo
+vengono esclusi prima della deduplicazione, gli ID dei passaggi derivano dalla
+rivoluzione orbitale e il dettaglio mostra l'istante reale dell'ultimo
+aggiornamento invece di dichiararlo sempre appena avvenuto. La distribuzione
+Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

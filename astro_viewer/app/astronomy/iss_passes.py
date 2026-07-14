@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import sqlite3
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ class IssPassEventSource:
     ELEMENT_FORMAT = "omm_json"
     ENDPOINT = "https://celestrak.org/NORAD/elements/gp.php"
     CACHE_TTL = timedelta(hours=6)
+    refresh_interval = timedelta(hours=1)
     MAX_STALE_ELEMENT_AGE = timedelta(days=3)
     MAX_PROPAGATION_AGE = timedelta(days=14)
     HORIZON = timedelta(days=10)
@@ -65,9 +67,38 @@ class IssPassEventSource:
         ephemeris: object,
     ) -> list[AstronomicalEvent]:
         now_utc = _as_utc(now)
-        elements = self._orbital_elements(now_utc)
+        elements = self.prepare_event_data(location, now=now_utc)
         if elements is None:
             return []
+        return self.build_events(
+            location,
+            now=now_utc,
+            timescale=timescale,
+            ephemeris=ephemeris,
+            prepared_data=elements,
+        )
+
+    def prepare_event_data(
+        self,
+        _location: ObserverLocation,
+        *,
+        now: datetime,
+    ) -> _OrbitalElements | None:
+        return self._orbital_elements(_as_utc(now))
+
+    def build_events(
+        self,
+        location: ObserverLocation,
+        *,
+        now: datetime,
+        timescale: object,
+        ephemeris: object,
+        prepared_data: object,
+    ) -> list[AstronomicalEvent]:
+        if not isinstance(prepared_data, _OrbitalElements):
+            return []
+        now_utc = _as_utc(now)
+        elements = prepared_data
 
         source_epoch = _parse_datetime(elements.record.source_epoch)
         prediction_end = min(
@@ -290,12 +321,12 @@ class IssPassEventSource:
         source_epoch = _parse_datetime(elements.record.source_epoch)
         valid_until = source_epoch + self.MAX_PROPAGATION_AGE
         freshness_label = {
-            "updated": tr("Dati orbitali aggiornati ora"),
+            "updated": tr("Dati orbitali aggiornati"),
             "fresh": tr("Dati orbitali recenti in cache"),
             "stale": tr("Dati orbitali di riserva"),
         }[elements.freshness]
         return AstronomicalEvent(
-            id=f"iss-pass-{peak_time.strftime('%Y%m%dT%H%M%SZ')}",
+            id=_pass_id(peak_time, elements, source_epoch),
             title=tr("Passaggio della ISS"),
             event_type=tr("Passaggio ISS"),
             date_label=format_datetime(local_start, include_time=False),
@@ -387,3 +418,26 @@ def _duration_label(seconds: int) -> str:
     if minutes == 0:
         return tr("{seconds} s", seconds=remaining_seconds)
     return tr("{minutes} min {seconds} s", minutes=minutes, seconds=remaining_seconds)
+
+
+def _pass_id(
+    peak_time: datetime,
+    elements: _OrbitalElements,
+    source_epoch: datetime,
+) -> str:
+    """Use the continuous ISS revolution number instead of mutable peak seconds."""
+
+    try:
+        revolution_at_epoch = int(elements.fields["REV_AT_EPOCH"])
+        mean_anomaly_revolutions = float(elements.fields["MEAN_ANOMALY"]) / 360.0
+        mean_motion = float(elements.fields["MEAN_MOTION"])
+        elapsed_days = (_as_utc(peak_time) - source_epoch).total_seconds() / 86_400.0
+        revolution = math.floor(
+            revolution_at_epoch + mean_anomaly_revolutions + elapsed_days * mean_motion
+        )
+        return f"iss-pass-{IssPassEventSource.OBJECT_ID}-rev-{revolution}"
+    except (KeyError, TypeError, ValueError, OverflowError):
+        bucket_seconds = 15 * 60
+        bucket = round(_as_utc(peak_time).timestamp() / bucket_seconds) * bucket_seconds
+        bucket_time = datetime.fromtimestamp(bucket, tz=UTC)
+        return f"iss-pass-{IssPassEventSource.OBJECT_ID}-{bucket_time.strftime('%Y%m%dT%H%MZ')}"

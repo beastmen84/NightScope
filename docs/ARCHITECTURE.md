@@ -201,14 +201,19 @@ Current runtime status for `1.27.0`:
 - `TransientCalendarEventSource` is the extension boundary for location-aware
   operational events that do not belong to `CatalogueObject`. Production
   currently injects `IssPassEventSource`; tests opt in explicitly so they never
-  perform unplanned network calls. A failed transient source is logged and
-  cannot remove the annual Skyfield event set.
+  perform unplanned network calls. Each source has a preparation phase for
+  provider/cache access and a calculation phase that consumes prepared data.
+  The annual Skyfield snapshot never calls a transient provider, so a slow or
+  failed source cannot delay or remove the annual event set.
 - ISS prediction uses public CelesTrak OMM elements, Skyfield/SGP4 propagation,
   a 10-day moving horizon, a 10-degree minimum altitude, satellite sunlight and
   local solar altitude at or below -6 degrees. `OrbitalElementCacheRepository`
   refreshes after 6 hours and permits a recent cached element set for at most 3
-  days if refresh fails. This path has no Catalogue, score, Equipment, Planner,
-  Home ranking or NSOM dependency.
+  days if refresh fails. The controller rebuilds the moving pass set hourly;
+  fresh cache reuse prevents that cadence from becoming an hourly network
+  request. ISS IDs use the continuous orbital revolution rather than predicted
+  peak seconds. This path has no Catalogue, score, Equipment, Planner, Home
+  ranking or NSOM dependency.
 - Planetary conjunction candidates are observational close approaches found by
   `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
   The annual contract retains minima up to 6 degrees, then samples adjacent
@@ -497,6 +502,10 @@ Calendar event detail flow:
    source freshness and fact rows without mapping to any catalogue target. ISS
    passes use this path and therefore show operational observing guidance
    rather than active-profile equipment recommendations.
+6. The Calendar projection removes completed intervals and instant events from
+   earlier dates before event-ID deduplication. Ongoing intervals remain at
+   `daysUntil = 0`; provider-backed details format the exact update timestamp in
+   the active locale.
 
 ## Refresh Flow
 
@@ -559,6 +568,14 @@ normal Home/Planner/weather-driven recomputation. The live lane updates only
 current positional fields for already prepared Sky Compass targets and must not
 call weather, OpenAQ, NASA AOD, VIIRS, Planner, equipment or Recommendation
 Engine refresh paths.
+
+Short-horizon calendar events use a separate controller timer rather than a
+`RefreshManager` scoring domain. The worker prepares provider/cache data before
+acquiring the shared astronomy lock, performs only the Skyfield calculation
+inside that lock, rejects results whose location key is no longer current and
+then replaces the transient subset while preserving the annual subset. A full
+astronomy refresh for the same location retains the last valid transient rows
+until their replacement is ready.
 
 The following changes are expected to trigger dependent recomputation:
 

@@ -43,14 +43,18 @@ OMM_FIELDS = {
 
 
 class _Response:
+    def __init__(self, fields: dict[str, object] | None = None):
+        self._fields = fields or OMM_FIELDS
+
     def raise_for_status(self) -> None:
         pass
 
     def json(self) -> list[dict[str, object]]:
-        return [OMM_FIELDS]
+        return [self._fields]
 
 
 def _repository(tmp_path: Path) -> OrbitalElementCacheRepository:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     database_path = tmp_path / "iss-cache.db"
     with sqlite3.connect(database_path) as connection:
         connection.executescript((DATA_DIR / "schema.sql").read_text(encoding="utf-8"))
@@ -121,8 +125,49 @@ def test_iss_source_builds_visible_pass_intervals_and_reuses_fresh_cache(
         "illumination",
     }
     assert first.data_source == "CelesTrak GP / OMM"
-    assert first.data_freshness == "Dati orbitali aggiornati ora"
+    assert first.data_freshness == "Dati orbitali aggiornati"
     assert cached_events[0].data_freshness == "Dati orbitali recenti in cache"
+    assert first.id.startswith("iss-pass-25544-rev-")
+    assert {event.id for event in events} & {event.id for event in cached_events}
+
+
+def test_iss_pass_ids_survive_small_orbital_timing_corrections(tmp_path: Path) -> None:
+    corrected_fields = dict(OMM_FIELDS)
+    corrected_fields["MEAN_ANOMALY"] = float(OMM_FIELDS["MEAN_ANOMALY"]) + 0.1
+    baseline_source = IssPassEventSource(
+        _repository(tmp_path / "baseline"),
+        http_get=Mock(return_value=_Response()),
+    )
+    corrected_source = IssPassEventSource(
+        _repository(tmp_path / "corrected"),
+        http_get=Mock(return_value=_Response(corrected_fields)),
+    )
+    timescale, ephemeris = _skyfield_context()
+    try:
+        baseline_events = baseline_source.upcoming_events(
+            ROME,
+            now=NOW,
+            timescale=timescale,
+            ephemeris=ephemeris,
+        )
+        corrected_events = corrected_source.upcoming_events(
+            ROME,
+            now=NOW,
+            timescale=timescale,
+            ephemeris=ephemeris,
+        )
+    finally:
+        ephemeris.close()
+
+    assert baseline_events
+    assert corrected_events
+    assert [event.id for event in corrected_events] == [
+        event.id for event in baseline_events
+    ]
+    assert any(
+        corrected.peak_at != baseline.peak_at
+        for baseline, corrected in zip(baseline_events, corrected_events)
+    )
 
 
 def test_iss_source_uses_recent_stale_cache_but_rejects_old_elements(

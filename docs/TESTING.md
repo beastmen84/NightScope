@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.31.0`:
+Measured on the current Windows development environment for `1.31.1`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `731 passed, 7 subtests passed` | `0:01:30.40` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `733 passed, 7 subtests passed` | `0:01:30.36` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -88,6 +88,10 @@ The `1.31.0` additions cover generic orbital-element persistence, deterministic
 offline ISS pass prediction, fresh-cache reuse, bounded stale fallback,
 interval-aware Calendar/Home filtering and source/fact presentation without
 Catalogue, scoring, Equipment, Planner or NSOM coupling.
+The `1.31.1` corrections cover past-instant rejection before deduplication,
+stable revolution-based ISS IDs, provider preparation outside the astronomy
+lock, location-safe transient replacement and the dedicated hourly timer while
+preserving the six-hour OMM cache TTL.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

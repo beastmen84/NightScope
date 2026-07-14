@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.31.1 - 2026-07-14
+
+- Separata la preparazione rete/cache delle sorgenti transitorie dal calcolo
+  Skyfield: gli eventi annuali non attendono piu' CelesTrak e il lock del
+  motore protegge soltanto la propagazione astronomica.
+- Aggiunto un refresh ISS dedicato ogni ora, con sostituzione atomica degli
+  eventi transitori, scarto dei risultati di localita' precedenti e download
+  OMM ancora vincolato alla TTL di 6 ore.
+- Corretta l'inclusione degli eventi istantanei appartenenti a date passate,
+  che potevano occupare oggi e mascherare un duplicato futuro.
+- Stabilizzati gli ID ISS tramite il numero continuo di rivoluzione e aggiunti
+  data/ora reale dell'ultimo aggiornamento orbitale e copy neutro nel dettaglio.
+- Aggiornati i cataloghi italiano/inglese completi `1518/1518` e aggiunte
+  regressioni per filtro temporale, separazione del worker, timer e ID stabili.
+- Verificati `pip check`, Ruff, compileall, `qmllint`, smoke test backend/QML e
+  suite completa parallela: `733 passed`, `563 warnings`, `7 subtests passed`
+  in `90,36 s`.
+- Dist `1.31.1` non rigenerata.
+
 ## NightScope 1.31.0 - 2026-07-13
 
 - Aggiunta una pipeline di eventi transitori score-free, distinta dagli eventi
