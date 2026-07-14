@@ -1,5 +1,32 @@
 # Changelog
 
+## NightScope 1.32.4 - 2026-07-14
+
+- Corretto il percorso realmente usato dal Catalogo per le dimensioni
+  angolari: il formatter backend emette ora `°` e non piu' `deg`; aggiunta una
+  regressione sul payload mostrato, non soltanto sul fallback QML.
+- In assenza di telescopi e binocoli, la tabella inferiore Home esclude i target
+  marcati `requires_optical_instrument` dal read model Equipment. La colonna
+  oggetto e' piu' stretta, la difficolta' mostra per intero le etichette e il
+  layout compatto entra prima sui viewport intermedi.
+- Sostituita nella Home la fotografia statica della Luna con un'icona neutra;
+  immagini e fase dinamica nel dettaglio oggetto restano invariate.
+- Chiarito che le metriche superiori Meteo sono aggregate sulla finestra
+  osservativa: medie per nuvole, vento, umidita' e temperatura, massimo per la
+  probabilita' di precipitazione, seeing/trasparenza notturni e Bortle locale.
+- Localizzata la sorgente `NightScope local urban baseline`; resi espliciti i
+  campi obbligatori delle coordinate manuali e uniformati i relativi pulsanti
+  allo stile dell'app.
+- Verificata senza modifiche la pipeline ISS per Addis Abeba: 26 passaggi
+  geometrici sopra `10°` nella finestra di 10 giorni, ma nessuno insieme
+  illuminato e con Sole locale sotto `-6°`; il conteggio `0` e' corretto.
+- Aggiornati e compilati i cataloghi italiano/inglese completi `1586/1586`.
+- Verificati `pip check`, Ruff, compileall, tutti i 30 QML e smoke
+  italiano/inglese; suite completa parallela: `750 passed`, `613 warnings`,
+  `7 subtests passed`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.4` non rigenerata.
+
 ## NightScope 1.32.3 - 2026-07-14
 
 - Corretto lo stato Meteo senza localita': SQM, limite visuale, confidenza e

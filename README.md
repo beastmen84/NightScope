@@ -51,9 +51,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.3`.
+Versione corrente sorgente: `1.32.4`.
 
-Distribuzione Windows corrente: `1.20.0`.
+Distribuzione Windows corrente: `1.32.3`.
 
 Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
 
@@ -63,7 +63,9 @@ Il backend NSOM e' chiuso e consolidato in un solo percorso runtime:
   profondo escludendo gli ID presenti nel piano.
 - Home inferiore: `homeNightPlanOverview` proietta stato sessione, riepilogo
   multi-equipment, piano compatto e righe alternative lette direttamente dalla
-  QML della Home.
+  QML della Home. Se il profilo non contiene telescopi o binocoli, la proiezione
+  mostra soltanto i target che il read model Equipment considera realistici a
+  occhio nudo, senza introdurre score o ranking aggiuntivi.
 - Best Object: selezione Home-specific basata su `ObservationOpportunity`.
 - Categorie Home: condizioni planetarie e cielo profondo proiettate dallo
   stesso ambiente NSOM usato dagli altri consumer.
@@ -220,8 +222,18 @@ localita' valida. Home, Meteo e Calendario offrono un accesso diretto alla
 configurazione e usano stati vuoti piu' brevi. Terminologia, unita' e formati
 dei cataloghi sono stati uniformati: barilotti localizzati con simbolo dei
 pollici, dimensioni angolari in gradi, unita' tra parentesi nei form e virgola
-decimale negli esempi italiani. La distribuzione Windows non e' stata
-rigenerata.
+decimale negli esempi italiani. La distribuzione Windows `1.32.3` e' stata poi
+rigenerata dall'utente e usata per il controllo visuale con localita'.
+
+In `1.32.4` il controllo con Addis Abeba e profilo senza strumenti corregge il
+formatter backend che esponeva ancora `deg` nel Catalogo, filtra le alternative
+Home non realistiche a occhio nudo e riequilibra le colonne della tabella. La
+scheda Luna usa un'icona neutra, mentre Meteo dichiara che le metriche superiori
+sono aggregate sulla finestra notturna e localizza la baseline urbana
+NightScope. I campi manuali della localita' distinguono coordinate obbligatorie
+e nome facoltativo. La pipeline ISS non cambia: il controllo con OMM aggiornati
+ha confermato corretti gli zero passaggi visibili su Addis Abeba nella finestra
+mobile corrente. La distribuzione `1.32.4` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

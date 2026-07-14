@@ -411,16 +411,16 @@ Item {
                                     border.width: 1
 
                                     Image {
-                                        anchors.fill: parent
-                                        anchors.margins: 8
+                                        anchors.centerIn: parent
+                                        width: 38
+                                        height: 38
                                         visible: controller.hasValidLocation
-                                                 && String(controller.moonSummary.image || "").length > 0
                                         source: visible
-                                                ? controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                                ? controller.assetBaseUrl + "/resources/icons/moon.svg"
                                                 : ""
                                         fillMode: Image.PreserveAspectFit
-                                        sourceSize.width: 96
-                                        sourceSize.height: 96
+                                        sourceSize.width: 64
+                                        sourceSize.height: 64
                                     }
 
                                     Text {
@@ -1501,14 +1501,14 @@ Item {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        visible: root.width > 760 && root.filteredNightAlternatives().length > 0
+                        visible: root.width > 900 && root.filteredNightAlternatives().length > 0
                         spacing: 12
 
                         Item { Layout.preferredWidth: 4 }
 
                         Text {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 140
+                            Layout.preferredWidth: 170
+                            Layout.maximumWidth: 220
                             text: qsTr("Oggetto")
                             color: theme.textMuted
                             font.pixelSize: 11
@@ -1516,7 +1516,8 @@ Item {
                         }
 
                         Text {
-                            Layout.preferredWidth: 170
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 130
                             text: qsTr("Tipo")
                             color: theme.textMuted
                             font.pixelSize: 11
@@ -1532,7 +1533,7 @@ Item {
                         }
 
                         Text {
-                            Layout.preferredWidth: 105
+                            Layout.preferredWidth: 95
                             text: qsTr("Direzione")
                             color: theme.textMuted
                             font.pixelSize: 11
@@ -1540,7 +1541,7 @@ Item {
                         }
 
                         Text {
-                            Layout.preferredWidth: 90
+                            Layout.preferredWidth: 175
                             horizontalAlignment: Text.AlignRight
                             text: qsTr("Difficoltà")
                             color: theme.textMuted
@@ -1553,8 +1554,8 @@ Item {
                         id: visibleTargetList
                         Layout.fillWidth: true
                         Layout.preferredHeight: Math.min(
-                                                    Math.max(contentHeight, root.width > 760 ? 46 : 82),
-                                                    root.width > 760 ? 322 : 410)
+                                                    Math.max(contentHeight, root.width > 900 ? 46 : 82),
+                                                    root.width > 900 ? 322 : 410)
                         visible: root.filteredNightAlternatives().length > 0
                         clip: true
                         model: root.filteredNightAlternatives()
@@ -1587,7 +1588,7 @@ Item {
 
                         delegate: HomeVisibleTargetRow {
                             width: visibleTargetList.width
-                            compact: root.width <= 760
+                            compact: root.width <= 900
                             itemData: modelData
                             onOpenRequested: function(objectId) {
                                 root.openObject(objectId)

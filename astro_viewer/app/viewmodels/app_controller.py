@@ -5055,7 +5055,7 @@ class AppController(QObject):
         normalized = f"{number:g}"
         decimals = len(normalized.partition(".")[2]) if "e" not in normalized.lower() else 2
         return tr(
-            "{value} deg",
+            "{value}°",
             value=format_number(number, decimals=decimals),
         )
 

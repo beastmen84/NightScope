@@ -336,9 +336,10 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    Button {
-                        Layout.fillWidth: true
+                    DarkButton {
+                        Layout.alignment: Qt.AlignLeft
                         text: qsTr("Usa posizione Windows")
+                        accentColor: theme.cyan
                         onClicked: controller.useWindowsLocation()
                     }
 
@@ -365,9 +366,10 @@ Item {
                                 wrapMode: Text.WordWrap
                             }
 
-                            Button {
-                                Layout.fillWidth: true
+                            DarkButton {
+                                Layout.alignment: Qt.AlignLeft
                                 text: qsTr("Usa posizione approssimata online")
+                                accentColor: theme.amber
                                 onClicked: controller.useApproximateOnlineLocation()
                             }
                         }
@@ -390,9 +392,10 @@ Item {
                         wrapMode: Text.WordWrap
                     }
 
-                    Button {
-                        Layout.fillWidth: true
+                    DarkButton {
+                        Layout.alignment: Qt.AlignLeft
                         text: qsTr("Usa posizione approssimata online")
+                        accentColor: theme.violet
                         onClicked: controller.useApproximateOnlineLocation()
                     }
 
@@ -464,9 +467,10 @@ Item {
                                     }
                                 }
 
-                                Button {
+                                DarkButton {
                                     Layout.preferredWidth: 64
                                     text: qsTr("Usa")
+                                    accentColor: theme.violet
                                     onClicked: controller.selectRecentLocation(index)
                                 }
                             }
@@ -492,7 +496,7 @@ Item {
                     TextField {
                         id: manualLabel
                         Layout.fillWidth: true
-                        placeholderText: qsTr("Nome luogo")
+                        placeholderText: qsTr("Nome luogo (facoltativo)")
                     }
 
                     GridLayout {
@@ -504,21 +508,24 @@ Item {
                         TextField {
                             id: manualLatitude
                             Layout.fillWidth: true
-                            placeholderText: qsTr("Latitudine")
+                            placeholderText: qsTr("Latitudine *")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
 
                         TextField {
                             id: manualLongitude
                             Layout.fillWidth: true
-                            placeholderText: qsTr("Longitudine")
+                            placeholderText: qsTr("Longitudine *")
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                         }
                     }
 
-                    Button {
-                        Layout.fillWidth: true
+                    DarkButton {
+                        Layout.alignment: Qt.AlignLeft
                         text: qsTr("Imposta coordinate")
+                        enabled: manualLatitude.text.trim().length > 0
+                                 && manualLongitude.text.trim().length > 0
+                        accentColor: theme.teal
                         onClicked: controller.setManualLocation(manualLatitude.text, manualLongitude.text, manualLabel.text)
                     }
                 }

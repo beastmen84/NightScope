@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.3`:
+Measured on the current Windows development environment for `1.32.4`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `748 passed, 7 subtests passed` | `0:01:39.38` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `750 passed, 7 subtests passed` | `0:01:55.79` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -115,6 +115,13 @@ Home/Weather/Calendar navigation to location setup, localized barrel-size
 labels, degree-symbol catalogue dimensions and the revised required/optional
 Equipment form copy. Italian and English QML smoke tests use disposable
 runtime directories.
+The `1.32.4` corrections cover the backend catalogue-angle label actually used
+by QML, naked-eye alternative filtering through the existing Equipment read
+model, the neutral Home Moon icon, readable alternative columns, explicit
+night-aggregate Weather labels, localized urban-baseline provenance and manual
+coordinate required-state copy. A live CelesTrak probe for Addis Ababa is kept
+outside the deterministic suite; the product code was unchanged after it
+confirmed that the current ten-day `0` ISS count is physically consistent.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

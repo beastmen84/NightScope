@@ -8,6 +8,13 @@ from astro_viewer.app.services.equipment_service import EquipmentService
 
 
 HOME_PAGE = Path(__file__).resolve().parents[1] / "app" / "ui" / "pages" / "HomePage.qml"
+HOME_VISIBLE_TARGET_ROW = (
+    Path(__file__).resolve().parents[1]
+    / "app"
+    / "ui"
+    / "components"
+    / "HomeVisibleTargetRow.qml"
+)
 
 
 def test_home_lower_surface_uses_backend_overview_contract() -> None:
@@ -30,6 +37,19 @@ def test_home_lower_surface_uses_backend_overview_contract() -> None:
     assert "signal openEvent(string eventId)" in source
     assert "signal openCalendar()" in source
     assert 'headerActionText: qsTr("Vedi tutti")' in source
+
+
+def test_home_uses_a_neutral_moon_icon_and_readable_alternative_columns() -> None:
+    source = HOME_PAGE.read_text(encoding="utf-8")
+    row_source = HOME_VISIBLE_TARGET_ROW.read_text(encoding="utf-8")
+
+    assert 'controller.assetBaseUrl + "/resources/icons/moon.svg"' in source
+    assert "controller.moonSummary.image" not in source
+    assert "compact: root.width <= 900" in source
+    assert "Layout.preferredWidth: 175" in source
+    assert "Layout.preferredWidth: 175" in row_source
+    assert "Layout.maximumWidth: 220" in source
+    assert "Layout.maximumWidth: 220" in row_source
 
 
 def test_home_alternatives_capture_wheel_events_while_the_list_can_scroll() -> None:

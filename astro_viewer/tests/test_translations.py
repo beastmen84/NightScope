@@ -10,6 +10,7 @@ from xml.etree import ElementTree
 
 from PySide6.QtCore import QCoreApplication, QLocale, QObject
 
+from astro_viewer.app.models.sky import SkyQuality
 from astro_viewer.app.services.localization import (
     active_language_code,
     content_text,
@@ -218,6 +219,16 @@ def test_translation_manager_switches_live_and_preserves_preferences(
     assert manager.languageCode == "en"
     assert engine.retranslate_calls == 1
     assert QCoreApplication.translate("main", "Calendario") == "Calendar"
+    assert render_payload(
+        SkyQuality(
+            7,
+            4.6,
+            18.8,
+            "Fonte: NightScope local urban baseline",
+            "urban",
+        ).to_qml()
+    )["source"] == "Source: NightScope local urban baseline"
+    assert render_text(AppController._format_catalogue_angle(0.233)) == "0.233°"
 
     stored_preferences = json.loads(preferences_path.read_text(encoding="utf-8"))
     assert stored_preferences["saved_location"] == {"name": "Roma"}

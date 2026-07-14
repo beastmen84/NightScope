@@ -32,6 +32,10 @@ class HomeNightPlanOverviewService:
     ) -> dict[str, object]:
         profile = _profile_payload(active_profile, assigned_equipment)
         state = _session_state(session)
+        naked_eye_only = (
+            int(profile["telescopeCount"]) == 0
+            and int(profile["binocularCount"]) == 0
+        )
         plan_items = (
             _plan_items(
                 night_plan,
@@ -47,10 +51,15 @@ class HomeNightPlanOverviewService:
             "profile": profile,
             "plan": _plan_payload(session, state=state, items=plan_items, loading=loading),
             "alternatives": _alternatives_payload(
-                alternatives,
+                _practical_alternatives(
+                    alternatives,
+                    setup_models_by_object_id=setup_models_by_object_id,
+                    naked_eye_only=naked_eye_only,
+                ),
                 state=state,
                 loading=loading,
                 sky_quality_warning=sky_quality_warning,
+                naked_eye_only=naked_eye_only,
             ),
         }
 
@@ -184,6 +193,7 @@ def _alternatives_payload(
     state: str,
     loading: bool,
     sky_quality_warning: str,
+    naked_eye_only: bool,
 ) -> dict[str, object]:
     items = [_alternative_item(item) for item in unique_targets_by_id(alternatives)]
     planet_count = sum(item["category"] == "planet" for item in items)
@@ -192,6 +202,11 @@ def _alternatives_payload(
         "monitor": tr("Oggetti visibili da monitorare"),
         "discouraged": tr("Oggetti astronomicamente visibili stasera"),
     }
+    if naked_eye_only:
+        titles = {
+            "monitor": tr("Oggetti visibili a occhio nudo"),
+            "discouraged": tr("Oggetti visibili a occhio nudo stasera"),
+        }
     subtitles = {
         "pending": tr("La lista sarà calcolata appena la posizione è disponibile"),
         "recommended": tr("Fuori dal piano, ordinati per finestra osservativa"),
@@ -206,11 +221,18 @@ def _alternatives_payload(
         empty_text = tr("Oggetti non disponibili senza località.")
     elif loading or state == "pending":
         empty_text = tr("Calcolo della visibilità...")
+    elif naked_eye_only:
+        empty_text = tr("Nessun altro oggetto osservabile a occhio nudo.")
     else:
         empty_text = tr("Nessun altro oggetto utile fuori dal piano.")
     return {
         "state": state,
-        "title": titles.get(state, tr("Altri oggetti visibili stasera")),
+        "title": titles.get(
+            state,
+            tr("Altri oggetti visibili a occhio nudo")
+            if naked_eye_only
+            else tr("Altri oggetti visibili stasera"),
+        ),
         "subtitle": subtitle,
         "emptyText": empty_text,
         "totalCount": len(items),
@@ -218,6 +240,22 @@ def _alternatives_payload(
         "deepSkyCount": deep_sky_count,
         "items": items,
     }
+
+
+def _practical_alternatives(
+    alternatives: Sequence[Mapping[str, object]],
+    *,
+    setup_models_by_object_id: Mapping[str, EquipmentSetupReadModel],
+    naked_eye_only: bool,
+) -> list[Mapping[str, object]]:
+    if not naked_eye_only:
+        return list(alternatives)
+    practical = []
+    for item in alternatives:
+        setup_model = setup_models_by_object_id.get(_text(item, "id"))
+        if setup_model is not None and not setup_model.requires_optical_instrument:
+            practical.append(item)
+    return practical
 
 
 def _alternative_item(item: Mapping[str, object]) -> dict[str, object]:

@@ -1284,6 +1284,8 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertEqual(messier_objects[0]["type"], "Supernova remnant")
             self.assertEqual(messier_objects[0]["type_label"], "Resto di supernova")
             self.assertEqual(messier_objects[0]["constellation"], "Taurus")
+            self.assertTrue(messier_objects[0]["max_angular_size_label"].endswith("°"))
+            self.assertNotIn("deg", messier_objects[0]["max_angular_size_label"])
             self.assertEqual(messier_objects[0]["recommended_observation_type"], "General")
             self.assertEqual(messier_objects[0]["recommended_observation_type_label"], "Generale")
             self.assertTrue(all(item["type_label"] != item["type"] for item in messier_objects))
@@ -2023,6 +2025,10 @@ class Phase6RealDataTests(unittest.TestCase):
             quality = service.sky_quality(ObserverLocation("Addis Ababa", "Ethiopia", 9.03, 38.74, "Africa/Addis_Ababa"))
 
             self.assertEqual(quality.source, "Fonte: NightScope local urban baseline")
+            self.assertEqual(
+                quality.to_qml()["source"],
+                "Fonte: baseline urbana locale NightScope",
+            )
 
     def test_viirs_tile_mapping_for_bologna(self) -> None:
         tile = NasaViirsBlackMarbleProvider._tile_for_location(

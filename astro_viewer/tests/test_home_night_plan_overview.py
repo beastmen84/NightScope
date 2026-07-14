@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from astro_viewer.app.models.sky import NightPlanItem
 from astro_viewer.app.services.equipment_setup_read_model import (
     EquipmentSetupOptionReadModel,
@@ -78,7 +80,7 @@ def test_discouraged_state_keeps_visibility_separate_from_recommendation() -> No
     assert payload["profile"]["summary"] == "Profilo attivo: Serate urbane  ·  occhio nudo"
     assert payload["plan"]["title"] == "Sessione sconsigliata"
     assert payload["plan"]["items"] == []
-    assert payload["alternatives"]["title"] == "Oggetti astronomicamente visibili stasera"
+    assert payload["alternatives"]["title"] == "Oggetti visibili a occhio nudo stasera"
     assert payload["alternatives"]["subtitle"] == (
         "Geometria favorevole, ma la sessione non è consigliata"
     )
@@ -98,7 +100,7 @@ def test_missing_profile_name_uses_default_while_naked_eye_remains_the_mode() ->
 def test_alternatives_contract_keeps_full_rows_without_legacy_scores() -> None:
     payload = _build(
         session=_session("recommended"),
-        assigned_equipment=[],
+        assigned_equipment=[{"kind": "telescope"}],
         alternatives=[
             _alternative("mars", "Marte", "Pianeta", "planet"),
             _alternative("messier-31", "M31", "Spiral Galaxy", "deep_sky"),
@@ -119,6 +121,45 @@ def test_alternatives_contract_keeps_full_rows_without_legacy_scores() -> None:
     assert alternatives["items"][2]["typeLabel"] == "Nebulosa diffusa"
     assert all("score" not in item for item in alternatives["items"])
     assert all("recommendedSetup" not in item for item in alternatives["items"])
+
+
+def test_naked_eye_profile_hides_targets_requiring_an_optical_instrument() -> None:
+    naked_eye_model = replace(
+        _setup_model(),
+        object_id="mars",
+        name="Marte",
+        equipment_type="NakedEye",
+        setup_type="naked_eye",
+        recommendation_state="naked_eye",
+        requires_optical_instrument=False,
+    )
+    optical_model = replace(
+        _setup_model(),
+        object_id="messier-31",
+        name="M31",
+        recommendation_state="requires_optical_instrument",
+        requires_optical_instrument=True,
+    )
+
+    payload = _build(
+        session=_session("recommended"),
+        assigned_equipment=[],
+        alternatives=[
+            _alternative("mars", "Marte", "Pianeta", "planet"),
+            _alternative("messier-31", "M31", "Spiral Galaxy", "deep_sky"),
+        ],
+        setup_models_by_object_id={
+            "mars": naked_eye_model,
+            "messier-31": optical_model,
+        },
+    )
+
+    alternatives = payload["alternatives"]
+    assert alternatives["title"] == "Altri oggetti visibili a occhio nudo"
+    assert alternatives["totalCount"] == 1
+    assert alternatives["planetCount"] == 1
+    assert alternatives["deepSkyCount"] == 0
+    assert [item["objectId"] for item in alternatives["items"]] == ["mars"]
 
 
 def test_overview_deduplicates_plan_alternatives_and_equipment_counts() -> None:
@@ -160,13 +201,18 @@ def _build(
     active_profile: dict[str, object] | None = None,
     alternatives: list[dict[str, object]] | None = None,
     night_plan: list[NightPlanItem] | None = None,
+    setup_models_by_object_id: dict[str, EquipmentSetupReadModel] | None = None,
 ) -> dict[str, object]:
     plan = _plan_item()
     return HomeNightPlanOverviewService().build(
         session=session,
         night_plan=[plan] if night_plan is None else night_plan,
         target_payloads_by_id={"messier-42": {"type": "Diffuse Nebula"}},
-        setup_models_by_object_id={"messier-42": _setup_model()},
+        setup_models_by_object_id=(
+            {"messier-42": _setup_model()}
+            if setup_models_by_object_id is None
+            else setup_models_by_object_id
+        ),
         alternatives=alternatives or [],
         active_profile=(
             {"profile_name": "Serate urbane"}

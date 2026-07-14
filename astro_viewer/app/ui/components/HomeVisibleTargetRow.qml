@@ -52,8 +52,8 @@ Rectangle {
         }
 
         Text {
-            Layout.fillWidth: true
-            Layout.minimumWidth: 140
+            Layout.preferredWidth: 170
+            Layout.maximumWidth: 220
             text: root.value("name", qsTr("Oggetto"))
             color: theme.textPrimary
             font.pixelSize: 13
@@ -63,7 +63,8 @@ Rectangle {
         }
 
         Text {
-            Layout.preferredWidth: 170
+            Layout.fillWidth: true
+            Layout.minimumWidth: 130
             text: root.value("typeLabel", qsTr("Oggetto"))
             color: theme.textSecondary
             font.pixelSize: 12
@@ -81,7 +82,7 @@ Rectangle {
         }
 
         Text {
-            Layout.preferredWidth: 105
+            Layout.preferredWidth: 95
             text: root.value("direction", qsTr("n/d"))
             color: theme.textMuted
             font.pixelSize: 12
@@ -90,7 +91,7 @@ Rectangle {
         }
 
         Text {
-            Layout.preferredWidth: 90
+            Layout.preferredWidth: 175
             horizontalAlignment: Text.AlignRight
             text: root.value("difficulty", qsTr("n/d"))
             color: theme.textMuted

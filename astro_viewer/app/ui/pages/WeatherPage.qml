@@ -133,6 +133,29 @@ Item {
                 }
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 28
+                Layout.rightMargin: 28
+                spacing: 3
+
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("Sintesi notte osservativa")
+                    color: theme.textPrimary
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("Medie meteo nella finestra notturna; precipitazioni come probabilità massima, Bortle locale.")
+                    color: theme.textMuted
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                }
+            }
+
             GridLayout {
                 Layout.fillWidth: true
                 Layout.leftMargin: 28
@@ -141,14 +164,14 @@ Item {
                 columnSpacing: 12
                 rowSpacing: 12
 
-                MetricTile { label: qsTr("Nuvolosità"); value: controller.hasValidLocation ? controller.weatherSummary.cloudCoverLabel : qsTr("n/d"); accentColor: theme.cyan }
-                MetricTile { label: qsTr("Precipitazioni"); value: controller.hasValidLocation ? controller.weatherSummary.precipitationProbabilityLabel : qsTr("n/d"); accentColor: theme.coral }
-                MetricTile { label: qsTr("Vento"); value: controller.hasValidLocation ? controller.weatherSummary.windLabel : qsTr("n/d"); accentColor: theme.teal }
-                MetricTile { label: qsTr("Umidità"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d"); accentColor: theme.violet }
-                MetricTile { label: qsTr("Temperatura"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d"); accentColor: theme.amber }
-                MetricTile { label: qsTr("Seeing"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d"); accentColor: theme.green }
-                MetricTile { label: qsTr("Trasparenza meteo"); value: controller.hasValidLocation ? controller.seeingTransparency.transparency : qsTr("n/d"); accentColor: theme.cyan }
-                MetricTile { label: qsTr("Bortle"); value: controller.hasValidLocation ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
+                MetricTile { label: qsTr("Nuvolosità media"); value: controller.hasValidLocation ? controller.weatherSummary.cloudCoverLabel : qsTr("n/d"); accentColor: theme.cyan }
+                MetricTile { label: qsTr("Precipitazioni max"); value: controller.hasValidLocation ? controller.weatherSummary.precipitationProbabilityLabel : qsTr("n/d"); accentColor: theme.coral }
+                MetricTile { label: qsTr("Vento medio"); value: controller.hasValidLocation ? controller.weatherSummary.windLabel : qsTr("n/d"); accentColor: theme.teal }
+                MetricTile { label: qsTr("Umidità media"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d"); accentColor: theme.violet }
+                MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d"); accentColor: theme.amber }
+                MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d"); accentColor: theme.green }
+                MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.transparency : qsTr("n/d"); accentColor: theme.cyan }
+                MetricTile { label: qsTr("Bortle locale"); value: controller.hasValidLocation ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
             }
 
             GlassCard {

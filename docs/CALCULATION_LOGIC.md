@@ -135,6 +135,13 @@ Its compact setup includes the selected telescope name only when more than one
 is assigned to the active profile. None of these fields feed Planner, Equipment
 selection, Home target ordering or Session policy.
 
+When the active profile contains neither telescopes nor binoculars, this
+presentation projection removes alternatives whose existing
+`EquipmentSetupReadModel.requires_optical_instrument` flag is true. It does not
+re-score or reorder targets and it does not duplicate the naked-eye suitability
+rule owned by `RecommendationPresenter`; a missing setup read model is not
+presented as a confirmed naked-eye target.
+
 The lower Home QML consumes this projection directly. It renders the plan state
 card from the projected labels and shows non-plan planets/deep-sky rows in one
 filterable table. The table intentionally omits legacy target scores and
@@ -407,6 +414,12 @@ selector remains scrollable without a visible overlapping scrollbar. The
 complete 48-hour `weatherHourly` payload remains available as a compatibility
 contract, while `observingWeatherHourly` remains the only input for score,
 seeing/transparency, Home digest, Session and NSOM ranking.
+
+The Weather page labels its top summary as night-scoped: cloud cover, wind,
+humidity and temperature are averages over `observingWeatherHourly`, while the
+precipitation value is the maximum probability in that set. Seeing and
+transparency use the same hours; Bortle is explicitly labeled as a local,
+non-hourly property.
 
 The Home `Migliore finestra` remains the lowest-penalty relative block of up to
 three consecutive forecast hours. Candidate blocks are split whenever adjacent

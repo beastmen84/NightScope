@@ -428,6 +428,11 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("isObservingNight", qml)
         self.assertIn("Previsione mobile delle prossime 24 ore", qml)
         self.assertIn("Notte osservativa", qml)
+        self.assertIn('text: qsTr("Sintesi notte osservativa")', qml)
+        self.assertIn('label: qsTr("Nuvolosità media")', qml)
+        self.assertIn('label: qsTr("Precipitazioni max")', qml)
+        self.assertIn('label: qsTr("Seeing notturno")', qml)
+        self.assertIn('label: qsTr("Bortle locale")', qml)
         cloud_card_start = qml.index('title: qsTr("Copertura nuvolosa oraria")')
         weather_bars_start = qml.index("WeatherBars {", cloud_card_start)
         cloud_header = qml[cloud_card_start:weather_bars_start]
@@ -590,6 +595,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn("Layout.fillHeight: true", city_card)
         self.assertNotIn("Layout.preferredHeight: root.width > 1040 ? 252 : 168", city_card)
         self.assertIn('subtitle: qsTr("Geolocalizzazione IP")', qml)
+        self.assertIn('placeholderText: qsTr("Nome luogo (facoltativo)")', qml)
+        self.assertIn('placeholderText: qsTr("Latitudine *")', qml)
+        self.assertIn('placeholderText: qsTr("Longitudine *")', qml)
+        self.assertIn("enabled: manualLatitude.text.trim().length > 0", qml)
 
     def _controller_with_weather(self, response: Mock | None = None, side_effect=None, **kwargs):
         return _ControllerContext(response=response, side_effect=side_effect, **kwargs)
