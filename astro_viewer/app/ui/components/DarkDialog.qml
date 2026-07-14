@@ -10,6 +10,7 @@ Popup {
     property string cancelText: qsTr("Annulla")
     property bool showAccept: true
     property bool acceptDanger: false
+    property bool acceptEnabled: true
     property bool closeOnAccept: true
     property int preferredWidth: 720
     property int dialogPadding: 28
@@ -85,6 +86,7 @@ Popup {
 
             DarkButton {
                 visible: root.showAccept
+                enabled: root.acceptEnabled
                 text: root.acceptText
                 accentColor: theme.cyan
                 danger: root.acceptDanger

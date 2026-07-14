@@ -1074,7 +1074,7 @@ class AppController(QObject):
     def _active_profile_payload(self) -> dict:
         return self._active_profile() or {
             "id": 0,
-            "profile_name": tr("Occhio nudo"),
+            "profile_name": "Default",
             "active": 1,
             "telescope_id": "preset:naked-eye",
         }
@@ -1149,6 +1149,12 @@ class AppController(QObject):
     @Property(str, notify=equipmentChanged)
     def equipmentMessage(self) -> str:
         return render_text(self._equipment_message)
+
+    @Slot()
+    def clearEquipmentMessage(self) -> None:
+        if self._equipment_message:
+            self._equipment_message = ""
+            self.equipmentChanged.emit()
 
     @Property("QVariant", notify=equipmentChanged)
     def currentSetup(self) -> dict:
@@ -1275,6 +1281,7 @@ class AppController(QObject):
 
     @Slot(bool)
     def setCatalogueVisibleThisMonthFilter(self, enabled: bool) -> None:
+        enabled = bool(enabled and self._has_valid_location())
         if self._catalogue_visible_this_month_only == enabled:
             return
         self._catalogue_visible_this_month_only = enabled
@@ -1849,36 +1856,38 @@ class AppController(QObject):
     def equipmentUsage(self, kind: str, item_id: str) -> int:
         return self._equipment_catalog_repository.profile_usage_count(kind, item_id)
 
-    @Slot(str, str, str, str, str, str, str)
-    def addTelescopeModel(self, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> None:
+    @Slot(str, str, str, str, str, str, str, result=bool)
+    def addTelescopeModel(self, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> bool:
         try:
-            aperture_mm = int(float(aperture.replace(",", ".")))
-            focal_mm = int(float(focal.replace(",", ".")))
+            aperture_mm = self._positive_int(aperture)
+            focal_mm = self._positive_int(focal)
         except ValueError:
             self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
-            return
+            return False
         ok, message = self._equipment_catalog_repository.add_telescope_model(brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
         self._after_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, str, str, str)
-    def updateTelescopeModel(self, model_id: int, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> None:
+    @Slot(int, str, str, str, str, str, str, str, result=bool)
+    def updateTelescopeModel(self, model_id: int, brand: str, name: str, optical_type: str, aperture: str, focal: str, mount: str, notes: str) -> bool:
         try:
-            aperture_mm = int(float(aperture.replace(",", ".")))
-            focal_mm = int(float(focal.replace(",", ".")))
+            aperture_mm = self._positive_int(aperture)
+            focal_mm = self._positive_int(focal)
         except ValueError:
             self._equipment_message = tr("Dati telescopio non validi.")
             self.equipmentChanged.emit()
-            return
+            return False
         ok, message = self._equipment_catalog_repository.update_telescope_model(model_id, brand, name, optical_type, aperture_mm, focal_mm, mount, notes)
         self._after_catalog_change(message, ok)
+        return ok
 
     @Slot(int, bool)
     def deleteTelescopeModel(self, model_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_telescope_model(model_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, str, str, str, str)
+    @Slot(str, str, str, str, str, str, str, str, str, str, result=bool)
     def addEyepieceModel(
         self,
         brand: str,
@@ -1891,10 +1900,10 @@ class AppController(QObject):
         barrel_size: str,
         afov_range: str,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_eyepiece_inputs(eyepiece_type, focal, min_focal, max_focal, apparent_field, afov_range)
         if not parsed:
-            return
+            return False
         focal_value, apparent, min_value, max_value, afov_min, afov_max = parsed
         ok, message = self._equipment_catalog_repository.add_eyepiece(
             brand,
@@ -1910,8 +1919,9 @@ class AppController(QObject):
             notes=notes,
         )
         self._after_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, str, str, str, str, str, str)
+    @Slot(int, str, str, str, str, str, str, str, str, str, str, result=bool)
     def updateEyepieceModel(
         self,
         eyepiece_id: int,
@@ -1925,10 +1935,10 @@ class AppController(QObject):
         barrel_size: str,
         afov_range: str,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_eyepiece_inputs(eyepiece_type, focal, min_focal, max_focal, apparent_field, afov_range)
         if not parsed:
-            return
+            return False
         focal_value, apparent, min_value, max_value, afov_min, afov_max = parsed
         ok, message = self._equipment_catalog_repository.update_eyepiece(
             eyepiece_id,
@@ -1945,40 +1955,43 @@ class AppController(QObject):
             notes=notes,
         )
         self._after_catalog_change(message, ok)
+        return ok
 
     @Slot(int, bool)
     def deleteEyepieceModel(self, eyepiece_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_eyepiece(eyepiece_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str)
-    def addBarlowModel(self, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> None:
+    @Slot(str, str, str, str, str, result=bool)
+    def addBarlowModel(self, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
         except ValueError:
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
-            return
+            return False
         ok, message = self._equipment_catalog_repository.add_barlow(brand, model, parsed_multiplier, barrel_size, notes)
         self._after_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, str)
-    def updateBarlowModel(self, barlow_id: int, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> None:
+    @Slot(int, str, str, str, str, str, result=bool)
+    def updateBarlowModel(self, barlow_id: int, brand: str, model: str, multiplier: str, barrel_size: str, notes: str) -> bool:
         try:
             parsed_multiplier = float(multiplier.replace(",", "."))
         except ValueError:
             self._equipment_message = tr("Moltiplicatore Barlow non valido.")
             self.equipmentChanged.emit()
-            return
+            return False
         ok, message = self._equipment_catalog_repository.update_barlow(barlow_id, brand, model, parsed_multiplier, barrel_size, notes)
         self._after_catalog_change(message, ok)
+        return ok
 
     @Slot(int, bool)
     def deleteBarlowModel(self, barlow_id: int, force: bool) -> None:
         ok, message = self._equipment_catalog_repository.delete_barlow(barlow_id, remove_from_profiles=force)
         self._after_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, bool)
+    @Slot(str, str, str, str, bool, result=bool)
     def addBinocularModel(
         self,
         brand: str,
@@ -1986,10 +1999,10 @@ class AppController(QObject):
         magnification: str,
         objective_diameter: str,
         image_stabilized: bool,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_binocular_inputs(magnification, objective_diameter)
         if not parsed:
-            return
+            return False
         magnification_value, objective_value = parsed
         ok, message = self._equipment_catalog_repository.add_binocular(
             brand,
@@ -1999,8 +2012,9 @@ class AppController(QObject):
             image_stabilized,
         )
         self._after_binocular_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, bool)
+    @Slot(int, str, str, str, str, bool, result=bool)
     def updateBinocularModel(
         self,
         binocular_id: int,
@@ -2009,10 +2023,10 @@ class AppController(QObject):
         magnification: str,
         objective_diameter: str,
         image_stabilized: bool,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_binocular_inputs(magnification, objective_diameter)
         if not parsed:
-            return
+            return False
         magnification_value, objective_value = parsed
         ok, message = self._equipment_catalog_repository.update_binocular(
             binocular_id,
@@ -2023,6 +2037,7 @@ class AppController(QObject):
             image_stabilized,
         )
         self._after_binocular_catalog_change(message, ok)
+        return ok
 
     @Slot(int)
     @Slot(int, bool)
@@ -2033,7 +2048,7 @@ class AppController(QObject):
         )
         self._after_binocular_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, str, str)
+    @Slot(str, str, str, str, str, str, str, str, result=bool)
     def addFilterModel(
         self,
         brand: str,
@@ -2044,7 +2059,7 @@ class AppController(QObject):
         transmission: str,
         minimum_aperture: str,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_filter_inputs(
             central_wavelength,
             bandwidth,
@@ -2052,7 +2067,7 @@ class AppController(QObject):
             minimum_aperture,
         )
         if parsed is None:
-            return
+            return False
         central, width, transmission_pct, aperture = parsed
         ok, message = self._equipment_catalog_repository.add_filter(
             brand,
@@ -2065,8 +2080,9 @@ class AppController(QObject):
             notes=notes,
         )
         self._after_passive_accessory_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, str, str, str, str)
+    @Slot(int, str, str, str, str, str, str, str, str, result=bool)
     def updateFilterModel(
         self,
         filter_id: int,
@@ -2078,7 +2094,7 @@ class AppController(QObject):
         transmission: str,
         minimum_aperture: str,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_filter_inputs(
             central_wavelength,
             bandwidth,
@@ -2086,7 +2102,7 @@ class AppController(QObject):
             minimum_aperture,
         )
         if parsed is None:
-            return
+            return False
         central, width, transmission_pct, aperture = parsed
         ok, message = self._equipment_catalog_repository.update_filter(
             filter_id,
@@ -2100,6 +2116,7 @@ class AppController(QObject):
             notes=notes,
         )
         self._after_passive_accessory_catalog_change(message, ok)
+        return ok
 
     @Slot(int, bool)
     def deleteFilterModel(self, filter_id: int, force: bool) -> None:
@@ -2109,7 +2126,7 @@ class AppController(QObject):
         )
         self._after_passive_accessory_catalog_change(message, ok)
 
-    @Slot(str, str, str, str, str, str, str, bool, bool, bool, str)
+    @Slot(str, str, str, str, str, str, str, bool, bool, bool, str, result=bool)
     def addReducerModel(
         self,
         brand: str,
@@ -2123,10 +2140,10 @@ class AppController(QObject):
         imaging_compatible: bool,
         corrected_field: bool,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_reducer_inputs(reduction_factor, backfocus)
         if parsed is None:
-            return
+            return False
         factor, backfocus_mm = parsed
         ok, message = self._equipment_catalog_repository.add_reducer(
             brand,
@@ -2144,8 +2161,9 @@ class AppController(QObject):
             ),
         )
         self._after_passive_accessory_catalog_change(message, ok)
+        return ok
 
-    @Slot(int, str, str, str, str, str, str, str, bool, bool, bool, str)
+    @Slot(int, str, str, str, str, str, str, str, bool, bool, bool, str, result=bool)
     def updateReducerModel(
         self,
         reducer_id: int,
@@ -2160,10 +2178,10 @@ class AppController(QObject):
         imaging_compatible: bool,
         corrected_field: bool,
         notes: str,
-    ) -> None:
+    ) -> bool:
         parsed = self._parse_reducer_inputs(reduction_factor, backfocus)
         if parsed is None:
-            return
+            return False
         factor, backfocus_mm = parsed
         ok, message = self._equipment_catalog_repository.update_reducer(
             reducer_id,
@@ -2182,6 +2200,7 @@ class AppController(QObject):
             ),
         )
         self._after_passive_accessory_catalog_change(message, ok)
+        return ok
 
     @Slot(int, bool)
     def deleteReducerModel(self, reducer_id: int, force: bool) -> None:
@@ -2460,7 +2479,7 @@ class AppController(QObject):
             rise_time=tr("n/d"),
             set_time=tr("n/d"),
             best_note=tr("Configura una posizione per calcolare i dati lunari locali."),
-            image="resources/images/solar_system/moon.jpg",
+            image="",
         )
         self._events = []
         self._transient_events_location_key = ""
@@ -2519,6 +2538,7 @@ class AppController(QObject):
         self._service_status = tr(
             "Configura la posizione per ottenere meteo e cielo locale."
         )
+        self._catalogue_visible_this_month_only = False
         self._invalidate_catalogue_visibility_cache()
         self._refresh_lifecycle().clear_all()
         self.catalogueChanged.emit()
@@ -6357,7 +6377,7 @@ class AppController(QObject):
         localized = []
         for source_row in rows:
             row = dict(source_row)
-            if bool(row.get("is_builtin")):
+            if bool(row.get("is_builtin")) and not bool(row.get("is_user_modified")):
                 item_key = content_key(*(row.get(field) for field in fields))
                 for field in translated_fields:
                     row[field] = content_text(
@@ -6525,14 +6545,22 @@ class AppController(QObject):
         afov_min = None
         afov_max = None
         if afov_range.strip():
-            parts = [part.strip() for part in afov_range.replace(",", ".").replace("-", " ").split() if part.strip()]
-            if len(parts) >= 2:
-                try:
-                    afov_min = float(parts[0])
-                    afov_max = float(parts[1])
-                except ValueError:
-                    afov_min = None
-                    afov_max = None
+            parts = [
+                part.strip()
+                for part in afov_range.replace(",", ".").replace("-", " ").split()
+                if part.strip()
+            ]
+            try:
+                if len(parts) != 2:
+                    raise ValueError
+                afov_min = float(parts[0])
+                afov_max = float(parts[1])
+                if afov_min <= 0 or afov_min > afov_max or afov_max > 180:
+                    raise ValueError
+            except ValueError:
+                self._equipment_message = tr("Intervallo AFOV non valido.")
+                self.equipmentChanged.emit()
+                return None
         if focal_value <= 0 or apparent <= 0:
             self._equipment_message = tr(
                 "Focale e campo apparente devono essere maggiori di zero."
@@ -6687,16 +6715,7 @@ class AppController(QObject):
         return next((profile for profile in self._equipment_profiles if int(profile.get("active", 0)) == 1), None)
 
     def _presented_equipment_profiles(self) -> list[dict]:
-        profiles = []
-        for source_profile in self._equipment_profiles:
-            profile = dict(source_profile)
-            if (
-                profile.get("telescope_id") == self._equipment_service.NAKED_EYE_ID
-                and profile.get("profile_name") == "Occhio nudo"
-            ):
-                profile["profile_name"] = tr("Occhio nudo")
-            profiles.append(profile)
-        return profiles
+        return [dict(profile) for profile in self._equipment_profiles]
 
     def _active_profile_state(self) -> dict[str, list[str]]:
         profile = self._active_profile()
@@ -7044,6 +7063,11 @@ class AppController(QObject):
     def _equipment_status_message(self) -> str:
         telescope = self._current_telescope()
         if not self._equipment_service.has_optical_telescope(telescope):
+            if self._active_profile_binoculars():
+                return tr(
+                    "Profilo con binocolo: configura o seleziona un telescopio "
+                    "per usare oculari e Barlow."
+                )
             return tr("Modalità Occhio nudo: configura o seleziona un telescopio per usare oculari e Barlow.")
         eyepieces = self._active_profile_eyepieces()
         barlows = self._active_profile_barlows()

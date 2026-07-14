@@ -271,7 +271,9 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.activeLocationLabel + "  -  " + controller.activeLocationSource
+                        text: controller.hasValidLocation
+                              ? controller.activeLocationLabel + "  -  " + controller.activeLocationSource
+                              : controller.activeLocationLabel
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -279,7 +281,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: root.nightProfileOverview.summary || qsTr("Profilo attivo: Occhio nudo")
+                        text: root.nightProfileOverview.summary || qsTr("Profilo attivo: Default  ·  occhio nudo")
                         color: theme.cyan
                         font.pixelSize: 13
                         font.weight: Font.DemiBold
@@ -402,10 +404,23 @@ Item {
                                     Image {
                                         anchors.fill: parent
                                         anchors.margins: 8
-                                        source: controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                        visible: controller.hasValidLocation
+                                                 && String(controller.moonSummary.image || "").length > 0
+                                        source: visible
+                                                ? controller.assetBaseUrl + "/" + controller.moonSummary.image
+                                                : ""
                                         fillMode: Image.PreserveAspectFit
                                         sourceSize.width: 96
                                         sourceSize.height: 96
+                                    }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        visible: !controller.hasValidLocation
+                                        text: qsTr("n/d")
+                                        color: theme.textMuted
+                                        font.pixelSize: 13
+                                        font.weight: Font.DemiBold
                                     }
                                 }
 
@@ -1580,7 +1595,9 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: root.filteredNightAlternatives().length === 0
-                        text: root.skyCompassFilterEnabled
+                        text: !controller.hasValidLocation
+                              ? qsTr("Configura una posizione per calcolare gli oggetti visibili.")
+                              : root.skyCompassFilterEnabled
                               ? qsTr("Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento.")
                               : (root.nightAlternativesOverview.emptyText || qsTr("Nessun altro oggetto utile fuori dal piano."))
                         color: theme.textSecondary
@@ -1672,7 +1689,9 @@ Item {
                 Text {
                     Layout.fillWidth: true
                     visible: root.chronologicalEvents(1).length === 0
-                    text: qsTr("Nessun evento imminente disponibile.")
+                    text: controller.hasValidLocation
+                          ? qsTr("Nessun evento imminente disponibile.")
+                          : qsTr("Configura una posizione per calcolare i prossimi eventi.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                 }

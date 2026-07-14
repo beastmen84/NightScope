@@ -151,8 +151,8 @@ def test_builtin_equipment_cannot_be_deleted_from_repository() -> None:
         temporary_directory.cleanup()
 
 
-def test_builtin_equipment_cannot_be_modified_in_repository() -> None:
-    temporary_directory, _, repository = _database()
+def test_builtin_equipment_edits_are_persistent_and_keep_delete_protection() -> None:
+    temporary_directory, database_path, repository = _database()
     try:
         telescope = repository.models()[0]
         eyepiece = repository.eyepieces()[0]
@@ -161,6 +161,14 @@ def test_builtin_equipment_cannot_be_modified_in_repository() -> None:
         optical_filter = repository.filters()[0]
         reducer = repository.reducers()[0]
 
+        original_counts = (
+            len(repository.models()),
+            len(repository.eyepieces()),
+            len(repository.barlows()),
+            len(repository.binoculars()),
+            len(repository.filters()),
+            len(repository.reducers()),
+        )
         attempts = (
             repository.update_telescope_model(
                 telescope["id"],
@@ -211,9 +219,47 @@ def test_builtin_equipment_cannot_be_modified_in_repository() -> None:
                 imaging_compatible=reducer["imaging_compatible"],
             ),
         )
-        for ok, message in attempts:
-            assert not ok
-            assert "integrati" in message
+        assert all(ok for ok, _ in attempts)
+
+        initialize_database(database_path, SCHEMA_PATH)
+        refreshed = EquipmentCatalogRepository(database_path)
+        refreshed_rows = (
+            refreshed.models(),
+            refreshed.eyepieces(),
+            refreshed.barlows(),
+            refreshed.binoculars(),
+            refreshed.filters(),
+            refreshed.reducers(),
+        )
+        assert tuple(map(len, refreshed_rows)) == original_counts
+        for original, rows in zip(
+            (telescope, eyepiece, barlow, binocular, optical_filter, reducer),
+            refreshed_rows,
+            strict=True,
+        ):
+            updated = next(item for item in rows if item["id"] == original["id"])
+            assert updated["is_builtin"]
+            assert updated["is_user_modified"]
+            assert updated["seed_key"] == original["seed_key"]
+            assert "modificato" in (updated.get("name") or updated.get("model") or "")
+
+        updated_reducer = next(
+            item for item in refreshed.reducers() if item["id"] == reducer["id"]
+        )
+        assert updated_reducer["compatible_telescope_ids"] == []
+        assert not refreshed.delete_telescope_model(telescope["id"])[0]
+        assert not refreshed.delete_reducer(reducer["id"])[0]
+    finally:
+        temporary_directory.cleanup()
+
+
+def test_default_profile_name_is_distinct_from_naked_eye_mode() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        profile = repository.active_profile()
+        assert profile is not None
+        assert profile["profile_name"] == "Default"
+        assert profile["telescope_id"] == "preset:naked-eye"
     finally:
         temporary_directory.cleanup()
 

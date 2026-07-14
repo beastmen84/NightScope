@@ -43,7 +43,8 @@ class EquipmentCatalogRepository:
         query = """
             SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                    tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes, tm.is_builtin
+                   tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
+                   tm.is_user_modified
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
         """
@@ -65,7 +66,8 @@ class EquipmentCatalogRepository:
                     """
                     SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                            tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                           tm.mount_type, tm.notes, tm.is_builtin
+                           tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
+                           tm.is_user_modified
                     FROM TelescopeModel tm
                     JOIN TelescopeBrand tb ON tb.id = tm.brand_id
                     WHERE tm.id = ?
@@ -83,7 +85,8 @@ class EquipmentCatalogRepository:
                 """
                 SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                        tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                       tm.mount_type, tm.notes, tm.is_builtin
+                       tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
+                       tm.is_user_modified
                 FROM TelescopeModel tm
                 JOIN TelescopeBrand tb ON tb.id = tm.brand_id
                 WHERE tb.name = ? AND tm.name = ?
@@ -107,6 +110,12 @@ class EquipmentCatalogRepository:
         clean_name = name.strip()
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
+        clean_optical_type = optical_type.strip()
+        clean_mount_type = mount_type.strip()
+        if not clean_optical_type or not clean_mount_type:
+            return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if aperture_mm <= 0 or focal_length_mm <= 0:
+            return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
@@ -124,7 +133,16 @@ class EquipmentCatalogRepository:
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (brand_id, clean_name, optical_type, aperture_mm, focal_length_mm, focal_ratio, mount_type, notes),
+                (
+                    brand_id,
+                    clean_name,
+                    clean_optical_type,
+                    aperture_mm,
+                    focal_length_mm,
+                    focal_ratio,
+                    clean_mount_type,
+                    notes.strip(),
+                ),
             )
             connection.commit()
         return True, tr("Modello telescopio aggiunto.")
@@ -144,12 +162,16 @@ class EquipmentCatalogRepository:
         clean_name = name.strip()
         if not clean_brand or not clean_name:
             return False, tr("Marca e modello sono obbligatori.")
+        clean_optical_type = optical_type.strip()
+        clean_mount_type = mount_type.strip()
+        if not clean_optical_type or not clean_mount_type:
+            return False, tr("Tipo ottico e montatura sono obbligatori.")
+        if aperture_mm <= 0 or focal_length_mm <= 0:
+            return False, tr("Apertura e focale devono essere maggiori di zero.")
         with closing(self._connect()) as connection:
             old = self._telescope_model_by_id(connection, model_id)
             if not old:
                 return False, tr("Modello telescopio non trovato.")
-            if old["is_builtin"]:
-                return False, tr("Gli elementi integrati non possono essere modificati.")
             brand_id = self._ensure_brand(connection, clean_brand)
             duplicate = connection.execute(
                 "SELECT id FROM TelescopeModel WHERE brand_id = ? AND name = ? AND id <> ?",
@@ -162,10 +184,23 @@ class EquipmentCatalogRepository:
                 """
                 UPDATE TelescopeModel
                 SET brand_id = ?, name = ?, optical_type = ?, aperture_mm = ?,
-                    focal_length_mm = ?, focal_ratio = ?, mount_type = ?, notes = ?
+                    focal_length_mm = ?, focal_ratio = ?, mount_type = ?, notes = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
-                (brand_id, clean_name, optical_type, aperture_mm, focal_length_mm, focal_ratio, mount_type, notes, model_id),
+                (
+                    brand_id,
+                    clean_name,
+                    clean_optical_type,
+                    aperture_mm,
+                    focal_length_mm,
+                    focal_ratio,
+                    clean_mount_type,
+                    notes.strip(),
+                    model_id,
+                ),
             )
             new_id = f"catalog-telescope-{model_id}"
             profile_ids = {old["catalog_id"], old.get("legacy_catalog_id"), new_id}
@@ -209,7 +244,8 @@ class EquipmentCatalogRepository:
                 SELECT id, brand, model, eyepiece_type, focal_length_mm,
                        min_focal_length_mm, max_focal_length_mm,
                        apparent_field_deg, afov_min, afov_max, barrel_size,
-                       zoom_click_positions_mm, notes, is_builtin
+                       zoom_click_positions_mm, notes, is_builtin, seed_key,
+                       is_user_modified
                 FROM EyepieceCatalog
                 ORDER BY brand, model, focal_length_mm
                 """
@@ -231,17 +267,29 @@ class EquipmentCatalogRepository:
         zoom_click_positions_mm: str = "",
         notes: str = "",
     ) -> tuple[bool, str]:
-        clean_brand = brand.strip()
-        clean_model = model.strip()
-        if not clean_brand or not clean_model:
-            return False, tr("Marca e modello sono obbligatori.")
+        values, error = self._validated_eyepiece_values(
+            brand,
+            model,
+            eyepiece_type,
+            focal_length_mm,
+            apparent_field_deg,
+            barrel_size,
+            min_focal_length_mm,
+            max_focal_length_mm,
+            afov_min,
+            afov_max,
+            zoom_click_positions_mm,
+            notes,
+        )
+        if error:
+            return False, error
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 """
                 SELECT id FROM EyepieceCatalog
                 WHERE brand = ? AND model = ? AND focal_length_mm = ?
                 """,
-                (clean_brand, clean_model, focal_length_mm),
+                (values[0], values[1], values[3]),
             ).fetchone()
             if duplicate:
                 return False, tr("Questo oculare è già presente nel catalogo.")
@@ -254,20 +302,7 @@ class EquipmentCatalogRepository:
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
-                    clean_brand,
-                    clean_model,
-                    eyepiece_type,
-                    focal_length_mm,
-                    min_focal_length_mm,
-                    max_focal_length_mm,
-                    apparent_field_deg,
-                    afov_min,
-                    afov_max,
-                    barrel_size,
-                    zoom_click_positions_mm,
-                    notes,
-                ),
+                values,
             )
             connection.commit()
         return True, tr("Oculare aggiunto.")
@@ -288,25 +323,44 @@ class EquipmentCatalogRepository:
         zoom_click_positions_mm: str = "",
         notes: str = "",
     ) -> tuple[bool, str]:
-        clean_brand = brand.strip()
-        clean_model = model.strip()
-        if not clean_brand or not clean_model:
-            return False, tr("Marca e modello sono obbligatori.")
+        values, error = self._validated_eyepiece_values(
+            brand,
+            model,
+            eyepiece_type,
+            focal_length_mm,
+            apparent_field_deg,
+            barrel_size,
+            min_focal_length_mm,
+            max_focal_length_mm,
+            afov_min,
+            afov_max,
+            zoom_click_positions_mm,
+            notes,
+        )
+        if error:
+            return False, error
         with closing(self._connect()) as connection:
             existing = connection.execute(
-                "SELECT id, is_builtin FROM EyepieceCatalog WHERE id = ?",
+                """
+                SELECT id, is_builtin, zoom_click_positions_mm
+                FROM EyepieceCatalog
+                WHERE id = ?
+                """,
                 (eyepiece_id,),
             ).fetchone()
             if not existing:
                 return False, tr("Oculare non trovato.")
-            if bool(existing["is_builtin"]):
-                return False, tr("Gli elementi integrati non possono essere modificati.")
+            if not values[10]:
+                values = values[:10] + (
+                    existing["zoom_click_positions_mm"] or "",
+                    values[11],
+                )
             duplicate = connection.execute(
                 """
                 SELECT id FROM EyepieceCatalog
                 WHERE brand = ? AND model = ? AND focal_length_mm = ? AND id <> ?
                 """,
-                (clean_brand, clean_model, focal_length_mm, eyepiece_id),
+                (values[0], values[1], values[3], eyepiece_id),
             ).fetchone()
             if duplicate:
                 return False, tr("Questo oculare è già presente nel catalogo.")
@@ -316,24 +370,13 @@ class EquipmentCatalogRepository:
                 SET brand = ?, model = ?, eyepiece_type = ?, focal_length_mm = ?,
                     min_focal_length_mm = ?, max_focal_length_mm = ?,
                     apparent_field_deg = ?, afov_min = ?, afov_max = ?,
-                    barrel_size = ?, zoom_click_positions_mm = ?, notes = ?
+                    barrel_size = ?, zoom_click_positions_mm = ?, notes = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
-                (
-                    clean_brand,
-                    clean_model,
-                    eyepiece_type,
-                    focal_length_mm,
-                    min_focal_length_mm,
-                    max_focal_length_mm,
-                    apparent_field_deg,
-                    afov_min,
-                    afov_max,
-                    barrel_size,
-                    zoom_click_positions_mm,
-                    notes,
-                    eyepiece_id,
-                ),
+                values + (eyepiece_id,),
             )
             connection.commit()
         return True, tr("Oculare aggiornato.")
@@ -356,7 +399,8 @@ class EquipmentCatalogRepository:
         with closing(self._connect()) as connection:
             rows = connection.execute(
                 """
-                SELECT id, brand, model, multiplier, barrel_size, notes, is_builtin
+                SELECT id, brand, model, multiplier, barrel_size, notes,
+                       is_builtin, seed_key, is_user_modified
                 FROM BarlowCatalog
                 ORDER BY brand, model, multiplier
                 """
@@ -368,6 +412,8 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
+        if multiplier <= 1:
+            return False, tr("Il moltiplicatore Barlow deve essere maggiore di 1.")
         with closing(self._connect()) as connection:
             duplicate = connection.execute(
                 "SELECT id FROM BarlowCatalog WHERE brand = ? AND model = ? AND multiplier = ?",
@@ -380,7 +426,7 @@ class EquipmentCatalogRepository:
                 INSERT INTO BarlowCatalog (brand, model, multiplier, barrel_size, notes)
                 VALUES (?, ?, ?, ?, ?)
                 """,
-                (clean_brand, clean_model, multiplier, barrel_size, notes),
+                (clean_brand, clean_model, multiplier, barrel_size.strip(), notes.strip()),
             )
             connection.commit()
         return True, tr("Barlow aggiunta.")
@@ -390,6 +436,8 @@ class EquipmentCatalogRepository:
         clean_model = model.strip()
         if not clean_brand or not clean_model:
             return False, tr("Marca e modello sono obbligatori.")
+        if multiplier <= 1:
+            return False, tr("Il moltiplicatore Barlow deve essere maggiore di 1.")
         with closing(self._connect()) as connection:
             existing = connection.execute(
                 "SELECT id, is_builtin FROM BarlowCatalog WHERE id = ?",
@@ -397,8 +445,6 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, tr("Barlow non trovata.")
-            if bool(existing["is_builtin"]):
-                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM BarlowCatalog
@@ -411,10 +457,20 @@ class EquipmentCatalogRepository:
             connection.execute(
                 """
                 UPDATE BarlowCatalog
-                SET brand = ?, model = ?, multiplier = ?, barrel_size = ?, notes = ?
+                SET brand = ?, model = ?, multiplier = ?, barrel_size = ?, notes = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
-                (clean_brand, clean_model, multiplier, barrel_size, notes, barlow_id),
+                (
+                    clean_brand,
+                    clean_model,
+                    multiplier,
+                    barrel_size.strip(),
+                    notes.strip(),
+                    barlow_id,
+                ),
             )
             connection.commit()
         return True, tr("Barlow aggiornata.")
@@ -438,7 +494,7 @@ class EquipmentCatalogRepository:
             rows = connection.execute(
                 """
                 SELECT id, brand, model, magnification, objective_diameter_mm,
-                       image_stabilized, is_builtin
+                       image_stabilized, is_builtin, seed_key, is_user_modified
                 FROM BinocularCatalog
                 ORDER BY brand, model, magnification, objective_diameter_mm
                 """
@@ -509,8 +565,6 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, tr("Binocolo non trovato.")
-            if bool(existing["is_builtin"]):
-                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM BinocularCatalog
@@ -524,7 +578,10 @@ class EquipmentCatalogRepository:
                 """
                 UPDATE BinocularCatalog
                 SET brand = ?, model = ?, magnification = ?, objective_diameter_mm = ?,
-                    image_stabilized = ?
+                    image_stabilized = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
                 (
@@ -569,7 +626,8 @@ class EquipmentCatalogRepository:
                 """
                 SELECT id, brand, model, filter_class,
                        central_wavelength_nm, bandwidth_nm, transmission_pct,
-                       minimum_aperture_mm, notes, is_builtin
+                       minimum_aperture_mm, notes, is_builtin, seed_key,
+                       is_user_modified
                 FROM FilterCatalog
                 ORDER BY brand, model
                 """
@@ -654,8 +712,6 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, tr("Filtro non trovato.")
-            if bool(existing["is_builtin"]):
-                return False, tr("Gli elementi integrati non possono essere modificati.")
             duplicate = connection.execute(
                 """
                 SELECT id FROM FilterCatalog
@@ -670,7 +726,10 @@ class EquipmentCatalogRepository:
                 UPDATE FilterCatalog
                 SET brand = ?, model = ?, filter_class = ?,
                     central_wavelength_nm = ?, bandwidth_nm = ?,
-                    transmission_pct = ?, minimum_aperture_mm = ?, notes = ?
+                    transmission_pct = ?, minimum_aperture_mm = ?, notes = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
                 values + (filter_id,),
@@ -709,7 +768,7 @@ class EquipmentCatalogRepository:
                 SELECT id, brand, model, reduction_factor, optical_system,
                        compatible_models, connection, backfocus_mm,
                        visual_compatible, imaging_compatible, corrected_field,
-                       notes, is_builtin
+                       notes, is_builtin, seed_key, is_user_modified
                 FROM ReducerCatalog
                 ORDER BY brand, model, reduction_factor
                 """
@@ -855,8 +914,6 @@ class EquipmentCatalogRepository:
             ).fetchone()
             if not existing:
                 return False, tr("Riduttore non trovato.")
-            if bool(existing["is_builtin"]):
-                return False, tr("Gli elementi integrati non possono essere modificati.")
             telescope_model_ids, compatibility_error = (
                 self._validated_reducer_telescope_ids(
                     connection,
@@ -880,7 +937,10 @@ class EquipmentCatalogRepository:
                 SET brand = ?, model = ?, reduction_factor = ?,
                     optical_system = ?, compatible_models = ?, connection = ?,
                     backfocus_mm = ?, visual_compatible = ?,
-                    imaging_compatible = ?, corrected_field = ?, notes = ?
+                    imaging_compatible = ?, corrected_field = ?, notes = ?,
+                    is_user_modified = CASE
+                        WHEN is_builtin = 1 THEN 1 ELSE is_user_modified
+                    END
                 WHERE id = ?
                 """,
                 values + (reducer_id,),
@@ -998,7 +1058,7 @@ class EquipmentCatalogRepository:
                         INSERT INTO EquipmentProfile (profile_name, active, telescope_id)
                         VALUES (?, 1, ?)
                         """,
-                        ("Occhio nudo", "preset:naked-eye"),
+                        ("Default", "preset:naked-eye"),
                     )
             connection.commit()
 
@@ -1106,6 +1166,8 @@ class EquipmentCatalogRepository:
             "mount_type": row["mount_type"],
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
             "catalog_id": f"catalog-telescope-{row['id']}",
             "legacy_catalog_id": f"catalog:{row['brand']}:{row['name']}",
         }
@@ -1151,6 +1213,8 @@ class EquipmentCatalogRepository:
             "notes": row["notes"] or "",
             "focalRangeLabel": focal_range,
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
         }
 
     @staticmethod
@@ -1168,6 +1232,8 @@ class EquipmentCatalogRepository:
             "barrel_size": row["barrel_size"] or "",
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
         }
 
     @staticmethod
@@ -1183,6 +1249,8 @@ class EquipmentCatalogRepository:
             "image_stabilized": bool(row["image_stabilized"]),
             "spec_label": f"{row['magnification']}×{row['objective_diameter_mm']}",
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
         }
 
     @staticmethod
@@ -1218,6 +1286,8 @@ class EquipmentCatalogRepository:
             ),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
         }
 
     @staticmethod
@@ -1255,7 +1325,70 @@ class EquipmentCatalogRepository:
             "corrected_field": bool(row["corrected_field"]),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
+            "seed_key": row["seed_key"] or "",
+            "is_user_modified": bool(row["is_user_modified"]),
         }
+
+    @staticmethod
+    def _validated_eyepiece_values(
+        brand: str,
+        model: str,
+        eyepiece_type: str,
+        focal_length_mm: float,
+        apparent_field_deg: float,
+        barrel_size: str,
+        min_focal_length_mm: float | None,
+        max_focal_length_mm: float | None,
+        afov_min: float | None,
+        afov_max: float | None,
+        zoom_click_positions_mm: str,
+        notes: str,
+    ) -> tuple[tuple, str]:
+        clean_brand = brand.strip()
+        clean_model = model.strip()
+        clean_type = eyepiece_type.strip()
+        if not clean_brand or not clean_model:
+            return (), tr("Marca e modello sono obbligatori.")
+        if not clean_type:
+            return (), tr("Tipo di oculare non valido.")
+        if clean_type.casefold() == "zoom":
+            clean_type = "Zoom"
+        if apparent_field_deg <= 0 or apparent_field_deg > 180:
+            return (), tr("Il campo apparente deve essere compreso tra 0 e 180 gradi.")
+        if clean_type != "Zoom":
+            if focal_length_mm <= 0:
+                return (), tr("La focale deve essere maggiore di zero.")
+            min_focal_length_mm = None
+            max_focal_length_mm = None
+        elif (
+            min_focal_length_mm is None
+            or max_focal_length_mm is None
+            or min_focal_length_mm <= 0
+            or min_focal_length_mm >= max_focal_length_mm
+        ):
+            return (), tr("Per uno Zoom indica una focale minima inferiore alla massima.")
+        else:
+            focal_length_mm = max_focal_length_mm
+        if (afov_min is None) != (afov_max is None):
+            return (), tr("L'intervallo AFOV deve contenere due valori.")
+        if afov_min is not None and (
+            afov_min <= 0 or afov_max is None or afov_min > afov_max or afov_max > 180
+        ):
+            return (), tr("L'intervallo AFOV non è valido.")
+        return (
+            clean_brand,
+            clean_model,
+            clean_type,
+            focal_length_mm,
+            min_focal_length_mm,
+            max_focal_length_mm,
+            apparent_field_deg,
+            afov_min,
+            afov_max,
+            barrel_size.strip(),
+            zoom_click_positions_mm.strip(),
+            notes.strip(),
+        ), ""
 
     @staticmethod
     def _validated_filter_values(
@@ -1397,7 +1530,8 @@ class EquipmentCatalogRepository:
             """
             SELECT tm.id, tb.name AS brand, tm.name, tm.optical_type,
                    tm.aperture_mm, tm.focal_length_mm, tm.focal_ratio,
-                   tm.mount_type, tm.notes, tm.is_builtin
+                   tm.mount_type, tm.notes, tm.is_builtin, tm.seed_key,
+                   tm.is_user_modified
             FROM TelescopeModel tm
             JOIN TelescopeBrand tb ON tb.id = tm.brand_id
             WHERE tm.id = ?

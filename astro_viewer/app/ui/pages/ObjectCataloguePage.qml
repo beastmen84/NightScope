@@ -223,6 +223,7 @@ Item {
                                 id: visibleThisMonthFilter
                                 Layout.fillWidth: true
                                 text: qsTr("Visibili nel mese")
+                                enabled: controller.hasValidLocation
                                 checked: controller.catalogueVisibleThisMonthFilter
                                 onToggled: controller.setCatalogueVisibleThisMonthFilter(checked)
                             }
@@ -230,7 +231,8 @@ Item {
                             DarkComboBox {
                                 id: monthFilter
                                 Layout.preferredWidth: 170
-                                enabled: controller.catalogueVisibleThisMonthFilter
+                                enabled: controller.hasValidLocation
+                                         && controller.catalogueVisibleThisMonthFilter
                                 opacity: enabled ? 1.0 : 0.55
                                 model: controller.catalogueMonthLabels
                                 currentIndex: Math.max(0, controller.catalogueSelectedMonth - 1)

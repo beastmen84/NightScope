@@ -136,6 +136,8 @@ CREATE TABLE IF NOT EXISTS TelescopeModel (
     mount_type TEXT NOT NULL,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (brand_id) REFERENCES TelescopeBrand(id),
     UNIQUE (brand_id, name)
 );
@@ -157,6 +159,8 @@ CREATE TABLE IF NOT EXISTS EyepieceCatalog (
     zoom_click_positions_mm TEXT,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, focal_length_mm)
 );
 
@@ -168,6 +172,8 @@ CREATE TABLE IF NOT EXISTS BarlowCatalog (
     barrel_size TEXT,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, multiplier)
 );
 
@@ -179,6 +185,8 @@ CREATE TABLE IF NOT EXISTS BinocularCatalog (
     objective_diameter_mm INTEGER NOT NULL,
     image_stabilized INTEGER NOT NULL DEFAULT 0,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, magnification, objective_diameter_mm)
 );
 
@@ -193,6 +201,8 @@ CREATE TABLE IF NOT EXISTS FilterCatalog (
     minimum_aperture_mm INTEGER,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model)
 );
 
@@ -210,6 +220,8 @@ CREATE TABLE IF NOT EXISTS ReducerCatalog (
     corrected_field INTEGER NOT NULL DEFAULT 0,
     notes TEXT,
     is_builtin INTEGER NOT NULL DEFAULT 0,
+    seed_key TEXT,
+    is_user_modified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (brand, model, reduction_factor)
 );
 

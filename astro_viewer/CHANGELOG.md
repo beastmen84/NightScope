@@ -1,5 +1,25 @@
 # Changelog
 
+## NightScope 1.32.1 - 2026-07-14
+
+- Rinominato il profilo iniziale in `Default`; `Occhio nudo` resta la modalità
+  osservativa derivata quando il profilo non contiene telescopi o binocoli. La
+  migrazione sceglie un nome libero senza sovrascrivere profili utente omonimi.
+- Portato lo schema SQLite a `16` con chiavi seed stabili e stato di modifica:
+  le voci integrate dei sei cataloghi strumenti sono modificabili ma non
+  eliminabili, e le correzioni utente sopravvivono ai bootstrap successivi.
+- Resi espliciti campi obbligatori e facoltativi nei form equipaggiamento;
+  validazioni e conversioni numeriche mantengono aperto il dialogo e mostrano
+  l'errore, mentre gli indicatori privi di dati non vengono renderizzati.
+- Ridotta la spaziatura verticale della navigazione laterale e corretti gli
+  stati senza località in Home, Meteo, Calendario e filtri posizione-dipendenti
+  del catalogo, evitando dati dimostrativi o indicatori fuorvianti.
+- Aggiornati i cataloghi italiano/inglese completi `1571/1571`.
+- Verificati `pip check`, Ruff, compileall, `qmllint` e smoke backend/QML in
+  italiano e inglese; suite completa parallela: `743 passed`, `613 warnings`,
+  `7 subtests passed` in `138,45 s`.
+- Dist `1.32.1` non rigenerata.
+
 ## NightScope 1.32.0 - 2026-07-14
 
 - Aggiunta `CometWindowEventSource`, seconda sorgente transitoria score-free:

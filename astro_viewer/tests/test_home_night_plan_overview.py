@@ -84,6 +84,17 @@ def test_discouraged_state_keeps_visibility_separate_from_recommendation() -> No
     )
 
 
+def test_missing_profile_name_uses_default_while_naked_eye_remains_the_mode() -> None:
+    payload = _build(
+        session=_session("unavailable"),
+        active_profile={},
+        assigned_equipment=[],
+    )
+
+    assert payload["profile"]["name"] == "Default"
+    assert payload["profile"]["summary"] == "Profilo attivo: Default  ·  occhio nudo"
+
+
 def test_alternatives_contract_keeps_full_rows_without_legacy_scores() -> None:
     payload = _build(
         session=_session("recommended"),
@@ -146,6 +157,7 @@ def _build(
     *,
     session: dict[str, object],
     assigned_equipment: list[dict[str, object]],
+    active_profile: dict[str, object] | None = None,
     alternatives: list[dict[str, object]] | None = None,
     night_plan: list[NightPlanItem] | None = None,
 ) -> dict[str, object]:
@@ -156,7 +168,11 @@ def _build(
         target_payloads_by_id={"messier-42": {"type": "Diffuse Nebula"}},
         setup_models_by_object_id={"messier-42": _setup_model()},
         alternatives=alternatives or [],
-        active_profile={"profile_name": "Serate urbane"},
+        active_profile=(
+            {"profile_name": "Serate urbane"}
+            if active_profile is None
+            else active_profile
+        ),
         assigned_equipment=assigned_equipment,
         loading=False,
         sky_quality_warning="",

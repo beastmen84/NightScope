@@ -226,7 +226,7 @@
         <h2>Primo avvio</h2>
         <ol class="steps">
           <li>Apri <strong>Località</strong> e imposta la posizione osservativa con ricerca città, posizione Windows o coordinate manuali.</li>
-          <li>Apri <strong>Profili</strong> e controlla il profilo attivo. Senza telescopio assegnato, NightScope usa <strong>Occhio nudo</strong>.</li>
+          <li>Apri <strong>Profili</strong> e controlla il profilo attivo. Quello iniziale si chiama <strong>Default</strong>; senza telescopi o binocoli assegnati, NightScope usa la modalità <strong>Occhio nudo</strong>.</li>
           <li>Assegna telescopio, oculari e Barlow dal catalogo se vuoi raccomandazioni basate sul tuo setup reale.</li>
           <li>Torna alla <strong>Home</strong>: il piano della notte e i suggerimenti vengono ricalcolati sulla località e sul profilo attivo.</li>
         </ol>
@@ -281,6 +281,7 @@
           <li><strong>Coordinate manuali</strong>: utile per siti osservativi specifici.</li>
         </ul>
         <p>Puoi abilitare il rilevamento automatico all'avvio e scegliere quali origini autorizzare.</p>
+        <p>Prima di impostare una località, Home, Meteo e Calendario mostrano valori non disponibili e indicano l'azione necessaria; anche i filtri del catalogo che dipendono dalla posizione restano disabilitati.</p>
       </article>
 
       <article class="card">
@@ -332,7 +333,8 @@
         <p>Un profilo referenzia gli elementi catalogo tramite ID. Gli oculari zoom restano un singolo elemento con range focale e posizioni reali selezionabili, non una lista di oculari fissi. Puoi assegnare e rimuovere anche filtri e riduttori. Nel dettaglio osservativo NightScope può richiamare un filtro adatto all'apertura del telescopio scelto e, per i target fotografici predisposti, un riduttore compatibile con quel telescopio. Questi accessori non entrano nello score e non cambiano la configurazione calcolata.</p>
         <p>Ogni filtro compare una sola volta anche se esiste in più formati. Quando aggiungi un filtro scegli una classe precisa dal menu; per i filtri colorati la classe comprende anche il colore.</p>
         <p>Quando aggiungi un riduttore puoi cercare e selezionare uno o più modelli di telescopio compatibili. La raccomandazione fotografica usa soltanto questi collegamenti esatti: se il riduttore è nel profilo viene indicato come disponibile, altrimenti può comparire come suggerimento non disponibile.</p>
-        <p>Le voci incluse da NightScope sono in sola lettura e non mostrano i pulsanti <strong>Modifica</strong> ed <strong>Elimina</strong>. I due comandi sono disponibili solo per gli elementi aggiunti dall'utente; se un elemento da eliminare è assegnato a un profilo, la conferma permette di rimuovere prima i relativi collegamenti.</p>
+        <p>Le voci incluse da NightScope mostrano <strong>Modifica</strong>, così puoi correggere dati errati o incompleti, ma non mostrano <strong>Elimina</strong>. Le correzioni restano memorizzate anche dopo gli aggiornamenti dei cataloghi inclusi. Gli elementi aggiunti dall'utente mostrano entrambi i comandi; se un elemento da eliminare è assegnato a un profilo, la conferma permette di rimuovere prima i relativi collegamenti.</p>
+        <p>Nei form, l'asterisco identifica i campi obbligatori e gli altri sono indicati come facoltativi. Un errore di validazione resta visibile nel dialogo senza chiuderlo; i dati facoltativi assenti non generano indicatori vuoti nelle schede.</p>
       </article>
 
       <article class="card">
@@ -401,12 +403,12 @@
         <h3>VIIRS non si aggiorna</h3>
         <p>Controlla credenziali Earthdata, autorizzazione LAADS e connessione internet. Se il dato non è disponibile, l'app usa il fallback locale.</p>
         <h3>Le raccomandazioni non usano il telescopio</h3>
-        <p>Apri <strong>Profili</strong>, verifica il profilo attivo e assegna almeno un telescopio. Senza telescopio il profilo resta in modalità Occhio nudo.</p>
+        <p>Apri <strong>Profili</strong>, verifica il profilo attivo e assegna almeno un telescopio. Senza telescopio, oculari e Barlow non vengono usati; se il profilo non contiene nemmeno binocoli, la modalità è Occhio nudo.</p>
       </article>
     </section>
 
     <footer>
-      NightScope 1.32.0 - manuale utente offline.
+      NightScope 1.32.1 - manuale utente offline.
     </footer>
   </main>
 </body>

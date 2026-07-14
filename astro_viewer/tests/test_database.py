@@ -617,7 +617,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 version = connection.execute("PRAGMA user_version").fetchone()[0]
             self.assertEqual(version, SCHEMA_VERSION)
 
-    def test_seed_data_is_inserted_only_when_missing(self) -> None:
+    def test_seed_data_preserves_marked_user_customizations(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             database_path = Path(temp_dir) / "nightscope.db"
             schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
@@ -627,7 +627,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 connection.execute(
                     """
                     UPDATE TelescopeModel
-                    SET notes = ?
+                    SET notes = ?, is_user_modified = 1
                     WHERE id = (SELECT MIN(id) FROM TelescopeModel)
                     """,
                     ("modifica utente",),
@@ -907,6 +907,8 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "objective_diameter_mm",
                     "image_stabilized",
                     "is_builtin",
+                    "seed_key",
+                    "is_user_modified",
                 ],
             )
             self.assertEqual(version, SCHEMA_VERSION)
@@ -975,9 +977,61 @@ class DatabaseBootstrapTests(unittest.TestCase):
                     "objective_diameter_mm",
                     "image_stabilized",
                     "is_builtin",
+                    "seed_key",
+                    "is_user_modified",
                 ],
             )
             self.assertEqual(row, ("NightScope", "Legacy 10x50", 10, 50, 1, 0))
+
+    def test_schema_16_renames_seeded_naked_eye_profile_to_default(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    "UPDATE EquipmentProfile SET profile_name = ? WHERE id = 1",
+                    ("Occhio nudo",),
+                )
+                connection.execute("PRAGMA user_version = 15")
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                profile_name = connection.execute(
+                    "SELECT profile_name FROM EquipmentProfile WHERE id = 1"
+                ).fetchone()[0]
+            self.assertEqual(profile_name, "Default")
+
+    def test_schema_16_uses_free_default_name_when_user_profile_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.execute(
+                    "UPDATE EquipmentProfile SET profile_name = ? WHERE id = 1",
+                    ("Occhio nudo",),
+                )
+                connection.execute(
+                    """
+                    INSERT INTO EquipmentProfile (profile_name, active, telescope_id)
+                    VALUES ('Default', 0, '')
+                    """
+                )
+                connection.execute("PRAGMA user_version = 15")
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                profile_names = connection.execute(
+                    "SELECT profile_name FROM EquipmentProfile ORDER BY id"
+                ).fetchall()
+            self.assertEqual(profile_names, [("Default 2",), ("Default",)])
 
     def test_profile_binocular_table_is_added_to_existing_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

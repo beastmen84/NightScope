@@ -319,8 +319,9 @@ Important pages:
 - `EquipmentProfilesPage.qml`, `EquipmentTelescopesPage.qml`,
   `EquipmentOpticsPage.qml`, `EquipmentBinocularsPage.qml` and
   `EquipmentFiltersReducersPage.qml`: profile and equipment management. Seeded
-  rows expose neither edit nor delete actions; repository protection enforces
-  the same read-only policy outside QML.
+  rows expose edit but not delete actions; repository protection enforces the
+  delete boundary outside QML, while persisted user overrides prevent later
+  seed refreshes from replacing corrected values.
 - `LocationPage.qml`, `WeatherPage.qml`, `CalendarPage.qml`,
   `EventDetailPage.qml`: location, weather, calendar list and calendar event
   detail workflows. `WeatherPage.qml` presents AOD/OpenAQ as condition data
@@ -433,10 +434,12 @@ Repositories own SQLite persistence:
 - `CatalogueRepository`: physical catalogue targets and their designations.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes
-  `is_builtin`; seeded rows cannot be updated or deleted, while user rows can
-  be managed after their profile links are handled. Connections enable SQLite
-  foreign keys, usage counts operate on distinct valid profiles and reducer
-  rows expose normalized exact telescope compatibility where available.
+  `is_builtin`, `seed_key` and `is_user_modified`; seeded rows can be updated
+  but not deleted, while user rows can be managed after their profile links are
+  handled. Updating a seeded row marks it as user-modified so bootstrap keeps
+  the override. Connections enable SQLite foreign keys, usage counts operate
+  on distinct valid profiles and reducer rows expose normalized exact telescope
+  compatibility where available.
 - `WeatherCacheRepository`: weather response cache.
 - `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
   short-horizon orbital event sources.
@@ -669,11 +672,13 @@ overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart. They also verify
-filter/reducer CRUD, schema-v14 migration, filter duplicate remapping,
+filter/reducer CRUD, schema-v16 migration, stable equipment seed ownership,
+preservation of built-in user overrides, filter duplicate remapping,
 profile-aware filter and reducer detail recommendations, managed-content
-provenance, exact built-in and custom reducer compatibility, reseed
-preservation, orphan cleanup, forced unlinking and assignment without NSOM or
-capability refresh.
+provenance, exact built-in and custom reducer compatibility, orphan cleanup,
+forced unlinking and assignment without NSOM or capability refresh. The schema
+16 migration also renames the historical seeded profile to `Default` without
+confusing that profile name with the derived naked-eye observing mode.
 
 ## Cache Ownership
 

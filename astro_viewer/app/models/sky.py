@@ -127,6 +127,7 @@ def _localized_source(value: str) -> str:
         "BasicForecastSeeingProvider": tr("Stima meteo base"),
         "MeteoblueSeeingProviderPlaceholder": tr("Stima meteo base"),
         "CustomModelSeeingProvider": tr("Modello seeing personalizzato"),
+        "unavailable": tr("n/d"),
     }
     return labels.get(value, value or tr("n/d"))
 

@@ -84,8 +84,8 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 18
-                spacing: 18
+                anchors.margins: 14
+                spacing: 12
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -140,7 +140,7 @@ ApplicationWindow {
 
                     ColumnLayout {
                         width: sidebarNavigation.availableWidth
-                        spacing: 8
+                        spacing: 4
 
                     NavButton {
                         Layout.fillWidth: true
@@ -179,7 +179,7 @@ ApplicationWindow {
 
                     Text {
                         Layout.fillWidth: true
-                        Layout.topMargin: 8
+                        Layout.topMargin: 4
                         text: qsTr("Configurazione")
                         color: theme.textMuted
                         font.pixelSize: 11
@@ -213,7 +213,7 @@ ApplicationWindow {
 
                     Text {
                         Layout.fillWidth: true
-                        Layout.topMargin: 8
+                        Layout.topMargin: 4
                         text: qsTr("Cataloghi")
                         color: theme.textMuted
                         font.pixelSize: 11
@@ -302,12 +302,12 @@ ApplicationWindow {
                     color: "#171a20"
                     border.color: "#303641"
                     border.width: 1
-                    implicitHeight: 126
+                    implicitHeight: 112
 
                     ColumnLayout {
                         anchors.fill: parent
-                        anchors.margins: 12
-                        spacing: 6
+                        anchors.margins: 10
+                        spacing: 4
 
                         RowLayout {
                             Layout.fillWidth: true

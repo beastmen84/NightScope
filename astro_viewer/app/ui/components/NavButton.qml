@@ -9,7 +9,7 @@ Rectangle {
     property bool selected: false
     signal clicked()
 
-    height: 46
+    height: 40
     radius: 8
     color: selected ? "#27313b" : (mouseArea.containsMouse ? "#1f242c" : "transparent")
     border.color: selected ? "#465260" : "transparent"
@@ -19,7 +19,7 @@ Rectangle {
         anchors.fill: parent
         anchors.leftMargin: 14
         anchors.rightMargin: 14
-        spacing: 12
+        spacing: 10
 
         Image {
             Layout.preferredWidth: 20
@@ -47,4 +47,3 @@ Rectangle {
         onClicked: root.clicked()
     }
 }
-

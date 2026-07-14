@@ -31,6 +31,15 @@ Item {
         return value === undefined || value === null ? "" : String(value)
     }
 
+    function numberValue(value) {
+        return Number(String(value).trim().replace(",", "."))
+    }
+
+    function validReductionFactor(value) {
+        var number = root.numberValue(value)
+        return isFinite(number) && number > 0 && number < 1
+    }
+
     function searchText() {
         return root.accessorySearch.toLowerCase().trim()
     }
@@ -399,7 +408,6 @@ Item {
                     maximumLineCount: 1
                 }
                 DarkButton {
-                    visible: !filterRow.itemData.is_builtin
                     text: qsTr("Modifica")
                     onClicked: filterRow.edit()
                 }
@@ -425,13 +433,13 @@ Item {
                 spacing: 8
                 StatusPill { text: filterRow.itemData.filter_class_label; accentColor: theme.teal }
                 StatusPill {
-                    visible: filterRow.itemData.bandwidth_nm !== null
-                    text: filterRow.itemData.bandwidth_label
+                    visible: String(filterRow.itemData.bandwidth_label || "").trim().length > 0
+                    text: filterRow.itemData.bandwidth_label || ""
                     accentColor: theme.violet
                 }
                 StatusPill {
-                    visible: filterRow.itemData.transmission_pct !== null
-                    text: filterRow.itemData.transmission_label
+                    visible: String(filterRow.itemData.transmission_label || "").trim().length > 0
+                    text: filterRow.itemData.transmission_label || ""
                     accentColor: theme.amber
                 }
             }
@@ -470,7 +478,6 @@ Item {
                     maximumLineCount: 1
                 }
                 DarkButton {
-                    visible: !reducerRow.itemData.is_builtin
                     text: qsTr("Modifica")
                     onClicked: reducerRow.edit()
                 }
@@ -498,8 +505,8 @@ Item {
                 StatusPill { text: reducerRow.itemData.optical_system_label; accentColor: theme.cyan }
                 StatusPill { text: root.reducerUseLabel(reducerRow.itemData); accentColor: reducerRow.itemData.visual_compatible ? theme.green : theme.violet }
                 StatusPill {
-                    visible: reducerRow.itemData.backfocus_mm !== null
-                    text: reducerRow.itemData.backfocus_label
+                    visible: String(reducerRow.itemData.backfocus_label || "").trim().length > 0
+                    text: reducerRow.itemData.backfocus_label || ""
                     accentColor: theme.teal
                 }
             }
@@ -510,13 +517,21 @@ Item {
         id: filterDialog
         title: qsTr("Aggiungi filtro")
         acceptText: qsTr("Salva")
+        closeOnAccept: false
+        acceptEnabled: filterBrand.text.trim().length > 0
+            && filterModel.text.trim().length > 0
+            && filterType.currentIndex >= 0
+        onOpened: root.controller.clearEquipmentMessage()
         onAccepted: {
             var typeCode = root.filterTypeCodes[filterType.currentIndex]
+            var saved
             if (root.editFilter.id !== undefined) {
-                root.controller.updateFilterModel(root.editFilter.id, filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
+                saved = root.controller.updateFilterModel(root.editFilter.id, filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
             } else {
-                root.controller.addFilterModel(filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
+                saved = root.controller.addFilterModel(filterBrand.text, filterModel.text, typeCode, filterCentral.text, filterBandwidth.text, filterTransmission.text, filterAperture.text, filterNotes.text)
             }
+            if (saved)
+                filterDialog.close()
         }
 
         GridLayout {
@@ -524,14 +539,23 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
-            DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
+            DarkTextField { id: filterBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
+            DarkTextField { id: filterModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
             DarkComboBox { id: filterType; Layout.columnSpan: 2; Layout.fillWidth: true; model: root.filterTypeLabels }
-            DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: qsTr("Lunghezza d'onda centrale (nm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: qsTr("Larghezza banda (nm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: qsTr("Trasmissione (%)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura minima (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
+            DarkTextField { id: filterCentral; Layout.fillWidth: true; placeholderText: qsTr("Lunghezza d'onda centrale (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterBandwidth; Layout.fillWidth: true; placeholderText: qsTr("Larghezza banda (nm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterTransmission; Layout.fillWidth: true; placeholderText: qsTr("Trasmissione (%, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura minima (mm, facoltativa)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: filterNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            visible: root.controller.equipmentMessage.length > 0
+            text: root.controller.equipmentMessage
+            color: theme.red
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
         }
     }
 
@@ -540,13 +564,23 @@ Item {
         title: qsTr("Aggiungi riduttore")
         acceptText: qsTr("Salva")
         preferredWidth: 780
+        closeOnAccept: false
+        acceptEnabled: reducerBrand.text.trim().length > 0
+            && reducerModel.text.trim().length > 0
+            && root.validReductionFactor(reducerFactor.text)
+            && reducerSystem.currentIndex >= 0
+            && (reducerVisual.checked || reducerImaging.checked)
+        onOpened: root.controller.clearEquipmentMessage()
         onAccepted: {
             var systemCode = root.opticalSystemCodes[reducerSystem.currentIndex]
+            var saved
             if (root.editReducer.id !== undefined) {
-                root.controller.updateReducerModel(root.editReducer.id, reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
+                saved = root.controller.updateReducerModel(root.editReducer.id, reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
             } else {
-                root.controller.addReducerModel(reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
+                saved = root.controller.addReducerModel(reducerBrand.text, reducerModel.text, reducerFactor.text, systemCode, root.reducerTelescopeIds.join(","), reducerConnection.text, reducerBackfocus.text, reducerVisual.checked, reducerImaging.checked, reducerCorrected.checked, reducerNotes.text)
             }
+            if (saved)
+                reducerDialog.close()
         }
 
         GridLayout {
@@ -554,16 +588,16 @@ Item {
             columns: 2
             columnSpacing: 8
             rowSpacing: 8
-            DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
-            DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
-            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore (es. 0.63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
+            DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
+            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore * (es. 0.63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkComboBox { id: reducerSystem; Layout.fillWidth: true; model: root.opticalSystemLabels }
-            DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: qsTr("Connessione") }
-            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: qsTr("Backfocus (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: qsTr("Connessione (facoltativa)") }
+            DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: qsTr("Backfocus (mm, facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             CheckBox { id: reducerVisual; Layout.fillWidth: true; text: qsTr("Uso visuale") }
             CheckBox { id: reducerImaging; Layout.fillWidth: true; text: qsTr("Uso fotografico") }
             CheckBox { id: reducerCorrected; Layout.columnSpan: 2; Layout.fillWidth: true; text: qsTr("Correzione del campo") }
-            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note") }
+            DarkTextField { id: reducerNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
 
             RowLayout {
                 Layout.columnSpan: 2
@@ -572,7 +606,7 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: qsTr("Telescopi compatibili")
+                    text: qsTr("Telescopi compatibili (facoltativi)")
                     color: theme.textPrimary
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
@@ -618,6 +652,15 @@ Item {
                     )
                 }
             }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            visible: root.controller.equipmentMessage.length > 0
+            text: root.controller.equipmentMessage
+            color: theme.red
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
         }
     }
 

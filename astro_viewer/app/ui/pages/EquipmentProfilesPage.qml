@@ -121,7 +121,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: controller.activeEquipmentProfile.profile_name || qsTr("Occhio nudo")
+                        text: controller.activeEquipmentProfile.profile_name || "Default"
                         color: theme.textPrimary
                         font.pixelSize: 26
                         font.weight: Font.DemiBold
@@ -176,6 +176,7 @@ Item {
 
                             DarkButton {
                                 text: qsTr("Elimina")
+                                enabled: controller.equipmentProfiles.length > 1
                                 danger: true
                                 onClicked: controller.deleteEquipmentProfile(modelData.id)
                             }
@@ -207,7 +208,7 @@ Item {
                     EquipmentGroup {
                         Layout.preferredWidth: 1
                         title: qsTr("Telescopi")
-                        emptyText: qsTr("Nessun telescopio assegnato. Il profilo usa Occhio nudo.")
+                        emptyText: qsTr("Nessun telescopio assegnato.")
                         items: controller.profileAssignedEquipment.filter(function(item) { return item.kind === "telescope" })
                         accent: theme.cyan
                     }

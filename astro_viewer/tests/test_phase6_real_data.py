@@ -726,12 +726,15 @@ class Phase6RealDataTests(unittest.TestCase):
             self.assertTrue(catalog_item["assigned"])
             self.assertEqual(controller.profileBinoculars[0]["specLabel"], binocular["spec_label"])
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertIn("binocolo", controller.equipmentMessage.lower())
+            self.assertNotIn("Occhio nudo", controller.equipmentMessage)
 
             controller.removeEquipmentFromActiveProfile("binocular", binocular["catalog_id"])
 
             self.assertFalse(any(item["kind"] == "binocular" for item in controller.profileAssignedEquipment))
             self.assertTrue(any(item["catalog_id"] == binocular["catalog_id"] for item in controller.binocularCatalog))
             self.assertEqual(controller.telescopeCapabilities, before_capabilities)
+            self.assertIn("Occhio nudo", controller.equipmentMessage)
 
     def test_filters_and_reducers_are_profile_accessories_without_scoring_refresh(self) -> None:
         with _controller() as controller:
@@ -1032,7 +1035,8 @@ class Phase6RealDataTests(unittest.TestCase):
         ):
             self.assertIn(filter_label, object_catalogue_qml)
         self.assertIn("controller.catalogueMonthLabels", object_catalogue_qml)
-        self.assertIn("enabled: controller.catalogueVisibleThisMonthFilter", object_catalogue_qml)
+        self.assertIn("enabled: controller.hasValidLocation", object_catalogue_qml)
+        self.assertIn("&& controller.catalogueVisibleThisMonthFilter", object_catalogue_qml)
         self.assertIn("controller.setCatalogueMonth(currentIndex + 1)", object_catalogue_qml)
         self.assertIn("controller.setCatalogueVisibleThisMonthFilter(checked)", object_catalogue_qml)
         self.assertIn('text: qsTr("Visibili nel mese")', object_catalogue_qml)
@@ -1070,12 +1074,12 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('"label": qsTr("Costellazione")', object_detail_qml)
         self.assertIn('text: qsTr("Catalogo binocoli")', binoculars_qml)
         self.assertIn('placeholderText: qsTr("Cerca binocolo...")', binoculars_qml)
-        self.assertIn('placeholderText: qsTr("Diametro obiettivo (mm)")', binoculars_qml)
+        self.assertIn('placeholderText: qsTr("Diametro obiettivo (mm) *")', binoculars_qml)
         self.assertIn("controller.binocularCatalog", binoculars_qml)
         self.assertIn("controller.addBinocularModel", binoculars_qml)
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
-        self.assertIn('text: qsTr("Stabilizzato")', binoculars_qml)
+        self.assertIn('text: qsTr("Stabilizzato (facoltativo)")', binoculars_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
         for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
             self.assertGreaterEqual(
@@ -1085,7 +1089,11 @@ class Phase6RealDataTests(unittest.TestCase):
                         equipment_qml,
                     )
                 ),
-                2,
+                1,
+            )
+            self.assertNotRegex(
+                equipment_qml,
+                r"visible:\s*![A-Za-z0-9_.]*itemData\.is_builtin\s*\n\s*text:\s*qsTr\(\"Modifica\"\)",
             )
         self.assertIn('text: qsTr("Catalogo filtri e riduttori")', filters_reducers_qml)
         self.assertIn("controller.filterCatalog", filters_reducers_qml)

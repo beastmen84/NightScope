@@ -79,7 +79,7 @@ def _profile_payload(
     ]
     if not equipment_parts:
         equipment_parts.append(tr("occhio nudo"))
-    name = _text(active_profile, "profile_name") or tr("Occhio nudo")
+    name = _text(active_profile, "profile_name") or "Default"
     return {
         "name": name,
         "summary": tr(
@@ -202,11 +202,12 @@ def _alternatives_payload(
     subtitle = subtitles[state]
     if sky_quality_warning and state in {"recommended", "monitor"}:
         subtitle = sky_quality_warning
-    empty_text = (
-        tr("Calcolo della visibilità...")
-        if loading or state == "pending"
-        else tr("Nessun altro oggetto utile fuori dal piano.")
-    )
+    if state == "unavailable":
+        empty_text = tr("Configura una posizione per calcolare gli oggetti visibili.")
+    elif loading or state == "pending":
+        empty_text = tr("Calcolo della visibilità...")
+    else:
+        empty_text = tr("Nessun altro oggetto utile fuori dal piano.")
     return {
         "state": state,
         "title": titles.get(state, tr("Altri oggetti visibili stasera")),

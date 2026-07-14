@@ -11,6 +11,11 @@ Item {
     property var deleteModel: ({})
     property string binocularSearch: ""
 
+    function isPositiveInteger(value) {
+        var number = Number(String(value).trim().replace(",", "."))
+        return isFinite(number) && number > 0 && Math.floor(number) === number
+    }
+
     function openEditDialog(item) {
         editModel = item
         binocularBrand.text = item.brand || ""
@@ -189,7 +194,6 @@ Item {
                 }
 
                 DarkButton {
-                    visible: !itemData.is_builtin
                     text: qsTr("Modifica")
                     implicitHeight: 32
                     leftPadding: 10
@@ -221,12 +225,21 @@ Item {
         id: binocularDialog
         title: qsTr("Aggiungi modello")
         acceptText: qsTr("Salva")
+        closeOnAccept: false
+        acceptEnabled: binocularBrand.text.trim().length > 0
+            && binocularModel.text.trim().length > 0
+            && root.isPositiveInteger(binocularMagnification.text)
+            && root.isPositiveInteger(binocularObjective.text)
+        onOpened: controller.clearEquipmentMessage()
         onAccepted: {
+            var saved
             if (root.editModel.id !== undefined) {
-                controller.updateBinocularModel(root.editModel.id, binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularStabilized.checked)
+                saved = controller.updateBinocularModel(root.editModel.id, binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularStabilized.checked)
             } else {
-                controller.addBinocularModel(binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularStabilized.checked)
+                saved = controller.addBinocularModel(binocularBrand.text, binocularModel.text, binocularMagnification.text, binocularObjective.text, binocularStabilized.checked)
             }
+            if (saved)
+                binocularDialog.close()
         }
 
         GridLayout {
@@ -235,11 +248,20 @@ Item {
             columnSpacing: 8
             rowSpacing: 8
 
-            DarkTextField { id: binocularBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca") }
-            DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: qsTr("Modello") }
-            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: qsTr("Ingrandimento"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: qsTr("Diametro obiettivo (mm)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
+            DarkTextField { id: binocularBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
+            DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
+            DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: qsTr("Ingrandimento *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: qsTr("Diametro obiettivo (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato (facoltativo)") }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            visible: controller.equipmentMessage.length > 0
+            text: controller.equipmentMessage
+            color: theme.red
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
         }
     }
 

@@ -96,10 +96,16 @@ Item {
     }
 
     function nextEventLabel() {
+        if (!controller.hasValidLocation)
+            return qsTr("n/d")
         var events = filteredEvents()
         if (events.length === 0)
             return "-"
         return events[0].dateLabel
+    }
+
+    function eventCountLabel(type) {
+        return controller.hasValidLocation ? root.countEvents(type).toString() : qsTr("n/d")
     }
 
     function hasSelectedEvent() {
@@ -179,7 +185,9 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: qsTr("Eventi annuali, passaggi ISS e comete a breve termine")
+                        text: controller.hasValidLocation
+                              ? qsTr("Eventi annuali, passaggi ISS e comete a breve termine")
+                              : qsTr("Configura una posizione per calcolare gli eventi osservabili.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -205,7 +213,9 @@ Item {
                     Text {
                         Layout.fillWidth: true
                         visible: (root.calendarOverview.highlights || []).length === 0
-                        text: qsTr("Nessun evento rilevante nei prossimi 30 giorni.")
+                        text: controller.hasValidLocation
+                              ? qsTr("Nessun evento rilevante nei prossimi 30 giorni.")
+                              : qsTr("Posizione necessaria per calcolare gli eventi.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -252,7 +262,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.minimumHeight: 212
                     title: qsTr("Panoramica")
-                    subtitle: root.filteredEvents().length === 1
+                    subtitle: !controller.hasValidLocation
+                              ? qsTr("Dati non disponibili senza posizione")
+                              : root.filteredEvents().length === 1
                               ? qsTr("1 evento nella vista corrente")
                               : qsTr("%1 eventi nella vista corrente").arg(root.filteredEvents().length)
                     accentColor: theme.cyan
@@ -271,49 +283,49 @@ Item {
 
                         MetricTile {
                             label: qsTr("Luna")
-                            value: root.countEvents("moon").toString()
+                            value: root.eventCountLabel("moon")
                             accentColor: theme.amber
                         }
 
                         MetricTile {
                             label: qsTr("Opposizioni")
-                            value: root.countEvents("opposition").toString()
+                            value: root.eventCountLabel("opposition")
                             accentColor: theme.cyan
                         }
 
                         MetricTile {
                             label: qsTr("Cong. planetarie")
-                            value: root.countEvents("planetary_conjunction").toString()
+                            value: root.eventCountLabel("planetary_conjunction")
                             accentColor: theme.violet
                         }
 
                         MetricTile {
                             label: qsTr("Cong. solari")
-                            value: root.countEvents("solar_conjunction").toString()
+                            value: root.eventCountLabel("solar_conjunction")
                             accentColor: theme.coral
                         }
 
                         MetricTile {
                             label: qsTr("Sciami")
-                            value: root.countEvents("meteor_shower").toString()
+                            value: root.eventCountLabel("meteor_shower")
                             accentColor: theme.teal
                         }
 
                         MetricTile {
                             label: qsTr("Eclissi")
-                            value: root.countEvents("eclipse").toString()
+                            value: root.eventCountLabel("eclipse")
                             accentColor: theme.coral
                         }
 
                         MetricTile {
                             label: qsTr("Passaggi ISS")
-                            value: root.countEvents("satellite_pass").toString()
+                            value: root.eventCountLabel("satellite_pass")
                             accentColor: theme.cyan
                         }
 
                         MetricTile {
                             label: qsTr("Comete")
-                            value: root.countEvents("comet_window").toString()
+                            value: root.eventCountLabel("comet_window")
                             accentColor: theme.teal
                         }
                     }
@@ -325,9 +337,11 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 title: qsTr("Vista calendario")
-                subtitle: qsTr("%1 di %2 eventi")
-                    .arg(root.filteredEvents().length)
-                    .arg(root.calendarEvents.length)
+                subtitle: controller.hasValidLocation
+                          ? qsTr("%1 di %2 eventi")
+                                .arg(root.filteredEvents().length)
+                                .arg(root.calendarEvents.length)
+                          : qsTr("Posizione necessaria")
                 accentColor: theme.violet
 
                 ColumnLayout {
@@ -356,6 +370,7 @@ Item {
 
                             delegate: DarkButton {
                                 text: modelData.label
+                                enabled: controller.hasValidLocation
                                 checkable: true
                                 checked: root.selectedDateFilter === modelData.value
                                 accentColor: theme.violet
@@ -392,6 +407,7 @@ Item {
 
                             delegate: DarkButton {
                                 text: modelData.label
+                                enabled: controller.hasValidLocation
                                 checkable: true
                                 checked: root.selectedTypeFilter === modelData.value
                                 accentColor: root.eventAccent(modelData.value)
@@ -418,7 +434,9 @@ Item {
                 }
 
                 StatusPill {
-                    text: root.filteredEvents().length === 1
+                    text: !controller.hasValidLocation
+                          ? qsTr("n/d")
+                          : root.filteredEvents().length === 1
                           ? qsTr("1 evento")
                           : qsTr("%1 eventi").arg(root.filteredEvents().length)
                     accentColor: theme.cyan
@@ -453,7 +471,9 @@ Item {
                 Layout.leftMargin: 28
                 Layout.rightMargin: 28
                 visible: root.filteredEvents().length === 0
-                text: qsTr("Nessun evento per i filtri selezionati.")
+                text: controller.hasValidLocation
+                      ? qsTr("Nessun evento per i filtri selezionati.")
+                      : qsTr("Configura una posizione per visualizzare gli eventi del calendario.")
                 color: theme.textSecondary
                 font.pixelSize: 13
                 horizontalAlignment: Text.AlignHCenter

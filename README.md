@@ -42,15 +42,16 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   selettore persistente, formati locali e cambio lingua live senza ricalcolare
   meteo, astronomia, equipaggiamento o NSOM.
 - Profili di equipaggiamento con cataloghi separati per telescopi, oculari,
-  Barlow, binocoli, filtri e riduttori. Le voci integrate sono in sola lettura;
-  quelle personalizzate restano modificabili ed eliminabili dall'utente.
+  Barlow, binocoli, filtri e riduttori. Le voci integrate sono modificabili ma
+  protette dall'eliminazione; quelle personalizzate restano modificabili ed
+  eliminabili dall'utente.
 - Recommendation Engine v2 con setup pratici, posizioni reali per oculari zoom e presentazione separata tra visibilità e osservazione consigliata.
 - Database SQLite embedded inizializzato da seed CSV locali.
 - Build Windows tramite PyInstaller.
 
 ## Stato
 
-Versione corrente sorgente: `1.32.0`.
+Versione corrente sorgente: `1.32.1`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -192,6 +193,16 @@ usa meteo, profilo attrezzatura, Catalogue, score, Planner, Home ranking o NSOM;
 `astroquery` non e' stato aggiunto perche' la query SBDB e il supporto orbitale
 Skyfield coprono gia' il flusso. La distribuzione Windows non e' stata
 rigenerata.
+
+In `1.32.1` il profilo iniziale si chiama `Default`; `Occhio nudo` indica invece
+la modalita' osservativa derivata quando il profilo non contiene telescopi o
+binocoli. Le voci integrate dei cataloghi strumenti possono essere corrette
+dall'utente senza diventare eliminabili e le modifiche vengono preservate dai
+seed successivi. I form distinguono i campi obbligatori da quelli facoltativi,
+mantengono aperto il dialogo in caso di errore e non mostrano indicatori vuoti.
+La navigazione laterale e' piu' compatta e Home, Meteo, Calendario e filtri di
+catalogo dipendenti dalla posizione mostrano stati espliciti prima della scelta
+della localita'. La distribuzione Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -463,11 +474,12 @@ Il database runtime è `nightscope.db`, accanto all'applicazione. Non viene dist
 - cataloghi strumenti importati;
 - oggetti catalografici, designazioni, immagini, descrizioni e curiosita'
   importati;
-- un solo profilo predefinito `Occhio nudo`;
+- un solo profilo predefinito `Default`, inizialmente in modalita' `Occhio nudo`
+  perche' privo di telescopi e binocoli;
 - cache meteo, storico osservazioni, cache VIIRS e assegnazioni profilo vuote;
 - nessuna tabella legacy `Owned*`.
 
-All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `15`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti.
+All'avvio NightScope verifica l'integrità con `PRAGMA integrity_check`, applica migrazioni idempotenti e usa `PRAGMA user_version` per registrare la versione schema applicata, attualmente `16`. Se il DB è corrotto, viene messo in quarantena e ricreato da `schema.sql` e dai seed locali. Se trova un vecchio `data/nightscope.db`, lo copia nella nuova posizione runtime per preservare i dati utente durante l'aggiornamento. Le descrizioni e curiosita' incluse vengono riallineate ai seed; gli import personalizzati sono marcati separatamente e non vengono sovrascritti. Le voci integrate dell'equipaggiamento hanno una chiave seed stabile: finche' non sono modificate seguono gli aggiornamenti inclusi, mentre una correzione utente viene conservata ai bootstrap successivi.
 
 I sidecar runtime `user_preferences.json`, `location_cache.json` e
 `nasa_aod_cache.json` vivono nella stessa cartella di `nightscope.db`. I valori

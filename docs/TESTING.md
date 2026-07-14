@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.0`:
+Measured on the current Windows development environment for `1.32.1`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `739 passed, 7 subtests passed` | `0:02:08.93` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `743 passed, 7 subtests passed` | `0:02:18.45` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -96,6 +96,12 @@ The `1.32.0` additions cover deterministic offline comet propagation, nightly
 window aggregation, fresh/stale SBDB cache behavior, bounded retry, magnitude
 cutoff, Calendar/Home comet presentation and independent per-source refresh
 intervals. The fixture uses real JPL elements but never performs network calls.
+The `1.32.1` additions cover the schema-v16 profile-name migration, collision
+handling for an existing `Default` profile, stable ownership of all six seeded
+equipment catalogues, built-in edit persistence, delete protection and form
+validation. Presentation checks cover the compact sidebar, optional-value
+visibility, binocular versus naked-eye wording and location-dependent empty
+states in Home, Weather, Calendar and Catalogue.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were
