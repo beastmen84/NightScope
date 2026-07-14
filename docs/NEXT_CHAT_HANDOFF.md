@@ -4,19 +4,20 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.31.1`
-- Dist `1.31.1` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.32.0`
+- Dist `1.32.0` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `50bffc1 Fix ISS calendar refresh lifecycle`
+- Commit sorgente validato: `8ebc6bc Add comet observing windows`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `50bffc1`; non sostituire questo
+stato del codice usare `8ebc6bc`; non sostituire questo
 hash con un valore previsto prima del commit.
 
 ## Commit UI Recenti
 
+- `8ebc6bc Add comet observing windows`
 - `50bffc1 Fix ISS calendar refresh lifecycle`
 - `c758dac Add ISS calendar passes`
 - `5f6c2d0 Fix localization review findings`
@@ -105,23 +106,23 @@ cambia live lingua e locale, preserva le altre preferenze e non ricalcola
 astronomia, meteo, equipaggiamento, score o NSOM. I testi inseriti dall'utente
 restano invariati.
 
-Da `1.31.0` il Calendario include anche eventi operativi transitori. La prima
-sorgente implementata calcola i passaggi ISS visibili per la posizione attiva;
-non crea `CatalogueObject`, non riceve score e non entra in Equipment, Planner,
-Home ranking o NSOM. Home continua a consumare la stessa proiezione cronologica
-del Calendario e mostra i passaggi ISS tra i prossimi eventi.
+Da `1.31.0` il Calendario include eventi operativi transitori. `1.32.0` aggiunge
+alle finestre ISS anche le comete osservabili per la posizione attiva. Entrambe
+restano score-free, non creano `CatalogueObject` e non entrano in Equipment,
+Planner, Home ranking o NSOM. Home continua a consumare la stessa proiezione
+cronologica del Calendario.
 
-## ISS ed Eventi Transitori 1.31.x
+## ISS, Comete ed Eventi Transitori 1.32.0
 
-- `TransientCalendarEventSource` e' il confine generico per future sorgenti
-  operative; `IssPassEventSource` e' l'unica implementazione attuale. Da
-  `1.31.1` il confine separa preparazione provider/cache e calcolo Skyfield.
+- `TransientCalendarEventSource` e' il confine generico per sorgenti operative.
+  Le implementazioni correnti sono `IssPassEventSource` e
+  `CometWindowEventSource`; preparazione provider/cache e calcolo Skyfield sono
+  fasi separate.
 - Il motore annuale Skyfield resta proprietario di fasi, opposizioni,
   congiunzioni, eclissi e sciami. Non chiama provider transitori: una sorgente
   lenta o fallita non ritarda e non elimina questi eventi.
 - La ISS usa gli OMM pubblici CelesTrak del NORAD `25544`, senza account. Il
-  calcolo riusa Skyfield, SGP4, Requests e NumPy gia' installati; pandas e
-  astroquery non sono stati aggiunti perche' non servono a questa pipeline.
+  calcolo riusa Skyfield, SGP4, Requests e NumPy.
 - La finestra mobile e' di 10 giorni. Un passaggio richiede quota ISS almeno
   `10 gradi`, satellite illuminato e Sole locale a quota non superiore a
   `-6 gradi`; i campioni della finestra visibile sono distanziati di 10 secondi.
@@ -133,15 +134,38 @@ del Calendario e mostra i passaggi ISS tra i prossimi eventi.
 - Gli intervalli conclusi vengono esclusi anche se appartengono al giorno
   corrente; un passaggio gia' iniziato ma non concluso resta visibile. Gli
   eventi istantanei di date passate vengono eliminati prima della deduplica.
-- `CalendarOverviewService` e' ora `calendar_overview_v3`; i nuovi campi sono
-  generici per supportare in seguito comete o asteroidi senza cambiare il
-  contratto base.
+- Le comete usano il servizio pubblico NASA/JPL SBDB Query senza account. La
+  query seleziona nuclei non frammentati `C`/`P` con elementi orbitali e
+  parametri di magnitudine totale `M1`/`K1`, entro 730 giorni dal perielio.
+- pandas e' una dipendenza runtime da `1.32.0` per `skyfield.data.mpc` e le
+  orbite cometarie; nella venv validata e' installato `3.0.3`. `astroquery` non
+  e' installato: aggiungere quel wrapper non ridurrebbe le query e introdurrebbe
+  una dipendenza non necessaria.
+- La finestra cometaria mobile e' di 90 giorni, campionata ogni 30 minuti. Una
+  notte richiede almeno 60 minuti con magnitudine prevista `<= 14,5`, quota
+  `>= 20 gradi`, Sole `<= -12 gradi`, elongazione `>= 30 gradi` e Luna ad
+  almeno `25 gradi`, salvo illuminazione lunare `<= 35%`.
+- Le notti consecutive vengono aggregate; per ogni cometa resta il migliore
+  gruppo continuo, con ID stabile `comet-window-<spkid>`. Sono esposte al
+  massimo le 12 comete previste piu' luminose, poi ordinate cronologicamente.
+- La magnitudine e' presentata come intervallo indicativo di circa `+/- 1` e
+  non come misura precisa. Il dettaglio mostra inoltre picco consigliato,
+  altezza, elongazione, Luna, notti utili, fonte e freschezza. Le indicazioni di
+  setup sono generiche e non leggono il profilo attrezzatura o il meteo.
+- `CalendarOverviewService` e' ora `calendar_overview_v4`; Calendario espone
+  conteggio/filtro `Comete`, Home e dettaglio riconoscono `comet_window` senza
+  creare link a un oggetto di catalogo.
 - Il controller prepara rete/cache fuori dal lock astronomico, propaga gli
   eventi sotto lock e rimpiazza solo il sottoinsieme transitorio se la location
-  key e' ancora attuale. Il ricalcolo avviene ogni ora; il fetch OMM resta
-  limitato dalla TTL di 6 ore.
+  key e' ancora attuale. Il timer si sveglia ogni ora, ma il motore conserva i
+  risultati per sorgente: ISS viene ricostruita ogni ora, comete ogni 6 ore.
+  Cambiare localita' forza entrambe le sorgenti.
 - Gli ID dei passaggi derivano dalla rivoluzione orbitale e non dai secondi del
   picco previsto. Il dettaglio espone l'ora reale dell'ultimo aggiornamento.
+- La Home mantiene l'ordinamento cronologico puro e i limiti precedenti (8
+  eventi su layout largo, 4 su stretto). Un eventuale bilanciamento per sorgente
+  e' una decisione di prodotto rinviata: l'utente ha gia' un'idea da valutare
+  separatamente.
 
 ## Localizzazione Completa 1.30.0
 
@@ -159,7 +183,7 @@ del Calendario e mostra i passaggi ISS tra i prossimi eventi.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1518` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1552` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -424,8 +448,10 @@ Rimossi:
 - Home `Prossimi eventi` usa la proiezione Calendar corrente.
 - I passaggi ISS usano una sorgente a 10 giorni separata dall'orizzonte annuale
   e vengono uniti soltanto nella proiezione cronologica finale.
+- Le comete usano una sorgente a 90 giorni; ogni riga rappresenta una finestra
+  multi-notte aggregata, non un evento giornaliero e non un oggetto catalogo.
 - Il contratto distingue `startsAt`, `endsAt`, `peakAt`, fatti operativi e
-  metadati sorgente; non assegna un target catalogo alla ISS.
+  metadati sorgente; non assegna un target catalogo a ISS o comete.
 
 ### Catalogo
 
@@ -452,8 +478,13 @@ Rimossi:
   a 3 giorni dalla propria epoca, poi i passaggi non vengono inventati.
 - Il timer ISS ricalcola ogni ora la finestra mobile usando la cache: non
   trasforma la cadenza di calcolo in una richiesta CelesTrak oraria.
+- La stessa tabella conserva il payload globale SBDB sotto provider `jpl_sbdb`
+  e chiave `observable_comet_candidates`. TTL rete `24 ore`, fallback massimo
+  `7 giorni`, retry fino a 3 tentativi con backoff sui `5xx`.
+- Il timer transitorio globale resta orario per la ISS; la cache risultati del
+  motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.31.1
+## Validazione 1.32.0
 
 Eseguita nella venv corrente:
 
@@ -461,9 +492,9 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_comet_windows.py astro_viewer\tests\test_calendar_overview.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
-.\tools\update_translations.ps1 -UpdateOnly
-.\tools\update_translations.ps1 -CompileOnly
+.\tools\update_translations.ps1
 $qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
 & .\.venv\Lib\site-packages\PySide6\qmllint.exe -I astro_viewer\app\ui @qmlFiles
 .\.venv\Scripts\python.exe -m astro_viewer.main --smoke-test
@@ -475,21 +506,26 @@ Risultati:
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Suite: `733 passed`, `563 warnings`, `7 subtests passed` in `90,36 s`.
-- Cataloghi: `1518` messaggi completi per lingua; entrambi i `.qm` compilati.
-- Updater TS verificato idempotente: il secondo passaggio rileva `0` messaggi
-  nuovi e `1518` gia' presenti per lingua.
+- Test mirati Comete/Calendar: `15 passed`, `104 warnings` in `15,26 s`.
+- Suite: `739 passed`, `613 warnings`, `7 subtests passed` in `128,93 s`.
+- Cataloghi: `1552` messaggi completi per lingua; entrambi i `.qm` compilati.
 - `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
   non qualificato, nessun errore QML.
-- Smoke backend e QML del bootstrap di produzione: exit `0`. I test lingua
-  continuano a caricare la scena QML in italiano e inglese da runtime
-  temporanei.
+- Smoke backend e QML del bootstrap di produzione: exit `0`. Verificato anche
+  QML inglese da runtime temporaneo.
+- Render diretto Calendar verificato a `1200 x 900` e `720 x 720`: nove metriche
+  e filtri senza sovrapposizioni; il formato compatto prosegue nello scroll.
+- Probe reale del 2026-07-14 per Roma: query SBDB pubblica, calcolo in circa
+  `13,19 s` incluso fetch e due finestre (`C/2024 T5 (ATLAS)` e
+  `C/2026 A2 (Bok)`). I test automatici restano completamente offline.
 - Verificati cambio live, fallback italiano, formati locali, contenuti seed,
   persistenza della lingua, preservazione delle altre preferenze, terza lingua
   sintetica, packaging, ordine della navigazione e assenza di ricalcoli NSOM.
-- Dist non rigenerata.
+- Dist `1.32.0` non rigenerata.
 
-Le 563 warning pytest provengono dalla deprecazione dtype Skyfield/NumPy nota.
+I 563 warning preesistenti provengono dalla deprecazione dtype
+Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
+`skyfield.keplerlib` esercitate dai test cometari con NumPy 2.5.
 
 ## Regole Operative
 
