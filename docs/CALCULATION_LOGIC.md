@@ -31,6 +31,12 @@ Inputs:
 
 All object visibility is observer-dependent.
 
+For coordinate-based locations, NightScope resolves the IANA timezone directly
+from offline geographic polygons. A nearby city name is presentation metadata;
+it is not an input to local-night boundaries or event times. A valid timezone
+returned by the approximate IP provider is retained, while the computer
+timezone is only a fallback if geographic resolution cannot run.
+
 ### NSOM Input Availability Boundary
 
 As of `1.18.2`, NightScope keeps backend recommendation inputs separated by

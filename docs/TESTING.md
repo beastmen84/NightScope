@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.6`:
+Measured on the current Windows development environment for `1.32.7`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `753 passed, 7 subtests passed` | `0:01:59.03` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `766 passed, 7 subtests passed` | `0:01:46.17` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -131,6 +131,11 @@ The `1.32.6` corrections cover the partial Home deep-sky state when weather is
 available without Bortle, non-optimistic faint-object copy, the amber partial
 badge and stale-VIIRS disclosure when Earthdata is not verified. The lifecycle
 test also confirms that this offline stale-cache path starts no network worker.
+The `1.32.7` additions cover real offline timezone polygons for land and ocean,
+lazy resolver reuse, exact-coordinate preservation, Windows city metadata
+separation, manual-coordinate and coarse-Windows normalization, valid IP
+timezone precedence, provider/system fallback and legacy saved-coordinate
+renormalization.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

@@ -14,6 +14,20 @@ The importer deduplicates translated names into aliases. For example, `Addis Aba
 
 GeoNames publishes dump formats at `https://download.geonames.org/export/dump/readme.txt`.
 
+## Coordinate Timezones
+
+NightScope uses `timezonefinder 8.2.5` to map WGS84 latitude/longitude directly
+to an IANA timezone without a network request. The dependency packages the full
+timezone-boundary dataset, including ocean zones, so timezone resolution does
+not depend on the nearest GeoNames city. The Python package code is MIT licensed;
+its timezone polygon data is derived from `timezone-boundary-builder` and is
+distributed under ODbL 1.0. Project and license details:
+`https://pypi.org/project/timezonefinder/8.2.5/`.
+
+The PyInstaller community hook collects the dependency's data files into the
+Windows bundle. NightScope keeps one lazy resolver instance and falls back to a
+valid provider/system timezone only if the local polygon lookup cannot run.
+
 ## Equipment Catalogs
 
 `telescope_catalog_seed.csv`, `eyepiece_catalog_seed.csv`,

@@ -31,6 +31,7 @@ class ReleaseScenarioTests(unittest.TestCase):
             controller.setManualLocation("9.03", "38.74", "Addis Ababa")
 
             self.assertEqual(controller.location["city"], "Addis Ababa")
+            self.assertEqual(controller.location["timezone"], "Africa/Addis_Ababa")
             self.assertGreater(len(controller.solarSystemObjects), 0)
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertNotIn("NightScope could not update all data", controller.serviceStatus)
@@ -107,6 +108,29 @@ class ReleaseScenarioTests(unittest.TestCase):
             self.assertEqual(controller.location["timezone"], "Africa/Addis_Ababa")
             self.assertGreater(len(controller.weatherHourly), 0)
             self.assertEqual(controller.activeLocationLabel, "Addis Ababa — Africa/Addis_Ababa")
+
+    def test_app_renormalizes_legacy_saved_manual_coordinate_timezone(self) -> None:
+        legacy_location = LocationDetectionResult(
+            location=ObserverLocation(
+                "Sito manuale",
+                "",
+                8.9515,
+                38.7811,
+                "Europe/Rome",
+            ),
+            provider="manual_coordinates",
+            source="stored_location",
+            accuracy="cached",
+        )
+
+        with self._controller_with_weather(
+            _valid_weather_response(),
+            saved_location_result=legacy_location,
+        ) as controller:
+            self.assertEqual(controller.location["city"], "Sito manuale")
+            self.assertAlmostEqual(controller.location["latitude"], 8.9515)
+            self.assertAlmostEqual(controller.location["longitude"], 38.7811)
+            self.assertEqual(controller.location["timezone"], "Africa/Addis_Ababa")
 
     def test_app_starts_without_location_and_no_consent(self) -> None:
         context = self._controller_with_weather(_valid_weather_response())
@@ -627,12 +651,14 @@ class _ControllerContext:
         response: Mock | None = None,
         side_effect=None,
         saved_location: bool = False,
+        saved_location_result: LocationDetectionResult | None = None,
         preferences: dict | None = None,
         patch_location_requests: bool = False,
     ):
         self._response = response
         self._side_effect = side_effect
         self._saved_location = saved_location
+        self._saved_location_result = saved_location_result
         self._preferences = preferences or {}
         self._patch_location_requests = patch_location_requests
         self._temp_dir: tempfile.TemporaryDirectory[str] | None = None
@@ -698,7 +724,9 @@ class _ControllerContext:
                 allow_approximate_online_location=self._preferences.get("allow_approximate_online_location"),
                 use_windows_location_on_startup=self._preferences.get("use_windows_location_on_startup"),
             )
-        if self._saved_location:
+        if self._saved_location_result:
+            store.save_location(self._saved_location_result)
+        elif self._saved_location:
             store.save_location(
                 LocationDetectionResult(
                     location=ObserverLocation("Addis Ababa", "Etiopia", 9.03, 38.74, "Africa/Addis_Ababa"),

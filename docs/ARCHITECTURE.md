@@ -433,7 +433,16 @@ Services hold business logic:
   from already prepared Home targets; it does not call weather, VIIRS, Planner
   or recommendation services. Direction ranking combines current altitude,
   target value and density; plan/Best flags are annotations only.
-- `LocationService`: Windows, IP and manual location providers.
+- `LocationService`: Windows, IP and manual location providers. Geographic
+  timezone resolution is separate from city metadata: `CoordinateTimezoneService`
+  lazily reuses the offline `timezonefinder` polygon index to map exact WGS84
+  coordinates to an IANA timezone. Manual coordinates and both Windows modes
+  use that result; a valid timezone supplied by the IP provider remains
+  authoritative. The computer timezone is only a defensive fallback when the
+  polygon lookup is unavailable. Precise Windows positions may use a GeoNames
+  city within 50 km to enrich city, country and region, but that lookup neither
+  changes the coordinates nor chooses the timezone. Stored and recent results
+  pass through the same normalization boundary when loaded.
 
 ### Repositories
 

@@ -1,5 +1,28 @@
 # Changelog
 
+## NightScope 1.32.7 - 2026-07-14
+
+- Aggiunta la risoluzione offline del fuso IANA da coordinate WGS84 tramite
+  `timezonefinder 8.2.5`; coordinate manuali e posizione Windows non dipendono
+  piu' dalla copertura del catalogo citta' per ottenere gli orari locali.
+- Le coordinate ricevute restano invariate. Per la posizione Windows precisa
+  il match GeoNames entro 50 km arricchisce soltanto citta', paese e regione;
+  il precedente tentativo di dedurre il fuso dalla citta' entro 500 km e' stato
+  rimosso.
+- Posizione Windows approssimata e coordinate manuali usano lo stesso lookup
+  geografico. Un fuso IANA valido del provider IP resta autorevole; il fuso del
+  computer interviene solo se la risoluzione offline non e' disponibile.
+- Le posizioni manuali gia' salvate vengono rinormalizzate al caricamento e
+  mantengono nome e coordinate originali. Il resolver e' lazy, condiviso e non
+  effettua query di rete.
+- Documentate fonte, licenze MIT/ODbL e raccolta automatica dei dati tramite
+  l'hook PyInstaller di `timezonefinder`.
+- Verificati `pip check`, Ruff, compileall, hook PyInstaller, smoke standard e
+  QML italiano/inglese; suite completa parallela: `766 passed`, `642 warnings`,
+  `7 subtests passed` in `106.17s`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.7` non rigenerata.
+
 ## NightScope 1.32.6 - 2026-07-14
 
 - La scheda Home del cielo profondo usa ora lo stato esplicito `Parziale`

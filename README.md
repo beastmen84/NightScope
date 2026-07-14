@@ -35,7 +35,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 - Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
 - Qualità cielo con Bortle/SQM da cache o dati reali NASA VIIRS Black Marble
   tramite Earthdata; senza una fonte reale i valori restano `n/d`.
-- Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali.
+- Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali; il fuso IANA viene ricavato offline dalle coordinate quando il provider non ne fornisce uno affidabile.
 - Pagina `Provider dati` per configurare accessi opzionali a servizi esterni, inclusi Earthdata NASA e OpenAQ.
 - Pagina `Log Osservazioni` con archivio completo, ricerca, filtro per voto e
   operazioni di aggiunta, modifica ed eliminazione delle sessioni.
@@ -52,7 +52,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.6`.
+Versione corrente sorgente: `1.32.7`.
 
 Distribuzione Windows corrente: `1.32.3`.
 
@@ -253,6 +253,15 @@ trasformare il valore NSOM interno in un giudizio completo. Una cache VIIRS
 reale oltre la TTL resta utilizzabile, ma Meteo ne segnala la necessita' di
 aggiornamento anche se l'account Earthdata non e' configurato o verificato. La
 distribuzione `1.32.6` non e' stata rigenerata.
+
+In `1.32.7` coordinate manuali e posizione Windows ricavano il fuso IANA dai
+poligoni geografici offline di `timezonefinder`, senza dipendere dal catalogo
+citta' o da servizi online. Le coordinate restano esatte; il reverse lookup
+GeoNames entro 50 km arricchisce soltanto nome, paese e regione della posizione
+Windows precisa. Il fuso del computer e' usato solo se il lookup geografico non
+e' disponibile, mentre un fuso IANA valido fornito dal servizio IP resta
+autorevole. Anche le vecchie coordinate manuali salvate vengono normalizzate
+quando sono ricaricate. La distribuzione `1.32.7` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -484,6 +493,7 @@ La build usa `packaging/NightScope.spec` e include:
   descrizioni, curiosita', telescopi, oculari, Barlow, binocoli, filtri,
   riduttori e inquinamento luminoso;
 - dump GeoNames `cities15000.txt`, `countryInfo.txt`, `admin1CodesASCII.txt`;
+- poligoni dei fusi inclusi dalla dipendenza `timezonefinder` tramite il relativo hook PyInstaller;
 - ephemeris `data/skyfield/de421.bsp`;
 - `manuale.html`;
 - `VERSION`.
@@ -544,6 +554,8 @@ I seed locali vivono in `astro_viewer/data/`:
 
 - `cities15000.txt`: dump GeoNames incluso nel package.
 - `countryInfo.txt`, `admin1CodesASCII.txt`: arricchimento paesi e regioni GeoNames.
+- `timezonefinder`: poligoni offline per ricavare il fuso IANA dalle coordinate;
+  i dati appartengono alla dipendenza e non sono duplicati nei seed NightScope.
 - `catalogue_objects_seed.csv`: 219 target Messier/Caldwell, relativi metadati
   astronomici e flag di opportunita' fotografica per il riduttore.
 - `catalogue_designations_seed.csv`: 219 designazioni e ordinamento per

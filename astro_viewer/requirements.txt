@@ -10,4 +10,5 @@ netCDF4>=1.7
 numpy>=2.0
 pandas>=2.2,<4
 tzdata>=2025.2
+timezonefinder==8.2.5
 pyinstaller>=6.14
