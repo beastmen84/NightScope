@@ -10,7 +10,7 @@ Item {
 
     function compactCountry() {
         if (!controller.hasValidLocation)
-            return qsTr("Nessuna posizione configurata")
+            return qsTr("Nessuna località configurata")
         if (controller.location.country === undefined || controller.location.country === "")
             return controller.location.timezone
         return controller.location.country + "  -  " + controller.location.timezone
@@ -84,7 +84,7 @@ Item {
                     Layout.fillHeight: true
                     Layout.minimumHeight: 148
                     title: qsTr("Posizione attuale")
-                    subtitle: controller.hasValidLocation ? controller.activeLocationSource : qsTr("Nessuna posizione configurata")
+                    subtitle: controller.hasValidLocation ? controller.activeLocationSource : qsTr("Nessuna località configurata")
                     accentColor: theme.green
 
                     RowLayout {
@@ -120,7 +120,7 @@ Item {
                             Text {
                                 Layout.fillWidth: true
                                 visible: !controller.hasValidLocation
-                                text: qsTr("Configura una posizione per ottenere meteo e cielo locale.")
+                                text: qsTr("Configura una località per ottenere meteo e cielo locale.")
                                 color: theme.textMuted
                                 font.pixelSize: 12
                                 elide: Text.ElideRight

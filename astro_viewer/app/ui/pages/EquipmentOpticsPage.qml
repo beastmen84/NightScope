@@ -398,7 +398,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text: qsTr("%1  -  %2")
-                    .arg(itemData.barrel_size || qsTr("barilotto n/d"))
+                    .arg(itemData.barrel_size_label || itemData.barrel_size || qsTr("barilotto n/d"))
                     .arg(itemData.notes || "")
                 color: theme.textSecondary
                 font.pixelSize: 12
@@ -464,11 +464,11 @@ Item {
             DarkTextField { id: eyepieceBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
             DarkTextField { id: eyepieceModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
             DarkComboBox { id: eyepieceType; Layout.fillWidth: true; model: [qsTr("Fisso"), "Zoom"] }
-            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 0; placeholderText: qsTr("Focale mm *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale min mm *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale max mm *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: qsTr("AFOV medio *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: qsTr("AFOV min-max (facoltativo)") }
+            DarkTextField { id: eyepieceFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 0; placeholderText: qsTr("Focale (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMinFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale minima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceMaxFocal; Layout.fillWidth: true; visible: eyepieceType.currentIndex === 1; placeholderText: qsTr("Focale massima (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfov; Layout.fillWidth: true; placeholderText: qsTr("AFOV medio (°) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: eyepieceAfovRange; Layout.fillWidth: true; placeholderText: qsTr("Intervallo AFOV (°; facoltativo)") }
             DarkTextField { id: eyepieceBarrel; Layout.fillWidth: true; placeholderText: qsTr("Barilotto (facoltativo)") }
             DarkTextField { id: eyepieceNotes; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
         }

@@ -1023,6 +1023,10 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn('window.detailBackTarget === "objectCatalogue" ? qsTr("Torna al catalogo")', main_qml)
         self.assertIn("controller.catalogueObjects", object_catalogue_qml)
         self.assertIn("appController.selectCatalogueObject", main_qml)
+        self.assertEqual(
+            main_qml.count('onOpenLocation: window.currentPage = "location"'),
+            3,
+        )
         self.assertIn('text: qsTr("Esplora gli oggetti astronomici disponibili nel catalogo.")', object_catalogue_qml)
         self.assertIn('placeholderText: qsTr("Cerca ID o nome...")', object_catalogue_qml)
         for filter_label in (
@@ -1062,6 +1066,8 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertNotIn('TableHeader { text: qsTr("Dim.")', object_catalogue_qml)
         self.assertNotIn('TableHeader { text: qsTr("Osserv.")', object_catalogue_qml)
         self.assertIn("root.textOrDash(itemData.constellation)", object_catalogue_qml)
+        self.assertIn('qsTr("%1°")', object_catalogue_qml)
+        self.assertIn('qsTr("%1°")', object_detail_qml)
         self.assertIn("is_usefully_observable_label", object_catalogue_qml)
         self.assertIn("root.usefulObservableText(itemData)", object_catalogue_qml)
         self.assertNotIn("visible_this_month_label", object_catalogue_qml)
@@ -1079,7 +1085,14 @@ class Phase6RealDataTests(unittest.TestCase):
         self.assertIn("controller.addBinocularModel", binoculars_qml)
         self.assertIn("controller.updateBinocularModel", binoculars_qml)
         self.assertIn("controller.deleteBinocularModel", binoculars_qml)
-        self.assertIn('text: qsTr("Stabilizzato (facoltativo)")', binoculars_qml)
+        self.assertIn('text: qsTr("Stabilizzato")', binoculars_qml)
+        self.assertNotIn("Stabilizzato (facoltativo)", binoculars_qml)
+        self.assertIn('placeholderText: qsTr("Apertura (mm) *")', telescopes_qml)
+        self.assertIn('placeholderText: qsTr("Focale (mm) *")', telescopes_qml)
+        self.assertIn('placeholderText: qsTr("Focale (mm) *")', optics_qml)
+        self.assertIn('placeholderText: qsTr("AFOV medio (°) *")', optics_qml)
+        self.assertIn("itemData.barrel_size_label", optics_qml)
+        self.assertIn('placeholderText: qsTr("Fattore * (es. 0,63)")', filters_reducers_qml)
         self.assertIn("controller.equipmentUsage(\"binocular\"", binoculars_qml)
         for equipment_qml in (telescopes_qml, optics_qml, binoculars_qml, filters_reducers_qml):
             self.assertGreaterEqual(
@@ -1939,7 +1952,7 @@ class Phase6RealDataTests(unittest.TestCase):
                 controller._refresh_weather_and_conditions()
 
             fake_weather.hourly_forecast.assert_not_called()
-            self.assertEqual(controller.weatherStatus, "Configura una posizione per visualizzare il meteo.")
+            self.assertEqual(controller.weatherStatus, "Configura una località per visualizzare il meteo.")
 
     def test_weather_refreshes_after_valid_location(self) -> None:
         with _controller() as controller:

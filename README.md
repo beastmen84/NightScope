@@ -51,7 +51,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.2`.
+Versione corrente sorgente: `1.32.3`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -213,6 +213,15 @@ database `1.32.1`, lo schema SQLite resta `16` e gli override utente continuano
 a essere preservati. Un upgrade diretto da schemi precedenti assegna una sola
 volta gli ID espliciti alle righe integrate esistenti prima del reseed. La
 distribuzione Windows non e' stata rigenerata.
+
+In `1.32.3` il secondo controllo visuale senza localita' corregge i valori
+fuorvianti `0,00` della qualita' cielo, ora sempre `n/d` finche' non esiste una
+localita' valida. Home, Meteo e Calendario offrono un accesso diretto alla
+configurazione e usano stati vuoti piu' brevi. Terminologia, unita' e formati
+dei cataloghi sono stati uniformati: barilotti localizzati con simbolo dei
+pollici, dimensioni angolari in gradi, unita' tra parentesi nei form e virgola
+decimale negli esempi italiani. La distribuzione Windows non e' stata
+rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

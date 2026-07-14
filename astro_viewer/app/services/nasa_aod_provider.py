@@ -97,7 +97,7 @@ class NasaAodResult:
         return cls(
             False,
             "no_location",
-            tr("Configura una posizione per recuperare i dati NASA AOD."),
+            tr("Configura una località per recuperare i dati NASA AOD."),
         )
 
     @classmethod

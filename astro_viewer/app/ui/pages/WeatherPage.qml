@@ -11,6 +11,7 @@ Item {
     property var controller
     property var displayWeatherHours: controller.weatherNext24Hours || []
     property string selectedWeatherHourTimestamp: ""
+    signal openLocation()
 
     function selectedWeatherHourIndex() {
         if (root.displayWeatherHours.length === 0)
@@ -36,6 +37,8 @@ Item {
     }
 
     function skyQualityConfidenceText() {
+        if (!controller.hasValidLocation)
+            return qsTr("n/d")
         var quality = controller.skyQuality || {}
         return quality.confidenceLabel || quality.confidence || qsTr("n/d")
     }
@@ -81,7 +84,7 @@ Item {
                               ? qsTr("Meteo per: %1 - %2")
                                     .arg(controller.activeLocationLabel)
                                     .arg(controller.activeLocationSource)
-                              : qsTr("Configura una posizione per visualizzare il meteo.")
+                              : qsTr("Nessuna località configurata")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -89,12 +92,20 @@ Item {
                 }
 
                 DarkButton {
-                    Layout.preferredWidth: 118
+                    Layout.preferredWidth: controller.hasValidLocation ? 118 : 154
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    text: controller.weatherRefreshRunning ? qsTr("Aggiorno...") : qsTr("Aggiorna")
-                    enabled: controller.hasValidLocation && !controller.weatherRefreshRunning && !controller.startupLocationDetectionRunning
+                    text: !controller.hasValidLocation
+                          ? qsTr("Configura località")
+                          : controller.weatherRefreshRunning ? qsTr("Aggiorno...") : qsTr("Aggiorna")
+                    enabled: !controller.startupLocationDetectionRunning
+                             && (!controller.hasValidLocation || !controller.weatherRefreshRunning)
                     accentColor: theme.cyan
-                    onClicked: controller.refreshWeatherNow()
+                    onClicked: {
+                        if (controller.hasValidLocation)
+                            controller.refreshWeatherNow()
+                        else
+                            root.openLocation()
+                    }
                 }
             }
 
@@ -155,23 +166,29 @@ Item {
                     rowSpacing: 12
 
                     MetricTile {
-                        visible: controller.skyQuality.hasViirsRadiance
+                        visible: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
                         label: qsTr("Osservazioni VIIRS")
                         value: controller.skyQuality.viirsObservationCountLabel
                         accentColor: theme.violet
                     }
                     MetricTile {
-                        label: controller.skyQuality.hasViirsRadiance ? qsTr("Radianza VIIRS") : "SQM"
-                        value: controller.skyQuality.hasViirsRadiance
-                               ? controller.skyQuality.viirsRadianceLabel
-                               : controller.skyQuality.skyBrightnessLabel
+                        label: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
+                               ? qsTr("Radianza VIIRS") : "SQM"
+                        value: !controller.hasValidLocation
+                               ? qsTr("n/d")
+                               : controller.skyQuality.hasViirsRadiance
+                                 ? controller.skyQuality.viirsRadianceLabel
+                                 : controller.skyQuality.skyBrightnessLabel
                         accentColor: theme.cyan
                     }
                     MetricTile {
-                        label: controller.skyQuality.hasViirsRadiance ? qsTr("SQM stimato") : qsTr("Limite visuale")
-                        value: controller.skyQuality.hasViirsRadiance
-                               ? controller.skyQuality.skyBrightnessLabel
-                               : controller.skyQuality.limitingMagnitudeLabel
+                        label: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance
+                               ? qsTr("SQM stimato") : qsTr("Limite visuale")
+                        value: !controller.hasValidLocation
+                               ? qsTr("n/d")
+                               : controller.skyQuality.hasViirsRadiance
+                                 ? controller.skyQuality.skyBrightnessLabel
+                                 : controller.skyQuality.limitingMagnitudeLabel
                         accentColor: theme.teal
                     }
                     MetricTile { label: qsTr("Confidenza"); value: root.skyQualityConfidenceText(); accentColor: theme.amber }
@@ -321,7 +338,7 @@ Item {
                     Layout.fillWidth: true
                     visible: root.displayWeatherHours.length === 0
                     text: !controller.hasValidLocation
-                          ? qsTr("Configura una posizione per visualizzare il meteo.")
+                          ? qsTr("Dati non disponibili senza località.")
                           : controller.isLoading || controller.weatherRefreshRunning
                             ? qsTr("Caricamento meteo...")
                             : controller.weatherStatus.length > 0
@@ -451,7 +468,7 @@ Item {
                     Layout.fillWidth: true
                     visible: root.displayWeatherHours.length === 0
                     text: !controller.hasValidLocation
-                          ? qsTr("Configura una posizione per visualizzare il meteo.")
+                          ? qsTr("Dati non disponibili senza località.")
                           : controller.isLoading || controller.weatherRefreshRunning
                             ? qsTr("Caricamento meteo...")
                             : controller.weatherStatus.length > 0

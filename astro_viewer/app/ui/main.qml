@@ -393,6 +393,7 @@ ApplicationWindow {
                 window.calendarEventId = ""
                 window.currentPage = "calendar"
             }
+            onOpenLocation: window.currentPage = "location"
         }
     }
 
@@ -433,6 +434,7 @@ ApplicationWindow {
                 window.detailBackTarget = "calendar"
                 window.currentPage = "detail"
             }
+            onOpenLocation: window.currentPage = "location"
         }
     }
 
@@ -447,6 +449,7 @@ ApplicationWindow {
         id: weatherPage
         WeatherPage {
             controller: appController
+            onOpenLocation: window.currentPage = "location"
         }
     }
 

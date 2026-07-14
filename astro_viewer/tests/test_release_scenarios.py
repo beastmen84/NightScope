@@ -112,9 +112,9 @@ class ReleaseScenarioTests(unittest.TestCase):
         with context as controller:
             self.assertFalse(controller.hasValidLocation)
             self.assertEqual(controller.location["city"], "")
-            self.assertEqual(controller.weatherStatus, "Configura una posizione per visualizzare il meteo.")
+            self.assertEqual(controller.weatherStatus, "Configura una località per visualizzare il meteo.")
             self.assertEqual(controller.weatherHourly, [])
-            self.assertEqual(controller.activeLocationLabel, "Nessuna posizione configurata")
+            self.assertEqual(controller.activeLocationLabel, "Nessuna località configurata")
             self.assertEqual(controller.homeObservingOverview["session"]["state"], "unavailable")
             self.assertEqual(controller.homeObservingOverview["weather"]["scoreLabel"], "n/d")
             self.assertEqual(controller.homeObservingOverview["moon"]["impact"], "unavailable")
@@ -409,7 +409,15 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertEqual(qml.count("Meteo per: "), 1)
         self.assertIn("controller.activeLocationLabel", qml)
         self.assertIn("controller.activeLocationSource", qml)
-        self.assertIn("Configura una posizione per visualizzare il meteo.", qml)
+        self.assertIn("Nessuna località configurata", qml)
+        self.assertIn('text: !controller.hasValidLocation', qml)
+        self.assertIn('qsTr("Configura località")', qml)
+        self.assertIn("root.openLocation()", qml)
+        self.assertGreaterEqual(qml.count("value: !controller.hasValidLocation"), 2)
+        self.assertIn(
+            "visible: controller.hasValidLocation && controller.skyQuality.hasViirsRadiance",
+            qml,
+        )
         self.assertIn("ListView.Horizontal", qml)
         self.assertIn("selectedWeatherHourIndex", qml)
         self.assertIn("selectedWeatherHourTimestamp", qml)

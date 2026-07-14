@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.2`:
+Measured on the current Windows development environment for `1.32.3`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `747 passed, 7 subtests passed` | `0:01:48.27` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `748 passed, 7 subtests passed` | `0:01:39.38` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -110,6 +110,11 @@ user overrides intact and preserve a custom row when the corrected natural
 identity would collide. A schema-v15 simulation removes all six classes of
 equipment key and confirms that bootstrap restores them without changing row
 counts.
+The `1.32.3` corrections cover the no-location sky-quality guard, direct
+Home/Weather/Calendar navigation to location setup, localized barrel-size
+labels, degree-symbol catalogue dimensions and the revised required/optional
+Equipment form copy. Italian and English QML smoke tests use disposable
+runtime directories.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

@@ -203,7 +203,7 @@ def _alternatives_payload(
     if sky_quality_warning and state in {"recommended", "monitor"}:
         subtitle = sky_quality_warning
     if state == "unavailable":
-        empty_text = tr("Configura una posizione per calcolare gli oggetti visibili.")
+        empty_text = tr("Oggetti non disponibili senza località.")
     elif loading or state == "pending":
         empty_text = tr("Calcolo della visibilità...")
     else:

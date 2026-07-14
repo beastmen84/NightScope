@@ -76,7 +76,7 @@ class LocalAtmosphere:
         return cls(
             True,
             False,
-            tr("Configura una posizione per visualizzare l'atmosfera locale."),
+            tr("Configura una località per visualizzare l'atmosfera locale."),
         )
 
     @classmethod

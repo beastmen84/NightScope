@@ -232,8 +232,8 @@ def test_missing_location_does_not_claim_favourable_conditions() -> None:
 
     assert payload["session"]["state"] == "unavailable"
     assert payload["weather"]["available"] is False
-    assert payload["planetary"]["hint"] == "Configura una posizione"
-    assert payload["deepSky"]["hint"] == "Configura una posizione"
+    assert payload["planetary"]["hint"] == "Configura una località"
+    assert payload["deepSky"]["hint"] == "Configura una località"
     assert "potenziale" not in payload["deepSky"]["hint"].lower()
 
 

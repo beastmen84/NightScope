@@ -271,8 +271,8 @@ Item {
             DarkTextField { id: telescopeBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
             DarkTextField { id: telescopeName; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
             DarkTextField { id: telescopeType; Layout.fillWidth: true; placeholderText: qsTr("Tipo ottico *") }
-            DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura mm *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            DarkTextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: qsTr("Focale mm *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeAperture; Layout.fillWidth: true; placeholderText: qsTr("Apertura (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: telescopeFocal; Layout.fillWidth: true; placeholderText: qsTr("Focale (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: telescopeMount; Layout.fillWidth: true; placeholderText: qsTr("Montatura *") }
             DarkTextField { id: telescopeNotes; Layout.columnSpan: 2; Layout.fillWidth: true; placeholderText: qsTr("Note (facoltative)") }
         }

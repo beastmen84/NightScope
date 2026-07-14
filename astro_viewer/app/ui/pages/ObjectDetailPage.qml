@@ -73,7 +73,7 @@ Item {
             return objectData.maxAngularSizeLabel
         if (objectData.maxAngularSizeDeg === undefined || objectData.maxAngularSizeDeg === null)
             return qsTr("n/d")
-        return qsTr("%1 deg").arg(
+        return qsTr("%1°").arg(
             Number(objectData.maxAngularSizeDeg).toLocaleString(Qt.locale())
         )
     }

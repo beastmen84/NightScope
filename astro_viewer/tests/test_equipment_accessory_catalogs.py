@@ -55,6 +55,31 @@ def test_filter_and_reducer_seeds_are_comprehensive_and_structured() -> None:
         temporary_directory.cleanup()
 
 
+def test_optics_catalog_exposes_localized_barrel_size_labels() -> None:
+    temporary_directory, _, repository = _database()
+    try:
+        eyepieces = repository.eyepieces()
+        barlows = repository.barlows()
+
+        assert next(
+            item["barrel_size_label"]
+            for item in eyepieces
+            if item["barrel_size"] == "1.25"
+        ) == "1,25″"
+        assert next(
+            item["barrel_size_label"]
+            for item in eyepieces
+            if item["barrel_size"] == "1.25/2"
+        ) == "1,25″ / 2″"
+        assert next(
+            item["barrel_size_label"]
+            for item in barlows
+            if item["barrel_size"] == "2"
+        ) == "2″"
+    finally:
+        temporary_directory.cleanup()
+
+
 def test_custom_filter_and_reducer_crud_preserves_user_provenance() -> None:
     temporary_directory, _, repository = _database()
     try:

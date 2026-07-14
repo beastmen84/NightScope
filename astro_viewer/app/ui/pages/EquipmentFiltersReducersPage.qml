@@ -590,7 +590,7 @@ Item {
             rowSpacing: 8
             DarkTextField { id: reducerBrand; Layout.fillWidth: true; placeholderText: qsTr("Marca *") }
             DarkTextField { id: reducerModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
-            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore * (es. 0.63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
+            DarkTextField { id: reducerFactor; Layout.fillWidth: true; placeholderText: qsTr("Fattore * (es. 0,63)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkComboBox { id: reducerSystem; Layout.fillWidth: true; model: root.opticalSystemLabels }
             DarkTextField { id: reducerConnection; Layout.fillWidth: true; placeholderText: qsTr("Connessione (facoltativa)") }
             DarkTextField { id: reducerBackfocus; Layout.fillWidth: true; placeholderText: qsTr("Backfocus (mm, facoltativo)"); inputMethodHints: Qt.ImhFormattedNumbersOnly }

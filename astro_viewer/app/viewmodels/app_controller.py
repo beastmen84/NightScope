@@ -340,7 +340,7 @@ class AppController(QObject):
         self._location: ObserverLocation | None = None
         self._observing_night_window = ObservingNightWindow.unavailable()
         self._location_message = tr(
-            "Configura una posizione per ottenere meteo e cielo locale."
+            "Configura una località per ottenere meteo e cielo locale."
         )
         self._offer_online_location_fallback = False
         self._windows_location_diagnostics = self._empty_windows_diagnostics()
@@ -488,7 +488,7 @@ class AppController(QObject):
         if self._startup_location_detection_running:
             return render_text(tr("Posizione in aggiornamento"))
         if not self._has_valid_location():
-            return render_text(tr("Nessuna posizione configurata"))
+            return render_text(tr("Nessuna località configurata"))
         return render_text(
             tr(
                 "{city} — {timezone}",
@@ -2478,13 +2478,13 @@ class AppController(QObject):
             illumination=tr("n/d"),
             rise_time=tr("n/d"),
             set_time=tr("n/d"),
-            best_note=tr("Configura una posizione per calcolare i dati lunari locali."),
+            best_note=tr("Configura una località per calcolare i dati lunari locali."),
             image="",
         )
         self._events = []
         self._transient_events_location_key = ""
         self._weather_hours = []
-        self._weather_status = tr("Configura una posizione per visualizzare il meteo.")
+        self._weather_status = tr("Configura una località per visualizzare il meteo.")
         self._light_pollution_status = ""
         self._viirs_sky_quality_running = False
         self._nasa_aod_refresh_running = False
@@ -2493,13 +2493,13 @@ class AppController(QObject):
         self._weather_summary = WeatherSummary(
             tr("n/d"),
             0,
-            tr("Configura una posizione per ottenere meteo e cielo locale."),
+            tr("Configura una località per ottenere meteo e cielo locale."),
             0,
             0,
             0,
             0,
             0.0,
-            tr("Configura una posizione per ottenere meteo e cielo locale."),
+            tr("Configura una località per ottenere meteo e cielo locale."),
         )
         self._sky_quality = SkyQuality(
             0,
@@ -2514,7 +2514,7 @@ class AppController(QObject):
             "",
             0,
             0,
-            tr("Configura una posizione."),
+            tr("Configura una località."),
             "unavailable",
             "unavailable",
         )
@@ -2523,7 +2523,7 @@ class AppController(QObject):
             0,
             tr("n/d"),
             tr("n/d"),
-            tr("Configura una posizione."),
+            tr("Configura una località."),
         )
         self._best_object = None
         self._night_plan = []
@@ -2938,7 +2938,7 @@ class AppController(QObject):
         if not self._has_valid_location():
             logger.warning("Weather refresh skipped because no valid location is available.")
             self._weather_hours = []
-            self._weather_status = tr("Configura una posizione per visualizzare il meteo.")
+            self._weather_status = tr("Configura una località per visualizzare il meteo.")
             self._weather_summary = self._score_service.weather_score([], self._moon)
             self._refresh_local_atmosphere()
             self._schedule_next_weather_refresh()
@@ -4101,7 +4101,7 @@ class AppController(QObject):
         return (
             None,
             False,
-            tr("Configura una posizione per ottenere meteo e cielo locale."),
+            tr("Configura una località per ottenere meteo e cielo locale."),
         )
 
     @Slot(int, object, bool, object)
@@ -4124,7 +4124,7 @@ class AppController(QObject):
             self._location_detection_result = None
             self._location = None
             self._location_message = message or tr(
-                "Configura una posizione per ottenere meteo e cielo locale."
+                "Configura una località per ottenere meteo e cielo locale."
             )
 
         self._refresh_all()

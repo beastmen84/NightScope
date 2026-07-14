@@ -111,7 +111,7 @@ class OpenAQLocalAtmosphereServiceTests(unittest.TestCase):
 
         self.assertTrue(result.visible)
         self.assertFalse(result.has_data)
-        self.assertIn("Configura una posizione", result.message)
+        self.assertIn("Configura una località", result.message)
         self.assertEqual(session.calls, [])
 
     def test_successful_pm25_pm10_dto(self) -> None:

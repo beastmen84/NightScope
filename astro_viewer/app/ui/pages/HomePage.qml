@@ -30,6 +30,7 @@ Item {
     signal openObject(string objectId)
     signal openEvent(string eventId)
     signal openCalendar()
+    signal openLocation()
 
     function normalizedTargetId(value) {
         return String(value || "").trim().toLowerCase()
@@ -290,6 +291,14 @@ Item {
                     }
                 }
 
+                DarkButton {
+                    visible: !controller.hasValidLocation
+                    Layout.preferredWidth: 154
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    text: qsTr("Configura località")
+                    accentColor: theme.cyan
+                    onClicked: root.openLocation()
+                }
             }
 
             Rectangle {
@@ -1596,7 +1605,7 @@ Item {
                         Layout.fillWidth: true
                         visible: root.filteredNightAlternatives().length === 0
                         text: !controller.hasValidLocation
-                              ? qsTr("Configura una posizione per calcolare gli oggetti visibili.")
+                              ? qsTr("Oggetti non disponibili senza località.")
                               : root.skyCompassFilterEnabled
                               ? qsTr("Nessun altro oggetto fuori dal piano nella zona suggerita in questo momento.")
                               : (root.nightAlternativesOverview.emptyText || qsTr("Nessun altro oggetto utile fuori dal piano."))
@@ -1691,7 +1700,7 @@ Item {
                     visible: root.chronologicalEvents(1).length === 0
                     text: controller.hasValidLocation
                           ? qsTr("Nessun evento imminente disponibile.")
-                          : qsTr("Configura una posizione per calcolare i prossimi eventi.")
+                          : qsTr("Eventi non disponibili senza località.")
                     color: theme.textSecondary
                     font.pixelSize: 13
                 }

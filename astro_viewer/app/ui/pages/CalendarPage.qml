@@ -16,6 +16,7 @@ Item {
     property var selectedEventData: selectedEventById(selectedEventId)
 
     signal openObject(string objectId)
+    signal openLocation()
     signal eventSelected(string eventId)
     signal eventSelectionCleared()
 
@@ -187,11 +188,20 @@ Item {
                         Layout.fillWidth: true
                         text: controller.hasValidLocation
                               ? qsTr("Eventi annuali, passaggi ISS e comete a breve termine")
-                              : qsTr("Configura una posizione per calcolare gli eventi osservabili.")
+                              : qsTr("Configura una località per calcolare gli eventi osservabili.")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
                     }
+                }
+
+                DarkButton {
+                    visible: !controller.hasValidLocation
+                    Layout.preferredWidth: 154
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    text: qsTr("Configura località")
+                    accentColor: theme.cyan
+                    onClicked: root.openLocation()
                 }
             }
 
@@ -215,7 +225,7 @@ Item {
                         visible: (root.calendarOverview.highlights || []).length === 0
                         text: controller.hasValidLocation
                               ? qsTr("Nessun evento rilevante nei prossimi 30 giorni.")
-                              : qsTr("Posizione necessaria per calcolare gli eventi.")
+                              : qsTr("Eventi non disponibili senza località.")
                         color: theme.textSecondary
                         font.pixelSize: 13
                         wrapMode: Text.WordWrap
@@ -263,7 +273,7 @@ Item {
                     Layout.minimumHeight: 212
                     title: qsTr("Panoramica")
                     subtitle: !controller.hasValidLocation
-                              ? qsTr("Dati non disponibili senza posizione")
+                              ? qsTr("Dati non disponibili senza località")
                               : root.filteredEvents().length === 1
                               ? qsTr("1 evento nella vista corrente")
                               : qsTr("%1 eventi nella vista corrente").arg(root.filteredEvents().length)
@@ -341,7 +351,7 @@ Item {
                           ? qsTr("%1 di %2 eventi")
                                 .arg(root.filteredEvents().length)
                                 .arg(root.calendarEvents.length)
-                          : qsTr("Posizione necessaria")
+                          : qsTr("Località necessaria")
                 accentColor: theme.violet
 
                 ColumnLayout {
@@ -473,7 +483,7 @@ Item {
                 visible: root.filteredEvents().length === 0
                 text: controller.hasValidLocation
                       ? qsTr("Nessun evento per i filtri selezionati.")
-                      : qsTr("Configura una posizione per visualizzare gli eventi del calendario.")
+                      : qsTr("Eventi non disponibili senza località.")
                 color: theme.textSecondary
                 font.pixelSize: 13
                 horizontalAlignment: Text.AlignHCenter

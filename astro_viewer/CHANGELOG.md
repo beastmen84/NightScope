@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.32.3 - 2026-07-14
+
+- Corretto lo stato Meteo senza localita': SQM, limite visuale, confidenza e
+  dati VIIRS non possono piu' mostrare zeri o valori precedenti come se fossero
+  misure disponibili.
+- Aggiunto l'accesso diretto a `Localita'` da Home, Meteo e Calendario;
+  alleggeriti i messaggi ripetuti nelle sezioni vuote e uniformata la
+  terminologia di configurazione.
+- Localizzati i barilotti degli oculari e delle Barlow con separatore decimale
+  e simbolo dei pollici; le dimensioni angolari del catalogo usano `°`.
+- Rifinite le etichette dei form Equipment con unita' tra parentesi, esempio
+  italiano `0,63` e checkbox binocolo `Stabilizzato` senza falso indicatore di
+  campo facoltativo.
+- Aggiornati e compilati i cataloghi italiano/inglese completi `1575/1575`.
+- Verificati `pip check`, Ruff, compileall, tutti i QML e smoke italiano/inglese;
+  suite completa parallela: `748 passed`, `613 warnings`, `7 subtests passed`.
+- Nessuna migrazione database; schema SQLite ancora `16`. Dist `1.32.3` non
+  rigenerata.
+
 ## NightScope 1.32.2 - 2026-07-14
 
 - Corrette le chiavi delle voci integrate dei sei cataloghi strumenti: sono ora

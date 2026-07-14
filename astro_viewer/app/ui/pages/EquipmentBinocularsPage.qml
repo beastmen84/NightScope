@@ -252,7 +252,7 @@ Item {
             DarkTextField { id: binocularModel; Layout.fillWidth: true; placeholderText: qsTr("Modello *") }
             DarkTextField { id: binocularMagnification; Layout.fillWidth: true; placeholderText: qsTr("Ingrandimento *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
             DarkTextField { id: binocularObjective; Layout.fillWidth: true; placeholderText: qsTr("Diametro obiettivo (mm) *"); inputMethodHints: Qt.ImhFormattedNumbersOnly }
-            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato (facoltativo)") }
+            CheckBox { id: binocularStabilized; Layout.fillWidth: true; text: qsTr("Stabilizzato") }
         }
 
         Text {

@@ -43,7 +43,7 @@ Item {
             return item.max_angular_size_label
         if (item.max_angular_size_deg === null || item.max_angular_size_deg === undefined)
             return "—"
-        return qsTr("%1 deg").arg(
+        return qsTr("%1°").arg(
             Number(item.max_angular_size_deg).toLocaleString(Qt.locale())
         )
     }

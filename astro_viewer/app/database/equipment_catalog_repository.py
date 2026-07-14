@@ -9,6 +9,7 @@ from astro_viewer.app.models.filtering import FILTER_CLASS_LABELS
 from astro_viewer.app.services.localization import (
     format_compact_number,
     format_number,
+    join_text,
     tr,
 )
 
@@ -20,6 +21,26 @@ OPTICAL_SYSTEM_LABELS = {
     "UNIVERSAL": tr("Universale"),
     "OTHER": tr("Altro"),
 }
+
+
+def _barrel_size_label(value: object) -> str:
+    raw_value = str(value or "").strip()
+    if not raw_value:
+        return ""
+
+    formatted_parts: list[object] = []
+    for raw_part in raw_value.split("/"):
+        numeric_part = raw_part.strip().rstrip('"″').strip().replace(",", ".")
+        try:
+            numeric_value = float(numeric_part)
+        except ValueError:
+            return raw_value
+        if numeric_value <= 0:
+            return raw_value
+        formatted_parts.append(
+            tr("{value}″", value=format_compact_number(numeric_value))
+        )
+    return join_text(formatted_parts, separator=" / ")
 
 
 class EquipmentCatalogRepository:
@@ -1209,6 +1230,7 @@ class EquipmentCatalogRepository:
             "afov_min": row["afov_min"],
             "afov_max": row["afov_max"],
             "barrel_size": row["barrel_size"] or "",
+            "barrel_size_label": _barrel_size_label(row["barrel_size"]),
             "zoom_click_positions_mm": row["zoom_click_positions_mm"] or "",
             "notes": row["notes"] or "",
             "focalRangeLabel": focal_range,
@@ -1230,6 +1252,7 @@ class EquipmentCatalogRepository:
                 "{value}x", value=format_compact_number(row["multiplier"])
             ),
             "barrel_size": row["barrel_size"] or "",
+            "barrel_size_label": _barrel_size_label(row["barrel_size"]),
             "notes": row["notes"] or "",
             "is_builtin": bool(row["is_builtin"]),
             "seed_key": row["seed_key"] or "",
