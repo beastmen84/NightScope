@@ -21,7 +21,10 @@ GeoNames publishes dump formats at `https://download.geonames.org/export/dump/re
 `filter_catalog_seed.csv`, `reducer_catalog_seed.csv` and
 `reducer_telescope_compatibility_seed.csv` are the canonical seed source for
 equipment catalogs. Runtime bootstrap reads these CSVs directly; equipment
-seed rows are not hardcoded in Python. Rows marked
+seed rows are not hardcoded in Python. Every catalogue row owns an explicit,
+immutable `seed_key`; reducer-telescope associations reference those keys
+directly. Brand, model and technical corrections must retain the existing key
+so bootstrap updates the same database row. Rows marked
 `Specs encoded in model name` should be checked against the specific regional
 product revision before purchase recommendations.
 

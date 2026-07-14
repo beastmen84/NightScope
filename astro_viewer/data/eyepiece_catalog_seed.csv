@@ -1,135 +1,135 @@
-brand,model,eyepiece_type,focal_length_mm,min_focal_length_mm,max_focal_length_mm,apparent_field_deg,afov_min,afov_max,barrel_size,notes,zoom_click_positions_mm
-Baader,Classic Ortho,Fixed,6,,,50,,,1.25,Manufacturer catalog series.
-Baader,Classic Ortho,Fixed,10,,,50,,,1.25,Manufacturer catalog series.
-Baader,Classic Ortho,Fixed,18,,,50,,,1.25,Manufacturer catalog series.
-Baader,Classic Plossl,Fixed,32,,,50,,,1.25,Manufacturer catalog series.
-Baader,Hyperion,Fixed,5,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,8,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,10,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,13,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,17,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,21,,,68,,,1.25/2,Manufacturer catalog series.
-Baader,Hyperion,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
-Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,48,68,1.25/2,"Zoom eyepiece; AFOV varies 48-68 deg by focal position; click positions 24/20/16/12/8 mm.",24;20;16;12;8
-Baader,Morpheus,Fixed,4.5,,,76,,,1.25/2,Manufacturer catalog series.
-Baader,Morpheus,Fixed,6.5,,,76,,,1.25/2,Manufacturer catalog series.
-Baader,Morpheus,Fixed,9,,,76,,,1.25/2,Manufacturer catalog series.
-Baader,Morpheus,Fixed,12.5,,,76,,,1.25/2,Manufacturer catalog series.
-Baader,Morpheus,Fixed,14,,,76,,,1.25/2,Manufacturer catalog series.
-Baader,Morpheus,Fixed,17.5,,,76,,,1.25/2,Manufacturer catalog series.
-Celestron,Luminos,Fixed,7,,,82,,,1.25,Manufacturer catalog series.
-Celestron,Luminos,Fixed,10,,,82,,,1.25,Manufacturer catalog series.
-Celestron,Luminos,Fixed,15,,,82,,,1.25,Manufacturer catalog series.
-Celestron,Luminos,Fixed,19,,,82,,,2,Manufacturer catalog series.
-Celestron,Luminos,Fixed,23,,,82,,,2,Manufacturer catalog series.
-Celestron,Luminos,Fixed,31,,,82,,,2,Manufacturer catalog series.
-Celestron,Omni Plossl,Fixed,4,,,50,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,6,,,50,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,9,,,50,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,12,,,50,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,32,,,48,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,40,,,40,,,1.25,Manufacturer catalog specification.
-Celestron,Omni Plossl,Fixed,56,,,47,,,2,Manufacturer catalog specification.
-Celestron,X-Cel LX,Fixed,2.3,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,5,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,7,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,9,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,12,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,18,,,60,,,1.25,Manufacturer catalog series.
-Celestron,X-Cel LX,Fixed,25,,,60,,,1.25,Manufacturer catalog series.
-Celestron,Zoom 8-24 mm,Zoom,24,8,24,50,40,60,1.25,"Zoom eyepiece; AFOV varies 40-60 deg by focal position, midpoint estimate used."
-Explore Scientific,52 Series,Fixed,3,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,4.5,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,6.5,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,20,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,52 Series,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
-Explore Scientific,62 Series,Fixed,5.5,,,62,,,1.25,Manufacturer catalog series.
-Explore Scientific,62 Series,Fixed,9,,,62,,,1.25,Manufacturer catalog series.
-Explore Scientific,62 Series,Fixed,14,,,62,,,1.25,Manufacturer catalog series.
-Explore Scientific,62 Series,Fixed,20,,,62,,,1.25,Manufacturer catalog series.
-Explore Scientific,62 Series,Fixed,26,,,62,,,1.25,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,16,,,68,,,1.25,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,20,,,68,,,1.25,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,28,,,68,,,2,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,34,,,68,,,2,Manufacturer catalog series.
-Explore Scientific,68 Series,Fixed,40,,,68,,,2,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,4.7,,,82,,,1.25,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,6.7,,,82,,,1.25,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,8.8,,,82,,,1.25,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,11,,,82,,,1.25,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,14,,,82,,,1.25,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,18,,,82,,,2,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,24,,,82,,,2,Manufacturer catalog series.
-Explore Scientific,82 Series,Fixed,30,,,82,,,2,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,6.4,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,9.7,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,12.4,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,20,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,26,,,52,,,1.25,Manufacturer catalog series.
-Meade,Series 4000 Super Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
-Orion,Expanse,Fixed,6,,,66,,,1.25,Manufacturer catalog series.
-Orion,Expanse,Fixed,9,,,66,,,1.25,Manufacturer catalog series.
-Orion,Expanse,Fixed,15,,,66,,,1.25,Manufacturer catalog series.
-Orion,Expanse,Fixed,20,,,66,,,1.25,Manufacturer catalog series.
-Orion,Sirius Plossl,Fixed,7.5,,,52,,,1.25,Manufacturer catalog series.
-Orion,Sirius Plossl,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
-Orion,Sirius Plossl,Fixed,12.5,,,52,,,1.25,Manufacturer catalog series.
-Orion,Sirius Plossl,Fixed,17,,,52,,,1.25,Manufacturer catalog series.
-Orion,Sirius Plossl,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,2.5,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,3.2,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,4,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,5,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,6,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,7,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Planetary UWA,Fixed,8,,,58,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,6.3,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,7.5,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,12.5,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,17,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
-Sky-Watcher,Super Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
-Svbony,Zoom 7-21 mm,Zoom,21,7,21,50,,,1.25,"Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."
-Tele Vue,DeLite,Fixed,3,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,4,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,5,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,7,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,9,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,11,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,13,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,15,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,DeLite,Fixed,18.2,,,62,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,3.5,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,4.5,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,6,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,8,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,10,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,12,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,14,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Delos,Fixed,17.3,,,72,,,1.25,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,3.7,,,110,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,4.7,,,110,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,6,,,100,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,8,,,100,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,10,,,100,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,13,,,100,,,1.25/2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,17,,,100,,,2,Manufacturer catalog series.
-Tele Vue,Ethos,Fixed,21,,,100,,,2,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,3.5,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,5,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,7,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,9,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,11,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Nagler Type 6,Fixed,13,,,82,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,8,,,50,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,11,,,50,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,20,,,50,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,25,,,50,,,1.25,Manufacturer catalog series.
-Tele Vue,Plossl,Fixed,32,,,50,,,1.25,Manufacturer catalog series.
+seed_key,brand,model,eyepiece_type,focal_length_mm,min_focal_length_mm,max_focal_length_mm,apparent_field_deg,afov_min,afov_max,barrel_size,notes,zoom_click_positions_mm
+eyepiece::baader::classic ortho::6,Baader,Classic Ortho,Fixed,6,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::baader::classic ortho::10,Baader,Classic Ortho,Fixed,10,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::baader::classic ortho::18,Baader,Classic Ortho,Fixed,18,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::baader::classic plossl::32,Baader,Classic Plossl,Fixed,32,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::baader::hyperion::5,Baader,Hyperion,Fixed,5,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::8,Baader,Hyperion,Fixed,8,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::10,Baader,Hyperion,Fixed,10,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::13,Baader,Hyperion,Fixed,13,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::17,Baader,Hyperion,Fixed,17,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::21,Baader,Hyperion,Fixed,21,,,68,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::hyperion::24,Baader,Hyperion,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
+eyepiece::baader::hyperion zoom 8-24 mm::24,Baader,Hyperion Zoom 8-24 mm,Zoom,24,8,24,60,48,68,1.25/2,Zoom eyepiece; AFOV varies 48-68 deg by focal position; click positions 24/20/16/12/8 mm.,24;20;16;12;8
+eyepiece::baader::morpheus::4.5,Baader,Morpheus,Fixed,4.5,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::morpheus::6.5,Baader,Morpheus,Fixed,6.5,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::morpheus::9,Baader,Morpheus,Fixed,9,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::morpheus::12.5,Baader,Morpheus,Fixed,12.5,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::morpheus::14,Baader,Morpheus,Fixed,14,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::baader::morpheus::17.5,Baader,Morpheus,Fixed,17.5,,,76,,,1.25/2,Manufacturer catalog series.
+eyepiece::celestron::luminos::7,Celestron,Luminos,Fixed,7,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::luminos::10,Celestron,Luminos,Fixed,10,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::luminos::15,Celestron,Luminos,Fixed,15,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::luminos::19,Celestron,Luminos,Fixed,19,,,82,,,2,Manufacturer catalog series.
+eyepiece::celestron::luminos::23,Celestron,Luminos,Fixed,23,,,82,,,2,Manufacturer catalog series.
+eyepiece::celestron::luminos::31,Celestron,Luminos,Fixed,31,,,82,,,2,Manufacturer catalog series.
+eyepiece::celestron::omni plossl::4,Celestron,Omni Plossl,Fixed,4,,,50,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::6,Celestron,Omni Plossl,Fixed,6,,,50,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::9,Celestron,Omni Plossl,Fixed,9,,,50,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::12,Celestron,Omni Plossl,Fixed,12,,,50,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::15,Celestron,Omni Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::32,Celestron,Omni Plossl,Fixed,32,,,48,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::40,Celestron,Omni Plossl,Fixed,40,,,40,,,1.25,Manufacturer catalog specification.
+eyepiece::celestron::omni plossl::56,Celestron,Omni Plossl,Fixed,56,,,47,,,2,Manufacturer catalog specification.
+eyepiece::celestron::x-cel lx::2.3,Celestron,X-Cel LX,Fixed,2.3,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::5,Celestron,X-Cel LX,Fixed,5,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::7,Celestron,X-Cel LX,Fixed,7,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::9,Celestron,X-Cel LX,Fixed,9,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::12,Celestron,X-Cel LX,Fixed,12,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::18,Celestron,X-Cel LX,Fixed,18,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::x-cel lx::25,Celestron,X-Cel LX,Fixed,25,,,60,,,1.25,Manufacturer catalog series.
+eyepiece::celestron::zoom 8-24 mm::24,Celestron,Zoom 8-24 mm,Zoom,24,8,24,50,40,60,1.25,"Zoom eyepiece; AFOV varies 40-60 deg by focal position, midpoint estimate used."
+eyepiece::explore scientific::52 series::3,Explore Scientific,52 Series,Fixed,3,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::4.5,Explore Scientific,52 Series,Fixed,4.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::6.5,Explore Scientific,52 Series,Fixed,6.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::10,Explore Scientific,52 Series,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::15,Explore Scientific,52 Series,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::20,Explore Scientific,52 Series,Fixed,20,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::52 series::25,Explore Scientific,52 Series,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::62 series::5.5,Explore Scientific,62 Series,Fixed,5.5,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::62 series::9,Explore Scientific,62 Series,Fixed,9,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::62 series::14,Explore Scientific,62 Series,Fixed,14,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::62 series::20,Explore Scientific,62 Series,Fixed,20,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::62 series::26,Explore Scientific,62 Series,Fixed,26,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::16,Explore Scientific,68 Series,Fixed,16,,,68,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::20,Explore Scientific,68 Series,Fixed,20,,,68,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::24,Explore Scientific,68 Series,Fixed,24,,,68,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::28,Explore Scientific,68 Series,Fixed,28,,,68,,,2,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::34,Explore Scientific,68 Series,Fixed,34,,,68,,,2,Manufacturer catalog series.
+eyepiece::explore scientific::68 series::40,Explore Scientific,68 Series,Fixed,40,,,68,,,2,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::4.7,Explore Scientific,82 Series,Fixed,4.7,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::6.7,Explore Scientific,82 Series,Fixed,6.7,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::8.8,Explore Scientific,82 Series,Fixed,8.8,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::11,Explore Scientific,82 Series,Fixed,11,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::14,Explore Scientific,82 Series,Fixed,14,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::18,Explore Scientific,82 Series,Fixed,18,,,82,,,2,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::24,Explore Scientific,82 Series,Fixed,24,,,82,,,2,Manufacturer catalog series.
+eyepiece::explore scientific::82 series::30,Explore Scientific,82 Series,Fixed,30,,,82,,,2,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::6.4,Meade,Series 4000 Super Plossl,Fixed,6.4,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::9.7,Meade,Series 4000 Super Plossl,Fixed,9.7,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::12.4,Meade,Series 4000 Super Plossl,Fixed,12.4,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::15,Meade,Series 4000 Super Plossl,Fixed,15,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::20,Meade,Series 4000 Super Plossl,Fixed,20,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::26,Meade,Series 4000 Super Plossl,Fixed,26,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::meade::series 4000 super plossl::32,Meade,Series 4000 Super Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::orion::expanse::6,Orion,Expanse,Fixed,6,,,66,,,1.25,Manufacturer catalog series.
+eyepiece::orion::expanse::9,Orion,Expanse,Fixed,9,,,66,,,1.25,Manufacturer catalog series.
+eyepiece::orion::expanse::15,Orion,Expanse,Fixed,15,,,66,,,1.25,Manufacturer catalog series.
+eyepiece::orion::expanse::20,Orion,Expanse,Fixed,20,,,66,,,1.25,Manufacturer catalog series.
+eyepiece::orion::sirius plossl::7.5,Orion,Sirius Plossl,Fixed,7.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::orion::sirius plossl::10,Orion,Sirius Plossl,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::orion::sirius plossl::12.5,Orion,Sirius Plossl,Fixed,12.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::orion::sirius plossl::17,Orion,Sirius Plossl,Fixed,17,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::orion::sirius plossl::25,Orion,Sirius Plossl,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::2.5,Sky-Watcher,Planetary UWA,Fixed,2.5,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::3.2,Sky-Watcher,Planetary UWA,Fixed,3.2,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::4,Sky-Watcher,Planetary UWA,Fixed,4,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::5,Sky-Watcher,Planetary UWA,Fixed,5,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::6,Sky-Watcher,Planetary UWA,Fixed,6,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::7,Sky-Watcher,Planetary UWA,Fixed,7,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::planetary uwa::8,Sky-Watcher,Planetary UWA,Fixed,8,,,58,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::6.3,Sky-Watcher,Super Plossl,Fixed,6.3,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::7.5,Sky-Watcher,Super Plossl,Fixed,7.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::10,Sky-Watcher,Super Plossl,Fixed,10,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::12.5,Sky-Watcher,Super Plossl,Fixed,12.5,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::17,Sky-Watcher,Super Plossl,Fixed,17,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::25,Sky-Watcher,Super Plossl,Fixed,25,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::sky-watcher::super plossl::32,Sky-Watcher,Super Plossl,Fixed,32,,,52,,,1.25,Manufacturer catalog series.
+eyepiece::svbony::zoom 7-21 mm::21,Svbony,Zoom 7-21 mm,Zoom,21,7,21,50,,,1.25,"Zoom eyepiece; AFOV varies by focal position, midpoint estimate used."
+eyepiece::tele vue::delite::3,Tele Vue,DeLite,Fixed,3,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::4,Tele Vue,DeLite,Fixed,4,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::5,Tele Vue,DeLite,Fixed,5,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::7,Tele Vue,DeLite,Fixed,7,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::9,Tele Vue,DeLite,Fixed,9,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::11,Tele Vue,DeLite,Fixed,11,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::13,Tele Vue,DeLite,Fixed,13,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::15,Tele Vue,DeLite,Fixed,15,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delite::18.2,Tele Vue,DeLite,Fixed,18.2,,,62,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::3.5,Tele Vue,Delos,Fixed,3.5,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::4.5,Tele Vue,Delos,Fixed,4.5,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::6,Tele Vue,Delos,Fixed,6,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::8,Tele Vue,Delos,Fixed,8,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::10,Tele Vue,Delos,Fixed,10,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::12,Tele Vue,Delos,Fixed,12,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::14,Tele Vue,Delos,Fixed,14,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::delos::17.3,Tele Vue,Delos,Fixed,17.3,,,72,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::ethos::3.7,Tele Vue,Ethos,Fixed,3.7,,,110,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::4.7,Tele Vue,Ethos,Fixed,4.7,,,110,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::6,Tele Vue,Ethos,Fixed,6,,,100,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::8,Tele Vue,Ethos,Fixed,8,,,100,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::10,Tele Vue,Ethos,Fixed,10,,,100,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::13,Tele Vue,Ethos,Fixed,13,,,100,,,1.25/2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::17,Tele Vue,Ethos,Fixed,17,,,100,,,2,Manufacturer catalog series.
+eyepiece::tele vue::ethos::21,Tele Vue,Ethos,Fixed,21,,,100,,,2,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::3.5,Tele Vue,Nagler Type 6,Fixed,3.5,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::5,Tele Vue,Nagler Type 6,Fixed,5,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::7,Tele Vue,Nagler Type 6,Fixed,7,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::9,Tele Vue,Nagler Type 6,Fixed,9,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::11,Tele Vue,Nagler Type 6,Fixed,11,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::nagler type 6::13,Tele Vue,Nagler Type 6,Fixed,13,,,82,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::8,Tele Vue,Plossl,Fixed,8,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::11,Tele Vue,Plossl,Fixed,11,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::15,Tele Vue,Plossl,Fixed,15,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::20,Tele Vue,Plossl,Fixed,20,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::25,Tele Vue,Plossl,Fixed,25,,,50,,,1.25,Manufacturer catalog series.
+eyepiece::tele vue::plossl::32,Tele Vue,Plossl,Fixed,32,,,50,,,1.25,Manufacturer catalog series.

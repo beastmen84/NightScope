@@ -51,7 +51,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.1`.
+Versione corrente sorgente: `1.32.2`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -203,6 +203,16 @@ mantengono aperto il dialogo in caso di errore e non mostrano indicatori vuoti.
 La navigazione laterale e' piu' compatta e Home, Meteo, Calendario e filtri di
 catalogo dipendenti dalla posizione mostrano stati espliciti prima della scelta
 della localita'. La distribuzione Windows non e' stata rigenerata.
+
+In `1.32.2` le sei sorgenti CSV dell'equipaggiamento assegnano a ogni voce
+integrata una `seed_key` esplicita e immutabile. Correggere marca, modello o un
+parametro identificativo aggiorna quindi la stessa riga anziche' crearne una
+seconda; anche le compatibilita' riduttore-telescopio usano direttamente questi
+identificatori. Le chiavi iniziali restano identiche a quelle gia' presenti nei
+database `1.32.1`, lo schema SQLite resta `16` e gli override utente continuano
+a essere preservati. Un upgrade diretto da schemi precedenti assegna una sola
+volta gli ID espliciti alle righe integrate esistenti prima del reseed. La
+distribuzione Windows non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

@@ -1,95 +1,95 @@
-brand,model,magnification,objective_diameter_mm,image_stabilized
-Celestron,Cometron 7x50,7,50,0
-Celestron,SkyMaster 7x50,7,50,0
-Celestron,SkyMaster 8x56,8,56,0
-Celestron,Nature DX ED 8x42,8,42,0
-Celestron,Nature DX ED 10x42,10,42,0
-Celestron,Regal ED 8x42,8,42,0
-Celestron,Regal ED 10x42,10,42,0
-Celestron,SkyMaster 10x50,10,50,0
-Celestron,SkyMaster 12x60,12,60,0
-Celestron,SkyMaster Pro 15x70,15,70,0
-Celestron,SkyMaster Pro 20x80,20,80,0
-Celestron,SkyMaster 25x100,25,100,0
-Nikon,Aculon A211 7x50,7,50,0
-Nikon,Aculon A211 10x50,10,50,0
-Nikon,Aculon A211 12x50,12,50,0
-Nikon,Aculon A211 16x50,16,50,0
-Nikon,Action EX 7x50 CF,7,50,0
-Nikon,Action EX 10x50 CF,10,50,0
-Nikon,Action EX 12x50 CF,12,50,0
-Nikon,Monarch M5 8x42,8,42,0
-Nikon,Monarch M5 10x42,10,42,0
-Nikon,Monarch M7 8x42,8,42,0
-Nikon,Monarch M7 10x42,10,42,0
-Nikon,Prostaff P7 8x42,8,42,0
-Nikon,Prostaff P7 10x42,10,42,0
-Canon,8x20 IS,8,20,1
-Canon,10x20 IS,10,20,1
-Canon,10x30 IS II,10,30,1
-Canon,12x32 IS,12,32,1
-Canon,12x36 IS III,12,36,1
-Canon,10x42 L IS WP,10,42,1
-Canon,15x50 IS All Weather,15,50,1
-Canon,18x50 IS All Weather,18,50,1
-Fujinon,Mariner 7x50 WPC-XL,7,50,0
-Fujinon,FMT-SX 7x50,7,50,0
-Fujinon,FMTR-SX 7x50,7,50,0
-Fujinon,FMT-SX 10x50,10,50,0
-Fujinon,FMTR-SX 10x50,10,50,0
-Fujinon,Polaris 10x70 FMT-SX,10,70,0
-Fujinon,Polaris 16x70 FMT-SX,16,70,0
-Fujinon,Techno-Stabi TS 12x28,12,28,1
-Fujinon,Techno-Stabi TS 16x28,16,28,1
-Fujinon,Techno-Stabi TS-X 14x40,14,40,1
-Pentax,SP 8x40 WP,8,40,0
-Pentax,SP 10x50 WP,10,50,0
-Pentax,SP 12x50 WP,12,50,0
-Pentax,SP 16x50 WP,16,50,0
-Pentax,SP 20x60 WP,20,60,0
-Pentax,SD 9x42 WP,9,42,0
-Pentax,SD 10x42 WP,10,42,0
-Pentax,ZD 8x43 ED,8,43,0
-Pentax,ZD 10x43 ED,10,43,0
-Oberwerk,8x56 LW,8,56,0
-Oberwerk,11x70 LW,11,70,0
-Oberwerk,12x60 LW,12,60,0
-Oberwerk,10x50 Ultra,10,50,0
-Oberwerk,15x70 Ultra,15,70,0
-Oberwerk,15x70 Deluxe,15,70,0
-Oberwerk,20x65 ED Deluxe,20,65,0
-Oberwerk,20x80 Deluxe III,20,80,0
-Oberwerk,25x100 Deluxe,25,100,0
-Omegon,Hunter 8x56,8,56,0
-Omegon,Brightsky 10x50,10,50,0
-Omegon,Nightstar 15x70,15,70,0
-Omegon,Nightstar 20x80,20,80,0
-Omegon,Nightstar 25x100,25,100,0
-Omegon,Talron HD 8x42,8,42,0
-Omegon,Talron HD 10x42,10,42,0
-Vortex,Crossfire HD 10x50,10,50,0
-Vortex,Diamondback HD 8x42,8,42,0
-Vortex,Diamondback HD 10x42,10,42,0
-Vortex,Diamondback HD 10x50,10,50,0
-Vortex,Diamondback HD 12x50,12,50,0
-Vortex,Viper HD 8x42,8,42,0
-Vortex,Viper HD 10x42,10,42,0
-Vortex,Kaibab HD 15x56,15,56,0
-Vortex,Kaibab HD 18x56,18,56,0
-Svbony,SV202 ED 8x42,8,42,0
-Svbony,SV202 ED 10x42,10,42,0
-Svbony,SV202 ED 10x50,10,50,0
-Svbony,SV47 8x42,8,42,0
-Svbony,SV47 10x42,10,42,0
-Explore Scientific,ED APO 8x42,8,42,0
-Explore Scientific,ED APO 10x42,10,42,0
-Explore Scientific,G400 10x50,10,50,0
-Explore Scientific,Astro 15x70,15,70,0
-Orion,Scenix 7x50,7,50,0
-Orion,Scenix 10x50,10,50,0
-Orion,Scenix 12x50,12,50,0
-Orion,Mini Giant 9x63,9,63,0
-Orion,Giant View 15x70,15,70,0
-Orion,Giant View 20x80,20,80,0
-Orion,Resolux 15x70,15,70,0
-Orion,Resolux 16x70,16,70,0
+seed_key,brand,model,magnification,objective_diameter_mm,image_stabilized
+binocular::celestron::cometron 7x50::7::50,Celestron,Cometron 7x50,7,50,0
+binocular::celestron::skymaster 7x50::7::50,Celestron,SkyMaster 7x50,7,50,0
+binocular::celestron::skymaster 8x56::8::56,Celestron,SkyMaster 8x56,8,56,0
+binocular::celestron::nature dx ed 8x42::8::42,Celestron,Nature DX ED 8x42,8,42,0
+binocular::celestron::nature dx ed 10x42::10::42,Celestron,Nature DX ED 10x42,10,42,0
+binocular::celestron::regal ed 8x42::8::42,Celestron,Regal ED 8x42,8,42,0
+binocular::celestron::regal ed 10x42::10::42,Celestron,Regal ED 10x42,10,42,0
+binocular::celestron::skymaster 10x50::10::50,Celestron,SkyMaster 10x50,10,50,0
+binocular::celestron::skymaster 12x60::12::60,Celestron,SkyMaster 12x60,12,60,0
+binocular::celestron::skymaster pro 15x70::15::70,Celestron,SkyMaster Pro 15x70,15,70,0
+binocular::celestron::skymaster pro 20x80::20::80,Celestron,SkyMaster Pro 20x80,20,80,0
+binocular::celestron::skymaster 25x100::25::100,Celestron,SkyMaster 25x100,25,100,0
+binocular::nikon::aculon a211 7x50::7::50,Nikon,Aculon A211 7x50,7,50,0
+binocular::nikon::aculon a211 10x50::10::50,Nikon,Aculon A211 10x50,10,50,0
+binocular::nikon::aculon a211 12x50::12::50,Nikon,Aculon A211 12x50,12,50,0
+binocular::nikon::aculon a211 16x50::16::50,Nikon,Aculon A211 16x50,16,50,0
+binocular::nikon::action ex 7x50 cf::7::50,Nikon,Action EX 7x50 CF,7,50,0
+binocular::nikon::action ex 10x50 cf::10::50,Nikon,Action EX 10x50 CF,10,50,0
+binocular::nikon::action ex 12x50 cf::12::50,Nikon,Action EX 12x50 CF,12,50,0
+binocular::nikon::monarch m5 8x42::8::42,Nikon,Monarch M5 8x42,8,42,0
+binocular::nikon::monarch m5 10x42::10::42,Nikon,Monarch M5 10x42,10,42,0
+binocular::nikon::monarch m7 8x42::8::42,Nikon,Monarch M7 8x42,8,42,0
+binocular::nikon::monarch m7 10x42::10::42,Nikon,Monarch M7 10x42,10,42,0
+binocular::nikon::prostaff p7 8x42::8::42,Nikon,Prostaff P7 8x42,8,42,0
+binocular::nikon::prostaff p7 10x42::10::42,Nikon,Prostaff P7 10x42,10,42,0
+binocular::canon::8x20 is::8::20,Canon,8x20 IS,8,20,1
+binocular::canon::10x20 is::10::20,Canon,10x20 IS,10,20,1
+binocular::canon::10x30 is ii::10::30,Canon,10x30 IS II,10,30,1
+binocular::canon::12x32 is::12::32,Canon,12x32 IS,12,32,1
+binocular::canon::12x36 is iii::12::36,Canon,12x36 IS III,12,36,1
+binocular::canon::10x42 l is wp::10::42,Canon,10x42 L IS WP,10,42,1
+binocular::canon::15x50 is all weather::15::50,Canon,15x50 IS All Weather,15,50,1
+binocular::canon::18x50 is all weather::18::50,Canon,18x50 IS All Weather,18,50,1
+binocular::fujinon::mariner 7x50 wpc-xl::7::50,Fujinon,Mariner 7x50 WPC-XL,7,50,0
+binocular::fujinon::fmt-sx 7x50::7::50,Fujinon,FMT-SX 7x50,7,50,0
+binocular::fujinon::fmtr-sx 7x50::7::50,Fujinon,FMTR-SX 7x50,7,50,0
+binocular::fujinon::fmt-sx 10x50::10::50,Fujinon,FMT-SX 10x50,10,50,0
+binocular::fujinon::fmtr-sx 10x50::10::50,Fujinon,FMTR-SX 10x50,10,50,0
+binocular::fujinon::polaris 10x70 fmt-sx::10::70,Fujinon,Polaris 10x70 FMT-SX,10,70,0
+binocular::fujinon::polaris 16x70 fmt-sx::16::70,Fujinon,Polaris 16x70 FMT-SX,16,70,0
+binocular::fujinon::techno-stabi ts 12x28::12::28,Fujinon,Techno-Stabi TS 12x28,12,28,1
+binocular::fujinon::techno-stabi ts 16x28::16::28,Fujinon,Techno-Stabi TS 16x28,16,28,1
+binocular::fujinon::techno-stabi ts-x 14x40::14::40,Fujinon,Techno-Stabi TS-X 14x40,14,40,1
+binocular::pentax::sp 8x40 wp::8::40,Pentax,SP 8x40 WP,8,40,0
+binocular::pentax::sp 10x50 wp::10::50,Pentax,SP 10x50 WP,10,50,0
+binocular::pentax::sp 12x50 wp::12::50,Pentax,SP 12x50 WP,12,50,0
+binocular::pentax::sp 16x50 wp::16::50,Pentax,SP 16x50 WP,16,50,0
+binocular::pentax::sp 20x60 wp::20::60,Pentax,SP 20x60 WP,20,60,0
+binocular::pentax::sd 9x42 wp::9::42,Pentax,SD 9x42 WP,9,42,0
+binocular::pentax::sd 10x42 wp::10::42,Pentax,SD 10x42 WP,10,42,0
+binocular::pentax::zd 8x43 ed::8::43,Pentax,ZD 8x43 ED,8,43,0
+binocular::pentax::zd 10x43 ed::10::43,Pentax,ZD 10x43 ED,10,43,0
+binocular::oberwerk::8x56 lw::8::56,Oberwerk,8x56 LW,8,56,0
+binocular::oberwerk::11x70 lw::11::70,Oberwerk,11x70 LW,11,70,0
+binocular::oberwerk::12x60 lw::12::60,Oberwerk,12x60 LW,12,60,0
+binocular::oberwerk::10x50 ultra::10::50,Oberwerk,10x50 Ultra,10,50,0
+binocular::oberwerk::15x70 ultra::15::70,Oberwerk,15x70 Ultra,15,70,0
+binocular::oberwerk::15x70 deluxe::15::70,Oberwerk,15x70 Deluxe,15,70,0
+binocular::oberwerk::20x65 ed deluxe::20::65,Oberwerk,20x65 ED Deluxe,20,65,0
+binocular::oberwerk::20x80 deluxe iii::20::80,Oberwerk,20x80 Deluxe III,20,80,0
+binocular::oberwerk::25x100 deluxe::25::100,Oberwerk,25x100 Deluxe,25,100,0
+binocular::omegon::hunter 8x56::8::56,Omegon,Hunter 8x56,8,56,0
+binocular::omegon::brightsky 10x50::10::50,Omegon,Brightsky 10x50,10,50,0
+binocular::omegon::nightstar 15x70::15::70,Omegon,Nightstar 15x70,15,70,0
+binocular::omegon::nightstar 20x80::20::80,Omegon,Nightstar 20x80,20,80,0
+binocular::omegon::nightstar 25x100::25::100,Omegon,Nightstar 25x100,25,100,0
+binocular::omegon::talron hd 8x42::8::42,Omegon,Talron HD 8x42,8,42,0
+binocular::omegon::talron hd 10x42::10::42,Omegon,Talron HD 10x42,10,42,0
+binocular::vortex::crossfire hd 10x50::10::50,Vortex,Crossfire HD 10x50,10,50,0
+binocular::vortex::diamondback hd 8x42::8::42,Vortex,Diamondback HD 8x42,8,42,0
+binocular::vortex::diamondback hd 10x42::10::42,Vortex,Diamondback HD 10x42,10,42,0
+binocular::vortex::diamondback hd 10x50::10::50,Vortex,Diamondback HD 10x50,10,50,0
+binocular::vortex::diamondback hd 12x50::12::50,Vortex,Diamondback HD 12x50,12,50,0
+binocular::vortex::viper hd 8x42::8::42,Vortex,Viper HD 8x42,8,42,0
+binocular::vortex::viper hd 10x42::10::42,Vortex,Viper HD 10x42,10,42,0
+binocular::vortex::kaibab hd 15x56::15::56,Vortex,Kaibab HD 15x56,15,56,0
+binocular::vortex::kaibab hd 18x56::18::56,Vortex,Kaibab HD 18x56,18,56,0
+binocular::svbony::sv202 ed 8x42::8::42,Svbony,SV202 ED 8x42,8,42,0
+binocular::svbony::sv202 ed 10x42::10::42,Svbony,SV202 ED 10x42,10,42,0
+binocular::svbony::sv202 ed 10x50::10::50,Svbony,SV202 ED 10x50,10,50,0
+binocular::svbony::sv47 8x42::8::42,Svbony,SV47 8x42,8,42,0
+binocular::svbony::sv47 10x42::10::42,Svbony,SV47 10x42,10,42,0
+binocular::explore scientific::ed apo 8x42::8::42,Explore Scientific,ED APO 8x42,8,42,0
+binocular::explore scientific::ed apo 10x42::10::42,Explore Scientific,ED APO 10x42,10,42,0
+binocular::explore scientific::g400 10x50::10::50,Explore Scientific,G400 10x50,10,50,0
+binocular::explore scientific::astro 15x70::15::70,Explore Scientific,Astro 15x70,15,70,0
+binocular::orion::scenix 7x50::7::50,Orion,Scenix 7x50,7,50,0
+binocular::orion::scenix 10x50::10::50,Orion,Scenix 10x50,10,50,0
+binocular::orion::scenix 12x50::12::50,Orion,Scenix 12x50,12,50,0
+binocular::orion::mini giant 9x63::9::63,Orion,Mini Giant 9x63,9,63,0
+binocular::orion::giant view 15x70::15::70,Orion,Giant View 15x70,15,70,0
+binocular::orion::giant view 20x80::20::80,Orion,Giant View 20x80,20,80,0
+binocular::orion::resolux 15x70::15::70,Orion,Resolux 15x70,15,70,0
+binocular::orion::resolux 16x70::16::70,Orion,Resolux 16x70,16,70,0

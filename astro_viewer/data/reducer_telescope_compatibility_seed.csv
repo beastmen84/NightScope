@@ -1,17 +1,17 @@
-reducer_brand,reducer_model,reduction_factor,telescope_brand,telescope_model
-Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 5SE
-Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 6SE
-Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 8SE
-Celestron,Reducer Lens 0.7x EdgeHD 8,0.7,Celestron,EdgeHD 8 OTA
-Celestron,Reducer Lens 0.7x EdgeHD 9.25,0.7,Celestron,EdgeHD 9.25 OTA
-Celestron,Reducer Lens 0.7x EdgeHD 11,0.7,Celestron,EdgeHD 11 OTA
-William Optics,FLAT 73R,0.8,William Optics,Zenithstar 73 III
-William Optics,FLAT 6AIII,0.8,William Optics,Gran Turismo 71
-William Optics,FLAT 6AIII,0.8,William Optics,Gran Turismo 81
-William Optics,FLAT 6AIII,0.8,William Optics,Zenithstar 81
-William Optics,FLAT 7A,0.8,William Optics,Gran Turismo 102
-Sky-Watcher,0.85x Reducer-Corrector ED72,0.85,Sky-Watcher,Evostar 72ED DS-Pro
-Sky-Watcher,0.85x Reducer-Corrector ED80,0.85,Sky-Watcher,Evostar 80ED DS-Pro
-Sky-Watcher,0.85x Reducer-Corrector ED100,0.85,Sky-Watcher,Evostar 100ED DS-Pro
-Sky-Watcher,0.85x Reducer-Corrector ED120,0.85,Sky-Watcher,Evostar 120ED DS-Pro
-Explore Scientific,3-inch Field Flattener 0.7x Focal Reducer,0.7,Explore Scientific,ED127 Essential
+reducer_seed_key,telescope_seed_key,reducer_brand,reducer_model,reduction_factor,telescope_brand,telescope_model
+reducer::celestron::reducer-corrector f/6.3::0.63,telescope::celestron::nexstar 5se,Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 5SE
+reducer::celestron::reducer-corrector f/6.3::0.63,telescope::celestron::nexstar 6se,Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 6SE
+reducer::celestron::reducer-corrector f/6.3::0.63,telescope::celestron::nexstar 8se,Celestron,Reducer-Corrector f/6.3,0.63,Celestron,NexStar 8SE
+reducer::celestron::reducer lens 0.7x edgehd 8::0.7,telescope::celestron::edgehd 8 ota,Celestron,Reducer Lens 0.7x EdgeHD 8,0.7,Celestron,EdgeHD 8 OTA
+reducer::celestron::reducer lens 0.7x edgehd 9.25::0.7,telescope::celestron::edgehd 9.25 ota,Celestron,Reducer Lens 0.7x EdgeHD 9.25,0.7,Celestron,EdgeHD 9.25 OTA
+reducer::celestron::reducer lens 0.7x edgehd 11::0.7,telescope::celestron::edgehd 11 ota,Celestron,Reducer Lens 0.7x EdgeHD 11,0.7,Celestron,EdgeHD 11 OTA
+reducer::william optics::flat 73r::0.8,telescope::william optics::zenithstar 73 iii,William Optics,FLAT 73R,0.8,William Optics,Zenithstar 73 III
+reducer::william optics::flat 6aiii::0.8,telescope::william optics::gran turismo 71,William Optics,FLAT 6AIII,0.8,William Optics,Gran Turismo 71
+reducer::william optics::flat 6aiii::0.8,telescope::william optics::gran turismo 81,William Optics,FLAT 6AIII,0.8,William Optics,Gran Turismo 81
+reducer::william optics::flat 6aiii::0.8,telescope::william optics::zenithstar 81,William Optics,FLAT 6AIII,0.8,William Optics,Zenithstar 81
+reducer::william optics::flat 7a::0.8,telescope::william optics::gran turismo 102,William Optics,FLAT 7A,0.8,William Optics,Gran Turismo 102
+reducer::sky-watcher::0.85x reducer-corrector ed72::0.85,telescope::sky-watcher::evostar 72ed ds-pro,Sky-Watcher,0.85x Reducer-Corrector ED72,0.85,Sky-Watcher,Evostar 72ED DS-Pro
+reducer::sky-watcher::0.85x reducer-corrector ed80::0.85,telescope::sky-watcher::evostar 80ed ds-pro,Sky-Watcher,0.85x Reducer-Corrector ED80,0.85,Sky-Watcher,Evostar 80ED DS-Pro
+reducer::sky-watcher::0.85x reducer-corrector ed100::0.85,telescope::sky-watcher::evostar 100ed ds-pro,Sky-Watcher,0.85x Reducer-Corrector ED100,0.85,Sky-Watcher,Evostar 100ED DS-Pro
+reducer::sky-watcher::0.85x reducer-corrector ed120::0.85,telescope::sky-watcher::evostar 120ed ds-pro,Sky-Watcher,0.85x Reducer-Corrector ED120,0.85,Sky-Watcher,Evostar 120ED DS-Pro
+reducer::explore scientific::3-inch field flattener 0.7x focal reducer::0.7,telescope::explore scientific::ed127 essential,Explore Scientific,3-inch Field Flattener 0.7x Focal Reducer,0.7,Explore Scientific,ED127 Essential

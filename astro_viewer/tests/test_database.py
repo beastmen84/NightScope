@@ -17,6 +17,8 @@ from astro_viewer.app.astronomy.coordinates import parse_dec_degrees, parse_ra_h
 from astro_viewer.app.database.bootstrap import (
     CATALOGUE_OBSERVATION_TYPES,
     SCHEMA_VERSION,
+    _seed_reducer_telescope_compatibility,
+    _seed_telescope_catalog,
     _validate_catalogue_seed,
     database_initialization_required,
     initialize_database,
@@ -500,6 +502,7 @@ class DatabaseBootstrapTests(unittest.TestCase):
                 self.assertEqual(
                     reader.fieldnames,
                     [
+                        "seed_key",
                         "brand",
                         "model",
                         "magnification",
@@ -540,6 +543,280 @@ class DatabaseBootstrapTests(unittest.TestCase):
             }:
                 self.assertIn(binocular_class, binocular_classes)
             self.assertIsNotNone(repository.active_profile())
+
+    def test_equipment_seed_keys_are_explicit_unique_and_compatible(self) -> None:
+        data_dir = Path(__file__).resolve().parents[1] / "data"
+        catalog_kinds = {
+            "telescope_catalog_seed.csv": "telescope",
+            "eyepiece_catalog_seed.csv": "eyepiece",
+            "barlow_catalog_seed.csv": "barlow",
+            "binocular_catalog_seed.csv": "binocular",
+            "filter_catalog_seed.csv": "filter",
+            "reducer_catalog_seed.csv": "reducer",
+        }
+        keys_by_kind: dict[str, set[str]] = {}
+
+        for filename, kind in catalog_kinds.items():
+            with (data_dir / filename).open("r", encoding="utf-8", newline="") as file:
+                reader = csv.DictReader(file)
+                self.assertEqual((reader.fieldnames or [None])[0], "seed_key")
+                rows = list(reader)
+            seed_keys = [row["seed_key"] for row in rows]
+            self.assertTrue(all(key.startswith(f"{kind}::") for key in seed_keys))
+            self.assertEqual(len(seed_keys), len(set(seed_keys)))
+            keys_by_kind[kind] = set(seed_keys)
+
+        compatibility_path = data_dir / "reducer_telescope_compatibility_seed.csv"
+        with compatibility_path.open("r", encoding="utf-8", newline="") as file:
+            reader = csv.DictReader(file)
+            self.assertEqual(
+                (reader.fieldnames or [])[:2],
+                ["reducer_seed_key", "telescope_seed_key"],
+            )
+            compatibility_rows = list(reader)
+        self.assertEqual(
+            len(compatibility_rows),
+            len(
+                {
+                    (row["reducer_seed_key"], row["telescope_seed_key"])
+                    for row in compatibility_rows
+                }
+            ),
+        )
+        for row in compatibility_rows:
+            self.assertIn(row["reducer_seed_key"], keys_by_kind["reducer"])
+            self.assertIn(row["telescope_seed_key"], keys_by_kind["telescope"])
+
+    def test_schema_16_equipment_seed_identity_correction_updates_in_place(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runtime_dir = Path(temp_dir)
+            database_path = runtime_dir / "nightscope.db"
+            data_dir = Path(__file__).resolve().parents[1] / "data"
+            schema_path = data_dir / "schema.sql"
+            telescope_path = data_dir / "telescope_catalog_seed.csv"
+            compatibility_path = data_dir / "reducer_telescope_compatibility_seed.csv"
+            corrected_path = runtime_dir / "telescope_catalog_seed.csv"
+            initialize_database(database_path, schema_path)
+
+            target_seed_key = "telescope::celestron::nexstar 5se"
+            with compatibility_path.open("r", encoding="utf-8", newline="") as file:
+                compatibility_rows = list(csv.DictReader(file))
+            self.assertTrue(
+                any(
+                    row["telescope_seed_key"] == target_seed_key
+                    for row in compatibility_rows
+                )
+            )
+            with telescope_path.open("r", encoding="utf-8", newline="") as file:
+                reader = csv.DictReader(file)
+                fieldnames = list(reader.fieldnames or [])
+                telescope_rows = list(reader)
+            target_row = next(
+                row for row in telescope_rows if row["seed_key"] == target_seed_key
+            )
+            corrected_name = f"{target_row['model']} corrected"
+            target_row["model"] = corrected_name
+            with corrected_path.open("w", encoding="utf-8", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator="\n")
+                writer.writeheader()
+                writer.writerows(telescope_rows)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.row_factory = sqlite3.Row
+                original = connection.execute(
+                    "SELECT id, name FROM TelescopeModel WHERE seed_key = ?",
+                    (target_seed_key,),
+                ).fetchone()
+                original_count = connection.execute(
+                    "SELECT COUNT(*) FROM TelescopeModel"
+                ).fetchone()[0]
+                original_compatibility_count = connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM ReducerTelescopeCompatibility
+                    WHERE telescope_model_id = ?
+                    """,
+                    (original["id"],),
+                ).fetchone()[0]
+                self.assertGreater(original_compatibility_count, 0)
+
+                _seed_telescope_catalog(connection, corrected_path)
+                _seed_reducer_telescope_compatibility(connection, compatibility_path)
+
+                corrected = connection.execute(
+                    "SELECT id, name FROM TelescopeModel WHERE seed_key = ?",
+                    (target_seed_key,),
+                ).fetchone()
+                corrected_count = connection.execute(
+                    "SELECT COUNT(*) FROM TelescopeModel"
+                ).fetchone()[0]
+                corrected_compatibility_count = connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM ReducerTelescopeCompatibility
+                    WHERE telescope_model_id = ?
+                    """,
+                    (corrected["id"],),
+                ).fetchone()[0]
+                self.assertEqual(corrected["id"], original["id"])
+                self.assertEqual(corrected["name"], corrected_name)
+                self.assertEqual(corrected_count, original_count)
+                self.assertEqual(
+                    corrected_compatibility_count,
+                    original_compatibility_count,
+                )
+
+                connection.execute(
+                    """
+                    UPDATE TelescopeModel
+                    SET name = ?, is_user_modified = 1
+                    WHERE id = ?
+                    """,
+                    ("User telescope name", corrected["id"]),
+                )
+                target_row["model"] = f"{corrected_name} again"
+                with corrected_path.open("w", encoding="utf-8", newline="") as file:
+                    writer = csv.DictWriter(
+                        file,
+                        fieldnames=fieldnames,
+                        lineterminator="\n",
+                    )
+                    writer.writeheader()
+                    writer.writerows(telescope_rows)
+                _seed_telescope_catalog(connection, corrected_path)
+
+                preserved = connection.execute(
+                    """
+                    SELECT name, is_user_modified
+                    FROM TelescopeModel
+                    WHERE seed_key = ?
+                    """,
+                    (target_seed_key,),
+                ).fetchone()
+                self.assertEqual(preserved["name"], "User telescope name")
+                self.assertEqual(preserved["is_user_modified"], 1)
+
+    def test_legacy_equipment_seed_keys_are_restored_without_duplicates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            database_path = Path(temp_dir) / "nightscope.db"
+            schema_path = Path(__file__).resolve().parents[1] / "data" / "schema.sql"
+            table_names = (
+                "TelescopeModel",
+                "EyepieceCatalog",
+                "BarlowCatalog",
+                "BinocularCatalog",
+                "FilterCatalog",
+                "ReducerCatalog",
+            )
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                original_counts = {
+                    table_name: connection.execute(
+                        f"SELECT COUNT(*) FROM {table_name}"
+                    ).fetchone()[0]
+                    for table_name in table_names
+                }
+                for table_name in table_names:
+                    connection.execute(
+                        f"UPDATE {table_name} SET seed_key = NULL WHERE is_builtin = 1"
+                    )
+                connection.execute("PRAGMA user_version = 15")
+                connection.commit()
+
+            initialize_database(database_path, schema_path)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                for table_name in table_names:
+                    self.assertEqual(
+                        connection.execute(
+                            f"SELECT COUNT(*) FROM {table_name}"
+                        ).fetchone()[0],
+                        original_counts[table_name],
+                    )
+                    self.assertEqual(
+                        connection.execute(
+                            f"""
+                            SELECT COUNT(*)
+                            FROM {table_name}
+                            WHERE is_builtin = 1 AND seed_key IS NULL
+                            """
+                        ).fetchone()[0],
+                        0,
+                    )
+
+    def test_equipment_seed_identity_collision_preserves_custom_row(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runtime_dir = Path(temp_dir)
+            database_path = runtime_dir / "nightscope.db"
+            data_dir = Path(__file__).resolve().parents[1] / "data"
+            telescope_path = data_dir / "telescope_catalog_seed.csv"
+            corrected_path = runtime_dir / "telescope_catalog_seed.csv"
+            initialize_database(database_path, data_dir / "schema.sql")
+
+            with telescope_path.open("r", encoding="utf-8", newline="") as file:
+                reader = csv.DictReader(file)
+                fieldnames = list(reader.fieldnames or [])
+                telescope_rows = list(reader)
+            target_row = telescope_rows[0]
+            original_name = target_row["model"]
+            collision_name = "Custom collision telescope"
+            target_row["model"] = collision_name
+            with corrected_path.open("w", encoding="utf-8", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=fieldnames, lineterminator="\n")
+                writer.writeheader()
+                writer.writerows(telescope_rows)
+
+            with closing(sqlite3.connect(database_path)) as connection:
+                connection.row_factory = sqlite3.Row
+                seeded = connection.execute(
+                    """
+                    SELECT id, brand_id, optical_type, aperture_mm,
+                           focal_length_mm, mount_type
+                    FROM TelescopeModel
+                    WHERE seed_key = ?
+                    """,
+                    (target_row["seed_key"],),
+                ).fetchone()
+                connection.execute(
+                    """
+                    INSERT INTO TelescopeModel (
+                        brand_id, name, optical_type, aperture_mm,
+                        focal_length_mm, mount_type, is_builtin
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, 0)
+                    """,
+                    (
+                        seeded["brand_id"],
+                        collision_name,
+                        seeded["optical_type"],
+                        seeded["aperture_mm"],
+                        seeded["focal_length_mm"],
+                        seeded["mount_type"],
+                    ),
+                )
+
+                with self.assertLogs(
+                    "astro_viewer.app.database.bootstrap",
+                    level="WARNING",
+                ):
+                    _seed_telescope_catalog(connection, corrected_path)
+
+                preserved_seed = connection.execute(
+                    "SELECT name FROM TelescopeModel WHERE id = ?",
+                    (seeded["id"],),
+                ).fetchone()
+                custom = connection.execute(
+                    """
+                    SELECT is_builtin, seed_key
+                    FROM TelescopeModel
+                    WHERE brand_id = ? AND name = ?
+                    """,
+                    (seeded["brand_id"], collision_name),
+                ).fetchone()
+                self.assertEqual(preserved_seed["name"], original_name)
+                self.assertEqual(custom["is_builtin"], 0)
+                self.assertIsNone(custom["seed_key"])
 
     def test_missing_database_is_bootstrapped(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

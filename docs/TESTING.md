@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.1`:
+Measured on the current Windows development environment for `1.32.2`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `743 passed, 7 subtests passed` | `0:02:18.45` |
+| `python -m pytest -q -n 4 astro_viewer/tests` | `747 passed, 7 subtests passed` | `0:01:48.27` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -102,6 +102,14 @@ equipment catalogues, built-in edit persistence, delete protection and form
 validation. Presentation checks cover the compact sidebar, optional-value
 visibility, binocular versus naked-eye wording and location-dependent empty
 states in Home, Weather, Calendar and Catalogue.
+The `1.32.2` corrections require explicit unique identifiers in all six
+equipment CSV files and stable-key references in reducer compatibility data.
+Regression tests simulate a schema-v16/`1.32.1` row whose product name is
+corrected, verify that its database ID and reducer links remain unchanged, keep
+user overrides intact and preserve a custom row when the corrected natural
+identity would collide. A schema-v15 simulation removes all six classes of
+equipment key and confirms that bootstrap restores them without changing row
+counts.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

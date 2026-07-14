@@ -6,6 +6,7 @@ import logging
 import shutil
 import sqlite3
 from collections import Counter
+from collections.abc import Mapping
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +20,57 @@ logger = logging.getLogger(__name__)
 ProgressCallback = Callable[[object], None]
 SCHEMA_VERSION = 16
 CATALOGUE_OBSERVATION_TYPES = {"WideField", "General", "HighMagnification"}
+_LEGACY_EQUIPMENT_SEED_SOURCES = {
+    "TelescopeModel": (
+        "telescope",
+        """
+        SELECT model.id, brand.name, model.name
+        FROM TelescopeModel model
+        JOIN TelescopeBrand brand ON brand.id = model.brand_id
+        WHERE model.is_builtin = 1 AND model.seed_key IS NULL
+        """,
+    ),
+    "EyepieceCatalog": (
+        "eyepiece",
+        """
+        SELECT id, brand, model, focal_length_mm
+        FROM EyepieceCatalog
+        WHERE is_builtin = 1 AND seed_key IS NULL
+        """,
+    ),
+    "BarlowCatalog": (
+        "barlow",
+        """
+        SELECT id, brand, model, multiplier
+        FROM BarlowCatalog
+        WHERE is_builtin = 1 AND seed_key IS NULL
+        """,
+    ),
+    "BinocularCatalog": (
+        "binocular",
+        """
+        SELECT id, brand, model, magnification, objective_diameter_mm
+        FROM BinocularCatalog
+        WHERE is_builtin = 1 AND seed_key IS NULL
+        """,
+    ),
+    "FilterCatalog": (
+        "filter",
+        """
+        SELECT id, brand, model
+        FROM FilterCatalog
+        WHERE is_builtin = 1 AND seed_key IS NULL
+        """,
+    ),
+    "ReducerCatalog": (
+        "reducer",
+        """
+        SELECT id, brand, model, reduction_factor
+        FROM ReducerCatalog
+        WHERE is_builtin = 1 AND seed_key IS NULL
+        """,
+    ),
+}
 REQUIRED_TABLES = {
     "City",
     "CityAlias",
@@ -1036,8 +1088,51 @@ def _validate_catalogue_seed(
             raise ValueError(f"Catalogue object {object_id} must have one primary designation.")
 
 
-def _equipment_seed_key(kind: str, *identity: object) -> str:
-    return f"{kind}::{content_key(*identity)}"
+def _required_equipment_seed_key(
+    row: Mapping[str, str | None],
+    kind: str,
+    field_name: str = "seed_key",
+) -> str:
+    raw_value = row.get(field_name)
+    seed_key = raw_value.strip() if raw_value else ""
+    prefix = f"{kind}::"
+    if not seed_key or not seed_key.startswith(prefix) or seed_key == prefix:
+        raise ValueError(f"Invalid {kind} equipment seed key in column {field_name}.")
+    return seed_key
+
+
+def _equipment_catalog_source_rows(
+    catalog_path: Path | None,
+    catalog_name: str,
+    kind: str,
+) -> list[tuple[dict[str, str | None], str]]:
+    if not catalog_path or not catalog_path.exists():
+        raise FileNotFoundError(f"Missing {catalog_name} catalog seed CSV.")
+    with catalog_path.open("r", encoding="utf-8", newline="") as file:
+        source_rows = list(csv.DictReader(file))
+
+    result: list[tuple[dict[str, str | None], str]] = []
+    seed_keys: set[str] = set()
+    for row in source_rows:
+        seed_key = _required_equipment_seed_key(row, kind)
+        if seed_key in seed_keys:
+            raise ValueError(f"Duplicate {kind} equipment seed key: {seed_key}.")
+        seed_keys.add(seed_key)
+        result.append((row, seed_key))
+    return result
+
+
+def _legacy_equipment_seed_row_id(
+    connection: sqlite3.Connection,
+    table_name: str,
+    seed_key: str,
+) -> int | None:
+    kind, query = _LEGACY_EQUIPMENT_SEED_SOURCES[table_name]
+    for row in connection.execute(query).fetchall():
+        row_id, *legacy_identity = tuple(row)
+        if f"{kind}::{content_key(*legacy_identity)}" == seed_key:
+            return int(row_id)
+    return None
 
 
 def _prepare_equipment_seed_row(
@@ -1047,16 +1142,36 @@ def _prepare_equipment_seed_row(
     natural_key_sql: str,
     natural_key_values: tuple[object, ...],
 ) -> bool:
-    if connection.execute(
-        f"SELECT 1 FROM {table_name} WHERE seed_key = ?",
+    seeded = connection.execute(
+        f"SELECT id FROM {table_name} WHERE seed_key = ?",
         (seed_key,),
-    ).fetchone():
-        return True
+    ).fetchone()
+    seeded_id = int(seeded["id"]) if seeded is not None else None
+    if seeded_id is None:
+        seeded_id = _legacy_equipment_seed_row_id(
+            connection,
+            table_name,
+            seed_key,
+        )
+        if seeded_id is not None:
+            connection.execute(
+                f"UPDATE {table_name} SET seed_key = ? WHERE id = ?",
+                (seed_key, seeded_id),
+            )
 
     existing = connection.execute(
         f"SELECT id, is_builtin FROM {table_name} WHERE {natural_key_sql}",
         natural_key_values,
     ).fetchone()
+    if seeded_id is not None:
+        if existing is not None and int(existing["id"]) != seeded_id:
+            logger.warning(
+                "Skipping built-in %s seed %s because another row uses the corrected identity.",
+                table_name,
+                seed_key,
+            )
+            return False
+        return True
     if existing is None:
         return True
     if not bool(existing["is_builtin"]):
@@ -1086,9 +1201,8 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
         row[1]: row[0]
         for row in connection.execute("SELECT id, name FROM TelescopeBrand").fetchall()
     }
-    for brand, name, optical_type, aperture, focal, ratio, mount, notes in catalog_rows:
+    for brand, name, optical_type, aperture, focal, ratio, mount, notes, seed_key in catalog_rows:
         brand_id = brand_ids[brand]
-        seed_key = _equipment_seed_key("telescope", brand, name)
         if not _prepare_equipment_seed_row(
             connection,
             "TelescopeModel",
@@ -1132,28 +1246,31 @@ def _seed_telescope_catalog(connection: sqlite3.Connection, catalog_path: Path |
 
 
 def _telescope_catalog_rows(catalog_path: Path | None) -> list[tuple]:
-    if not catalog_path or not catalog_path.exists():
-        raise FileNotFoundError("Missing telescope catalog seed CSV.")
-    with catalog_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                row["optical_type"],
-                int(float(row["aperture_mm"])),
-                int(float(row["focal_length_mm"])),
-                _optional_float(row.get("focal_ratio", "")),
-                row["mount_type"],
-                row.get("notes", ""),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            row["optical_type"],
+            int(float(row["aperture_mm"])),
+            int(float(row["focal_length_mm"])),
+            _optional_float(row.get("focal_ratio", "")),
+            row["mount_type"],
+            row.get("notes", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            catalog_path,
+            "telescope",
+            "telescope",
+        )
+    ]
 
 
 def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | None = None, barlow_path: Path | None = None) -> None:
     for row in _eyepiece_catalog_rows(eyepiece_path):
-        brand, model, _, focal_length, *_ = row
-        seed_key = _equipment_seed_key("eyepiece", brand, model, focal_length)
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, _, focal_length, *_ = values
         if not _prepare_equipment_seed_row(
             connection,
             "EyepieceCatalog",
@@ -1187,13 +1304,14 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
                 is_builtin = 1
             WHERE EyepieceCatalog.is_user_modified = 0
             """,
-            row + (seed_key,),
+            values + (seed_key,),
         )
     _backfill_zoom_click_positions(connection)
 
     for row in _barlow_catalog_rows(barlow_path):
-        brand, model, multiplier, *_ = row
-        seed_key = _equipment_seed_key("barlow", brand, model, multiplier)
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, multiplier, *_ = values
         if not _prepare_equipment_seed_row(
             connection,
             "BarlowCatalog",
@@ -1218,31 +1336,33 @@ def _seed_optics_catalog(connection: sqlite3.Connection, eyepiece_path: Path | N
                 is_builtin = 1
             WHERE BarlowCatalog.is_user_modified = 0
             """,
-            row + (seed_key,),
+            values + (seed_key,),
         )
 
 
 def _eyepiece_catalog_rows(eyepiece_path: Path | None) -> list[tuple]:
-    if not eyepiece_path or not eyepiece_path.exists():
-        raise FileNotFoundError("Missing eyepiece catalog seed CSV.")
-    with eyepiece_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                row.get("eyepiece_type", "Fixed") or "Fixed",
-                float(row["focal_length_mm"]),
-                _optional_float(row.get("min_focal_length_mm", "")),
-                _optional_float(row.get("max_focal_length_mm", "")),
-                float(row["apparent_field_deg"]),
-                _optional_float(row.get("afov_min", "")),
-                _optional_float(row.get("afov_max", "")),
-                row.get("barrel_size", ""),
-                row.get("zoom_click_positions_mm", ""),
-                row.get("notes", ""),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            row.get("eyepiece_type", "Fixed") or "Fixed",
+            float(row["focal_length_mm"]),
+            _optional_float(row.get("min_focal_length_mm", "")),
+            _optional_float(row.get("max_focal_length_mm", "")),
+            float(row["apparent_field_deg"]),
+            _optional_float(row.get("afov_min", "")),
+            _optional_float(row.get("afov_max", "")),
+            row.get("barrel_size", ""),
+            row.get("zoom_click_positions_mm", ""),
+            row.get("notes", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            eyepiece_path,
+            "eyepiece",
+            "eyepiece",
+        )
+    ]
 
 
 def _backfill_zoom_click_positions(connection: sqlite3.Connection) -> None:
@@ -1259,31 +1379,28 @@ def _backfill_zoom_click_positions(connection: sqlite3.Connection) -> None:
 
 
 def _barlow_catalog_rows(barlow_path: Path | None) -> list[tuple]:
-    if not barlow_path or not barlow_path.exists():
-        raise FileNotFoundError("Missing Barlow catalog seed CSV.")
-    with barlow_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                float(row["multiplier"]),
-                row.get("barrel_size", ""),
-                row.get("notes", ""),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            float(row["multiplier"]),
+            row.get("barrel_size", ""),
+            row.get("notes", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            barlow_path,
+            "Barlow",
+            "barlow",
+        )
+    ]
 
 
 def _seed_binocular_catalog(connection: sqlite3.Connection, binocular_path: Path | None = None) -> None:
     for row in _binocular_catalog_rows(binocular_path):
-        brand, model, magnification, objective, *_ = row
-        seed_key = _equipment_seed_key(
-            "binocular",
-            brand,
-            model,
-            magnification,
-            objective,
-        )
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, magnification, objective, *_ = values
         if not _prepare_equipment_seed_row(
             connection,
             "BinocularCatalog",
@@ -1309,24 +1426,26 @@ def _seed_binocular_catalog(connection: sqlite3.Connection, binocular_path: Path
                 is_builtin = 1
             WHERE BinocularCatalog.is_user_modified = 0
             """,
-            row + (seed_key,),
+            values + (seed_key,),
         )
 
 
 def _binocular_catalog_rows(binocular_path: Path | None) -> list[tuple]:
-    if not binocular_path or not binocular_path.exists():
-        raise FileNotFoundError("Missing binocular catalog seed CSV.")
-    with binocular_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                int(float(row["magnification"])),
-                int(float(row["objective_diameter_mm"])),
-                _csv_bool(row.get("image_stabilized", "")),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            int(float(row["magnification"])),
+            int(float(row["objective_diameter_mm"])),
+            _csv_bool(row.get("image_stabilized", "")),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            binocular_path,
+            "binocular",
+            "binocular",
+        )
+    ]
 
 
 def _seed_filters_reducers_catalog(
@@ -1336,8 +1455,9 @@ def _seed_filters_reducers_catalog(
     compatibility_path: Path | None = None,
 ) -> None:
     for row in _filter_catalog_rows(filter_path):
-        brand, model, *_ = row
-        seed_key = _equipment_seed_key("filter", brand, model)
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, *_ = values
         if not _prepare_equipment_seed_row(
             connection,
             "FilterCatalog",
@@ -1366,11 +1486,12 @@ def _seed_filters_reducers_catalog(
                 is_builtin = 1
             WHERE FilterCatalog.is_user_modified = 0
             """,
-            row + (seed_key,),
+            values + (seed_key,),
         )
     for row in _reducer_catalog_rows(reducer_path):
-        brand, model, factor, *_ = row
-        seed_key = _equipment_seed_key("reducer", brand, model, factor)
+        values = row[:-1]
+        seed_key = row[-1]
+        brand, model, factor, *_ = values
         if not _prepare_equipment_seed_row(
             connection,
             "ReducerCatalog",
@@ -1403,7 +1524,7 @@ def _seed_filters_reducers_catalog(
                 is_builtin = 1
             WHERE ReducerCatalog.is_user_modified = 0
             """,
-            row + (seed_key,),
+            values + (seed_key,),
         )
     _seed_reducer_telescope_compatibility(connection, compatibility_path)
 
@@ -1419,20 +1540,23 @@ def _seed_reducer_telescope_compatibility(
 
     resolved_rows: list[tuple[int, int]] = []
     for row in source_rows:
+        reducer_seed_key = _required_equipment_seed_key(
+            row,
+            "reducer",
+            "reducer_seed_key",
+        )
+        telescope_seed_key = _required_equipment_seed_key(
+            row,
+            "telescope",
+            "telescope_seed_key",
+        )
         reducer = connection.execute(
             """
             SELECT id, is_user_modified
             FROM ReducerCatalog
             WHERE seed_key = ?
             """,
-            (
-                _equipment_seed_key(
-                    "reducer",
-                    row["reducer_brand"],
-                    row["reducer_model"],
-                    float(row["reduction_factor"]),
-                ),
-            ),
+            (reducer_seed_key,),
         ).fetchone()
         telescope = connection.execute(
             """
@@ -1440,13 +1564,7 @@ def _seed_reducer_telescope_compatibility(
             FROM TelescopeModel model
             WHERE model.seed_key = ?
             """,
-            (
-                _equipment_seed_key(
-                    "telescope",
-                    row["telescope_brand"],
-                    row["telescope_model"],
-                ),
-            ),
+            (telescope_seed_key,),
         ).fetchone()
         if reducer is None or telescope is None:
             raise ValueError(
@@ -1480,44 +1598,48 @@ def _seed_reducer_telescope_compatibility(
 
 
 def _filter_catalog_rows(filter_path: Path | None) -> list[tuple]:
-    if not filter_path or not filter_path.exists():
-        raise FileNotFoundError("Missing filter catalog seed CSV.")
-    with filter_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                row["filter_class"],
-                _optional_float(row.get("central_wavelength_nm", "")),
-                _optional_float(row.get("bandwidth_nm", "")),
-                _optional_float(row.get("transmission_pct", "")),
-                _optional_int(row.get("minimum_aperture_mm", "")),
-                row.get("notes", ""),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            row["filter_class"],
+            _optional_float(row.get("central_wavelength_nm", "")),
+            _optional_float(row.get("bandwidth_nm", "")),
+            _optional_float(row.get("transmission_pct", "")),
+            _optional_int(row.get("minimum_aperture_mm", "")),
+            row.get("notes", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            filter_path,
+            "filter",
+            "filter",
+        )
+    ]
 
 
 def _reducer_catalog_rows(reducer_path: Path | None) -> list[tuple]:
-    if not reducer_path or not reducer_path.exists():
-        raise FileNotFoundError("Missing reducer catalog seed CSV.")
-    with reducer_path.open("r", encoding="utf-8", newline="") as file:
-        return [
-            (
-                row["brand"],
-                row["model"],
-                float(row["reduction_factor"]),
-                row["optical_system"],
-                row.get("compatible_models", ""),
-                row.get("connection", ""),
-                _optional_float(row.get("backfocus_mm", "")),
-                _csv_bool(row.get("visual_compatible", "")),
-                _csv_bool(row.get("imaging_compatible", "")),
-                _csv_bool(row.get("corrected_field", "")),
-                row.get("notes", ""),
-            )
-            for row in csv.DictReader(file)
-        ]
+    return [
+        (
+            row["brand"],
+            row["model"],
+            float(row["reduction_factor"]),
+            row["optical_system"],
+            row.get("compatible_models", ""),
+            row.get("connection", ""),
+            _optional_float(row.get("backfocus_mm", "")),
+            _csv_bool(row.get("visual_compatible", "")),
+            _csv_bool(row.get("imaging_compatible", "")),
+            _csv_bool(row.get("corrected_field", "")),
+            row.get("notes", ""),
+            seed_key,
+        )
+        for row, seed_key in _equipment_catalog_source_rows(
+            reducer_path,
+            "reducer",
+            "reducer",
+        )
+    ]
 
 
 def _seed_object_images(connection: sqlite3.Connection, images_path: Path | None = None) -> None:

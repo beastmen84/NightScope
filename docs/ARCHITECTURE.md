@@ -437,8 +437,17 @@ Repositories own SQLite persistence:
   `is_builtin`, `seed_key` and `is_user_modified`; seeded rows can be updated
   but not deleted, while user rows can be managed after their profile links are
   handled. Updating a seeded row marks it as user-modified so bootstrap keeps
-  the override. Connections enable SQLite foreign keys, usage counts operate
-  on distinct valid profiles and reducer rows expose normalized exact telescope
+  the override. Each equipment CSV owns an explicit immutable `seed_key`,
+  independent from mutable brand, model and technical fields. Bootstrap and
+  reducer-telescope compatibility resolve rows by that identifier, so a seed
+  correction updates the original row and its links instead of creating a
+  duplicate. If the corrected natural identity is already owned by a custom
+  row, the custom row is preserved and that conflicting seed update is skipped.
+  For direct upgrades from schemas without these identifiers, bootstrap uses
+  the historical built-in identity once to attach the matching explicit key;
+  normal reseeding never derives ownership from mutable display fields.
+  Connections enable SQLite foreign keys, usage counts operate on distinct
+  valid profiles and reducer rows expose normalized exact telescope
   compatibility where available.
 - `WeatherCacheRepository`: weather response cache.
 - `OrbitalElementCacheRepository`: provider-neutral OMM/TLE cache for
@@ -673,7 +682,9 @@ overlap a night-window, catalogue, Moon-geometry or full astronomy calculation.
 Recent tests cover profile assignment, Barlow assignment, empty-profile
 assignment and active-profile switching without restart. They also verify
 filter/reducer CRUD, schema-v16 migration, stable equipment seed ownership,
-preservation of built-in user overrides, filter duplicate remapping,
+immutable CSV identifiers, in-place seed identity correction, collision-safe
+preservation of built-in user overrides, legacy key attachment without
+duplication, filter duplicate remapping,
 profile-aware filter and reducer detail recommendations, managed-content
 provenance, exact built-in and custom reducer compatibility, orphan cleanup,
 forced unlinking and assignment without NSOM or capability refresh. The schema

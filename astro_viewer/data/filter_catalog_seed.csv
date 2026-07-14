@@ -1,49 +1,49 @@
-brand,model,filter_class,central_wavelength_nm,bandwidth_nm,transmission_pct,minimum_aperture_mm,notes
-Astronomik,UHC,UHC,,25,95,100,Visuale per nebulose a emissione e planetarie.
-Astronomik,UHC-E,UHC,,45,,80,Passabanda moderata adatta anche ad aperture contenute.
-Astronomik,OIII visual,OIII,500.7,12,95,100,Contrasto selettivo sulle righe OIII.
-Astronomik,H-beta visual,H_BETA,486.1,12,95,150,Per nebulose dominate dalla riga H-beta.
-Astronomik,CLS,CLS,,,,,Riduzione moderata dell'inquinamento luminoso.
-Baader,UHC-L Ultra L-Booster,UHC,,,,100,Filtro UHC visuale a banda larga.
-Baader,OIII visual 10 nm,OIII,500.7,10,,150,Filtro visuale OIII da 10 nm.
-Baader,OIII Super-G 9 nm,OIII,500.7,9,,200,Filtro OIII stretto per aperture medio-grandi.
-Baader,Neodymium Moon & Skyglow,MOON_SKYGLOW,,,,,Contrasto lunare e planetario con vetro al neodimio.
-Baader,Contrast Booster,CONTRAST,,,,,Incremento del contrasto planetario.
-Baader,Fringe Killer,CHROMATIC,,,,,Riduzione del cromatismo nei rifrattori acromatici.
-Baader,Semi APO,CHROMATIC,,,,,Correzione cromatica moderata per rifrattori.
-Baader,Neutral Density ND 0.6,ND,,,25,,Trasmissione neutra nominale del 25 percento.
-Baader,Neutral Density ND 0.9,ND,,,12.5,,Trasmissione neutra nominale del 12.5 percento.
-Baader,Double Polarizing,POLARIZING,,,,,Attenuazione variabile per Luna e pianeti luminosi.
-Baader,Yellow 495 nm,COLOR_YELLOW,495,,,,Filtro colorato per Luna e pianeti.
-Baader,Dark Blue 435 nm,COLOR_DARK_BLUE,435,,,,Filtro colorato planetario blu scuro.
-Baader,Light Blue 470 nm,COLOR_LIGHT_BLUE,470,,,,Filtro colorato planetario azzurro.
-Baader,Green 500 nm,COLOR_GREEN,500,,,,Filtro colorato planetario verde.
-Baader,Orange 570 nm,COLOR_ORANGE,570,,,,Filtro colorato planetario arancio.
-Baader,Red 610 nm,COLOR_RED,610,,,,Filtro colorato planetario rosso.
-Baader,C2 Swan-Band 15 nm,COMET,511,15,,,Isola le bande del carbonio nelle comete gassose.
-Lumicon,Gen 3 UHC,UHC,,24,,100,Filtro UHC visuale per nebulose.
-Lumicon,Gen 3 Oxygen III,OIII,500.7,,,150,Filtro OIII visuale per nebulose.
-Lumicon,Gen 3 H-Beta,H_BETA,486.1,,,150,Filtro H-beta visuale selettivo.
-Lumicon,Comet,COMET,511,,,,Contrasto delle bande molecolari nelle comete.
-Explore Scientific,UHC Nebula,UHC,,,,100,Filtro UHC visuale per nebulose.
-Explore Scientific,Oxygen III Nebula,OIII,500.7,,,150,Filtro visuale sulle righe OIII.
-Explore Scientific,H-Beta Nebula,H_BETA,489,18,94.5,150,Passabanda dichiarata da 478 a 496 nm.
-Explore Scientific,CLS Nebula,CLS,,,,,Riduzione dell'inquinamento luminoso per uso visuale.
-Explore Scientific,Neutral Density Moon,ND,,,,,Attenuazione neutra per osservazione lunare.
-Celestron,UHC/LPR,UHC,,60,97,100,Filtro UHC/LPR visuale a passabanda moderata.
-Celestron,Oxygen III Narrowband,OIII,500.7,,,150,Isola le righe OIII a 496 e 501 nm.
-Celestron,Moon,ND,,,,,Riduce il riverbero durante l'osservazione lunare.
-Celestron,Neutral Density Moon ND96-0.9,ND,,,13,,Trasmissione neutra nominale del 13 percento.
-Celestron,Variable Polarizing Filter,POLARIZING,,,,,"Trasmissione variabile dall'1 al 40 percento per Luna, Venere e oggetti luminosi."
-Celestron,#12 Deep Yellow,COLOR_YELLOW,,,74,,Aumenta il contrasto di dettagli lunari e delle bande di Giove e Saturno.
-Celestron,#21 Orange,COLOR_ORANGE,,,46,,Evidenzia dettagli su Marte e le bande e regioni polari di Giove e Saturno.
-Celestron,#25 Red,COLOR_RED,,,14,150,Mette in risalto calotte polari e dettagli superficiali di Marte.
-Celestron,#80A Light Blue,COLOR_LIGHT_BLUE,,,30,,Aumenta il contrasto delle bande di Giove e dei dettagli atmosferici di Saturno.
-Celestron,#56 Light Green,COLOR_LIGHT_GREEN,,,53,,Evidenzia la Grande Macchia Rossa e le calotte e nubi di Marte.
-Celestron,#58 Green,COLOR_GREEN,,,24,,"Aumenta il contrasto di dettagli atmosferici su Giove, Marte e Saturno."
-Celestron,#47 Violet,COLOR_VIOLET,,,3,200,Filtro molto selettivo per nubi alte di Marte e struttura degli anelli di Saturno.
-Optolong,UHC,UHC,,,,100,Filtro UHC per uso visuale.
-Optolong,CLS,CLS,,,,,Riduzione dell'inquinamento luminoso.
-Optolong,OIII,OIII,500.7,,,150,Filtro visuale sulle righe OIII.
-Optolong,H-Beta,H_BETA,486.1,,,150,Filtro visuale sulla riga H-beta.
-Optolong,Moon & Skyglow,MOON_SKYGLOW,,,,,Contrasto lunare e del fondo cielo.
+seed_key,brand,model,filter_class,central_wavelength_nm,bandwidth_nm,transmission_pct,minimum_aperture_mm,notes
+filter::astronomik::uhc,Astronomik,UHC,UHC,,25,95,100,Visuale per nebulose a emissione e planetarie.
+filter::astronomik::uhc-e,Astronomik,UHC-E,UHC,,45,,80,Passabanda moderata adatta anche ad aperture contenute.
+filter::astronomik::oiii visual,Astronomik,OIII visual,OIII,500.7,12,95,100,Contrasto selettivo sulle righe OIII.
+filter::astronomik::h-beta visual,Astronomik,H-beta visual,H_BETA,486.1,12,95,150,Per nebulose dominate dalla riga H-beta.
+filter::astronomik::cls,Astronomik,CLS,CLS,,,,,Riduzione moderata dell'inquinamento luminoso.
+filter::baader::uhc-l ultra l-booster,Baader,UHC-L Ultra L-Booster,UHC,,,,100,Filtro UHC visuale a banda larga.
+filter::baader::oiii visual 10 nm,Baader,OIII visual 10 nm,OIII,500.7,10,,150,Filtro visuale OIII da 10 nm.
+filter::baader::oiii super-g 9 nm,Baader,OIII Super-G 9 nm,OIII,500.7,9,,200,Filtro OIII stretto per aperture medio-grandi.
+filter::baader::neodymium moon & skyglow,Baader,Neodymium Moon & Skyglow,MOON_SKYGLOW,,,,,Contrasto lunare e planetario con vetro al neodimio.
+filter::baader::contrast booster,Baader,Contrast Booster,CONTRAST,,,,,Incremento del contrasto planetario.
+filter::baader::fringe killer,Baader,Fringe Killer,CHROMATIC,,,,,Riduzione del cromatismo nei rifrattori acromatici.
+filter::baader::semi apo,Baader,Semi APO,CHROMATIC,,,,,Correzione cromatica moderata per rifrattori.
+filter::baader::neutral density nd 0.6,Baader,Neutral Density ND 0.6,ND,,,25,,Trasmissione neutra nominale del 25 percento.
+filter::baader::neutral density nd 0.9,Baader,Neutral Density ND 0.9,ND,,,12.5,,Trasmissione neutra nominale del 12.5 percento.
+filter::baader::double polarizing,Baader,Double Polarizing,POLARIZING,,,,,Attenuazione variabile per Luna e pianeti luminosi.
+filter::baader::yellow 495 nm,Baader,Yellow 495 nm,COLOR_YELLOW,495,,,,Filtro colorato per Luna e pianeti.
+filter::baader::dark blue 435 nm,Baader,Dark Blue 435 nm,COLOR_DARK_BLUE,435,,,,Filtro colorato planetario blu scuro.
+filter::baader::light blue 470 nm,Baader,Light Blue 470 nm,COLOR_LIGHT_BLUE,470,,,,Filtro colorato planetario azzurro.
+filter::baader::green 500 nm,Baader,Green 500 nm,COLOR_GREEN,500,,,,Filtro colorato planetario verde.
+filter::baader::orange 570 nm,Baader,Orange 570 nm,COLOR_ORANGE,570,,,,Filtro colorato planetario arancio.
+filter::baader::red 610 nm,Baader,Red 610 nm,COLOR_RED,610,,,,Filtro colorato planetario rosso.
+filter::baader::c2 swan-band 15 nm,Baader,C2 Swan-Band 15 nm,COMET,511,15,,,Isola le bande del carbonio nelle comete gassose.
+filter::lumicon::gen 3 uhc,Lumicon,Gen 3 UHC,UHC,,24,,100,Filtro UHC visuale per nebulose.
+filter::lumicon::gen 3 oxygen iii,Lumicon,Gen 3 Oxygen III,OIII,500.7,,,150,Filtro OIII visuale per nebulose.
+filter::lumicon::gen 3 h-beta,Lumicon,Gen 3 H-Beta,H_BETA,486.1,,,150,Filtro H-beta visuale selettivo.
+filter::lumicon::comet,Lumicon,Comet,COMET,511,,,,Contrasto delle bande molecolari nelle comete.
+filter::explore scientific::uhc nebula,Explore Scientific,UHC Nebula,UHC,,,,100,Filtro UHC visuale per nebulose.
+filter::explore scientific::oxygen iii nebula,Explore Scientific,Oxygen III Nebula,OIII,500.7,,,150,Filtro visuale sulle righe OIII.
+filter::explore scientific::h-beta nebula,Explore Scientific,H-Beta Nebula,H_BETA,489,18,94.5,150,Passabanda dichiarata da 478 a 496 nm.
+filter::explore scientific::cls nebula,Explore Scientific,CLS Nebula,CLS,,,,,Riduzione dell'inquinamento luminoso per uso visuale.
+filter::explore scientific::neutral density moon,Explore Scientific,Neutral Density Moon,ND,,,,,Attenuazione neutra per osservazione lunare.
+filter::celestron::uhc/lpr,Celestron,UHC/LPR,UHC,,60,97,100,Filtro UHC/LPR visuale a passabanda moderata.
+filter::celestron::oxygen iii narrowband,Celestron,Oxygen III Narrowband,OIII,500.7,,,150,Isola le righe OIII a 496 e 501 nm.
+filter::celestron::moon,Celestron,Moon,ND,,,,,Riduce il riverbero durante l'osservazione lunare.
+filter::celestron::neutral density moon nd96-0.9,Celestron,Neutral Density Moon ND96-0.9,ND,,,13,,Trasmissione neutra nominale del 13 percento.
+filter::celestron::variable polarizing filter,Celestron,Variable Polarizing Filter,POLARIZING,,,,,"Trasmissione variabile dall'1 al 40 percento per Luna, Venere e oggetti luminosi."
+filter::celestron::#12 deep yellow,Celestron,#12 Deep Yellow,COLOR_YELLOW,,,74,,Aumenta il contrasto di dettagli lunari e delle bande di Giove e Saturno.
+filter::celestron::#21 orange,Celestron,#21 Orange,COLOR_ORANGE,,,46,,Evidenzia dettagli su Marte e le bande e regioni polari di Giove e Saturno.
+filter::celestron::#25 red,Celestron,#25 Red,COLOR_RED,,,14,150,Mette in risalto calotte polari e dettagli superficiali di Marte.
+filter::celestron::#80a light blue,Celestron,#80A Light Blue,COLOR_LIGHT_BLUE,,,30,,Aumenta il contrasto delle bande di Giove e dei dettagli atmosferici di Saturno.
+filter::celestron::#56 light green,Celestron,#56 Light Green,COLOR_LIGHT_GREEN,,,53,,Evidenzia la Grande Macchia Rossa e le calotte e nubi di Marte.
+filter::celestron::#58 green,Celestron,#58 Green,COLOR_GREEN,,,24,,"Aumenta il contrasto di dettagli atmosferici su Giove, Marte e Saturno."
+filter::celestron::#47 violet,Celestron,#47 Violet,COLOR_VIOLET,,,3,200,Filtro molto selettivo per nubi alte di Marte e struttura degli anelli di Saturno.
+filter::optolong::uhc,Optolong,UHC,UHC,,,,100,Filtro UHC per uso visuale.
+filter::optolong::cls,Optolong,CLS,CLS,,,,,Riduzione dell'inquinamento luminoso.
+filter::optolong::oiii,Optolong,OIII,OIII,500.7,,,150,Filtro visuale sulle righe OIII.
+filter::optolong::h-beta,Optolong,H-Beta,H_BETA,486.1,,,150,Filtro visuale sulla riga H-beta.
+filter::optolong::moon & skyglow,Optolong,Moon & Skyglow,MOON_SKYGLOW,,,,,Contrasto lunare e del fondo cielo.

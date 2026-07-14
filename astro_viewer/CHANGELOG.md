@@ -1,5 +1,24 @@
 # Changelog
 
+## NightScope 1.32.2 - 2026-07-14
+
+- Corrette le chiavi delle voci integrate dei sei cataloghi strumenti: sono ora
+  dichiarate esplicitamente nei CSV e non vengono piu' ricalcolate da marca,
+  modello o parametri tecnici modificabili.
+- Le correzioni dei dati seed aggiornano la riga esistente senza duplicarla;
+  una collisione con una voce personalizzata conserva il dato utente e non
+  interrompe il bootstrap.
+- Le compatibilita' riduttore-telescopio referenziano direttamente le chiavi
+  immutabili, quindi restano valide anche dopo la correzione del nome di un
+  prodotto.
+- Mantenute tutte le 468 chiavi gia' generate dalla `1.32.1`; nessuna migrazione
+  aggiuntiva, schema SQLite ancora `16`. Gli upgrade diretti da versioni piu'
+  vecchie agganciano una sola volta le righe integrate legacy alle chiavi
+  esplicite prima di applicare il reseed.
+- Verificati `pip check`, Ruff, compileall, integrita' SQLite e suite completa
+  parallela: `747 passed`, `613 warnings`, `7 subtests passed` in `108,27 s`.
+- Dist `1.32.2` non rigenerata.
+
 ## NightScope 1.32.1 - 2026-07-14
 
 - Rinominato il profilo iniziale in `Default`; `Occhio nudo` resta la modalità
