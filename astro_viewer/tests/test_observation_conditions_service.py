@@ -438,12 +438,14 @@ def test_future_aod_dominates_pm_and_pm_is_fallback() -> None:
     historical_aod = _scoring_aod(aod_550=0.22)
     historical_aod = replace(historical_aod, freshness_category="historical", age_days=9.0)
     missing_qa_aod = _scoring_aod(aod_550=0.22, qa_raw=None)
+    cloud_surrounded_aod = _scoring_aod(aod_550=0.22, qa_raw=1089)
     particulate = _scoring_pm(pm25=28.0, pm10=64.0)
     context_particulate = _scoring_pm(pm25=28.0, pm10=64.0, distance_km=35.0)
 
     assert service.aerosol_primary_source(aod, particulate) == "aod"
     assert service.aerosol_primary_source(historical_aod, particulate) == "particulate"
     assert service.aerosol_primary_source(missing_qa_aod, particulate) == "particulate"
+    assert service.aerosol_primary_source(cloud_surrounded_aod, particulate) == "particulate"
     assert service.aerosol_primary_source(None, particulate) == "particulate"
     assert service.aerosol_primary_source(None, context_particulate) == "none"
     assert service.aerosol_primary_source(historical_aod, None) == "none"
@@ -1531,7 +1533,7 @@ def _scoring_aod(
     *,
     aod_550: float,
     uncertainty: float | None = 0.04,
-    qa_raw: int | None = 1089,
+    qa_raw: int | None = 1,
     product: str = "VNP19A2.002",
 ) -> AodConditionInput:
     return AodConditionInput(

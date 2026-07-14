@@ -439,6 +439,10 @@ class ReleaseScenarioTests(unittest.TestCase):
         self.assertIn('label: qsTr("Nuvolosità media")', qml)
         self.assertIn('label: qsTr("Precipitazioni max")', qml)
         self.assertIn('label: qsTr("Seeing notturno")', qml)
+        self.assertIn(
+            "controller.seeingTransparency.atmosphericTransparency",
+            qml,
+        )
         self.assertIn('label: qsTr("Bortle locale")', qml)
         cloud_card_start = qml.index('title: qsTr("Copertura nuvolosa oraria")')
         weather_bars_start = qml.index("WeatherBars {", cloud_card_start)

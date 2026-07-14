@@ -390,6 +390,9 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     assert "usefulness" not in event_row_qml
     assert "root.eventData.visibilityLabel" in event_row_qml
     assert "root.eventData.compactTimingValue" in event_row_qml
+    assert "Layout.preferredWidth: 104" in event_row_qml
+    assert "wrapMode: Text.WordWrap" in event_row_qml
+    assert "maximumLineCount: 2" in event_row_qml
     assert "root.hasDistinctWindow" in event_detail_qml
     assert "root.eventData.separationLabel" in event_detail_qml
     assert "root.eventData.eventFacts" in event_detail_qml

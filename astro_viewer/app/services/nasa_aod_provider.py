@@ -19,15 +19,21 @@ import numpy as np
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialStore
 from astro_viewer.app.services.localization import format_datetime, format_number, join_text, tr
+from astro_viewer.app.services.maiac_aod_quality import decode_maiac_aod_qa, is_best_quality_maiac_aod
 
 
 logger = logging.getLogger(__name__)
 
 NASA_AOD_PROVIDER = "NASA Earthdata"
+NASA_AOD_CACHE_VERSION = 2
 NASA_AOD_CACHE_TTL = timedelta(hours=18)
+NASA_AOD_NEGATIVE_CACHE_TTL = timedelta(hours=6)
 NASA_AOD_CACHE_REUSE_RADIUS_KM = 0.5
 NASA_AOD_SEARCH_DAYS = 10
 NASA_AOD_GRANULE_LIMIT = 12
+NASA_AOD_LOCAL_NEIGHBORHOOD_RADII = (2, 5)
+NASA_AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS = 3
+NASA_AOD_CACHEABLE_FAILURE_STATUSES = frozenset(("no_granules", "no_valid_pixel"))
 VIIRS_PRODUCT = "VNP19A2.002"
 MODIS_PRODUCT = "MCD19A2.061"
 
@@ -64,6 +70,8 @@ class NasaAodExtraction:
     qa_raw: int | None
     method: str
     local_valid_pixel_count: int | None = None
+    neighborhood_radius_pixels: int | None = None
+    nearest_valid_pixel_distance_km: float | None = None
 
 
 @dataclass(frozen=True)
@@ -80,9 +88,15 @@ class NasaAodResult:
     granule_id: str = ""
     method: str = ""
     local_valid_pixel_count: int | None = None
+    neighborhood_radius_pixels: int | None = None
+    nearest_valid_pixel_distance_km: float | None = None
     retrieved_at: str = ""
     cache_hit: bool = False
     interpretation: str = "—"
+    search_start_date: str = ""
+    search_end_date: str = ""
+    granules_checked: int = 0
+    products_checked: tuple[str, ...] = ()
 
     @classmethod
     def no_credentials(cls) -> NasaAodResult:
@@ -101,8 +115,25 @@ class NasaAodResult:
         )
 
     @classmethod
-    def failure(cls, status: str, message: str) -> NasaAodResult:
-        return cls(False, status, message)
+    def failure(
+        cls,
+        status: str,
+        message: str,
+        *,
+        search_start_date: str = "",
+        search_end_date: str = "",
+        granules_checked: int = 0,
+        products_checked: tuple[str, ...] = (),
+    ) -> NasaAodResult:
+        return cls(
+            False,
+            status,
+            message,
+            search_start_date=search_start_date,
+            search_end_date=search_end_date,
+            granules_checked=granules_checked,
+            products_checked=products_checked,
+        )
 
     @classmethod
     def ok(
@@ -125,12 +156,19 @@ class NasaAodResult:
             granule_id=granule.granule_id,
             method=extraction.method,
             local_valid_pixel_count=extraction.local_valid_pixel_count,
+            neighborhood_radius_pixels=extraction.neighborhood_radius_pixels,
+            nearest_valid_pixel_distance_km=(
+                round(extraction.nearest_valid_pixel_distance_km, 2)
+                if extraction.nearest_valid_pixel_distance_km is not None
+                else None
+            ),
             retrieved_at=retrieved_at.astimezone(UTC).isoformat(),
             interpretation=_interpret_aod(extraction.aod_550),
         )
 
     def as_cache_hit(self) -> NasaAodResult:
-        return replace(self, status="cache_hit", cache_hit=True)
+        status = "cache_hit" if self.available else self.status
+        return replace(self, status=status, cache_hit=True)
 
     def to_qml(self) -> dict[str, object]:
         has_data = self.available and self.aod_550 is not None
@@ -139,7 +177,7 @@ class NasaAodResult:
             "visible": self.status != "no_credentials",
             "hasData": has_data,
             "status": self.status,
-            "message": self.message,
+            "message": _result_message(self),
             "provider": self.provider,
             "product": self.product,
             "productLabel": _product_label(self.product),
@@ -157,8 +195,18 @@ class NasaAodResult:
             "acquisitionDate": _localized_acquisition_date(self.acquisition_date),
             "granuleId": self.granule_id,
             "method": self.method,
-            "methodLabel": _method_label(self.method),
+            "methodLabel": _method_label(self.method, self.neighborhood_radius_pixels),
             "localValidPixelCount": self.local_valid_pixel_count or 0,
+            "neighborhoodRadiusPixels": self.neighborhood_radius_pixels or 0,
+            "nearestValidPixelDistanceKm": self.nearest_valid_pixel_distance_km,
+            "nearestValidPixelDistanceLabel": (
+                tr(
+                    "Pixel valido più vicino: {distance} km",
+                    distance=format_number(self.nearest_valid_pixel_distance_km, decimals=1),
+                )
+                if self.nearest_valid_pixel_distance_km is not None
+                else ""
+            ),
             "retrievedAt": self.retrieved_at,
             "cacheHit": self.cache_hit,
             "transparency": _interpretation_label(self.interpretation) if has_data else "—",
@@ -198,9 +246,9 @@ class NasaAodProvider:
     """NASA MAIAC AOD provider for Weather display and condition inputs.
 
     AOD stays separate from forecast transparency and seeing. AppController can pass
-    accepted provider results into ObservationConditionsService, where the explicit
-    aerosol feature flag and provider-quality gates decide whether they affect
-    condition-adjusted target scores.
+    accepted provider results into ObservationConditionsService, where the
+    provider-quality gates decide whether they affect condition-adjusted target
+    scores.
     """
 
     def __init__(
@@ -211,6 +259,7 @@ class NasaAodProvider:
         extractor: NasaAodExtractor | None = None,
         clock: Callable[[], datetime] | None = None,
         cache_ttl: timedelta = NASA_AOD_CACHE_TTL,
+        negative_cache_ttl: timedelta = NASA_AOD_NEGATIVE_CACHE_TTL,
         cache_reuse_radius_km: float = NASA_AOD_CACHE_REUSE_RADIUS_KM,
         search_days: int = NASA_AOD_SEARCH_DAYS,
         granule_limit: int = NASA_AOD_GRANULE_LIMIT,
@@ -221,16 +270,15 @@ class NasaAodProvider:
         self._extractor = extractor or MaiacAodExtractor()
         self._clock = clock or (lambda: datetime.now(UTC))
         self._cache_ttl = cache_ttl
+        self._negative_cache_ttl = negative_cache_ttl
         self._cache_reuse_radius_km = max(0.0, float(cache_reuse_radius_km))
         self._search_days = search_days
         self._granule_limit = granule_limit
         self._cache_path = cache_path
-        self._cache: dict[tuple[float, float, str, str], tuple[datetime, NasaAodResult]] = {}
-        self._location_cache_keys: dict[tuple[float, float], tuple[float, float, str, str]] = {}
+        self._cache: dict[tuple[float, float], tuple[datetime, NasaAodResult]] = {}
 
     def clear_cache(self) -> None:
         self._cache.clear()
-        self._location_cache_keys.clear()
         self._clear_disk_cache()
 
     def cached_aod(self, location: ObserverLocation | None) -> NasaAodResult | None:
@@ -267,23 +315,30 @@ class NasaAodProvider:
         start_date = end_date - timedelta(days=max(1, self._search_days))
         last_status = "no_granules"
         last_message = tr("Nessun granulo NASA AOD trovato per questa località.")
+        granules_checked = 0
+        products_checked: list[str] = []
+        transient_failure: NasaAodResult | None = None
 
         for product in NASA_AOD_PRODUCTS:
             try:
                 granules = self._client.search(product, location, start_date, end_date, self._granule_limit)
             except Exception as exc:
                 logger.warning("NASA AOD CMR search failed for %s: %s", product.product_id, exc.__class__.__name__)
-                last_status = "download_error"
-                last_message = tr(
-                    "Ricerca NASA AOD non riuscita per {product}: {error_type}.",
-                    product=product.product_id,
-                    error_type=exc.__class__.__name__,
+                transient_failure = NasaAodResult.failure(
+                    "search_error",
+                    tr(
+                        "Ricerca NASA AOD non riuscita per {product}: {error_type}.",
+                        product=product.product_id,
+                        error_type=exc.__class__.__name__,
+                    ),
                 )
                 continue
 
+            products_checked.append(product.product_id)
             sorted_granules = sorted(granules, key=lambda granule: granule.acquisition_date, reverse=True)
             if not sorted_granules:
                 continue
+            granules_checked += len(sorted_granules)
 
             last_status = "no_valid_pixel"
             last_message = tr(
@@ -294,10 +349,40 @@ class NasaAodProvider:
             if result.available:
                 self._store_cache(location, result)
                 return result
-            last_status = result.status
-            last_message = result.message
+            if result.status in NASA_AOD_CACHEABLE_FAILURE_STATUSES:
+                last_status = result.status
+                last_message = result.message
+            else:
+                transient_failure = result
 
-        return NasaAodResult.failure(last_status, last_message)
+        if transient_failure is not None:
+            return NasaAodResult.failure(
+                transient_failure.status,
+                transient_failure.message,
+                search_start_date=start_date.isoformat(),
+                search_end_date=end_date.isoformat(),
+                granules_checked=granules_checked,
+                products_checked=tuple(products_checked),
+            )
+
+        if last_status in NASA_AOD_CACHEABLE_FAILURE_STATUSES:
+            last_message = _search_failure_message(
+                last_status,
+                start_date,
+                end_date,
+                granules_checked,
+                tuple(products_checked),
+            )
+        result = NasaAodResult.failure(
+            last_status,
+            last_message,
+            search_start_date=start_date.isoformat(),
+            search_end_date=end_date.isoformat(),
+            granules_checked=granules_checked,
+            products_checked=tuple(products_checked),
+        )
+        self._store_cache(location, result)
+        return result
 
     def _first_valid_result(
         self,
@@ -311,6 +396,7 @@ class NasaAodProvider:
             "Nessun pixel AOD valido trovato in {product}.",
             product=product.product_id,
         )
+        transient_failure: NasaAodResult | None = None
         with tempfile.TemporaryDirectory(prefix="nightscope-aod-") as temp_dir:
             target_dir = Path(temp_dir)
             for granule in granules:
@@ -319,11 +405,13 @@ class NasaAodProvider:
                     granule_path = self._client.download(granule, target_dir)
                 except Exception as exc:
                     logger.info("NASA AOD granule download failed for %s: %s", granule.granule_id, exc.__class__.__name__)
-                    last_status = "download_error"
-                    last_message = tr(
-                        "Download NASA AOD non riuscito per {granule}: {error_type}.",
-                        granule=granule.granule_id,
-                        error_type=exc.__class__.__name__,
+                    transient_failure = NasaAodResult.failure(
+                        "download_error",
+                        tr(
+                            "Download NASA AOD non riuscito per {granule}: {error_type}.",
+                            granule=granule.granule_id,
+                            error_type=exc.__class__.__name__,
+                        ),
                     )
                     continue
 
@@ -331,11 +419,13 @@ class NasaAodProvider:
                     extraction = self._extractor.extract(product, granule_path, location)
                 except Exception as exc:
                     logger.info("NASA AOD granule processing failed for %s: %s", granule.granule_id, exc.__class__.__name__)
-                    last_status = "parse_error"
-                    last_message = tr(
-                        "Parsing NASA AOD non riuscito per {granule}: {error_type}.",
-                        granule=granule.granule_id,
-                        error_type=exc.__class__.__name__,
+                    transient_failure = NasaAodResult.failure(
+                        "parse_error",
+                        tr(
+                            "Parsing NASA AOD non riuscito per {granule}: {error_type}.",
+                            granule=granule.granule_id,
+                            error_type=exc.__class__.__name__,
+                        ),
                     )
                     continue
                 finally:
@@ -355,7 +445,7 @@ class NasaAodProvider:
                     granule=granule.granule_id,
                 )
 
-        return NasaAodResult.failure(last_status, last_message)
+        return transient_failure or NasaAodResult.failure(last_status, last_message)
 
     def _verified_credentials(self) -> tuple[str, str] | None:
         if self._credentials is None:
@@ -376,28 +466,22 @@ class NasaAodProvider:
         if disk_cached is None:
             return None
         cached_at, result = disk_cached
-        cache_key = (*location_key, result.product, result.granule_id)
-        self._cache[cache_key] = (cached_at, result)
-        self._location_cache_keys[location_key] = cache_key
+        self._cache[location_key] = (cached_at, result)
         return result.as_cache_hit()
 
-    def _cache_is_fresh(self, cached_at: datetime) -> bool:
+    def _cache_is_fresh(self, cached_at: datetime, result: NasaAodResult) -> bool:
         now = self._clock().astimezone(UTC)
         age = now - cached_at
-        return timedelta(0) <= age <= self._cache_ttl
+        ttl = self._cache_ttl if result.available else self._negative_cache_ttl
+        return timedelta(0) <= age <= ttl
 
     def _cached_memory_result(self, location_key: tuple[float, float]) -> NasaAodResult | None:
         nearest = None
         nearest_distance = math.inf
-        for cached_location, cache_key in list(self._location_cache_keys.items()):
-            cached = self._cache.get(cache_key)
-            if cached is None:
-                self._location_cache_keys.pop(cached_location, None)
-                continue
+        for cached_location, cached in list(self._cache.items()):
             cached_at, result = cached
-            if not self._cache_is_fresh(cached_at):
-                self._cache.pop(cache_key, None)
-                self._location_cache_keys.pop(cached_location, None)
+            if not self._cache_is_fresh(cached_at, result):
+                self._cache.pop(cached_location, None)
                 continue
             distance = _distance_km(*location_key, *cached_location)
             if distance <= self._cache_reuse_radius_km and distance < nearest_distance:
@@ -427,7 +511,7 @@ class NasaAodProvider:
                 continue
             cached_at = _parse_datetime(entry.get("cached_at"))
             result = _result_from_cache_payload(entry.get("result"))
-            if cached_at is None or result is None or not self._cache_is_fresh(cached_at):
+            if cached_at is None or result is None or not self._cache_is_fresh(cached_at, result):
                 entries.pop(entry_key, None)
                 changed = True
                 continue
@@ -441,13 +525,15 @@ class NasaAodProvider:
 
     def _read_disk_cache(self) -> dict[str, object]:
         if self._cache_path is None or not self._cache_path.exists():
-            return {"version": 1, "entries": {}}
+            return {"version": NASA_AOD_CACHE_VERSION, "entries": {}}
         try:
             payload = json.loads(self._cache_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             logger.info("NASA AOD processed cache could not be read: %s", self._cache_path)
-            return {"version": 1, "entries": {}}
-        return payload if isinstance(payload, dict) else {"version": 1, "entries": {}}
+            return {"version": NASA_AOD_CACHE_VERSION, "entries": {}}
+        if not isinstance(payload, dict) or payload.get("version") != NASA_AOD_CACHE_VERSION:
+            return {"version": NASA_AOD_CACHE_VERSION, "entries": {}}
+        return payload
 
     def _write_disk_cache(self, payload: dict[str, object]) -> None:
         if self._cache_path is None:
@@ -468,13 +554,11 @@ class NasaAodProvider:
             logger.info("NASA AOD processed cache could not be deleted: %s", self._cache_path)
 
     def _store_cache(self, location: ObserverLocation, result: NasaAodResult) -> None:
-        if not result.available or not result.product or not result.granule_id:
+        if not _cacheable_result(result):
             return
         cached_at = self._clock().astimezone(UTC)
         location_key = self._location_key(location)
-        cache_key = (*location_key, result.product, result.granule_id)
-        self._cache[cache_key] = (cached_at, result)
-        self._location_cache_keys[location_key] = cache_key
+        self._cache[location_key] = (cached_at, result)
         self._store_disk_cache(location_key, cached_at, result)
 
     def _store_disk_cache(self, location_key: tuple[float, float], cached_at: datetime, result: NasaAodResult) -> None:
@@ -485,7 +569,7 @@ class NasaAodProvider:
         if not isinstance(entries, dict):
             entries = {}
             payload["entries"] = entries
-        payload["version"] = 1
+        payload["version"] = NASA_AOD_CACHE_VERSION
         entries[self._disk_location_key(location_key)] = {
             "cached_at": cached_at.astimezone(UTC).isoformat(),
             "result": asdict(result),
@@ -672,12 +756,16 @@ def _distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def _result_from_cache_payload(value: Any) -> NasaAodResult | None:
     if not isinstance(value, dict):
         return None
-    if not value.get("available") or not value.get("product") or not value.get("granule_id"):
+    available = bool(value.get("available"))
+    status = str(value.get("status") or ("ok" if available else "unavailable"))
+    if available and (not value.get("product") or not value.get("granule_id")):
+        return None
+    if not available and status not in NASA_AOD_CACHEABLE_FAILURE_STATUSES:
         return None
     return NasaAodResult(
-        available=bool(value.get("available")),
-        status=str(value.get("status") or "ok"),
-        message=tr("Dati NASA AOD disponibili."),
+        available=available,
+        status=status,
+        message=str(value.get("message") or tr("Dati NASA AOD disponibili.")),
         provider=str(value.get("provider") or NASA_AOD_PROVIDER),
         product=str(value.get("product") or ""),
         aod_550=_optional_float(value.get("aod_550")),
@@ -687,10 +775,28 @@ def _result_from_cache_payload(value: Any) -> NasaAodResult | None:
         granule_id=str(value.get("granule_id") or ""),
         method=str(value.get("method") or ""),
         local_valid_pixel_count=_optional_int(value.get("local_valid_pixel_count")),
+        neighborhood_radius_pixels=_optional_int(value.get("neighborhood_radius_pixels")),
+        nearest_valid_pixel_distance_km=_optional_float(value.get("nearest_valid_pixel_distance_km")),
         retrieved_at=str(value.get("retrieved_at") or ""),
         cache_hit=False,
         interpretation=str(value.get("interpretation") or "—"),
+        search_start_date=str(value.get("search_start_date") or ""),
+        search_end_date=str(value.get("search_end_date") or ""),
+        granules_checked=max(0, _optional_int(value.get("granules_checked")) or 0),
+        products_checked=_cached_products(value.get("products_checked")),
     )
+
+
+def _cacheable_result(result: NasaAodResult) -> bool:
+    if result.available:
+        return bool(result.product and result.granule_id and result.aod_550 is not None)
+    return result.status in NASA_AOD_CACHEABLE_FAILURE_STATUSES
+
+
+def _cached_products(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)):
+        return ()
+    return tuple(str(item) for item in value if item)
 
 
 def _optional_float(value: Any) -> float | None:
@@ -776,14 +882,31 @@ def _extract_from_arrays(
 ) -> NasaAodExtraction | None:
     ydim = int(aod.shape[-2])
     xdim = int(aod.shape[-1])
-    row, col = _row_col_from_sinusoidal_metadata(metadata, location, ydim, xdim)
+    row, col, pixel_width_km, pixel_height_km = _grid_position_from_sinusoidal_metadata(
+        metadata,
+        location,
+        ydim,
+        xdim,
+    )
     if not (0 <= row < ydim and 0 <= col < xdim):
         return None
 
     direct = _direct_pixel(aod, qa, uncertainty, row, col, scale, fill, uncertainty_scale, uncertainty_fill)
     if direct is not None:
         return direct
-    return _local_neighborhood(aod, qa, uncertainty, row, col, scale, fill, uncertainty_scale, uncertainty_fill)
+    return _local_neighborhood(
+        aod,
+        qa,
+        uncertainty,
+        row,
+        col,
+        scale,
+        fill,
+        uncertainty_scale,
+        uncertainty_fill,
+        pixel_width_km,
+        pixel_height_km,
+    )
 
 
 def _direct_pixel(
@@ -802,10 +925,13 @@ def _direct_pixel(
         raw = int(aod[key])
         if not _valid_aod_raw(raw, fill):
             continue
+        qa_quality = decode_maiac_aod_qa(int(qa[key]) if qa is not None else None)
+        if qa_quality is None or not qa_quality.is_best_quality:
+            continue
         return NasaAodExtraction(
             aod_550=raw * scale,
             uncertainty=_uncertainty_value(uncertainty, key, uncertainty_scale, uncertainty_fill),
-            qa_raw=int(qa[key]) if qa is not None else None,
+            qa_raw=qa_quality.raw,
             method="direct_pixel",
         )
     return None
@@ -821,43 +947,75 @@ def _local_neighborhood(
     fill: int,
     uncertainty_scale: float,
     uncertainty_fill: int,
+    pixel_width_km: float,
+    pixel_height_km: float,
 ) -> NasaAodExtraction | None:
-    best: NasaAodExtraction | None = None
-    for orbit in range(_orbit_count(aod)):
-        aod_window = _window(aod, orbit, row, col)
-        mask = (aod_window != fill) & (aod_window >= 0) & (aod_window <= 6000)
-        valid_count = int(mask.sum())
-        if valid_count <= 0:
-            continue
-        uncertainty_value = None
-        if uncertainty is not None:
-            uncertainty_window = _window(uncertainty, orbit, row, col)
-            uncertainty_mask = mask & (uncertainty_window != uncertainty_fill) & (uncertainty_window >= 0)
-            if bool(np.any(uncertainty_mask)):
-                uncertainty_value = float(np.nanmedian(np.where(uncertainty_mask, uncertainty_window * uncertainty_scale, np.nan)))
-        qa_raw = None
-        if qa is not None:
-            qa_window = _window(qa, orbit, row, col)
-            qa_raw = int(round(float(np.nanmedian(np.where(mask, qa_window, np.nan)))))
-        candidate = NasaAodExtraction(
-            aod_550=float(np.nanmedian(np.where(mask, aod_window * scale, np.nan))),
-            uncertainty=uncertainty_value,
-            qa_raw=qa_raw,
-            method="local_neighborhood",
-            local_valid_pixel_count=valid_count,
-        )
-        if best is None or (candidate.local_valid_pixel_count or 0) > (best.local_valid_pixel_count or 0):
-            best = candidate
-    return best
+    for radius in NASA_AOD_LOCAL_NEIGHBORHOOD_RADII:
+        best: NasaAodExtraction | None = None
+        for orbit in range(_orbit_count(aod)):
+            r0, r1, c0, c1 = _window_bounds(aod, row, col, radius)
+            aod_window = _window(aod, orbit, r0, r1, c0, c1)
+            qa_window = _window(qa, orbit, r0, r1, c0, c1)
+            raw_mask = (aod_window != fill) & (aod_window >= 0) & (aod_window <= 6000)
+            quality_mask = np.fromiter(
+                (is_best_quality_maiac_aod(int(value)) for value in qa_window.flat),
+                dtype=bool,
+                count=qa_window.size,
+            ).reshape(qa_window.shape)
+            mask = raw_mask & quality_mask
+            valid_count = int(mask.sum())
+            if valid_count < NASA_AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS:
+                continue
+
+            valid_aod_raw = np.asarray(aod_window[mask], dtype=float)
+            median_raw = float(np.nanmedian(valid_aod_raw))
+            representative_index = int(np.nanargmin(np.abs(valid_aod_raw - median_raw)))
+            valid_qa_raw = np.asarray(qa_window[mask], dtype=np.int64) & 0xFFFF
+            representative_qa = int(valid_qa_raw[representative_index])
+
+            uncertainty_value = None
+            if uncertainty is not None:
+                uncertainty_window = _window(uncertainty, orbit, r0, r1, c0, c1)
+                uncertainty_mask = mask & (uncertainty_window != uncertainty_fill) & (uncertainty_window >= 0)
+                if bool(np.any(uncertainty_mask)):
+                    uncertainty_value = float(
+                        np.nanmedian(uncertainty_window[uncertainty_mask] * uncertainty_scale)
+                    )
+
+            valid_positions = np.argwhere(mask)
+            row_offsets = valid_positions[:, 0] + r0 - row
+            col_offsets = valid_positions[:, 1] + c0 - col
+            distances_km = np.hypot(
+                row_offsets * pixel_height_km,
+                col_offsets * pixel_width_km,
+            )
+            candidate = NasaAodExtraction(
+                aod_550=median_raw * scale,
+                uncertainty=uncertainty_value,
+                qa_raw=representative_qa,
+                method="local_neighborhood" if radius == 2 else "extended_neighborhood",
+                local_valid_pixel_count=valid_count,
+                neighborhood_radius_pixels=radius,
+                nearest_valid_pixel_distance_km=float(np.min(distances_km)),
+            )
+            if best is None or valid_count > (best.local_valid_pixel_count or 0):
+                best = candidate
+        if best is not None:
+            return best
+    return None
 
 
-def _window(array: Any, orbit: int, row: int, col: int, radius: int = 2) -> np.ndarray:
+def _window_bounds(array: Any, row: int, col: int, radius: int) -> tuple[int, int, int, int]:
     ydim = int(array.shape[-2])
     xdim = int(array.shape[-1])
     r0 = max(0, row - radius)
     r1 = min(ydim, row + radius + 1)
     c0 = max(0, col - radius)
     c1 = min(xdim, col + radius + 1)
+    return r0, r1, c0, c1
+
+
+def _window(array: Any, orbit: int, r0: int, r1: int, c0: int, c1: int) -> np.ndarray:
     if len(array.shape) == 3:
         return np.asarray(array[orbit, r0:r1, c0:c1])
     return np.asarray(array[r0:r1, c0:c1])
@@ -914,12 +1072,12 @@ def _hdf5_struct_metadata(handle: h5py.File) -> str:
     return str(value)
 
 
-def _row_col_from_sinusoidal_metadata(
+def _grid_position_from_sinusoidal_metadata(
     metadata: str,
     location: ObserverLocation,
     ydim: int,
     xdim: int,
-) -> tuple[int, int]:
+) -> tuple[int, int, float, float]:
     import re
 
     match = re.search(
@@ -937,9 +1095,11 @@ def _row_col_from_sinusoidal_metadata(
     lon0 = proj_params[4] / 1_000_000.0 if abs(proj_params[4]) > 360 else proj_params[4]
     x = radius * math.radians(location.longitude - lon0) * math.cos(math.radians(location.latitude))
     y = radius * math.radians(location.latitude)
-    row = int((uly - y) / ((uly - lry) / ydim))
-    col = int((x - ulx) / ((lrx - ulx) / xdim))
-    return row, col
+    pixel_height_m = abs(uly - lry) / ydim
+    pixel_width_m = abs(lrx - ulx) / xdim
+    row = int((uly - y) / pixel_height_m)
+    col = int((x - ulx) / pixel_width_m)
+    return row, col, pixel_width_m / 1000.0, pixel_height_m / 1000.0
 
 
 def _attribute_scalar(value: Any, fallback: float) -> float:
@@ -970,6 +1130,48 @@ def _interpretation_label(value: str) -> str:
     }.get(value, "—")
 
 
+def _result_message(result: NasaAodResult) -> str:
+    start_date = _parse_date(result.search_start_date)
+    end_date = _parse_date(result.search_end_date)
+    if result.status in NASA_AOD_CACHEABLE_FAILURE_STATUSES and start_date and end_date:
+        return _search_failure_message(
+            result.status,
+            start_date,
+            end_date,
+            result.granules_checked,
+            result.products_checked,
+        )
+    return result.message
+
+
+def _search_failure_message(
+    status: str,
+    start_date: date,
+    end_date: date,
+    granules_checked: int,
+    products_checked: tuple[str, ...],
+) -> str:
+    start_label = _localized_acquisition_date(start_date.isoformat())
+    end_label = _localized_acquisition_date(end_date.isoformat())
+    if status == "no_valid_pixel" and granules_checked > 0:
+        product_labels = " + ".join(_product_label(product) for product in products_checked)
+        return tr(
+            "Nessuna misura AOD locale con qualità sufficiente trovata dal {start} al {end}. "
+            "Granuli controllati: {count} ({products}).",
+            start=start_label,
+            end=end_label,
+            count=granules_checked,
+            products=product_labels or "NASA MAIAC",
+        )
+    return tr(
+        "Nessun granulo NASA AOD disponibile dal {start} al {end} per questa località. "
+        "Prodotti controllati: {products}.",
+        start=start_label,
+        end=end_label,
+        products=" + ".join(_product_label(product) for product in products_checked) or "NASA MAIAC",
+    )
+
+
 def _product_label(product: str) -> str:
     if product == VIIRS_PRODUCT:
         return "VIIRS MAIAC"
@@ -978,11 +1180,14 @@ def _product_label(product: str) -> str:
     return product or "NASA MAIAC"
 
 
-def _method_label(method: str) -> str:
+def _method_label(method: str, radius: int | None = None) -> str:
     if method == "direct_pixel":
         return tr("Pixel diretto")
     if method == "local_neighborhood":
         return tr("Area locale 5x5")
+    if method == "extended_neighborhood":
+        size = (radius or 5) * 2 + 1
+        return tr("Area locale {size}x{size}", size=size)
     return method or "—"
 
 
@@ -1025,14 +1230,21 @@ def _aod_age_days(acquisition_date: str) -> int | None:
 def _source_detail(result: NasaAodResult) -> str:
     parts = [_product_label(result.product), _localized_acquisition_date(result.acquisition_date)]
     if result.method:
-        method = _method_label(result.method)
-        if result.method == "local_neighborhood" and result.local_valid_pixel_count is not None:
+        method = _method_label(result.method, result.neighborhood_radius_pixels)
+        if result.method in ("local_neighborhood", "extended_neighborhood") and result.local_valid_pixel_count is not None:
             method = tr(
                 "{method}, {count} pixel validi",
                 method=method,
                 count=result.local_valid_pixel_count,
             )
         parts.append(method)
+    if result.nearest_valid_pixel_distance_km is not None:
+        parts.append(
+            tr(
+                "Pixel valido più vicino: {distance} km",
+                distance=format_number(result.nearest_valid_pixel_distance_km, decimals=1),
+            )
+        )
     if result.uncertainty is not None:
         parts.append(
             tr(

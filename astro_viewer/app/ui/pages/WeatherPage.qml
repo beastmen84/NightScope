@@ -171,7 +171,7 @@ Item {
                 MetricTile { label: qsTr("Umidità media"); value: controller.hasValidLocation ? controller.weatherSummary.humidityLabel : qsTr("n/d"); accentColor: theme.violet }
                 MetricTile { label: qsTr("Temperatura media"); value: controller.hasValidLocation ? controller.weatherSummary.temperatureLabel : qsTr("n/d"); accentColor: theme.amber }
                 MetricTile { label: qsTr("Seeing notturno"); value: controller.hasValidLocation ? controller.seeingTransparency.seeing : qsTr("n/d"); accentColor: theme.green }
-                MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.transparency : qsTr("n/d"); accentColor: theme.cyan }
+                MetricTile { label: qsTr("Trasparenza notturna"); value: controller.hasValidLocation ? controller.seeingTransparency.atmosphericTransparency : qsTr("n/d"); accentColor: theme.cyan }
                 MetricTile { label: qsTr("Bortle locale"); value: root.hasSkyQuality ? controller.skyQuality.bortleLabel : qsTr("n/d"); accentColor: theme.violet }
             }
 

@@ -33,8 +33,8 @@ Rectangle {
         spacing: 14
 
         Rectangle {
-            Layout.preferredWidth: 88
-            Layout.preferredHeight: 68
+            Layout.preferredWidth: 104
+            Layout.preferredHeight: 72
             radius: 8
             color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.14)
             border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.45)
@@ -51,8 +51,9 @@ Rectangle {
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
                     horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: 1
+                    maximumLineCount: 2
                 }
 
                 Text {

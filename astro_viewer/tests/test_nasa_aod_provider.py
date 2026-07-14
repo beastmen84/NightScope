@@ -15,6 +15,7 @@ from PySide6.QtCore import QObject
 
 from astro_viewer.app.astronomy.engine import ObserverLocation
 from astro_viewer.app.services.earthdata_credentials import EarthdataCredentialState
+from astro_viewer.app.services.maiac_aod_quality import decode_maiac_aod_qa
 from astro_viewer.app.services.nasa_aod_provider import EarthaccessNasaAodClient
 from astro_viewer.app.services.nasa_aod_provider import MODIS_MAIAC_AOD
 from astro_viewer.app.services.nasa_aod_provider import MaiacAodExtractor
@@ -69,10 +70,12 @@ class FakeNasaClient:
         self,
         *,
         search_results: dict[str, list[NasaAodGranule]] | None = None,
+        search_errors: set[str] | None = None,
         download_errors: set[str] | None = None,
         external_download_dir: Path | None = None,
     ) -> None:
         self.search_results = search_results or {}
+        self.search_errors = search_errors or set()
         self.download_errors = download_errors or set()
         self.external_download_dir = external_download_dir
         self.authenticate_calls = 0
@@ -87,6 +90,8 @@ class FakeNasaClient:
 
     def search(self, product, _location, _start_date, _end_date, _limit) -> list[NasaAodGranule]:
         self.search_calls.append(product.product_id)
+        if product.product_id in self.search_errors:
+            raise RuntimeError("search failed")
         return list(self.search_results.get(product.product_id, []))
 
     def download(self, granule: NasaAodGranule, target_dir: Path) -> Path:
@@ -118,7 +123,15 @@ class NasaAodProviderTests(unittest.TestCase):
     def test_success_result_exposes_display_ready_qml_fields(self) -> None:
         result = NasaAodResult.ok(
             product=VIIRS_MAIAC_AOD.product_id,
-            extraction=NasaAodExtraction(0.658, 0.0185, 1089, "local_neighborhood", 3),
+            extraction=NasaAodExtraction(
+                0.658,
+                0.0185,
+                1,
+                "local_neighborhood",
+                3,
+                neighborhood_radius_pixels=2,
+                nearest_valid_pixel_distance_km=1.2,
+            ),
             granule=_granule(VIIRS_MAIAC_AOD, "granule-valid", date.today()),
             retrieved_at=datetime.now(UTC),
         )
@@ -135,6 +148,7 @@ class NasaAodProviderTests(unittest.TestCase):
         self.assertEqual(qml["productLabel"], "VIIRS MAIAC")
         self.assertEqual(qml["methodLabel"], "Area locale 5x5")
         self.assertIn("3 pixel validi", qml["sourceDetail"])
+        self.assertIn("1,2 km", qml["sourceDetail"])
         self.assertFalse(qml["running"])
 
     def test_no_credentials_qml_hides_atmospheric_transparency_section(self) -> None:
@@ -206,6 +220,127 @@ class NasaAodProviderTests(unittest.TestCase):
 
         self.assertFalse(result.available)
         self.assertEqual(result.status, "no_valid_pixel")
+        message = result.to_qml()["message"]
+        self.assertIn("Granuli controllati: 1", message)
+        self.assertIn("VIIRS MAIAC", message)
+        self.assertIn("MODIS MAIAC", message)
+        self.assertNotIn("invalid", message)
+        self.assertEqual(
+            result.products_checked,
+            (VIIRS_MAIAC_AOD.product_id, MODIS_MAIAC_AOD.product_id),
+        )
+
+    def test_no_valid_result_is_cached_without_repeating_downloads(self) -> None:
+        granule = _granule(VIIRS_MAIAC_AOD, "invalid", date(2026, 6, 27))
+        client = FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]})
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({"invalid": None}),
+            clock=_clock,
+        )
+
+        first = provider.aod(_location())
+        second = provider.aod(_location())
+
+        self.assertEqual(first.status, "no_valid_pixel")
+        self.assertEqual(second.status, "no_valid_pixel")
+        self.assertTrue(second.cache_hit)
+        self.assertEqual(client.authenticate_calls, 1)
+        self.assertEqual(client.download_calls, ["invalid"])
+
+    def test_negative_cache_expires_before_the_positive_cache(self) -> None:
+        now = [_clock()]
+        client = FakeNasaClient()
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=lambda: now[0],
+        )
+
+        first = provider.aod(_location())
+        now[0] += timedelta(hours=7)
+        second = provider.aod(_location())
+
+        self.assertEqual(first.status, "no_granules")
+        self.assertEqual(second.status, "no_granules")
+        self.assertFalse(second.cache_hit)
+        self.assertEqual(client.authenticate_calls, 2)
+        self.assertIn("VIIRS MAIAC + MODIS MAIAC", second.to_qml()["message"])
+
+    def test_transient_download_error_is_not_cached(self) -> None:
+        failed = _granule(VIIRS_MAIAC_AOD, "download-fails", date(2026, 6, 27))
+        invalid = _granule(VIIRS_MAIAC_AOD, "invalid", date(2026, 6, 26))
+        client = FakeNasaClient(
+            search_results={VIIRS_MAIAC_AOD.product_id: [invalid, failed]},
+            download_errors={"download-fails"},
+        )
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({"invalid": None}),
+            clock=_clock,
+        )
+
+        first = provider.aod(_location())
+        second = provider.aod(_location())
+
+        self.assertEqual(first.status, "download_error")
+        self.assertEqual(second.status, "download_error")
+        self.assertFalse(second.cache_hit)
+        self.assertEqual(client.authenticate_calls, 2)
+        self.assertEqual(
+            client.download_calls,
+            ["download-fails", "invalid", "download-fails", "invalid"],
+        )
+
+    def test_transient_search_error_is_not_cached(self) -> None:
+        client = FakeNasaClient(search_errors={VIIRS_MAIAC_AOD.product_id})
+        provider = NasaAodProvider(
+            FakeCredentials(),
+            client=client,
+            extractor=FakeExtractor({}),
+            clock=_clock,
+        )
+
+        first = provider.aod(_location())
+        second = provider.aod(_location())
+
+        self.assertEqual(first.status, "search_error")
+        self.assertEqual(second.status, "search_error")
+        self.assertFalse(second.cache_hit)
+        self.assertEqual(client.authenticate_calls, 2)
+
+    def test_negative_cache_survives_provider_restart(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_path = Path(temp_dir) / "nasa_aod_cache.json"
+            granule = _granule(VIIRS_MAIAC_AOD, "invalid", date(2026, 6, 27))
+            provider = NasaAodProvider(
+                FakeCredentials(),
+                client=FakeNasaClient(search_results={VIIRS_MAIAC_AOD.product_id: [granule]}),
+                extractor=FakeExtractor({"invalid": None}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+            provider.aod(_location())
+
+            reloaded_client = FakeNasaClient()
+            reloaded = NasaAodProvider(
+                FakeCredentials(),
+                client=reloaded_client,
+                extractor=FakeExtractor({}),
+                clock=_clock,
+                cache_path=cache_path,
+            )
+
+            result = reloaded.aod(_location())
+
+            self.assertEqual(result.status, "no_valid_pixel")
+            self.assertTrue(result.cache_hit)
+            self.assertIn("Granuli controllati: 1", result.to_qml()["message"])
+            self.assertEqual(reloaded_client.authenticate_calls, 0)
+            self.assertEqual(reloaded_client.download_calls, [])
 
     def test_cache_hit_returns_without_second_download(self) -> None:
         granule = _granule(VIIRS_MAIAC_AOD, "valid", date(2026, 6, 27))
@@ -619,7 +754,7 @@ class MaiacAodExtractorTests(unittest.TestCase):
         self.assertEqual(result.method, "direct_pixel")
         self.assertAlmostEqual(result.aod_550, 0.15)
         self.assertAlmostEqual(result.uncertainty or 0, 0.0025)
-        self.assertEqual(result.qa_raw, 4)
+        self.assertEqual(result.qa_raw, 1)
 
     def test_viirs_hdf5_invalid_exact_pixel_uses_5x5_neighborhood(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -633,6 +768,32 @@ class MaiacAodExtractorTests(unittest.TestCase):
         self.assertEqual(result.method, "local_neighborhood")
         self.assertEqual(result.local_valid_pixel_count, 24)
         self.assertAlmostEqual(result.aod_550, 0.3)
+        self.assertEqual(result.neighborhood_radius_pixels, 2)
+
+    def test_viirs_hdf5_uses_extended_quality_neighborhood_when_5x5_is_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "viirs-extended.h5"
+            _write_hdf5_extended_fixture(path, qa_values=(1, 8193, 16385))
+
+            result = MaiacAodExtractor().extract(VIIRS_MAIAC_AOD, path, _location())
+
+        self.assertIsNotNone(result)
+        assert result is not None
+        self.assertEqual(result.method, "extended_neighborhood")
+        self.assertEqual(result.local_valid_pixel_count, 3)
+        self.assertEqual(result.neighborhood_radius_pixels, 5)
+        self.assertAlmostEqual(result.nearest_valid_pixel_distance_km or 0, 4.0)
+        self.assertAlmostEqual(result.aod_550, 0.65)
+        self.assertEqual(result.qa_raw, 8193)
+
+    def test_viirs_hdf5_rejects_cloud_surrounded_qa_even_in_extended_area(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "viirs-cloudy.h5"
+            _write_hdf5_extended_fixture(path, qa_values=(1089, 1089, 1089))
+
+            result = MaiacAodExtractor().extract(VIIRS_MAIAC_AOD, path, _location())
+
+        self.assertIsNone(result)
 
     def test_modis_netcdf4_direct_pixel(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -646,7 +807,29 @@ class MaiacAodExtractorTests(unittest.TestCase):
         self.assertEqual(result.method, "direct_pixel")
         self.assertAlmostEqual(result.aod_550, 0.22)
         self.assertAlmostEqual(result.uncertainty or 0, 0.003)
-        self.assertEqual(result.qa_raw, 4)
+        self.assertEqual(result.qa_raw, 1)
+
+
+class MaiacAodQualityTests(unittest.TestCase):
+    def test_decoder_accepts_clear_best_quality_and_ignores_unrelated_high_bits(self) -> None:
+        quality = decode_maiac_aod_qa(8193)
+
+        self.assertIsNotNone(quality)
+        assert quality is not None
+        self.assertEqual(quality.cloud_mask, 1)
+        self.assertEqual(quality.adjacency_mask, 0)
+        self.assertEqual(quality.aod_quality, 0)
+        self.assertTrue(quality.is_best_quality)
+
+    def test_decoder_rejects_cloud_adjacent_low_quality_pixel(self) -> None:
+        quality = decode_maiac_aod_qa(1089)
+
+        self.assertIsNotNone(quality)
+        assert quality is not None
+        self.assertEqual(quality.cloud_mask, 1)
+        self.assertEqual(quality.adjacency_mask, 2)
+        self.assertEqual(quality.aod_quality, 4)
+        self.assertFalse(quality.is_best_quality)
 
 
 class _FlakyEarthaccess:
@@ -725,7 +908,7 @@ def _write_hdf5_fixture(
     fill = -28672
     aod = np.full((1, 5, 5), neighbor_raw if neighbor_raw is not None else fill, dtype=np.int16)
     uncertainty = np.full((1, 5, 5), 20, dtype=np.int16)
-    qa = np.full((1, 5, 5), 4, dtype=np.int16)
+    qa = np.full((1, 5, 5), 1, dtype=np.uint16)
     aod[0, 2, 2] = center_raw
     uncertainty[0, 2, 2] = center_uncertainty
 
@@ -735,7 +918,7 @@ def _write_hdf5_fixture(
         aod_dataset.attrs["scale_factor"] = np.array([0.001])
         aod_dataset.attrs["_FillValue"] = np.array([fill], dtype=np.int16)
         qa_dataset = data_fields.create_dataset("AOD_QA", data=qa)
-        qa_dataset.attrs["_FillValue"] = np.array([fill], dtype=np.int16)
+        qa_dataset.attrs["_FillValue"] = np.array([0], dtype=np.uint16)
         uncertainty_dataset = data_fields.create_dataset("AOD_Uncertainty", data=uncertainty)
         uncertainty_dataset.attrs["scale_factor"] = np.array([0.0001])
         uncertainty_dataset.attrs["_FillValue"] = np.array([fill], dtype=np.int16)
@@ -758,9 +941,9 @@ def _write_netcdf4_fixture(path: Path, *, center_raw: int, center_uncertainty: i
         _assign_netcdf_values(aod, aod_values)
         aod.scale_factor = 0.001
 
-        qa = dataset.createVariable("AOD_QA", "i2", ("orbit", "y", "x"), fill_value=fill)
+        qa = dataset.createVariable("AOD_QA", "u2", ("orbit", "y", "x"), fill_value=0)
         qa.set_auto_maskandscale(False)
-        _assign_netcdf_values(qa, np.full((1, 5, 5), 4, dtype=np.int16))
+        _assign_netcdf_values(qa, np.full((1, 5, 5), 1, dtype=np.uint16))
 
         uncertainty = dataset.createVariable("AOD_Uncertainty", "i2", ("orbit", "y", "x"), fill_value=fill)
         uncertainty.set_auto_maskandscale(False)
@@ -768,6 +951,41 @@ def _write_netcdf4_fixture(path: Path, *, center_raw: int, center_uncertainty: i
         uncertainty_values[0, 2, 2] = center_uncertainty
         _assign_netcdf_values(uncertainty, uncertainty_values)
         uncertainty.scale_factor = 0.0001
+
+
+def _write_hdf5_extended_fixture(path: Path, *, qa_values: tuple[int, int, int]) -> None:
+    fill = -28672
+    aod = np.full((1, 11, 11), fill, dtype=np.int16)
+    uncertainty = np.full((1, 11, 11), fill, dtype=np.int16)
+    qa = np.zeros((1, 11, 11), dtype=np.uint16)
+    for (row, col), raw, qa_raw in zip(
+        ((5, 9), (4, 9), (6, 9)),
+        (600, 650, 700),
+        qa_values,
+        strict=True,
+    ):
+        aod[0, row, col] = raw
+        uncertainty[0, row, col] = 25
+        qa[0, row, col] = qa_raw
+
+    metadata = """
+GROUP=GridStructure
+    UpperLeftPointMtrs=(-5500.000000,5500.000000)
+    LowerRightMtrs=(5500.000000,-5500.000000)
+    ProjParams=(6371007.181000,0,0,0,0,0,0,0,0,0,0,0,0)
+END_GROUP=GridStructure
+"""
+    with h5py.File(path, "w") as handle:
+        data_fields = handle.create_group("HDFEOS/GRIDS/MAIAC/Data Fields")
+        aod_dataset = data_fields.create_dataset("Optical_Depth_055", data=aod)
+        aod_dataset.attrs["scale_factor"] = np.array([0.001])
+        aod_dataset.attrs["_FillValue"] = np.array([fill], dtype=np.int16)
+        data_fields.create_dataset("AOD_QA", data=qa)
+        uncertainty_dataset = data_fields.create_dataset("AOD_Uncertainty", data=uncertainty)
+        uncertainty_dataset.attrs["scale_factor"] = np.array([0.0001])
+        uncertainty_dataset.attrs["_FillValue"] = np.array([fill], dtype=np.int16)
+        info = handle.create_group("HDFEOS INFORMATION")
+        info.create_dataset("StructMetadata.0", data=np.bytes_(metadata))
 
 
 def _assign_netcdf_values(variable, values: np.ndarray) -> None:

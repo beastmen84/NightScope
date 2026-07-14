@@ -229,6 +229,9 @@ Current runtime status for `1.27.0`:
   best continuous group becomes one stable event per comet, capped to the 12
   brightest candidates. This path is independent from Catalogue, weather,
   profile equipment, score, Planner, Home ranking and NSOM.
+  Calendar rows reserve at most two lines for the compact date label, so a
+  comet start/end range remains visible without allowing the tile to grow
+  without bound.
 - Planetary conjunction candidates are observational close approaches found by
   `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
   The annual contract retains minima up to 6 degrees, then samples adjacent
@@ -402,8 +405,11 @@ Services hold business logic:
   exists and Earthdata credentials have a successful connection test. It returns
   compact processed AOD results for the Weather page `Aerosol atmosferico`
   section and for gated `ObservationConditionsService` condition inputs. It
-  remains disconnected from forecast transparency, seeing and provider refresh
-  decisions.
+  decodes the packed MAIAC QA field and accepts only clear, non-adjacent,
+  best-quality AOD samples. Exact-pixel extraction falls back to quality-filtered
+  5x5 and 11x11 neighborhoods with at least three samples, preserving radius and
+  nearest-valid-pixel distance. It remains disconnected from forecast
+  transparency, seeing and provider refresh decisions.
 - `ObservationConditionsService`: shared equivalence layer for observing
   condition adjustments. It owns Home/Detail Moon-adjusted scores, the existing
   deep-sky light-pollution context formerly implemented inside `AppController`,
@@ -745,10 +751,13 @@ NASA AOD cache:
 - Owner: `NasaAodProvider`.
 - Key: rounded latitude/longitude, with result metadata preserving product and
   granule id.
-- Lifetime: 18 hours.
-- Only compact processed AOD results are cached. The provider keeps an in-memory
-  copy for the current process and a small JSON cache so app restarts can reuse
-  recent processed results.
+- Lifetime: 18 hours for positive measurements; 6 hours for genuine
+  `no_granules` or `no_valid_pixel` results.
+- Only compact processed AOD results and structured genuine no-data summaries
+  are cached. Authentication, search, download and parsing failures remain
+  retryable and are never written to cache. The provider keeps an in-memory copy
+  for the current process and a small JSON cache so app restarts can reuse
+  recent results.
 - Downloaded VIIRS/MODIS granules are temporary and deleted after extraction.
 
 The Weather page `Aggiorna` command forces the weather forecast request and

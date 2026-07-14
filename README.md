@@ -29,10 +29,12 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   Sistema Solare, con ricerca, filtri e immagini scientifiche locali con fonte.
 - Meteo Open-Meteo con cache SQLite, retry controllato sui timeout e fallback controllato.
 - Sezione Meteo `Aerosol atmosferico` con AOD NASA MAIAC opzionale da Earthdata,
-  freschezza misura e fonte satellite, separata da OpenAQ.
+  filtro QA decodificato, fallback spaziale controllato, freschezza e fonte
+  satellite, separata da OpenAQ.
 - Sezione Meteo `Particolato locale` con dati OpenAQ opzionali per PM2.5,
   PM10, aria locale, fonte e freschezza della misura.
-- Stima seeing/trasparenza da nuvolosità, vento, raffiche, umidità, visibilità e dew point.
+- Stima seeing/trasparenza atmosferica da nuvolosità, vento, raffiche, umidità,
+  visibilità e dew point, presentata separatamente dal fondo cielo Bortle/VIIRS.
 - Qualità cielo con Bortle/SQM da cache o dati reali NASA VIIRS Black Marble
   tramite Earthdata; senza una fonte reale i valori restano `n/d`.
 - Località configurabile da posizione Windows, fallback online approssimato, ricerca città GeoNames offline o coordinate manuali; il fuso IANA viene ricavato offline dalle coordinate quando il provider non ne fornisce uno affidabile.
@@ -52,7 +54,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.8`.
+Versione corrente sorgente: `1.32.9`.
 
 Distribuzione Windows corrente: `1.32.3`.
 
@@ -272,6 +274,17 @@ coordinata, ignorando il fuso GeoNames. GeoNames resta per la ricerca citta'
 offline e per i metadati visibili: i suoi file occupano `8,13 MB` nella dist
 attuale (`1,14%`), ma citta' e alias importati occupano circa `55 MB` nel DB
 runtime. La distribuzione `1.32.8` non e' stata rigenerata.
+
+In `1.32.9` l'estrazione NASA MAIAC decodifica `AOD_QA` e accetta soltanto
+pixel clear con qualità AOD migliore: prova il pixel esatto, poi aree 5x5 e
+11x11 con almeno tre campioni affidabili, registrando raggio e distanza del
+pixel valido più vicino. Le assenze reali hanno una cache negativa di 6 ore,
+mentre errori di rete, autenticazione, download o parsing restano ritentabili;
+il messaggio Meteo riassume intervallo, prodotti e granuli controllati senza
+esporre un singolo granulo fuorviante. Home e Meteo mostrano la trasparenza
+atmosferica senza incorporarvi il Bortle, che resta una metrica separata. Il
+Calendario concede due righe alle date intervallo delle finestre cometarie e le
+unità VIIRS usano `cm²`. La distribuzione `1.32.9` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore
@@ -618,9 +631,10 @@ I report generati dagli strumenti sono output locali e non vengono versionati. S
 - Le credenziali Earthdata vengono salvate tramite vault di sistema quando disponibile; non vengono salvate nel database. Su un altro computer vanno reinserite.
 - Dopo un test Earthdata riuscito, la pagina Meteo può mostrare anche `Aerosol
   atmosferico` da NASA MAIAC AOD. Il dato viene mantenuto come risultato
-  processato compatto con TTL locale e resta separato da seeing e trasparenza
-  meteo; `ObservationConditionsService` può usarlo come input condizioni solo
-  quando i gate provider-quality lo accettano.
+  processato compatto con TTL positiva di 18 ore e negativa di 6 ore per le sole
+  assenze reali. Resta separato da seeing e trasparenza meteo;
+  `ObservationConditionsService` può usarlo come input condizioni solo quando i
+  gate provider-quality lo accettano.
 - La API key OpenAQ viene salvata tramite vault di sistema quando disponibile;
   dopo un test connessione riuscito NightScope ricorda un'impronta sicura della
   key verificata e la pagina Meteo può mostrare `Particolato locale`. OpenAQ PM

@@ -32,7 +32,7 @@ def test_canonical_environment_applies_aerosol_once_without_mutating_target() ->
             status="available",
             age_days=1.0,
             uncertainty=0.05,
-            qa_raw=3,
+            qa_raw=1,
             method="local_neighborhood",
             local_valid_pixel_count=9,
         ),

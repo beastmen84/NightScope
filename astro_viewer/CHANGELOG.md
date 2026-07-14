@@ -1,5 +1,34 @@
 # Changelog
 
+## NightScope 1.32.9 - 2026-07-14
+
+- Decodificato il bit field MAIAC `AOD_QA`: sono accettati soltanto pixel clear,
+  non adiacenti a contaminazioni e con qualità AOD migliore. La policy scoring
+  usa la stessa decodifica e non tratta più il valore grezzo come un indice
+  numerico.
+- Resa adattiva l'estrazione locale AOD: pixel esatto, area 5x5 e infine 11x11,
+  con almeno tre pixel affidabili. Mediana AOD e QA rappresentativo restano
+  semanticamente separati; risultato, log e UI conservano raggio e distanza
+  del pixel valido più vicino.
+- Aggiunta una cache negativa di 6 ore per `no_granules` e `no_valid_pixel`.
+  Errori di autenticazione, ricerca, download e parsing non vengono memorizzati;
+  i risultati positivi mantengono la TTL di 18 ore e il riuso entro 500 metri.
+- Il messaggio AOD senza dati riassume intervallo di ricerca, prodotti e numero
+  di granuli controllati, senza presentare come conclusivo l'ultimo granulo
+  analizzato.
+- Home e la sintesi Meteo mostrano la trasparenza atmosferica prevista senza la
+  penalità Bortle; fondo cielo e Bortle restano metriche separate. Il composito
+  backend esistente resta disponibile ai consumer compatibili.
+- Le date intervallo del Calendario possono occupare al massimo due righe, così
+  le finestre cometarie non vengono troncate. Uniformata inoltre l'unità VIIRS a
+  `nW/cm² sr`.
+- Aggiornati e compilati i cataloghi italiano/inglese completi `1594/1594`.
+- Verificati `pip check`, Ruff, compileall, `qmllint` sui 30 QML e smoke backend/
+  QML italiano e inglese su runtime temporanei. Suite completa parallela: `774
+  passed`, `613 warnings`, `7 subtests passed` in `65,28 s`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.9` non rigenerata.
+
 ## NightScope 1.32.8 - 2026-07-14
 
 - Limitata la normalizzazione del fuso alla sola acquisizione di una nuova

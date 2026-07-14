@@ -518,23 +518,26 @@ Seeing score inputs:
 Seeing starts at 100 and is reduced for wind, gusts, low cloud and small
 dew-point gap.
 
-Transparency score inputs:
+Atmospheric transparency inputs:
 
 - total cloud cover,
 - low/mid/high cloud cover,
 - humidity,
-- visibility,
-- light pollution.
+- visibility.
 
-Transparency starts at 100 and is reduced by cloud layers, humidity, reduced
-visibility and sky-quality penalty.
+Atmospheric transparency starts at 100 and is reduced by cloud layers, humidity
+and reduced visibility. The legacy composite `transparency_score` additionally
+includes the sky-quality penalty for compatibility with existing backend
+consumers.
 
 From `1.21.0`, `SeeingTransparency` also carries an internal
 `atmospheric_transparency_score`: the same cloud/humidity/visibility estimate
-before the VIIRS/Bortle sky-background penalty. The visible
-`transparency_score` remains unchanged for UI compatibility, while NSOM can
-apply atmospheric transparency and static sky background once in separate
-environment components. The internal field is omitted from QML.
+before the VIIRS/Bortle sky-background penalty. The numeric internal field is
+omitted from QML, while `atmosphericTransparency` exposes only its localized
+quality label. From `1.32.9`, Weather and the Home deep-sky summary use that
+label and present Bortle separately; the legacy composite label and score remain
+available for compatibility. NSOM applies atmospheric transparency and static
+sky background once in separate environment components.
 
 Labels:
 
@@ -918,25 +921,33 @@ Extraction policy:
 - VIIRS HDF5 is read with `h5py`.
 - MODIS HDF4 fallback is read with `netCDF4`.
 - The provider maps the observer coordinate into the MAIAC sinusoidal grid,
-  tries the exact pixel first, then uses a 5x5 local median when the exact pixel
-  is invalid or no-data.
-- The result stores AOD 550 nm, uncertainty when available, raw QA value,
-  acquisition date, granule id, extraction method and local valid-pixel count.
+  decodes the packed `AOD_QA` bit field and accepts only cloud-mask `clear`,
+  adjacency-mask `normal/clear` and best-quality AOD samples.
+- It tries the exact pixel first, then a 5x5 neighborhood and finally an 11x11
+  neighborhood. A neighborhood requires at least three quality-eligible pixels.
+- The AOD value is the local median. The stored QA is an actual eligible pixel
+  nearest to that median, never a numeric median of bit fields.
+- The result stores AOD 550 nm, uncertainty when available, decoded-source raw
+  QA, acquisition date, granule id, extraction method, valid-pixel count,
+  neighborhood radius and nearest-valid-pixel distance.
 
 Cache policy:
 
-- Only compact processed results are cached. A memory copy avoids repeated work
-  inside the running process, while a small JSON cache allows app restarts to
-  reuse recent processed AOD results within the TTL.
+- Compact processed measurements and structured genuine no-data results are
+  cached. A memory copy avoids repeated work inside the running process, while a
+  small JSON cache allows app restarts to reuse recent results within their TTL.
 - HDF/HDF5 granules are never cached.
 - Cache keys use rounded latitude/longitude; the stored result preserves product,
   acquisition date and granule id.
-- Default TTL is 18 hours.
+- Positive measurements use an 18-hour TTL. `no_granules` and `no_valid_pixel`
+  use a 6-hour negative TTL; authentication, search, download and parsing errors
+  are not cached.
+- Genuine no-data presentation summarizes the searched date range, products and
+  granule count rather than exposing the final granule as if it represented the
+  whole search.
 
 Current limitations:
 
-- QA filtering is conservative but not a complete scientific `AOD_QA` bit
-  interpretation; low-quality or insufficiently local values remain ineligible.
 - Provider results are displayed in the Weather page and may influence
   canonical atmospheric-transparency scoring when provider-quality gates pass.
   Successful and failed lookups are

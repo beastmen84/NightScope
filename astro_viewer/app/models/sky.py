@@ -73,10 +73,17 @@ class SeeingTransparency:
     confidence: str = "medium"
     atmospheric_transparency_score: int | None = None
 
+    @property
+    def atmospheric_transparency(self) -> str:
+        if self.atmospheric_transparency_score is None:
+            return self.transparency
+        return _quality_label_from_score(self.atmospheric_transparency_score)
+
     def to_qml(self) -> dict:
         data = asdict(self)
         data["seeing"] = _localized_quality_label(self.seeing)
         data["transparency"] = _localized_quality_label(self.transparency)
+        data["atmosphericTransparency"] = _localized_quality_label(self.atmospheric_transparency)
         data["seeingScore"] = self.seeing_score
         data["transparencyScore"] = self.transparency_score
         data["source"] = _localized_source(self.source)
@@ -112,6 +119,16 @@ def _localized_quality_label(value: str) -> str:
     return labels.get(value, value or tr("n/d"))
 
 
+def _quality_label_from_score(score: int) -> str:
+    if score >= 82:
+        return "Excellent"
+    if score >= 65:
+        return "Good"
+    if score >= 42:
+        return "Average"
+    return "Poor"
+
+
 def _localized_confidence(value: str) -> str:
     labels = {
         "high": tr("alta"),
@@ -142,7 +159,7 @@ def _localized_sky_quality_source(value: str) -> str:
     if match:
         return tr(
             "Fonte: NASA Black Marble VNP46A3 {month} "
-            "(radianza {radiance} nW/cm^2 sr, osservazioni {observations})",
+            "(radianza {radiance} nW/cm² sr, osservazioni {observations})",
             month=match.group(1),
             radiance=format_number(float(match.group(2)), decimals=2),
             observations=int(match.group(3)),

@@ -27,6 +27,8 @@ class AodConditionInput:
     qa_raw: int | None = None
     method: str = ""
     local_valid_pixel_count: int | None = None
+    neighborhood_radius_pixels: int | None = None
+    nearest_valid_pixel_distance_km: float | None = None
 
 
 @dataclass(frozen=True)

@@ -200,6 +200,37 @@ def test_missing_sky_quality_marks_deep_sky_diagnostic_as_partial() -> None:
     )
 
 
+def test_deep_sky_presents_atmospheric_transparency_separately_from_bortle() -> None:
+    seeing = SeeingTransparency(
+        seeing="Good",
+        transparency="Poor",
+        seeing_score=74,
+        transparency_score=34,
+        explanation="Composite transparency includes the static sky background.",
+        atmospheric_transparency_score=74,
+    )
+
+    payload = _service().build(
+        location_available=True,
+        location_pending=False,
+        weather=_weather(),
+        weather_available=True,
+        seeing=seeing,
+        sky_quality=_sky_quality(),
+        moon=_moon("21%"),
+        category_scores=ObservingCategoryScores(74, 58, "Buona", "Discreta", "NSOM categories"),
+        session=ObservingSessionDecision(state="recommended"),
+        blocking=WeatherBlockingStatus(blocks_plan=False, show_warning=False),
+        suggested_window="22:00–01:00",
+        wind_label="debole",
+        category_source="nsom_category_diagnostic",
+    )
+
+    assert payload["deepSky"]["primaryMetric"] == "Trasparenza buona"
+    assert payload["deepSky"]["secondaryMetric"] == "Bortle 7 - transizione suburbana-urbana"
+    assert payload["deepSky"]["hint"] == "Ammassi favoriti rispetto agli oggetti diffusi"
+
+
 def test_placeholder_values_stay_unavailable_without_provider_data() -> None:
     payload = _service().build(
         location_available=True,

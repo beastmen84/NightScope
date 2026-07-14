@@ -53,11 +53,11 @@ application runtime. Install developer dependencies with:
 
 ## Measured Baseline
 
-Measured on the current Windows development environment for `1.32.8`:
+Measured on the current Windows development environment for `1.32.9`:
 
 | Command | Result | Time |
 | --- | --- | ---: |
-| `python -m pytest -q -n 4 astro_viewer/tests` | `764 passed, 7 subtests passed` | `0:01:43.34` |
+| `python -m pytest -q -n auto astro_viewer/tests` | `774 passed, 7 subtests passed` | `0:01:05.28` |
 
 The current count includes the generic catalogue schema, all 109 Caldwell
 targets, complete description/curiosity/image seed coverage, licensed survey
@@ -139,6 +139,11 @@ The `1.32.8` corrections verify acquisition-only normalization, coordinate-based
 timezones for manual city selection, complete exclusion of the GeoNames
 timezone field, lazy system-timezone fallback and direct reuse of current
 saved-location records.
+The `1.32.9` corrections cover decoded MAIAC QA gates, quality-only exact-pixel,
+5x5 and 11x11 extraction, representative packed QA preservation, spatial
+provenance, separate positive/negative cache lifetimes and non-caching of
+transient provider failures. Presentation checks keep atmospheric transparency
+separate from Bortle and allow compact comet date ranges at most two lines.
 The earlier reduction in `1.21.0` was intentional:
 migration-only
 comparison, rollback, shadow-payload and automatic-diagnostic tests were

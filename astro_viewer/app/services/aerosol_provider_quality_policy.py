@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from astro_viewer.app.services.maiac_aod_quality import decode_maiac_aod_qa
 from astro_viewer.app.services.observation_conditions_service import (
     AodConditionInput,
     ObservationConditionsService,
@@ -15,6 +16,8 @@ AOD_MAX_UNCERTAINTY_FOR_POLICY = 0.15
 AOD_LOCAL_NEIGHBORHOOD_MIN_PIXELS = 3
 OPENAQ_LOCAL_REPRESENTATIVE_KM = 25.0
 OPENAQ_CONTEXT_ONLY_KM = 50.0
+
+
 @dataclass(frozen=True)
 class AodProviderQualityDecision:
     """Formal AOD quality gate for aerosol condition scoring."""
@@ -107,12 +110,23 @@ class AerosolProviderQualityPolicyService:
         elif aod.uncertainty is not None:
             notes.append(f"aod_uncertainty={aod.uncertainty:g}")
 
-        qa_weight = 1.0 if aod.qa_raw is not None else 0.0
-        if qa_weight <= 0.0:
+        qa_quality = decode_maiac_aod_qa(aod.qa_raw)
+        qa_weight = 1.0 if qa_quality is not None and qa_quality.is_best_quality else 0.0
+        if qa_quality is None:
             reasons.append("aod_qa_raw_missing")
         else:
-            notes.append(f"aod_qa_raw={aod.qa_raw}")
-            notes.append("aod_qa_policy=raw_present_required")
+            notes.extend(
+                (
+                    f"aod_qa_raw={qa_quality.raw}",
+                    f"aod_qa_cloud_mask={qa_quality.cloud_mask}",
+                    f"aod_qa_adjacency_mask={qa_quality.adjacency_mask}",
+                    f"aod_qa_quality={qa_quality.aod_quality}",
+                )
+            )
+            if not qa_quality.is_best_quality:
+                reasons.append("aod_qa_not_best_quality")
+            else:
+                notes.append("aod_qa_policy=best_quality_required")
 
         locality_weight = self._aod_locality_weight(aod)
         if locality_weight <= 0.0:
@@ -125,6 +139,10 @@ class AerosolProviderQualityPolicyService:
             notes.append(f"aod_method={aod.method}")
         if aod.local_valid_pixel_count is not None:
             notes.append(f"aod_local_valid_pixel_count={aod.local_valid_pixel_count}")
+        if aod.neighborhood_radius_pixels is not None:
+            notes.append(f"aod_neighborhood_radius_pixels={aod.neighborhood_radius_pixels}")
+        if aod.nearest_valid_pixel_distance_km is not None:
+            notes.append(f"aod_nearest_valid_pixel_distance_km={aod.nearest_valid_pixel_distance_km:g}")
 
         confidence_weight = min(
             freshness_weight,
@@ -256,7 +274,7 @@ class AerosolProviderQualityPolicyService:
 
     @staticmethod
     def _aod_locality_weight(aod: AodConditionInput) -> float:
-        if aod.method != "local_neighborhood":
+        if aod.method not in ("local_neighborhood", "extended_neighborhood"):
             return 1.0
         if aod.local_valid_pixel_count is None:
             return 0.0

@@ -117,7 +117,9 @@ class Phase3ServiceTests(unittest.TestCase):
             estimate.atmospheric_transparency_score,
             estimate.transparency_score,
         )
-        self.assertNotIn("atmospheric_transparency_score", estimate.to_qml())
+        qml = estimate.to_qml()
+        self.assertEqual(qml["atmosphericTransparency"], "Eccellente")
+        self.assertNotIn("atmospheric_transparency_score", qml)
 
     def test_night_planner_returns_ranked_items(self) -> None:
         target = CelestialObject(

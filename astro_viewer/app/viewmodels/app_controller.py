@@ -3878,7 +3878,8 @@ class AppController(QObject):
         if result.available:
             logger.info(
                 "NASA AOD refresh ok: product=%s acquisition_date=%s aod_550=%s uncertainty=%s "
-                "qa_raw=%s granule=%s method=%s local_valid_pixel_count=%s cache_hit=%s.",
+                "qa_raw=%s granule=%s method=%s local_valid_pixel_count=%s "
+                "neighborhood_radius_pixels=%s nearest_valid_pixel_distance_km=%s cache_hit=%s.",
                 result.product,
                 result.acquisition_date,
                 result.aod_550,
@@ -3887,6 +3888,8 @@ class AppController(QObject):
                 result.granule_id,
                 result.method,
                 result.local_valid_pixel_count,
+                result.neighborhood_radius_pixels,
+                result.nearest_valid_pixel_distance_km,
                 result.cache_hit,
             )
             return
@@ -5204,6 +5207,8 @@ class AppController(QObject):
             qa_raw=result.qa_raw,
             method=result.method,
             local_valid_pixel_count=result.local_valid_pixel_count,
+            neighborhood_radius_pixels=result.neighborhood_radius_pixels,
+            nearest_valid_pixel_distance_km=result.nearest_valid_pixel_distance_km,
         )
 
     def _particulate_condition_input(self) -> ParticulateConditionInput | None:

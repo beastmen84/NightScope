@@ -174,7 +174,7 @@ def _deep_sky_payload(
     scores: ObservingCategoryScores | None,
     source: str,
 ) -> dict[str, object]:
-    transparency = _quality_label(seeing.transparency if seeing else "")
+    transparency = _quality_label(seeing.atmospheric_transparency if seeing else "")
     bortle = sky_quality.bortle_class if sky_quality else 0
     label = scores.deep_sky_label if scores else tr("n/d")
     sky_quality_available = bortle > 0
@@ -253,17 +253,24 @@ def _planetary_hint(seeing: SeeingTransparency | None) -> str:
 
 
 def _deep_sky_hint(seeing: SeeingTransparency | None, sky_quality: SkyQuality | None) -> str:
-    transparency_available = seeing is not None and _quality_label(seeing.transparency) != "n/d"
+    transparency_available = seeing is not None and _quality_label(seeing.atmospheric_transparency) != "n/d"
+    transparency_score = 0
+    if seeing is not None:
+        transparency_score = (
+            seeing.atmospheric_transparency_score
+            if seeing.atmospheric_transparency_score is not None
+            else seeing.transparency_score
+        )
     sky_quality_available = sky_quality is not None and sky_quality.bortle_class > 0
     if not transparency_available and not sky_quality_available:
         return tr("Dati del cielo non disponibili")
     if not sky_quality_available:
-        if seeing is not None and seeing.transparency_score < 40:
+        if seeing is not None and transparency_score < 40:
             return tr("Trasparenza limitante; inquinamento luminoso non disponibile")
         return tr(
             "Inquinamento luminoso non disponibile: visibilità degli oggetti deboli da verificare"
         )
-    if transparency_available and seeing.transparency_score < 40:
+    if transparency_available and transparency_score < 40:
         return tr("Trasparenza limitante per gli oggetti deboli")
     bortle = sky_quality.bortle_class if sky_quality else 0
     if bortle >= 8:
