@@ -221,9 +221,11 @@ fuorvianti `0,00` della qualita' cielo, ora sempre `n/d` finche' non esiste una
 localita' valida. Home, Meteo e Calendario offrono un accesso diretto alla
 configurazione e usano stati vuoti piu' brevi. Terminologia, unita' e formati
 dei cataloghi sono stati uniformati: barilotti localizzati con simbolo dei
-pollici, dimensioni angolari in gradi, unita' tra parentesi nei form e virgola
-decimale negli esempi italiani. La distribuzione Windows `1.32.3` e' stata poi
-rigenerata dall'utente e usata per il controllo visuale con localita'.
+pollici, unita' tra parentesi nei form e virgola decimale negli esempi italiani.
+Il fallback QML delle dimensioni angolari era stato portato a `°`, ma il
+formatter backend ancora prioritario e' stato corretto soltanto in `1.32.4`.
+La distribuzione Windows `1.32.3` e' stata poi rigenerata dall'utente e usata
+per il controllo visuale con localita'.
 
 In `1.32.4` il controllo con Addis Abeba e profilo senza strumenti corregge il
 formatter backend che esponeva ancora `deg` nel Catalogo, filtra le alternative

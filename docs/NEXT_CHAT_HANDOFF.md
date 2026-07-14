@@ -4,19 +4,19 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.3`
-- Dist `1.32.3` non rigenerata; la distribuzione dichiarata nel README resta
-  `1.20.0`.
-- Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
-  assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `836c90f Polish no-location UI presentation`
+- Versione sorgente: `1.32.4`
+- Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
+  commit `836c90f` e usata per il controllo visuale con localita'.
+- Dist `1.32.4` non rigenerata.
+- Commit sorgente validato: `034a9c3 Polish location-aware observing UI`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `836c90f`; non sostituire questo
-hash con un valore previsto prima del commit.
+stato del codice usare `034a9c3`; non sostituire questo hash con un valore
+previsto prima del commit.
 
 ## Commit Recenti
 
+- `034a9c3 Polish location-aware observing UI`
 - `836c90f Polish no-location UI presentation`
 - `283c943 Stabilize equipment seed identities`
 - `7c7c196 Fix initial UI review findings`
@@ -135,6 +135,14 @@ direttamente alla configurazione della localita' e le sezioni vuote usano testo
 breve. Terminologia, unita' e formati dei cataloghi Equipment/Catalogo sono
 uniformati. Il prossimo passo e' il controllo visuale manuale con una localita'
 configurata, partendo dal commit sorgente `836c90f`.
+
+`1.32.4` chiude il primo controllo visuale con Addis Abeba, provider opzionali
+non configurati e profilo senza strumenti. Il Catalogo usa ora davvero `°` nel
+formatter backend; la Home mostra soltanto alternative realistiche a occhio
+nudo, usa un'icona Luna neutra e assegna piu' spazio alla difficolta'. Meteo
+esplicita l'aggregazione notturna e localizza la baseline urbana. Il conteggio
+ISS `0` e' stato verificato con OMM correnti ed e' corretto. Il prossimo passo
+e' un nuovo controllo visuale dell'utente partendo dal commit `034a9c3`.
 
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
@@ -256,12 +264,51 @@ configurata, partendo dal commit sorgente `836c90f`.
   rilevamento Windows/IP continuano a usare `posizione` quando descrivono la
   sorgente fisica del dato.
 - Oculari e Barlow mantengono il valore grezzo del barilotto nel database ma
-  espongono una label derivata locale, per esempio `1,25″ / 2″`. Le dimensioni
-  angolari del Catalogo usano `°`.
+  espongono una label derivata locale, per esempio `1,25″ / 2″`. Il fallback
+  QML delle dimensioni angolari usa `°`; il formatter backend prioritario e'
+  stato corretto nella `1.32.4`.
 - I form mostrano unita' tra parentesi, `0,63` nell'esempio italiano del
   riduttore e `Stabilizzato` come booleano, senza definirlo facoltativo.
 - Nessun cambiamento a seed, ownership Equipment, schema SQLite, score, NSOM,
   Planner, Home ranking, ISS o comete. Cataloghi Qt completi `1575/1575`.
+
+## Correzioni Visuali Con Localita' 1.32.4
+
+- Il `deg` osservato nella dist `1.32.3` non dipendeva da una build vecchia:
+  `ObjectCataloguePage.qml` preferiva `max_angular_size_label`, generata dal
+  backend come `{value} deg`, e non raggiungeva il fallback `%1°`. Il formatter
+  condiviso produce ora `{value}°`; i test coprono il payload renderizzato in
+  italiano e inglese.
+- `homeNightPlanOverview` usa il gia' esistente
+  `EquipmentSetupReadModel.requires_optical_instrument`: senza telescopi o
+  binocoli nasconde le alternative che richiedono uno strumento. E' un filtro
+  di presentazione score-free; non modifica NSOM, Planner, ordinamento o regole
+  di idoneita' a occhio nudo.
+- La tabella alternative limita la colonna nome, amplia la difficolta' a `175`
+  pixel e passa al layout compatto sotto `900` pixel. Le etichette lunghe hanno
+  quindi spazio stabile; le righe `Non adatto a occhio nudo` dello screenshot
+  non compaiono piu' nel profilo privo di strumenti.
+- La scheda Luna Home usa `resources/icons/moon.svg`, icona neutra e non legata
+  alla fase. La fotografia del dettaglio Catalogo e il rendering dinamico del
+  ciclo lunare non cambiano.
+- Le metriche superiori Meteo dichiarano `Sintesi notte osservativa`:
+  nuvolosita', vento, umidita' e temperatura sono medie; precipitazioni e' la
+  probabilita' massima; seeing e trasparenza usano le stesse ore; Bortle e'
+  locale e non orario.
+- `Fonte: NightScope local urban baseline` resta il valore canonico del dato ma
+  viene presentato come `Fonte: baseline urbana locale NightScope` in italiano
+  e `Source: NightScope local urban baseline` in inglese.
+- Nelle coordinate manuali soltanto latitudine e longitudine sono obbligatorie;
+  il nome resta facoltativo come gia' previsto dal controller. I pulsanti della
+  pagina usano ora `DarkButton`. La sidebar non e' stata modificata: la
+  precedente osservazione sul suo cambiamento era una lettura errata.
+- Verifica ISS su `9.0486, 38.7836`, `Africa/Addis_Ababa`, iniziata il
+  `2026-07-14 13:27 +03:00`, con OMM CelesTrak epoca
+  `2026-07-14T03:41:05.800704Z`: 26 passaggi geometrici sopra `10°` in 10
+  giorni, 14 illuminati soltanto di giorno e 12 notturni interamente in ombra.
+  Nessun campione soddisfa insieme quota, ISS illuminata e Sole locale `<= -6°`;
+  il conteggio Calendario `0` e' quindi corretto e la pipeline non e' cambiata.
+- Cataloghi Qt completi `1586/1586`; schema SQLite ancora `16`.
 
 ## Localizzazione Completa 1.30.0
 
@@ -279,7 +326,7 @@ configurata, partendo dal commit sorgente `836c90f`.
 - `astro_viewer/translations` contiene pack completi `it` ed `en`; PyInstaller
   include l'intera directory e quindi acquisisce anche nuovi pack senza cambiare
   la spec.
-- Gli updater estraggono `1575` messaggi per lingua, preservano le traduzioni
+- Gli updater estraggono `1586` messaggi per lingua, preservano le traduzioni
   gia' revisionate, rifiutano cataloghi incompleti o placeholder incompatibili
   e producono output idempotente.
 - La review successiva ha corretto la terminologia astronomica inglese, i nomi
@@ -589,7 +636,7 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.3
+## Validazione 1.32.4
 
 Eseguita nella venv corrente:
 
@@ -598,7 +645,7 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
 .\.venv\Lib\site-packages\PySide6\qmllint.exe <tutti i 30 file QML>
-.\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests\test_equipment_accessory_catalogs.py astro_viewer\tests\test_home_observing_overview.py astro_viewer\tests\test_openaq_atmosphere.py astro_viewer\tests\test_release_scenarios.py astro_viewer\tests\test_phase6_real_data.py astro_viewer\tests\test_translations.py
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py astro_viewer\tests\test_home_night_plan_overview.py astro_viewer\tests\test_home_recommendation_presentation.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
 git diff --check
 ```
@@ -614,15 +661,15 @@ Risultati:
 - Compileall: pulito.
 - `qmllint`: exit `0` su 30 file; nessun errore. Restano i warning strutturali
   gia' noti per accessi QML non qualificati.
-- Test mirati: `147 passed`, `493 warnings`, `7 subtests passed` in `64,23 s`.
-- Suite: `748 passed`, `613 warnings`, `7 subtests passed` in `99,38 s`.
-- Cataloghi Qt italiano/inglese: `1575/1575`, zero `unfinished`; `.qm`
+- Test mirati Home/traduzioni: `30 passed` in `2,32 s`; i due casi Phase 6
+  Catalogo/fonte passano separatamente.
+- Suite: `750 passed`, `613 warnings`, `7 subtests passed` in `115,79 s`.
+- Cataloghi Qt italiano/inglese: `1586/1586`, zero `unfinished`; `.qm`
   ricompilati con `lrelease`.
 - Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
-- Schema SQLite invariato a `16`; il nuovo test verifica label barilotto
-  `1,25″`, `1,25″ / 2″` e `2″` senza modificare i valori persistiti.
+- Schema SQLite invariato a `16`; nessuna migrazione o modifica seed.
 - `git diff --check`: pulito.
-- Dist `1.32.3` non rigenerata.
+- Dist corrente `1.32.3`; dist `1.32.4` non rigenerata.
 
 I 563 warning preesistenti provengono dalla deprecazione dtype
 Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a

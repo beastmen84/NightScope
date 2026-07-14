@@ -36,7 +36,8 @@
   alleggeriti i messaggi ripetuti nelle sezioni vuote e uniformata la
   terminologia di configurazione.
 - Localizzati i barilotti degli oculari e delle Barlow con separatore decimale
-  e simbolo dei pollici; le dimensioni angolari del catalogo usano `°`.
+  e simbolo dei pollici; aggiornato a `°` il fallback QML delle dimensioni
+  angolari. Il formatter backend prioritario e' stato corretto in `1.32.4`.
 - Rifinite le etichette dei form Equipment con unita' tra parentesi, esempio
   italiano `0,63` e checkbox binocolo `Stabilizzato` senza falso indicatore di
   campo facoltativo.
