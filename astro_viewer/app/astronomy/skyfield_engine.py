@@ -63,6 +63,13 @@ class SolarSystemBodyConfig:
     image: str
 
 
+@dataclass(frozen=True)
+class _TransientEventResult:
+    location: ObserverLocation
+    built_at: datetime
+    events: tuple[AstronomicalEvent, ...]
+
+
 def _italian_lunar_eclipse_kind(kind_name: str) -> str:
     return {
         "total": tr("totale"),
@@ -147,6 +154,7 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
             tuple[datetime, ObservingNightWindow],
         ] = {}
         self._catalogue_star_cache: dict[str, Star | None] = {}
+        self._transient_event_results: dict[int, _TransientEventResult] = {}
 
     def _load_ephemeris(self):
         ephemeris_path = self._data_dir / "skyfield" / "de421.bsp"
@@ -776,7 +784,11 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
     ) -> PreparedTransientCalendarEvents:
         now = self._now(location)
         entries: list[tuple[TransientCalendarEventSource, object]] = []
+        attempted_sources: list[TransientCalendarEventSource] = []
         for source in self._transient_event_sources:
+            if not self._transient_source_is_due(source, location, now):
+                continue
+            attempted_sources.append(source)
             try:
                 prepared_data = source.prepare_event_data(location, now=now)
                 if prepared_data is not None:
@@ -787,17 +799,25 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                     type(source).__name__,
                     exc_info=True,
                 )
-        return PreparedTransientCalendarEvents(now=now, entries=tuple(entries))
+        return PreparedTransientCalendarEvents(
+            now=now,
+            entries=tuple(entries),
+            attempted_sources=tuple(attempted_sources),
+        )
 
     def upcoming_transient_events(
         self,
         location: ObserverLocation,
         prepared: PreparedTransientCalendarEvents,
     ) -> list[AstronomicalEvent]:
-        events: list[AstronomicalEvent] = []
+        prepared_source_ids = {id(source) for source, _data in prepared.entries}
+        for source in prepared.attempted_sources:
+            if id(source) not in prepared_source_ids:
+                self._transient_event_results.pop(id(source), None)
+
         for source, prepared_data in prepared.entries:
             try:
-                events.extend(
+                source_events = tuple(
                     source.build_events(
                         location,
                         now=prepared.now,
@@ -806,13 +826,37 @@ class SkyfieldAstronomyEngine(AstronomyEngine):
                         prepared_data=prepared_data,
                     )
                 )
+                self._transient_event_results[id(source)] = _TransientEventResult(
+                    location=location,
+                    built_at=prepared.now,
+                    events=source_events,
+                )
             except Exception:
                 logger.warning(
                     "Transient calendar event calculation failed: %s",
                     type(source).__name__,
                     exc_info=True,
                 )
+        events: list[AstronomicalEvent] = []
+        for source in self._transient_event_sources:
+            result = self._transient_event_results.get(id(source))
+            if result is not None and result.location == location:
+                events.extend(result.events)
         return sorted(events, key=lambda event: event.event_at)
+
+    def _transient_source_is_due(
+        self,
+        source: TransientCalendarEventSource,
+        location: ObserverLocation,
+        now: datetime,
+    ) -> bool:
+        result = self._transient_event_results.get(id(source))
+        if result is None or result.location != location or now < result.built_at:
+            return True
+        interval = getattr(source, "refresh_interval", None)
+        if not isinstance(interval, timedelta) or interval.total_seconds() <= 0:
+            return True
+        return now - result.built_at >= interval
 
     def transient_event_refresh_interval(self) -> timedelta | None:
         intervals = [

@@ -337,8 +337,15 @@
 
       <article class="card">
         <h2>Calendario</h2>
-        <p>Il calendario raccoglie eventi astronomici calcolati o ricorrenti: fasi lunari, opposizioni, congiunzioni, eclissi e sciami meteorici.</p>
-        <p>Quando l'evento riguarda un oggetto osservabile con il profilo attivo, NightScope mostra una configurazione coerente con gli strumenti assegnati.</p>
+        <p>Il calendario raccoglie eventi annuali calcolati o ricorrenti, passaggi ISS a breve termine e finestre cometarie locali.</p>
+        <ul>
+          <li><strong>Eventi annuali</strong>: fasi lunari, opposizioni, congiunzioni, eclissi e sciami meteorici.</li>
+          <li><strong>Passaggi ISS</strong>: intervallo visibile, culminazione, altezza massima, direzioni e durata per la località attiva.</li>
+          <li><strong>Comete</strong>: una sola finestra aggregata per le notti consecutive geometricamente utili, con momento consigliato, magnitudine prevista, altezza e disturbo lunare.</li>
+        </ul>
+        <p>La magnitudine cometaria è una stima incerta: NightScope la mostra come intervallo e la luminosità reale può essere diversa. La finestra considera buio, altezza, elongazione e Luna, ma non il meteo.</p>
+        <p>ISS e comete non diventano oggetti del catalogo e ricevono indicazioni generiche, non uno score o un setup calcolato dal profilo. Gli stessi eventi possono apparire nella sezione <strong>Prossimi eventi</strong> della Home.</p>
+        <p>I dati ISS CelesTrak e cometari NASA/JPL SBDB sono pubblici e non richiedono un account; NightScope li conserva in cache per limitare le richieste.</p>
       </article>
 
       <article class="card">
@@ -399,7 +406,7 @@
     </section>
 
     <footer>
-      NightScope 1.31.1 - manuale utente offline.
+      NightScope 1.32.0 - manuale utente offline.
     </footer>
   </main>
 </body>

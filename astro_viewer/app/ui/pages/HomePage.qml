@@ -111,6 +111,8 @@ Item {
             return theme.coral
         if (typeCode === "satellite_pass")
             return theme.cyan
+        if (typeCode === "comet_window")
+            return theme.teal
         return theme.cyan
     }
 

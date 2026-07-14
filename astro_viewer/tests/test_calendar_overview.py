@@ -125,7 +125,7 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
         has_configured_equipment=False,
     )
 
-    assert overview["schemaVersion"] == "calendar_overview_v3"
+    assert overview["schemaVersion"] == "calendar_overview_v4"
     assert overview["horizonDays"] == 365
     assert overview["totalCount"] == 3
     assert [item["id"] for item in overview["items"]] == [
@@ -139,6 +139,7 @@ def test_calendar_overview_is_score_free_and_does_not_cut_items() -> None:
     assert overview["counts"]["solarConjunctions"] == 1
     assert overview["counts"]["planetaryConjunctions"] == 0
     assert overview["counts"]["satellitePasses"] == 0
+    assert overview["counts"]["comets"] == 0
     assert [item["id"] for item in overview["homeItems"]] == [
         "moon-new",
         "saturn-opposition",
@@ -289,6 +290,41 @@ def test_calendar_keeps_ongoing_intervals_and_drops_completed_passes() -> None:
     assert overview["items"][0]["priorityLabel"] == "Informativo"
 
 
+def test_calendar_keeps_comet_guidance_independent_from_equipment_profile() -> None:
+    comet = _event(
+        event_id="comet-window-1004035",
+        title="C/2024 T5 (ATLAS): finestra osservativa",
+        event_type="Cometa",
+        event_at="2026-08-30T05:00:00+03:00",
+        usefulness=0,
+        visibility_state="visible",
+        visibility_label="Finestra locale favorevole",
+    ).to_qml()
+    comet.update(
+        {
+            "eventTypeCode": "comet_window",
+            "sourceCode": "short_horizon_comet_windows",
+            "setup": "Serve un telescopio sotto un cielo buio.",
+            "startsAt": "2026-08-30T05:00:00+03:00",
+            "endsAt": "2026-10-12T06:30:00+03:00",
+        }
+    )
+
+    overview = CalendarOverviewService().build(
+        events=[comet],
+        now=NOW,
+        has_configured_equipment=False,
+    )
+
+    assert overview["counts"]["comets"] == 1
+    assert overview["homeItems"][0]["id"] == "comet-window-1004035"
+    assert overview["items"][0]["setupText"] == (
+        "Serve un telescopio sotto un cielo buio."
+    )
+    assert "altezza" in overview["items"][0]["whyText"]
+    assert any("carta stellare" in tip for tip in overview["items"][0]["tips"])
+
+
 def test_calendar_event_copy_is_compact_and_visibility_aware() -> None:
     shower = _event(
         event_id="meteor-shower",
@@ -361,6 +397,9 @@ def test_calendar_qml_consumes_the_annual_score_free_contract() -> None:
     assert "Quando osservare l'evento" in event_detail_qml
     assert '"satellite_pass"' in calendar_qml
     assert '"satellite_pass"' in home_qml
+    assert '"comet_window"' in calendar_qml
+    assert '"comet_window"' in home_qml
+    assert '"comet_window"' in event_detail_qml
     assert "model: root.eventObjects()" in event_detail_qml
     assert "Apri oggetto per stasera" not in event_detail_qml
     assert "controller.calendarOverview" in home_qml

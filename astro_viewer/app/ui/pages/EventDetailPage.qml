@@ -194,11 +194,14 @@ Item {
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                            ? qsTr("Indicazione di sicurezza")
-                           : root.hasEvent && root.eventData.typeCode === "satellite_pass"
+                           : root.hasEvent && (root.eventData.typeCode === "satellite_pass"
+                                               || root.eventData.typeCode === "comet_window")
                              ? qsTr("Osservazione")
                              : qsTr("Con il tuo profilo")
                     subtitle: root.hasEvent && root.eventData.typeCode === "solar_conjunction"
                               ? qsTr("Evento informativo, non osservativo")
+                              : root.hasEvent && root.eventData.typeCode === "comet_window"
+                                ? qsTr("Indicazioni per la finestra cometaria")
                               : root.hasEvent && root.eventData.typeCode === "satellite_pass"
                                 ? qsTr("Indicazioni essenziali per il passaggio")
                                 : qsTr("Configurazione consigliata per l'evento")
@@ -246,6 +249,8 @@ Item {
                     Layout.minimumHeight: 244
                     title: root.hasEvent && root.eventData.typeCode === "satellite_pass"
                            ? qsTr("Dettagli del passaggio")
+                           : root.hasEvent && root.eventData.typeCode === "comet_window"
+                             ? qsTr("Dettagli della cometa")
                            : qsTr("Dettagli evento")
                     subtitle: root.hasEvent ? (root.eventData.sourceLabel || "") : ""
                     accentColor: theme.violet

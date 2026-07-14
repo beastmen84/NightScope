@@ -58,6 +58,7 @@ class PreparedTransientCalendarEvents:
 
     now: datetime
     entries: tuple[tuple[TransientCalendarEventSource, object], ...] = ()
+    attempted_sources: tuple[TransientCalendarEventSource, ...] = ()
 
 
 @dataclass(frozen=True)

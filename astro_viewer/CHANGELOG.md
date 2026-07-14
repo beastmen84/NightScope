@@ -1,5 +1,32 @@
 # Changelog
 
+## NightScope 1.32.0 - 2026-07-14
+
+- Aggiunta `CometWindowEventSource`, seconda sorgente transitoria score-free:
+  usa elementi pubblici NASA/JPL SBDB e calcolo locale Skyfield senza creare
+  `CatalogueObject` o coinvolgere score, Equipment, Planner, Home ranking o
+  NSOM.
+- Introdotta una finestra mobile di 90 giorni con campioni ogni 30 minuti,
+  soglie di altezza, buio, elongazione, Luna e magnitudine prevista; le notti
+  consecutive vengono aggregate in un solo evento per cometa.
+- Esposte magnitudine come intervallo indicativo, altezza massima, elongazione,
+  distanza e illuminazione lunare, numero di notti utili, fonte e freschezza.
+- Aggiunta cache SQLite SBDB con TTL di 24 ore, fallback massimo di 7 giorni e
+  retry con backoff sui `5xx`; aggiunto pandas runtime per il supporto alle
+  orbite cometarie Skyfield, senza introdurre astroquery o account esterni.
+- Il motore conserva i risultati transitori per sorgente: la ISS continua a
+  ricalcolarsi ogni ora, le comete ogni 6 ore e gli eventi non ancora in
+  scadenza restano disponibili tra i due intervalli.
+- Calendario, Home e dettaglio supportano tipo, filtro, conteggio e indicazioni
+  specifiche per le comete; il contratto passa a `calendar_overview_v4`.
+- Aggiornati i cataloghi italiano/inglese completi `1552/1552` e aggiunti test
+  offline per calcolo, aggregazione, cache, fallback, retry, limite di
+  luminosita' e cadenze indipendenti delle sorgenti.
+- Verificati `pip check`, Ruff, compileall, `qmllint`, smoke backend/QML in
+  italiano e inglese e render Calendar largo/compatto; suite completa
+  parallela: `739 passed`, `613 warnings`, `7 subtests passed` in `128,93 s`.
+- Dist `1.32.0` non rigenerata.
+
 ## NightScope 1.31.1 - 2026-07-14
 
 - Separata la preparazione rete/cache delle sorgenti transitorie dal calcolo

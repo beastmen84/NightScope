@@ -13,7 +13,7 @@ from astro_viewer.app.services.localization import (
 )
 
 
-CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v3"
+CALENDAR_OVERVIEW_SCHEMA_VERSION = "calendar_overview_v4"
 CALENDAR_HORIZON_DAYS = 365
 
 _EVENT_TYPE_CODES = {
@@ -25,6 +25,7 @@ _EVENT_TYPE_CODES = {
     "Sciame meteorico": "meteor_shower",
     "Eclissi": "eclipse",
     "Passaggio ISS": "satellite_pass",
+    "Cometa": "comet_window",
 }
 
 _EVENT_TYPE_LABELS = {
@@ -35,6 +36,7 @@ _EVENT_TYPE_LABELS = {
     "meteor_shower": tr("Sciame meteorico"),
     "eclipse": tr("Eclissi"),
     "satellite_pass": tr("Passaggio ISS"),
+    "comet_window": tr("Cometa"),
 }
 
 
@@ -127,6 +129,7 @@ class CalendarOverviewService:
                 "showers": counts["meteor_shower"],
                 "eclipses": counts["eclipse"],
                 "satellitePasses": counts["satellite_pass"],
+                "comets": counts["comet_window"],
             },
         }
 
@@ -318,6 +321,8 @@ def _profile_setup_text(
     normalized_title = title.casefold()
     if event_type_code == "satellite_pass":
         return setup or tr("Osservabile a occhio nudo; il telescopio non serve.")
+    if event_type_code == "comet_window":
+        return setup or tr("Serve un cielo buio e una carta stellare aggiornata.")
     if event_type == "Sciame meteorico":
         return tr(
             "Il telescopio non serve: osserva a occhio nudo. Un binocolo può essere utile "
@@ -407,6 +412,11 @@ def _why_text(
             "La stazione è illuminata dal Sole e attraversa il cielo mentre, per "
             "l'osservatore, il Sole è abbastanza sotto l'orizzonte."
         )
+    if event_type_code == "comet_window":
+        return tr(
+            "La finestra riunisce le notti in cui altezza, buio, elongazione solare "
+            "e disturbo lunare superano le soglie osservative."
+        )
     if event_type == "Opposizione":
         return tr(
             "Il pianeta resta visibile a lungo, diventa più luminoso e permette di "
@@ -475,6 +485,13 @@ def _observing_tips(
             tr("Segui la ISS a occhio nudo dalla direzione iniziale a quella finale."),
             tr("Non usare alti ingrandimenti: il passaggio è rapido."),
             tr("Ricontrolla l'orario dopo un aggiornamento dei dati orbitali."),
+        ]
+    if event_type_code == "comet_window":
+        return [
+            tr("Consulta una carta stellare aggiornata vicino alla notte scelta."),
+            tr("Inizia con basso ingrandimento e un campo ampio."),
+            tr("Adatta la vista al buio ed evita luci dirette."),
+            tr("Ricontrolla finestra e luminosità dopo un aggiornamento dei dati."),
         ]
     if event_type == "Opposizione":
         return [

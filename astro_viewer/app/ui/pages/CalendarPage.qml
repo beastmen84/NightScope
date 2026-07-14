@@ -36,6 +36,8 @@ Item {
             return theme.coral
         if (typeCode === "satellite_pass")
             return theme.cyan
+        if (typeCode === "comet_window")
+            return theme.teal
         return theme.cyan
     }
 
@@ -177,7 +179,7 @@ Item {
 
                     Text {
                         Layout.fillWidth: true
-                        text: qsTr("Eventi astronomici annuali e passaggi ISS a breve termine")
+                        text: qsTr("Eventi annuali, passaggi ISS e comete a breve termine")
                         color: theme.textSecondary
                         font.pixelSize: 14
                         elide: Text.ElideRight
@@ -257,7 +259,7 @@ Item {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: scroll.availableWidth >= 1420 ? 4 : 2
+                        columns: scroll.availableWidth >= 1420 ? 3 : 2
                         columnSpacing: 10
                         rowSpacing: 10
 
@@ -307,6 +309,12 @@ Item {
                             label: qsTr("Passaggi ISS")
                             value: root.countEvents("satellite_pass").toString()
                             accentColor: theme.cyan
+                        }
+
+                        MetricTile {
+                            label: qsTr("Comete")
+                            value: root.countEvents("comet_window").toString()
+                            accentColor: theme.teal
                         }
                     }
                 }
@@ -378,7 +386,8 @@ Item {
                                 { "label": qsTr("Cong. solari"), "value": "solar_conjunction" },
                                 { "label": qsTr("Sciami"), "value": "meteor_shower" },
                                 { "label": qsTr("Eclissi"), "value": "eclipse" },
-                                { "label": qsTr("ISS"), "value": "satellite_pass" }
+                                { "label": qsTr("ISS"), "value": "satellite_pass" },
+                                { "label": qsTr("Comete"), "value": "comet_window" }
                             ]
 
                             delegate: DarkButton {

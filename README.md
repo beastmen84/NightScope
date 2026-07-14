@@ -19,6 +19,9 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
   configurazione target-specific, filtro primario/colore opzionale coerenti con
   il profilo attivo, valutazione locale, curiosita' documentata e ciclo lunare.
 - Calcoli Skyfield reali per Sole, Luna, pianeti, fasi lunari, eventi, avvicinamenti planetari e coordinate alt/az.
+- Calendario score-free con eventi annuali, passaggi ISS visibili e finestre
+  cometarie locali aggregate su piu' notti; Home riusa gli stessi prossimi
+  eventi in ordine cronologico.
 - Pagina `Oggetti celesti` per esplorare il catalogo locale con ricerca, filtri,
   colonna `Utile (≥15°)`, filtro di visibilità mensile e apertura del dettaglio
   oggetto.
@@ -47,7 +50,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.31.1`.
+Versione corrente sorgente: `1.32.0`.
 
 Distribuzione Windows corrente: `1.20.0`.
 
@@ -174,6 +177,21 @@ vengono esclusi prima della deduplicazione, gli ID dei passaggi derivano dalla
 rivoluzione orbitale e il dettaglio mostra l'istante reale dell'ultimo
 aggiornamento invece di dichiararlo sempre appena avvenuto. La distribuzione
 Windows non e' stata rigenerata.
+
+In `1.32.0` la stessa pipeline transitoria include le comete senza trasformarle
+in oggetti di catalogo. NightScope interroga la NASA/JPL Small-Body Database
+pubblica senza account, conserva gli elementi in SQLite per 24 ore e ammette
+un fallback massimo di 7 giorni. Skyfield e pandas calcolano localmente una
+finestra mobile di 90 giorni: una notte richiede almeno 60 minuti con cometa
+sopra 20 gradi, Sole sotto -12 gradi, elongazione solare di almeno 30 gradi,
+magnitudine totale prevista non superiore a 14,5 e disturbo lunare compatibile.
+Le notti consecutive vengono aggregate in un solo evento per cometa e la
+magnitudine e' mostrata come intervallo indicativo, perche' la luminosita'
+cometaria reale puo' differire sensibilmente dalla previsione. Il calcolo non
+usa meteo, profilo attrezzatura, Catalogue, score, Planner, Home ranking o NSOM;
+`astroquery` non e' stato aggiunto perche' la query SBDB e il supporto orbitale
+Skyfield coprono gia' il flusso. La distribuzione Windows non e' stata
+rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

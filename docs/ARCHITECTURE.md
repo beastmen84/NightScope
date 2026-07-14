@@ -186,7 +186,7 @@ Current runtime status for `1.27.0`:
   object's visibility for the current local year/month and caches it by object
   and location. The detail result is independent from list filter state and
   uses unknown rather than `No` when location or calculation is unavailable.
-- `CalendarOverviewService` v3 projects annual and short-horizon events into a
+- `CalendarOverviewService` v4 projects annual and short-horizon events into a
   score-free read model. Event instant, observing window, local visibility,
   participants, angular separation, source and interval facts are separate
   fields; future setups use
@@ -200,9 +200,10 @@ Current runtime status for `1.27.0`:
   and no event is removed by a usefulness cap.
 - `TransientCalendarEventSource` is the extension boundary for location-aware
   operational events that do not belong to `CatalogueObject`. Production
-  currently injects `IssPassEventSource`; tests opt in explicitly so they never
-  perform unplanned network calls. Each source has a preparation phase for
-  provider/cache access and a calculation phase that consumes prepared data.
+  injects `IssPassEventSource` and `CometWindowEventSource`; tests opt in
+  explicitly so they never perform unplanned network calls. Each source has a
+  preparation phase for provider/cache access and a calculation phase that
+  consumes prepared data.
   The annual Skyfield snapshot never calls a transient provider, so a slow or
   failed source cannot delay or remove the annual event set.
 - ISS prediction uses public CelesTrak OMM elements, Skyfield/SGP4 propagation,
@@ -214,6 +215,20 @@ Current runtime status for `1.27.0`:
   request. ISS IDs use the continuous orbital revolution rather than predicted
   peak seconds. This path has no Catalogue, score, Equipment, Planner, Home
   ranking or NSOM dependency.
+- Comet prediction queries the public NASA/JPL SBDB Query API for active
+  periodic and non-periodic comet elements with total-magnitude parameters.
+  `OrbitalElementCacheRepository` refreshes the global candidate set after 24
+  hours and permits a fallback for at most 7 days. Skyfield's MPC orbit helper
+  uses pandas to propagate each candidate across a 90-day moving horizon; the
+  total-magnitude estimate follows the supplied `M1`/`K1` parameters and is
+  presented as an approximate range rather than a precise measurement.
+  Detailed 30-minute samples require magnitude at most 14.5, altitude at least
+  20 degrees, local solar altitude at or below -12 degrees, solar elongation at
+  least 30 degrees and acceptable Moon geometry. Each useful segment lasts at
+  least 60 minutes. Consecutive observing nights are aggregated and only the
+  best continuous group becomes one stable event per comet, capped to the 12
+  brightest candidates. This path is independent from Catalogue, weather,
+  profile equipment, score, Planner, Home ranking and NSOM.
 - Planetary conjunction candidates are observational close approaches found by
   `Skyfield.searchlib.find_minima()` across all 21 pairs of the seven planets.
   The annual contract retains minima up to 6 degrees, then samples adjacent
@@ -500,8 +515,8 @@ Calendar event detail flow:
    detail navigation to be reused.
 5. Transient events can instead expose explicit start/end/peak timestamps,
    source freshness and fact rows without mapping to any catalogue target. ISS
-   passes use this path and therefore show operational observing guidance
-   rather than active-profile equipment recommendations.
+   passes and comet windows use this path and therefore show generic observing
+   guidance rather than active-profile equipment recommendations.
 6. The Calendar projection removes completed intervals and instant events from
    earlier dates before event-ID deduplication. Ongoing intervals remain at
    `daysUntil = 0`; provider-backed details format the exact update timestamp in
@@ -576,6 +591,10 @@ inside that lock, rejects results whose location key is no longer current and
 then replaces the transient subset while preserving the annual subset. A full
 astronomy refresh for the same location retains the last valid transient rows
 until their replacement is ready.
+The timer wakes at the shortest configured source interval, currently one hour
+for ISS. The astronomy engine caches results independently per source and
+rebuilds only sources whose own interval has elapsed, currently six hours for
+comets. A location change invalidates reuse and forces every source to rebuild.
 
 The following changes are expected to trigger dependent recomputation:
 
