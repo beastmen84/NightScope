@@ -4,18 +4,19 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.9`
+- Versione sorgente: `1.33.0`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.32.9` non rigenerata.
-- Commit sorgente validato: `1c30467 Harden AOD quality and observing presentation`
+- Dist `1.33.0` non rigenerata.
+- Commit sorgente validato: `398f28a Audit release readiness and add bilingual manual`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `1c30467`; non sostituire questo hash con un valore
+stato del codice usare `398f28a`; non sostituire questo hash con un valore
 previsto prima del commit.
 
 ## Commit Recenti
 
+- `398f28a Audit release readiness and add bilingual manual`
 - `1c30467 Harden AOD quality and observing presentation`
 - `7be80cf Remove legacy location normalization`
 - `9247a4f Resolve location timezones from coordinates`
@@ -189,6 +190,56 @@ transitori non vengono memorizzati. Home e Meteo mostrano la trasparenza
 atmosferica separata dal Bortle, le finestre cometarie possono usare due righe
 per la data e l'unita' VIIRS visibile usa `cm²`. Il prossimo passo e' il
 controllo visuale dell'utente dal commit sorgente `1c30467`.
+
+`1.33.0` conclude un audit pre-release completo senza modificare NSOM, Planner,
+ranking Home, Equipment scoring, Sky Compass o schema SQLite. README e manuale
+sono stati separati dalla cronologia: il README GitHub e' ora in inglese e il
+manuale HTML e' unico, bilingue, responsive e accessibile dalla sidebar nella
+lingua corrente. Privacy dei log, ownership della directory runtime e tooling
+di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
+severita', ma NightScope non e' ancora approvato per il rilascio: restano review
+visuale, licenza/notice, matrice provider, rebuild/test della dist e produzione
+di lock/SBOM, firma o policy esplicita e hash dell'artefatto.
+
+## Audit Pre-Release 1.33.0
+
+- `docs/RELEASE_CANDIDATE_REVIEW.md` contiene finding, verifiche e debito
+  residuo; `docs/RELEASE_CHECKLIST.md` e' il gate operativo da completare prima
+  del primo rilascio pubblico.
+- Il repository non ha ancora una licenza di progetto ne' un notice consolidato
+  delle dipendenze, dataset e immagini. Non pubblicare un artefatto finche'
+  questa scelta non e' chiusa.
+- `README.md` e' una panoramica inglese di prodotto e sviluppo; lo storico e'
+  solo in `astro_viewer/CHANGELOG.md`.
+- `manuale.html` contiene italiano e inglese nello stesso file. Selezione lingua,
+  query `?lang=`, persistenza, stampa, navigazione desktop/mobile, formule
+  Equipment, confini NSOM, ISS/comete, provider, privacy e sicurezza solare
+  sono documentati.
+- Il pulsante `?` nella testata sidebar apre il manuale nella lingua runtime.
+  `manuale.html` era gia' incluso nello spec PyInstaller; il nuovo `manualUrl`
+  risolve correttamente root sorgente e `_MEIPASS`.
+- Rimossi dai log coordinate, location key, payload diagnostici Windows,
+  username Earthdata e valori di coordinate non valide. Rimossa la diagnostica
+  Windows non usata dalla superficie pubblica del controller.
+- Database, preferenze, cache e `logs/nightscope.log` condividono una sola
+  directory runtime. Nel bundle il log non viene piu' scritto sotto `_internal`.
+- Gli smoke test usano `NIGHTSCOPE_RUNTIME_DIR` in una `TemporaryDirectory` e
+  non leggono o modificano dati personali. Una directory nuova non avvia
+  geolocalizzazione automatica.
+- `deep-translator 1.11.4` e' stato rimosso dopo l'advisory
+  `PYSEC-2022-252`. Gli updater usano un adapter developer minimale basato su
+  Requests, con timeout, limite input e test mock; l'output automatico resta da
+  revisionare manualmente.
+- `tools/run_checks.py` esegue una sola suite, limita pytest a quattro worker,
+  usa coverage runtime di default, supporta `--fast` e `--security` e non misura
+  test/utility come codice applicativo. Non ripristinare `-n auto`: su Windows
+  ha creato pressione eccessiva sulla memoria e ha destabilizzato PyCharm.
+- Coverage runtime reale: `84%` su `15.212` statement. I punti piu' bassi sono
+  l'entry point process/UI, coperto separatamente dagli smoke; non usare la
+  percentuale da sola come approvazione di release.
+- QML lint termina con exit `0` su 30 file ma conserva molte warning
+  `unqualified access`. Gli smoke IT/EN passano; una loro eliminazione richiede
+  un passaggio QML separato con review visuale, non una riscrittura pre-release.
 
 ## Localita' e Fusi 1.32.8
 
@@ -785,17 +836,18 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.9
+## Validazione 1.33.0
 
 Eseguita nella venv corrente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check astro_viewer
-.\.venv\Scripts\python.exe -m compileall -q astro_viewer
-.\tools\update_translations.ps1
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_nasa_aod_provider.py astro_viewer\tests\test_observation_conditions_service.py astro_viewer\tests\test_nsom_category_score_service.py astro_viewer\tests\test_nsom_observation_environment.py
-.\.venv\Scripts\python.exe -m pytest -q -n auto astro_viewer\tests
+.\.venv\Scripts\python.exe tools\run_checks.py --coverage --security
+.\tools\update_translations.ps1 -CompileOnly
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_translations.py
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_catalogue_images.py --check
+.\.venv\Scripts\python.exe astro_viewer\tools\sync_solar_system_images.py --check
+# pyside6-qmllint eseguito su tutti i file astro_viewer/app/ui/**/*.qml
 git diff --check
 ```
 
@@ -806,26 +858,34 @@ Nessun file runtime utente e' stato letto o modificato.
 Risultati:
 
 - `pip check`: nessuna dipendenza rotta.
-- Ruff: pulito.
-- Compileall: pulito.
-- Test mirati AOD/condizioni/NSOM: `111 passed` in `2,91 s`.
-- Suite: `774 passed`, `613 warnings`, `7 subtests passed` in `65,28 s`.
-- Cataloghi Qt italiano/inglese completi e compilati: `1594/1594` ciascuno.
-- `qmllint`: exit `0` su tutti i 30 QML; restano le warning statiche gia' note.
-- Smoke standard: exit `0`.
-- Smoke QML italiano e inglese: entrambi `QML smoke test ok`.
+- Ruff e compileall su applicazione e tool: puliti.
+- Suite con coverage: `785 passed`, `613 warnings`, `7 subtests passed` in
+  `112,92 s`; coverage runtime `84%` su `15.212` statement.
+- `pip-audit`: nessuna vulnerabilita' nota nell'ambiente installato.
+- Bandit: `0 high`, `26 medium`, `12 low`; SQL dinamico e subprocess sono stati
+  revisionati manualmente.
+- Cataloghi Qt italiano/inglese completi e compilati: `1595/1595` ciascuno.
+- Test traduzioni: `15 passed`.
+- `qmllint`: exit `0` su tutti i 30 QML; restano warning statiche
+  `unqualified access` documentate.
+- Immagini: `219` JPEG deep-sky e `9` JPEG Sistema Solare validi.
+- Smoke standard e QML italiano/inglese: exit `0` in runtime temporanei.
+- Manuale verificato con Chrome headless a larghezza desktop e mobile `390 px`;
+  nessun overflow orizzontale, cambio IT/EN e titoli corretti.
 - Schema SQLite invariato a `16`; nessuna migrazione. Nessun dato sintetico e'
   stato reintrodotto.
 - `git diff --check`: pulito.
-- Dist corrente `1.32.3`; dist `1.32.9` non rigenerata.
+- Dist corrente `1.32.3`; dist `1.33.0` non rigenerata.
 
 I warning provengono dalle deprecazioni `dtype` e `shape` interne a
-Skyfield/NumPy gia' note.
+Skyfield/NumPy gia' note. I `ResourceWarning` SQLite emersi sotto coverage erano
+fixture test che non chiudevano esplicitamente due connessioni e sono stati
+corretti; il gate finale non li riporta.
 
 ## Regole Operative
 
 - Usare sempre `.venv`.
-- Eseguire test in parallelo con `pytest -n auto` salvo diagnosi mirate.
+- Eseguire test in parallelo con al massimo `pytest -n 4`; non usare `-n auto`.
 - Aggiornare documentazione e changelog con ogni release.
 - Fare commit focalizzati a fine step.
 - Non rigenerare `dist` salvo richiesta esplicita dell'utente.
@@ -839,6 +899,8 @@ Skyfield/NumPy gia' note.
 - `docs/ARCHITECTURE.md`
 - `docs/CALCULATION_LOGIC.md`
 - `docs/LOCALIZATION.md`
+- `docs/RELEASE_CANDIDATE_REVIEW.md`
+- `docs/RELEASE_CHECKLIST.md`
 - `docs/NIGHTSCOPE_OBSERVATION_MODEL_1_0.md`
 - `docs/NSOM_BACKEND_MIGRATION_CLOSEOUT.md`
 - `docs/NSOM_MIGRATION_ARTIFACT_CLEANUP_AUDIT.md`
