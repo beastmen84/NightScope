@@ -3997,7 +3997,6 @@ class AppController(QObject):
         self._refresh_conditioned_observing_candidates()
 
     def _apply_location_result(self, result: LocationDetectionResult, persist: bool = True) -> None:
-        result = self._location_service.normalize_result(result)
         self._mark_refresh_dirty(RefreshReason.LOCATION_CHANGED)
         self._cancel_astronomy_refresh()
         self._cancel_sky_compass_live_refresh()
@@ -4168,8 +4167,6 @@ class AppController(QObject):
 
     def _stored_startup_location_result(self) -> tuple[LocationDetectionResult, bool, str] | None:
         saved = self._location_preferences.saved_location()
-        if saved:
-            saved = self._location_service.normalize_result(saved)
         if saved and self._result_has_valid_location(saved):
             return (
                 saved,
@@ -4181,8 +4178,6 @@ class AppController(QObject):
             )
 
         cached = self._location_preferences.cached_location()
-        if cached:
-            cached = self._location_service.normalize_result(cached)
         if cached and self._result_has_valid_location(cached):
             return (
                 cached,
@@ -4227,13 +4222,9 @@ class AppController(QObject):
         if self._location_detection_result and self._result_has_valid_location(self._location_detection_result):
             candidates.append(self._location_detection_result)
         saved = self._location_preferences.saved_location()
-        if saved:
-            saved = self._location_service.normalize_result(saved)
         if saved and self._result_has_valid_location(saved):
             candidates.append(saved)
         cached = self._location_preferences.cached_location()
-        if cached:
-            cached = self._location_service.normalize_result(cached)
         if cached and self._result_has_valid_location(cached):
             candidates.append(cached)
         unique = []

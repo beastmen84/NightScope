@@ -1,5 +1,29 @@
 # Changelog
 
+## NightScope 1.32.8 - 2026-07-14
+
+- Limitata la normalizzazione del fuso alla sola acquisizione di una nuova
+  localita'. Il controller considera autorevoli le posizioni salvate dalla
+  build corrente e non contiene piu' percorsi di rinormalizzazione legacy.
+- Rimossi il parametro interno per imporre un fuso alle coordinate manuali e i
+  relativi test di compatibilita'. Coordinate manuali e citta' selezionate
+  usano sempre `timezonefinder`, con il fuso del computer come unico fallback.
+- Reso lazy anche il fallback di sistema: una risposta geografica o una
+  mappatura Windows valida non avvia piu' inutilmente PowerShell, che sulla
+  macchina di sviluppo richiedeva circa due secondi per chiamata.
+- Il fuso GeoNames non partecipa piu' neppure alla selezione manuale di una
+  citta'. Il catalogo resta necessario per ricerca citta' offline, coordinate e
+  metadati descrittivi; non e' un duplicato del dataset dei fusi.
+- Misurato il costo GeoNames: `8.529.230` byte nel bundle corrente (`1,14%`) e
+  circa `55 MB` nel database runtime dopo l'import di `33.775` citta' e
+  `327.374` alias. Rimuoverlo richiederebbe una scelta esplicita di prodotto:
+  eliminare la ricerca citta' offline.
+- Verificati `pip check`, Ruff, compileall, smoke standard e QML
+  italiano/inglese su runtime temporanei; suite completa parallela: `764
+  passed`, `613 warnings`, `7 subtests passed` in `103,34 s`.
+- Nessuna migrazione database; schema SQLite ancora `16`. La dist esistente e'
+  `1.32.3`; dist `1.32.8` non rigenerata.
+
 ## NightScope 1.32.7 - 2026-07-14
 
 - Aggiunta la risoluzione offline del fuso IANA da coordinate WGS84 tramite

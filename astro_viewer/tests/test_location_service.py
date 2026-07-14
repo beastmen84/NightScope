@@ -32,13 +32,17 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.service = LocationService()
 
     def test_valid_windows_location_payload(self) -> None:
-        location = self.service._location_from_windows_payload(
-            {
-                "latitude": -1.2921,
-                "longitude": 36.8219,
-                "timezone": "E. Africa Standard Time",
-            }
-        )
+        with patch(
+            "astro_viewer.app.services.location_service.system_timezone",
+            side_effect=AssertionError("Known Windows timezones must not start the fallback."),
+        ):
+            location = self.service._location_from_windows_payload(
+                {
+                    "latitude": -1.2921,
+                    "longitude": 36.8219,
+                    "timezone": "E. Africa Standard Time",
+                }
+            )
 
         self.assertEqual(location.city, "Posizione Windows")
         self.assertEqual(location.latitude, -1.2921)
@@ -116,17 +120,25 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertAlmostEqual(result.location.latitude, 8.951475146070246)
         self.assertAlmostEqual(result.location.longitude, 38.78120889791471)
 
-    def test_manual_city_selection_remains_unchanged_with_city_resolver(self) -> None:
+    def test_manual_city_selection_uses_coordinate_timezone(self) -> None:
         with _temp_city_repository() as repository:
             city = next(item for item in repository.search("Addis Ababa") if item["country_code"] == "ET")
-            result = LocationService(city_resolver=repository).from_city_result(city)
+            city["timezone"] = "Europe/Rome"
+            with patch(
+                "astro_viewer.app.services.location_service.system_timezone",
+                side_effect=AssertionError("Successful coordinate lookup must not start the fallback."),
+            ):
+                result = LocationService(
+                    city_resolver=repository,
+                    timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa"),
+                ).from_city_result(city)
 
         self.assertEqual(result.provider, "manual_city")
         self.assertEqual(result.location.city, "Addis Ababa")
         self.assertEqual(result.location.country, "Etiopia")
         self.assertEqual(result.country_code, "ET")
         self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
-        self.assertEqual(result.source, "SQLite City")
+        self.assertEqual(result.source, "SQLite City; coordinate timezone")
 
     def test_approximate_online_location_remains_unchanged_with_city_resolver(self) -> None:
         response = Mock()
@@ -152,6 +164,25 @@ class LocationServiceWindowsTests(unittest.TestCase):
         self.assertEqual(result.location.city, "Rome")
         self.assertEqual(result.location.country, "Italy")
         self.assertEqual(result.location.timezone, "Europe/Rome")
+
+    def test_manual_city_does_not_use_geonames_timezone_as_fallback(self) -> None:
+        city = {
+            "city": "Addis Ababa",
+            "country": "Etiopia",
+            "country_code": "ET",
+            "latitude": 8.9515,
+            "longitude": 38.7811,
+            "timezone": "Africa/Addis_Ababa",
+        }
+        service = LocationService(timezone_resolver=_StaticTimezoneResolver(None))
+
+        with patch(
+            "astro_viewer.app.services.location_service.system_timezone",
+            return_value="UTC",
+        ):
+            result = service.from_city_result(city)
+
+        self.assertEqual(result.location.timezone, "UTC")
 
     def test_windows_location_uses_coordinate_timezone_when_no_nearby_city_exists(self) -> None:
         completed = subprocess.CompletedProcess(
@@ -194,7 +225,11 @@ class LocationServiceWindowsTests(unittest.TestCase):
             timezone_resolver=_StaticTimezoneResolver(None),
         )
 
-        normalized = service.normalize_result(result)
+        with patch(
+            "astro_viewer.app.services.location_service.system_timezone",
+            side_effect=AssertionError("A valid Windows mapping must not start the fallback."),
+        ):
+            normalized = service._normalize_windows_result(result)
 
         self.assertEqual(normalized.location.timezone, "Europe/Berlin")
 
@@ -212,7 +247,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
                 timezone_resolver=_StaticTimezoneResolver(None),
             )
 
-            normalized = service.normalize_result(result)
+            normalized = service._normalize_windows_result(result)
 
         self.assertEqual(normalized.location.city, "Addis Ababa")
         self.assertEqual(normalized.location.country, "Etiopia")
@@ -232,7 +267,7 @@ class LocationServiceWindowsTests(unittest.TestCase):
             timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa"),
         )
 
-        normalized = service.normalize_result(result)
+        normalized = service._normalize_windows_result(result)
 
         self.assertEqual(normalized.location.city, "Posizione Windows approssimata")
         self.assertEqual(normalized.location.country, "")
@@ -244,46 +279,21 @@ class LocationServiceWindowsTests(unittest.TestCase):
             timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa"),
         )
 
-        result = service.from_manual_coordinates_result(
-            8.9515,
-            38.7811,
-            label="Osservatorio",
-        )
+        with patch(
+            "astro_viewer.app.services.location_service.system_timezone",
+            side_effect=AssertionError("Successful coordinate lookup must not start the fallback."),
+        ):
+            result = service.from_manual_coordinates_result(
+                8.9515,
+                38.7811,
+                label="Osservatorio",
+            )
 
         self.assertEqual(result.location.city, "Osservatorio")
         self.assertEqual(result.location.country, "")
         self.assertAlmostEqual(result.location.latitude, 8.9515)
         self.assertAlmostEqual(result.location.longitude, 38.7811)
         self.assertEqual(result.location.timezone, "Africa/Addis_Ababa")
-
-    def test_explicit_manual_iana_timezone_is_preserved(self) -> None:
-        service = LocationService(timezone_resolver=_ExplodingTimezoneResolver())
-
-        result = service.from_manual_coordinates_result(
-            8.9515,
-            38.7811,
-            timezone="Europe/Rome",
-        )
-
-        self.assertEqual(result.location.timezone, "Europe/Rome")
-        self.assertEqual(result.raw_provider_timezone, "Europe/Rome")
-
-    def test_legacy_saved_manual_coordinates_are_renormalized(self) -> None:
-        legacy_result = LocationDetectionResult(
-            location=ObserverLocation("Coordinate manuali", "", 8.9515, 38.7811, "Europe/Rome"),
-            provider="manual_coordinates",
-            source="stored_location",
-            accuracy="cached",
-        )
-        service = LocationService(
-            timezone_resolver=_StaticTimezoneResolver("Africa/Addis_Ababa")
-        )
-
-        normalized = service.normalize_result(legacy_result)
-
-        self.assertEqual(normalized.location.timezone, "Africa/Addis_Ababa")
-        self.assertAlmostEqual(normalized.location.latitude, 8.9515)
-        self.assertAlmostEqual(normalized.location.longitude, 38.7811)
 
     def test_windows_location_latitude_none(self) -> None:
         with self.assertLogs("astro_viewer.app.services.location_service", level="WARNING"):

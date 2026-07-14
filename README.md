@@ -52,7 +52,7 @@ L'obiettivo non è sostituire atlanti o software planetari completi, ma risponde
 
 ## Stato
 
-Versione corrente sorgente: `1.32.7`.
+Versione corrente sorgente: `1.32.8`.
 
 Distribuzione Windows corrente: `1.32.3`.
 
@@ -262,6 +262,16 @@ Windows precisa. Il fuso del computer e' usato solo se il lookup geografico non
 e' disponibile, mentre un fuso IANA valido fornito dal servizio IP resta
 autorevole. Anche le vecchie coordinate manuali salvate vengono normalizzate
 quando sono ricaricate. La distribuzione `1.32.7` non e' stata rigenerata.
+
+In `1.32.8` la normalizzazione del fuso avviene soltanto quando viene acquisita
+una nuova posizione. Le localita' salvate dalla build corrente vengono
+riutilizzate senza percorsi di migrazione; rimossi anche il parametro interno
+per imporre un fuso alle coordinate manuali e le relative regressioni legacy.
+La selezione dal catalogo citta' usa ora `timezonefinder` come ogni altra
+coordinata, ignorando il fuso GeoNames. GeoNames resta per la ricerca citta'
+offline e per i metadati visibili: i suoi file occupano `8,13 MB` nella dist
+attuale (`1,14%`), ma citta' e alias importati occupano circa `55 MB` nel DB
+runtime. La distribuzione `1.32.8` non e' stata rigenerata.
 
 In `1.16.1` la cache NASA Black Marble VIIRS viene rivalidata ogni 7 giorni:
 il valore salvato resta disponibile durante il controllo e in caso di errore

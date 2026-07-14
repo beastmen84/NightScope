@@ -436,19 +436,23 @@ Services hold business logic:
 - `LocationService`: Windows, IP and manual location providers. Geographic
   timezone resolution is separate from city metadata: `CoordinateTimezoneService`
   lazily reuses the offline `timezonefinder` polygon index to map exact WGS84
-  coordinates to an IANA timezone. Manual coordinates and both Windows modes
-  use that result; a valid timezone supplied by the IP provider remains
-  authoritative. The computer timezone is only a defensive fallback when the
-  polygon lookup is unavailable. Precise Windows positions may use a GeoNames
-  city within 50 km to enrich city, country and region, but that lookup neither
-  changes the coordinates nor chooses the timezone. Stored and recent results
-  pass through the same normalization boundary when loaded.
+  coordinates to an IANA timezone. Manual coordinates, manual city selection
+  and both Windows modes use that result; a valid timezone supplied by the IP
+  provider remains authoritative. The computer timezone is only a defensive
+  fallback when the polygon lookup is unavailable, and its PowerShell probe is
+  evaluated lazily. Precise Windows positions may use a GeoNames city within
+  50 km to enrich city, country and region, but that lookup neither changes the
+  coordinates nor chooses the timezone.
+  Normalization belongs to acquisition only. Persisted and recent locations
+  produced by the current build are trusted as stored and are not migrated or
+  recomputed by the controller.
 
 ### Repositories
 
 Repositories own SQLite persistence:
 
-- `CityRepository`: city search and reverse lookup.
+- `CityRepository`: offline city search and presentation-only reverse lookup;
+  its GeoNames timezone field is not an operational timezone source.
 - `CatalogueRepository`: physical catalogue targets and their designations.
 - `EquipmentCatalogRepository`: telescope, eyepiece, Barlow, binocular, filter
   and focal-reducer CRUD plus profile assignments. Every catalogue row exposes

@@ -12,6 +12,13 @@ NightScope intentionally does not import `allCountries.txt`. Packaged `countryIn
 
 The importer deduplicates translated names into aliases. For example, `Addis Ababa` and `Addis Abeba` are one city record with both search terms.
 
+GeoNames remains packaged for the visible offline city search and for
+city/country/region presentation. Its timezone column is retained as source
+metadata but is not used by runtime location acquisition; `timezonefinder`
+resolves the timezone from the selected city's coordinates. The three packaged
+GeoNames files total 8,529,230 bytes. In the current development database,
+33,775 cities and 327,374 aliases occupy about 55 MB after SQLite compaction.
+
 GeoNames publishes dump formats at `https://download.geonames.org/export/dump/readme.txt`.
 
 ## Coordinate Timezones
@@ -25,8 +32,10 @@ distributed under ODbL 1.0. Project and license details:
 `https://pypi.org/project/timezonefinder/8.2.5/`.
 
 The PyInstaller community hook collects the dependency's data files into the
-Windows bundle. NightScope keeps one lazy resolver instance and falls back to a
-valid provider/system timezone only if the local polygon lookup cannot run.
+Windows bundle. NightScope keeps one lazy resolver instance. New manual and
+Windows locations fall back to the system timezone only if the local polygon
+lookup cannot run; a valid timezone returned by the IP provider remains
+authoritative.
 
 ## Equipment Catalogs
 

@@ -159,12 +159,15 @@ class WindowsLocationProvider:
         latitude = _required_coordinate(payload, "latitude", -90.0, 90.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
         longitude = _required_coordinate(payload, "longitude", -180.0, 180.0, WINDOWS_LOCATION_UNAVAILABLE_MESSAGE)
         windows_timezone = payload.get("timezone", "")
+        timezone_name = WINDOWS_TO_IANA_TIMEZONES.get(windows_timezone)
+        if not timezone_name:
+            timezone_name = system_timezone()
         return ObserverLocation(
             city=provider_label,
             country="",
             latitude=latitude,
             longitude=longitude,
-            timezone=WINDOWS_TO_IANA_TIMEZONES.get(windows_timezone, system_timezone()),
+            timezone=timezone_name,
         )
 
 
@@ -248,7 +251,7 @@ class IpGeolocationProvider:
             country=country,
             latitude=latitude,
             longitude=longitude,
-            timezone=provider_timezone or system_timezone(),
+            timezone=provider_timezone or "UTC",
         )
         return LocationDetectionResult(
             location=location,
@@ -320,7 +323,7 @@ class ManualCityProvider:
             country=city["country"],
             latitude=float(city["latitude"]),
             longitude=float(city["longitude"]),
-            timezone=city["timezone"],
+            timezone="UTC",
         )
         return LocationDetectionResult(
             location=location,
@@ -345,7 +348,6 @@ class ManualCoordinatesProvider:
         latitude: float,
         longitude: float,
         label: str = "Coordinate manuali",
-        timezone: str | None = None,
     ) -> LocationDetectionResult:
         _validate_coordinate(latitude, -90.0, 90.0, "Invalid latitude.")
         _validate_coordinate(longitude, -180.0, 180.0, "Invalid longitude.")
@@ -354,7 +356,7 @@ class ManualCoordinatesProvider:
             country="",
             latitude=latitude,
             longitude=longitude,
-            timezone=timezone or system_timezone(),
+            timezone="UTC",
         )
         return LocationDetectionResult(
             location=location,
@@ -362,7 +364,6 @@ class ManualCoordinatesProvider:
             source=tr("Coordinate manuali"),
             accuracy=tr("fornita dall'utente"),
             approximate=False,
-            raw_provider_timezone=str(timezone or "").strip(),
             message=tr(
                 "Coordinate impostate: {latitude}, {longitude}.",
                 latitude=format_number(latitude, decimals=4),
@@ -409,7 +410,7 @@ class LocationService:
                 errors.append(f"{provider.name}: {exc.reason}")
                 self.last_error_reason = exc.reason
                 continue
-            result = self.normalize_result(result)
+            result = self._normalize_result(result)
             self.last_result = result
             return result
         raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, "; ".join(errors) or "unavailable provider")
@@ -421,7 +422,7 @@ class LocationService:
             except LocationUnavailableError as exc:
                 self.last_error_reason = exc.reason
                 continue
-            result = self.normalize_result(result)
+            result = self._normalize_result(result)
             self.last_result = result
             return result
         raise LocationUnavailableError(WINDOWS_LOCATION_UNAVAILABLE_MESSAGE, self.last_error_reason or "unavailable provider")
@@ -429,12 +430,12 @@ class LocationService:
     def detect_ip_location(self, allow_online: bool) -> LocationDetectionResult:
         if not allow_online:
             raise LocationUnavailableError(APPROXIMATE_LOCATION_UNAVAILABLE_MESSAGE, "online location not allowed")
-        result = self.normalize_result(self.ip_provider.detect())
+        result = self._normalize_result(self.ip_provider.detect())
         self.last_result = result
         return result
 
     def from_city_result(self, city: dict) -> LocationDetectionResult:
-        result = self.city_provider.detect_from_city(city)
+        result = self._normalize_result(self.city_provider.detect_from_city(city))
         self.last_result = result
         return result
 
@@ -443,10 +444,9 @@ class LocationService:
         latitude: float,
         longitude: float,
         label: str = "Coordinate manuali",
-        timezone: str | None = None,
     ) -> LocationDetectionResult:
-        result = self.normalize_result(
-            self.coordinates_provider.detect_from_coordinates(latitude, longitude, label, timezone)
+        result = self._normalize_result(
+            self.coordinates_provider.detect_from_coordinates(latitude, longitude, label)
         )
         self.last_result = result
         return result
@@ -459,9 +459,8 @@ class LocationService:
         latitude: float,
         longitude: float,
         label: str = "Coordinate manuali",
-        timezone: str | None = None,
     ) -> ObserverLocation:
-        return self.from_manual_coordinates_result(latitude, longitude, label, timezone).location
+        return self.from_manual_coordinates_result(latitude, longitude, label).location
 
     def from_windows_location(self) -> ObserverLocation:
         return self.detect_windows_location().location
@@ -497,37 +496,26 @@ class LocationService:
     def system_timezone(self) -> str:
         return system_timezone()
 
-    def normalize_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
+    def _normalize_result(self, result: LocationDetectionResult) -> LocationDetectionResult:
         if result.provider in {"windows_precise", "windows_coarse"}:
             return self._normalize_windows_result(result)
-        if result.provider == "manual_coordinates":
-            return self._normalize_coordinate_timezone(
-                result,
-                preserve_valid_provider_timezone=True,
-            )
+        if result.provider in {"manual_city", "manual_coordinates"}:
+            return self._normalize_coordinate_timezone(result)
         if result.provider == "ip_geolocation":
-            return self._normalize_coordinate_timezone(
-                result,
-                preserve_valid_provider_timezone=True,
-            )
+            raw_timezone = result.raw_provider_timezone.strip()
+            if is_iana_timezone(raw_timezone):
+                return _with_timezone(result, raw_timezone)
+            return self._normalize_coordinate_timezone(result)
         return result
 
-    def _normalize_coordinate_timezone(
-        self,
-        result: LocationDetectionResult,
-        *,
-        preserve_valid_provider_timezone: bool,
-    ) -> LocationDetectionResult:
-        raw_timezone = result.raw_provider_timezone.strip()
-        if preserve_valid_provider_timezone and is_iana_timezone(raw_timezone):
-            return _with_timezone(result, raw_timezone)
-
+    def _normalize_coordinate_timezone(self, result: LocationDetectionResult) -> LocationDetectionResult:
         coordinate_timezone = self._coordinate_timezone(
             result.location.latitude,
             result.location.longitude,
         )
         if not coordinate_timezone:
-            return result
+            fallback_timezone = _valid_timezone_or_none(system_timezone()) or "UTC"
+            return _with_timezone(result, fallback_timezone)
 
         logger.info(
             "Location timezone resolved from coordinates: provider=%s timezone=%s",
@@ -634,14 +622,12 @@ class LocationService:
             WINDOWS_TO_IANA_TIMEZONES.get(raw_timezone, ""),
             raw_timezone,
             result.location.timezone,
-            system_timezone(),
-            "UTC",
         )
         for candidate in candidates:
             valid_timezone = _valid_timezone_or_none(candidate)
             if valid_timezone:
                 return valid_timezone
-        return "UTC"
+        return _valid_timezone_or_none(system_timezone()) or "UTC"
 
 
 def _with_timezone(
