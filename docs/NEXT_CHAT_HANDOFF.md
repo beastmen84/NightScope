@@ -4,19 +4,20 @@ Aggiornato: 2026-07-14
 
 ## Stato Versioni
 
-- Versione sorgente: `1.32.1`
-- Dist `1.32.1` non rigenerata; la distribuzione dichiarata nel README resta
+- Versione sorgente: `1.32.2`
+- Dist `1.32.2` non rigenerata; la distribuzione dichiarata nel README resta
   `1.20.0`.
 - Durante il lavoro l'utente ha avviato manualmente una build `1.21.1`; non
   assumerne l'esito senza una conferma successiva.
-- Commit sorgente validato: `7c7c196 Fix initial UI review findings`
+- Commit sorgente validato: `283c943 Stabilize equipment seed identities`
 
 Il commit che aggiorna questo handoff contiene solo documentazione. Per lo
-stato del codice usare `7c7c196`; non sostituire questo
+stato del codice usare `283c943`; non sostituire questo
 hash con un valore previsto prima del commit.
 
-## Commit UI Recenti
+## Commit Recenti
 
+- `283c943 Stabilize equipment seed identities`
 - `7c7c196 Fix initial UI review findings`
 - `8ebc6bc Add comet observing windows`
 - `50bffc1 Fix ISS calendar refresh lifecycle`
@@ -121,6 +122,12 @@ Il profilo iniziale si chiama `Default`; `Occhio nudo` e' soltanto la modalita'
 derivata quando non sono assegnati telescopi o binocoli. Il prossimo passo e'
 il controllo visivo manuale dell'utente sulle schermate corrette.
 
+`1.32.2` corregge il difetto trovato nella review successiva: l'identita' delle
+righe Equipment integrate non dipende piu' da marca, modello o parametri che
+potrebbero essere corretti. I CSV possiedono ID espliciti e le compatibilita'
+riduttore-telescopio li referenziano direttamente. Il controllo visivo puo'
+quindi partire dal commit sorgente `283c943`.
+
 ## ISS, Comete ed Eventi Transitori 1.32.0
 
 - `TransientCalendarEventSource` e' il confine generico per sorgenti operative.
@@ -205,6 +212,28 @@ il controllo visivo manuale dell'utente sulle schermate corrette.
   acquisizione automatica con `QQuickWindow.grabWindow()` e plugin offscreen si
   e' bloccato ed e' stato interrotto; non considerarlo un controllo visivo
   superato. L'utente eseguira' la verifica manuale.
+
+## Identita' Seed Equipment 1.32.2
+
+- I sei CSV Equipment dichiarano una `seed_key` esplicita per ogni riga; le 468
+  chiavi iniziali coincidono esattamente con quelle gia' salvate dalla `1.32.1`.
+  Non cambiare una chiave quando si correggono marca, modello o dati tecnici.
+- Bootstrap usa l'ID esplicito per gli `UPSERT`: una correzione seed aggiorna la
+  stessa riga e mantiene ID database e assegnazioni. Le modifiche utente con
+  `is_user_modified = 1` restano protette.
+- Se la nuova identita' naturale collide con una riga custom, il dato utente
+  viene conservato e l'aggiornamento seed conflittuale viene saltato con warning.
+- `reducer_telescope_compatibility_seed.csv` conserva le colonne descrittive ma
+  risolve le associazioni con `reducer_seed_key` e `telescope_seed_key`; rinominare
+  un prodotto non spezza quindi i collegamenti.
+- Gli upgrade diretti da uno schema precedente al `16` usano la vecchia
+  identita' soltanto una volta per collegare le righe integrate senza chiave
+  agli ID espliciti. Il reseed ordinario non ricalcola l'ownership dai campi
+  visibili. Lo schema SQLite resta `16`.
+- Le chiavi dei contenuti tradotti Equipment restano un contratto distinto e
+  sono ancora costruite dai campi identitari. Se un futuro fix cambia quei
+  campi, rigenerare e verificare insieme i pack italiano/inglese; in `1.32.2`
+  nessun valore descrittivo dei cataloghi e' stato modificato.
 
 ## Localizzazione Completa 1.30.0
 
@@ -532,7 +561,7 @@ Rimossi:
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
 
-## Validazione 1.32.1
+## Validazione 1.32.2
 
 Eseguita nella venv corrente:
 
@@ -540,34 +569,31 @@ Eseguita nella venv corrente:
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m ruff check astro_viewer tools
 .\.venv\Scripts\python.exe -m compileall -q astro_viewer tools
-.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_database.py
+.\.venv\Scripts\python.exe -m pytest -q astro_viewer\tests\test_database.py astro_viewer\tests\test_equipment_accessory_catalogs.py astro_viewer\tests\test_translations.py
 .\.venv\Scripts\python.exe -m pytest -q -n 4 astro_viewer\tests
-.\tools\update_translations.ps1
-$qmlFiles = Get-ChildItem astro_viewer\app\ui -Recurse -Filter *.qml | Select-Object -ExpandProperty FullName
-& .\.venv\Scripts\pyside6-qmllint.exe @qmlFiles
+git diff --check
 ```
 
-Smoke backend e QML sono stati eseguiti in processi separati impostando
-`astro_viewer.main.RUNTIME_DIR` a una `TemporaryDirectory`; i due smoke QML
-hanno usato rispettivamente preferenza `it` ed `en`. Nessun file runtime utente
-e' stato letto o modificato.
+Il probe SQLite ha usato un database in `TemporaryDirectory`; nessun file
+runtime utente e' stato letto o modificato.
 
 Risultati:
 
 - `pip check`: nessuna dipendenza rotta.
 - Ruff: pulito.
 - Compileall: pulito.
-- Test database dopo il caso limite del nome profilo: `35 passed` in `17,92 s`.
-- Suite: `743 passed`, `613 warnings`, `7 subtests passed` in `138,45 s`.
-- Cataloghi: `1571` messaggi completi per lingua; entrambi i `.qm` compilati.
-- `qmllint` su tutta la UI: exit `0`; restano solo warning storici di accesso
-  non qualificato, nessun errore QML.
-- Smoke backend, QML italiano e QML inglese: exit `0` in runtime temporanei.
+- Test finali database, Equipment e traduzioni: `66 passed` in `28,68 s`.
+- Suite: `747 passed`, `613 warnings`, `7 subtests passed` in `108,27 s`.
+- Verifica dei CSV: 468 chiavi uguali alle chiavi legacy `1.32.1`, zero
+  mismatch; tolte le nuove colonne, tutti i valori e il numero di righe dei
+  sette file coincidono con `HEAD` precedente.
+- Probe SQLite: schema `16`, `PRAGMA integrity_check = ok`, zero chiavi built-in
+  mancanti e conteggi `133/134/35/94/48/24`, con 16 compatibilita'.
 - `git diff --check`: pulito.
-- L'acquisizione automatica delle schermate con il plugin Qt offscreen e'
-  rimasta bloccata su `grabWindow()` ed e' stata interrotta; resta da fare il
-  controllo visivo manuale dell'utente.
-- Dist `1.32.1` non rigenerata.
+- Nessun file QML o catalogo di traduzione e' cambiato: `qmllint`, compilazione
+  `.qm` e smoke QML non sono stati ripetuti; resta valida la baseline `1.32.1` e
+  il prossimo passo e' il controllo visivo manuale dell'utente.
+- Dist `1.32.2` non rigenerata.
 
 I 563 warning preesistenti provengono dalla deprecazione dtype
 Skyfield/NumPy. I 50 nuovi warning sono le due deprecazioni `shape` interne a
