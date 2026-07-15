@@ -52,6 +52,10 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 | Calendario - Luna, opposizioni e congiunzioni | controllata | controllata | completata |
 | Calendario - sciami meteorici e comete | controllata | controllata | completata |
 | Calendario - eclissi e passaggi ISS | verificata da codice/test | verificata da codice/test | completata senza caso live |
+| Home - sintesi osservativa e Sky Compass | controllata | controllata | completata |
+| Home - piano, filtri e oggetti visibili | controllata | controllata | completata |
+| Home - prossimi eventi | controllata | controllata | completata |
+| Home - dettaglio Luna e cielo profondo | controllata | controllata | completata |
 
 ## Correzioni Aperte
 
@@ -78,6 +82,9 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
 - [ ] **VIS-005 - Sidebar - stato serata inglese (`APERTA`)**
   - `To be monitored` e' comprensibile ma meccanico; valutare
     `Monitor conditions` mantenendo invariata la semantica dello stato.
+  - Lo stesso concetto compare nel riepilogo Home e nel dettaglio oggetto come
+    `Session to monitor`; uniformare badge, titolo e stato con una formulazione
+    inglese naturale senza modificare il codice canonico `monitor`.
 
 - [ ] **VIS-006 - Profili - nome riduttore troncato (`APERTA`)**
   - Il nome `Celestron Reducer-Corrector...` viene eliso nella colonna dei
@@ -94,10 +101,16 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     i designatori canonici; tradurre soltanto il soprannome descrittivo.
   - Verificare anche ricerca, descrizione breve e tutti i 219 oggetti seed, non
     soltanto le righe Caldwell mostrate negli screenshot.
+  - La Home conferma la causa: `en.json` non contiene la sezione
+    `catalogue_objects`, quindi `_catalogue_details()` ricade sul testo italiano
+    per nome e descrizione. Nell'elenco inglese restano `Galassia Ago d'Argento`
+    e `Galassia Balena`; nel dettaglio C3 la nota inglese termina con
+    `Galassia spirale nella costellazione di Dragone`. In italiano lo stesso
+    override produce `NGC4236` senza lo spazio canonico.
 
 - [ ] **VIS-009 - Dettaglio oggetto - credito immagine inglese (`APERTA`)**
   - Il testo `HiPS a colori e ritaglio: CDS` resta italiano nella pagina
-    inglese.
+    inglese, sia dal Catalogo sia aprendo lo stesso oggetto dalla Home.
   - Conservare invariati survey, enti e licenza, localizzando soltanto la parte
     descrittiva dell'attribuzione.
 
@@ -287,6 +300,40 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
     invariati modello fotometrico, intervallo di magnitudine e soglie della
     finestra cometaria.
 
+- [ ] **VIS-033 - Home - metrica Distanza/Catalogo (`APERTA`)**
+  - Nel dettaglio osservativo di C3 la scheda mostra `Distanza` / `Distance`,
+    ma il valore e' `Catalogo Caldwell` / `Catalog Caldwell`.
+  - Non e' un valore runtime errato: per gli oggetti deep-sky
+    `SkyfieldAstronomyEngine._catalogue_details()` conserva intenzionalmente il
+    catalogo nel campo legacy `distance`, mentre `ObjectDetailPage.qml` assegna
+    sempre la label distanza a ogni dettaglio non aperto dal Catalogo.
+  - Separare la presentazione per tipologia: mostrare `Catalogo: Caldwell` per
+    il cielo profondo quando non esiste una distanza fisica, e mantenere
+    `Distanza` soltanto per corpi che trasportano realmente quella misura. Non
+    inventare una distanza assente dal dataset.
+
+- [ ] **VIS-034 - Home - terminologia e testi operativi (`APERTA`)**
+  - Correggere le forme inglesi troppo letterali: `It rises 07:04` /
+    `It sets 19:59`, `18:48 evening`, `Stay low`, `a promising observation
+    window is foreseen`, `Bortle Sky 6`, `Difficulty: Average` e `Colored
+    (yellow)`. Usare rispettivamente forme come `Rises at`, `Sets at`, un orario
+    senza suffisso ridondante, `Remains low`, testo meteo diretto, `Bortle 6
+    sky`, `Difficulty: Medium` e `Color filter (yellow)`.
+  - In italiano sostituire gli anglicismi visibili `Nessun target osservabile`
+    e `target penalizzato` con `oggetto`, preservando i termini tecnici davvero
+    adottati in astronomia, come `seeing`.
+  - Rileggere nello stesso passaggio le motivazioni Equipment inglesi, per
+    esempio `readable lunar detail`, senza cambiare selezione di telescopio,
+    oculare, filtro o riduttore.
+
+- [ ] **VIS-035 - Home - unita' angolari (`APERTA`)**
+  - Stato, metriche, valutazione osservativa e configurazioni mostrano
+    `gradi` / `degrees` (`28 gradi`, `0.96 degrees`, `Stay low (15 degrees)`),
+    mentre Calendario e altri dati tecnici stanno convergendo sul simbolo `°`.
+  - Usare `°` per altezza, azimut, soglie e campo reale in entrambe le lingue,
+    mantenendo la localizzazione dei decimali e senza modificare i valori
+    numerici o le soglie geometriche.
+
 ## Decisioni Aperte
 
 - [ ] **VIS-007 - Localita' - paese dinamico in italiano (`DA DECIDERE`)**
@@ -449,6 +496,38 @@ profilo Equipment con telescopio, oculare, filtro e riduttore.
   `test_calendar_overview.py`, `test_iss_passes.py` e
   `test_comet_windows.py` passano integralmente (`19 passed`); anche
   `test_translations.py` passa integralmente (`15 passed`).
+- [x] **VIS-V40 (`VERIFICATA`)** - La Home configurata e' leggibile e stabile
+  in entrambe le lingue: sessione, condizioni planetarie, Meteo, Luna, cielo
+  profondo e Sky Compass non mostrano sovrapposizioni o troncamenti strutturali.
+  Stato `monitor`, finestra `23:00-04:00` e rischio precipitazioni restano
+  coerenti anche nella sidebar e nel piano della notte.
+- [x] **VIS-V41 (`VERIFICATA`)** - `Sky Compass` segnala correttamente che non
+  esiste un target osservabile nell'istante corrente, mentre i `188` oggetti
+  sottostanti descrivono finestre future nella notte. Le due sezioni non sono in
+  contraddizione e il toggle `Solo suggeriti ora` resta disabilitato quando la
+  proiezione live non contiene target.
+- [x] **VIS-V42 (`VERIFICATA`)** - I conteggi e i filtri della lista coincidono:
+  `4` pianeti + `184` oggetti cielo profondo = `188` totali. Nome, tipo,
+  finestra, direzione e difficolta' hanno spazi stabili; la colonna difficolta'
+  non tronca piu' `Non adatto a occhio nudo` nelle viste gia' verificate.
+- [x] **VIS-V43 (`VERIFICATA`)** - Home mostra gli otto prossimi eventi in
+  ordine cronologico. Titoli e intervalli cometari occupano al massimo due
+  righe senza ridimensionare le schede; l'azione `Vedi tutti` apre la stessa
+  proiezione score-free del Calendario.
+- [x] **VIS-V44 (`VERIFICATA`)** - I dettagli Luna e C3 distinguono stato
+  corrente, finestra utile, descrizione, curiosita', configurazione Equipment e
+  valutazione osservativa. La Luna mostra distanza reale e ciclo lunare; C3
+  mostra il riduttore fotografico compatibile e la difficolta', mentre la
+  configurazione lunare espone i filtri. Nessuno dei due dettagli mostra score
+  o fattori NSOM grezzi. Il rilievo Distanza/Catalogo e' isolato in VIS-033.
+- [x] **VIS-V45 (`VERIFICATA`)** - I valori Equipment visibili sono coerenti
+  con il profilo: focale telescopio `1500 mm` e oculare `16 mm` producono circa
+  `94x`, pupilla `1,6 mm` e campo `0,64°`; a `24 mm` producono circa `62x`,
+  pupilla `2,4 mm` e campo `0,96°`.
+- [x] **VIS-V46 (`VERIFICATA`)** - Le suite mirate per Home, dettaglio
+  osservativo, piano notturno, ranking e Sky Compass passano integralmente:
+  `95 passed` nei nove file `test_home_*`, `test_observing_object_detail.py` e
+  `test_sky_compass_*` eseguiti in questo passaggio.
 
 ## Nota Per Screenshot Pubblici
 
