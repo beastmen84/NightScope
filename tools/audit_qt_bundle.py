@@ -1,0 +1,118 @@
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+
+REQUIRED_DLLS = {
+    "qt6core.dll",
+    "qt6gui.dll",
+    "qt6qml.dll",
+    "qt6quick.dll",
+    "qt6widgets.dll",
+}
+REQUIRED_LEGAL_FILES = {
+    "LICENSE",
+    "THIRD_PARTY_LICENSES.txt",
+    "THIRD_PARTY_NOTICES.md",
+}
+FORBIDDEN_PATH_PARTS = {
+    "qtcanvaspainter",
+    "qtcoap",
+    "qtgraphs",
+    "qtgrpc",
+    "qthttpserver",
+    "qtlottieanimation",
+    "qtmqtt",
+    "qtnetworkauth",
+    "qtqmlcompiler",
+    "qtquick3d",
+    "qtquicktimeline",
+    "qtvirtualkeyboard",
+    "qtwaylandcompositor",
+}
+FORBIDDEN_PATH_FRAGMENTS = {
+    "/qtquick/timeline/",
+    "/qtquick/virtualkeyboard/",
+}
+FORBIDDEN_DLL_PREFIXES = {
+    "qt6canvaspainter",
+    "qt6coap",
+    "qt6graphs",
+    "qt6grpc",
+    "qt6httpserver",
+    "qt6lottieanimation",
+    "qt6mqtt",
+    "qt6networkauth",
+    "qt6qmlcompiler",
+    "qt6quick3d",
+    "qt6quicktimeline",
+    "qt6virtualkeyboard",
+    "qt6waylandcompositor",
+    "qmldbg_quick3d",
+    "qtvirtualkeyboardplugin",
+}
+
+
+def audit_bundle(bundle_dir: Path) -> list[str]:
+    errors: list[str] = []
+    if not bundle_dir.is_dir():
+        return [f"bundle directory does not exist: {bundle_dir}"]
+
+    files = [path for path in bundle_dir.rglob("*") if path.is_file()]
+    filenames = {path.name.lower() for path in files}
+    missing_dlls = sorted(REQUIRED_DLLS - filenames)
+    if missing_dlls:
+        errors.append("missing required Qt DLLs: " + ", ".join(missing_dlls))
+
+    missing_legal = sorted(
+        filename
+        for filename in REQUIRED_LEGAL_FILES
+        if not (bundle_dir / filename).is_file()
+    )
+    if missing_legal:
+        errors.append("missing legal files: " + ", ".join(missing_legal))
+
+    forbidden: list[str] = []
+    for path in files:
+        relative = path.relative_to(bundle_dir)
+        lowered_parts = {part.lower() for part in relative.parts}
+        lowered_name = path.name.lower()
+        normalized_path = f"/{relative.as_posix().lower()}/"
+        if (
+            lowered_parts & FORBIDDEN_PATH_PARTS
+            or any(
+                fragment in normalized_path
+                for fragment in FORBIDDEN_PATH_FRAGMENTS
+            )
+            or any(
+                lowered_name.startswith(prefix)
+                for prefix in FORBIDDEN_DLL_PREFIXES
+            )
+        ):
+            forbidden.append(relative.as_posix())
+    if forbidden:
+        errors.append(
+            "unexpected GPL-only Qt modules: " + ", ".join(sorted(forbidden))
+        )
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Audit a NightScope PyInstaller bundle for its Qt/legal contract."
+    )
+    parser.add_argument("bundle_dir", type=Path)
+    args = parser.parse_args()
+
+    errors = audit_bundle(args.bundle_dir.resolve())
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}")
+        return 1
+    print("Qt bundle and legal-file audit passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

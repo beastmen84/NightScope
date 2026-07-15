@@ -14,6 +14,8 @@ from astro_viewer.app.services.logging_service import (
     LOG_HANDLER_NAME,
     configure_logging,
 )
+from tools.audit_qt_bundle import REQUIRED_DLLS, audit_bundle
+from tools.generate_third_party_licenses import render_archive
 from tools.run_checks import Check, _checks, _run_check
 from tools.translation_provider import (
     GOOGLE_TRANSLATE_URL,
@@ -112,6 +114,7 @@ def test_standard_check_plan_runs_one_test_suite_and_optional_security() -> None
         "pip-check",
         "ruff",
         "compileall",
+        "third-party-licenses",
         "pytest",
         "smoke-test",
         "qml-smoke-test",
@@ -261,3 +264,63 @@ def test_github_readme_is_product_focused_and_links_release_documents() -> None:
     assert not [
         target for target in sorted(local_targets) if not (PROJECT_ROOT / target).exists()
     ]
+
+
+def test_legal_files_are_current_and_windows_build_enforces_them() -> None:
+    license_text = (PROJECT_ROOT / "LICENSE").read_text(encoding="utf-8")
+    notices = (PROJECT_ROOT / "THIRD_PARTY_NOTICES.md").read_text(
+        encoding="utf-8"
+    )
+    archive = (PROJECT_ROOT / "THIRD_PARTY_LICENSES.txt").read_text(
+        encoding="utf-8"
+    )
+    build_script = (PROJECT_ROOT / "packaging" / "build_windows.ps1").read_text(
+        encoding="utf-8"
+    )
+    requirements = (
+        PROJECT_ROOT / "astro_viewer" / "requirements.txt"
+    ).read_text(encoding="utf-8")
+
+    assert license_text.startswith("Mozilla Public License Version 2.0")
+    assert "Copyright 2026 Davide Marchi" in notices
+    assert "LGPL-3.0-only" in notices
+    assert archive == render_archive()
+    assert "THIRD_PARTY_LICENSES.txt" in build_script
+    assert "audit_qt_bundle.py" in build_script
+    assert "PySide6_Essentials" in requirements
+    assert "PySide6>=" not in requirements
+
+
+def test_qt_bundle_audit_rejects_gpl_only_modules(tmp_path: Path) -> None:
+    for filename in REQUIRED_DLLS:
+        (tmp_path / filename).touch()
+    for filename in ("LICENSE", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_NOTICES.md"):
+        (tmp_path / filename).touch()
+
+    assert audit_bundle(tmp_path) == []
+
+    forbidden = tmp_path / "_internal" / "PySide6" / "qml" / "QtQuick3D"
+    forbidden.mkdir(parents=True)
+    (forbidden / "qmldir").touch()
+    errors = audit_bundle(tmp_path)
+
+    assert len(errors) == 1
+    assert "unexpected GPL-only Qt modules" in errors[0]
+
+    (forbidden / "qmldir").unlink()
+    forbidden.rmdir()
+    timeline = (
+        tmp_path
+        / "_internal"
+        / "PySide6"
+        / "qml"
+        / "QtQuick"
+        / "Timeline"
+        / "qmldir"
+    )
+    timeline.parent.mkdir(parents=True)
+    timeline.touch()
+
+    timeline_errors = audit_bundle(tmp_path)
+    assert len(timeline_errors) == 1
+    assert "QtQuick/Timeline/qmldir" in timeline_errors[0]

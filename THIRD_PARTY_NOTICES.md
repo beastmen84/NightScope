@@ -1,0 +1,102 @@
+# NightScope Third-Party Notices
+
+NightScope is Copyright 2026 Davide Marchi and is licensed under the Mozilla
+Public License 2.0. The complete project license is in `LICENSE`.
+
+Each distributed executable must identify the exact corresponding NightScope
+source commit and its public repository URL in the release notes. The repository
+has no configured public remote at the time this notice was prepared, so that
+release-specific source URL must be added before public distribution.
+
+This notice covers software and data redistributed with the portable Windows
+application. `THIRD_PARTY_LICENSES.txt` contains the installed Python component
+inventory and the corresponding license and copyright texts. Component names
+and trademarks remain the property of their respective owners. Inclusion does
+not imply endorsement of NightScope.
+
+## Qt And Qt For Python
+
+NightScope uses unmodified PySide6 Essentials 6.11.1, shiboken6, and the Qt
+6.11.1 libraries needed by Qt Core, GUI, Widgets, QML, Qt Quick, Qt Quick
+Controls, Layouts, Effects, Shapes, and Window. NightScope selects the
+`LGPL-3.0-only` open-source licensing option for these components. The complete
+GNU GPL 3.0 and LGPL 3.0 texts are reproduced in `THIRD_PARTY_LICENSES.txt`.
+
+The Windows application is distributed as an `onedir` bundle. Qt/PySide DLLs,
+plugins, QML modules, and Python extension modules remain separate files under
+`_internal/PySide6`; NightScope does not cryptographically lock or verify them.
+A recipient may replace those files with compatible, relinked or modified
+versions and run `NightScope.exe`. Keep the original relative paths and binary
+names when testing a replacement. Reverse engineering for debugging such
+modifications is not prohibited by the NightScope license.
+
+Corresponding upstream source and licensing information:
+
+- PySide6/shiboken6 6.11.1 source:
+  `https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.11.1-src/`
+- Qt 6.11.1 source:
+  `https://download.qt.io/official_releases/qt/6.11/6.11.1/`
+- Qt open-source licensing:
+  `https://doc.qt.io/qt-6/licensing.html`
+- Third-party code used by Qt 6.11:
+  `https://doc.qt.io/qt-6/licenses-used-in-qt.html`
+- Qt SBOM guidance:
+  `https://doc.qt.io/qt-6/sbom.html`
+
+The release build must contain only Qt modules used by NightScope. The final
+packaged-build audit must reject unexpected GPL-only Qt modules before public
+distribution.
+
+## Python And Python Packages
+
+The frozen application embeds CPython and Python packages resolved from
+`astro_viewer/requirements.txt`. Their exact installed versions, declared
+licenses, copyright notices, vendored native-library notices, and license texts
+are consolidated in `THIRD_PARTY_LICENSES.txt`. The archive also includes the
+PyInstaller bootloader terms and exception.
+
+Regenerate and verify the archive in the clean release environment:
+
+```powershell
+.\.venv\Scripts\python.exe tools\generate_third_party_licenses.py
+.\.venv\Scripts\python.exe tools\generate_third_party_licenses.py --check
+```
+
+Because runtime dependency ranges are not yet locked, this checked-in archive
+describes the validated environment, not every version that could satisfy the
+requirements. The public release must use a locked environment or SBOM and
+regenerate this file from that environment.
+
+## Packaged Data
+
+### GeoNames
+
+`cities15000.txt`, `countryInfo.txt`, and `admin1CodesASCII.txt` are derived
+from the GeoNames geographical database and are redistributed under Creative
+Commons Attribution 4.0 International (`CC-BY-4.0`).
+
+- Source: `https://download.geonames.org/export/dump/`
+- License: `https://creativecommons.org/licenses/by/4.0/`
+- Attribution: GeoNames, `https://www.geonames.org/`
+
+NightScope packages an unmodified snapshot selected from the upstream export.
+
+### Timezone Boundaries
+
+The `timezonefinder` package embeds timezone-boundary data distributed under
+the Open Data Commons Open Database License 1.0 (`ODbL-1.0`). Its complete
+`DATA_LICENSE` text is reproduced in `THIRD_PARTY_LICENSES.txt`.
+
+- Source project: `https://github.com/evansiroky/timezone-boundary-builder`
+- Database license: `https://opendatacommons.org/licenses/odbl/1-0/`
+
+### Astronomical Data And Images
+
+NightScope includes the JPL DE421 ephemeris used by Skyfield. Catalogue image
+sources and per-object credits are stored with the application data and shown
+in the user interface. The deep-sky cutouts retain their CDS/2MASS,
+Pan-STARRS1, or SkyMapper attribution and ODbL declaration. Solar System images
+retain their NASA/JPL mission credits and source links.
+
+The complete image provenance, redistribution policy, and current NASA/JPL
+usage links are documented in `docs/IMAGE_ASSET_POLICY.md`.

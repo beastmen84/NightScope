@@ -18,20 +18,35 @@ clean after the fixes listed below.
 NightScope is nevertheless **not release-ready yet**. The remaining blockers
 are release-process and product decisions rather than a known broken core:
 
-1. The repository has no project `LICENSE` file and no consolidated
-   third-party notice.
-2. The checked-in source is ahead of the existing Windows distribution, which
+1. The checked-in source is ahead of the existing Windows distribution, which
    must be rebuilt from a clean environment and pass the packaged-build visual
-   matrix. The bilingual source visual review is complete.
-3. The final live-provider matrix has not been executed for Open-Meteo,
+   matrix. The bilingual source visual review is complete. The release notes
+   must also identify the public URL and exact corresponding MPL source commit.
+2. The final live-provider matrix has not been executed for Open-Meteo,
    CelesTrak, JPL SBDB, Earthdata VIIRS/AOD, OpenAQ, Windows location, and the
    explicit IP fallback.
-4. Release dependencies are range-based rather than frozen into a tested lock
+3. Release dependencies are range-based rather than frozen into a tested lock
    or SBOM, and the final artifact is not signed or accompanied by a hash.
 
 Use `docs/RELEASE_CHECKLIST.md` as the release gate.
 
 ## Defects Corrected In This Audit
+
+### Project and dependency licensing
+
+NightScope is now licensed under MPL-2.0, Copyright 2026 Davide Marchi. A
+consolidated third-party notice covers Python packages, Qt/PySide, GeoNames,
+timezone-boundary data, astronomical data, and image provenance. A generated
+archive preserves the exact installed license and copyright texts and is
+validated by the standard repository gate.
+
+The previous PyInstaller bundle collected every QML module installed with
+PySide6, including unused Qt Addons and GPL-only modules. Runtime requirements
+now select PySide6 Essentials, custom hooks retain only NightScope's required
+LGPL-compatible QML modules, and the build script rejects missing legal files,
+missing required Qt DLLs, or unexpected GPL-only Qt modules. An isolated
+PyInstaller bundle passed this audit and its packaged QML smoke test; the
+checked-in `dist` remains unchanged and must still be rebuilt for release.
 
 ### Developer dependency advisory
 
@@ -169,7 +184,8 @@ Baseline and final commands completed during this audit:
 | `python -m pip check` | No broken requirements |
 | `python -m ruff check astro_viewer tools` | Passed |
 | `python -m compileall -q astro_viewer tools` | Passed |
-| `python -m pytest -q -n 4 astro_viewer/tests` | 788 passed, 613 warnings, 7 subtests passed |
+| Third-party license archive | Current; 61 distributions covered |
+| `python -m pytest -q -n 4 astro_viewer/tests` | 790 passed, 613 warnings, 7 subtests passed |
 | Runtime-only coverage | 84% across 15,242 statements |
 | Installed-environment `pip-audit` | No known vulnerabilities |
 | Bandit application/tool scan | 0 high, 26 medium, 12 low; dynamic-SQL and subprocess findings manually reviewed |
@@ -178,6 +194,7 @@ Baseline and final commands completed during this audit:
 | QML lint and smoke | 30 files linted with no failure; 760 known static warnings; Italian and English smoke passed |
 | Deep-sky image repository check | 219 JPEG assets passed |
 | Solar System image repository check | 9 JPEG assets passed |
+| Isolated PyInstaller bundle | Qt/legal audit and packaged QML smoke passed; persistent `dist` unchanged |
 
 Detailed commands, timings, known dependency warnings, and the disposable
 runtime contract are recorded in `docs/TESTING.md`.

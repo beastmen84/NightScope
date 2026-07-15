@@ -12,10 +12,10 @@ setup?**
 
 > [!IMPORTANT]
 > NightScope is still in pre-release development. The source tree is regularly
-> validated and its bilingual source visual review is complete. Release
-> licensing, the rebuilt and visually verified Windows artifact, and the
-> live-provider release matrix are not complete. The bundled executable may
-> lag behind the source.
+> validated; its bilingual source visual review and source licensing are
+> complete. The rebuilt, legally and visually verified Windows artifact and
+> the live-provider release matrix are not complete. The bundled executable
+> may lag behind the source.
 
 ## What It Does
 
@@ -237,10 +237,16 @@ CC BY 4.0, timezone boundary data used by `timezonefinder` is derived from
 `timezone-boundary-builder` under ODbL 1.0, and every catalogue image retains
 its source and credit metadata.
 
-The NightScope source repository does **not yet contain a project license**.
-Until one is selected and added, do not assume permission to redistribute or
-publish modified application builds. Choosing the project license and
-consolidating third-party notices are release-blocking tasks.
+NightScope is Copyright 2026 Davide Marchi and is licensed under the
+[Mozilla Public License 2.0](LICENSE). The MPL applies to NightScope source
+files; third-party components and packaged data retain their own licenses.
+
+The consolidated notices, exact validated dependency inventory, Qt/PySide
+LGPL information, source links, and data attributions are in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and
+[`THIRD_PARTY_LICENSES.txt`](THIRD_PARTY_LICENSES.txt). A public Windows build
+must regenerate that inventory, pass the bundle-license audit, and identify its
+exact corresponding public source commit.
 
 ## Development Status
 

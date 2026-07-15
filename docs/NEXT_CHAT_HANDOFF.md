@@ -4,10 +4,10 @@ Aggiornato: 2026-07-15
 
 ## Stato Versioni
 
-- Versione sorgente: `1.33.1`
+- Versione sorgente: `1.33.2`
 - Distribuzione Windows corrente: `1.32.3`, rigenerata dall'utente dopo il
   commit `836c90f` e usata per il controllo visuale con localita'.
-- Dist `1.33.1` non rigenerata.
+- Dist `1.33.2` non rigenerata.
 - Commit sorgente validato: `ea821fc Resolve bilingual visual review findings`
 - Checklist visuale completata nello stesso commit sorgente.
 
@@ -212,8 +212,8 @@ manuale HTML e' unico, bilingue, responsive e accessibile dalla sidebar nella
 lingua corrente. Privacy dei log, ownership della directory runtime e tooling
 di validazione sono stati corretti. Non sono emersi difetti applicativi ad alta
 severita'. La review visuale allora residua e' chiusa da `1.33.1`; NightScope
-non e' ancora approvato per il rilascio perche' restano licenza/notice, matrice
-provider, rebuild/test della dist, lock/SBOM, firma o policy esplicita e hash
+non e' ancora approvato per il rilascio perche' restano matrice provider,
+rebuild/test della dist, lock/SBOM, firma o policy esplicita e hash
 dell'artefatto.
 
 `1.33.1` chiude il controllo visuale bilingue tracciato in
@@ -221,6 +221,22 @@ dell'artefatto.
 marcati completati. Il passaggio ha riguardato Provider, localita', Profili,
 cataloghi celesti ed Equipment, Log, Meteo, Calendario e tutte le viste Home,
 senza cambiare scoring NSOM, Planner o ranking.
+
+`1.33.2` adotta MPL-2.0 per NightScope, Copyright 2026 Davide Marchi. I file
+`THIRD_PARTY_NOTICES.md` e `THIRD_PARTY_LICENSES.txt` consolidano licenze,
+copyright e attribuzioni di runtime, Qt/PySide, GeoNames, timezone, dati
+astronomici e immagini. L'archivio e' rigenerabile e il gate standard ne
+verifica la coerenza con la dependency closure installata.
+
+Il requisito Qt e' stato ristretto a `PySide6_Essentials`. Hook PyInstaller
+locali raccolgono solo i moduli QML usati e rimuovono input virtuale e tooling
+QML che trascinavano DLL GPL-only non utilizzate. `build_windows.ps1` copia i
+tre documenti legali nella radice del bundle e blocca build con archivio stale,
+DLL Qt obbligatorie assenti o moduli GPL-only inattesi.
+
+Il repository non ha ancora un remote pubblico configurato. Prima del rilascio
+MPL, release notes e artefatto devono indicare URL pubblico e commit sorgente
+esatto corrispondente; il gate e' tracciato in `docs/RELEASE_CHECKLIST.md`.
 
 La pipeline dei contenuti ora distingue la lingua sorgente per catalogo e per
 campo, genera descrizioni Caldwell inglesi deterministiche e include traduzioni
@@ -878,6 +894,32 @@ Rimossi:
   `7 giorni`, retry fino a 3 tentativi con backoff sui `5xx`.
 - Il timer transitorio globale resta orario per la ISS; la cache risultati del
   motore evita di ricalcolare le comete prima del loro intervallo di 6 ore.
+
+## Validazione 1.33.2
+
+Eseguita nella venv corrente:
+
+```powershell
+.\.venv\Scripts\python.exe tools\run_checks.py --security
+.\.venv\Scripts\python.exe tools\generate_third_party_licenses.py --check
+# Bandit su astro_viewer e tools, esclusi i test
+# Build PyInstaller isolata con dist/work temporanei
+# tools/audit_qt_bundle.py e --qml-smoke-test sull'eseguibile temporaneo
+git diff --check
+```
+
+Risultati:
+
+- Gate completo: `790 passed`, `613 warnings`, `7 subtests passed` in
+  `145,31 s`; coverage runtime `84%` su `15.242` statement.
+- `pip check`, Ruff, compileall, archivio third-party, smoke backend e smoke QML
+  puliti; `pip-audit` non rileva vulnerabilita' note.
+- Bandit invariato: `0 high`, `26 medium`, `12 low`.
+- Archivio licenze: `61` distribuzioni coperte, inclusi runtime Python,
+  dipendenze transitive e termini del bootloader PyInstaller.
+- Bundle temporaneo: `5223` file, `469,8 MiB`; audit Qt/licenze e smoke QML
+  dell'eseguibile superati. La directory temporanea e' stata rimossa.
+- Dist persistente invariata a `1.32.3`; dist `1.33.2` non rigenerata.
 
 ## Validazione 1.33.1
 

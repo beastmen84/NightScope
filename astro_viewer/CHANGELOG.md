@@ -1,5 +1,26 @@
 # Changelog
 
+## NightScope 1.33.2 - 2026-07-15
+
+- Adottata la Mozilla Public License 2.0 per NightScope, Copyright 2026 Davide
+  Marchi. Aggiunti avviso consolidato per software/dati e archivio completo
+  delle licenze delle dipendenze validate.
+- Aggiunto un generatore deterministico dell'archivio licenze con modalita'
+  `--check`; il gate standard ora fallisce quando dipendenze o testi legali non
+  sono allineati all'ambiente installato.
+- Limitata la dipendenza Qt a `PySide6_Essentials` e aggiunti hook PyInstaller
+  che raccolgono solo i moduli QML usati da NightScope. Rimossi dal futuro
+  bundle plugin e moduli Qt Addons/GPL-only non utilizzati.
+- Il build Windows verifica prima l'archivio licenze, copia `LICENSE` e i file
+  third-party nella radice dell'app e blocca il rilascio se mancano DLL Qt
+  necessarie o compaiono moduli GPL-only inattesi.
+- Una build PyInstaller temporanea e isolata ha superato audit legale/Qt e
+  smoke QML dell'eseguibile (`5223` file, `469,8 MiB`). La `dist` persistente
+  non e' stata rigenerata e resta alla versione `1.32.3`.
+- Gate completo con security superato: `790 passed`, `613 warnings` note,
+  `7 subtests`, coverage runtime `84%`, nessuna vulnerabilita' installata nota
+  e Bandit invariato a `0 high`, `26 medium`, `12 low`.
+
 ## NightScope 1.33.1 - 2026-07-15
 
 - Completato il passaggio di correzione derivato dalla matrice visuale

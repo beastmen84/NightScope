@@ -5,11 +5,13 @@ source commit or a passing unit suite alone is not a release approval.
 
 ## 1. Product And Legal
 
-- [ ] Select and add the project `LICENSE` file.
-- [ ] Create a consolidated third-party notice from runtime dependencies,
+- [x] Select and add the project `LICENSE` file.
+- [x] Create a consolidated third-party notice from runtime dependencies,
   packaged data, and image metadata.
-- [ ] Confirm GeoNames CC BY 4.0, timezone-boundary ODbL 1.0, survey image, and
+- [x] Confirm GeoNames CC BY 4.0, timezone-boundary ODbL 1.0, survey image, and
   NASA/JPL attribution is present where required.
+- [ ] Record the public NightScope source URL and exact corresponding commit for
+  the distributed MPL executable.
 - [ ] Confirm version number, changelog, manual revision, and About/build
   metadata agree.
 - [ ] Freeze the release scope; defer unrelated refactors.
@@ -81,6 +83,7 @@ Do not commit credentials or exact personal locations.
 - [ ] Build from a clean checkout with `packaging/build_windows.ps1`.
 - [ ] Confirm the source commit and build environment are recorded.
 - [ ] Run backend and QML smoke tests against the packaged executable.
+- [ ] Confirm the bundle-root legal files and Qt module audit pass.
 - [ ] Verify bundled QML, translations, manual, data seeds, images, ephemeris,
   timezone polygons, and credential backend.
 - [ ] Run the complete visual and provider matrices on the packaged build, not

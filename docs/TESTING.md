@@ -95,6 +95,28 @@ properties and nested component access. Treat a non-zero exit as a failure;
 track the existing warnings as technical debt rather than silently declaring a
 zero-warning baseline.
 
+## Measured 1.33.2 Licensing And Bundle Gate
+
+Measured on Windows with Python 3.14.5 on 2026-07-15 after adding the project
+license, generated third-party archive, and restricted Qt packaging hooks:
+
+| Check | Result |
+| --- | --- |
+| `python tools/run_checks.py --security` | Passed in 261.5 s |
+| `pip check`, Ruff and `compileall` | Passed |
+| Third-party license archive check | Current; 61 distributions covered |
+| `pytest -q -n 4 astro_viewer/tests` | 790 passed, 613 warnings, 7 subtests passed in 145.31 s |
+| Runtime coverage | 84% across 15,242 statements; tests and developer tools excluded |
+| Installed-environment `pip-audit` | No known vulnerabilities |
+| Bandit application/tool scan | 0 high, 26 medium, 12 low; no change from the reviewed baseline |
+| Backend and source QML smoke | Passed in disposable runtimes |
+| Isolated PyInstaller bundle | 5,223 files, 469.8 MiB; Qt/legal audit and packaged QML smoke passed |
+
+The isolated package was deleted after validation. The checked-in Windows
+distribution was not rebuilt and remains version 1.32.3. The public artifact
+gate must repeat the clean build, Qt/legal audit, smoke, visual, provider, and
+security checks.
+
 ## Measured 1.33.1 Visual-Fix Gate
 
 Measured on Windows with Python 3.14.5 on 2026-07-15 after resolving the

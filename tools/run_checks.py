@@ -25,6 +25,10 @@ def _checks(*, include_coverage: bool, include_security: bool) -> list[Check]:
         Check("pip-check", ("-m", "pip", "check")),
         Check("ruff", ("-m", "ruff", "check", "astro_viewer", "tools")),
         Check("compileall", ("-m", "compileall", "-q", "astro_viewer", "tools")),
+        Check(
+            "third-party-licenses",
+            ("tools/generate_third_party_licenses.py", "--check"),
+        ),
     ]
     if include_security:
         checks.append(
